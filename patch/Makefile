@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.17 15/06/02 "
+#ident "@(#)Makefile	1.18 16/06/16 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -22,6 +22,7 @@ XMK_FILE=	patch_sym.mk Makefile.man opatch.mk1 patch.mk1 sccspatch.mk1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.tst
 ###########################################################################
 count:	$(CFILES) $(HFILES)
 	count $r1

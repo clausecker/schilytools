@@ -40,9 +40,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)hash.h	1.8 15/07/11 2008-2015 J. Schilling
+ * @(#)hash.h	1.9 16/06/19 2008-2016 J. Schilling
  */
 
 /*
@@ -61,6 +61,7 @@ extern "C" {
 #define		COMMAND		0x0400	/* Command, PATH index in low 8 bits */
 #define		REL_COMMAND	0x0800	/* Relative command from "::" in PATH */
 #define		PATH_COMMAND	0x1000	/* Command with PATH= in local env */
+#define		SPC_BUILTIN	0x2000	/* Special builtin command */
 #define		DOT_COMMAND	0x8800	/* CDMARK | REL_COMMAND */
 
 #define		hashtype(x)	(x & 0x1F00)

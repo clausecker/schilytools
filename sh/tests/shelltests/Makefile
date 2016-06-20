@@ -4,6 +4,7 @@ all-tests:	test-alias \
 		test-cmdsub	\
 		test-echo	\
 		test-errflg	\
+		test-error	\
 		test-exit	\
 		test-getopts	\
 		test-glob	\
@@ -34,6 +35,9 @@ test-errflg:
 
 test-echo:
 	cd echo && for i in *.sh; do echo Running test echo/$$i; $(SHELL) $$i; done
+
+test-error:
+	cd error && for i in *.sh; do echo Running test error/$$i; $(SHELL) $$i; done
 
 test-exit:
 	cd exit && for i in *.sh; do echo Running test exit/$$i; $(SHELL) $$i; done

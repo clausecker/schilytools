@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.162 16/06/04 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.165 16/06/12 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/06/04" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/06/12" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -7290,6 +7290,33 @@ This is not expected to cause problems.
 .br
 .ne 4
 .TP
+.B getopts
+POSIX requires
+.B getopts
+to set
+.B OPTARG
+to the failing option character in case that
+.B optstring
+starts with a
+.BR : .
+Previous versions of the shell did unset
+.B OPTARG
+in case of a failure.
+POSIX also requires the shell variable related to the
+.I name
+argument from
+.B getopts
+to be set to
+.RB `` ? ''
+when
+.B getopts
+returns a non-zero exit code.
+Previous versions of the shell did set
+.I name
+to the null string in this case.
+.br
+.ne 4
+.TP
 .B kill
 The option parsing of the
 .B kill
@@ -7322,6 +7349,25 @@ now causes the positional parameters to be unset. Previous versions of the shell
 left the positional parameters untouched in this case.
 A portable method to clear the positional parameters is to call
 .RB `` "shift $#" ''.
+.ne 4
+.TP
+.B test
+The behavior of the builtin
+.B test
+utility was changed by POSIX.
+POSIX requires
+.B test
+to select it's behavior from the number of arguments in case that the number
+of arguments is in the range from 0..4.
+This results e.g. in
+.RB `` "test\ \-r" ''
+to return a zero exit code because
+.RB `` \-r ''
+is a non-empty string, while previous versions of the shell did return
+an error because
+.RB `` \-r ''
+is an unary operator that misses an argument.
+Correctly written scripts do not suffer from this change.
 .ne 4
 .TP
 .B times
@@ -7392,7 +7438,7 @@ is maintained by J\*org Schilling.
 .LP
 The
 .B history editor
-that has been added to the Bourne Shell in 2006.
+has been added to the Bourne Shell in 2006.
 It was designed and implemented as a prototype in 1982
 by J\*org Schilling on
 .BR UNOS ,

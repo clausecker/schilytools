@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)mode.h	1.22 15/12/21 2008-2015 J. Schilling
+ * @(#)mode.h	1.23 16/06/19 2008-2016 J. Schilling
  */
 
 /*
@@ -298,6 +298,7 @@ struct optv
  * Values for optflag:
  */
 #define	OPT_NOFAIL	1	/* Do not print a message for wrong opts */
+#define	OPT_SPC		2	/* Failed option handling for spec builtins */
 
 #define		treptr(x)	((struct trenod *)x)
 #define		fndptr(x)	((struct fndnod *)x)

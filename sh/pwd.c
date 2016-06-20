@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)pwd.c	1.25 16/05/19 2008-2016 J. Schilling
+ * @(#)pwd.c	1.26 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.25 16/05/19 2008-2016 J. Schilling";
+	"@(#)pwd.c	1.26 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -114,10 +114,8 @@ cwd(dir)
 	pdir = dir;
 	if (*dir == SLASH)
 		pdir++;
-	while (*pdir)			/* remove /./ by itself */
-	{
-		if ((*pdir == DOT) && (*(pdir+1) == SLASH))
-		{
+	while (*pdir) {			/* remove /./ by itself */
+		if ((*pdir == DOT) && (*(pdir+1) == SLASH)) {
 			movstr(pdir+2, pdir);
 			continue;
 		}
@@ -143,22 +141,18 @@ cwd(dir)
 
 	/* Now that the dir is canonicalized, process it */
 
-	if (*dir == DOT && *(dir+1) == '\0')
-	{
+	if (*dir == DOT && *(dir+1) == '\0') {
 		return;
 	}
 
 
-	if (*dir == SLASH)
-	{
+	if (*dir == SLASH) {
 		/* Absolute path */
 
 		pcwd = cwdname;
 		*pcwd++ = *dir++;
 		didpwd = PARTLY;
-	}
-	else
-	{
+	} else {
 		/* Relative path */
 
 		if (didpwd == FALSE)
@@ -168,12 +162,10 @@ cwd(dir)
 		if (pcwd != cwdname+1)
 			*pcwd++ = SLASH;
 	}
-	while (*dir)
-	{
+	while (*dir) {
 		if (*dir == DOT &&
 		    *(dir+1) == DOT &&
-		    (*(dir+2) == SLASH || *(dir+2) == '\0'))
-		{
+		    (*(dir+2) == SLASH || *(dir+2) == '\0')) {
 			/* Parent directory, so backup one */
 
 			if (pcwd > cwdname+2)
@@ -183,47 +175,39 @@ cwd(dir)
 				;
 			pcwd++;
 			dir += 2;
-			if (*dir == SLASH)
-			{
+			if (*dir == SLASH) {
 				dir++;
 			}
 			continue;
 		}
-		if (pcwd >= &cwdname[PATH_MAX+1])
-		{
+		if (pcwd >= &cwdname[PATH_MAX+1]) {
 			didpwd = FALSE;
 			return;
 		}
 		*pcwd++ = *dir++;
-		while ((*dir) && (*dir != SLASH))
-		{
-			if (pcwd >= &cwdname[PATH_MAX+1])
-			{
+		while ((*dir) && (*dir != SLASH)) {
+			if (pcwd >= &cwdname[PATH_MAX+1]) {
 				didpwd = FALSE;
 				return;
 			}
 			*pcwd++ = *dir++;
 		}
-		if (*dir)
-		{
-			if (pcwd >= &cwdname[PATH_MAX+1])
-			{
+		if (*dir) {
+			if (pcwd >= &cwdname[PATH_MAX+1]) {
 				didpwd = FALSE;
 				return;
 			}
 			*pcwd++ = *dir++;
 		}
 	}
-	if (pcwd >= &cwdname[PATH_MAX+1])
-	{
+	if (pcwd >= &cwdname[PATH_MAX+1]) {
 		didpwd = FALSE;
 		return;
 	}
 	*pcwd = '\0';
 
 	--pcwd;
-	if (pcwd > cwdname && *pcwd == SLASH)
-	{
+	if (pcwd > cwdname && *pcwd == SLASH) {
 		/* Remove trailing / */
 
 		*pcwd = '\0';
@@ -463,10 +447,8 @@ rmslash(string)
 	unsigned char *pstring;
 
 	pstring = string;
-	while (*pstring)
-	{
-		if (*pstring == SLASH && *(pstring+1) == SLASH)
-		{
+	while (*pstring) {
+		if (*pstring == SLASH && *(pstring+1) == SLASH) {
 			/* Remove repeated SLASH's */
 
 			movstr(pstring+1, pstring);
@@ -476,8 +458,7 @@ rmslash(string)
 	}
 
 	--pstring;
-	if (pstring > string && *pstring == SLASH)
-	{
+	if (pstring > string && *pstring == SLASH) {
 		/* Remove trailing / */
 
 		*pstring = '\0';

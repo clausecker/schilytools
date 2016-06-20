@@ -4,7 +4,7 @@ SRCROOT=`../../../conf/srcroot.sh`
 . ${SRCROOT}/tests/bin/base
 
 #. ../common/command-names
-patch="../../OBJ/"`../../../conf/oarch.sh`"/spatch -W+"
+patch="${patch:-../../OBJ/"`../../../conf/oarch.sh`"/spatch -W+}"
 
 miscarry() {
 	xfail "$@"

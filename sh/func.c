@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.29 16/06/05 2008-2016 J. Schilling
+ * @(#)func.c	1.30 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.29 16/06/05 2008-2016 J. Schilling";
+	"@(#)func.c	1.30 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -77,14 +77,12 @@ void
 freetree(t)
 	struct trenod	*t;
 {
-	if (t)
-	{
+	if (t) {
 		int type = t->tretyp & COMMSK;
 
 		type = t->tretyp & COMMSK;
 
-		switch (type)
-		{
+		switch (type) {
 			case TFND: {
 				struct fndnod *f = fndptr(t);
 
@@ -132,8 +130,7 @@ freetree(t)
 
 				free(f->fornam);
 				freetree(f->fortre);
-				if (f->forlst)
-				{
+				if (f->forlst) {
 					freeio(f->forlst->comio);
 					free_arg(f->forlst->comarg);
 					free_arg(f->forlst->comset);
@@ -169,8 +166,7 @@ free_arg(argp)
 {
 	struct argnod	*sav;
 
-	while (argp)
-	{
+	while (argp) {
 		sav = argp->argnxt;
 		free(argp);
 		argp = sav;
@@ -183,10 +179,8 @@ freeio(iop)
 {
 	struct ionod *sav;
 
-	while (iop)
-	{
-		if (iop->iofile & IODOC)
-		{
+	while (iop) {
+		if (iop->iofile & IODOC) {
 
 #ifdef DEBUG
 			prs("unlinking ");
@@ -198,8 +192,7 @@ freeio(iop)
 
 			if (fiotemp == iop)
 				fiotemp = iop->iolst;
-			else
-			{
+			else {
 				struct ionod *fiop = fiotemp;
 
 				while (fiop->iolst != iop)
@@ -222,8 +215,7 @@ freereg(regp)
 {
 	struct regnod	*sav;
 
-	while (regp)
-	{
+	while (regp) {
 		free_arg(regp->regptr);
 		freetree(regp->regcom);
 		sav = regp->regnxt;
@@ -394,8 +386,7 @@ prf(t)
 {
 	sigchk();
 
-	if (t)
-	{
+	if (t) {
 		int	type;
 
 		type = t->tretyp & COMMSK;
@@ -675,13 +666,11 @@ prio(iop)
 	int	iof;
 	unsigned char	*ion;
 
-	while (iop)
-	{
+	while (iop) {
 		iof = iop->iofile;
 		ion = (unsigned char *) iop->ioname;
 
-		if (*ion)
-		{
+		if (*ion) {
 			prc_buff(SPACE);
 
 			prn_buff(iof & IOUFD);

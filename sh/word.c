@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.64 16/06/07 2008-2016 J. Schilling
+ * @(#)word.c	1.65 16/06/09 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.64 16/06/07 2008-2016 J. Schilling";
+	"@(#)word.c	1.65 16/06/09 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -167,7 +167,7 @@ word()
 		} else { /* check for reserved words */
 			if (reserv == FALSE ||
 			    (wdval = syslook(arg->argval,
-					reserved, no_reserved)) == 0) {
+					    reserved, no_reserved)) == 0) {
 				wdval = 0;
 			}
 #ifdef	DO_TIME
@@ -224,9 +224,9 @@ word()
 			int	aflags = abegin > 0 ? AB_BEGIN:0;
 
 		if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
-					&seen, aflags)) == NULL)
+				    &seen, aflags)) == NULL)
 			val = ab_value(GLOBAL_AB, (char *)wdarg->argval,
-					&seen, aflags);
+				    &seen, aflags);
 
 		if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.148 16/05/19 2008-2016 J. Schilling
+ * @(#)defs.h	1.151 16/06/10 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -181,7 +181,7 @@ extern "C" {
 #define		SYSPRINTF	54
 #define		SYSCOMMAND	55
 
-#define		SYSMAX		255	/* Must fit into low 8 ENTRY.data bits */
+#define		SYSMAX		255	/* Must fit in low 8 ENTRY.data bits */
 
 /*
  * Sysnode flags for builtin commands:
@@ -244,10 +244,6 @@ extern "C" {
 
 #ifndef	HAVE_SYS_ACCT_H
 #undef	ACCT
-#endif
-
-#ifdef	NO_SYSATEXPR
-#undef	DO_SYSATEXPR
 #endif
 
 #else	/* SCHILY_INCLUDES */
@@ -360,6 +356,18 @@ extern char 		*optarg;
 
 #ifdef	NO_INTERACTIVE
 #undef	INTERACTIVE
+#endif
+
+#ifdef	NO_SYSATEXPR
+#undef	DO_SYSATEXPR
+#endif
+
+#ifdef	NO_SYSFIND
+#undef	DO_SYSFIND
+#endif
+
+#ifdef	NO_SYSPRINTF
+#undef	DO_SYSPRINTF
 #endif
 
 #ifdef	NO_VFORK
@@ -708,6 +716,8 @@ extern	unsigned char *setbrk	__PR((int));
 				(o) += (char *)(a) - oa; \
 			}
 #define	GROWSTAKTOP()	if (staktop >= brkend) \
+				(void) growstak(staktop);
+#define	GROWSTAKTOPL(l)	if ((staktop + (l)) >= brkend) \
 				(void) growstak(staktop);
 
 extern	void		*alloc		__PR((size_t));

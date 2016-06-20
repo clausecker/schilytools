@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)putmeta.c	1.3 15/02/25 Copyright 2011-2015 J. Schilling
+ * @(#)putmeta.c	1.4 16/06/17 Copyright 2011-2016 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putmeta.c	1.3 15/02/25 Copyright 2011-2015 J. Schilling"
+#pragma ident "@(#)putmeta.c	1.4 16/06/17 Copyright 2011-2016 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -35,8 +35,14 @@ putmeta(pkt)
 			pkt->p_init_path);
 		putline(pkt, line);
 	}
-	urand_ba(&pkt->p_rand, urbuf, sizeof (urbuf));
-	snprintf(line, sizeof (line), "%c%c %s %s\n",
-		CTLCHAR, GLOBALEXTENS, "r", urbuf);
-	putline(pkt, line);
+#ifdef	HAVE_LONG_LONG
+	if (pkt->p_rand != 0) {
+#else
+	if (pkt->p_rand.high != 0 || pkt->p_rand.low != 0) {
+#endif
+		urand_ba(&pkt->p_rand, urbuf, sizeof (urbuf));
+		snprintf(line, sizeof (line), "%c%c %s %s\n",
+			CTLCHAR, GLOBALEXTENS, "r", urbuf);
+		putline(pkt, line);
+	}
 }

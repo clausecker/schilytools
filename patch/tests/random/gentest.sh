@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# gentest @(#)gentest.sh	1.2 15/06/03 Copyright 2015 J. Schilling
+# gentest @(#)gentest.sh	1.3 16/06/16 Copyright 2015-2016 J. Schilling
 #
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
@@ -14,6 +14,12 @@
 # diff type recognition.
 #
 
+: ${AWK=/usr/bin/nawk}
+#$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
+
 trap cleanup EXIT INT HUP
 
 cleanup() {
@@ -21,7 +27,7 @@ cleanup() {
 }
 
 rrand() {
-	nawk '
+	$AWK '
 	function random(low, range) {
 		return int(range * rand()) + low
 	}
@@ -43,7 +49,7 @@ rrand() {
 }
 
 makefile() {
-	nawk '
+	$AWK '
 	BEGIN {
 		nflines = ARGV[1]
 		for (i = 1; i <= nflines; i++) {
@@ -54,7 +60,7 @@ makefile() {
 }
 
 changefile() {
-	nawk '
+	$AWK '
 	function random(n) {
 		return int(n * rand())
 	}
@@ -130,7 +136,13 @@ rpatch=gpatch
 #LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
 #if [ $? -ne 0 ]; then
 #	echo "Reference patch program \"$rpatch\" not working"
-#	exit 1
+#	rpatch=/usr/bin/patch
+#	echo "Trying \"$rpatch\"..."
+#	LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
+#	if [ $? -ne 0 ]; then
+#		echo "Reference patch program \"$rpatch\" not working"
+#		exit 1
+#	fi
 #fi
 #echo "Using reference patch programm: $rpatch"
 #

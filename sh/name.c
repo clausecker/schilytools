@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.56 16/05/22 2008-2016 J. Schilling
+ * @(#)name.c	1.57 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.56 16/05/22 2008-2016 J. Schilling";
+	"@(#)name.c	1.57 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -276,8 +276,7 @@ sysnlook(w, syswds, n)
 	low = 0;
 	high = n - 1;
 
-	while (low <= high)
-	{
+	while (low <= high) {
 		mid = (low + high) / 2;
 
 		if ((cond = cf(w, (unsigned char *)syswds[mid].sysnam)) < 0)
@@ -302,13 +301,11 @@ setlist(arg, xp)
 	if (flags & exportflg)
 		xp |= N_EXPORT;
 
-	while (arg)
-	{
+	while (arg) {
 		unsigned char *s = mactrim(arg->argval);
 		setname(s, xp);
 		arg = arg->argnxt;
-		if (flags & execpr)
-		{
+		if (flags & execpr) {
 			prs(s);
 			if (arg)
 				blank();
@@ -329,20 +326,17 @@ setname(argi, xp)
 	unsigned char *argscan = argi;
 	struct namnod *n;
 
-	if (letter(*argscan))
-	{
+	if (letter(*argscan)) {
 		while (alphanum(*argscan))
 			argscan++;
 
-		if (*argscan == '=')
-		{
+		if (*argscan == '=') {
 			*argscan = 0;	/* make name a cohesive string */
 
 			n = lookup(argi);
 			*argscan++ = '=';
 
-			if (xp & N_ENVNAM)
-			{
+			if (xp & N_ENVNAM) {
 				n->namenv = n->namval = argscan;
 				if (n == &pathnod)
 					set_builtins_path();
@@ -395,16 +389,14 @@ assign(n, v)
 
 #ifndef RES
 
-	else if (flags & rshflg)
-	{
+	else if (flags & rshflg) {
 		if (n == &pathnod || eq(n->namid, "SHELL"))
 			failed(n->namid, restricted);
 	}
 #endif
 
 #ifndef	DO_POSIX_UNSET
-	else if (n->namflg & N_FUNCTN)
-	{
+	else if (n->namflg & N_FUNCTN) {
 		func_unhash(n->namid);
 		freefunc(n);
 
@@ -560,8 +552,7 @@ readvar(namec, names)
 	 */
 	c[0] = '\0';
 #ifndef	DO_POSIX_READ
-	for (;;)
-	{
+	for (;;) {
 #else
 	do {
 #endif
@@ -582,10 +573,8 @@ readvar(namec, names)
 #endif
 
 	oldstak = curstak();
-	for (;;)
-	{
-		if ((*names && anys(c, ifs)) || eolchar(d))
-		{
+	for (;;) {
+		if ((*names && anys(c, ifs)) || eolchar(d)) {
 			GROWSTAKTOP();
 			zerostak();
 #ifdef	DO_READ_ALLEXPORT
@@ -624,9 +613,7 @@ readvar(namec, names)
 				} while (0);
 #endif
 			}
-		}
-		else
-		{
+		} else {
 			if (d == '\\' && nextwchar == nextwc) {
 				d = readwc();
 				rest = readw(d);
@@ -635,9 +622,7 @@ readvar(namec, names)
 					pushstak(d);
 				}
 				oldstak = staktop;
-			}
-			else
-			{
+			} else {
 				pc = c;
 				while ((d = *pc++) != '\0') {
 					GROWSTAKTOP();
@@ -650,8 +635,7 @@ readvar(namec, names)
 
 			if (eolchar(d))
 				staktop = oldstak;
-			else
-			{
+			else {
 				rest = readw(d);
 				pc = c;
 				while ((*pc++ = *rest++) != '\0')
@@ -660,8 +644,7 @@ readvar(namec, names)
 			}
 		}
 	}
-	while (n)
-	{
+	while (n) {
 #ifdef	DO_READ_ALLEXPORT
 		if (flags & exportflg)
 			n->namflg |= N_EXPORT;
@@ -706,12 +689,10 @@ unsigned char	*v;
 {
 	unsigned char	*p;
 
-	if (v)
-	{
+	if (v) {
 		movstr(v, p = (unsigned char *)alloc(length(v)));
 		return (p);
-	}
-	else
+	} else
 		return (0);
 }
 
@@ -730,8 +711,7 @@ lookup(nam)
 	if (!chkid(nam))
 		failed(nam, notid);
 
-	while (nscan)
-	{
+	while (nscan) {
 #define	INLINE_CMP
 #ifdef	INLINE_CMP
 		{
@@ -788,10 +768,8 @@ unsigned char	*nam;
 
 	if (!letter(*cp))
 		return (FALSE);
-	else
-	{
-		while (*++cp)
-		{
+	else {
+		while (*++cp) {
 			if (!alphanum(*cp))
 				return (FALSE);
 		}
@@ -814,8 +792,7 @@ static void
 namwalk(np)
 	struct namnod	*np;
 {
-	if (np)
-	{
+	if (np) {
 		namwalk(np->namlft);
 		(*namfn)(np);
 		namwalk(np->namrgt);
@@ -894,8 +871,7 @@ void
 printro(n)
 	struct namnod	*n;
 {
-	if (n->namflg & N_RDONLY)
-	{
+	if (n->namflg & N_RDONLY) {
 		prs_buff(_gettext(readonly));
 		prc_buff(SPACE);
 		prs_buff(n->namid);
@@ -908,8 +884,7 @@ void
 printpro(n)
 	struct namnod	*n;
 {
-	if (n->namflg & N_RDONLY)
-	{
+	if (n->namflg & N_RDONLY) {
 		unsigned char	*s;
 
 		prs_buff(UC readonly);
@@ -929,8 +904,7 @@ void
 printexp(n)
 	struct namnod	*n;
 {
-	if (n->namflg & N_EXPORT)
-	{
+	if (n->namflg & N_EXPORT) {
 		prs_buff(_gettext(export));
 		prc_buff(SPACE);
 		prs_buff(n->namid);
@@ -943,8 +917,7 @@ void
 printpexp(n)
 	struct namnod	*n;
 {
-	if (n->namflg & N_EXPORT)
-	{
+	if (n->namflg & N_EXPORT) {
 		unsigned char	*s;
 
 		prs_buff(UC export);
@@ -1122,8 +1095,7 @@ findnam(nam)
 
 	if (!chkid(nam))
 		return (0);
-	while (nscan)
-	{
+	while (nscan) {
 		if ((LR = cf(nam, nscan->namid)) == 0)
 			return (nscan);
 		else if (LR < 0)
@@ -1142,8 +1114,7 @@ unset_name(name, uflg)
 	struct namnod	*n;
 	unsigned char	call_dolocale = 0;
 
-	if ((n = findnam(name)) != NULL)
-	{
+	if ((n = findnam(name)) != NULL) {
 		if (n->namflg & N_RDONLY) {
 #ifdef	DO_POSIX_UNSET
 			if (uflg == 0 || uflg == UNSET_VAR)
@@ -1156,8 +1127,7 @@ unset_name(name, uflg)
 		    n == &ifsnod ||
 		    n == &ps1nod ||
 		    n == &ps2nod ||
-		    n == &mchknod)
-		{
+		    n == &mchknod) {
 			failed(name, badunset);
 		}
 #else
@@ -1201,8 +1171,7 @@ unset_name(name, uflg)
 		if (call_dolocale)
 			dolocale((char *)name);
 
-		if (flags & prompt)
-		{
+		if (flags & prompt) {
 			if (n == &mailpnod)
 				setmail(mailnod.namval);
 			else if (n == &mailnod &&

@@ -23,7 +23,7 @@
 # Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# @(#)cstyle	1.9 10/08/21 J. Schilling
+# @(#)cstyle	1.11 16/06/09 J. Schilling
 #
 #
 # @(#)cstyle 1.58 98/09/09 (from shannon)
@@ -99,7 +99,7 @@ if (!$maxlinelen) {
 }
 # printf "linelen %d\n", $maxlinelen;
 
-my $toolong = sprintf("line > %d characters", $maxlinelen);
+# my $toolong = sprintf("line(len %d) > %d characters", length($eline), $maxlinelen);
 # printf "%s\n", $toolong;
 
 my $doxygen_comments = 0;
@@ -260,6 +260,11 @@ $prev = '';
 reset_indent();
 
 line: while (<$filehandle>) {
+	if (eof) {
+		if (! /\n$/) {
+			err("newline not last character in file");
+		}
+	}
 	s/\r?\n$//;	# strip return and newline
 
 	# save the original line, then remove all text from within
@@ -343,6 +348,8 @@ line: while (<$filehandle>) {
 		1 while $eline =~
 		    s/\t+/' ' x (length($&) * 8 - length($`) % 8)/e;
 		if (length($eline) > $maxlinelen) {
+			my $toolong = sprintf("line (len %3d) > %d characters",
+						length($eline), $maxlinelen);
 			err($toolong);
 		}
 	}

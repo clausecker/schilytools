@@ -1,0 +1,12 @@
+s 00000/00000/00000
+d D 1.1 yy/mm/dd hh:mm:ss.fffffffff+zzzz uuu 1 0
+S s 00000
+c date and time created yy/mm/dd hh:mm:ss.fffffffff+zzzz by uuu
+e
+u
+U
+G r xxxxxxxxxxxxx
+t
+T
+I 1
+E 1

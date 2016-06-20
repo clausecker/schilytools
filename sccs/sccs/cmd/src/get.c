@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)get.c	1.71 15/11/17 J. Schilling
+ * @(#)get.c	1.72 16/06/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.71 15/11/17 J. Schilling"
+#pragma ident "@(#)get.c 1.72 16/06/17 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -442,6 +442,7 @@ get(pkt, file)
 	pkt->p_lfile = lfile;
 	pkt->p_enter = enter;
 #if defined(BUG_1205145) || defined(GMT_TIME)
+#else
 	if ((pkt->p_flags & PF_V6) == 0) {
 		pkt->p_flags |= PF_GMT;
 	} else if (cutoffstr != NULL) {
@@ -638,6 +639,7 @@ get(pkt, file)
 			rename(Gfile, gfile);
 			if (HADO) {
 #if defined(BUG_1205145) || defined(GMT_TIME)
+#else
 				struct tm	tm;
 #endif
 				struct timespec	ts[2];
@@ -656,6 +658,7 @@ get(pkt, file)
 				 * GMT. Fix the resulting error here.
 				 */
 #if defined(BUG_1205145) || defined(GMT_TIME)
+#else
 				if (pkt->p_flags & PF_GMT) {
 					tm = *gmtime(&ts[1].tv_sec);
 					tm.tm_isdst = -1;

@@ -2,6 +2,7 @@
 #SHELL=/bin/sh
 
 all-tests:      test-initial \
+		test-format \
 		test-extensions \
                 test-rmdel \
                 test-admin test-delta test-get test-prs test-prt test-unget \
@@ -13,6 +14,9 @@ all-tests:      test-initial \
 
 test-initial:
 	cd initial && for i in *.sh; do echo Running test initial/$$i; $(SHELL) $$i; done
+
+test-format:
+	cd format && for i in *.sh; do echo Running test format/$$i; $(SHELL) $$i; done
 
 test-extensions:
 	cd extensions && for i in *.sh; do echo Running test extensions/$$i; $(SHELL) $$i; done

@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * This file contains modifications Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.c	1.43 15/07/28 J. Schilling
+ * @(#)diff.c	1.44 16/06/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.43 15/07/28 J. Schilling"
+#pragma ident "@(#)diff.c 1.44 16/06/16 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2728,26 +2728,26 @@ cf_time(s, maxsize, fmt, clk)
 	/*
 	 * HP/UX implements %z as %Z and we need to correct this...
 	 */
-	p = strchr(s, ' ');
-	if (p) {
-		p = strchr(++p, ' ');
-		if (p++) {
-			if (*p != '+' && *p != '-') {
-				register int	z;
-				register int	n;
+	p = fmt + strlen(fmt);
+	if (*--p != 'z')
+		return;
+	p = strrchr(s, ' ');
+	if (p++) {
+		if (*p != '+' && *p != '-') {
+			register int	z;
+			register int	n;
 
-				z = gmtoff(clk) / 60;	/* seconds -> minutes */
-				if (z < 0) {
-					*p++ = '-';
-					z = -z;
-				} else {
-					*p++ = '+';
-				}
-				n = z / 60;
-				DO2_(p, n);
-				n = z % 60;
-				DO2(p, n, 0);
+			z = gmtoff(clk) / 60;	/* seconds -> minutes */
+			if (z < 0) {
+				*p++ = '-';
+				z = -z;
+			} else {
+				*p++ = '+';
 			}
+			n = z / 60;
+			DO2_(p, n);
+			n = z % 60;
+			DO2(p, n, 0);
 		}
 	}
 #else

@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.48 15/06/03 "
+#ident "@(#)rules1.top	1.49 16/06/16 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -333,6 +333,7 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # - tags, TAGS					: rules.tag
 # - .help					: rules.hlp
 # - .version					: rules.hlp
+# - tests					: rules.tst
 # - tinfo					: rules.dir/rules.rdi
 #
 # We do not put '.help', '.version' and 'tinfo' into 'ALLTARGETS' because:
@@ -345,6 +346,10 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # messages.
 ###########################################################################
 ALLTARGETS=	all man lint clean clobber distclean ibins depend rmdep \
+		config TAGS tags tests rmtarget relink rel \
+		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
+
+ALLTARGETS_NT=	all man lint clean clobber distclean ibins depend rmdep \
 		config TAGS tags rmtarget relink rel \
 		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 

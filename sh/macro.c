@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.52 16/06/03 2008-2016 J. Schilling
+ * @(#)macro.c	1.55 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.52 16/06/03 2008-2016 J. Schilling";
+	"@(#)macro.c	1.55 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -84,6 +84,8 @@ static unsigned char	*mbdecr	__PR((unsigned char *s, unsigned char *sp));
 static int		suffsubstr __PR((unsigned char *v, unsigned char *pat,
 					int largest));
 #endif
+static void	sizecpy		__PR((int vsize, Uchar *v, int trimflag));
+static Uchar	*trimcpy	__PR((Uchar *argp, int trimflag));
 
 #ifdef	PROTOTYPES
 static void
@@ -126,7 +128,7 @@ copyto(endch, trimflag)
 					pc = readw(d);
 					/*
 					 * d might be NULL
-					 * Evenif d is NULL, we have to save it
+					 * Even if d is NULL, we have to save it
 					 */
 					if (*pc) {
 						while (*pc) {
@@ -191,10 +193,8 @@ skipto(endch)
 	 */
 	unsigned int	c;
 
-	while ((c = readwc()) != '\0' && c != endch)
-	{
-		switch (c)
-		{
+	while ((c = readwc()) != '\0' && c != endch) {
+		switch (c) {
 		case SQUOTE:
 			skipto(SQUOTE);
 			break;
@@ -455,7 +455,8 @@ getname:
 					 */
 					argp = (unsigned char *)relstak();
 					if ((v == 0 ||
-					    (nulflg && *v == 0)) ^ (setchar(c))) {
+					    (nulflg && *v == 0)) ^
+					    (setchar(c))) {
 						int	ntrim = trimflag;
 #ifdef	DO_SUBSTRING
 						if (c == '#' || c == '%')
@@ -531,6 +532,12 @@ getname:
 				 */
 
 				if (c != '+') {
+					Uchar sep = ' ';
+
+#ifdef	DO_IFS_SEP
+					if (ifsnod.namval)
+						sep = *ifsnod.namval;
+#endif
 					/*
 					 * Substitute parameter value
 					 */
@@ -542,50 +549,35 @@ getname:
 							GROWSTAKTOP();
 							pushstak('\0');
 						} else {
-							while (vsize && (c = *v) != '\0') {
-								wchar_t	wc;
-								int	clength;
-								if ((clength = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0) {
-									(void) mbtowc(NULL, NULL, 0);
-									clength = 1;
-								}
-								if (quote || (c == '\\' && trimflag)) {
-									GROWSTAKTOP();
-									pushstak('\\');
-								}
-								while (clength-- > 0) {
-									GROWSTAKTOP();
-									pushstak(*v++);
-								}
-								if (vsize > 0)
-									vsize--;
-							}
+							sizecpy(vsize, v,
+								trimflag);
 						}
 
 						if (dolg == 0 ||
-						    (++dolg > dolc))
+						    (++dolg > dolc)) {
 							break;
-						else /* $* and $@ expansion */
-						{
+						} else {
+							/*
+							 * $* and $@ expansion
+							 */
 							v = dolv[dolg];
 							if (*id == '*' &&
 							    quote) {
-								unsigned char sep = ' ';
-
-#ifdef	DO_IFS_SEP
-								if (ifsnod.namval)
-									sep = *ifsnod.namval;
-#endif
-				/*
-				 * push quoted separator so that "$*" will
-				 * not be broken into separate arguments.
-				 */
-								if (sep) {
-									GROWSTAKTOP();
-									pushstak('\\');
-									GROWSTAKTOP();
-									pushstak(sep);
-								}
+								/*
+								 * push quoted
+								 * separator so
+								 * that "$*"
+								 * will not be
+								 * broken into
+								 * separate
+								 * arguments.
+								 */
+								if (!sep)
+								    continue;
+								GROWSTAKTOP();
+								pushstak('\\');
+								GROWSTAKTOP();
+								pushstak(sep);
 							} else {
 								GROWSTAKTOP();
 								pushstak(' ');
@@ -601,8 +593,8 @@ getname:
 					    badparam);
 				} else if (c == '=') {
 					if (n) {
-						int strlngth = staktop - stakbot;
-						unsigned char *savptr = fixstak();
+						int slength = staktop - stakbot;
+						unsigned char *savp = fixstak();
 						struct ionod *iosav = iotemp;
 						unsigned char *newargp;
 
@@ -611,44 +603,21 @@ getname:
 						 * will relocate the last item
 						 * if we call fixstak();
 						 */
-						argp = savptr;
+						argp = savp;
 
-					/*
-					 * copy word onto stack, trim it, and
-					 * then do assignment
-					 */
+						/*
+						 * copy word onto stack, trim
+						 * it, and then do assignment
+						 */
 						usestak();
-						(void) mbtowc(NULL, NULL, 0);
-						while ((c = *argp) != '\0') {
-							wchar_t		wc;
-							int		len;
-
-							if ((len = mbtowc(&wc, (char *)argp, MB_LEN_MAX)) <= 0) {
-								(void) mbtowc(NULL, NULL, 0);
-								len = 1;
-							}
-							if (c == '\\' &&
-							    trimflag) {
-								argp++;
-								if (*argp == 0) {
-									argp++;
-									continue;
-								}
-								if ((len = mbtowc(&wc, (char *)argp, MB_LEN_MAX)) <= 0) {
-									(void) mbtowc(NULL, NULL, 0);
-									len = 1;
-								}
-							}
-							while (len-- > 0) {
-								GROWSTAKTOP();
-								pushstak(*argp++);
-							}
-						}
+						argp = trimcpy(argp, trimflag);
 						newargp = fixstak();
 						assign(n, newargp);
-						tdystak(savptr, iosav);
-						(void) memcpystak(stakbot, savptr, strlngth);
-						staktop = stakbot + strlngth;
+						tdystak(savp, iosav);
+						(void) memcpystak(stakbot,
+								    savp,
+								    slength);
+						staktop = stakbot + slength;
 					} else {
 						error(badsub);
 					}
@@ -906,10 +875,11 @@ comsubst(trimflag, type)
 		flags |= eflag;
 		exitset();
 	}
-	while (oldstaktop != staktop)
-	{ /* strip off trailing newlines from command substitution only */
-		if ((*--staktop) != NL)
-		{
+	while (oldstaktop != staktop) {
+		/*
+		 * strip off trailing newlines from command substitution only
+		 */
+		if ((*--staktop) != NL) {
 			++staktop;
 			break;
 		} else if (quote)
@@ -960,8 +930,7 @@ subst(in, ot)
 			GROWSTAKTOP();
 			pushstak(*pc);
 		}
-		if (--count == 0)
-		{
+		if (--count == 0) {
 			flush(ot);
 			count = CPYSIZ;
 		}
@@ -1075,3 +1044,70 @@ suffsubstr(v, pat, largest)
 	return (size);
 }
 #endif
+
+/*
+ * If vsize is >= 0, copy vsize characters, else copy all.
+ */
+static void
+sizecpy(vsize, v, trimflag)
+	int	vsize;
+	Uchar	*v;
+	int	trimflag;
+{
+	int	c;
+
+	while (vsize && (c = *v) != '\0') {
+		wchar_t	wc;
+		int	clength;
+
+		if ((clength = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			clength = 1;
+		}
+		if (quote || (c == '\\' && trimflag)) {
+			GROWSTAKTOP();
+			pushstak('\\');
+		}
+		while (clength-- > 0) {
+			GROWSTAKTOP();
+			pushstak(*v++);
+		}
+		if (vsize > 0)
+			vsize--;
+	}
+}
+
+static Uchar *
+trimcpy(argp, trimflag)
+	Uchar	*argp;
+	int	trimflag;
+{
+	int	c;
+
+	(void) mbtowc(NULL, NULL, 0);
+	while ((c = *argp) != '\0') {
+		wchar_t		wc;
+		int		len;
+
+		if ((len = mbtowc(&wc, C argp, MB_LEN_MAX)) <= 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			len = 1;
+		}
+		if (c == '\\' && trimflag) {
+			argp++;
+			if (*argp == 0) {
+				argp++;
+				continue;
+			}
+			if ((len = mbtowc(&wc, C argp, MB_LEN_MAX)) <= 0) {
+				(void) mbtowc(NULL, NULL, 0);
+				len = 1;
+			}
+		}
+		while (len-- > 0) {
+			GROWSTAKTOP();
+			pushstak(*argp++);
+		}
+	}
+	return (argp);
+}

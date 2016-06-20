@@ -1,4 +1,4 @@
-all-tests:      test-basic \
+all-tests tests:      test-basic \
 		test-random
 	echo Tests passed.
 

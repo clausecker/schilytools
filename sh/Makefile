@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.112 16/06/07  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.115 16/06/16  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -46,6 +46,7 @@ CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
+CPPOPTS +=	-DDO_GETOPT_POSIX	# Fail: $OPTARG has optopt for optstr[0] = ':'
 CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )
@@ -81,6 +82,7 @@ CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
 #					# The next feature is currently not POSIX
 #CPPOPTX +=	-DDO_EXIT_MODFIX	# Prevent $? == 0 whith exitcode & 0xFF
 CPPOPTS +=	-DDO_CONT_BRK_FIX	# Fix the SYS III (1981) continue/break bug
+CPPOPTS +=	-DDO_CONT_BRK_POSIX	# Exit 1 with break 0 / continue 0
 CPPOPTS +=	-DDO_IOSTRIP_FIX	# Fix the SYS III (1981) cat 0<<-EOF bug
 CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
 CPPOPTS +=	-DDO_NOTIFY		# Include support for set -o notify
@@ -147,6 +149,7 @@ $(ALLTARGETS): signames.c abbrev.c abbrev.h
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.tst
 ###########################################################################
 count: $(HFILES) $(CFILES) 
 	count $r1

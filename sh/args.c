@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)args.c	1.72 16/04/24 2008-2016 J. Schilling
+ * @(#)args.c	1.73 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.72 16/04/24 2008-2016 J. Schilling";
+	"@(#)args.c	1.73 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -341,8 +341,7 @@ options(argc, argv)
 #ifdef	DO_MULTI_OPT
 again:
 #endif
-	if (argc > 1 && *argp[1] == '-')
-	{
+	if (argc > 1 && *argp[1] == '-') {
 		cp = argp[1];
 		/*
 		 * Allow "--version" by mapping it to "-V".
@@ -350,15 +349,12 @@ again:
 		if ((strcmp((char *)&cp[1], "version") == 0) ||
 		    (cp[1] == '-' && strcmp((char *)&cp[2], "version") == 0)) {
 			cp = UC "-V";
-		}
-
-		/*
-		 * if first argument is "--" then options are not
-		 * to be changed. Fix for problems getting
-		 * $1 starting with a "-"
-		 */
-		else if (cp[1] == '-')
-		{
+		} else if (cp[1] == '-') {
+			/*
+			 * if first argument is "--" then options are not
+			 * to be changed. Fix for problems getting
+			 * $1 starting with a "-"
+			 */
 			argp[1] = argp[0];
 			argc--;
 #ifdef	DO_POSIX_SET
@@ -437,8 +433,7 @@ again:
 #endif
 				flagc = lookcopt(wc);
 			}
-			if (wc == *flagc)
-			{
+			if (wc == *flagc) {
 				if (eq(argv[0], "set") &&
 				    wc && any(wc, UC "sicrp")) {
 					failed(argv[1], badopt);
@@ -499,13 +494,12 @@ again:
 		argc--;
 		argp++;
 	} else if (argc > 1 &&
-		    *argp[1] == '+')	{ /* unset flags x, k, t, n, v, e, u */
+		    *argp[1] == '+') { /* unset flags x, k, t, n, v, e, u */
 
 		(void) mbtowc(NULL, NULL, 0);
 		cp = argp[1];
 		cp++;
-		while (*cp)
-		{
+		while (*cp) {
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
 				(void) mbtowc(NULL, NULL, 0);
 				cp++;
@@ -708,14 +702,12 @@ clean_args(blk)
 	struct dolnod *argr = 0;
 	struct dolnod *argblk;
 
-	if ((argblk = blk) != NULL)
-	{
+	if ((argblk = blk) != NULL) {
 		argr = argblk->dolnxt;
 
-		if (argblk == dolh)
+		if (argblk == dolh) {
 			argblk->doluse = 1;
-		else
-		{
+		} else {
 			for (argp = argblk->dolarg; *argp != UC ENDARGS; argp++)
 				free(*argp);
 			free(argblk->dolarg);

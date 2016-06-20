@@ -1,11 +1,11 @@
-#ident "@(#)Makefile	1.3 15/06/03 "
+#ident "@(#)Makefile	1.5 16/06/19 "
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-all: /tmp/SCCSTEST all-tests all-v6-tests
+all tests: /tmp/SCCSTEST all-tests all-v6-tests
 	@echo "Don't forget to remove /tmp/SCCSTEST in case you don't like to repeat the test"
 
 all-tests: cssc-tests sccs-tests
@@ -37,7 +37,7 @@ sccs-v6-tests:
 bins: /tmp/SCCSTEST
 
 /tmp/SCCSTEST:
-	cd ..; $(MAKE) clean rmtarget INS_BASE=/tmp/SCCSTEST install clean rmtarget
+	cd ..; $(MAKE) clean rmtarget INS_BASE=/tmp/SCCSTEST install; $(MAKE) clean rmtarget all
 
 clean:
 	$(RM) -rf /tmp/SCCSTEST

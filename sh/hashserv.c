@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)hashserv.c	1.29 16/02/10 2008-2016 J. Schilling
+ * @(#)hashserv.c	1.30 16/06/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.29 16/02/10 2008-2016 J. Schilling";
+	"@(#)hashserv.c	1.30 16/06/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -91,6 +91,7 @@ pathlook(com, flg, arg)
 	ENTRY		*h;
 
 	ENTRY		hentry;
+	const struct sysnod	*sn;
 	int		count = 0;
 	int		i;
 	int		pathset = 0;
@@ -143,7 +144,10 @@ pathlook(com, flg, arg)
 		h->cost = 0;
 	}
 
-	if ((i = syslook(name, commands, no_commands)) != 0) {
+	if ((sn = sysnlook(name, commands, no_commands)) != 0) {
+		i = sn->sysval;
+		if (sn->sysflg & BLT_SPC)
+			i |= SPC_BUILTIN;
 		hentry.data = (BUILTIN | i);
 		if ((flags & ppath))
 			return (hentry.data);

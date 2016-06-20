@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-# @(#)docommand	1.8 16/05/25 Written 2011-2016 by J. Schilling
+# @(#)docommand	1.9 16/06/19 Written 2011-2016 by J. Schilling
 ###########################################################################
 #@@C@@
 ###########################################################################
@@ -17,8 +17,8 @@
 # $1 a command label to be printed
 # $2 a command to be executed
 # $3 the expected exit code			or IGNORE or "!=0"
-# $4 the expected stdout			or IGNORE
-# $5 the expected stderr			or IGNORE
+# $4 the expected stdout			or IGNORE or NONEMPTY
+# $5 the expected stderr			or IGNORE or NONEMPTY
 #
 # Example:
 # docommand T1 "echo test" 0 "test\n" ""
@@ -72,14 +72,26 @@ docommand() {
 $msg"
 		fi
 	fi
-	if test "$4" != "IGNORE"		# Verify stdout?
+	if test "$4" = "NONEMPTY"		# Need stdout msg?
+	then
+		if test ! -s got.stdout
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stdout"
+		fi
+	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
 		diff exp.stdout got.stdout || fail "$cmd_label: stdout format error with $2"
 	fi
-	if test "$5" != "IGNORE"		# Verify stderr?
+	if test "$5" = "NONEMPTY"		# Need stderr msg?
+	then
+		if test ! -s got.stderr
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stderr"
+		fi
+	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
@@ -106,8 +118,8 @@ $msg"
 # $1 a command label to be printed
 # $2 a command to be executed
 # $3 the expected exit code			or IGNORE or "!=0"
-# $4 the expected stdout contained in a file	or IGNORE
-# $5 the expected stderr			or IGNORE
+# $4 the expected stdout contained in a file	or IGNORE or NONEMPTY
+# $5 the expected stderr			or IGNORE or NONEMPTY
 #
 # Example:
 # echo test > out_file
@@ -162,11 +174,23 @@ do_output() {
 $msg"
 		fi
 	fi
-	if test "$4" != "IGNORE"		# Verify stdout?
+	if test "$4" = "NONEMPTY"		# Need stdout msg?
+	then
+		if test ! -s got.stdout
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stdout"
+		fi
+	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
 		diff "$4" got.stdout || fail "$cmd_label: stdout format error with $2"
 	fi
-	if test "$5" != "IGNORE"		# Verify stderr?
+	if test "$5" = "NONEMPTY"		# Need stderr msg?
+	then
+		if test ! -s got.stderr
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stderr"
+		fi
+	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
@@ -193,8 +217,8 @@ $msg"
 # $1 a command label to be printed
 # $2 a command to be executed
 # $3 the expected exit code			or IGNORE or "!=0"
-# $4 the expected stdout			or IGNORE
-# $5 the expected stderr contained in a file	or IGNORE
+# $4 the expected stdout			or IGNORE or NONEMPTY
+# $5 the expected stderr contained in a file	or IGNORE or NONEMPTY
 #
 # Example:
 # :> err_file
@@ -249,14 +273,26 @@ do_error() {
 $msg"
 		fi
 	fi
-	if test "$4" != "IGNORE"		# Verify stdout?
+	if test "$4" = "NONEMPTY"		# Need stdout msg?
+	then
+		if test ! -s got.stdout
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stdout"
+		fi
+	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
 		diff exp.stdout got.stdout || fail "$cmd_label: stdout format error with $2"
 	fi
-	if test "$5" != "IGNORE"		# Verify stderr?
+	if test "$5" = "NONEMPTY"		# Need stderr msg?
+	then
+		if test ! -s got.stderr
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stderr"
+		fi
+	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
 		diff "$5" got.stderr || fail "$cmd_label: stderr format error with $2"
 	fi
@@ -279,9 +315,9 @@ $msg"
 # Parameters:
 # $1 a command label to be printed
 # $2 a command to be executed
-# $3 the expected exit code			or IGNORE
-# $4 the expected stdout contained in a file	or IGNORE
-# $5 the expected stderr contained in a file	or IGNORE
+# $3 the expected exit code			or IGNORE or "!=0"
+# $4 the expected stdout contained in a file	or IGNORE or NONEMPTY
+# $5 the expected stderr contained in a file	or IGNORE or NONEMPTY
 #
 # Example:
 # echo test > out_file
@@ -319,7 +355,10 @@ do_outerr() {
 
 	if test "$3" != "IGNORE"		# Verify exit code?
 	then
-		if test "$3" -eq "$cmd_exit"
+		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
+		then
+			:
+		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
 		then
 			:
 		else
@@ -334,11 +373,23 @@ do_outerr() {
 $msg"
 		fi
 	fi
-	if test "$4" != "IGNORE"		# Verify stdout?
+	if test "$4" = "NONEMPTY"		# Need stdout msg?
+	then
+		if test ! -s got.stdout
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stdout"
+		fi
+	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
 		diff "$4" got.stdout || fail "$cmd_label: stdout format error with $2"
 	fi
-	if test "$5" != "IGNORE"		# Verify stderr?
+	if test "$5" = "NONEMPTY"		# Need stderr msg?
+	then
+		if test ! -s got.stderr
+		then
+			fail "$cmd_label: \"$2\" No error message was printed on stderr"
+		fi
+	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
 		diff "$5" got.stderr || fail "$cmd_label: stderr format error with $2"
 	fi

@@ -1,4 +1,7 @@
 #! /bin/sh
+#
+# @(#)asym-context.sh	1.2 16/06/16 2015-2016 J. Schilling
+#
 
 # asym-context.sh:  Testing matching offsets and asymmetic
 #			context around the delta.
@@ -135,5 +138,5 @@ Hunk #1 succeeded at 1 (offset -1 lines).
 done
 "
 
-remove x x.diff
+remove x x.diff x.orig
 success

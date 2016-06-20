@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.1 16/06/05 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.2 16/06/09 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -435,7 +435,7 @@ eval '
 		EOF
 	done
 ' &
-sleep 1
+sleep 3
 #echo Left overs: *
 XEOF
 docommand here25 "$SHELL ./x" 0 "hi\nmore\nmore\n" ""
@@ -461,7 +461,7 @@ eval '
 	foo
 	foo
 ' &
-sleep 1
+sleep 2
 #echo Left overs: *
 XEOF
 docommand here26 "$SHELL ./x" 0 "hi\nhi\n" ""
@@ -494,7 +494,7 @@ eval '
 	done
 	foo
 ' &
-sleep 1
+sleep 3
 #echo Left overs: *
 XEOF
 docommand here27 "$SHELL ./x" 0 "hi\nfolks b\nfolks b\n" ""
@@ -516,7 +516,7 @@ eval '
 	hi
 	EOF
 ' &
-sleep 1
+sleep 2
 #echo Left overs: *
 XEOF
 docommand here28 "$SHELL ./x" 0 "hi\n" ""
@@ -543,7 +543,7 @@ eval '
 	echo B
 	) &
 ' &
-sleep 2
+sleep 3
 #echo Left overs: *
 XEOF
 docommand here29 "$SHELL ./x" 0 "A\nhi\nB\n" ""
@@ -565,7 +565,7 @@ eval '
 	hi
 	EOF
 ' &
-sleep 1
+sleep 2
 #echo Left overs: *
 XEOF
 docommand here30 "$SHELL ./x" 0 "HI\n" ""
@@ -587,7 +587,7 @@ eval '
 	hi
 	EOF
 ' &
-sleep 1
+sleep 2
 #echo Left overs: *
 XEOF
 docommand here31 "$SHELL ./x" 0 "HI\n" ""
@@ -617,7 +617,7 @@ eval '
 	(sleep 1; foo) &
 	foo
 ' &
-sleep 2
+sleep 3
 #echo Left overs: *
 XEOF
 docommand here32 "$SHELL ./x" 0 "hi\nhi\nhi\nhi\n" ""

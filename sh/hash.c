@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)hash.c	1.13 15/07/11 2008-2015 J. Schilling
+ * @(#)hash.c	1.14 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.13 15/07/11 2008-2015 J. Schilling";
+	"@(#)hash.c	1.14 16/06/10 2008-2016 J. Schilling";
 #endif
 
 #include	"hash.h"
@@ -114,11 +114,9 @@ hscan(uscan)
 	struct node		*p, *nxt;
 	int				j;
 
-	for (j = 0; j < TABLENGTH; ++j)
-	{
+	for (j = 0; j < TABLENGTH; ++j) {
 		p = table[j];
-		while (p)
-		{
+		while (p) {
 			nxt = p->next;
 			(*uscan)(&p->item);
 			p = nxt;
@@ -140,26 +138,21 @@ hfind(str)
 
 	i = hash(str);
 
-	if (table[i] == 0)
-	{
+	if (table[i] == 0) {
 		last = &table[i];
 		next = 0;
 		return (0);
-	}
-	else
-	{
+	} else {
 		q = &table[i];
 		p = table[i];
-		while (p != 0 && (res = STRCMP(str, p->item.key)))
-		{
+		while (p != 0 && (res = STRCMP(str, p->item.key))) {
 			q = &(p->next);
 			p = p->next;
 		}
 
 		if (p != 0 && res == 0)
 			return (&(p->item));
-		else
-		{
+		else {
 			last = q;
 			next = p;
 			return (0);

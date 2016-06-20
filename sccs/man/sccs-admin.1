@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.45 15/04/29 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-admin.1	1.46 16/06/09 Copyright 2007-2015 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2015/04/29" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2016/06/09" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -124,10 +124,15 @@ any user is allowed to do so.
 .ne 3
 .TP
 .B -b
-Forces encoding of binary data. Files that contain ASCII NUL or other
-control characters, or that do not end with a
+Forces encoding of binary data. Files that contain
+.BR "ASCII NUL" ,
+that contain lines that start with the the SCCS control character
+.B SOH(ASCII 001)
+or that do not end with a
 .BR NEWLINE ,
-are recognized as binary data files. The contents of such files are stored
+are recognized as binary data files when using the
+.B SCCSv4
+history file format. The contents of such files are stored
 in the history file in encoded form. See
 .BR uuencode (1C)
 for details about
@@ -136,6 +141,17 @@ the encoding. This option is normally used in conjunction with
 to force
 .B admin
 to encode initial versions not recognized as containing binary data.
+.sp
+The new 
+.B SCCSv6
+history file format permits to have lines that start with the SCCS control
+character
+.B SOH(ASCII 001)
+and files that do not end with a
+.BR NEWLINE ,
+enforcing the binary file format only if a file contains
+.B "ASCII NUL"
+characters.
 .sp
 .ne 3
 .TP

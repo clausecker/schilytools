@@ -28,7 +28,7 @@
 #endif
 /*
  * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)ctype.h	1.8 16/06/01 2009-2016 J. Schilling
+ * @(#)ctype.h	1.9 16/06/09 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -121,7 +121,8 @@ const
 unsigned char   _ctype2[];
 
 #define	digit(c)	((c < QUOTE) && _ctype2[c]&(T_DIG))
-#define	dolchar(c)	((c < QUOTE) && _ctype2[c]&(T_AST|T_BRC|T_DIG|T_IDC|T_SHN))
+#define	dolchar(c)	((c < QUOTE) && \
+				_ctype2[c]&(T_AST|T_BRC|T_DIG|T_IDC|T_SHN))
 #define	defchar(c)	((c < QUOTE) && _ctype2[c]&(T_DEF))
 #define	setchar(c)	((c < QUOTE) && _ctype2[c]&(T_SET))
 #define	digchar(c)	((c < QUOTE) && _ctype2[c]&(T_AST|T_DIG))

@@ -1,0 +1,259 @@
+New features with AN-2016-06-20:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	All: introduced a new "make" target "tests" that starts the conformance
+	test suite for those prorgrams that already implement it. The following
+	projects already have an automated unit test:
+
+	-	SCCS	This is the oldest testsuite that started in 2010.
+
+			The test suite first removes all sccs binaries in the
+			sccs source tree and then compiles and installs a new
+			set of binaries for the install directory /tmp/SCCSTEST.
+			Then the binaries in the source tree are removed again
+			and rebuild.
+
+	-	patch	These tests have been written in May 2015.
+
+			It is recommended to have the schilytools installed
+			before running this test as it likes to see
+			/opt/schily/ccs/bin/diff
+
+			This test suite creates random files and makes
+			patch tests. It needs 5 minutes to 2 hours depending
+			on the speed of the machine.
+
+	-	sh	A new test suite that started in January 2016
+
+		The whole test suite for all three programs takes aprox. 10
+		minutes on a typical PC.
+
+-	All: conf/oarch.sh added a rule for AIX
+
+-	cstyle: long lines now get a new error message that includes the
+	actual line length.
+
+-	cstyle: added a new check for files that do not end in a newline.
+
+-	p: The p programm could abort on Linux when run from a "sudo" session
+	because there was no access to open /dev/tty. P now only prints a
+	warning and falls back to "stderr".
+
+-	patch: Conformance tests now work on Linux
+	To those who like to run the "patch" test suite, please note that
+	"gpatch" is used as a reference for some of the tests where it works 
+	correctly. Since gpatch is buggy, there may be error messages from
+	gpatch that you may ignore. If the test passes as a whole, everything
+	is OK.
+
+-	SCCS: Mention in the sccs-admin man page and online-help that SCCSv6
+	supports anything but nul characters in text files.
+
+-	SCCS: diff: fixed a bug introduced in August 2015 while introducing
+	a workaround for a HP-UX strftime() bug. The bug caused diff
+	with "-c" to print a rotten time string. The workaround now only hits
+	when using "diff -u" and thus includes the "%z" format from HP-UX 
+	that needs to be fixed.
+
+-	SCCS: sccs/lib/comobj/src/dodelt.c Fixed a bug with time stamp handling
+	that has been introduced Oct 14 2015 while trying to add better support 
+	for a GMT variant of SCCS. The bug could cause messages like:
+
+		"Time stamp later than current clock time"
+
+-	SCCS: sccs/lib/comobj/src/putmeta.c was fixed to avoid emitting empty
+	"^AG r" entries in SCCSv4 format. The entry is a SCCSv6 meta data entry.
+	The bug has been introduced Feb 25 2015 while making the code better
+	structured.
+
+-	SCCS: sccs/cmd/src/get.c was fixed for the GMT variant of SCCS.
+
+-	SCCS: When the special test binaries for /tmp/SCCSTEST have been built,
+	a new set of normal binaries is built.
+
+-	SCCS Added a test for the correctness of the history format created
+	by sccs admin.
+
+-	Test Framework: The tests now may be configured to expect any non-null
+	text on stdout or stderr.
+
+-	Bourne Shell: Fix a bug from the very beginning, that caused the 
+	Bourne Shell to stop executing any command after entering the following
+	command:
+
+		for i in 1 2 3 ; do echo $i; break 0; done
+
+	in an interactive shell.
+
+-	Bourne Shell: continue/break now return a zero exit status if the
+	argument "0" is passed. This is required by POSIX.
+
+-	Bourne Shell: "getopts" now sets $OPTARG to the failing option character
+	(in C "optopt") in case that getopt() returned '?' or ':'. This is
+	a change introduced by POSIX.
+
+-	Bourne Shell: "getopts" now sets $name to '?' if getopt() returned -1.
+	This is a change introduced by POSIX.
+
+-	Bourne Shell: "test" now honors the changed semantics from POSIX.
+	With an argument count between 0..4, the actions are selected from
+	the number of args only.
+
+-	Bourne Shell: the "find" builtin now may me disabled with the command
+	line "smake COPTX=-DNO_SYSFIND"
+
+-	Bourne Shell: the "printf" builtin now may me disabled with the command
+	line "smake COPTX=-DNO_SYSPRINTF"
+
+-	Bourne Shell: The hash code now indludes a bit to identify a special
+	builtin. This is needed to switch on special handling for special
+	builtins.
+
+-	Bourne Shell: The shell now exits again with I/O redirect errors for
+	special builtins.
+
+-	Bourne Shell: The shell now exits with option errors for special
+	builtins. This is required by POSIX.
+
+-	Bourne Shell: "command" now only prevents the shell to exit for the
+	command that is the first argument. This feature is no longer
+	propagated to commands executed from "eval" to follow POSIX.
+
+-	Bourne Shell: The "getopts" tests have been rewritten to permit them to
+	be used with other shells.
+
+-	Bourne Shell: The "getopts" tests now include a test that checks whether
+	the shell has been linked against an unfixed version of getopt() from
+	the Solaris libc that may cause an abort via SIGSEGV with some
+	"getopts" arguments.
+
+-	Bourne Shell: Some "here" tests have been given a larger timeout in order
+	to permit them to be run on a slow machine.
+
+-	Bourne Shell: New tests to verify the correct behavior with shell errors
+	have been added.
+
+-	Bourne Shell: The file macro.c was rewritten to use more functions
+	in order to limit the line width to 80 chars.
+
+-	Bourne Shell: The code has been modified to match "Cstyle" conventions.
+	This has been done before with modified source code but not with
+	untouched code that was left in the state from AT&T. Now that "sh"
+	contains less that 25% original AT&T code, it makes no sence to keep
+	the so far untouched code in an indentation style that is not compatible
+	with OpenSolaris.
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Do not list functions when calling "set" with no arguments.
+	  Note that this POSIX requirement is seen as a POSIX bug as there
+	  is no POSIX command to list function definitions.
+	  NOTE that this will not be implemented before POSIX bug
+	  http://austingroupbugs.net/view.php?id=1025 was fixed.
+
+	- A POSIX whitepaper at: http://www.unix.org/whitepapers/shdiffs.html
+	  claims that:
+			IFS=o; violet
+
+	  should not execute "vi". The normative text in the POSIX standard
+	  describes the historic Bourne Shell behavior, but the rationale
+	  describes the deviating behavior from "ksh".
+
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be SUSv8)
+
+	We are getting very close to full POSIX support.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.97 16/06/03 2008-2016 J. Schilling
+ * @(#)bltin.c	1.101 16/06/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.97 16/06/03 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.101 16/06/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -81,16 +81,16 @@ static	void	syscommand __PR((int argc, unsigned char **argv,
 
 void
 builtin(type, argc, argv, t, xflags)
-int type;
-int argc;
-unsigned char **argv;
-struct trenod *t;
-int xflags;
+	int		type;
+	int		argc;
+	unsigned char	**argv;
+	struct trenod	*t;
+	int		xflags;
 {
-	short fdindex;
-	unsigned char *a0 = NULL;
-	unsigned char *a1 = argv[1];
-	struct argnod *np = NULL;
+	short		fdindex;
+	unsigned char	*a0 = NULL;
+	unsigned char	*a1 = argv[1];
+	struct argnod	*np = NULL;
 	int		cdopt = 0;
 #if defined(DO_POSIX_CD) || defined(DO_SYSPUSHD) || defined(DO_SYSDOSH) || \
 	defined(DO_GETOPT_UTILS) || defined(DO_SYSERRSTR)
@@ -103,7 +103,8 @@ int xflags;
 	exitval = 0;
 	exval_clear();
 #ifdef	DO_POSIX_FAILURE
-	flags |= noexit;
+	if ((type & SPC_BUILTIN) == 0)
+		flags |= noexit;
 #endif
 	fdindex = initio(t->treio, (type != SYSEXEC));
 #ifdef	DO_POSIX_FAILURE
@@ -112,6 +113,7 @@ int xflags;
 		goto out;
 #endif
 
+	type = hashdata(type);
 	switch (type) {
 
 	case SYSSUSP:
@@ -179,8 +181,15 @@ int xflags;
 	case SYSCONT:			/* POSIX special builtin */
 		if (loopcnt) {
 			execbrk = breakcnt = 1;
-			if (a1)
+			if (a1) {
 				breakcnt = stoi(a1);
+#ifdef	DO_CONT_BRK_POSIX
+				if (breakcnt == 0) {
+					exitval = ERROR;
+					break;
+				}
+#endif
+			}
 			if (breakcnt > loopcnt)
 				breakcnt = loopcnt;
 #ifndef	DO_CONT_BRK_FIX
@@ -193,8 +202,15 @@ int xflags;
 	case SYSBREAK:			/* POSIX special builtin */
 		if (loopcnt) {
 			execbrk = breakcnt = 1;
-			if (a1)
+			if (a1) {
 				breakcnt = stoi(a1);
+#ifdef	DO_CONT_BRK_POSIX
+				if (breakcnt == 0) {
+					exitval = ERROR;
+					break;
+				}
+#endif
+			}
 			if (breakcnt > loopcnt)
 				breakcnt = loopcnt;
 		}
@@ -504,6 +520,7 @@ int xflags;
 			int		isp = 0;
 
 			optinit(&optv);
+			optv.optflag |= OPT_SPC;
 
 			while ((c = optnext(argc, argv, &optv, "p",
 				    "readonly [-p] [name ...]")) != -1) {
@@ -543,6 +560,7 @@ int xflags;
 			int		isp = 0;
 
 			optinit(&optv);
+			optv.optflag |= OPT_SPC;
 
 			while ((c = optnext(argc, argv, &optv, "p",
 				    "export [-p] [name ...]")) != -1) {
@@ -580,8 +598,10 @@ int xflags;
 		break;
 
 	case SYSEVAL:			/* POSIX special builtin */
-		if (a1)
+		if (a1) {
+			flags &= ~noexit;
 			execexp(a1, (Intptr_t)&argv[2], xflags);
+		}
 		break;
 
 #ifdef	DO_SYSDOSH
@@ -783,6 +803,7 @@ int xflags;
 			int		c;
 
 			optinit(&optv);
+			optv.optflag |= OPT_SPC;
 
 			while ((c = optnext(argc, argv, &optv, "fv",
 					"unset [-f | -v] [name ...]")) != -1) {
@@ -837,7 +858,11 @@ int xflags;
 			itos(optind);
 			assign(n, numbuf);
 			n = lookup(varnam);
+#ifdef	DO_GETOPT_POSIX
+			assign(n, UC "?");
+#else
 			assign(n, UC nullstr);
+#endif
 			exitval = 1;
 			break;
 		}
@@ -861,6 +886,13 @@ int xflags;
 			assign(n, c);
 		n = lookup(UC "OPTARG");
 		assign(n, UC optarg);
+#ifdef	DO_GETOPT_POSIX
+		if (optarg == NULL && argv[1][0] == ':' &&
+		    (getoptval == '?' || getoptval == ':')) {
+			c[0] = optopt;
+			assign(n, c);
+		}
+#endif
 		}
 		break;
 
@@ -1166,9 +1198,10 @@ syscommand(argc, argv, t, xflags)
 		if (hashtype(cmdhash) == BUILTIN) {
 			struct ionod	*iop = t->treio;
 
-			flags |= noexit;
+			if (cmdhash & SPC_BUILTIN)
+				flags |= noexit;
 			t->treio = NULL;
-			builtin(hashdata(cmdhash), argc, argv, t, xflags);
+			builtin(cmdhash, argc, argv, t, xflags);
 			t->treio = iop;
 			flags &= ~(ppath | noexit);
 			return;

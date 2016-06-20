@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2014 J. Schilling
 *
-* @(#)de	1.3 14/08/10 J. Schilling
+* @(#)de	1.4 16/06/09 J. Schilling
 *
 * @(#)de 1.4 06/12/12
 *
@@ -96,7 +96,8 @@ Do a "help de17" for more information.
 The named line in the file ... begins with the SCCS control
 character SOH(ASCII 001) or contains ASCII NUL. This is not
 allowed  for the files created  earlier as text SCCS  files
-(see sccs-admin(1), keyletter 'b').
+using the  SCCSv4  history file format, (see sccs-admin(1),
+keyletter 'b').
 -15
 "ambiguous `r' keyletter value"
 Which delta (SID) do you want to make?
@@ -126,7 +127,7 @@ situation.
 "No newline at end of file ..."
 The last line in the file ... does not end with a newline.  It is 
 illegal to input such data to the history file created earlier as 
-a text SCCS file.
+a text SCCS file using the SCCSv4 history file format.
 -19
 "Cannot read the diffs file"
 The file of differencies for delta does not exist.
@@ -136,5 +137,5 @@ Contact please with system administrator.
 "file ... line ... begins with '\001'"
 The named line in the file ... begins with the SCCS control
 character SOH(ASCII 001). This is not allowed for the files
-created earlier as text SCCS files.
-(see sccs-admin(1), keyletter 'b').
+created earlier as text SCCS files using the SCCSv4 history
+file format, (see sccs-admin(1), keyletter 'b').

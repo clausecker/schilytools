@@ -1,14 +1,16 @@
-/* @(#)printf.c	1.2 15/12/11 Copyright 2015 J. Schilling */
+/* @(#)printf.c	1.3 16/06/10 Copyright 2015-2016 J. Schilling */
 #include <schily/mconfig.h>
-static	UConst char sccsid[] =
-	"@(#)printf.c	1.2 15/12/11 Copyright 2015 J. Schilling";
-#ifdef DO_SYSPRINTF
 /*
  *	printf builtin
  *
  *	Note that this module needs libschily, but we can use -zlazyload
  *
- *	Copyright (c) 2015 J. Schilling
+ *	Libschily is needed because the Bourne Shell does not use stdio
+ *	internally and we thus need a printf() like formatter that allows
+ *	to use a callback function to output a character. This can be done
+ *	using the format() function from libschily.
+ *
+ *	Copyright (c) 2015-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +27,11 @@ static	UConst char sccsid[] =
  */
 
 #include "defs.h"
+#ifdef DO_SYSPRINTF
+
+static	UConst char sccsid[] =
+	"@(#)printf.c	1.3 16/06/10 Copyright 2015-2016 J. Schilling";
+
 #include <schily/errno.h>
 
 #define	LOCAL	static

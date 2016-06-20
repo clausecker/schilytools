@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.48 16/05/19 2008-2016 J. Schilling
+ * @(#)main.c	1.50 16/06/13 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.48 16/05/19 2008-2016 J. Schilling";
+	"@(#)main.c	1.50 16/06/13 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -344,8 +344,7 @@ main(c, v, e)
 	 */
 	_sp = 1;
 
-	if ((beenhere++) == FALSE)	/* ? profile */
-	{
+	if ((beenhere++) == FALSE) {	/* ? profile */
 		if ((login_shell == TRUE) && (flags & privflg) == 0) {
 
 			/* system profile */
@@ -445,9 +444,7 @@ main(c, v, e)
 		if (comdiv) {		/* comdiv is -c arg */
 			estabf(comdiv);
 			input = -1;
-		}
-		else
-		{
+		} else {
 			if (flags & stdflg) {
 				input = 0;
 			} else {
@@ -603,10 +600,12 @@ exfile(prof)
 #ifdef	PARSE_DEBUG
 			prtree(t, "Commandline: ");
 #endif
-			if (t == NULL && flags & ttyflg)
+			if (t == NULL && flags & ttyflg) {
 				freejobs();
-			else
+			} else {
+				execbrk = 0;
 				execute(t, 0, eflag, no_pipe, no_pipe);
+			}
 		}
 
 		eof |= (flags & oneflg);
@@ -771,9 +770,7 @@ setmode(prof)
 	if ((flags & intflg) ||
 	    ((flags&oneflg) == 0 &&
 	    isatty(output) &&
-	    isatty(input)))
-
-	{
+	    isatty(input))) {
 		dfault(&ps1nod, (unsigned char *)(geteuid() ?
 						stdprompt : supprompt));
 		dfault(&ps2nod, (unsigned char *)readmsg);
@@ -783,9 +780,7 @@ setmode(prof)
 		else
 			setmail(mailnod.namval);
 		startjobs();
-	}
-	else
-	{
+	} else {
 		flags |= prof;
 		flags &= ~prompt;
 	}

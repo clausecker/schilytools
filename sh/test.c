@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)test.c	1.28 16/01/04 2008-2016 J. Schilling
+ * @(#)test.c	1.30 16/06/12 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.28 16/01/04 2008-2016 J. Schilling";
+	"@(#)test.c	1.30 16/06/12 2008-2016 J. Schilling";
 #endif
 
 
@@ -78,7 +78,7 @@ static	long	aexpr		__PR((struct namnod *n,
 						unsigned char *op, long y));
 #endif
 static	unsigned char *nxtarg	__PR((int mt));
-static	int	exp		__PR((void));
+static	int	exp		__PR((int flag));
 static	int	e1		__PR((void));
 static	int	e2		__PR((void));
 static	int	e3		__PR((void));
@@ -102,10 +102,14 @@ static	void	bfailed		__PR((unsigned char *s1,
 					unsigned char *s3));
 
 
+#ifdef	DO_SYSATEXPR
 static int	isexpr;
+#endif
 static int	ap, ac;
 static unsigned char **av;
 static jmp_buf	testsyntax;
+
+#define	nargs()	(ac - ap)
 
 int
 test(argn, com)
@@ -115,7 +119,9 @@ test(argn, com)
 	ac = argn;
 	av = com;
 	ap = 1;
+#ifdef	DO_SYSATEXPR
 	isexpr = 0;
+#endif
 
 	if (eq(com[0], "[")) {
 		if (!eq(com[--ac], "]")) {
@@ -128,7 +134,7 @@ test(argn, com)
 		return (1);
 	if (setjmp(testsyntax))
 		return (1);
-	return (exp() ? 0 : 1);
+	return (exp(0) ? 0 : 1);
 }
 
 #ifdef	DO_SYSATEXPR
@@ -177,7 +183,7 @@ expr(argn, com)
 		snprintf(buf, sizeof (buf), "%ld", aexpr(n, UC "+=", incr));
 	} else {
 		n = lookup(av[ap++]);
-		snprintf(buf, sizeof (buf), "%ld", aexpr(n, av[ap++], exp()));
+		snprintf(buf, sizeof (buf), "%ld", aexpr(n, av[ap++], exp(0)));
 	}
 	assign(n, UC buf);
 }
@@ -227,10 +233,8 @@ static unsigned char *
 nxtarg(mt)
 	int	mt;
 {
-	if (ap >= ac)
-	{
-		if (mt)
-		{
+	if (ap >= ac) {
+		if (mt) {
 			ap++;
 			return (0);
 		}
@@ -239,17 +243,39 @@ nxtarg(mt)
 	return (av[ap++]);
 }
 
+/*
+ * The main test expression evaluator.
+ * Returns	0 -> FALSE
+ *		!= 0 -> TRUE
+ */
+/* ARGSUSED */
 static int
-exp()
+exp(flag)
+	int	flag;		/* Whether this is from a ( expr ) call */
 {
 	int	p1;
 	unsigned char	*p2;
+#ifdef	DO_POSIX_TEST
+	int	not;
 
+	p1 = nargs();
+	not = p1 > 1 && eq(av[ap], "!");
+	p2 = av[ap+not];
+
+	/*
+	 * POSIX requires that "test arg", "test ( arg )" or "test ( ! arg )"
+	 * always checks strlen(arg).
+	 */
+	if ((p1-not-flag) == 1) {
+		ap += 1 + not;
+		return (!eq(p2, "") ^ not);
+	}
+#endif
 	p1 = e1();
 	p2 = nxtarg(1);
 	if (p2 != 0) {
 		if (eq(p2, "-o"))
-			return (p1 | exp());
+			return (p1 | exp(0));
 
 #ifdef	__nono__
 		if (!eq(p2, ")"))
@@ -294,7 +320,7 @@ e3()
 
 	a = nxtarg(0);
 	if (eq(a, "(")) {
-		p1 = exp();
+		p1 = exp(1);
 		if (!eq(nxtarg(0), ")"))
 			failed((unsigned char *)"test", noparen);
 		return (p1);

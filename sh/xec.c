@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.61 16/05/25 2008-2016 J. Schilling
+ * @(#)xec.c	1.63 16/06/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.61 16/05/25 2008-2016 J. Schilling";
+	"@(#)xec.c	1.63 16/06/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -111,8 +111,7 @@ int *pf1, *pf2;
 		treeflgs = t->tretyp;
 		type = treeflgs & COMMSK;
 
-		switch (type)
-		{
+		switch (type) {
 		case TFND:		/* function definition */
 			{
 				struct fndnod	*f = fndptr(t);
@@ -257,8 +256,7 @@ int *pf1, *pf2;
 					setlist(comptr(t)->comset, pushov);
 				}
 
-				if (argn && (flags&noexec) == 0)
-				{
+				if (argn && (flags&noexec) == 0) {
 
 					/* print command if execpr */
 					if (flags & execpr)
@@ -321,7 +319,7 @@ int *pf1, *pf2;
 							postjob(parent, 1, 1);
 						}
 #endif
-						builtin(hashdata(cmdhash),
+						builtin(cmdhash,
 							argn, com, t, xflags);
 #ifdef	DO_PIPE_PARENT
 						resetjobfd();	/* Rest stdin */
@@ -423,8 +421,7 @@ int *pf1, *pf2;
 			exitval = 0;
 			exval_clear();
 
-			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP))
-			{
+			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP)) {
 				int forkcnt = 1;
 
 #ifdef	DO_PIPE_PARENT
@@ -483,10 +480,8 @@ script:
 				 * after 2,4,8,16, and 32 seconds and then quits
 				 */
 
-				if ((forkcnt = (forkcnt * 2)) > FORKLIM)
-				{
-					switch (errno)
-					{
+				if ((forkcnt = (forkcnt * 2)) > FORKLIM) {
+					switch (errno) {
 					case ENOMEM:
 						deallocjob(NULL);
 						error(noswap);
@@ -651,14 +646,12 @@ script:
 			/*
 			 * pipe in or out
 			 */
-			if (treeflgs & FPIN)
-			{
+			if (treeflgs & FPIN) {
 				renamef(pf1[INPIPE], STDIN_FILENO);
 				close(pf1[OTPIPE]);
 			}
 
-			if (treeflgs & FPOU)
-			{
+			if (treeflgs & FPOU) {
 				close(pf2[INPIPE]);
 				/*
 				 * pipe fd # is in low bits of treeflgs
@@ -825,13 +818,10 @@ script:
 				unsigned char	**args;
 				struct dolnod *argsav = 0;
 
-				if (forptr(t)->forlst == 0)
-				{
+				if (forptr(t)->forlst == 0) {
 					args = dolv + 1;
 					argsav = useargs();
-				}
-				else
-				{
+				} else {
 					struct argnod *schain = gchain;
 
 					gchain = 0;
@@ -839,8 +829,7 @@ script:
 					gchain = schain;
 				}
 				loopcnt++;
-				while (*args != ENDARGS && execbrk == 0)
-				{
+				while (*args != ENDARGS && execbrk == 0) {
 					assign(n, *args++);
 					execute(forptr(t)->fortre,
 						XEC_NOSTOP, errorflg,
@@ -956,8 +945,7 @@ execexp(s, f, xflags)
 	struct fileblk	fb;
 
 	push(&fb);
-	if (s)
-	{
+	if (s) {
 		estabf(s);
 		fb.feval = (unsigned char **)(f);
 	} else if (f >= 0)
@@ -979,8 +967,7 @@ execprint(com)
 #else
 	prs(_gettext(execpmsg));
 #endif
-	while (com[argn] != ENDARGS)
-	{
+	while (com[argn] != ENDARGS) {
 		s = com[argn++];
 		write(output, s, length(s) - 1);
 		blank();

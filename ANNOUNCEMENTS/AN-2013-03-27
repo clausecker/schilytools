@@ -1,0 +1,49 @@
+New features with AN-2013-03-27:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	cdrtools bumped tp 3.01a13
+
+-	Fixed a typo in include/schily/stat.h that caused setting nanoseonds
+	in timestamps to be impossible for NetBSD and OpenBSD.
+	Thanks to a hint from Thomas Klausner <wiz@NetBSD.org>
+
+-	-new-dir-mode in mkisofs now just superseeds the effect of -dir-mode
+	on directories that have been "invented" by mkisofs.
+	This is a more intuitive behavior.
+
+-	The job processing code has been moved from smake/make.c -> smake/job.c
+	This is another preparation to allow to deal with future versions
+	os smake that will unclude support for parallel job execution.
+
+-	Fixed a typo in the sccs.1 man page
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

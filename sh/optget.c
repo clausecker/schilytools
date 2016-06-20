@@ -1,13 +1,13 @@
-/* @(#)optget.c	1.8 15/12/21 Copyright 2015 J. Schilling */
+/* @(#)optget.c	1.9 16/06/19 Copyright 2015-2016 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)optget.c	1.8 15/12/21 Copyright 2015 J. Schilling";
+	"@(#)optget.c	1.9 16/06/19 Copyright 2015-2016 J. Schilling";
 /*
  *	A version of getopt() that maintains state
  *	so it can be used from witin a shell builtin
  *	without being in conflict with getopts(1).
  *
- *	Copyright (c) 2015 J. Schilling
+ *	Copyright (c) 2015-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -123,6 +123,9 @@ optbad(argc, argv, optv)
 		bfailure(argv[0], "option requires argument", p);
 	else
 		bfailure(argv[0], badopt, p);
+
+	if ((optv->optflag & OPT_SPC) && !(flags & noexit))
+		exitsh(ERROR);
 }
 
 /*

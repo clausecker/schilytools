@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.41 16/05/07 2008-2016 J. Schilling
+ * @(#)service.c	1.43 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.41 16/05/07 2008-2016 J. Schilling";
+	"@(#)service.c	1.43 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -190,8 +190,7 @@ getpath(s)
 	unsigned char	*path, *newpath;
 	int pathlen;
 
-	if (any('/', s))
-	{
+	if (any('/', s)) {
 		if (flags & rshflg) {
 			failed(s, restricted);
 			/* NOTREACHED */
@@ -201,9 +200,9 @@ getpath(s)
 	} else if (flags & ppath) {
 		return ((unsigned char *)defppath);
 #endif
-	} else if ((path = pathnod.namval) == 0)
+	} else if ((path = pathnod.namval) == 0) {
 		return ((unsigned char *)defpath);
-	else {
+	} else {
 		pathlen = length(path)-1;
 		/* Add extra ':' if PATH variable ends in ':' */
 		if (pathlen > 2 && path[pathlen - 1] == ':' &&
@@ -536,8 +535,7 @@ unsigned char	*at;
 	int	len;
 	wchar_t	wc;
 
-	if ((current = at) != NULL)
-	{
+	if ((current = at) != NULL) {
 		last = at;
 		(void) mbtowc(NULL, NULL, 0);
 		while ((c = *current) != 0) {
@@ -605,15 +603,13 @@ int	argn;
 							BYTESPERWORD);
 	comargm = comargn += argn;
 	*comargn = ENDARGS;
-	while (argp)
-	{
+	while (argp) {
 		*--comargn = argp->argval;
 
 		trim(*comargn);
 		argp = argp->argnxt;
 
-		if (argp == 0 || Rcheat(argp) & ARGMK)
-		{
+		if (argp == 0 || Rcheat(argp) & ARGMK) {
 			gsort(comargn, comargm);
 			comargm = comargn;
 		}
@@ -634,22 +630,16 @@ unsigned char	*from[], *to[];
 	for (j = 1; j <= n; j *= 2)
 		/* LINTED */
 		;
-	for (m = 2 * j - 1; m /= 2; )
-	{
+	for (m = 2 * j - 1; m /= 2; ) {
 		k = n - m;
-		for (j = 0; j < k; j++)
-		{
-			for (i = j; i >= 0; i -= m)
-			{
+		for (j = 0; j < k; j++) {
+			for (i = j; i >= 0; i -= m) {
 				unsigned char **fromi;
 
 				fromi = &from[i];
-				if (cf(fromi[m], fromi[0]) > 0)
-				{
+				if (cf(fromi[m], fromi[0]) > 0) {
 					break;
-				}
-				else
-				{
+				} else {
 					unsigned char *s;
 
 					s = fromi[m];
@@ -672,11 +662,9 @@ struct comnod	*ac;
 	int		count = 0;
 	struct comnod	*c;
 
-	if ((c = ac) != NULL)
-	{
+	if ((c = ac) != NULL) {
 		argp = c->comarg;
-		while (argp)
-		{
+		while (argp) {
 			count += split(macro(argp->argval));
 			argp = argp->argnxt;
 		}
@@ -697,8 +685,7 @@ unsigned char	*s;
 		ifs = (unsigned char *)sptbnl;
 
 	(void) mbtowc(NULL, NULL, 0);
-	for (;;)
-	{
+	for (;;) {
 		int clength;
 		sigchk();
 		argp = locstak() + BYTESPERWORD;
@@ -746,14 +733,10 @@ unsigned char	*s;
 				*argp++ = *s++;
 			}
 		}
-		if (argp == staktop + BYTESPERWORD)
-		{
-			if (c)
-			{
+		if (argp == staktop + BYTESPERWORD) {
+			if (c) {
 				continue;
-			}
-			else
-			{
+			} else {
 				return (count);
 			}
 		}
@@ -766,8 +749,7 @@ unsigned char	*s;
 		if ((flags & nofngflg) == 0 &&
 			(c = expand(((struct argnod *)argp)->argval, 0)))
 			count += c;
-		else
-		{
+		else {
 			makearg((struct argnod *)argp);
 			count++;
 		}
@@ -832,7 +814,7 @@ doacct()
 		sabuf.ac_etime = compress(after - before);
 
 		if ((fd = open((char *)acctnod.namval,
-				O_WRONLY | O_APPEND | O_CREAT, 0666)) != -1) {
+			    O_WRONLY | O_APPEND | O_CREAT, 0666)) != -1) {
 			write(fd, &sabuf, sizeof (sabuf));
 			close(fd);
 		}

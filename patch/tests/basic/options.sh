@@ -1,4 +1,7 @@
 #! /bin/sh
+#
+# @(#)options.sh	1.2 16/06/16 2015-2016 J. Schilling
+#
 
 # options.sh:  Testing good and bad options
 

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.41 16/04/08 2008-2016 J. Schilling
+ * @(#)cmd.c	1.42 16/06/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.41 16/04/08 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.42 16/06/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -138,18 +138,15 @@ cmd(sym, flg)
 	struct trenod *i, *e;
 
 	i = list(flg);
-	if (wdval == NL)
-	{
-		if (flg & NLFLG)
-		{
+	if (wdval == NL) {
+		if (flg & NLFLG) {
 			wdval = ';';
 			chkpr();
 		}
 	} else if (i == 0 && (flg & MTFLG) == 0) {
 		synbad();
 	}
-	switch (wdval)
-	{
+	switch (wdval) {
 	case '&':
 		if (i)
 			i = makefork(FAMP, i);
@@ -296,8 +293,7 @@ int	esym;
 	skipnl(0);
 	if (wdval == esym)
 		return (0);
-	else
-	{
+	else {
 		struct regnod *r =
 		    (struct regnod *)getstor(sizeof (struct regnod));
 		struct argnod *argp;
@@ -307,10 +303,8 @@ int	esym;
 		if (wdval == '(')
 			skipnl(0);
 #endif
-		for (;;)
-		{
-			if (fndef)
-			{
+		for (;;) {
+			if (fndef) {
 				argp = wdarg;
 				wdarg = (struct argnod *)
 						alloc(length(argp->argval) +
@@ -335,8 +329,7 @@ int	esym;
 		r->regcom = cmd(0, NLFLG | MTFLG);
 		if (wdval == ECSYM)
 			r->regnxt = syncase(esym);
-		else
-		{
+		else {
 			chksym(esym);
 			r->regnxt = 0;
 		}
@@ -371,8 +364,7 @@ item(flag)
 	else
 		io = 0;
 	abegin--;
-	switch (wdval)
-	{
+	switch (wdval) {
 	case CASYM:
 		{
 			struct swnod *t;
@@ -426,8 +418,7 @@ item(flag)
 				t->fornam = make(wdarg->argval);
 			else
 				t->fornam = wdarg->argval;
-			if (skipnl(SEMIFLG) == INSYM)
-			{
+			if (skipnl(SEMIFLG) == INSYM) {
 				chkword();
 
 				nohash++;
@@ -510,8 +501,7 @@ item(flag)
 			int	keywd = 1;
 			unsigned char	*com;
 
-			if ((wdval != NL) && ((peekn = skipwc()) == '('))
-			{
+			if ((wdval != NL) && ((peekn = skipwc()) == '(')) {
 				struct fndnod *f;
 				struct ionod  *saveio;
 
@@ -543,8 +533,7 @@ item(flag)
 				f->fndval = (struct trenod *)item(0);
 				fndef--;
 
-				if (iotemp != saveio)
-				{
+				if (iotemp != saveio) {
 					struct ionod	*ioptr = iotemp;
 
 					while (ioptr->iolst != saveio)
@@ -555,9 +544,7 @@ item(flag)
 					iotemp = saveio;
 				}
 				return (r);
-			}
-			else
-			{
+			} else {
 				int envbeg = 0;
 
 				t = (struct comnod *)
@@ -567,10 +554,8 @@ item(flag)
 				t->comio = io; /* initial io chain */
 				argtail = &(t->comarg);
 
-				while (wdval == 0)
-				{
-					if (fndef)
-					{
+				while (wdval == 0) {
+					if (fndef) {
 						argp = wdarg;
 						wdarg = (struct argnod *)
 						    alloc(length(argp->argval) +
@@ -580,8 +565,7 @@ item(flag)
 					}
 
 					argp = wdarg;
-					if (wdset && keywd)
-					{
+					if (wdset && keywd) {
 						/*
 						 * Revert the effect of abegin--
 						 * at the begin of this function
@@ -602,9 +586,7 @@ item(flag)
 						*argstail = argp;
 						argstail = &argp->argnxt;
 #endif
-					}
-					else
-					{
+					} else {
 						/*
 						 * If we had env= definitions,
 						 * make sure to decrement abegin
@@ -618,8 +600,7 @@ item(flag)
 						keywd = flags & keyflg;
 					}
 					word();
-					if (flag)
-					{
+					if (flag) {
 						if (io) {
 							while (io->ionxt)
 								io = io->ionxt;
@@ -654,8 +635,7 @@ item(flag)
 	}
 	reserv++;
 	word();
-	if ((io = inout(io)) != NULL)
-	{
+	if ((io = inout(io)) != NULL) {
 		r = makefork(0, r);
 		r->treio = io;
 	}
@@ -686,8 +666,7 @@ inout(lastio)
 	int	obegin = abegin;
 
 	iof = wdnum;
-	switch (wdval)
-	{
+	switch (wdval) {
 	case DOCSYM:	/*	<<	*/
 		iof |= IODOC|IODOC_SUBST;
 		break;
@@ -697,8 +676,7 @@ inout(lastio)
 		if (wdnum == 0)
 			iof |= 1;
 		iof |= IOPUT;
-		if (wdval == APPSYM)
-		{
+		if (wdval == APPSYM) {
 			iof |= IOAPP;
 			break;
 		}
@@ -737,8 +715,7 @@ inout(lastio)
 
 	iop->iolink = 0;
 	iop->iofile = iof;
-	if (iof & IODOC)
-	{
+	if (iof & IODOC) {
 		iop->iolst = iopend;
 		iopend = iop;
 	}

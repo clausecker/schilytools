@@ -1,12 +1,9 @@
-/* @(#)find.c	1.1 15/07/09 Copyright 2014-2015 J. Schilling */
+/* @(#)find.c	1.2 16/06/10 Copyright 2014-2015 J. Schilling */
 #include <schily/mconfig.h>
-static	UConst char sccsid[] =
-	"@(#)find.c	1.1 15/07/09 Copyright 2014-2015 J. Schilling";
-#ifdef DO_SYSFIND
 /*
  *	find builtin
  *
- *	Copyright (c) 2014-2015 J. Schilling
+ *	Copyright (c) 2014-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +20,10 @@ static	UConst char sccsid[] =
  */
 
 #include "defs.h"
+#ifdef DO_SYSFIND
+
+static	UConst char sccsid[] =
+	"@(#)find.c	1.2 16/06/10 Copyright 2014-2016 J. Schilling";
 
 #include	<schily/walk.h>
 #include	<schily/find.h>

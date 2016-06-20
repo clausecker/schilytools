@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)dodelt.c	1.22 15/10/14 J. Schilling
+ * @(#)dodelt.c	1.23 16/06/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.22 15/10/14 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.23 16/06/17 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -73,6 +73,8 @@ char type;
 	dtime(&Timenow);
 	TN = Timenow.dt_sec;
 #if defined(BUG_1205145) || defined(GMT_TIME)
+	TN += Timenow.dt_zone;
+#else
 	if (pkt->p_flags & PF_GMT)
 		TN += Timenow.dt_zone;
 #endif
