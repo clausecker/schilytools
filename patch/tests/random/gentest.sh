@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# gentest @(#)gentest.sh	1.3 16/06/16 Copyright 2015-2016 J. Schilling
+# gentest @(#)gentest.sh	1.5 16/06/23 Copyright 2015-2016 J. Schilling
 #
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
@@ -17,13 +17,15 @@
 : ${AWK=/usr/bin/nawk}
 #$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/awk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=awk
 
 trap cleanup EXIT INT HUP
 
 cleanup() {
-	rm -f generation saved_orig changed patch_file expected original original.rej failure xo xm xof xmf xef
+	rm -f generation saved_orig changed patch_file expected original original.* failure xo xm xof xmf xef
 }
 
 rrand() {

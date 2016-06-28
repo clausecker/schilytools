@@ -1,18 +1,21 @@
 #!/bin/sh
 ###########################################################################
-# @(#)base	1.3 16/06/23 Written 2011-2016 by J. Schilling
+# @(#)seq	1.1 16/06/23 Written 2016 by J. Schilling
 ###########################################################################
 #@@C@@
 ###########################################################################
 #
-# Include all base definitions if not done already
+# Define a simple seq if the command is missing
 #
 ###########################################################################
-if test ."$x_echo" = .
-then
-	. ${SRCROOT}/tests/bin/echo_nonl
-	. ${SRCROOT}/tests/bin/misc
-	. ${SRCROOT}/tests/bin/docommand
-	. ${SRCROOT}/tests/bin/seq
-	. ${SRCROOT}/tests/bin/xtest
+if type seq > /dev/null; then
+	:
+else
+	seq() {
+		cnt_seq=$1
+		while [ $cnt_seq -le $2 ]; do
+			echo $cnt_seq
+			cnt_seq=`expr $cnt_seq + 1`
+		done
+	}
 fi

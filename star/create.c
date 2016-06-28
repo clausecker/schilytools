@@ -1,11 +1,11 @@
-/* @(#)create.c	1.135 14/02/05 Copyright 1985, 1995, 2001-2014 J. Schilling */
+/* @(#)create.c	1.137 16/06/27 Copyright 1985, 1995, 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.135 14/02/05 Copyright 1985, 1995, 2001-2014 J. Schilling";
+	"@(#)create.c	1.137 16/06/27 Copyright 1985, 1995, 2001-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2014 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -540,7 +540,8 @@ createi(sname, name, namlen, info, last)
 			info->f_gid = statgid;
 	}
 
-	if (!(dirmode && is_dir(info)) &&
+	if (verbose <= 1 &&
+	    !(dirmode && is_dir(info)) &&
 				(info->f_namelen <= props.pr_maxsname)) {
 		/*
 		 * Allocate TCB from the buffer to avoid copying TCB
@@ -551,7 +552,12 @@ createi(sname, name, namlen, info, last)
 		 * With very long names we will have to write out
 		 * other data before we can write the TCB, so we cannot
 		 * alloc tcb from buffer too.
+		 * If we are creating a long listing while archiving, the
+		 * TCB will be overwritten by info_to_xhdr() and this would
+		 * overwrite username/groupname that is later needed for
+		 * vprint(), so we cannot allocate TCB from the buffer here.
 		 */
+error("bla\n");
 		if ((ptb = (TCB *)get_block(props.pr_hdrsize)) == NULL)
 			ptb = &tb;
 		else
@@ -1246,7 +1252,7 @@ read_link(name, namlen, info, ptb)
 				"Cannot alloc new link name for '%s'.\n",
 					name);
 			} else {
-				strcpy(ln->l_lname, name);
+				strlcpy(ln->l_lname, name, namlen+1);
 				ln->l_lnext = lp->l_lnames;
 				lp->l_lnames = ln;
 			}
@@ -1270,7 +1276,7 @@ read_link(name, namlen, info, ptb)
 			lp->l_flags = L_ISDIR;
 		else
 			lp->l_flags = 0;
-		strcpy(lp->l_name, name);
+		strlcpy(lp->l_name, name, namlen+1);
 
 		if ((info->f_flags & F_EXTRACT) == 0) {
 			/*

@@ -5,6 +5,7 @@ all-tests:	test-alias \
 		test-echo	\
 		test-errflg	\
 		test-error	\
+		test-exec	\
 		test-exit	\
 		test-getopts	\
 		test-glob	\
@@ -41,6 +42,9 @@ test-error:
 
 test-exit:
 	cd exit && for i in *.sh; do echo Running test exit/$$i; $(SHELL) $$i; done
+
+test-exec:
+	cd exec && for i in *.sh; do echo Running test exec/$$i; $(SHELL) $$i; done
 
 test-getopts:
 	cd getopts && for i in *.sh; do echo Running test getopts/$$i; $(SHELL) $$i; done

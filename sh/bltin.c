@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.101 16/06/19 2008-2016 J. Schilling
+ * @(#)bltin.c	1.102 16/06/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.101 16/06/19 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.102 16/06/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -106,6 +106,7 @@ builtin(type, argc, argv, t, xflags)
 	if ((type & SPC_BUILTIN) == 0)
 		flags |= noexit;
 #endif
+	type = hashdata(type);
 	fdindex = initio(t->treio, (type != SYSEXEC));
 #ifdef	DO_POSIX_FAILURE
 	flags = oflags;
@@ -113,7 +114,6 @@ builtin(type, argc, argv, t, xflags)
 		goto out;
 #endif
 
-	type = hashdata(type);
 	switch (type) {
 
 	case SYSSUSP:

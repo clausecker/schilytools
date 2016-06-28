@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.3 16/06/16 Copyright 2015-2016 J. Schilling
+# cmptest @(#)cmptest.sh	1.7 16/06/23 Copyright 2015-2016 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -21,13 +21,15 @@
 : ${AWK=/usr/bin/nawk}
 #$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/awk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=awk
 
 trap cleanup EXIT INT HUP
 
 cleanup() {
-	rm -f saved_orig changed patch_file expected original failure xo xm xof xmf xef
+	rm -f saved_orig changed patch_file expected original original.* failure xo xm xof xmf xef
 }
 
 rrand() {
@@ -202,21 +204,33 @@ do
 	# $rpatch: gpatch is buggy and does not support "diff -C0"
 	# If the reference patch program fails (exit != 0), we use out test patch
 	#
-	$rpatch -D XXX original < patch_file || $tpatch $silent -D XXX original < patch_file
+	$rpatch -D XXX original < patch_file || \
+	( echo "Reference patch program \"$rpatch\" failed, using test patch \"$tpatch\""; \
+	$tpatch $silent -D XXX original < patch_file)
 	#
-	# gpatch never uses "#endif /* XXX */", while our patch
-	# depends on wether it is in POSIX mode, where the comment is missing
+	# gpatch never uses "#endif /* XXX */",
+	# FreeBSD patch always adds " /* XXX */", so we need to remove it.
+	# Our patch # depends on wether it is in POSIX mode, where the comment is missing
 	#
-#	sed -e 's^#endif$^#endif /* XXX */^g' < original > expected
-	cp original expected
+##	sed -e 's^#endif$^#endif /* XXX */^g' < original > expected
+#	cp original expected
+	sed -e 's^#endif /\* XXX \*/$^#endif^g' < original > expected
 
 	if [ "$dtype" = "-e" ]; then
 		diff changed original > xef
 		ret=$?
 		if [ $ret -ne 0 ]; then
 			echo Test $idx: Reference Patch $dtype did not restore original
-			[ $ret -eq 1 ] && trap 0
-			exit 1
+			if test `uname`  = FreeBSD; then
+				#
+				# /usr/bin/patch from FreeBSD is buggy.
+				# Pretend it works by copying the right file content.
+				#
+				cp changed expected
+			else
+				[ $ret -eq 1 ] && trap 0
+				exit 1
+			fi
 		fi
 	else
 		cpp original | grep This > xo

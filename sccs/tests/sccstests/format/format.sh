@@ -29,15 +29,19 @@ else
 	format=v4
 fi
 
-logname=`logname`
+logname=`id -un`
+if test -z "$logname"
+then
+	logname=`logname`
+fi
 
 if test "$format" = v6
 then
 	tail +2 $s | sed \
 		-e 's^ [0-9]*/../.. ..:..:..^ yy/mm/dd hh:mm:ss^' \
-		-e 's/ss\........../ss.fffffffff/' \
+		-e 's/ss\.[0-9]*/ss.fffffffff/' \
 		-e 's/[+-][0-9][0-9][0-9][0-9] /+zzzz /' \
-		-e 's: joerg: uuu:' \
+		-e "s: $logname: uuu:" \
 		-e 's/G r .............*/G r xxxxxxxxxxxxx/' | \
 		grep -v 'G p ' > format
 	diffs=`diff format reference-v6`

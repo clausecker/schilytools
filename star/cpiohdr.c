@@ -1,14 +1,14 @@
-/* @(#)cpiohdr.c	1.27 10/08/23 Copyright 1994-2010 J. Schilling */
+/* @(#)cpiohdr.c	1.29 16/06/27 Copyright 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.27 10/08/23 Copyright 1994-2010 J. Schilling";
+	"@(#)cpiohdr.c	1.29 16/06/27 Copyright 1994-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	cpio archive headers
  *
- *	Copyright (c) 1994-2010 J. Schilling
+ *	Copyright (c) 1994-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -468,6 +470,10 @@ cpiotcb_to_info(ptb, info)
 	if (is_symlink(info)) {
 		move.m_data = info->f_lname;
 		move.m_flags = 0;
+		if (info->f_size <= 0) {
+			errmsgno(EX_BAD, "Symlink size <= 0.\n");
+			die(EX_BAD);
+		}
 		if (xt_file(info, vp_move_from_arch, &move, 0, "moving link name") < 0)
 			die(EX_BAD);
 		info->f_flags &= ~F_DATA_SKIPPED;
@@ -529,6 +535,17 @@ cpio_checkswab(ptb)
 		if (l2 <= 257)
 			l1 = l2;
 	}
+	/*
+	 * The maximum filename length in binary cpio is 256 bytes.
+	 * In theory, more would be possible, but a long filename length
+	 * may be caused by a rotten archive. As we may safely assume that
+	 * the whole size of a PTB (TBLOCK) is accessible, we run the check
+	 * for the null byte at the end of the filename as long as the
+	 * filename length is less or equal to TBLOCK - CPIOBIN_HDRSZ.
+	 */
+	if ((l1 + CPIOBIN_HDRSZ) > TBLOCK)
+		return (H_CPIO_BIN);
+
 	if (((char *)ptb)[CPIOBIN_HDRSZ+l1-2] == '\0' &&
 	    ((char *)ptb)[CPIOBIN_HDRSZ+l1-1] != '\0')
 		return (H_SWAPPED(H_CPIO_BIN));

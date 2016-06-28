@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-# @(#)docommand	1.9 16/06/19 Written 2011-2016 by J. Schilling
+# @(#)docommand	1.10 16/06/21 Written 2011-2016 by J. Schilling
 ###########################################################################
 #@@C@@
 ###########################################################################
@@ -57,7 +57,8 @@ docommand() {
 		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
 		then
 			:
-		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
+		# $3 may be text, so always use a string compare
+		elif test "$3" != "!=0" -a "$3" = "$cmd_exit"
 		then
 			:
 		else
@@ -159,7 +160,8 @@ do_output() {
 		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
 		then
 			:
-		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
+		# $3 may be text, so always use a string compare
+		elif test "$3" != "!=0" -a "$3" = "$cmd_exit"
 		then
 			:
 		else
@@ -258,7 +260,8 @@ do_error() {
 		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
 		then
 			:
-		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
+		# $3 may be text, so always use a string compare
+		elif test "$3" != "!=0" -a "$3" = "$cmd_exit"
 		then
 			:
 		else
@@ -358,7 +361,8 @@ do_outerr() {
 		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
 		then
 			:
-		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
+		# $3 may be text, so always use a string compare
+		elif test "$3" != "!=0" -a "$3" = "$cmd_exit"
 		then
 			:
 		else

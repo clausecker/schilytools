@@ -1,14 +1,14 @@
-/* @(#)header.c	1.150 15/05/01 Copyright 1985, 1994-2015 J. Schilling */
+/* @(#)header.c	1.153 16/06/27 Copyright 1985, 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.150 15/05/01 Copyright 1985, 1994-2015 J. Schilling";
+	"@(#)header.c	1.153 16/06/27 Copyright 1985, 1994-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2015 J. Schilling
+ *	Copyright (c) 1985, 1994-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -209,8 +209,12 @@ checksum(ptb)
 		for (i = sizeof (*ptb)/8; --i >= 0; ) {
 			DO8(ssum += *ss++);
 		}
-		if (ssum == 0L)		/* Block containing 512 nul's */
-			return (0);
+		if (ssum == 0L) {	/* Block containing 512 nul's? */
+			signedcksum = FALSE;
+			sum = checksum(ptb);
+			signedcksum = TRUE;
+			return (sum);
+		}
 
 		ss = (char *)ptb->ustar_dbuf.t_chksum;
 		DO8(ssum -= *ss++);
@@ -249,8 +253,12 @@ bar_checksum(ptb)
 		ss = (char *)ptb;
 		for (i = sizeof (*ptb); --i >= 0; )
 			ssum += *ss++;
-		if (ssum == 0L)		/* Block containing 512 nul's */
-			return (0);
+		if (ssum == 0L) {	/* Block containing 512 nul's? */
+			signedcksum = FALSE;
+			sum = bar_checksum(ptb);
+			signedcksum = TRUE;
+			return (sum);
+		}
 
 		for (i = CHECKS, ss = (char *)ptb->bar_dbuf.t_chksum; --i >= 0; )
 			ssum -= *ss++;
@@ -1138,10 +1146,11 @@ extern	BOOL	use_fifo;
 			ptb = &tb;
 			info->f_flags &= ~F_TCB_BUF;
 		}
-		if ((info->f_xflags != 0) || ghdr)
+		if ((info->f_xflags != 0) || ghdr) {
 			info_to_xhdr(info, ptb);
-		else
+		} else {
 			write_longnames(info);
+		}
 	}
 	write_tcb(ptb, info);
 }

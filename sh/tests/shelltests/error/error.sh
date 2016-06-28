@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)error.sh	1.1 16/06/18 Copyright 2016 J. Schilling
+# @(#)error.sh	1.2 16/06/21 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -123,7 +123,7 @@ echo OK'" 0 "OK\n" NONEMPTY
 docommand error118 "$SHELL -ci 'LC_ALL=C; : > /
 echo OK'" 0 "OK\n" NONEMPTY
 docommand error119 "$SHELL -ci 'LC_ALL=C; break > /
-echo OK'" O "OK\n" NONEMPTY
+echo OK'" 0 "OK\n" NONEMPTY
 docommand error120 "$SHELL -ci 'LC_ALL=C; continue > /
 echo OK'" 0 "OK\n" NONEMPTY
 docommand error121 "$SHELL -ci 'LC_ALL=C; eval echo > /
