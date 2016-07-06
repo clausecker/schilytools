@@ -1,8 +1,8 @@
-/* @(#)header.c	1.153 16/06/27 Copyright 1985, 1994-2016 J. Schilling */
+/* @(#)header.c	1.157 16/07/06 Copyright 1985, 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.153 16/06/27 Copyright 1985, 1994-2016 J. Schilling";
+	"@(#)header.c	1.157 16/07/06 Copyright 1985, 1994-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1595,11 +1595,14 @@ static	BOOL	modewarn = FALSE;
 		 */
 		if ((info->f_flags & F_HAS_NAME) == 0 &&
 					props.pr_nflags & PR_LONG_NAMES) {
-			while (ptb->dbuf.t_linkflag == LF_LONGLINK ||
-				    ptb->dbuf.t_linkflag == LF_LONGNAME) {
+			while (ret == 0 &&
+				    (ptb->dbuf.t_linkflag == LF_LONGLINK ||
+				    ptb->dbuf.t_linkflag == LF_LONGNAME)) {
 				ret = tcb_to_longname(ptb, info);
 				info->f_flags &= ~F_DATA_SKIPPED;
 			}
+			if (ret)
+				return (ret);
 		}
 	}
 	if (!pr_validtype(ptb->dbuf.t_linkflag)) {
@@ -1788,8 +1791,12 @@ tar_to_info(ptb, info)
 	register FINFO	*info;
 {
 	register int	typeflag = ptb->ustar_dbuf.t_typeflag;
+		char	xname;
 
-	if (ptb->dbuf.t_name[strlen(ptb->dbuf.t_name) - 1] == '/') {
+	xname = ptb->ndbuf.t_name[NAMSIZ];
+	ptb->ndbuf.t_name[NAMSIZ] = '\0';	/* allow 100 chars in name */
+
+	if (ptb->ndbuf.t_name[strlen(ptb->ndbuf.t_name) - 1] == '/') {
 		typeflag = DIRTYPE;
 		info->f_filetype = F_DIR;
 		info->f_rsize = (off_t)0;	/* XXX hier?? siehe oben */
@@ -1798,6 +1805,8 @@ tar_to_info(ptb, info)
 	} else if (typeflag != DIRTYPE) {
 		info->f_filetype = F_FILE;
 	}
+	ptb->ndbuf.t_name[NAMSIZ] = xname;	/* restore remembered value */
+
 	info->f_xftype = USTOXT(typeflag);
 	info->f_type = XTTOIF(info->f_xftype);
 	info->f_rdevmaj = info->f_rdevmin = info->f_rdev = 0;
@@ -1899,10 +1908,15 @@ star_to_info(ptb, info)
 		}
 	}
 	if (info->f_uname) {
+		char	xname;
+
+		xname = ptb->dbuf.t_gname[0];
+		ptb->dbuf.t_gname[0] = '\0';
 		if (!numeric && ic_uidname(info->f_uname, info->f_umaxlen, &uid)) {
 			info->f_flags &= ~F_BAD_UID;
 			info->f_uid = uid;
 		}
+		ptb->dbuf.t_gname[0] = xname;
 	}
 	if ((info->f_xflags & XF_GNAME) == 0) {
 		if (*ptb->dbuf.t_gname) {
@@ -1911,10 +1925,15 @@ star_to_info(ptb, info)
 		}
 	}
 	if (info->f_gname) {
+		char	xname;
+
+		xname = ptb->dbuf.t_prefix[0];
+		ptb->dbuf.t_prefix[0] = '\0';
 		if (!numeric && ic_gidname(info->f_gname, info->f_gmaxlen, &gid)) {
 			info->f_flags &= ~F_BAD_GID;
 			info->f_gid = gid;
 		}
+		ptb->dbuf.t_prefix[0] = xname;
 	}
 
 	if (is_sparse(info) || is_multivol(info)) {
@@ -1956,10 +1975,15 @@ ustar_to_info(ptb, info)
 		}
 	}
 	if (info->f_uname) {
+		char	xname;
+
+		xname = ptb->ustar_dbuf.t_uname[TUNMLEN-1];
+		ptb->ustar_dbuf.t_uname[TUNMLEN-1] = '\0';
 		if (!numeric && ic_uidname(info->f_uname, info->f_umaxlen, &uid)) {
 			info->f_flags &= ~F_BAD_UID;
 			info->f_uid = uid;
 		}
+		ptb->ustar_dbuf.t_uname[TUNMLEN-1] = xname;
 	}
 	if ((info->f_xflags & XF_GNAME) == 0) {
 		if (*ptb->ustar_dbuf.t_gname) {
@@ -1968,10 +1992,15 @@ ustar_to_info(ptb, info)
 		}
 	}
 	if (info->f_gname) {
+		char	xname;
+
+		xname = ptb->ustar_dbuf.t_gname[TUNMLEN-1];
+		ptb->ustar_dbuf.t_gname[TUNMLEN-1] = '\0';
 		if (!numeric && ic_gidname(info->f_gname, info->f_gmaxlen, &gid)) {
 			info->f_flags &= ~F_BAD_GID;
 			info->f_gid = gid;
 		}
+		ptb->ustar_dbuf.t_gname[TUNMLEN-1] = xname;
 	}
 
 	if ((info->f_xflags & XF_DEVMAJOR) == 0) {
@@ -2192,20 +2221,30 @@ stoli(s, l)
 	register Ulong	ret = 0L;
 	register char	c;
 	register int	t;
+	register char	*ep = s + 11;
 
-	while (*s == ' ')
-		s++;
-
-	for (;;) {
-		c = *s++;
-		if (isoctal(c))
-			t = c - '0';
-		else
+	while (*s == ' ') {
+		if (s++ >= ep)
 			break;
+	}
+
+	for (; s <= ep; ) {
+		c = *s++;
+		if (isoctal(c)) {
+			t = c - '0';
+		} else {
+			--s;
+			break;
+		}
 		ret *= 8;
 		ret += t;
 	}
 	*l = ret;
+	if (s > ep) {
+		errmsgno(EX_BAD,
+			"WARNING: Unterminated octal number at %lld.\n",
+			tblocks());
+	}
 }
 
 /*
@@ -2219,25 +2258,35 @@ stolli(s, ull)
 	register Ullong	ret = (Ullong)0;
 	register char	c;
 	register int	t;
+	register char	*ep = s + 11;
 
 	if (*((Uchar*)s) & 0x80) {
 		stollb(s, ull, 11);
 		return;
 	}
 
-	while (*s == ' ')
-		s++;
-
-	for (;;) {
-		c = *s++;
-		if (isoctal(c))
-			t = c - '0';
-		else
+	while (*s == ' ') {
+		if (s++ >= ep)
 			break;
+	}
+
+	for (; s <= ep; ) {
+		c = *s++;
+		if (isoctal(c)) {
+			t = c - '0';
+		} else {
+			--s;
+			break;
+		}
 		ret *= 8;
 		ret += t;
 	}
 	*ull = ret;
+	if (s > ep) {
+		errmsgno(EX_BAD,
+			"WARNING: Unterminated octal number at %lld.\n",
+			tblocks());
+	}
 }
 
 /*

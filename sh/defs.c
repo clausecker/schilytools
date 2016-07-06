@@ -33,14 +33,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.c	1.16 16/03/22 2008-2016 J. Schilling
+ * @(#)defs.c	1.17 16/07/06 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.16 16/03/22 2008-2016 J. Schilling";
+	"@(#)defs.c	1.17 16/07/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -124,6 +124,8 @@ BOOL		execbrk;
 int		loopcnt;
 int		breakcnt;
 int		funcnt;
+void		*localp;
+int		localcnt;
 int		eflag;
 /*
  * The following flag is set if you try to exit with stopped jobs.

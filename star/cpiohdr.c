@@ -1,8 +1,8 @@
-/* @(#)cpiohdr.c	1.29 16/06/27 Copyright 1994-2016 J. Schilling */
+/* @(#)cpiohdr.c	1.30 16/06/30 Copyright 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.29 16/06/27 Copyright 1994-2016 J. Schilling";
+	"@(#)cpiohdr.c	1.30 16/06/30 Copyright 1994-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -457,6 +457,18 @@ cpiotcb_to_info(ptb, info)
 
 	move.m_data = info->f_name;
 	move.m_flags = 0;
+#ifdef	ENFORCE_CPIO_NAMELEN
+	if (info->f_namelen > props.pr_maxnamelen) {
+		errmsgno(EX_BAD, "Name length (%lu) larger than maximum (%d).\n",
+			info->f_namelen, props.pr_maxnamelen);
+		die(EX_BAD);
+	}
+#endif
+	if (info->f_namelen > PATH_MAX) {
+		errmsgno(EX_BAD, "Name length (%lu) larger than PATH_MAX.\n",
+			info->f_namelen);
+		die(EX_BAD);
+	}
 	info->f_rsize = info->f_llsize = info->f_namelen;
 	info->f_flags |= F_LONGNAME;
 	if (xt_file(info, vp_move_from_arch, &move, 0, "moving file name") < 0)
@@ -472,6 +484,11 @@ cpiotcb_to_info(ptb, info)
 		move.m_flags = 0;
 		if (info->f_size <= 0) {
 			errmsgno(EX_BAD, "Symlink size <= 0.\n");
+			die(EX_BAD);
+		}
+		if (info->f_size > PATH_MAX) {
+			errmsgno(EX_BAD, "Linkname length (%lld) larger than PATH_MAX.\n",
+				(Llong)info->f_size);
 			die(EX_BAD);
 		}
 		if (xt_file(info, vp_move_from_arch, &move, 0, "moving link name") < 0)

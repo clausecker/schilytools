@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)break02.sh	1.2 16/06/04 2016 J. Schilling
+# @(#)break02.sh	1.3 16/06/29 2016 J. Schilling
 #
 
 # Read test core functions
@@ -71,7 +71,14 @@ XEOF
 docommand -noremove break-2-03 "$SHELL ./x" "!=0" 'a\n' IGNORE
 err=`grep 'abc:.*bad number' got.stderr`
 if [ -z "$err" ]; then
-	fail "Test $cmd_label failed: wrong error message"
+	if [ "$is_bosh" = true ]; then
+		fail "Test $cmd_label failed: wrong error message"
+	else
+		err=`grep 'number' got.stderr`
+		if [ -z "$err" ]; then
+			fail "Test $cmd_label failed: wrong error message"
+		fi
+	fi
 fi
 remove x
 do_remove
@@ -160,7 +167,14 @@ XEOF
 docommand -noremove break-2-07 "$SHELL ./x" "!=0" 'a\n' IGNORE
 err=`grep 'abc:.*bad number' got.stderr`
 if [ -z "$err" ]; then
-	fail "Test $cmd_label failed: wrong error message"
+	if [ "$is_bosh" = true ]; then
+		fail "Test $cmd_label failed: wrong error message"
+	else
+		err=`grep 'number' got.stderr`
+		if [ -z "$err" ]; then
+			fail "Test $cmd_label failed: wrong error message"
+		fi
+	fi
 fi
 remove x
 do_remove

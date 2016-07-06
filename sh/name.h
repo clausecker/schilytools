@@ -32,13 +32,23 @@
 
 /*
  * Copyright 2009-2016 J. Schilling
- * @(#)name.h	1.8 16/02/07 2009-2016 J. Schilling
+ * @(#)name.h	1.9 16/07/06 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
  */
 
+#ifdef	DO_SYSLOCAL
+/*
+ * When implementing local shell variables, we need a separate "funcval" member
+ * to store the token to identify the scope of the local variable.
+ */
+#ifndef	DO_POSIX_UNSET
+#define	DO_POSIX_UNSET
+#endif
+#endif
 
+#define	N_LOCAL  0100			/* Local node has a pushed old value */
 #define	N_PUSHOV 0040			/* This node has a pushed old value  */
 #define	N_ENVCHG 0020			/* This was changed after env import */
 #define	N_RDONLY 0010			/* This node is read-only forever */

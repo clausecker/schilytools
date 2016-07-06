@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)pwd.c	1.26 16/06/10 2008-2016 J. Schilling
+ * @(#)pwd.c	1.27 16/07/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.26 16/06/10 2008-2016 J. Schilling";
+	"@(#)pwd.c	1.27 16/07/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -484,6 +484,8 @@ ocwdnod()
 	else
 		ocwdname = NULL;		/* Makes OLDPWD= disappear */
 	opwdnod.namval = opwdnod.namenv = ocwdname;
+
+	attrib(&opwdnod, N_ENVCHG);		/* Mark as changed */
 #endif
 }
 
@@ -500,6 +502,8 @@ cwdnod()
 	if (pwdnod.namenv != cwdname)
 		free(pwdnod.namenv);
 	pwdnod.namval = pwdnod.namenv = cwdname;
+
+	attrib(&pwdnod, N_ENVCHG);		/* Mark as changed */
 }
 
 #ifdef	DO_SYSPUSHD

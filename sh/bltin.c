@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.102 16/06/22 2008-2016 J. Schilling
+ * @(#)bltin.c	1.104 16/07/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.102 16/06/22 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.104 16/07/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -512,6 +512,37 @@ builtin(type, argc, argv, t, xflags)
 		}
 		break;
 
+#ifdef	DO_SYSLOCAL
+	case SYSLOCAL:
+		{
+			ind = optskip(argc, argv, "local [name[=value] ...]");
+			if (ind-- < 0)
+				break;
+			argv += ind;
+
+			if (localp == NULL)
+				error("local can only be used in a function");
+
+			if (argv[1]) {
+				while (*++argv) {
+					char *p = strchr((char *)*argv, '=');
+
+					if (p)
+						*p = '\0';
+					pushval(lookup(*argv), localp);
+					if (p) {
+						*p = '=';
+						setname(*argv, 0);
+					}
+					localcnt++;
+				}
+			} else {
+				namscan(printlocal);
+			}
+		}
+		break;
+#endif	/* DO_SYSLOCAL */
+
 	case SYSRDONLY:			/* POSIX special builtin */
 		{
 #ifdef	DO_POSIX_EXPORT
@@ -523,7 +554,8 @@ builtin(type, argc, argv, t, xflags)
 			optv.optflag |= OPT_SPC;
 
 			while ((c = optnext(argc, argv, &optv, "p",
-				    "readonly [-p] [name ...]")) != -1) {
+				    "readonly [-p] [name[=value] ...]")) !=
+									-1) {
 				if (c == 0)	/* Was -help */
 					goto out;
 				else if (c == 'p')
@@ -563,7 +595,7 @@ builtin(type, argc, argv, t, xflags)
 			optv.optflag |= OPT_SPC;
 
 			while ((c = optnext(argc, argv, &optv, "p",
-				    "export [-p] [name ...]")) != -1) {
+				    "export [-p] [name[=value] ...]")) != -1) {
 				if (c == 0)	/* Was -help */
 					goto out;
 				else if (c == 'p')
@@ -637,7 +669,7 @@ builtin(type, argc, argv, t, xflags)
 			funcnt--;
 		}
 		break;
-#endif
+#endif	/* DO_SYSDOSH */
 
 #ifdef	DO_SYSREPEAT
 	case SYSREPEAT:
@@ -685,7 +717,7 @@ builtin(type, argc, argv, t, xflags)
 			gfailure(UC usage, repuse);
 		}
 		break;
-#endif
+#endif	/* DO_SYSREPEAT */
 
 #ifndef RES
 	case SYSULIMIT:
@@ -958,7 +990,7 @@ builtin(type, argc, argv, t, xflags)
 			}
 		}
 		break;
-#endif
+#endif	/* INTERACTIVE */
 
 #ifdef	DO_SYSALLOC
 	case SYSALLOC:
@@ -1102,7 +1134,7 @@ opt_LP(argc, argv, opts, use)
 	}
 	return (optv.optind);
 }
-#endif
+#endif	/* DO_POSIX_CD */
 
 static int
 whatis(arg, verbose)
@@ -1137,7 +1169,7 @@ whatis(arg, verbose)
 			prs_buff(UC "\n");
 		return (0);
 	}
-#endif
+#endif	/* DO_SYSALIAS */
 	return (what_is_path(arg, verbose));
 }
 
@@ -1217,4 +1249,4 @@ syscommand(argc, argv, t, xflags)
 	}
 	flags &= ~ppath;
 }
-#endif
+#endif	/* DO_SYSCOMMAND */

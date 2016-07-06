@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)getopts.sh	1.3 16/06/12 Copyright 2016 J. Schilling
+# @(#)getopts.sh	1.4 16/06/29 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -62,7 +62,13 @@ fi
 fi
 
 #
-# Check for the SIGSEGV bug in getopt() from Solaris libc
+# Check for the SIGSEGV bug in getopt() from Solaris libc.
+# If the Solaris libc is unfixed, the shell receives a SIGSEGV and thus does
+# not print the second output line with: "$? '1'".
+#
+# For other shells, this check whether the behavior at the end of the argument
+# list is correct. With OPTIND=99, we expect $? to be 1 to flag that getopt()
+# returned -1.
 #
 cat > x <<-"XEOF"
 	# Switch off localization for tests to allow to compare the output

@@ -28,7 +28,7 @@
 #endif
 /*
  * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)sym.h	1.8 16/03/01 2009-2016 J. Schilling
+ * @(#)sym.h	1.9 16/06/30 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -52,6 +52,7 @@
 #define	WHSYM	0433		/* "while"	*/
 #define	UNSYM	0427		/* "until"	*/
 #define	CASYM	0417		/* "case"	*/
+#define	SELSYM 	0470		/* "select"	*/
 #define	TIMSYM	0474		/* "time"	*/
 
 #define	SYMREP	04000		/* symbols with doubled characters */

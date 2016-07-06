@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.65 16/05/19 2008-2016 J. Schilling
+ * @(#)msg.c	1.67 16/07/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.65 16/05/19 2008-2016 J. Schilling";
+	"@(#)msg.c	1.67 16/07/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -200,6 +200,7 @@ const char	linenoname[]	= "LINENO";
 const char	mchkname[]	= "MAILCHECK";
 const char	opwdname[]	= "OLDPWD";
 const char	pwdname[]	= "PWD";
+const char	repname[]	= "REPLY";
 const char	acctname[]	= "SHACCT";
 const char	mailpname[]	= "MAILPATH";
 const char	timefmtname[]	= "TIMEFORMAT";
@@ -264,6 +265,9 @@ const struct sysnod reserved[] =
 	{ "for",	FORSYM	},
 	{ "if",		IFSYM	},
 	{ "in",		INSYM	},
+#ifdef	DO_SELECT
+	{ "select",	SELSYM	},
+#endif
 	{ "then",	THSYM	},
 #ifdef	DO_TIME
 	{ "time",	TIMSYM	},
@@ -359,6 +363,9 @@ const struct sysnod commands[] =
 	{ "kill",	SYSKILL,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSKILLPG
 	{ "killpg",	SYSKILL,	0 },
+#endif
+#ifdef	DO_SYSLOCAL
+	{ "local",	SYSLOCAL,	0 },
 #endif
 #ifdef RES
 	{ "login",	SYSLOGIN,	0 },

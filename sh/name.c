@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.57 16/06/10 2008-2016 J. Schilling
+ * @(#)name.c	1.59 16/07/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.57 16/06/10 2008-2016 J. Schilling";
+	"@(#)name.c	1.59 16/07/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -85,10 +85,19 @@ static void	namwalk		__PR((struct namnod *));
 	void	printro		__PR((struct namnod *n));
 	void	printpro	__PR((struct namnod *n));
 	void	printexp	__PR((struct namnod *n));
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN) || defined(DO_SYSLOCAL)
+	void	pushval		__PR((struct namnod *nm, void *t));
+#endif
+#ifdef	DO_SYSLOCAL
+	void	poplvars	__PR((void));
+static void	_poplvars	__PR((struct namnod *n));
+	void	printlocal	__PR((struct namnod *n));
+#endif
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
-static void	pushval		__PR((struct namnod *n));
 	void	popvars		__PR((void));
 static void	_popvars	__PR((struct namnod *n));
+#endif
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN) || defined(DO_SYSLOCAL)
 	void	popval		__PR((struct namnod *n));
 #endif
 	void	setup_env	__PR((void));
@@ -198,10 +207,17 @@ struct namnod mchknod =			/* MAILCHECK= */
 	(struct namnod *)NIL,
 	(unsigned char *)mchkname
 };
+struct namnod repnod =			/* REPLY= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)repname,
+};
 struct namnod pwdnod =			/* PWD= */
 {
 	&ps3nod,
-	(struct namnod *)NIL,
+	&repnod,
 	(struct namnod *)NIL,
 	(unsigned char *)pwdname,
 };
@@ -343,7 +359,7 @@ setname(argi, xp)
 			} else {
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 				if (xp & N_PUSHOV)
-					pushval(n);
+					pushval(n, NULL);
 #endif
 				assign(n, argscan);
 			}
@@ -491,30 +507,37 @@ readvar(namec, names)
 	int		d;
 	unsigned int	(*nextwchar)__PR((void));
 	unsigned char	*ifs;
-
-#ifdef	DO_READ_R
-	struct optv	optv;
-	int		ch;
-	unsigned char	*cmdp = *names;
-
-	optinit(&optv);
+#ifdef	DO_SELECT
+	unsigned char	*a[2];
+#endif
 
 	nextwchar = nextwc;
-	while ((ch = optnext(namec, names, &optv, "r",
-			    "read [-r] name ...")) != -1) {
-		if (ch == 0)	/* Was -help */
-			return (1);
-		else if (ch == 'r')
-			nextwchar = readwc;
+
+#if	defined(DO_READ_R) || defined(DO_SELECT)
+	if (namec > 1) {
+		struct optv	optv;
+		int		ch;
+
+		optinit(&optv);
+
+		while ((ch = optnext(namec, names, &optv, "r",
+				    "read [-r] [name ...]")) != -1) {
+			if (ch == 0)	/* Was -help */
+				return (1);
+			else if (ch == 'r')
+				nextwchar = readwc;
+		}
+		namec -= optv.optind;
+		names += optv.optind;
 	}
-	names += optv.optind;
-	if (*names == NULL) {
-		Failure(cmdp, mssgargn);
-		return (1);
+
+	if (namec <= 1) {
+		a[0] = UC repname;
+		a[1] = NULL;
+		names = a;
 	}
 #else
 	names++;
-	nextwchar = nextwc;
 #endif
 	ifs = ifsnod.namval;
 	if (ifs == NULL)
@@ -933,14 +956,15 @@ printpexp(n)
 }
 #endif
 
-#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN) || defined(DO_SYSLOCAL)
 /*
  * Push the current value by dulicating the content in
  * preparation of a later change of the node value.
  */
-static void
-pushval(n)
+void
+pushval(n, t)
 	struct namnod	*n;
+	void		*t;
 {
 	if (n->namval) {
 		struct namnod *nscan = (struct namnod *)alloc(sizeof (*nscan));
@@ -948,10 +972,65 @@ pushval(n)
 		*nscan = *n;
 		n->namval = make(n->namval);
 		n->nampush = nscan;
+		nscan->funcval = t;
 	}
-	attrib(n, N_PUSHOV);
+	attrib(n, t ? N_LOCAL : N_PUSHOV);
+}
+#endif
+
+#ifdef	DO_SYSLOCAL
+/*
+ * pop local vars
+ */
+void
+poplvars()
+{
+	_poplvars(namep);
 }
 
+static void
+_poplvars(np)
+	struct namnod	*np;
+{
+	if (np) {
+		_poplvars(np->namlft);
+		if ((np->namflg & N_LOCAL) != 0) {
+			if (localp) {
+				while (np->nampush &&
+					np->nampush->funcval == localp) {
+					popval(np);
+				}
+			} else {
+				do {
+					popval(np);
+				} while ((np->namflg & N_LOCAL) != 0);
+			}
+		}
+		_poplvars(np->namrgt);
+	}
+}
+
+void
+printlocal(n)
+	struct namnod	*n;
+{
+	if (n->namflg & N_LOCAL) {
+		unsigned char	*s;
+
+		prs_buff(UC "local");
+		prc_buff(SPACE);
+		prs_buff(n->namid);
+		if ((s = n->namval) != NULL) {
+			prs_buff(UC "='");
+			prs_buff(s);
+			prc_buff('\'');
+		}
+		prc_buff(NL);
+	}
+}
+#endif	/* DO_SYSLOCAL */
+
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 void
 popvars()
 {
@@ -969,7 +1048,9 @@ _popvars(np)
 		_popvars(np->namrgt);
 	}
 }
+#endif
 
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN) || defined(DO_SYSLOCAL)
 /*
  * If the node has a pushed value, restore the original value.
  */
@@ -977,9 +1058,6 @@ void
 popval(n)
 	struct namnod	*n;
 {
-	if ((n->namflg & N_PUSHOV) == 0)
-		return;
-
 	if (n->nampush) {
 		struct namnod	*p = n->nampush;
 
@@ -987,7 +1065,7 @@ popval(n)
 			free(n->namval);
 		n->namval = p->namval;
 		n->namflg = p->namflg;
-		n->nampush = 0;
+		n->nampush = p->nampush;
 		free(p);
 	} else {
 		if (n->namval)
@@ -997,6 +1075,18 @@ popval(n)
 	}
 	use(n);
 	dolocale((char *)n->namid);
+	if (n == &pwdnod) {
+		extern	unsigned char	cwdname[];
+
+		pwdnod.namval = pwdnod.namenv = cwdname;
+	}
+#ifdef	DO_SYSPUSHD
+	else if (n == &opwdnod) {
+		extern	unsigned char	*ocwdname;
+
+		opwdnod.namval = opwdnod.namenv = ocwdname;
+	}
+#endif
 }
 #endif
 
@@ -1040,7 +1130,11 @@ pushnam(n)
 		namval = n->namval;
 	} else {
 		/* Discard Local variable in child process */
+#ifdef	SUN_EXPORT_BUG
 		if (!(flg & ~N_ENVCHG)) {
+#else
+		if (!(flg & (N_EXPORT | N_ENVNAM))) {
+#endif
 			if (!(namflg & ENV_NOFREE)) {
 				n->namflg = 0;
 				n->namenv = 0;
@@ -1164,7 +1258,7 @@ unset_name(name, uflg)
 			free(n->namval);
 			free(n->namenv);
 			n->namval = n->namenv = 0;
-			n->namflg &= N_FUNCTN;
+			n->namflg &= (N_FUNCTN|N_LOCAL|N_PUSHOV);
 		}
 #endif
 

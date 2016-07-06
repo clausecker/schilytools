@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.42 16/06/10 2008-2016 J. Schilling
+ * @(#)cmd.c	1.43 16/06/30 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.42 16/06/10 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.43 16/06/30 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -405,13 +405,14 @@ item(flag)
 		}
 
 	case FORSYM:
+	case SELSYM:
 		{
 			struct fornod *t;
 
 			t = (struct fornod *)getstor(sizeof (struct fornod));
 			r = (struct trenod *)t;
 
-			t->fortyp = TFOR;
+			t->fortyp = wdval == FORSYM ? TFOR : TSELECT;
 			t->forlst = 0;
 			chkword();
 			if (fndef)

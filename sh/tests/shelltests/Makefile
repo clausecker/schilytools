@@ -11,6 +11,7 @@ all-tests:	test-alias \
 		test-glob	\
 		test-here	\
 		test-ifs	\
+		test-local	\
 		test-misc	\
 		test-parameter	\
 		test-quoting	\
@@ -57,6 +58,9 @@ test-here:
 
 test-ifs:
 	cd ifs && for i in *.sh; do echo Running test ifs/$$i; $(SHELL) $$i; done
+
+test-local:
+	cd local && for i in *.sh; do echo Running test local/$$i; $(SHELL) $$i; done
 
 test-misc:
 	cd misc && for i in *.sh; do echo Running test misc/$$i; $(SHELL) $$i; done

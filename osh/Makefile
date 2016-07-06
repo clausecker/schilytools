@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.73 15/12/23  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.74 16/07/06  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -83,6 +83,7 @@ CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
 #CPPOPTS +=	-DMY_GMATCH		# Enforce to use our local gmatch()
 					# instead if the gmatch() from -lgen
 
+CPPOPTS +=	-DSUN_EXPORT_BUG	# Export local readoly vars to scripts
 
 #CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 #CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell

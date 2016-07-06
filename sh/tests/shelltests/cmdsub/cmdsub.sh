@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)cmdsub.sh	1.3 16/06/04 Copyright 2016 J. Schilling
+# @(#)cmdsub.sh	1.4 16/06/29 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -31,6 +31,12 @@ docommand H "$SHELL cmdsub-H" 0 "\n" ""
 #
 # This command substitution is used by Sven Maschek in "whatshell.sh"
 #
+if [ "$is_bosh" = true ]; then
 docommand cmdsub01 "$SHELL -c 'case \$( (:^times) 2>&1) in *0m*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+else
+	echo
+	echo "Not a Bourne Shell, skipping ^ pipe test: \"(:^times)\""
+	echo
+fi
 
 success

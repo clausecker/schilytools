@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.30 16/06/10 2008-2016 J. Schilling
+ * @(#)func.c	1.31 16/07/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.30 16/06/10 2008-2016 J. Schilling";
+	"@(#)func.c	1.31 16/07/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -533,11 +533,12 @@ prf(t)
 			break;
 
 		case TFOR:
+		case TSELECT:
 			{
 			struct argnod	*arg;
 			struct fornod	*f = (struct fornod *)t;
 
-			prs_buff(UC "for ");
+			prs_buff(type == TFOR ? UC "for " : UC "select ");
 			prs_buff(f->fornam);
 
 			if (f->forlst) {

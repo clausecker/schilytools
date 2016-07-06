@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter02.sh	1.1 16/06/04 2016 J. Schilling
+# @(#)parameter02.sh	1.2 16/06/29 2016 J. Schilling
 #
 
 # Read test core functions
@@ -457,7 +457,7 @@ echo "${TEST:1:2:3}"
 echo exit code $? but still living
 XEOF
 docommand -noremove parameter-2-03 "$SHELL ./x" "!=0" '' IGNORE
-err=`grep 'bad' got.stderr`
+err=`grep -i 'bad' got.stderr`
 if [ -z "$err" ]; then
 	fail "Test $cmd_label failed: wrong error message"
 fi
@@ -475,7 +475,7 @@ echo ${TEST:1:2:3}
 echo exit code $? but still living
 XEOF
 docommand -noremove parameter-2-04 "$SHELL ./x" "!=0" '' IGNORE
-err=`grep 'bad' got.stderr`
+err=`grep -i 'bad' got.stderr`
 if [ -z "$err" ]; then
 	fail "Test $cmd_label failed: wrong error message"
 fi

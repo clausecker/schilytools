@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.115 16/06/16  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.117 16/07/06  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -73,6 +73,7 @@ CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
 CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
+CPPOPTS +=	-DDO_SELECT		# Implement ksh "select" feature
 CPPOPTS +=	-DDO_DOL_PAREN		# Implement POSIX $(...) command subst
 CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
@@ -102,6 +103,7 @@ CPPOPTS +=	-DDO_SYSKILLPG		# Include the "killpg" builtin
 CPPOPTS +=	-DDO_SYSERRSTR		# Include the "errstr" builtin
 CPPOPTS +=	-DDO_SYSFIND		# Include the "find" builtin
 CPPOPTS +=	-DDO_SYSPRINTF		# Include the "printf" builtin
+CPPOPTS +=	-DDO_SYSLOCAL		# Include the "local" builtin
 LIB_FIND +=	-lfind			# Add libfind
 
 #CPPOPTS +=	-DPARSE_DEBUG		# Include debug code/messages for parser
@@ -112,6 +114,7 @@ CPPOPTS +=	-DTOSSGROWING_MACRO	# Make stak.c::tossgrowing() a macro
 #CPPOPTS +=	-DMY_GMATCH		# Enforce to use our local gmatch()
 					# instead if the gmatch() from -lgen
 
+#CPPOPTS +=	-DSUN_EXPORT_BUG	# Export local readoly vars to scripts
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell

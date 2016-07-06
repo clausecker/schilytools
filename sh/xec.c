@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.63 16/06/19 2008-2016 J. Schilling
+ * @(#)xec.c	1.67 16/07/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.63 16/06/19 2008-2016 J. Schilling";
+	"@(#)xec.c	1.67 16/07/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -346,6 +346,9 @@ int *pf1, *pf2;
 						short idx;
 						unsigned char **olddolv = dolv;
 						int olddolc = dolc;
+						void *olocalp = localp;
+						int olocalcnt = localcnt;
+
 						n = findnam(com[0]);
 						f = fndptr(n->funcval);
 						/* just in case */
@@ -368,9 +371,19 @@ int *pf1, *pf2;
 						 * exitval != 0,
 						 */
 						if (exitval == 0) {
+							localp = t;
+							localcnt = 0;
 							execute(f->fndval,
 							    xflags,
 							    errorflg, pf1, pf2);
+#ifdef	DO_SYSLOCAL
+							if (localcnt > 0) {
+								localp = t;
+								poplvars();
+							}
+#endif
+							localp = olocalp;
+							localcnt = olocalcnt;
 						}
 						execbrk = 0;
 						restore(idx);
@@ -813,27 +826,88 @@ script:
 		}
 
 		case TFOR:		/* for ... do .. done */
+		case TSELECT:		/* select ... do .. done */
 			{
 				struct namnod *n = lookup(forptr(t)->fornam);
 				unsigned char	**args;
 				struct dolnod *argsav = 0;
+				int	argn;
+#ifdef	DO_SELECT
+				int	printlist = 1;
+#endif
 
 				if (forptr(t)->forlst == 0) {
+					argn = dolc;
 					args = dolv + 1;
 					argsav = useargs();
 				} else {
 					struct argnod *schain = gchain;
 
 					gchain = 0;
-					args = scan(getarg(forptr(t)->forlst));
+					argn = getarg(forptr(t)->forlst);
+					args = scan(argn);
 					gchain = schain;
 				}
 				loopcnt++;
 				while (*args != ENDARGS && execbrk == 0) {
-					assign(n, *args++);
+#ifdef	DO_SELECT
+					if (type == TSELECT) {
+						int		c;
+						unsigned char	*cp;
+
+						if (printlist) {
+							for (c = 0; c < argn;
+									c++) {
+								prn(c+1);
+								prs(UC ") ");
+								prs(args[c]);
+								prc(NL);
+							}
+							printlist = 0;
+						}
+
+						prs(ps3nod.namval);
+						rwait = 1;
+						exitval = readvar(0, NULL);
+						rwait = 0;
+						if (exitval)
+							break;
+						if (repnod.namval == NULL ||
+						    *repnod.namval == '\0') {
+							printlist++;
+							continue;
+						}
+
+						cp = repnod.namval;
+						while ((c = *cp++) != '\0') {
+							if (!digit(c))
+								break;
+						}
+						if (c == 0) {
+							c = stoi(repnod.namval);
+							cp = args[c-1];
+						} else {
+							cp = UC nullstr;
+						}
+						assign(n, cp);
+					} else
+#endif
+						assign(n, *args++);
 					execute(forptr(t)->fortre,
 						XEC_NOSTOP, errorflg,
 						no_pipe, no_pipe);
+#ifdef	DO_SELECT
+					if (type == TSELECT) {
+						/*
+						 * Check whether RESULT has
+						 * been cleared from the code
+						 * above.
+						 */
+						if (repnod.namval == NULL ||
+						    *repnod.namval == '\0')
+							printlist++;
+					}
+#endif
 					if (breakcnt < 0)
 						execbrk = (++breakcnt != 0);
 				}

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.151 16/06/10 2008-2016 J. Schilling
+ * @(#)defs.h	1.153 16/07/06 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -101,6 +101,7 @@ extern "C" {
 #define		TFORK		0x00A0	/* node running forked cmd	*/
 #define		TNOFORK		0x10A0	/* node running avoid fork cmd	*/
 #define		TFOR		0x00B0	/* for ... do .. done node	*/
+#define		TSELECT		0x10B0	/* select ... do .. done node	*/
 #define		TFND		0x00C0	/* function definition node	*/
 #define		TTIME		0x00D0	/* "time" node			*/
 #define		TNOT		0x10D0	/* "!" node			*/
@@ -180,6 +181,7 @@ extern "C" {
 #define		SYSERRSTR	53
 #define		SYSPRINTF	54
 #define		SYSCOMMAND	55
+#define		SYSLOCAL	56
 
 #define		SYSMAX		255	/* Must fit in low 8 ENTRY.data bits */
 
@@ -614,7 +616,10 @@ extern	void	printro		__PR((struct namnod *n));
 extern	void	printpro	__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
 extern	void	printpexp	__PR((struct namnod *n));
+extern	void	printlocal	__PR((struct namnod *n));
+extern	void	pushval		__PR((struct namnod *n, void *t));
 extern	void	popvars		__PR((void));
+extern	void	poplvars	__PR((void));
 extern	void	popval		__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((int flg));
@@ -843,7 +848,7 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
 
 
 #define		_cf(a, b)	cf((unsigned char *)(a), (unsigned char *)(b))
-#define		attrib(n, f)	(n->namflg |= f)
+#define		attrib(n, f)	((n)->namflg |= f)
 #define		round(a, b)	(((Intptr_t)(((char *)(a)+b)-1))&~((b)-1))
 #define		closepipe(x)	(close(x[INPIPE]), close(x[OTPIPE]))
 #define		eq(a, b)	(_cf(a, b) == 0)
@@ -987,6 +992,7 @@ extern struct namnod		ps2nod;
 extern struct namnod		ps3nod;
 extern struct namnod		ps4nod;
 extern struct namnod		mchknod;
+extern struct namnod		repnod;
 extern struct namnod		acctnod;
 extern struct namnod		mailpnod;
 extern struct namnod		timefmtnod;
@@ -1015,6 +1021,7 @@ extern const char		ps4name[];
 extern const char		mchkname[];
 extern const char		opwdname[];
 extern const char		pwdname[];
+extern const char		repname[];
 extern const char		acctname[];
 extern const char		mailpname[];
 extern const char		timefmtname[];
@@ -1146,6 +1153,8 @@ extern BOOL			execbrk;
 extern int			loopcnt;
 extern int			breakcnt;
 extern int			funcnt;
+extern void			*localp;
+extern int			localcnt;
 extern int			tried_to_exit;
 
 /* fault */

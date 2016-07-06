@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.165 16/06/12 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.168 16/07/06 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/06/12" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/07/06" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -393,6 +393,59 @@ once for each positional parameter that is set (see
 .B Parameter Substitution
 section below). Execution ends when there are no more words
 in the list.
+.sp
+.ne 3
+.HP
+.B select
+.I name
+[
+.B in
+.I word
+\&.\|.\|. ]
+.B do
+.I list
+.B done
+.br
+The select command prints on standard error (file descriptor\ 2),
+the set of
+.IR words ,
+each preceded by a number.
+If
+.BI in " word
+\&... is omitted, then the positional parameters are used instead.
+See
+.BR "Parameter Substitution" .
+The
+.B PS3
+prompt is printed and a line is read from the standard input.
+If this line consists of the number of one of the listed
+.IR words ,
+then the value of the variable
+.I name
+is set to the
+.I word
+corresponding to this number.
+If this line is empty. the selection list is printed again.
+Otherwise the value of the variable
+.I name
+is set to
+.BR NULL .
+.RB (See " Blank Interpretation " about " NULL" ). 
+The contents of the line read from standard input is saved in the shell variable
+.BR REPLY .
+The list is executed for each selection until a
+.B break
+or
+.B EOF
+is encountered. If the
+.B REPLY
+variable is set to
+.B NULL
+by the execution of list, then the selection list is printed before
+displaying the
+.B PS3
+prompt for the next selection.
+
 .br
 .ne 3
 .HP
@@ -590,13 +643,14 @@ when not quoted:
 .B
 esac       for      while    until   do      done    {   }
 .B
-time
-.\"function   select   [[  ]]
+select     time
+.\"function   [[  ]]
 .fi
 .in -2
 .LP
 The reserved words
-.B !
+.BR ! ,
+.B select
 and
 .B time
 were not supported in older versions of
@@ -2003,21 +2057,19 @@ was not supported in older versions of
 .ne 3
 .TP
 .B PS1
-Primary prompt string, by default "$ \|".
+Primary prompt string, by default "$\ \|".
 
 .br
 .ne 3
 .TP
 .B PS2
-Secondary prompt string, by default "> \|".
+Secondary prompt string, by default ">\ \|".
 
 .br
 .ne 3
 .TP
 .B PS3
-Selection prompt string, by default "#? \|".
-.sp
-This variable is currently unused by the shell.
+Selection prompt string, by default "#?\ \|".
 .sp
 The variable
 .B PS3
@@ -2028,8 +2080,8 @@ was not supported in older versions of
 .ne 3
 .TP
 .B PS4
-Execution trace prompt string, by default "+ \|".
-If unset, "+ \|" is used.
+Execution trace prompt string, by default "+\ \|".
+If unset, "+\ \|" is used.
 The content of this variable is subject to parameter expansion.
 .sp
 The variable
@@ -2071,6 +2123,16 @@ The variable
 .B PWD
 was not supported in older versions of
 .BR sh .
+
+.br
+.ne 3
+.TP
+.B REPLY
+This variable is set by the
+.B select
+statement and by the
+.B read
+special builtin command when no arguments are supplied.
 
 .br
 .ne 3
@@ -4196,6 +4258,39 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
+\fBlocal\fR [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
+.sp .6
+The given
+.IR name s
+are marked for local scope to the
+.B function
+from where
+.B local
+is called.
+The scope is effective for the rest of the
+.B function
+and its children or until
+.B local
+is called again with the same variable
+.IR name .
+The local variable is created with the same content and attributes as the
+current variable.
+If the local variable is exported, it's local value is seen by child
+processes called from a function.
+If no arguments are given, variable names that have been marked
+for local scope are listed.
+It is an error to use
+.B local
+when not within a function.
+.sp
+The
+.B local
+command was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 \fBlogin\fR [ \fIargument\fR .\|.\|. ]
 .sp .6
 Equivalent to `\fBexec login \fIargument\fR.\|.\|.\|.' See
@@ -4636,7 +4731,7 @@ were not recognised by older versions of
 .br
 .ne 3
 .TP
-\fBread\fR [ \fB\-r\fR ] \fIname\fR .\|.\|.
+\fBread\fR [ \fB\-r\fR ] [ \fIname\fR .\|.\|. ]
 .sp .6
 One line is read from the standard input and, using the internal field
 separator,
@@ -4655,8 +4750,14 @@ Characters other than
 can be quoted by preceding them with a backslash. These
 backslashes are removed before words are assigned to
 .IR names ,
-and no interpretation is done on the character that follows the backslash. The
-return code is
+and no interpretation is done on the character that follows the backslash.
+If
+.I name
+is omitted then
+.B REPLY
+is used as the default
+.IR name .
+The exit code is
 .BR 0 ,
 unless an
 .B EOF
@@ -4673,6 +4774,13 @@ to be part of the input line.
 The option
 .B \-r
 was not supported in older versions of
+.BR sh .
+.LP
+Omiting the
+.I name
+parameter of the
+.B read
+command was not supported in older versions of
 .BR sh .
 .RE
 

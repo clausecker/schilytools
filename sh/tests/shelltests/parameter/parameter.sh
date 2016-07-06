@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter.sh	1.3 16/06/04 Copyright 2016 J. Schilling
+# @(#)parameter.sh	1.4 16/06/29 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -26,12 +26,12 @@ docommand param11 "$SHELL -c 'parameter=\"\"; echo \${parameter=word}'" 0 "\n" "
 docommand param12 "$SHELL -c 'unset parameter; echo \${parameter=word}'" 0 "word\n" ""
 
 docommand param13 "$SHELL -c 'parameter=param; echo \${parameter:?word}'" 0 "param\n" ""
-docommand param14 "$SHELL -c 'parameter=\"\"; echo \${parameter:?word}'" 1 "" IGNORE
-docommand param15 "$SHELL -c 'unset parameter; echo \${parameter:?word}'" 1 "" IGNORE
+docommand param14 "$SHELL -c 'parameter=\"\"; echo \${parameter:?word}'" "!=0" "" IGNORE
+docommand param15 "$SHELL -c 'unset parameter; echo \${parameter:?word}'" "!=0" "" IGNORE
 
 docommand param16 "$SHELL -c 'parameter=param; echo \${parameter?word}'" 0 "param\n" ""
 docommand param17 "$SHELL -c 'parameter=\"\"; echo \${parameter?word}'" 0 "\n" ""
-docommand param18 "$SHELL -c 'unset parameter; echo \${parameter?word}'" 1 "" IGNORE
+docommand param18 "$SHELL -c 'unset parameter; echo \${parameter?word}'" "!=0" "" IGNORE
 
 docommand param19 "$SHELL -c 'parameter=param; echo \${parameter:+word}'" 0 "word\n" ""
 docommand param20 "$SHELL -c 'parameter=\"\"; echo \${parameter:+word}'" 0 "\n" ""
@@ -61,9 +61,9 @@ docommand param36 "$SHELL -c 'var=/home/joerg; echo \${var#/h*}'" 0 "ome/joerg\n
 docommand param37 "$SHELL -c 'var=/home/joerg; echo \${var##/h*}'" 0 "\n" ""
 
 docommand param38 "$SHELL -c 'echo \${#}'" 0 "0\n" ""
-docommand param39 "$SHELL -c 'echo \${#:}'" 1 "" IGNORE
+docommand param39 "$SHELL -c 'echo \${#:}'" "!=0" "" IGNORE
 docommand param40 "$SHELL -c 'echo \${xxx:}'" 0 "\n" ""
-docommand param41 "$SHELL -c 'echo \${xxx:a}'" 1 "" IGNORE
+docommand param41 "$SHELL -c 'echo \${xxx:a}'" "!=0" "" IGNORE
 docommand param42 "$SHELL -c 'xxx=/home/joerg; echo \${xxx:}'" 0 "/home/joerg\n" ""
 
 #
