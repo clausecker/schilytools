@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.51 16/07/06 2008-2016 J. Schilling
+ * @(#)main.c	1.53 16/07/11 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.51 16/07/06 2008-2016 J. Schilling";
+	"@(#)main.c	1.53 16/07/11 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -235,6 +235,31 @@ main(c, v, e)
 	    eq("jbosh", simple((unsigned char *)*v)) ||
 	    eq("-jbosh", simple((unsigned char *)*v)))
 		flags |= monitorflg;
+
+#ifdef	DO_POSIX_PATH
+	/*
+	 * If the last path name component is not "sh", it may behave different.
+	 */
+	if (eq("sh", simple((unsigned char *)*v))) {
+#ifdef	HAVE_GETEXECNAME
+		const char	*exname = getexecname();
+#else
+			char	*exname = getexecpath();
+#endif
+		if (exname) {
+			if (strstr(exname, "/xpg4"))	/* X-Open interface? */
+				flags2 |= posixflg;
+
+#ifdef	POSIX_BOSH_PATH
+			if (eq(POSIX_BOSH_PATH, exname))
+				flags2 |= posixflg;
+#endif
+#ifndef	HAVE_GETEXECNAME
+			libc_free(exname);
+#endif
+		}
+	}
+#endif
 
 	hcreate();
 	set_dotpath();

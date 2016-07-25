@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.67 16/07/07 2008-2016 J. Schilling
+ * @(#)xec.c	1.68 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.67 16/07/07 2008-2016 J. Schilling";
+	"@(#)xec.c	1.68 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -87,9 +87,11 @@ static	int	exallocjob	__PR((struct trenod *t, int xflags));
 /*VARARGS3*/
 int
 execute(argt, xflags, errorflg, pf1, pf2)
-struct trenod *argt;
-int xflags, errorflg;
-int *pf1, *pf2;
+	struct trenod	*argt;
+	int		xflags;
+	int		errorflg;
+	int		*pf1;
+	int		*pf2;
 {
 	/*
 	 * `stakbot' is preserved by this routine

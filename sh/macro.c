@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.55 16/06/10 2008-2016 J. Schilling
+ * @(#)macro.c	1.56 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.55 16/06/10 2008-2016 J. Schilling";
+	"@(#)macro.c	1.56 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -298,12 +298,12 @@ getch(unsigned char endch, int trimflag)
 #else
 static int
 getch(endch, trimflag)
-unsigned char	endch;
-/*
- * flag to check if an argument is going to be trimmed, here document
- * output is never trimmed
- */
-int trimflag;
+	unsigned char	endch;
+	/*
+	 * flag to check if an argument is going to be trimmed, here document
+	 * output is never trimmed
+	 */
+	int	trimflag;
 #endif
 {
 	unsigned int	d;
@@ -652,7 +652,7 @@ getname:
 
 unsigned char *
 macro(as)
-unsigned char	*as;
+	unsigned char	*as;
 {
 	(void) _macro(as);
 	return (fixstak());
@@ -660,7 +660,7 @@ unsigned char	*as;
 
 static unsigned char *
 _macro(as)
-unsigned char	*as;
+	unsigned char	*as;
 {
 	/*
 	 * Strip "" and do $ substitution

@@ -1,13 +1,13 @@
-/* @(#)list.c	1.75 13/11/05 Copyright 1985, 1995, 2000-2013 J. Schilling */
+/* @(#)list.c	1.76 16/07/08 Copyright 1985, 1995, 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.75 13/11/05 Copyright 1985, 1995, 2000-2013 J. Schilling";
+	"@(#)list.c	1.76 16/07/08 Copyright 1985, 1995, 2000-2016 J. Schilling";
 #endif
 /*
  *	List the content of an archive
  *
- *	Copyright (c) 1985, 1995, 2000-2013 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -274,9 +274,9 @@ list_file(info)
 		time_t	*tp;
 		char	*tstr;
 		char	mstr[12]; /* 9 UNIX chars + ACL '+' XATTR '@' + nul */
-		char	lstr[11]; /* contains link count as string */
-	static	char	nuid[11]; /* XXXX 64 bit longs??? */
-	static	char	ngid[11]; /* XXXX 64 bit longs??? */
+		char	lstr[22]; /* ' ' + link count as string - 64 bits */
+	static	char	nuid[21]; /* uid as 64 bit long */
+	static	char	ngid[21]; /* gid as 64 bit long */
 		char	*add = "";
 
 	f = vpr;

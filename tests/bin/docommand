@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-# @(#)docommand	1.10 16/06/21 Written 2011-2016 by J. Schilling
+# @(#)docommand	1.11 16/07/10 Written 2011-2016 by J. Schilling
 ###########################################################################
 #@@C@@
 ###########################################################################
@@ -11,6 +11,7 @@
 #
 # Options:
 # -silent	do not print command label nor "passed"
+# -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
 #
 # Parameters:
@@ -28,22 +29,32 @@ docommand() {
 	fail_init
 	do_remove
 	silent=false
+	esilent=false
+	diffout=""
 	noremove=false
 	cmd_label="$1"
-	case "$1" in
-	-silent | --silent)
-		silent=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
-	case "$1" in
-	-noremove | --noremove)
-		noremove=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
+	while true
+	do
+		case "$1" in
+		-silent | --silent)
+			silent=true
+			shift
+			;;
+		-esilent | --esilent)
+			esilent=true
+			diffout=">/dev/null"
+			shift
+			;;
+		-noremove | --noremove)
+			noremove=true
+			shift
+			;;
+		*)
+			break
+			;;
+		esac
+	done
+	cmd_label="$1"
 
 	$silent || echo_nonl "$cmd_label"...
 
@@ -84,7 +95,8 @@ $msg"
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
-		diff exp.stdout got.stdout || fail "$cmd_label: stdout format error with $2"
+		eval diff exp.stdout got.stdout $diffout || \
+				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
 	then
@@ -97,7 +109,8 @@ $msg"
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
 		echo		>> got.stderr	# Make output end in newline
-		diff exp.stderr got.stderr || fail "$cmd_label: stderr format error with $2"
+		eval diff exp.stderr got.stderr $diffout || \
+				fail "$cmd_label: stderr format error with $2"
 	fi
 	
 	$noremove || do_remove
@@ -113,6 +126,7 @@ $msg"
 #
 # Options:
 # -silent	do not print command label nor "passed"
+# -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
 #
 # Parameters:
@@ -131,22 +145,32 @@ do_output() {
 	fail_init
 	do_remove
 	silent=false
+	esilent=false
+	diffout=""
 	noremove=false
 	cmd_label="$1"
-	case "$1" in
-	-silent | --silent)
-		silent=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
-	case "$1" in
-	-noremove | --noremove)
-		noremove=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
+	while true
+	do
+		case "$1" in
+		-silent | --silent)
+			silent=true
+			shift
+			;;
+		-esilent | --esilent)
+			esilent=true
+			diffout=">/dev/null"
+			shift
+			;;
+		-noremove | --noremove)
+			noremove=true
+			shift
+			;;
+		*)
+			break
+			;;
+		esac
+	done
+	cmd_label="$1"
 
 	$silent || echo_nonl "$cmd_label"...
 
@@ -184,7 +208,8 @@ $msg"
 		fi
 	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
-		diff "$4" got.stdout || fail "$cmd_label: stdout format error with $2"
+		eval diff "$4" got.stdout $diffout || \
+				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
 	then
@@ -197,7 +222,8 @@ $msg"
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
 		echo		>> got.stderr	# Make output end in newline
-		diff exp.stderr got.stderr || fail "$cmd_label: stderr format error with $2"
+		eval diff exp.stderr got.stderr $diffout || \
+				fail "$cmd_label: stderr format error with $2"
 	fi
 	
 	$noremove || do_remove
@@ -213,6 +239,7 @@ $msg"
 #
 # Options:
 # -silent	do not print command label nor "passed"
+# -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
 #
 # Parameters:
@@ -231,22 +258,32 @@ do_error() {
 	fail_init
 	do_remove
 	silent=false
+	esilent=false
+	diffout=""
 	noremove=false
 	cmd_label="$1"
-	case "$1" in
-	-silent | --silent)
-		silent=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
-	case "$1" in
-	-noremove | --noremove)
-		noremove=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
+	while true
+	do
+		case "$1" in
+		-silent | --silent)
+			silent=true
+			shift
+			;;
+		-esilent | --esilent)
+			esilent=true
+			diffout=">/dev/null"
+			shift
+			;;
+		-noremove | --noremove)
+			noremove=true
+			shift
+			;;
+		*)
+			break
+			;;
+		esac
+	done
+	cmd_label="$1"
 
 	$silent || echo_nonl "$cmd_label"...
 
@@ -287,7 +324,8 @@ $msg"
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
-		diff exp.stdout got.stdout || fail "$cmd_label: stdout format error with $2"
+		eval diff exp.stdout got.stdout $diffout || \
+				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
 	then
@@ -297,7 +335,8 @@ $msg"
 		fi
 	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
-		diff "$5" got.stderr || fail "$cmd_label: stderr format error with $2"
+		eval diff "$5" got.stderr $diffout || \
+				fail "$cmd_label: stderr format error with $2"
 	fi
 	
 	$noremove || do_remove
@@ -313,6 +352,7 @@ $msg"
 #
 # Options:
 # -silent	do not print command label nor "passed"
+# -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
 #
 # Parameters:
@@ -332,22 +372,32 @@ do_outerr() {
 	fail_init
 	do_remove
 	silent=false
+	esilent=false
+	diffout=""
 	noremove=false
 	cmd_label="$1"
-	case "$1" in
-	-silent | --silent)
-		silent=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
-	case "$1" in
-	-noremove | --noremove)
-		noremove=true
-		shift;
-		cmd_label="$1"
-		;;
-	esac
+	while true
+	do
+		case "$1" in
+		-silent | --silent)
+			silent=true
+			shift
+			;;
+		-esilent | --esilent)
+			esilent=true
+			diffout=">/dev/null"
+			shift
+			;;
+		-noremove | --noremove)
+			noremove=true
+			shift
+			;;
+		*)
+			break
+			;;
+		esac
+	done
+	cmd_label="$1"
 
 	$silent || echo_nonl "$cmd_label"...
 
@@ -385,7 +435,8 @@ $msg"
 		fi
 	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
-		diff "$4" got.stdout || fail "$cmd_label: stdout format error with $2"
+		eval diff "$4" got.stdout $diffout || \
+				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
 	then
@@ -395,7 +446,8 @@ $msg"
 		fi
 	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
-		diff "$5" got.stderr || fail "$cmd_label: stderr format error with $2"
+		eval diff "$5" got.stderr $diffout || \
+				fail "$cmd_label: stderr format error with $2"
 	fi
 	
 	$noremove || do_remove

@@ -1,8 +1,8 @@
-/* @(#)star.c	1.351 16/03/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
+/* @(#)star.c	1.352 16/07/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.351 16/03/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
+	"@(#)star.c	1.352 16/07/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling
@@ -353,7 +353,7 @@ main(ac, av)
 
 	save_args(ac, av);
 
-#ifdef  USE_NLS 
+#ifdef  USE_NLS
 	setlocale(LC_ALL, "");
 
 #if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */

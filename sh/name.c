@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.59 16/07/06 2008-2016 J. Schilling
+ * @(#)name.c	1.60 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.59 16/07/06 2008-2016 J. Schilling";
+	"@(#)name.c	1.60 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -708,7 +708,7 @@ assnum(p, i)
 
 unsigned char *
 make(v)
-unsigned char	*v;
+	unsigned char	*v;
 {
 	unsigned char	*p;
 
@@ -785,9 +785,9 @@ lookup(nam)
  */
 static BOOL
 chkid(nam)
-unsigned char	*nam;
+	unsigned char	*nam;
 {
-	unsigned char *cp = nam;
+	unsigned char	*cp = nam;
 
 	if (!letter(*cp))
 		return (FALSE);

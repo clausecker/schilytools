@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.153 16/07/06 2008-2016 J. Schilling
+ * @(#)defs.h	1.156 16/07/14 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -197,6 +197,24 @@ extern "C" {
  */
 #define		CHDIR_L		1	/* Use logical mode (symlinks kept)   */
 #define		CHDIR_P		2	/* Use physcal mode (expand symlinks) */
+
+/*
+ * Binary operators in "test"
+ */
+#define	TEST_SNEQ	1		/* !=  string not equal */
+#define	TEST_AND	2		/* -a  and */
+#define	TEST_EF		3		/* -ef file exist + equal */
+#define	TEST_NT		4		/* -nt file newer than */
+#define	TEST_OR		5		/* -o  or */
+#define	TEST_OT		6		/* -ot file older than */
+#define	TEST_SEQ	7		/* =   string equal */
+
+#define	TEST_EQ		10		/* -eq integer equal		== */
+#define	TEST_GE		11		/* -ge integer greater or equal >= */
+#define	TEST_GT		12		/* -gt integer greater		>  */
+#define	TEST_LE		13		/* -le integer less or equal	<= */
+#define	TEST_LT		14		/* -lt integer less than	<  */
+#define	TEST_NE		15		/* -ne integer not equal	!= */
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -727,6 +745,7 @@ extern	unsigned char *setbrk	__PR((int));
 
 extern	void		*alloc		__PR((size_t));
 extern	void		free		__PR((void *ap));
+extern	void		libc_free	__PR((void *ap));
 extern	unsigned char *getstak		__PR((Intptr_t asize));
 extern	unsigned char *locstak		__PR((void));
 extern	unsigned char *growstak		__PR((unsigned char *newtop));
@@ -952,6 +971,8 @@ extern const struct sysnod	reserved[];
 extern const int		no_reserved;
 extern const struct sysnod	commands[];
 extern const int		no_commands;
+extern const struct sysnod	test_ops[];
+extern const int		no_test_ops;
 
 extern int			wdval;
 extern int			wdnum;
@@ -1103,6 +1124,7 @@ extern const char		devnull[];
 #define		aliasownerflg	020000		/* set -o aliasowner=   */
 #define		viflg		040000		/* set -o vi VI cmdln. edit  */
 #define		vedflg		0100000		/* set -o ved VED cmdln. edit */
+#define		posixflg	0200000		/* set -o posix		*/
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */

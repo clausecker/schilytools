@@ -1,8 +1,8 @@
-/* @(#)create.c	1.137 16/06/27 Copyright 1985, 1995, 2001-2016 J. Schilling */
+/* @(#)create.c	1.138 16/07/20 Copyright 1985, 1995, 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.137 16/06/27 Copyright 1985, 1995, 2001-2016 J. Schilling";
+	"@(#)create.c	1.138 16/07/20 Copyright 1985, 1995, 2001-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2016 J. Schilling
@@ -557,7 +557,6 @@ createi(sname, name, namlen, info, last)
 		 * overwrite username/groupname that is later needed for
 		 * vprint(), so we cannot allocate TCB from the buffer here.
 		 */
-error("bla\n");
 		if ((ptb = (TCB *)get_block(props.pr_hdrsize)) == NULL)
 			ptb = &tb;
 		else

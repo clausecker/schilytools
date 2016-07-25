@@ -38,13 +38,13 @@
 #include	"defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)string.c	1.15 12/05/12 2008-2012 J. Schilling
+ * @(#)string.c	1.17 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.15 12/05/12 2008-2012 J. Schilling";
+	"@(#)string.c	1.17 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -81,8 +81,7 @@ any(c, s)
 {
 	unsigned int d;
 
-	while ((d = *s++) != 0)
-	{
+	while ((d = *s++) != 0) {
 		if (d == c)
 			return (TRUE);
 	}

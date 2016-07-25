@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)args.c	1.73 16/06/10 2008-2016 J. Schilling
+ * @(#)args.c	1.75 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.73 16/06/10 2008-2016 J. Schilling";
+	"@(#)args.c	1.75 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -131,6 +131,9 @@ unsigned char	flagchar[] =
 	'u',			/* -u / -o nounset */
 	't',			/* -t / -o onecmd */
 	'P',
+#ifdef	DO_SET_O
+	0,			/* -o posix */
+#endif
 	'p',
 	'r',
 	STDFLG,			/* -s / -o stdin */
@@ -197,6 +200,9 @@ char	*flagname[] =
 	"nounset",		/* -u POSIX */
 	"onecmd",		/* -t bash name */
 	"pfsh",			/* -P Schily Bourne Shell */
+#ifdef	DO_SET_O
+	"posix",		/* -o posix */
+#endif
 	"privileged",		/* -p ksh93: only if really privileged */
 	"restricted",		/* -r ksh93 name */
 	"stdin",		/* -s Schily name */
@@ -262,6 +268,9 @@ unsigned long	flagval[]  =
 	setflg,			/* -u / -o nounset */
 	oneflg,			/* -t / -o onecmd */
 	pfshflg,		/* -P */
+#ifdef	DO_SET_O
+	fl2 | posixflg,		/* -o posix */
+#endif
 	privflg,		/* -p */
 	rshflg,			/* -r / -o restrictive */
 	stdflg,			/* -s / -o stdin */
@@ -313,8 +322,7 @@ prversion()
 int
 options(argc, argv)
 	int		argc;
-	unsigned char **argv;
-
+	unsigned char	**argv;
 {
 	unsigned char *cp;
 	unsigned char **argp = argv;
@@ -328,9 +336,9 @@ options(argc, argv)
 		size_t	vlen;
 
 		vlen = snprintf(vbuf, sizeof (vbuf),
-			"version %s %s (%s-%s-%s)",
-			VERSION_DATE, VERSION_STR,
-			HOST_CPU, HOST_VENDOR, HOST_OS);
+			    "version %s %s (%s-%s-%s)",
+			    VERSION_DATE, VERSION_STR,
+			    HOST_CPU, HOST_VENDOR, HOST_OS);
 		shvers = alloc(vlen + 1);
 		strcpy((char *)shvers, vbuf);
 	}
@@ -769,7 +777,7 @@ clearup()
 
 struct dolnod *
 savargs(funcntp)
-int funcntp;
+	int	funcntp;
 {
 	if (!funcntp) {
 		globdolh = dolh;
@@ -788,8 +796,8 @@ int funcntp;
 
 void
 restorargs(olddolh, funcntp)
-struct dolnod *olddolh;
-int funcntp;
+	struct dolnod	*olddolh;
+	int		funcntp;
 {
 	if (argfor != olddolh)
 		while ((argfor = clean_args(argfor)) != olddolh && argfor)

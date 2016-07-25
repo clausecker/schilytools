@@ -1,8 +1,8 @@
-/* @(#)header.c	1.157 16/07/06 Copyright 1985, 1994-2016 J. Schilling */
+/* @(#)header.c	1.159 16/07/12 Copyright 1985, 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.157 16/07/06 Copyright 1985, 1994-2016 J. Schilling";
+	"@(#)header.c	1.159 16/07/12 Copyright 1985, 1994-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1796,7 +1796,8 @@ tar_to_info(ptb, info)
 	xname = ptb->ndbuf.t_name[NAMSIZ];
 	ptb->ndbuf.t_name[NAMSIZ] = '\0';	/* allow 100 chars in name */
 
-	if (ptb->ndbuf.t_name[strlen(ptb->ndbuf.t_name) - 1] == '/') {
+	if (ptb->ndbuf.t_name[0] != '\0' &&
+	    ptb->ndbuf.t_name[strlen(ptb->ndbuf.t_name) - 1] == '/') {
 		typeflag = DIRTYPE;
 		info->f_filetype = F_DIR;
 		info->f_rsize = (off_t)0;	/* XXX hier?? siehe oben */
@@ -1854,6 +1855,13 @@ star_to_info(ptb, info)
 	if ((info->f_xflags & (XF_DEVMAJOR|XF_DEVMINOR)) !=
 						(XF_DEVMAJOR|XF_DEVMINOR)) {
 		mbits = ptb->dbuf.t_devminorbits - '@';
+		if (((mbits + CHAR_BIT-1) / CHAR_BIT) > sizeof (info->f_rdev)) {
+			errmsgno(EX_BAD,
+			"WARNING: Too many (%d) minor bits in header at %lld.\n",
+				mbits,
+				tblocks());
+			mbits = -1;
+		}
 		if (mbits == 0) {
 			static	BOOL	dwarned = FALSE;
 			if (!dwarned) {

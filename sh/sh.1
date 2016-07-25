@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.168 16/07/06 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.172 16/07/17 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/07/06" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/07/17" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5131,6 +5131,20 @@ Equivalent to
 Equivalent to
 .BR \-P .
 .TP
+.B posix
+Set the behavior of the Bourne Shell to POSIX mode
+where its default differs from the POSIX standard.
+.br
+This currently disallows to use
+.RB `` ^ ''
+as the pipe symbol and switches off support for
+.B test \-t
+without a parameter.
+.br
+POSIX mode is enabled by default if the executable path of the
+shell equals a compiled in value, e.g.
+.BR /usr/xpg4/bin/sh .
+.TP
 .B privileged
 Equivalent to
 .BR \-p .
@@ -5564,6 +5578,10 @@ If
 is not specified,
 .B 1
 is used as a default value.
+When is POSIX mode
+.BR "(via " "set \-o posix" ),
+.I file-descriptor
+must always be specified.
 .br
 .ne 3
 .TP
@@ -5769,7 +5787,194 @@ The
 .B \-o
 binary primary is left associative.
 .PD
+.LP
+The algorithm for determining the precedence of the operators and the
+return value that is generated is based on the number of arguments presented
+to
+.BR test .
+(However, when using the \fB[.\|.\|.]\fR form, the right-bracket
+final argument is not counted in this algorithm.)
+.sp
+.LP
+In the following list,
+.BR $1 ,
+.BR $2 ,
+.B $3
+and
+.B $4
+represent
+the arguments presented to
+.B test
+as a
+.IR condition ,
+.IR condition1 ,
+or
+.IR condition2 .
+.sp
+.RS +4
+.br
+.ne 3
+.TP 14
+.I 0 arguments:
+Exit false (1).
+.br
+.ne 3
+.TP
+.I 1 argument:
+Exit true (0) if
+.B $1
+is not null. Otherwise, exit false.
+.br
+.ne 3
+.TP
+.I 2 arguments:
+.RS +14
+.TP
+.ie t \(bu
+.el o
+If
+.B $1
+is
+.BR ! ,
+exit true if
+.B $2
+is null, false if
+.B $2
+is
+not null.
+.TP
+.ie t \(bu
+.el o
+If
+.B $1
+is a unary primary, exit true if the unary test is true, false
+if the unary test is false.
+.TP
+.ie t \(bu
+.el o
+Otherwise, produce unspecified results.
 .RE
+.br
+.ne 3
+.TP
+.I 3 arguments:
+.RS +14
+.TP
+.ie t \(bu
+.el o
+If
+.B $2
+is a binary primary, perform the binary test of
+.B $1
+and
+.BR $3 .
+.TP
+.ie t \(bu
+.el o
+If
+.B $1
+is
+.BR ! ,
+negate the two-argument test of
+.B $2
+and
+.BR $3 .
+.TP
+.ie t \(bu
+.el o
+If
+.B $1 is
+.B (
+and
+.B $3
+is
+.BR ) ,
+perform the unary test of
+.BR $2 .
+.TP
+.ie t \(bu
+.el o
+Otherwise, produce unspecified results.
+.RE
+.br
+.ne 3
+.TP
+.I 4 arguments:
+.RS +14
+.TP
+.ie t \(bu
+.el o
+If
+.B $1
+is
+.BR ! ,
+negate the three-argument test of
+.BR $2 ,
+.BR $3 ,
+and
+.BR $4 .
+.TP
+.ie t \(bu
+.el o
+If
+.B $1
+is
+.B (
+and
+.B $4
+is
+.BR ) ,
+perform the two-argument test of
+.B $2
+and
+.BR $3 .
+.TP
+.ie t \(bu
+.el o
+Otherwise, the results are unspecified.
+.RE
+.RE
+.LP
+Scripts should be careful when dealing with user-supplied input that could
+be confused with primaries and operators. Unless the application writer
+knows all the cases that produce input to the script, invocations like
+.B
+test "$1" -a "$2"
+should be written as
+.B
+test "$1" && test "$2"
+to avoid problems if a user supplied values such as
+.B $1
+set to
+.B !
+and
+.B $2
+set to the null string. That is, in cases where maximal portability
+is of concern, replace
+.B "test expr1 -a expr2"
+with
+.B
+test expr1 && test expr2\c
+, and replace
+.B
+test expr1 -o expr2
+with
+.B
+test expr1 || test expr2\c
+\&. But notice that, in
+.BR test ,
+.B -a
+has
+.BR higher
+precedence than
+.BR -o ,
+while
+.B &&
+and
+.B ||
+have
+.BR equal
+precedence in the shell.
 
 .br
 .ne 3
@@ -7443,6 +7648,19 @@ useful.
 .br
 .ne 4
 .TP
+.BR pipes " and " words
+.br
+When in POSIX mode, the
+.RB `` ^ ''
+character is not accepted as an alternate pipe
+.RB `` | ''
+symbol.
+This results in different word delimiting rules, words that contain
+.RB `` ^ ''
+do not need to be quoted.
+.br
+.ne 4
+.TP
 .B set
 .br
 The output of the
@@ -7476,6 +7694,13 @@ an error because
 .RB `` \-r ''
 is an unary operator that misses an argument.
 Correctly written scripts do not suffer from this change.
+.sp
+When not in POSIX mode
+.RB ( "set -o posix" " not set),
+.B test
+still understands
+.B test \-t
+without a parameter for compatibility with UNIX scripts.
 .ne 4
 .TP
 .B times

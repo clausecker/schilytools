@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.43 16/06/30 2008-2016 J. Schilling
+ * @(#)cmd.c	1.44 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.43 16/06/30 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.44 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -288,7 +288,7 @@ term(flg)
  */
 static struct regnod *
 syncase(esym)
-int	esym;
+	int	esym;
 {
 	skipnl(0);
 	if (wdval == esym)
@@ -734,7 +734,7 @@ chkword()
 
 static void
 chksym(sym)
-int sym;
+	int	sym;
 {
 	int	x = sym & wdval;
 
@@ -744,7 +744,7 @@ int sym;
 
 static void
 prsym(sym)
-int sym;
+	int	sym;
 {
 	if (sym & SYMFLG) {
 		const struct sysnod *sp = reserved;

@@ -1,8 +1,8 @@
-/* @(#)gmatch.c	1.9 15/03/29 2008-2015 J. Schilling */
+/* @(#)gmatch.c	1.10 16/07/15 2008-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.9 15/03/29 2008-2015 J. Schilling";
+	"@(#)gmatch.c	1.10 16/07/15 2008-2016 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
@@ -47,8 +47,8 @@ static char *cclass	__PR((const char *p, int sub));
 
 static char *
 cclass(p, sub)
-register const char *p;
-register int sub;
+	register const char	*p;
+	register int		sub;
 {
 	register int c, d, not, found;
 		wchar_t	lc;

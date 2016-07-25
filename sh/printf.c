@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.3 16/06/10 Copyright 2015-2016 J. Schilling */
+/* @(#)printf.c	1.4 16/07/23 Copyright 2015-2016 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	printf builtin
@@ -30,12 +30,16 @@
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.3 16/06/10 Copyright 2015-2016 J. Schilling";
+	"@(#)printf.c	1.4 16/07/23 Copyright 2015-2016 J. Schilling";
 
 #include <schily/errno.h>
 
 #define	LOCAL	static
 #define	exit(a)	flushb(); return (a)
+
+#define	DOTSEEN	1
+#define	FMINUS	2
+#define	IGNSEEN	4
 
 const char printfuse[] = "printf format [string ...]";
 
@@ -216,6 +220,10 @@ sysprintf(argc, argv)
 		for (cp = fmt; *cp; cp++) {
 			int		width[3];
 			int		*widthp = &width[1];
+			int		pflags;
+			int		fldwidth;
+			int		signif;
+			Llong		val;
 			unsigned char	sc;
 			unsigned char	fc;
 
@@ -245,15 +253,37 @@ sysprintf(argc, argv)
 				cp--;
 				continue;
 			}
+			fldwidth = signif = pflags = 0;
 			per = cp++;		/* Start of new printf format */
 			cp += strspn(C cp, "+- #0"); /* Skip flag characters  */
-			if (*cp == '*')
-				*widthp++ = gintmax(&argv);
+			{
+				unsigned char	*p;
+
+				for (p = &per[1]; p < cp; ) {
+					if (*p++ == '-')
+						pflags |= FMINUS;
+				}
+			}
+			if (*cp == '*') {
+				*widthp++ = fldwidth = gintmax(&argv);
+			} else {
+				(void) astoll(C cp, &val);
+				fldwidth = val;
+			}
+			if (fldwidth < 0) {
+				pflags |= FMINUS;
+				fldwidth = -fldwidth;
+			}
 			cp += strspn(C cp, "*1234567890"); /* Skip fldwitdh  */
 			if (*cp == '.') {
+				pflags |= DOTSEEN;
 				cp++;
-				if (*cp == '*')
-					*widthp++ = gintmax(&argv);
+				if (*cp == '*') {
+					*widthp++ = signif = gintmax(&argv);
+				} else {
+					(void) astoll(C cp, &val);
+					signif = val;
+				}
 				cp += strspn(C cp, "*1234567890"); /* Sk prec */
 			}
 			width[0] = widthp - width;
@@ -267,22 +297,33 @@ sysprintf(argc, argv)
 			case 'b': {
 				unsigned char *ostaktop = staktop;
 				unsigned char *p = UC gstr(&argv);
+				int		pre = 0;
+				int		post = 0;
 
+				/*
+				 * We cannot simply forward to printf() here as
+				 * we need to support "%b" "\0" and printf()
+				 * does not handle nul bytes.
+				 */
 				staktop = locstak();
 				for (; *p; p++) {
 					if ((len = mbtowc(&wc, (char *)p,
 							MB_LEN_MAX)) <= 0) {
 						(void) mbtowc(NULL, NULL, 0);
-						GROWSTAKTOP();
-						pushstak(*p);
-						continue;
+						len = 1;
+						wc = *p;
 					}
+					if (signif > 0 &&
+					    (staktop - stakbot + len) > signif)
+						break;
 					if (wc == '\\') {
 						unsigned char	cc;
 
 						p = escape_char(p, &cc, TRUE);
-						if (p == NULL)
+						if (p == NULL) {
+							pflags |= IGNSEEN;
 							break;
+						}
 						GROWSTAKTOP();
 						pushstak(cc);
 					} else {
@@ -293,11 +334,23 @@ sysprintf(argc, argv)
 						p--;
 					}
 				}
-				GROWSTAKTOP();
-				pushstak('\0');
-				xprp(per, C stakbot, width);
+				if ((staktop - stakbot) < fldwidth) {
+					if (pflags & FMINUS) {
+						post = fldwidth -
+						    (staktop - stakbot);
+					} else {
+						pre = fldwidth -
+						    (staktop - stakbot);
+					}
+				}
+				while (--pre >= 0)
+					prc_buff(' ');
+				for (p = stakbot; p < staktop; )
+					prc_buff(*p++);
+				while (--post >= 0)
+					prc_buff(' ');
 				staktop = ostaktop;
-				if (p == NULL) {
+				if (pflags & IGNSEEN) {
 					exit(0);
 				}
 				break;

@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.67 16/07/06 2008-2016 J. Schilling
+ * @(#)msg.c	1.68 16/07/14 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.67 16/07/06 2008-2016 J. Schilling";
+	"@(#)msg.c	1.68 16/07/14 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -282,6 +282,30 @@ const int no_reserved = sizeof (reserved)/sizeof (struct sysnod);
 
 const char	export[] = "export";
 const char	readonly[] = "readonly";
+
+const struct sysnod test_ops[] =
+{
+	{ "!=",		TEST_SNEQ	},
+	{ "-a",		TEST_AND	},
+#ifdef	DO_EXT_TEST
+	{ "-ef",	TEST_EF		},
+#endif
+	{ "-eq",	TEST_EQ		},
+	{ "-ge",	TEST_GE		},
+	{ "-gt",	TEST_GT		},
+	{ "-le",	TEST_LE		},
+	{ "-lt",	TEST_LT		},
+	{ "-ne",	TEST_NE		},
+#ifdef	DO_EXT_TEST
+	{ "-nt",	TEST_NT		},
+#endif
+	{ "-o",		TEST_OR		},
+#ifdef	DO_EXT_TEST
+	{ "-ot",	TEST_OT		},
+#endif
+	{ "=",		TEST_SEQ	},
+};
+const int no_test_ops = sizeof (test_ops)/sizeof (struct sysnod);
 
 /*
  * In the POSIX teleconferences from November and December 2014, we

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)echo.c	1.15 16/05/19 2008-2016 J. Schilling
+ * @(#)echo.c	1.16 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.15 16/05/19 2008-2016 J. Schilling";
+	"@(#)echo.c	1.16 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -56,8 +56,8 @@ unsigned char	*escape_char	__PR((unsigned char *cp, unsigned char *res,
 
 int
 echo(argc, argv)
-int argc;
-unsigned char **argv;
+	int		argc;
+	unsigned char	**argv;
 {
 	unsigned char	*cp;
 	int	i;

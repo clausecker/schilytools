@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)jobs.c	1.93 16/04/22 2008-2016 J. Schilling
+ * @(#)jobs.c	1.94 16/07/15 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.93 16/04/22 2008-2016 J. Schilling";
+	"@(#)jobs.c	1.94 16/07/15 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -253,7 +253,7 @@ static	int	waitid		__PR((idtype_t idtype, id_t id,
 #if	!defined(HAVE_TCGETPGRP) && defined(TIOCGPGRP)
 pid_t
 tcgetpgrp(fd)
-int fd;
+	int	fd;
 {
 	pid_t pgid;
 	if (ioctl(fd, TIOCGPGRP, &pgid) == 0)
@@ -265,8 +265,8 @@ int fd;
 #if	!defined(HAVE_TCSETPGRP) && defined(TIOCSPGRP)
 int
 tcsetpgrp(fd, pgid)
-int fd;
-pid_t pgid;
+	int	fd;
+	pid_t	pgid;
 {
 	return (ioctl(fd, TIOCSPGRP, &pgid));
 }
@@ -553,7 +553,7 @@ statjob(jp, si, fg, rc)
  */
 static void
 collectjobs(wnohang)
-int wnohang;
+	int		wnohang;
 {
 	pid_t		pid;
 	struct job	*jp;
@@ -728,7 +728,8 @@ waitjob(jp)
  */
 int
 settgid(new, expected)
-pid_t new, expected;
+	pid_t	new;
+	pid_t	expected;
 {
 	int	fd = STDIN_FILENO;
 	pid_t	current = tcgetpgrp(fd);
@@ -951,7 +952,7 @@ startjobs()
 
 int
 endjobs(check_if)
-int check_if;
+	int	check_if;
 {
 	if ((flags & (jcoff|jcflg)) != jcflg)
 		return (1);
@@ -1349,8 +1350,8 @@ sysfgbg(argc, argv)
  */
 void
 syswait(argc, argv)
-int argc;
-char *argv[];
+	int	argc;
+	char	*argv[];
 {
 	char		*cmdp = *argv;
 	struct job	*jp;

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.104 16/07/06 2008-2016 J. Schilling
+ * @(#)bltin.c	1.105 16/07/14 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.104 16/07/06 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.105 16/07/14 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1086,9 +1086,9 @@ builtin(type, argc, argv, t, xflags)
 	default:
 		prs_buff(_gettext("unknown builtin\n"));
 	}
-#if defined(DO_POSIX_EXPORT) || defined(DO_POSIX_UNSET) || \
-    defined(DO_GETOPT_UTILS) || defined(INTERACTIVE) || \
-    defined(DO_POSIX_CD) || defined(DO_POSIX_FAILURE)
+#if	defined(DO_POSIX_EXPORT) || defined(DO_POSIX_UNSET) || \
+	defined(DO_GETOPT_UTILS) || defined(INTERACTIVE) || \
+	defined(DO_POSIX_CD) || defined(DO_POSIX_FAILURE)
 out:
 #endif
 	flushb();		/* Flush print buffer */

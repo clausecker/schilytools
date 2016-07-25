@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.65 16/06/09 2008-2016 J. Schilling
+ * @(#)word.c	1.73 16/07/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.65 16/06/09 2008-2016 J. Schilling";
+	"@(#)word.c	1.73 16/07/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -130,7 +130,7 @@ word()
 			break;	/* out of comment - white space loop */
 		}
 	}
-	if (!eofmeta(c)) {
+	if (!eofmeta(c) || (c == '^' && (flags2 & posixflg))) {
 		struct argnod	*arg = (struct argnod *)locstak();
 		unsigned char	*argp = arg->argval;
 		unsigned int	wordc;	/* To restore c from  match_word() */
@@ -151,6 +151,7 @@ word()
 		    (c == '>' || c == '<' ||
 		    ((flags2 & fdpipeflg) && c == '|'))) {
 #else
+		    /* CSTYLED */
 		    (c == '>' || c == '<')) {
 #endif
 			word();
@@ -167,7 +168,7 @@ word()
 		} else { /* check for reserved words */
 			if (reserv == FALSE ||
 			    (wdval = syslook(arg->argval,
-					    reserved, no_reserved)) == 0) {
+			    reserved, no_reserved)) == 0) {
 				wdval = 0;
 			}
 #ifdef	DO_TIME
@@ -224,10 +225,10 @@ word()
 			int	aflags = abegin > 0 ? AB_BEGIN:0;
 
 		if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
-				    &seen, aflags)) == NULL)
+		    &seen, aflags)) == NULL) {
 			val = ab_value(GLOBAL_AB, (char *)wdarg->argval,
-				    &seen, aflags);
-
+			    &seen, aflags);
+		}
 		if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));
 
@@ -271,6 +272,7 @@ match_word(argp, c, d, wordcp)
 	unsigned int	cc;
 	unsigned char	*pc;
 	int		alpha = 1;
+	int		parm = 0;
 #ifdef	DO_TILDE
 	int		iskey = 0;
 	int		tilde = -1;
@@ -328,6 +330,10 @@ extern	int		abegin;
 #ifdef	DO_DOL_PAREN
 			if (c == DOLLAR) {
 				argp = dolparen(argp);
+				if (peekn == ('{' | MARK))
+					parm++;
+			} else if (c == '}' && parm) {
+				parm--;
 			} else
 #endif
 			if (qotchar(c)) {	/* '`' or '"' */
@@ -352,7 +358,8 @@ extern	int		abegin;
 				tilde = argp - stakbot;
 #endif
 		}
-	} while ((c = nextwc(), d != MARK || !eofmeta(c)));
+	} while ((c = nextwc(), d != MARK || !eofmeta(c)) || parm > 0 ||
+				(c == '^' && (flags2 & posixflg)));
 
 	if (d == MARK) {
 		/*
@@ -381,11 +388,11 @@ dolparen(argp)
 		if ((c = nextwc()) == '(') {
 			argp = match_arith(argp);
 		} else {
-			peekc = c | MARK;
+			peekn = c | MARK;
 			argp = match_cmd(argp);
 		}
 	} else {
-		peekc = c | MARK;
+		peekn = c | MARK;
 	}
 	return (argp);
 }
@@ -459,6 +466,10 @@ match_arith(argp)
 	*argp++ = '(';
 	*argp = 0;
 	while ((c = nextwc()) != '\0') {
+		if (c == '`') {
+			argp = match_block(argp, c, c);
+			continue;
+		}
 		/*
 		 * quote each character within
 		 * single quotes
@@ -523,6 +534,7 @@ match_literal(argp)
 		GROWSTAK(argp);
 		*argp++ = '"';
 	}
+	*argp = '\0';
 	return (argp);
 }
 
@@ -579,6 +591,7 @@ match_block(argp, c, d)
 		}
 #endif
 	}
+	*argp = '\0';
 	return (argp);
 }
 
@@ -697,8 +710,8 @@ retry:
 				 * this loop won't overrun the f->fbuf buffer.
 				 */
 				len = readb(f,
-					(f->fsiz == 1) ? 1 : (f->fsiz - rest),
-					rest);
+				    (f->fsiz == 1) ? 1 : (f->fsiz - rest),
+				    rest);
 				if (len == 0)
 					break;
 			}

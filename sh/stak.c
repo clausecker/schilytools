@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.18 16/06/09	Copyright 2010-2016 J. Schilling
+ * @(#)stak.c	2.20 16/07/15	Copyright 2010-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.18 16/06/09 Copyright 2010-2016 J. Schilling";
+	"@(#)stak.c	2.20 16/07/15 Copyright 2010-2016 J. Schilling";
 #endif
 
 
@@ -462,7 +462,7 @@ tdystak(sav, iosav)
 		/* EMPTY */
 		STPRS("tdystak(0)\n");
 	} else if (blk->h.magic == STMAGICNUM ||
-		blk->h.magic == STNMAGICNUM) {
+		    blk->h.magic == STNMAGICNUM) {
 		/* EMPTY */
 		STPRS("tdystak(data ptr: ");
 		STPRN((long)sav);
@@ -627,7 +627,7 @@ __growstak(incr)
 		 * get realloc to grow the stack to match the stack top
 		 */
 		if ((oldbsy = realloc(oldbsy, (unsigned)staklen)) ==
-							(unsigned char *)NIL)
+						    (unsigned char *)NIL)
 			error(nostack);
 	}
 	TPRS("now @ ");
@@ -767,6 +767,13 @@ shfree(ap)
 	}
 }
 
+void
+libc_free(ap)
+	void	*ap;
+{
+	free(ap);
+}
+
 #ifdef	DO_SYSALLOC
 void
 chkmem()
@@ -804,7 +811,7 @@ chkmem()
  */
 unsigned char *
 cpystak(x)
-unsigned char	*x;
+	unsigned char	*x;
 {
 	return (endstak(movstrstak(x, locstak())));
 }

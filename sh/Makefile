@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.117 16/07/06  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.118 16/07/10  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -72,6 +72,11 @@ CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
+CPPOPTS +=	-DDO_POSIX_PATH		# Implement set -o posix from PATH
+					# call CPPOPTX=-DPOSIX_BOTH_PATH=\"/bin/sh\"
+					# or add CPPOPTS += -DPOSIX_BOTH_PATH=\"/bin/sh\"
+					# to make a PATH auto set -o posix
+
 CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
 CPPOPTS +=	-DDO_SELECT		# Implement ksh "select" feature
 CPPOPTS +=	-DDO_DOL_PAREN		# Implement POSIX $(...) command subst

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.43 16/06/10 2008-2016 J. Schilling
+ * @(#)service.c	1.45 16/07/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.43 16/06/10 2008-2016 J. Schilling";
+	"@(#)service.c	1.45 16/07/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -166,7 +166,7 @@ initio(iop, save)
 
 unsigned char *
 simple(s)
-unsigned char	*s;
+	unsigned char	*s;
 {
 	unsigned char	*sname;
 
@@ -527,7 +527,7 @@ trim(at)
 /* Same as trim, but only removes backlashes before slashes */
 void
 trims(at)
-unsigned char	*at;
+	unsigned char	*at;
 {
 	unsigned char	*last;
 	unsigned char	*current;
@@ -583,7 +583,7 @@ unsigned char	*at;
 
 unsigned char *
 mactrim(s)
-unsigned char	*s;
+	unsigned char	*s;
 {
 	unsigned char	*t = macro(s);
 
@@ -593,7 +593,7 @@ unsigned char	*s;
 
 unsigned char **
 scan(argn)
-int	argn;
+	int	argn;
 {
 	struct argnod *argp =
 			(struct argnod *)(Rcheat(gchain) & ~ARGMK);
@@ -620,7 +620,8 @@ int	argn;
 
 static void
 gsort(from, to)
-unsigned char	*from[], *to[];
+	unsigned char	*from[];
+	unsigned char	*to[];
 {
 	int	k, m, n;
 	int	i, j;
@@ -656,7 +657,7 @@ unsigned char	*from[], *to[];
  */
 int
 getarg(ac)
-struct comnod	*ac;
+	struct comnod	*ac;
 {
 	struct argnod	*argp;
 	int		count = 0;
@@ -674,7 +675,7 @@ struct comnod	*ac;
 
 static int
 split(s)		/* blank interpretation routine */
-unsigned char	*s;
+	unsigned char	*s;
 {
 	unsigned char	*argp;
 	int		c;
@@ -796,7 +797,7 @@ preacct(cmdadrp)
 		sabuf.ac_uid = getuid();
 		sabuf.ac_gid = getgid();
 		movstrn(simple(cmdadrp), (unsigned char *)sabuf.ac_comm,
-			sizeof (sabuf.ac_comm));
+			    sizeof (sabuf.ac_comm));
 		shaccton = 1;
 	}
 }
@@ -814,7 +815,7 @@ doacct()
 		sabuf.ac_etime = compress(after - before);
 
 		if ((fd = open((char *)acctnod.namval,
-			    O_WRONLY | O_APPEND | O_CREAT, 0666)) != -1) {
+		    O_WRONLY | O_APPEND | O_CREAT, 0666)) != -1) {
 			write(fd, &sabuf, sizeof (sabuf));
 			close(fd);
 		}
