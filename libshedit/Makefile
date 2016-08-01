@@ -1,68 +1,12 @@
-#ident "@(#)Makefile	1.19 16/03/30 "
+#ident "@(#)Makefile	1.20 16/07/27 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		lib
-TARGETLIB=	shelledit
-
-CPPOPTS +=	-DBSH			# Tell the code that we compile for bsh
-CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
-CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
-CPPOPTS +=	-DDO_SUID		# Include code for 'suid' builtin
-# ??? CPPOPTS +=	-DJOBCONTROL		# Include Job Control management
-CPPOPTS +=	-DVFORK			# Use vfork() if possible
-CPPOPTS +=	-DOLD_PWORD		# Use old "word" tokenizer
-CPPOPTS +=	-DFAST_MALLOC		# malloc() without freechecking
-					# and without bound checks
-#CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
-CPPOPTS +=	-DTESTMAIL		# Do mail file checking
-
-CPPOPTS	+=	-DBOURNE
-CPPOPTS	+=	-DLIB_SHEDIT
-CPPOPTS	+=	-DINCL_MYSTDIO
-CPPOPTS	+=	-DNO_WEAK_SYMBOLS
-CPPOPTS	+=	-DNO_GETLINE_COMPAT
-CPPOPTS	+=	-I.
-#CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
-#CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
-
-#COPTX += -g -xO0
-#LDOPTX += -g
-
-#
-# Additional defines:
-#
-#	-DFAST_MALLOC	a malloc() without freechecking and without a check
-#			for overrun size bounds.
-#	-DNO_USER_MALLOC Do not use our own (user defined) malloc()
-
-CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
-		fprint.c error.c fgetline.c fileopen.c fio.c comerr.c dat.c
-
-
-#
-# match.c nur wenn evt. a='test'cc"bbb" implementiert wird
-#		alloc.c match.c wait3.c
-
-HFILES=		bsh.h map.h node.h \
-		str.h \
-		strsubs.h bshconf.h schilyio.h mystdio.h
-LIBS=		-lxtermcap -lschily -lc
-#XMK_FILE=	Makefile.man
-XMK_FILE=	
-
-inputc.c map.c bsh.h comerr.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-$(ALLTARGETS): inputc.c map.c
-$(SRCROOT)/$(RULESDIR)/rules.lib: bsh.h
+MK_FILES= libshedit.mk libshedit_p.mk $(NO_SHL)shlshedit.mk
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.lib
+include		$(SRCROOT)/$(RULESDIR)/rules.mks
 ###########################################################################
-count: $(HFILES) $(CFILES) 
-	count $r1
-
-

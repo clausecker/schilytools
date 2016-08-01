@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.68 16/07/15 2008-2016 J. Schilling
+ * @(#)xec.c	1.69 16/07/30 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.68 16/07/15 2008-2016 J. Schilling";
+	"@(#)xec.c	1.69 16/07/30 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -113,6 +113,11 @@ execute(argt, xflags, errorflg, pf1, pf2)
 		treeflgs = t->tretyp;
 		type = treeflgs & COMMSK;
 
+		/*
+		 * If we ever like to move a global exitval = 0; exval_clear();
+		 * here, we need to take care about the last exit val for a
+		 * "exit" call without arguments.
+		 */
 		switch (type) {
 		case TFND:		/* function definition */
 			{
@@ -977,6 +982,10 @@ script:
 				unsigned char	*r = mactrim(swptr(t)->swarg);
 				struct regnod *regp;
 
+#ifdef	DO_POSIX_CASE
+				exitval = 0;
+				exval_clear();
+#endif
 				regp = swptr(t)->swlst;
 				while (regp) {
 					struct argnod *rex = regp->regptr;

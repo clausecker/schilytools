@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.118 16/07/10  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.123 16/07/31  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -60,6 +60,8 @@ CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
 CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parameters
+CPPOPTS +=	-DDO_U_DOLAT_NOFAIL	# set -u; echo "$@" does not fail
+CPPOPTS +=	-DDO_DUP_FAIL		# call failed() when dup() fails
 CPPOPTS +=	-DDO_SUBSTRING		# Include support for substring operations
 CPPOPTS +=	-DDO_POSIX_SPEC_BLTIN	# Only special builtins keep var assignment
 CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
@@ -74,11 +76,12 @@ CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
 CPPOPTS +=	-DDO_POSIX_PATH		# Implement set -o posix from PATH
 					# call CPPOPTX=-DPOSIX_BOTH_PATH=\"/bin/sh\"
-					# or add CPPOPTS += -DPOSIX_BOTH_PATH=\"/bin/sh\"
+					# or add CPPOPTS += -DPOSIX_BOSH_PATH=\"/bin/sh\"
 					# to make a PATH auto set -o posix
 
 CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
 CPPOPTS +=	-DDO_SELECT		# Implement ksh "select" feature
+CPPOPTS +=	-DDO_IFS_HACK		# Implement an IFS hack similar to ksh88
 CPPOPTS +=	-DDO_DOL_PAREN		# Implement POSIX $(...) command subst
 CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
@@ -143,7 +146,7 @@ HFILES=		abbrev.h ctype.h defs.h dup.h hash.h jobs.h \
 # -lsecdb	fuer getexecuser() free_execattr()
 # $(LIB_ACL_TEST) fuer libfind
 #
-LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt \
+LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshedit -lxtermcap -lgetopt \
 		$(LIB_FIND) \
 		-lschily \
 		$(LIB_ACL_TEST) \

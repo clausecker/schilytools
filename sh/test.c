@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)test.c	1.33 16/07/16 2008-2016 J. Schilling
+ * @(#)test.c	1.34 16/07/26 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.33 16/07/16 2008-2016 J. Schilling";
+	"@(#)test.c	1.34 16/07/26 2008-2016 J. Schilling";
 #endif
 
 
@@ -614,7 +614,7 @@ test_binary(arg1, op, arg2)
 	Intmax_t	ll_1 = 0;	/* Avoid warning from silly GCC */
 	Intmax_t	ll_2 = 0;	/* Avoid warning from silly GCC */
 
-	if (op > TEST_EQ) {
+	if (op >= TEST_EQ) {
 		ll_1 = str2imax(arg1);
 		ll_2 = str2imax(arg2);
 	}

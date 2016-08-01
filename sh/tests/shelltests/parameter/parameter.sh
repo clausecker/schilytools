@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter.sh	1.4 16/06/29 Copyright 2016 J. Schilling
+# @(#)parameter.sh	1.5 16/07/26 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -100,5 +100,11 @@ cmd='set -- "abab*cbb"; echo "${1} ${1%\**}"'
 docommand param53 "$SHELL -c '$cmd'" 0 "abab*cbb abab\n" ""
 cmd='set -- "abab*cbb"; echo ${1} ${1%\**}'
 docommand param54 "$SHELL -c '$cmd'" 0 "abab*cbb abab\n" ""
+
+
+#
+# Test that set -u does not cause "$@" to fail
+#
+docommand param100 "$SHELL -cu 'echo \"\$@\"'" 0 "\n" ""
 
 success

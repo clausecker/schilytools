@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)test.sh	1.5 16/07/16 Copyright 2016 J. Schilling
+# @(#)test.sh	1.6 16/07/26 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -91,73 +91,75 @@ docommand test33 "$SHELL -c 'test ! -a ! && echo OK'" 0 "OK\n" ""
 docommand test34 "$SHELL -c 'test ! != b && echo OK'" 0 "OK\n" ""
 docommand test35 "$SHELL -c 'test \"\" -a 2 || echo FAIL'" 0 "FAIL\n" ""
 docommand test36 "$SHELL -c 'test \"\" -o 2 && echo OK'" 0 "OK\n" ""
+docommand test37 "$SHELL -c 'test 2 -eq 2 && echo OK'" 0 "OK\n" ""
+docommand test38 "$SHELL -c 'test 0 -eq 2 || echo FAIL'" 0 "FAIL\n" ""
 #
 # non-valid binary operator
 #
-docommand test37 "$SHELL -c 'test bla -r a || echo FAIL'" 0 "FAIL\n" NONEMPTY
+docommand test50 "$SHELL -c 'test bla -r a || echo FAIL'" 0 "FAIL\n" NONEMPTY
 
 
 #
 # POSIX three args -> ! + two args
 #
-docommand test38 "$SHELL -c 'test ! -r a || echo FAIL'" 0 "FAIL\n" ""
-docommand test39 "$SHELL -c 'test ! -r b && echo OK'" 0 "OK\n" ""
+docommand test80 "$SHELL -c 'test ! -r a || echo FAIL'" 0 "FAIL\n" ""
+docommand test81 "$SHELL -c 'test ! -r b && echo OK'" 0 "OK\n" ""
 #
 # POSIX three args -> ! + ! + one arg
 #
-docommand test40 "$SHELL -c 'test ! ! bla && echo OK'" 0 "OK\n" ""
+docommand test82 "$SHELL -c 'test ! ! bla && echo OK'" 0 "OK\n" ""
 
 #
 # POSIX three args -> ( $2 ) () + one arg
 #
-docommand test41 "$SHELL -c 'test \( \"bla\" \) && echo OK'" 0 "OK\n" ""
-docommand test42 "$SHELL -c 'test \( \"-r\" \) && echo OK'" 0 "OK\n" ""
+docommand test83 "$SHELL -c 'test \( \"bla\" \) && echo OK'" 0 "OK\n" ""
+docommand test84 "$SHELL -c 'test \( \"-r\" \) && echo OK'" 0 "OK\n" ""
 
 #
 # POSIX four args -> ! + three args
 #
-docommand test43 "$SHELL -c 'test ! one \"-a\" two || echo FAIL'" 0 "FAIL\n" ""
-docommand test44 "$SHELL -c 'test ! ! \"-a\" two || echo FAIL'" 0 "FAIL\n" ""
+docommand test85 "$SHELL -c 'test ! one \"-a\" two || echo FAIL'" 0 "FAIL\n" ""
+docommand test86 "$SHELL -c 'test ! ! \"-a\" two || echo FAIL'" 0 "FAIL\n" ""
 
 #
 # POSIX four args -> ( $2 $3 ) + () two args
 #
-docommand test45 "$SHELL -c 'test \( \"-r\" a \) && echo OK'" 0 "OK\n" ""
-docommand test46 "$SHELL -c 'test \( ! \"-r\" \) || echo FAIL'" 0 "FAIL\n" ""
-docommand test47 "$SHELL -c 'test \( ! \"\" \) && echo OK'" 0 "OK\n" ""
+docommand test125 "$SHELL -c 'test \( \"-r\" a \) && echo OK'" 0 "OK\n" ""
+docommand test126 "$SHELL -c 'test \( ! \"-r\" \) || echo FAIL'" 0 "FAIL\n" ""
+docommand test127 "$SHELL -c 'test \( ! \"\" \) && echo OK'" 0 "OK\n" ""
 
 
-docommand test50 "$SHELL -c 'test  \"-r\" \) || echo FAIL'" 0 "FAIL\n" ""
-docommand test51 "$SHELL -c 'test ! \"-r\" \) && echo OK'" 0 "OK\n" ""
+docommand test140 "$SHELL -c 'test  \"-r\" \) || echo FAIL'" 0 "FAIL\n" ""
+docommand test141 "$SHELL -c 'test ! \"-r\" \) && echo OK'" 0 "OK\n" ""
 #
 # Fail because ")" is missing
 #
-docommand test52 "$SHELL -c 'test \( \"-r\" || echo FAIL'" 0 "FAIL\n" IGNORE
+docommand test142 "$SHELL -c 'test \( \"-r\" || echo FAIL'" 0 "FAIL\n" IGNORE
 #
 # Fail because ")" is missing
 #
-docommand test53 "$SHELL -c 'test \( \"-r\" a || echo FAIL'" 0 "FAIL\n" IGNORE
+docommand test143 "$SHELL -c 'test \( \"-r\" a || echo FAIL'" 0 "FAIL\n" IGNORE
 
 #
 # This case is unspecified by POSIX, so there may be an error message
 #
-docommand test54 "$SHELL -c 'test \( \) || echo FAIL'" 0 "FAIL\n" IGNORE
+docommand test150 "$SHELL -c 'test \( \) || echo FAIL'" 0 "FAIL\n" IGNORE
 #
 # The 3 and 4 argument POSIX case with ( )
 #
-docommand test55 "$SHELL -c 'test \( a \) && echo OK'" 0 "OK\n" IGNORE
-docommand test56 "$SHELL -c 'test ! \( a \) || echo FAIL'" 0 "FAIL\n" IGNORE
+docommand test151 "$SHELL -c 'test \( a \) && echo OK'" 0 "OK\n" IGNORE
+docommand test152 "$SHELL -c 'test ! \( a \) || echo FAIL'" 0 "FAIL\n" IGNORE
 #
 # This is the "most complex" case defined by POSIX
 #
-docommand test57 "$SHELL -c 'test ! 2 -lt 1 && echo OK'" 0 "OK\n" ""
+docommand test153 "$SHELL -c 'test ! 2 -lt 1 && echo OK'" 0 "OK\n" ""
 
 #
 # Tests to check test builtin syntax error behavior
 #
 # POSIX hat test geändert: mit einem Argument ist immer strlen(a) > 0 gemeint
 #
-docommand test100 "$SHELL -c 'test -r; echo \$?'" 0 "0\n" ""
+docommand test200 "$SHELL -c 'test -r; echo \$?'" 0 "0\n" ""
 
 remove a
 success

@@ -20,7 +20,7 @@ f none lib/libedc_ecc_dec.a 0444 root bin
 f none lib/libhfs.a 0444 root bin
 f none lib/libfile.a 0444 root bin
 f none lib/libfind.a 0444 root bin
-f none lib/libshelledit.a 0444 root bin
+f none lib/libshedit.a 0444 root bin
 f none lib/libsiconv.a 0444 root bin
 d none lib/siconv 0775 root bin
 f none lib/siconv/iso8859-1 0444 root bin

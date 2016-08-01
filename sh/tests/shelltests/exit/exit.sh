@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)exit.sh	1.3 16/06/04 Copyright 2016 J. Schilling
+# @(#)exit.sh	1.4 16/07/30 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -34,5 +34,15 @@ else
 	docommand e2 "$SHELL -c 'set -o fullexitcode; if $SHELL -c \"exit 256\" ; then echo TRUE; else echo FALSE; fi'" 0 "FALSE\n" ""
 	docommand e3 "$SHELL -c '$SHELL -c \"exit 256\" ; echo \$?; exit 0'" 0 "0\n" ""
 fi
+
+#
+# Check whether the exit code from a matched case label is used
+#
+docommand e10 "$SHELL -c 'case 10 in 10) (exit 123) ;; esac'" 123 "" ""
+#
+# Check whether the exit code is 0 when no case label matches
+#
+docommand e11 "$SHELL -c '(exit 99); case 0 in 10) (exit 123) ;; esac'" 0 "" ""
+
 
 success

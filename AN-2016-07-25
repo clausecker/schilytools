@@ -109,7 +109,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	path to aoto-switch into POSIX mode when the following commandline
 	is used to compile:
 
-		smake CPPOPTX=-DPOSIX_BOTH_PATH=\"/bin/sh\"
+		smake 'CPPOPTX=-DPOSIX_BOSH_PATH=\"/bin/sh\"'
 
 	Note that POSIX rules say that /bin/sh typically is not a POSIX
 	shell. Some platforms however like to have non-portable shell scripts,

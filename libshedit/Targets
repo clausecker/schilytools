@@ -1,0 +1,13 @@
+#ident "@(#)Targets	1.1 16/07/27 "
+
+CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
+		fprint.c error.c fgetline.c fileopen.c fio.c comerr.c dat.c
+
+
+#
+# match.c nur wenn evt. a='test'cc"bbb" implementiert wird
+#		alloc.c match.c wait3.c
+
+HFILES=		bsh.h map.h node.h \
+		str.h \
+		strsubs.h bshconf.h schilyio.h mystdio.h

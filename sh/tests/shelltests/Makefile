@@ -1,7 +1,9 @@
 all-tests:	test-alias \
 		test-arith \
+		test-bltin	\
 		test-break	\
 		test-cmdsub	\
+		test-conf	\
 		test-echo	\
 		test-errflg	\
 		test-error	\
@@ -27,11 +29,17 @@ test-alias:
 test-arith:
 	cd arith && for i in *.sh; do echo Running test arith/$$i; $(SHELL) $$i; done
 
+test-bltin:
+	cd bltin && for i in *.sh; do echo Running test bltin/$$i; $(SHELL) $$i; done
+
 test-break:
 	cd break && for i in *.sh; do echo Running test break/$$i; $(SHELL) $$i; done
 
 test-cmdsub:
 	cd cmdsub && for i in *.sh; do echo Running test cmdsub/$$i; $(SHELL) $$i; done
+
+test-conf:
+	cd conf && for i in *.sh; do echo Running test conf/$$i; $(SHELL) $$i; done
 
 test-errflg:
 	cd errflg && for i in *.sh; do echo Running test errflg/$$i; $(SHELL) $$i; done

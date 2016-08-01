@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.56 16/07/15 2008-2016 J. Schilling
+ * @(#)macro.c	1.60 16/07/31 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.56 16/07/15 2008-2016 J. Schilling";
+	"@(#)macro.c	1.60 16/07/31 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -56,6 +56,7 @@ static	UConst char sccsid[] =
 #include	<wait.h>
 #endif
 
+		int	macflag;
 static unsigned char	quote;	/* used locally */
 static unsigned char	quoted;	/* used locally */
 
@@ -322,6 +323,9 @@ retry:
 		if ((c = readwc(), dolchar(c))) {
 			struct namnod *n = (struct namnod *)NIL;
 			int		dolg = 0;
+#ifdef	DO_U_DOLAT_NOFAIL
+			int		isg = 0;
+#endif
 			int		vsize = -1;
 			BOOL		bra;
 			BOOL		nulflg;
@@ -361,7 +365,11 @@ getname:
 						quoted--;
 						atflag = 1;
 					}
+#ifdef	DO_U_DOLAT_NOFAIL
+					isg = dolg = 1;
+#else
 					dolg = 1;
+#endif
 					c = 1;
 				} else if (digit(c)) {
 					c -= '0';
@@ -549,6 +557,7 @@ getname:
 							GROWSTAKTOP();
 							pushstak('\0');
 						} else {
+							macflag |= M_PARM;
 							sizecpy(vsize, v,
 								trimflag);
 						}
@@ -579,6 +588,8 @@ getname:
 								GROWSTAKTOP();
 								pushstak(sep);
 							} else {
+								macflag |=
+									M_DOLAT;
 								GROWSTAKTOP();
 								pushstak(' ');
 							}
@@ -622,7 +633,11 @@ getname:
 						error(badsub);
 					}
 				}
+#ifdef	DO_U_DOLAT_NOFAIL
+			} else if ((flags & setflg) && isg == 0) {
+#else
 			} else if (flags & setflg) {
+#endif
 				failed(id, unset);
 			}
 			goto retry;
@@ -654,6 +669,7 @@ unsigned char *
 macro(as)
 	unsigned char	*as;
 {
+	macflag = 0;
 	(void) _macro(as);
 	return (fixstak());
 }
@@ -712,6 +728,7 @@ comsubst(trimflag, type)
 	struct ionod *iosav = iotemp;
 	unsigned char	*pc;
 	struct trenod	*tc = NULL;
+	int		omacflag = macflag;
 
 	if (type == COM_BACKQUOTE) {  /* `command`  type command substitution */
 
@@ -886,6 +903,8 @@ comsubst(trimflag, type)
 			staktop--; /* skip past backslashes if quoting */
 	}
 	pop();
+
+	macflag = omacflag | M_COMMAND;
 }
 
 #define	CPYSIZ	512

@@ -19,7 +19,7 @@ CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/librscg.a
 CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libscg.a
 CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libscgcmd.a
 CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libschily.a
-CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libshelledit.a
+CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libshedit.a
 CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libsiconv.a
 CSWschilybase: discouraged-path-in-pkgmap /opt/csw/lib/libxtermcap.a
 CSWschilybase: pkginfo-opencsw-repository-missing

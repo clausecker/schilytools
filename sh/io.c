@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)io.c	1.26 16/04/24 2008-2016 J. Schilling
+ * @(#)io.c	1.27 16/07/29 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.26 16/04/24 2008-2016 J. Schilling";
+	"@(#)io.c	1.27 16/07/29 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -223,7 +223,12 @@ renamef(f1, f2)
 	if (f1 != f2) {
 		fs = fcntl(f2, F_GETFD, 0);
 		close(f2);
+#ifdef	DO_DUP_FAIL
+		if (fcntl(f1, F_DUPFD, f2) < 0)
+			failed(UC badfile, NULL);
+#else
 		fcntl(f1, F_DUPFD, f2);
+#endif
 		close(f1);
 		if (fs == 1)
 			fcntl(f2, F_SETFD, FD_CLOEXEC);

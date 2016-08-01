@@ -1,0 +1,46 @@
+# /* @(#)libshedit-mapvers	1.9 15/08/29 Copyright 2006-2015 J. Schilling */
+
+SCHILY_1.0 {
+global:
+#ifdef	__never__		/* Do not export variables, they do not allow lazy linking */
+	shedit_prompt;		# int prompt
+	shedit_delim;		# int delim
+	shedit_prompts;		# char *prompts[2] for the editor
+#endif
+
+	shedit_setprompts;	# set up prompts
+	shedit_chghistory;	# change history size
+	shedit_bhist;		# bhist() builtin for "history" command
+	shedit_bshist;		# bshist() builtin for "savehistory" command
+	shedit_append_line;	# to append a line to the history
+	shedit_treset;		# shedit_treset() reset tty modes
+
+	shedit_egetc;		# shedit_egetc() get character from edited line
+	shedit_getdelim;	# shedit_getdelim() get delimiter
+
+	shedit_getenv;		# Set up pointer to getenv() function
+	shedit_putenv;		# Set up pointer to putenv() function
+
+	shedit_igneof;		# Set up pointer to ignoreeof() function
+
+	shedit_remap;		# remap() function
+	shedit_list_map;	# list_map() function
+	shedit_add_map;		# add_map() function
+	shedit_del_map;		# del_map() function
+
+#ifdef	__never__
+	shell_error;
+	shell_fclose;
+	shell_fgetc;
+	shell_fileopen64;
+	shell_filewrite;
+	shell_fprintf;
+	shell_getc;
+	shell_printf;
+	shell_snprintf;
+	shell_sprintf;
+#endif
+
+local:
+	*;
+};

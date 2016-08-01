@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.156 16/07/14 2008-2016 J. Schilling
+ * @(#)defs.h	1.159 16/07/31 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -593,6 +593,9 @@ extern	int	getrusage	__PR((int who, struct rusage *r_usage));
 /*
  * macro.c
  */
+#define	M_PARM		1	/* Normal parameter expansion	*/
+#define	M_COMMAND	2	/* Command substitution		*/
+#define	M_DOLAT		4	/* $@ was expanded		*/
 extern	unsigned char *macro	__PR((unsigned char *as));
 extern	void	subst		__PR((int in, int ot));
 
@@ -732,6 +735,8 @@ extern	unsigned char *setbrk	__PR((int));
 #define	free	shfree
 
 #define	GROWSTAK(a)	if ((a) >= brkend) \
+				(a) = growstak(a);
+#define	GROWSTAKL(a, l)	if (((a) + (l)) >= brkend) \
 				(a) = growstak(a);
 #define	GROWSTAK2(a, o)	if ((a) >= brkend) {\
 				char *oa = (char *)(a); \

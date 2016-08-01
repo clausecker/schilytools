@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.45 16/07/24 2008-2016 J. Schilling
+ * @(#)service.c	1.49 16/07/31 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.45 16/07/24 2008-2016 J. Schilling";
+	"@(#)service.c	1.49 16/07/31 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -135,9 +135,14 @@ initio(iop, save)
 					close(ioufd);
 				} else if ((fd = stoi(ion)) >= USERIO) {
 					failed(ion, badfile);
-				}
-				else
+				} else {
 					fd = dup(fd);
+#ifdef	DO_DUP_FAIL
+					if (fd < 0)
+						failed(ion, badfile);
+#endif
+				}
+
 			} else if (((iof & IOPUT) == 0) && ((iof & IORDW) == 0))
 				fd = chkopen(ion, O_RDONLY);
 			else if (iof & IORDW) /* For <> */ {
@@ -681,7 +686,14 @@ split(s)		/* blank interpretation routine */
 	int		c;
 	int		count = 0;
 	unsigned char	*ifs = ifsnod.namval;
+#ifdef	DO_IFS_HACK
+extern	int		macflag;
 
+	if (macflag & M_DOLAT)
+		ifs = (unsigned char *)sptbnl;
+	else if (macflag == 0)
+		ifs = (unsigned char *)nullstr;
+#endif
 	if (ifs == NULL)
 		ifs = (unsigned char *)sptbnl;
 
@@ -711,26 +723,21 @@ split(s)		/* blank interpretation routine */
 					wc = (unsigned char)*s;
 					clength = 1;
 				}
-				GROWSTAK(argp);
-				*argp++ = *s++;
-				while (--clength > 0) {
-					GROWSTAK(argp);
+				GROWSTAKL(argp, clength);
+				while (--clength >= 0) {
 					*argp++ = *s++;
 				}
 				continue;
 			}
 
-			if (anys(s, ifs)) {
+			if (*ifs && anys(s, ifs)) {
 				/* skip to next character position */
 				s += clength;
 				break;
 			}
 
-			GROWSTAK(argp);
-			*argp++ = c;
-			s++;
-			while (--clength > 0) {
-				GROWSTAK(argp);
+			GROWSTAKL(argp, clength);
+			while (--clength >= 0) {
 				*argp++ = *s++;
 			}
 		}
