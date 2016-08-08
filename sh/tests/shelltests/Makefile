@@ -16,6 +16,7 @@ all-tests:	test-alias \
 		test-local	\
 		test-misc	\
 		test-parameter	\
+		test-pipe	\
 		test-printf	\
 		test-quoting	\
 		test-return	\
@@ -76,6 +77,9 @@ test-misc:
 
 test-parameter:
 	cd parameter && for i in *.sh; do echo Running test parameter/$$i; $(SHELL) $$i; done
+
+test-pipe:
+	cd pipe && for i in *.sh; do echo Running test pipe/$$i; $(SHELL) $$i; done
 
 test-printf:
 	cd printf && for i in *.sh; do echo Running test printf/$$i; $(SHELL) $$i; done

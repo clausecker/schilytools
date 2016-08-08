@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.118 16/04/02 Copyright 1985-2016 J. Schilling */
+/* @(#)schily.h	1.119 16/08/01 Copyright 1985-2016 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -424,10 +424,12 @@ extern	char	**saved_av __PR((void));
 extern	char	*saved_av0 __PR((void));
 extern	char	*searchfileinpath __PR((char *__name, int __mode,
 					int __file_mode, char *__path));
-#define	SIP_ANY_FILE	0x00
-#define	SIP_PLAIN_FILE	0x01
-#define	SIP_NO_PATH	0x10
-#define	SIP_TYPE_MASK	0x0F
+#define	SIP_ANY_FILE	0x00	/* Search for any file type		*/
+#define	SIP_PLAIN_FILE	0x01	/* Search for plain files - not dirs	*/
+#define	SIP_NO_PATH	0x10	/* Do not do PATH search		*/
+#define	SIP_ONLY_PATH	0x20	/* Do only PATH search			*/
+#define	SIP_NO_STRIPBIN	0x40	/* Do not strip "/bin" from PATH elem.	*/
+#define	SIP_TYPE_MASK	0x0F	/* Mask file type related bits		*/
 
 #ifndef	seterrno
 extern	int	seterrno __PR((int));

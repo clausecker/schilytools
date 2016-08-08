@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.53 16/07/11 2008-2016 J. Schilling
+ * @(#)main.c	1.56 16/08/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.53 16/07/11 2008-2016 J. Schilling";
+	"@(#)main.c	1.56 16/08/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -94,6 +94,8 @@ unsigned char	tmpout[TMPOUTSZ];
 struct fileblk	stdfile;
 struct fileblk *standin = &stdfile;
 int mailchk = 0;
+
+static int	posix = 0;
 
 static unsigned char	*mailp;
 static long	*mod_time = 0;
@@ -236,6 +238,14 @@ main(c, v, e)
 	    eq("-jbosh", simple((unsigned char *)*v)))
 		flags |= monitorflg;
 
+#ifdef	DO_POSIX_SH
+	/*
+	 * If the last path name component is "sh", set -o posix by default.
+	 * This may be the right way for Linux, but probably not for Solaris.
+	 */
+	if (eq("sh", simple((unsigned char *)*v)))
+		flags2 |= posixflg;
+#else
 #ifdef	DO_POSIX_PATH
 	/*
 	 * If the last path name component is not "sh", it may behave different.
@@ -251,15 +261,38 @@ main(c, v, e)
 				flags2 |= posixflg;
 
 #ifdef	POSIX_BOSH_PATH
-			if (eq(POSIX_BOSH_PATH, exname))
+			if (eq(POSIX_BOSH_PATH, exname)) {
 				flags2 |= posixflg;
-#endif
+			} else if (**v == '/' &&
+			    eq(POSIX_BOSH_PATH, (unsigned char *)*v)) {
+				flags2 |= posixflg;
+			} else {
+				char	*p;
+
+				/*
+				 * We like to recognise symlinks as well,
+				 * so we cannot base results on getexecname() or
+				 * getexecpath(). Use SIP_ONLY_PATH to only do
+				 * a PATH based search.
+				 */
+				p = searchfileinpath(*v, X_OK,
+					SIP_PLAIN_FILE |
+					SIP_ONLY_PATH |
+					SIP_NO_STRIPBIN, NULL);
+				if (p && eq(POSIX_BOSH_PATH, p))
+					flags2 |= posixflg;
+				if (p)
+					libc_free(p);
+			}
+#endif	/* POSIX_BOSH_PATH */
 #ifndef	HAVE_GETEXECNAME
 			libc_free(exname);
 #endif
 		}
 	}
-#endif
+#endif	/* DO_POSIX_PATH */
+#endif	/* DO_POSIX_SH */
+	posix = flags2 & posixflg;	/* remember "auto-posix" value */
 
 	hcreate();
 	set_dotpath();
@@ -320,6 +353,7 @@ main(c, v, e)
 		ab_use(LOCAL_AB, NULL);
 #endif
 		flags |= subsh;
+		flags2 |= posix;	/* restore "auto-posix" value */
 	}
 
 	/*

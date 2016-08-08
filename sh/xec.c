@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.69 16/07/30 2008-2016 J. Schilling
+ * @(#)xec.c	1.70 16/08/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.69 16/07/30 2008-2016 J. Schilling";
+	"@(#)xec.c	1.70 16/08/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -329,7 +329,12 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						builtin(cmdhash,
 							argn, com, t, xflags);
 #ifdef	DO_PIPE_PARENT
-						resetjobfd();	/* Rest stdin */
+						/*
+						 * Rest stdin if needed
+						 */
+						if (xflags & XEC_STDINSAV)
+							resetjobfd();
+
 						if (monitor)
 							settgid(mypgid, pgid);
 #endif
@@ -395,7 +400,11 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						execbrk = 0;
 						restore(idx);
 #ifdef	DO_PIPE_PARENT
-						resetjobfd();	/* Rest stdin */
+						/*
+						 * Rest stdin if needed
+						 */
+						if (xflags & XEC_STDINSAV)
+							resetjobfd();
 #endif
 						(void) restorargs(olddolh,
 								funcnt);

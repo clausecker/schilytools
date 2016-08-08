@@ -1,14 +1,14 @@
-/* @(#)storage.c	1.53 13/06/25 Copyright 1984-2013 J. Schilling */
+/* @(#)storage.c	1.54 16/08/05 Copyright 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)storage.c	1.53 13/06/25 Copyright 1984-2013 J. Schilling";
+	"@(#)storage.c	1.54 16/08/05 Copyright 1984-2016 J. Schilling";
 #endif
 /*
  *	Storage management based on the paged virtual memory
  *	provided by buffer.c
  *
- *	Copyright (c) 1984-2013 J. Schilling
+ *	Copyright (c) 1984-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -288,6 +288,7 @@ loadfile(wp, filename, newdefault)
 		wp->curfd = -1;
 		if (wp->curfp != NULL)
 			fclose(wp->curfp);
+		wp->curfp = NULL;
 		if (!ReadOnly && writable(filename))
 			lockfile(wp, C filename);
 	}
@@ -310,6 +311,7 @@ again:
 	while ((size = readsyserr(wp, infile, str, sizeof (str), UC "FILE")) > 0) {
 		insert(wp, str, size);
 	}
+
 	if (size < 0) {
 #if	defined(IS_CYGWIN) || defined(__DJGPP__)
 		/*
@@ -357,6 +359,7 @@ again:
 		wp->curfp = infile;
 	} else {
 		fclose(infile);
+		wp->curfp = NULL;
 	}
 	return (TRUE);
 }

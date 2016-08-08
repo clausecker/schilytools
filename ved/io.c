@@ -1,13 +1,13 @@
-/* @(#)io.c	1.38 12/04/24 Copyright 1984-2012 J. Schilling */
+/* @(#)io.c	1.39 16/08/05 Copyright 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.38 12/04/24 Copyright 1984-2012 J. Schilling";
+	"@(#)io.c	1.39 16/08/05 Copyright 1984-2016 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
  *
- *	Copyright (c) 1984-2012 J. Schilling
+ *	Copyright (c) 1984-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -314,6 +316,7 @@ deleteprot()
 {
 	if (protfile)
 		fclose(protfile);
+	protfile = NULL;
 	if (protname[0] != '\0')
 		unlink(C protname);
 }

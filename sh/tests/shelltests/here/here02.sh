@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.2 16/06/09 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.3 16/08/01 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -423,6 +423,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD 
 export TMPDIR
 eval '
@@ -450,6 +451,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD 
 export TMPDIR
 eval '
@@ -476,6 +478,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 eval '
@@ -509,6 +512,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 eval '
@@ -531,6 +535,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 eval '
@@ -558,6 +563,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 eval '
@@ -580,6 +586,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 eval '
@@ -602,6 +609,7 @@ remove x
 # The code still allows to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
+pwd > /dev/null	# initialize $PWD
 TMPDIR=$PWD
 export TMPDIR
 # Background eval so main shell doesn't do parsing

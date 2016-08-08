@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.172 16/07/17 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.174 16/08/07 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/07/17" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/08/07" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5271,7 +5271,13 @@ The remaining arguments are positional
 parameters and are assigned, in order, to
 .BR $1 ,
 .BR $2 ,
-\&.\|.\|. If no arguments are given, the values of all names are printed.
+\&.\|.\|.
+.sp
+If no arguments are given, the names and values of all variables are printed.
+When is POSIX mode
+.RB "(via " "set\ \-o\ posix" ),
+only shell variables are printed; otherwise functions are listed amongst the
+shell variables.
 .RE
 
 .br
@@ -5579,7 +5585,7 @@ is not specified,
 .B 1
 is used as a default value.
 When is POSIX mode
-.BR "(via " "set \-o posix" ),
+.RB "(via " "set\ \-o\ posix" ),
 .I file-descriptor
 must always be specified.
 .br
@@ -6061,11 +6067,16 @@ command was not a builtin command in older versions of
 .br
 .ne 4
 .TP
-\fBtype\fR [ \fIname\fR .\|.\|. ]
+\fBtype\fR [ \fB\-F\fR ] [ \fIname\fR .\|.\|. ]
 .sp .6
 For each
 .IR name ,
 indicate how it would be interpreted if used as a command name.
+If the option
+.B \-F
+is specified with no arguments, all defined
+.B functions
+are listed.
 .B type
 displays information about each operand identifying the operand
 as a
@@ -7669,6 +7680,12 @@ command with no arguments was modified to include the quoting
 required by the POSIX standard.
 This is not expected to cause problems but the new output may be used as shell.
 .sp
+When in full POSIX mode
+.RB "(via " "set\ \-o\ posix" ),
+functions are not listed amongst shell variables.
+This is expected to cause problems as POSIX does not include a method to
+list shell functions.
+.sp
 Calling
 .RB `` "set \-\-" ''
 now causes the positional parameters to be unset. Previous versions of the shell
@@ -7696,7 +7713,7 @@ is an unary operator that misses an argument.
 Correctly written scripts do not suffer from this change.
 .sp
 When not in POSIX mode
-.RB ( "set -o posix" " not set),
+.RB ( "set\ \-o\ posix" " not set),
 .B test
 still understands
 .B test \-t

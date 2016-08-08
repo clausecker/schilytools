@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.105 16/07/14 2008-2016 J. Schilling
+ * @(#)bltin.c	1.106 16/08/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.105 16/07/14 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.106 16/08/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -814,11 +814,23 @@ builtin(type, argc, argv, t, xflags)
 	case SYSTYPE:
 		if (a1) {
 #ifdef	DO_GETOPT_UTILS
-			ind = optskip(argc, argv, "type name ...");
-			if (ind-- < 0)
-				break;
-			argc -= ind;
-			argv += ind;
+			struct optv	optv;
+			int		c;
+
+			optinit(&optv);
+			while ((c = optnext(argc, argv, &optv, "F",
+					"type [-F] [name ...]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'F') {
+					if (argv[optv.optind] == NULL)
+						namscan(printfunc);
+					else
+						failure(argv[0], toomanyargs);
+					goto out;
+				}
+			}
+			argv += --optv.optind;
 #endif
 			/* return success only if all names are found */
 			while (*++argv) {

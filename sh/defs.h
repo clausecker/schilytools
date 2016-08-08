@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.159 16/07/31 2008-2016 J. Schilling
+ * @(#)defs.h	1.161 16/08/07 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -394,6 +394,10 @@ extern char 		*optarg;
 #undef	HAVE_VFORK
 #endif
 
+#ifdef	NO_PIPE_PARENT
+#undef	DO_PIPE_PARENT
+#endif
+
 /* Function prototypes */
 
 /*
@@ -629,6 +633,7 @@ extern	void	assnum		__PR((unsigned char **p, long i));
 extern	unsigned char *make	__PR((unsigned char *v));
 extern	struct namnod *lookup	__PR((unsigned char *nam));
 extern	void	namscan		__PR((void (*fn)(struct namnod *n)));
+extern	void	printfunc	__PR((struct namnod *n));
 extern	void	printnam	__PR((struct namnod *n));
 #ifdef	DO_LINENO
 extern	unsigned char *linenoval __PR((void));

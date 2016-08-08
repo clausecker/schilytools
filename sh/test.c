@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)test.c	1.34 16/07/26 2008-2016 J. Schilling
+ * @(#)test.c	1.35 16/08/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.34 16/07/26 2008-2016 J. Schilling";
+	"@(#)test.c	1.35 16/08/01 2008-2016 J. Schilling";
 #endif
 
 
@@ -416,12 +416,14 @@ e3()
 	ap--;
 	if ((p2 == 0) || (!eq(p2, "=") && !eq(p2, "!="))) {
 		if (eq(a, "-t")) {
+			unsigned char	*na;
+
 			if (ap >= ac)		/* no args */
 				return (isatty(1));
-			else if (eq((a = nxtarg(0)), "-a") || eq(a, "-o")) {
-				ap--;
+			na = nxtarg(0);
+			ap--;
+			if (eq(na, "-a") || eq(na, "-o"))
 				return (isatty(1));
-			}
 		}
 		if (a[0] == '-' && a[2] == '\0' &&
 		    strchr(test_unops, a[1]))

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.61 16/07/25 2008-2016 J. Schilling
+ * @(#)name.c	1.63 16/08/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.61 16/07/25 2008-2016 J. Schilling";
+	"@(#)name.c	1.63 16/08/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -78,6 +78,7 @@ struct namnod	*lookup		__PR((unsigned char *nam));
 static	BOOL	chkid		__PR((unsigned char *nam));
 	void	namscan		__PR((void (*fn)(struct namnod *n)));
 static void	namwalk		__PR((struct namnod *));
+	void	printfunc	__PR((struct namnod *n));
 	void	printnam	__PR((struct namnod *n));
 #ifdef	DO_LINENO
 	unsigned char *linenoval __PR((void));
@@ -822,11 +823,9 @@ namwalk(np)
 }
 
 void
-printnam(n)
+printfunc(n)
 	struct namnod	*n;
 {
-	unsigned char	*s;
-
 	sigchk();
 
 	if (n->namflg & N_FUNCTN) {
@@ -837,6 +836,20 @@ printnam(n)
 		if (f != NULL)
 			prf((struct trenod *)f->fndval);
 		prs_buff((unsigned char *)"\n}\n");
+	}
+}
+
+void
+printnam(n)
+	struct namnod	*n;
+{
+	unsigned char	*s;
+
+	sigchk();
+
+	if (!(flags2 & posixflg) &&
+	    n->namflg & N_FUNCTN) {
+		printfunc(n);
 #ifndef	DO_POSIX_UNSET
 		return;
 #endif

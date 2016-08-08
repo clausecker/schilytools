@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)alias.sh	1.5 16/06/04 2016 J. Schilling
+# @(#)alias.sh	1.6 16/08/01 2016 J. Schilling
 #
 
 # Read test core functions
@@ -168,7 +168,9 @@ cat > x <<"XEOF"
 LC_ALL=C
 echo "echo bla" > xxx
 chmod +x xxx
+pwd > /dev/null	# initialize $PWD
 PATH=$PWD:$PATH
+export PATH
 alias xxx=xxx
 xxx
 echo = now

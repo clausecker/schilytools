@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)fault.c	1.32 16/06/10 2008-2016 J. Schilling
+ * @(#)fault.c	1.33 16/08/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.32 16/06/10 2008-2016 J. Schilling";
+	"@(#)fault.c	1.33 16/08/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -364,8 +364,9 @@ handle(sig, func)
 	/*
 	 * Ensure that sigaction is only called with valid signal numbers,
 	 * we can get random values back for oact.sa_handler if the signal
-	 * number is invalid
+	 * number is invalid.
 	 *
+	 * XXX Should we enable SA_SIGINFO for SIGCHLD as well?
 	 */
 	if (sig > MINTRAP && sig < MAXTRAP) {
 		sigemptyset(&act.sa_mask);
@@ -591,7 +592,11 @@ systrap(argc, argv)
 		while (*++argv) {
 			if (str2sig(*argv, &sig) < 0 ||
 			    sig >= MAXTRAP || sig < MINTRAP ||
+#ifndef	DO_POSIX_TRAP
 			    sig == SIGSEGV) {
+#else
+			    0) {
+#endif
 				failure((unsigned char *)cmdp, badtrap);
 			} else if (noa1) {
 				/*

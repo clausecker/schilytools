@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.123 16/07/31  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.125 16/08/02  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -74,8 +74,12 @@ CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
+#CPPOPTS +=	-DDO_POSIX_SH		# set -o posix if basename(argv[0]) == "sh"
+					# This has precedence before DO_POSIX_PATH
+					# Define DO_POSIX_SH if you like to use
+					# bosh as /bin/sh on Linux.
 CPPOPTS +=	-DDO_POSIX_PATH		# Implement set -o posix from PATH
-					# call CPPOPTX=-DPOSIX_BOTH_PATH=\"/bin/sh\"
+					# call smake 'CPPOPTX=-DPOSIX_BOSH_PATH=\"/bin/sh\"'
 					# or add CPPOPTS += -DPOSIX_BOSH_PATH=\"/bin/sh\"
 					# to make a PATH auto set -o posix
 
