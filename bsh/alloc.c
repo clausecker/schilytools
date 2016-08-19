@@ -1,11 +1,11 @@
-/* @(#)alloc.c	1.56 15/08/17 Copyright 1985,1988,1991,1995-2015 J. Schilling */
+/* @(#)alloc.c	1.57 16/08/10 Copyright 1985,1988,1991,1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.56 15/08/17 Copyright 1985,1988,1991,1995-2015 J. Schilling";
+	"@(#)alloc.c	1.57 16/08/10 Copyright 1985,1988,1991,1995-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2015 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -136,7 +136,7 @@ static	UConst char sccsid[] =
  *	-----------------------------------------------------------------------
  *	| ...				Weiterer Platz
  *	-----------------------------------------------------------------------
- *	| 				Letze gueltige Nutzadresse				
+ *	| 				Letze gueltige Nutzadresse
  *	-----------------------------------------------------------------------
  *	| 0x55				Wenn XADEBUG & size%malign -> Endmarker
  *	-----------------------------------------------------------------------
@@ -146,7 +146,7 @@ static	UConst char sccsid[] =
  *	-----------------------------------------------------------------------
  *	| 0x12345678			Wenn XADEBUG, Debug Magic
  *	-----------------------------------------------------------------------
- *	| size				Wenn XADEBUG, malloc() size Parameter 
+ *	| size				Wenn XADEBUG, malloc() size Parameter
  *	-----------------------------------------------------------------------
  *	Hohe Adressen
  *
@@ -161,7 +161,7 @@ static	UConst char sccsid[] =
  *	-----------------------------------------------------------------------
  *	| ...				Weiterer Platz
  *	-----------------------------------------------------------------------
- *	| 				Letze gueltige Nutzadresse				
+ *	| 				Letze gueltige Nutzadresse
  *	-----------------------------------------------------------------------
  *	| ...				evt. Padding bis zum naechsten Block
  *	-----------------------------------------------------------------------
@@ -550,7 +550,7 @@ dbg_stat()
 {
 	int	i;
 
-	for (i= 0; i < DBG_NENT; i++) {
+	for (i = 0; i < DBG_NENT; i++) {
 		if (mstat[i].ms_which[0] == '\0') {
 			break;
 		}
@@ -585,7 +585,7 @@ static	int	einit;
 	}
 
 	snprintf(which, sizeof (which), "%s line %d", file, line);
-	for (i= 0; i < DBG_NENT; i++) {
+	for (i = 0; i < DBG_NENT; i++) {
 		if (mstat[i].ms_which[0] == '\0') {
 			strcpy(mstat[i].ms_which, which);
 			mstat[i].ms_type = dtype;

@@ -1,4 +1,4 @@
-# @(#)README	1.27 14/12/03 Copyright 1996-2002 J. Schilling
+# @(#)README	1.28 16/08/10 Copyright 1996-2002 J. Schilling
 
 This is Version 2.0 of cdrecord
 
@@ -47,7 +47,7 @@ To learn how to compile and install cdrecord, read README.compile
 To compile on currently unknown platforms you definitely need 'smake'
 from https://sourceforge.net/projects/s-make/files/ or
 https://sourceforge.net/projects/schilytools/files/
-GNUmake is too dump to do this job as it does not include automake features
+GNUmake is too dumb to do this job as it does not include automake features
 like 'smake' does.
 
 For multi session please read README.multi
@@ -457,6 +457,5 @@ Current information on cdrecord may be found on:
 
 If you have questions mail to:
 
-	HOME: 		joerg@schily.isdn.cs.tu-berlin.de
-	UNIVERSITY:	js@cs.tu-berlin.de
+	HOME: 		joerg@schily.net
 	WORK:		joerg.schilling@fokus.fraunhofer.de

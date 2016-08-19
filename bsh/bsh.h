@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.64 15/11/08 Copyright 1985-2015 J. Schilling */
+/* @(#)bsh.h	1.65 16/08/14 Copyright 1985-2016 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

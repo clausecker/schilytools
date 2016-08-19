@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.17 13/06/03 Copyright 1986-2013 J. Schilling */
+/* @(#)alias.c	1.18 16/08/10 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.17 13/06/03 Copyright 1986-2013 J. Schilling";
+	"@(#)alias.c	1.18 16/08/10 Copyright 1986-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2013 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -145,7 +147,7 @@ balias(vp, std, flag)
 		ab_dump(tab, std[1], lflags | pflags);
 		return;
 	}
-	for (; ac > 0; ac--, av++ ) {
+	for (; ac > 0; ac--, av++) {
 		char	*a1;
 		char	*val;
 
@@ -220,7 +222,7 @@ bunalias(vp, std, flag)
 		wrong_args(vp, std);
 		return;
 	}
-	for (; ac > 0; ac--, av++ ) {
+	for (; ac > 0; ac--, av++) {
 		char	*a1 = av[0];
 
 		if (pflag || (doglobal == 0 && dolocal == 0))

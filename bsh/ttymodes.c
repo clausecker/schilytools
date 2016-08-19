@@ -1,15 +1,15 @@
-/* @(#)ttymodes.c	1.34 13/09/25 Copyright 1986,1995-2013 J. Schilling */
+/* @(#)ttymodes.c	1.35 16/08/14 Copyright 1986,1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttymodes.c	1.34 13/09/25 Copyright 1986,1995-2013 J. Schilling";
+	"@(#)ttymodes.c	1.35 16/08/14 Copyright 1986,1995-2016 J. Schilling";
 #endif
 /*
  *	ttymodes.c
  *
  *	Terminal handling for bsh
  *
- *	Copyright (c) 1986,1995-2013 J. Schilling
+ *	Copyright (c) 1986,1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -277,7 +277,7 @@ init_tty_modes()
 	inst.t_intrc	= -1;
 	inst.t_quitc	= -1;
 #ifdef	__never__
-	Auf keinen Fall !!!
+	/* Auf keinen Fall !!! */
 	inst.t_startc	= -1;
 	inst.t_stopc	= -1;
 #endif
@@ -304,12 +304,36 @@ init_tty_modes()
 	ins.c_lflag &= ~(ISIG|ICANON|ECHO);
 	ins.c_cc[VMIN] = 1;
 	ins.c_cc[VTIME] = 0;
+#ifdef	VREPRINT
+	ins.c_cc[VREPRINT] = _POSIX_VDISABLE;
+#endif
+#ifdef	VDISCARD
+	ins.c_cc[VDISCARD] = _POSIX_VDISABLE;
+#endif
+#ifdef	VWERASE
+	ins.c_cc[VWERASE] = _POSIX_VDISABLE;
+#endif
+#ifdef	VLNEXT
+	ins.c_cc[VLNEXT] = _POSIX_VDISABLE;
+#endif
 	app.c_iflag |= (IGNBRK);
 	app.c_iflag &= ~(BRKINT|INLCR|ICRNL);
 	app.c_oflag |= (OPOST);
 	app.c_lflag &= ~(ISIG|ICANON|ECHO);
 	app.c_cc[VMIN] = 1;
 	app.c_cc[VTIME] = 0;
+#ifdef	VREPRINT
+	app.c_cc[VREPRINT] = _POSIX_VDISABLE;
+#endif
+#ifdef	VDISCARD
+	app.c_cc[VDISCARD] = _POSIX_VDISABLE;
+#endif
+#ifdef	VWERASE
+	app.c_cc[VWERASE] = _POSIX_VDISABLE;
+#endif
+#ifdef	VLNEXT
+	app.c_cc[VLNEXT] = _POSIX_VDISABLE;
+#endif
 #endif	/* USE_TERMIOS */
 #endif	/* USE_V7_TTY */
 }

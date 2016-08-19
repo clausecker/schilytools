@@ -23,6 +23,13 @@ cp s.flagz $s
 docommand fl2 "${val} $s" 0 "" ""
 remove $s
 
+echo test | tail +2 > /dev/null 2>/dev/null
+if [ "$?" -eq 0 ]; then
+	plustwo=+2
+else
+	plustwo='-n +2'
+fi
+
 cp s.flags $s
 docommand fl3d "${admin} -db -dj -dn $s" 0 "" ""
 if diff s.flags $s > /dev/null
@@ -32,8 +39,8 @@ else
 	docommand fl3f "${admin} -fb -fj -fn $s" 0 "" ""
 
 	# Flag 'b' may appear as '^Af b' or '^Af b ', so the checksum may vary
-	tail +2 s.flags	> s.o
-	tail +2 $s	> s.n
+	tail $plustwo s.flags	> s.o
+	tail $plustwo $s	> s.n
 	if diff -w s.o s.n > /dev/null
 	then
 		echo "Flags in the range 'a'..'y' are supported"
@@ -47,8 +54,8 @@ else
 	docommand fl4f "${admin} -fb -fj -fn $s" 0 "" ""
 
 	# Flag 'b' may appear as '^Af b' or '^Af b ', so the checksum may vary
-	tail +2 s.flagz	> s.o
-	tail +2 $s	> s.n
+	tail $plustwo s.flagz	> s.o
+	tail $plustwo $s	> s.n
 	if diff -w s.o s.n > /dev/null
 	then
 		echo "Flags in the range 'a'..'u','w'..'z' are supported"

@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)jobs.c	1.94 16/07/15 2008-2016 J. Schilling
+ * @(#)jobs.c	1.95 16/08/17 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.94 16/07/15 2008-2016 J. Schilling";
+	"@(#)jobs.c	1.95 16/08/17 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -387,6 +387,8 @@ freejob(jp)
 	*njp = jp->j_nxtp;
 	*cjp = jp->j_curp;
 	free(jp);
+	if (jp == thisjob)
+		thisjob = NULL;
 	jobcnt--;
 	jobdone--;
 }
@@ -999,10 +1001,18 @@ deallocjob(jp)
 	if (jp == NULL)
 		jp = thisjob;
 	free(jp);
+	if (jp == thisjob)
+		thisjob = NULL;
 	jobcnt--;
 }
 
 #ifdef	DO_PIPE_PARENT
+void *
+curjob()
+{
+	return (thisjob);
+}
+
 /*
  * Return current process group id.
  */

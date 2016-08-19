@@ -28,9 +28,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)mac.h	1.7 12/04/22 2008-2012 J. Schilling
+ * @(#)mac.h	1.8 16/08/14 2008-2016 J. Schilling
  */
 
 /*
@@ -46,6 +46,7 @@
 
 #undef	EOF	/* may be defined from stdio.h */
 #define	EOF	0
+#define	CTLC	'\03'
 #define	NL	'\n'
 #define	SPACE	' '
 #define	LQ	'`'

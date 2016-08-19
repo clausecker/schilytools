@@ -1,4 +1,4 @@
-#ident @(#)rules.cmd	1.14 13/07/22 
+#ident @(#)rules.cmd	1.15 16/08/10 
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -52,4 +52,5 @@ include		$(SRCROOT)/$(RULESDIR)/rules.ins
 include		$(SRCROOT)/$(RULESDIR)/rules.tag
 include		$(SRCROOT)/$(RULESDIR)/rules.hlp
 include		$(SRCROOT)/$(RULESDIR)/rules.dep
+include		$(SRCROOT)/$(RULESDIR)/rules.cst
 ###########################################################################

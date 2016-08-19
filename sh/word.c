@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.73 16/07/24 2008-2016 J. Schilling
+ * @(#)word.c	1.74 16/08/14 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.73 16/07/24 2008-2016 J. Schilling";
+	"@(#)word.c	1.74 16/08/14 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -870,6 +870,10 @@ xread(f, buf, n)
 		if (c == -1 && shedit_getdelim() == -1) {	/* EOF */
 			shedit_treset();
 			return (0);
+		}
+		if (c == CTLC && shedit_getdelim() == CTLC) {
+			trapnote |= SIGSET;
+			return (-1);
 		}
 		return (1);
 	}

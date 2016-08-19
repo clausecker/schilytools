@@ -1,13 +1,13 @@
-/* @(#)input.c	1.35 14/04/14 Copyright 1985-2014 J. Schilling */
+/* @(#)input.c	1.37 16/08/14 Copyright 1985-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.35 14/04/14 Copyright 1985-2014 J. Schilling";
+	"@(#)input.c	1.37 16/08/14 Copyright 1985-2016 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -152,7 +152,21 @@ extern int	prompt;
 EXPORT int
 nextch()
 {
-	if ((delim = fsgetc(instrm)) == '/' && noslash)
+	int	c;
+
+	c = fsgetc(instrm);
+
+	/*
+	 * XXX: As long as we do not add special code, the handling of ^C will
+	 * XXX: cause a memory leak from the laready parsed code.
+	 */
+	if (c == EOF && delim == 3) {		/* ^C signalled from editor */
+		delim = '\n';			/* avoid reading 'till EOL */
+		raisecond(sn_ctlc, (long)NULL);	/* raise the condition */
+		return (delim);
+	}
+
+	if ((delim = c) == '/' && noslash)
 		syntax(erestricted, slash);
 #ifdef DEBUG
 	putc(delim, stderr);
@@ -399,6 +413,8 @@ input_expand(os, is)
 				fspushcha(os, ' ');
 			}
 			break;
+		} else if (c == 3 && ctlc) {	/* ^C signalled from editor */
+			return (EOF);
 		} else if (qlevel != 0) {
 			/*
 			 * In quote mode just copy data

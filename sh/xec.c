@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.70 16/08/06 2008-2016 J. Schilling
+ * @(#)xec.c	1.72 16/08/17 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.70 16/08/06 2008-2016 J. Schilling";
+	"@(#)xec.c	1.72 16/08/17 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -74,6 +74,9 @@ static jmp_buf	forkjmp;	/* To go back to TNOFORK in case of builtins */
 	int	execute		__PR((struct trenod *argt,
 					int xflags, int errorflg,
 					int *pf1, int *pf2));
+#ifdef	DO_PS34
+	unsigned char *ps_macro	__PR((unsigned char *as));
+#endif
 	void	execexp		__PR((unsigned char *s, Intptr_t f,
 					int xflags));
 static	void	execprint	__PR((unsigned char **));
@@ -595,6 +598,23 @@ script:
 						restoresigs();
 						if (exflag == 2) {
 							exflag = 0;
+
+							if (treeflgs & FPOU)
+								goto script;
+							/*
+							 * Allocate job slot
+							 */
+#ifdef	DO_PIPE_PARENT
+							if (!curjob()) {
+								xflags &=
+								~XEC_ALLOCJOB;
+							}
+#endif
+							monitor = exallocjob(t,
+								    xflags);
+#ifdef	DO_PIPE_PARENT
+							xflags |= XEC_ALLOCJOB;
+#endif
 							goto script;
 						} else {
 							exflag = 0;
@@ -1049,6 +1069,22 @@ execexp(s, f, xflags)
 	pop();
 }
 
+#ifdef	DO_PS34
+unsigned char *
+ps_macro(as)
+	unsigned char	*as;
+{
+	int		oflags = flags;
+	unsigned char	*res;
+
+	flags &= ~(execpr|readpr);
+	res = macro(as);
+	flags = oflags;
+
+	return (res);
+}
+#endif
+
 static void
 execprint(com)
 	unsigned char	**com;
@@ -1057,7 +1093,7 @@ execprint(com)
 	unsigned char	*s;
 
 #ifdef	DO_PS34
-	prs(macro(ps4nod.namval?ps4nod.namval:UC execpmsg));
+	prs(ps_macro(ps4nod.namval?ps4nod.namval:UC execpmsg));
 #else
 	prs(_gettext(execpmsg));
 #endif

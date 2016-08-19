@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.161 16/08/07 2008-2016 J. Schilling
+ * @(#)defs.h	1.163 16/08/17 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -574,6 +574,7 @@ extern	void	makejob		__PR((int monitor, int fg));
 extern	struct job *
 		postjob		__PR((pid_t pid, int fg, int blt));
 extern	void	deallocjob	__PR((struct job *jp));
+extern	void	*curjob		__PR((void));
 extern	pid_t	curpgid		__PR((void));
 extern	void	setjobpgid	__PR((pid_t pgid));
 extern	void	setjobfd	__PR((int fd, int sfd));
@@ -872,6 +873,7 @@ extern	unsigned int	readwc	__PR((void));
 extern	int	execute		__PR((struct trenod *argt, int xflags,
 						int errorflg,
 						int *pf1, int *pf2));
+extern	unsigned char *ps_macro	__PR((unsigned char *as));
 extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
 						int xflags));
 

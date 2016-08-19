@@ -21,6 +21,13 @@ expect_fail=true
 docommand cm1 "${val} $s" 0 "" ""
 remove $s
 
+echo test | tail +2 > /dev/null 2>/dev/null
+if [ "$?" -eq 0 ]; then
+	plustwo=+2
+else
+	plustwo='-n +2'
+fi
+
 cp s.comment $s
 docommand cm2d "${admin} -db $s" 0 "" ""
 if diff s.comment $s > /dev/null
@@ -30,8 +37,8 @@ else
 	docommand cm2f "${admin} -fb $s" 0 "" ""
 
 	# Flag 'b' may appear as '^Af b' or '^Af b ', so the checksum may vary
-	tail +2 s.comment	> s.o
-	tail +2 $s		> s.n
+	tail $plustwo s.comment	> s.o
+	tail $plustwo $s	> s.n
 	if diff -w s.o s.n > /dev/null
 	then
 		echo "SCCS hidden extensions in degenerated comment are supported"

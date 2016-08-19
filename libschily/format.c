@@ -1,4 +1,4 @@
-/* @(#)format.c	1.60 16/01/21 Copyright 1985-2016 J. Schilling */
+/* @(#)format.c	1.61 16/08/10 Copyright 1985-2016 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -140,7 +140,7 @@ typedef struct f_args {
 #else
 	void  (*outf)__PR((char, long)); /* Func from format(fun, arg)	*/
 #endif
- 	long	farg;			/* Arg from format (fun, arg)	*/
+	long	farg;			/* Arg from format (fun, arg)	*/
 	int	minusflag;		/* Fieldwidth is negative	*/
 	int	flags;			/* General flags (+-#)		*/
 	int	fldwidth;		/* Field width as in %3d	*/

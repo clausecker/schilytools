@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.68 16/05/19 Copyright 1985-2016 J. Schilling */
+/* @(#)abbrev.c	1.69 16/08/09 Copyright 1985-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.68 16/05/19 Copyright 1985-2016 J. Schilling";
+	"@(#)abbrev.c	1.69 16/08/09 Copyright 1985-2016 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -229,7 +229,9 @@ EXPORT	BOOL	ab_list		__PR((abidx_t tab, char *pattern, FILE_p f,
 LOCAL	void	ab_eupdated	__PR((abtab_t *ap));
 LOCAL	void	_ab_pr		__PR((abent_t *np, FILE_p f, int aflags));
 LOCAL	void	_ab_prposix	__PR((abent_t *np, FILE_p f, int aflags));
+#ifdef	INTERACTIVE
 LOCAL	void	_ab_phist	__PR((abent_t *np, FILE_p f, int aflags));
+#endif
 #ifdef	BOURNE_SHELL
 LOCAL	off_t	filesize	__PR((int f));
 LOCAL	BOOL	any_match	__PR((char *s));
@@ -1208,6 +1210,7 @@ _ab_prposix(np, f, aflags)
 #endif
 }
 
+#ifdef	INTERACTIVE
 /*
  * The argument "f" is not used in the Bourne Shell
  */
@@ -1240,6 +1243,7 @@ _ab_phist(np, f, aflags)
 		append_line(buf, len + 1, len);
 	}
 }
+#endif	/* INTERACTIVE */
 
 #ifdef	BOURNE_SHELL
 LOCAL off_t

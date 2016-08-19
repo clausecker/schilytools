@@ -1,4 +1,4 @@
-/* @(#)linkat.c	1.3 15/03/03 Copyright 2011-2015 J. Schilling */
+/* @(#)linkat.c	1.4 16/08/10 Copyright 2011-2016 J. Schilling */
 /*
  *	Emulate the behavior of linkat(int fd1, const char *name1, int fd2,
  *						const char *name2, int flag)
@@ -12,7 +12,7 @@
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,7 +56,7 @@ linkfollow(old, new)
 	if ((blen = resolvepath(old, buf, sizeof (buf))) < 0) {
 		return (-1);
 	} else if (blen >= sizeof (buf)) {
-		 seterrno(ENAMETOOLONG);
+		seterrno(ENAMETOOLONG);
 		return (-1);		/* Path too long */
 	} else {
 		buf[blen] = '\0'; /* Solaris syscall does not null-terminate */

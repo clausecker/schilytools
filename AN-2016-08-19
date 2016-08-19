@@ -1,0 +1,157 @@
+New features with AN-2016-08-19:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	All: The makefilesystem added a new target "cstyle" to automatically
+	check all sources for a specific project for correct indentation.
+
+-	libschily: Some files fixed some Cstyle deviations.
+
+-	calc: typo correction in the help text - wow this was a typo from 1984!
+
+-	sdd: Cstyle corrections
+
+-	cdrecord: The README file fixed a typo and the deprecated mail addresses.
+
+-	mkisofs: isoinfo Cstyle fixes
+
+-	bsh: Some files fixed some Cstyle deviations.
+
+-	libshedit: Some files fixed some Cstyle deviations.
+
+-	libshedit: the history editor now supports ^C as a special input and
+	^V as "literal next" character.
+
+-	bsh: new code to deal with the new libshedit feature.
+
+-	Bourne Shell: ^C now results in a longjmp before the next prompt
+	if typed while in the middle of a command line. This permits to
+	abort command lines where the user does not know how to get out of
+	the parser.
+
+-	Bourne Shell: While expanding the PS4 prompt, "set -x" is deactivated
+	to avoid an endless recursion.
+
+-	Bourne Shell: Fixed a bug in the locale handling that was caused by
+	forgetting to extend the fake environment to the same size as the list
+	of environment variables of interest.
+
+-	Bourne Shell: Clear variable "thisjob" after free()ing it to avoid using
+	if past the free() call.
+	Thanks to Heiko Eißfeldt for his advice on the address sanitizer to find
+	the cause for this problem.
+
+-	Bourne Shell: Now allocating a new Job slot when running a 
+	vfork() -> script -> fork() chain as we wait() for the vfork() process
+	and thus free() "thisjob" before calling fork().
+
+-	SCCS: The testsuite did use "tail +2" but some "tail" implementations
+	do not support "tail +2" while UNIX tail does not support the POSIX
+	command line "tail -n +2". We now test what works and use a command
+	line that fits the actual implementaion.
+
+-	SCCS: The testsuite did use "touch 0101000090 $g", but some "touch"
+	implementations (such as gtouch on Linux) do not support that. We now
+	use "touch -t 199001010000 $g" if needed.
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

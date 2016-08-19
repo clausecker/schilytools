@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.19 15/11/18 Copyright 1985-2015 J. Schilling */
+/* @(#)calc.c	1.20 16/08/17 Copyright 1985-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.19 15/11/18 Copyright 1985-2015 J. Schilling";
+	"@(#)calc.c	1.20 16/08/17 Copyright 1985-2016 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -87,8 +87,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2015 Jörg Schilling\n",
-				"1.19",
+		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2016 Jörg Schilling\n",
+				"1.20",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -340,7 +340,7 @@ kommentar()
 	error("'/' liefert zusätzlich den Rest (dezimal) bei ganzzahliger Division.\n");
 	error("\n");
 	error("***************************************************************\n");
-	error("* Die Eingabe muss folgenddes Format haben:                   *\n");
+	error("* Die Eingabe muss folgendes Format haben:                    *\n");
 	error("*          'argument1 op argument2'  oder                     *\n");
 	error("*          'op argument'             oder                     *\n");
 	error("*          'argument'                                         *\n");

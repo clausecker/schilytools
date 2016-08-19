@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.63 16/08/07 2008-2016 J. Schilling
+ * @(#)name.c	1.64 16/08/16 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.63 16/08/07 2008-2016 J. Schilling";
+	"@(#)name.c	1.64 16/08/16 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1303,6 +1303,7 @@ static char *localevar[] = {
 };
 
 static char *fake_env[] = {
+	0,
 	0,
 	0,
 	0,

@@ -1,4 +1,8 @@
-h29504
+h52122
+s 00009/00002/00044
+d D 1.3 16/08/14 23:16:32 joerg 3 2
+c tail +2 -> tail $plustwo und $plustwo wird automatish angepasst
+e
 s 00001/00001/00045
 d D 1.2 15/06/03 00:06:45 joerg 2 1
 c ../common/test-common -> ../../common/test-common
@@ -41,6 +45,15 @@ expect_fail=true
 docommand cm1 "${val} $s" 0 "" ""
 remove $s
 
+I 3
+echo test | tail +2 > /dev/null 2>/dev/null
+if [ "$?" -eq 0 ]; then
+	plustwo=+2
+else
+	plustwo='-n +2'
+fi
+
+E 3
 cp s.comment $s
 docommand cm2d "${admin} -db $s" 0 "" ""
 if diff s.comment $s > /dev/null
@@ -50,8 +63,14 @@ else
 	docommand cm2f "${admin} -fb $s" 0 "" ""
 
 	# Flag 'b' may appear as '^Af b' or '^Af b ', so the checksum may vary
+D 3
 	tail +2 s.comment	> s.o
 	tail +2 $s		> s.n
+E 3
+I 3
+	tail $plustwo s.comment	> s.o
+	tail $plustwo $s	> s.n
+E 3
 	if diff -w s.o s.n > /dev/null
 	then
 		echo "SCCS hidden extensions in degenerated comment are supported"

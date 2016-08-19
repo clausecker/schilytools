@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.20 15/11/08 Copyright 1995-2015 J. Schilling */
+/* @(#)wait3.c	1.21 16/08/10 Copyright 1995-2016 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.20 15/11/08 Copyright 1995-2015 J. Schilling";
+	"@(#)wait3.c	1.21 16/08/10 Copyright 1995-2016 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -166,7 +166,8 @@ wait3(status, options, rusage)
 	return (info.si_pid);
 }
 
-static int wait_prusage(info, options, tms_startp, rusage)
+static int
+wait_prusage(info, options, tms_startp, rusage)
 	siginfo_t	*info;
 	int		options;
 	struct rusage	*rusage;
@@ -244,7 +245,8 @@ norusage:
 /*
  * Convert the status code to old style wait status
  */
-static int wait_status(code, status)
+static int
+wait_status(code, status)
 	int	code;
 	int	status;
 {
@@ -279,7 +281,8 @@ static int wait_status(code, status)
 /*
  * Convert the siginfo times to rusage timeval
  */
-static void wait_times(info, rusage)
+static void
+wait_times(info, rusage)
 	siginfo_t	*info;
 	struct rusage	*rusage;
 {

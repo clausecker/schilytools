@@ -1,6 +1,6 @@
-/* @(#)jssprintf.c	1.17 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)jssprintf.c	1.18 16/08/10 Copyright 1985, 1995-2016 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -25,9 +27,11 @@
 EXPORT	int js_sprintf __PR((char *, const char *, ...));
 
 #ifdef	PROTOTYPES
-static void _cput(char c, long ba)
+static void
+_cput(char c, long ba)
 #else
-static void _cput(c, ba)
+static void
+_cput(c, ba)
 	char	c;
 	long	ba;
 #endif

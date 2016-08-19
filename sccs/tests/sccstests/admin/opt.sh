@@ -23,6 +23,10 @@ remove $z $s $p $g
 
 echo '%M%' > $g		|| miscarry "Could not create $g"
 touch 0101000090 $g	|| miscarry "Could not touch $g"
+if [ -f 0101000090 ]; then
+	remove 0101000090
+	touch -t 199001010000 $g	|| miscarry "Could not touch $g"
+fi
 expect_fail=true
 docommand go1 "${admin} -o -i$g -n $s" 0 IGNORE IGNORE
 if  grep 90/01/01 $s > /dev/null 2> /dev/null

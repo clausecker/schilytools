@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.73 16/05/03 Copyright 1984,1985,1988,1989,1991,1994-2016 J. Schilling */
+/* @(#)bsh.c	1.74 16/08/10 Copyright 1984,1985,1988,1989,1991,1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.73 16/05/03 Copyright 1982,1984,1985,1988,1989,1991,1994-2016 J. Schilling";
+	"@(#)bsh.c	1.74 16/08/10 Copyright 1982,1984,1985,1988,1989,1991,1994-2016 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -315,8 +315,8 @@ main(ac, av, ev)
 	 * Hier sollte nur dann eine Warnung/Abbruch kommen, wenn
 	 * der bsh tatsächlich suid root installiert ist.
 	 */
-#if !defined(__EMX__) && !defined(__DJGPP__) && \
-    !defined(_MSC_VER) && !defined(__MINGW32__) && !defined(__BEOS__)
+#if	!defined(__EMX__) && !defined(__DJGPP__) && \
+	!defined(_MSC_VER) && !defined(__MINGW32__) && !defined(__BEOS__)
 error  No function to set uid available
 #endif
 

@@ -1,4 +1,4 @@
-/* @(#)mystdio.h	1.15 16/03/30 Copyright 2006-2016 J. Schilling */
+/* @(#)mystdio.h	1.16 16/08/10 Copyright 2006-2016 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
@@ -28,9 +28,9 @@
  * file will pull it in, given that the platform is recent enough to protect
  * stdio.h from multiple #includes.
  */
-#ifndef _INCL_STDIO_H
+#ifndef	_INCL_STDIO_H
 #include <stdio.h>
-#define _INCL_STDIO_H
+#define	_INCL_STDIO_H
 #endif
 
 /*

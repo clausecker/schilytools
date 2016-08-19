@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.64 11/08/03 Copyright 1984-2011 J. Schilling */
+/* @(#)sdd.c	1.65 16/08/10 Copyright 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.64 11/08/03 Copyright 1984-2011 J. Schilling";
+	"@(#)sdd.c	1.65 16/08/10 Copyright 1984-2016 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2011 J. Schilling
+ *	Copyright (c) 1984-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1459,9 +1461,9 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.64",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.65",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2011 Jörg Schilling\n");
+		printf("Copyright (C) 1984-2016 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
 		printf("conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or ");
@@ -1639,7 +1641,7 @@ openremote(filename, iosize)
 							filename, host, remfn);
 
 		remfd = iosize;
-		if (remfd != iosize){
+		if (remfd != iosize) {
 			comerrno(EX_BAD,
 				"Buffer size %ld too large for remote operation.\n",
 				iosize);

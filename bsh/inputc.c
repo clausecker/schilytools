@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.79 16/03/29 Copyright 1982, 1984-2016 J. Schilling */
+/* @(#)inputc.c	1.80 16/08/14 Copyright 1982, 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.79 16/03/29 Copyright 1982, 1984-2016 J. Schilling";
+	"@(#)inputc.c	1.80 16/08/14 Copyright 1982, 1984-2016 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -137,18 +137,20 @@ typedef struct {
 #define	LINEQUANT	64
 #define	BEGINLINE	1	/* ^A Move Cursor leftmost */
 #define	SHOW		2	/* ^B Show possible file name completion(s) */
-#define	EXPAND		3	/* ^C Do file name completion		    */
+#define	CTRLC		3	/* ^C Logical INTR			    */
 #define	CTRLD		4	/* ^D Logical EOF			    */
 #define	ENDLINE		5	/* ^E Move Cursor rightmost		    */
 #define	FORWARD		6	/* ^F Move Corsor one position to the right */
 #define	BEEP		7	/* ^G Audible Bell			    */
 #define	BACKSPACE	8	/* ^H Mode Cursor one position to the left  */
-#define	TAB		9	/* ^I TAB is an alias for EXPAND (^C)	    */
+#define	TAB		9	/* ^I TAB is an alias for EXPAND	    */
 				/* ^J New Line				    */
 #define	DOWNWARD	14	/* ^N Scroll down to next line in history   */
 #define	UPWARD		16	/* ^P Scroll up to previous line in history */
 #define	RETYPE		18	/* ^R Redisplay current edit line	    */
+#define	EXPAND		TAB	/* ^I Do file name completion		    */
 #define	CTRLU		21	/* ^U Clear current edit line		    */
+#define	CTRLV		22	/* ^V VNEXT quote next char		    */
 #define	CTRLW		23	/* ^W Backwards erase one word		    */
 #define	ESC		27	/* ^[ Lead in character for Escape sequence */
 #define	QUOTECH		30	/* ^^ Quote next character		    */
@@ -1436,7 +1438,6 @@ edit_line(cur_line)
 			show_files(lp, cp);
 			break;
 		case '\t':
-		case EXPAND:
 			if (multi) {
 				show_files(lp, cp);
 				break;
@@ -1496,6 +1497,15 @@ edit_line(cur_line)
 				beep();
 
 			break;
+		case CTRLC:
+			multi = 0;
+			delim = CTRLC;
+			ctlc++;			/* Mark for bsh */
+			*lp = 0;
+			llen = 1;		/* NULL Byte !!! */
+			cp = lp;
+			writes("^C");
+			return (EOF);
 		case CTRLU:
 			multi = 0;
 			clearline(lp, cp);
@@ -1550,11 +1560,15 @@ edit_line(cur_line)
 			bflush();
 			break;
 		case QUOTECH:
+		case CTRLV: {	int	oc = c;
+
 			set_insert_modes(infile);
 			c = _nextwc();
 
-			if ((towupper(c) < 0140) && c >= '@')
+			if (oc == QUOTECH &&
+			    (towupper(c) < 0140) && c >= '@')
 				c &= 037;
+			}
 		default:
 			multi = 0;
 			if (i_should_echo || !iswprint(c))
