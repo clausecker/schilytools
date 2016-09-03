@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.72 16/08/17 2008-2016 J. Schilling
+ * @(#)xec.c	1.74 16/08/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.72 16/08/17 2008-2016 J. Schilling";
+	"@(#)xec.c	1.74 16/08/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -779,11 +779,34 @@ script:
 				xflags |= XEC_ALLOCJOB;	/* Was in a register? */
 				goto dofork;
 			} else {
-				struct comnod	tnod;
+				struct trenod	*tptr;
+				struct comnod	cnod;
+				struct lstnod	lnod;
 
-				tnod = *comptr(anod);
-				tnod.comtyp |= treeflgs & (FPIN|FPOU|IOFMSK);
-				execute(treptr(&tnod),
+				/*
+				 * A double cast (first to void *) is needed to
+				 * make gcc quiet.
+				 * comnod is an int and three pointers
+				 * lstnod is an int and two pointers
+				 */
+				switch (anod->tretyp & COMMSK) {
+				case TFIL:
+					lnod = *lstptr(anod);
+					tptr = treptr((void *)&lnod);
+					break;
+				case TCOM:
+					cnod = *comptr(anod);
+					tptr = treptr((void *)&cnod);
+					break;
+				default:
+					/*
+					 * Should never happen
+					 */
+					failed(UC "TNOFORK", "botch");
+					goto out;
+				}
+				tptr->tretyp |= treeflgs & (FPIN|FPOU|IOFMSK);
+				execute(tptr,
 					xflags | XEC_NOBLTIN,
 					errorflg, pf1, pf2);
 				break;
@@ -1044,6 +1067,9 @@ script:
 		}
 		exitset();
 	}
+#ifdef	DO_PIPE_PARENT
+out:
+#endif
 	sigchk();
 	tdystak(sav, iosav);
 	flags |= eflag;
@@ -1074,11 +1100,16 @@ unsigned char *
 ps_macro(as)
 	unsigned char	*as;
 {
+extern	int		macflag;
 	int		oflags = flags;
+	int		omacflag = macflag;
 	unsigned char	*res;
 
 	flags &= ~(execpr|readpr);
+	if ((flags2 & promptcmdsubst) == 0)
+		macflag |= M_NOCOMSUBST;
 	res = macro(as);
+	macflag = omacflag;
 	flags = oflags;
 
 	return (res);

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)cmdsub.sh	1.5 16/07/10 Copyright 2016 J. Schilling
+# @(#)cmdsub.sh	1.6 16/08/31 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -48,8 +48,37 @@ else
 fi
 else
 	echo
-	echo "Not a Bourne Shell, skipping ^ pipe test: \"(:^times)\""
+	echo "Not a Bourne Shell, skipping cmdsub01: ^ pipe test: \"(:^times)\""
 	echo
 fi
 
+#
+# Check whether $() allows to include complex strings that contain newlines
+#
+cat > x <<"XEOF"
+: ${AWK=/usr/bin/nawk}
+#$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/awk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
+$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=awk
+
+seed=
+rand() {
+  eval "$(
+    $AWK -v range="$1" '
+      BEGIN {
+        srand('"$seed"')
+        print "seed=" int(rand() * 2^31)
+        print "echo " int(rand() * range)
+      }')"
+}
+
+rand 100000000
+rand 100000000
+XEOF
+docommand cmdsub02 "$SHELL ./x" 0 IGNORE ""
+
+remove x
 success

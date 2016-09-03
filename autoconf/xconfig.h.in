@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.253 16/03/09 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.254 16/09/03 Copyright 1998-2016 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2015 J. Schilling
+ *	Copyright (c) 1998-2016 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -1060,6 +1060,13 @@
     defined(HAVE_ACL_FROMTEXT) && defined(HAVE_ACL_TOTEXT)
 #	define	HAVE_ACL_FREE	1 /* acl_fre() function */
 #	define	HAVE_NFSV4_ACL	1 /* NFSv4 ACL's present */
+#endif
+
+#if defined(HAVE_ACL_GET_BRAND_NP)
+#ifndef	HAVE_NFSV4_ACL
+#	define	HAVE_NFSV4_ACL	1 /* NFSv4 ACL's present */
+#endif
+#	define	HAVE_FREEBSD_NFSV4_ACL	1 /* FreeBSD NFSv4 ACL implementation */
 #endif
 
 /*

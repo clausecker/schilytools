@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.56 16/08/07 2008-2016 J. Schilling
+ * @(#)main.c	1.57 16/08/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.56 16/08/07 2008-2016 J. Schilling";
+	"@(#)main.c	1.57 16/08/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -112,6 +112,9 @@ char **execargs = (char **)(-2);
 	int	main		__PR((int c, char *v[], char *e[]));
 static void	exfile		__PR((int prof));
 	void	chkpr		__PR((void));
+#ifdef	INTERACTIVE
+static void	editpr		__PR((int idx));
+#endif
 	void	settmp		__PR((void));
 static void	Ldup		__PR((int, int));
 	void	chkmail		__PR((void));
@@ -626,16 +629,14 @@ exfile(prof)
 			 */
 #define	EDIT_RPOMPTS	2
 			if (flags2 & vedflg) {
-				char *prompts[EDIT_RPOMPTS];
-				if ((prompts[0] = C ps1nod.namval) == NULL)
-					prompts[0] = C nullstr;
-				if ((prompts[1] = C ps2nod.namval) == NULL)
-					prompts[1] = C nullstr;
-
-				shedit_setprompts(0, EDIT_RPOMPTS, prompts);
+				editpr(0);
 			} else
 #endif
+#ifdef	DO_PS34
+				prs(ps_macro(ps1nod.namval));
+#else
 				prs(ps1nod.namval);	/* Ignores NULL ptr */
+#endif
 
 #ifdef TIME_OUT
 			alarm(TIMEOUT);
@@ -686,12 +687,39 @@ exfile(prof)
 void
 chkpr()
 {
+	if ((flags & prompt) && standin->fstak == 0) {
 #ifdef	INTERACTIVE
-	if ((flags2 & vedflg) == 0)
+		if (flags2 & vedflg) {
+			editpr(1);
+		} else
 #endif
-	if ((flags & prompt) && standin->fstak == 0)
-		prs(ps2nod.namval);
+#ifdef	DO_PS34
+			prs(ps_macro(ps2nod.namval));
+#else
+			prs(ps2nod.namval);	/* Ignores NULL ptr */
+#endif
+	}
 }
+
+#ifdef	INTERACTIVE
+static void
+editpr(idx)
+	int	idx;
+{
+	if (flags2 & vedflg) {
+		char *prompts[EDIT_RPOMPTS];
+
+		if ((prompts[0] = C ps1nod.namval) == NULL)
+			prompts[0] = C nullstr;
+		if ((prompts[1] = C ps2nod.namval) == NULL)
+			prompts[1] = C nullstr;
+#ifdef	DO_PS34
+		prompts[idx] = C ps_macro(UC prompts[idx]);
+#endif
+		shedit_setprompts(idx, EDIT_RPOMPTS, prompts);
+	}
+}
+#endif
 
 void
 settmp()

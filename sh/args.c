@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)args.c	1.75 16/07/15 2008-2016 J. Schilling
+ * @(#)args.c	1.76 16/08/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.75 16/07/15 2008-2016 J. Schilling";
+	"@(#)args.c	1.76 16/08/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -74,6 +74,9 @@ static	void		listaliasowner	__PR((int parse, int flagidx));
 #ifdef	DO_SET_O
 static	void		listopts	__PR((int parse));
 static	void		hostprompt	__PR((int on));
+#ifdef	DO_PS34
+static	void		ps_reset	__PR((void));
+#endif
 #endif
 
 static struct dolnod *dolh;
@@ -135,6 +138,9 @@ unsigned char	flagchar[] =
 	0,			/* -o posix */
 #endif
 	'p',
+#ifdef	DO_PS34
+	0,			/* -o promptcmdsubst */
+#endif
 	'r',
 	STDFLG,			/* -s / -o stdin */
 	'V',
@@ -204,6 +210,9 @@ char	*flagname[] =
 	"posix",		/* -o posix */
 #endif
 	"privileged",		/* -p ksh93: only if really privileged */
+#ifdef	DO_PS34
+	"promptcmdsubst",	/* -o promptcmdsubst */
+#endif
 	"restricted",		/* -r ksh93 name */
 	"stdin",		/* -s Schily name */
 	"version",		/* -V Schily Bourne Shell */
@@ -272,6 +281,9 @@ unsigned long	flagval[]  =
 	fl2 | posixflg,		/* -o posix */
 #endif
 	privflg,		/* -p */
+#ifdef	DO_PS34
+	fl2 | promptcmdsubst,	/* -o promptcmdsubst */
+#endif
 	rshflg,			/* -r / -o restrictive */
 	stdflg,			/* -s / -o stdin */
 	fl2 | versflg,		/* -V */
@@ -447,11 +459,13 @@ again:
 					failed(argv[1], badopt);
 				} else {
 					unsigned long *fp = &flags;
+					unsigned long oflags;
 
 							/* LINTED */
 					fv = flagval[flagc-flagchar];
 					if (fv & fl2)
 						fp = &flags2;
+					oflags = *fp;
 					*fp |= fv & ~fl2;
 					/*
 					 * Disallow to set -n on an interactive
@@ -487,6 +501,11 @@ again:
 #ifdef	DO_HOSTPROMPT
 					if (fv == (fl2 | hostpromptflg))
 						hostprompt(TRUE);
+#endif
+#ifdef	DO_PS34
+					if (fv == (fl2 | promptcmdsubst) &&
+					    (oflags & promptcmdsubst) == 0)
+						ps_reset();
 #endif
 				}
 			} else if (wc == 'c' && argc > 2 && comdiv == 0) {
@@ -1003,4 +1022,22 @@ hostprompt(on)
 #endif
 }
 #endif	/* DO_HOSTPROMPT */
+
+#ifdef	DO_PS34
+/*
+ * Reset user specific prompts to their default values.
+ */
+static void
+ps_reset()
+{
+	assign(&ps1nod, UC(geteuid() ? stdprompt : supprompt));
+	assign(&ps2nod, UC readmsg);
+#ifdef	__needed_
+	assign(&ps3nod, UC selectmsg);
+#endif
+	assign(&ps4nod, UC execpmsg);
+	if (flags2 & hostpromptflg)
+		hostprompt(TRUE);
+}
+#endif	/* DO_PS34 */
 #endif	/* DO_SET_O */

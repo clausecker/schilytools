@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.74 16/08/14 2008-2016 J. Schilling
+ * @(#)word.c	1.77 16/09/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.74 16/08/14 2008-2016 J. Schilling";
+	"@(#)word.c	1.77 16/09/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -439,6 +439,9 @@ match_cmd(argp)
 	argp = stakbot;
 	(void) setb(save_fd);
 	argp = endb();
+#ifdef	DOL_PAREN_DEBUG
+	fprintf(stderr, "DO_PAREN parse->prf() '%s'\n", argp); fflush(stderr);
+#endif
 
 	/*
 	 * Create new growable local stack and copy over the current text.
@@ -475,13 +478,13 @@ match_arith(argp)
 		 * single quotes
 		 */
 		pc = readw(c);
-		if (c == NL)
-			chkpr();
 		while (*pc) {
 			GROWSTAK(argp);
 			*argp++ = *pc++;
 		}
-		if (c == '(') {
+		if (c == NL) {
+			chkpr();
+		} else if (c == '(') {
 			nest++;
 		} else if (c == ')') {
 			if (--nest == 0)
@@ -511,17 +514,29 @@ match_literal(argp)
 	while ((c = readwc()) != '\0' && c != LITERAL) {
 		/*
 		 * quote each character within
-		 * single quotes
+		 * single quotes.
+		 * If we implement $(), the strings need to pass the parser
+		 * more than once, so we need to surround \n by "".
 		 */
 		pc = readw(c);
 		GROWSTAK(argp);
-		*argp++ = '\\';
-		/* Pick up rest of multibyte character */
+#ifdef	DO_DOL_PAREN
 		if (c == NL)
-			chkpr();
-		while ((c = *pc++) != 0) {
+			*argp++ = '"';
+		else
+#endif
+			*argp++ = '\\';
+		/* Pick up rest of multibyte character */
+		while (*pc != 0) {
 			GROWSTAK(argp);
-			*argp++ = (unsigned char)c;
+			*argp++ = *pc++;
+		}
+		if (c == NL) {
+#ifdef	DO_DOL_PAREN
+			GROWSTAK(argp);
+			*argp++ = '"';
+#endif
+			chkpr();
 		}
 	}
 	if (argp == oldargp) { /* null argument - '' */
@@ -550,6 +565,9 @@ match_block(argp, c, d)
 {
 	unsigned int	cc;
 	unsigned char	*pc;
+#ifdef	MATCH_BLOCK_DEBUG
+	UIntptr_t	p = relstakp(argp);
+#endif
 
 	for (;;) {
 		if ((c = nextwc()) == 0) {
@@ -592,6 +610,10 @@ match_block(argp, c, d)
 #endif
 	}
 	*argp = '\0';
+#ifdef	MATCH_BLOCK_DEBUG
+	fprintf(stderr, "match_block(%c) '%s'\n", d, absstak(p));
+	fflush(stderr);
+#endif
 	return (argp);
 }
 

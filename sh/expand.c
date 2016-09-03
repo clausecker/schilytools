@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)expand.c	1.17 15/08/25 2008-2015 J. Schilling
+ * @(#)expand.c	1.18 16/08/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.17 15/08/25 2008-2015 J. Schilling";
+	"@(#)expand.c	1.18 16/08/28 2008-2016 J. Schilling";
 #endif
 
 /*

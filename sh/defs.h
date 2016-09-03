@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.163 16/08/17 2008-2016 J. Schilling
+ * @(#)defs.h	1.164 16/08/28 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -601,6 +601,8 @@ extern	int	getrusage	__PR((int who, struct rusage *r_usage));
 #define	M_PARM		1	/* Normal parameter expansion	*/
 #define	M_COMMAND	2	/* Command substitution		*/
 #define	M_DOLAT		4	/* $@ was expanded		*/
+#define	M_SPLIT		(M_PARM|M_COMMAND|M_DOLAT)
+#define	M_NOCOMSUBST	8	/* Do not expand ` ` and $()	*/
 extern	unsigned char *macro	__PR((unsigned char *as));
 extern	void	subst		__PR((int in, int ot));
 
@@ -1137,6 +1139,7 @@ extern const char		devnull[];
 #define		viflg		040000		/* set -o vi VI cmdln. edit  */
 #define		vedflg		0100000		/* set -o ved VED cmdln. edit */
 #define		posixflg	0200000		/* set -o posix		*/
+#define		promptcmdsubst	0400000		/* set -o promptcmdsubst */
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */

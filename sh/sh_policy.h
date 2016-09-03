@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)sh_policy.h	1.7 13/09/20 2008-2013 J. Schilling
+ * @(#)sh_policy.h	1.8 16/08/28 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus

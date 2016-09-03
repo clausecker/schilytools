@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.60 16/07/31 2008-2016 J. Schilling
+ * @(#)macro.c	1.61 16/08/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.60 16/07/31 2008-2016 J. Schilling";
+	"@(#)macro.c	1.61 16/08/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -642,7 +642,7 @@ getname:
 			}
 			goto retry;
 #ifdef		DO_DOL_PAREN
-		} else if (c == '(') {
+		} else if (c == '(' && (macflag & M_NOCOMSUBST) == 0) {
 			comsubst(trimflag, COM_DOL_PAREN);
 			goto retry;
 #endif
@@ -652,6 +652,8 @@ getname:
 	} else if (d == endch) {
 		return (d);
 	} else if (d == SQUOTE) {
+		if (macflag & M_NOCOMSUBST)
+			return (d);
 		comsubst(trimflag, COM_BACKQUOTE);
 		goto retry;
 	} else if (d == DQUOTE && trimflag) {
@@ -669,7 +671,7 @@ unsigned char *
 macro(as)
 	unsigned char	*as;
 {
-	macflag = 0;
+	macflag &= ~M_SPLIT;
 	(void) _macro(as);
 	return (fixstak());
 }

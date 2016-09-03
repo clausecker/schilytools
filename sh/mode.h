@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)mode.h	1.23 16/06/19 2008-2016 J. Schilling
+ * @(#)mode.h	1.24 16/08/21 2008-2016 J. Schilling
  */
 
 /*
@@ -58,7 +58,7 @@ typedef short BOOL;
 
 #define	BYTESPERWORD	(sizeof (char *))
 #define	ALIGNSIZ	(sizeof (double))
-#define	NIL	((char *)0)
+#define	NIL		((char *)0)
 
 
 /*
@@ -83,7 +83,7 @@ typedef union
 	struct lstnod	*_lstptr;
 	struct blk	*_blkptr;
 	struct namnod	*_namptr;
-	char	*_bytptr;
+	char		*_bytptr;
 } address;
 
 
@@ -106,9 +106,9 @@ typedef union
 #endif
 struct fileblk
 {
-	int	fdes;
-	unsigned flin;
-	BOOL	feof;
+	int		fdes;
+	unsigned	flin;
+	BOOL		feof;
 #if BUFFERSIZE > 128
 	unsigned int	fsiz;
 #else
@@ -125,17 +125,17 @@ struct fileblk
 
 struct tempblk
 {
-	int fdes;
-	struct tempblk *fstak;
+	int		fdes;
+	struct tempblk	*fstak;
 };
 
 
 /* for files not used with file descriptors */
 struct filehdr
 {
-	int	fdes;
+	int		fdes;
 	unsigned	flin;
-	BOOL	feof;
+	BOOL		feof;
 	unsigned char	fsiz;
 	unsigned char	*fnxt;
 	unsigned char	*fend;
@@ -173,14 +173,18 @@ struct sysnod2
 	bftype	sysptr;		/* Ptr to function		*/
 };
 
-/* this node is a proforma for those that follow */
+/*
+ * this node is a proforma for those that follow
+ */
 struct trenod
 {
-	int	tretyp;
+	int		tretyp;
 	struct ionod	*treio;
 };
 
-/* dummy for access only */
+/*
+ * dummy for access only
+ */
 struct argnod
 {
 	struct argnod	*argnxt;
@@ -190,60 +194,81 @@ struct argnod
 struct dolnod
 {
 	struct dolnod	*dolnxt;
-	int	doluse;
+	int		doluse;
 	unsigned char	**dolarg;
 };
 
+/*
+ * Used for TFORK, TNOFORK
+ */
 struct forknod
 {
-	int	forktyp;
+	int		forktyp;
 	struct ionod	*forkio;
 	struct trenod	*forktre;
 };
 
+/*
+ * Used for TCOM
+ */
 struct comnod
 {
-	int	comtyp;
+	int		comtyp;
 	struct ionod	*comio;
 	struct argnod	*comarg;
 	struct argnod	*comset;
 };
 
+/*
+ * Used for TFND (function definition)
+ */
 struct fndnod
 {
-	int 	fndtyp;
+	int 		fndtyp;
 	unsigned char	*fndnam;
 	struct trenod	*fndval;
-	int	fndref;
+	int		fndref;
 };
 
+/*
+ * Used for TIF
+ */
 struct ifnod
 {
-	int	iftyp;
+	int		iftyp;
 	struct trenod	*iftre;
 	struct trenod	*thtre;
 	struct trenod	*eltre;
 };
 
+/*
+ * Used for TWH, TUN
+ */
 struct whnod
 {
-	int	whtyp;
+	int		whtyp;
 	struct trenod	*whtre;
 	struct trenod	*dotre;
 };
 
+/*
+ * Used fot TFOR, TSELECT
+ */
 struct fornod
 {
-	int	fortyp;
+	int		fortyp;
 	struct trenod	*fortre;
 	unsigned char	*fornam;
 	struct comnod	*forlst;
 };
 
+/*
+ * Used for TSW
+ */
 struct swnod
 {
-	int	swtyp;
-	unsigned char *swarg;
+	int		swtyp;
+	unsigned char	*swarg;
 	struct regnod	*swlst;
 };
 
@@ -254,32 +279,38 @@ struct regnod
 	struct regnod	*regnxt;
 };
 
+/*
+ * Used for TPAR, TNOT, TTIME
+ */
 struct parnod
 {
-	int	partyp;
+	int		partyp;
 	struct trenod	*partre;
 };
 
+/*
+ * Used for TLST, TAND, TORF, TFIL
+ */
 struct lstnod
 {
-	int	lsttyp;
+	int		lsttyp;
 	struct trenod	*lstlef;
 	struct trenod	*lstrit;
 };
 
 struct ionod
 {
-	int	iofile;
-	char	*ioname;
-	char	*iolink;
+	int		iofile;
+	char		*ioname;
+	char		*iolink;
 	struct ionod	*ionxt;
 	struct ionod	*iolst;
 };
 
 struct fdsave
 {
-	int org_fd;
-	int dup_fd;
+	int	org_fd;
+	int	dup_fd;
 };
 
 struct optv

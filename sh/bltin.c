@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.106 16/08/07 2008-2016 J. Schilling
+ * @(#)bltin.c	1.107 16/09/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.106 16/08/07 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.107 16/09/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -429,7 +429,9 @@ builtin(type, argc, argv, t, xflags)
 				if (type != SYSPUSHD)
 					free(pop_dir(0));
 				push_dir(wd);		/* Update dir stack  */
-				if (pr_dirs(1, cdopt))	/* If already printed */
+				if (pr_dirs(type ==	/* Print if len > 0  */
+				    SYSPOPD ?		/* or cmd was "popd" */
+				    0:1, cdopt))	/* If already printed */
 					wd = NULL;	/* don't do it again */
 #endif
 				if (cf(UC nullstr, dir) &&

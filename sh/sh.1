@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.178 16/08/18 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.179 16/08/28 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/08/18" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/08/28" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2057,13 +2057,36 @@ was not supported in older versions of
 .ne 3
 .TP
 .B PS1
-Primary prompt string, by default "$\ \|".
+Primary prompt string, by default "$\ \|" for normal users and "\#\ \|" for
+privileged users.
+Each time an interactive shell is ready to read a command, the value of this
+variable is subject to parameter expansion and written to standard error.
+See the description for
+.B "set\ \-o\ promptcmdsubst"
+below for more information.
+.sp
+The variable
+.B PS1
+was not subject to parameter expansion in older versions of
+.BR sh .
 
 .br
 .ne 3
 .TP
 .B PS2
 Secondary prompt string, by default ">\ \|".
+Each time, the user enters a
+.B <newline>
+prior to completing a command line in an interactive shell, the value of this
+variable is subject to parameter expansion and written to standard error.
+See the description for
+.B "set\ \-o\ promptcmdsubst"
+below for more information.
+.sp
+The variable
+.B PS2
+was not subject to parameter expansion in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2082,7 +2105,11 @@ was not supported in older versions of
 .B PS4
 Execution trace prompt string, by default "+\ \|".
 If unset, "+\ \|" is used.
-The content of this variable is subject to parameter expansion.
+The value of this variable is subject to parameter expansion
+and written to standard error.
+See the description for
+.B "set\ \-o\ promptcmdsubst"
+below for more information.
 .sp
 The variable
 .B PS4
@@ -5149,6 +5176,34 @@ shell equals a compiled in value, e.g.
 Equivalent to
 .BR \-p .
 .TP
+.B promptcmdsubst
+Apply 
+.B command substitution
+and
+.B arithmetic substitution
+to the variables
+.BR PS1 ,
+.BR PS2
+and
+.BR PS4 .
+By default,
+.B promptcmdsubst
+is switched off to avoid security problems caused by imported variables.
+If
+.B promptcmdsubst
+is switched on, the variables
+.BR PS1 ,
+.BR PS2
+and
+.B PS4
+are reset to their default values for security reasons.
+Note that POSIX only requires parameter substitution, but no
+command substitution or arithmetic substitution for 
+.BR PS1 ,
+.BR PS2
+and
+.BR PS4 .
+.TP
 .B restricted
 Equivalent to
 .BR \-r .
@@ -6444,7 +6499,9 @@ remains active, but the file with persistent alias definitions is not touched.
 .sp .6
 For each
 .IR name ,
-remove the corresponding variable or function value. The variables
+remove the corresponding variable or function value.
+.de ..
+The variables
 .BR PATH ,
 .BR PS1 ,
 .BR PS2 ,
@@ -6452,6 +6509,7 @@ remove the corresponding variable or function value. The variables
 and
 .B IFS
 cannot be unset.
+..
 Readonly variables cannot be unset.
 If the option
 .B \-v

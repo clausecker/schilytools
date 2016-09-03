@@ -1,13 +1,13 @@
-/* @(#)dirs.c	1.29 14/04/21 Copyright 1984-2014 J. Schilling */
+/* @(#)dirs.c	1.30 16/09/01 Copyright 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirs.c	1.29 14/04/21 Copyright 1984-2014 J. Schilling";
+	"@(#)dirs.c	1.30 16/09/01 Copyright 1984-2016 J. Schilling";
 #endif
 /*
  *	Directory routines
  *
- *	Copyright (c) 1984-2014 J. Schilling
+ *	Copyright (c) 1984-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -321,7 +321,7 @@ changewd(std, newdir, cdenv, locklist, flg)
 		push_dir(full);
 		update_cwd();
 	}
-	if (!ret && (flg & PRINT || dirs->tn_right.tn_node))
+	if (!ret && (flg & (PRINT | POP) || dirs->tn_right.tn_node))
 		pr_dirs(std[1]);
 	return (ret);
 }

@@ -27,8 +27,8 @@
 #pragma ident	"@(#)sym.h	1.8	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)sym.h	1.9 16/06/30 2009-2016 J. Schilling
+ * Copyright 2009-2016 J. Schilling
+ * @(#)sym.h	1.10 16/08/28 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell

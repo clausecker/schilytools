@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)stak.h	1.10 16/04/28 2008-2016 J. Schilling
+ * @(#)stak.h	1.11 16/08/28 2008-2016 J. Schilling
  */
 
 /*

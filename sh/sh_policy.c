@@ -32,16 +32,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)sh_policy.c	1.15 13/09/24 2008-2013 J. Schilling
+ * @(#)sh_policy.c	1.16 16/08/28 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sh_policy.c	1.15 13/09/24 2008-2013 J. Schilling";
+	"@(#)sh_policy.c	1.16 16/08/28 2008-2016 J. Schilling";
 #endif
 
 #ifdef	SCHILY_INCLUDES

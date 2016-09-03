@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.44 16/07/15 2008-2016 J. Schilling
+ * @(#)cmd.c	1.45 16/08/20 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.44 16/07/15 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.45 16/08/20 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -495,9 +495,9 @@ item(flag)
 			struct comnod *t;
 			struct argnod *argp;
 			struct argnod **argtail;
-			struct argnod **argset = 0;
+			struct argnod *argset = 0;
 #ifndef	ARGS_RIGHT_TO_LEFT
-			struct argnod **argstail = (struct argnod **)&argset;
+			struct argnod **argstail = &argset;
 #endif
 			int	keywd = 1;
 			unsigned char	*com;
@@ -578,9 +578,8 @@ item(flag)
 							envbeg++;
 						}
 #ifdef	ARGS_RIGHT_TO_LEFT		/* old order: var2=val2 var1=val1 */
-						argp->argnxt =
-							(struct argnod *)argset;
-						argset = (struct argnod **)argp;
+						argp->argnxt = argset;
+						argset = argp;
 #else
 						argp->argnxt =
 							(struct argnod *)0;
@@ -615,7 +614,7 @@ item(flag)
 				}
 
 				t->comtyp = TCOM;
-				t->comset = (struct argnod *)argset;
+				t->comset = argset;
 				*argtail = 0;
 
 				if (nohash == 0 &&

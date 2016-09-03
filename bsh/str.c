@@ -1,11 +1,11 @@
-/* @(#)str.c	1.32 15/08/05 Copyright 1986-2015 J. Schilling */
+/* @(#)str.c	1.33 16/09/01 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.32 15/08/05 Copyright 1986-2015 J. Schilling";
+	"@(#)str.c	1.33 16/09/01 Copyright 1986-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -218,7 +218,7 @@ Options:\n\
 	-r	reload mappings\n\
 	-u	unmap fromstr";
 char	upgrp[]		= "[pid]";
-char	upopd[]		= "[offsdet]";
+char	upopd[]		= "[offset]";
 char	upushd[]	= "[directory|offset]";
 char	uread[]		= "varname";
 char	urepeat[]	= "\
