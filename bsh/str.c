@@ -1,8 +1,8 @@
-/* @(#)str.c	1.33 16/09/01 Copyright 1986-2016 J. Schilling */
+/* @(#)str.c	1.34 16/09/15 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.33 16/09/01 Copyright 1986-2016 J. Schilling";
+	"@(#)str.c	1.34 16/09/15 Copyright 1986-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2016 J. Schilling
@@ -87,8 +87,10 @@ char	Elogname[]	= "LOGNAME";
 char	promptname[]	= "PROMPT";
 char	prompt2name[]	= "PROMPT2";
 char	ignoreeofname[]	= "IGNOREEOF";
-char	histname[]	= "HISTORY";
-char	savehistname[]	= "SAVEHISTORY";
+char	histname[]	= "HISTORY";	/* Historic name */
+char	savehistname[]	= "SAVEHISTORY"; /* Historic name */
+char	histsizename[]	= "HISTSIZE";	/* POSIX name taken frok ksh */
+char	histfilename[]	= "HISTFILE";	/* POSIX name taken from ksh */
 char	slashname[]	= "SLASH";
 char	evlockname[]	= "EVLOCK";
 char	mailname[]	= "MAIL";

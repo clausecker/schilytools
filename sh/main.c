@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.57 16/08/28 2008-2016 J. Schilling
+ * @(#)main.c	1.58 16/09/09 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.57 16/08/28 2008-2016 J. Schilling";
+	"@(#)main.c	1.58 16/09/09 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -394,6 +394,15 @@ main(c, v, e)
 #ifdef	__readonly_ppid__
 	attrib((&ppidnod), N_RDONLY);
 #endif
+#endif
+#ifdef	DO_POSIX_CD
+	/*
+	 * XXX Should we set a timeout here in order to allow people to log in
+	 * XXX when the home directory hangs?
+	 * XXX Root should not have these problems as root's homedir is local.
+	 */
+	cwdget(CHDIR_P);		/* Verify/set PWD as with pwd -P */
+	attrib(&pwdnod, N_EXPORT);	/* Speedup nested "sh" calls	*/
 #endif
 
 	/* initialize OPTIND for getopt */

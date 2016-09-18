@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.179 16/08/28 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.187 16/09/15 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,14 +59,21 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/08/28" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/09/15" "Schily Bourne Shell" "User Commands"
 .SH NAME
-sh, jsh \- standard and job control shell and command interpreter
+sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
 .LP
 .nf
 .B /usr/bin/sh\c
 .RB "   [" \(miacefhikmnprstuvxP "] ["\c
+.IR argument ]...
+.fi
+
+.LP
+.nf
+.B /usr/bin/bosh\c
+.RB " [" \(miacefhikmnprstuvxP "] ["\c
 .IR argument ]...
 .fi
 
@@ -84,7 +91,12 @@ The
 .B /usr/bin/sh
 utility is a command programming language that
 executes commands read from a terminal or a file.
-.sp
+.LP
+The name
+.B bosh
+permits to call this implementaton even when
+.B /usr/bin/sh
+has been linked to another shell.
 .LP
 The
 .B jsh
@@ -94,6 +106,11 @@ functionality of
 and enables job control (see
 .B Job Control
 section below).
+Job control may also be enabled by calling the shell via the standard name
+and then calling
+.B set\ \-m
+or
+.BR "set\ \-o\ monitor" .
 .sp
 .LP
 Arguments to the shell are listed in the
@@ -1855,6 +1872,20 @@ is not set, it defaults to
 .br
 .ne 3
 .TP
+.B BEEP
+If set to
+.BR off ,
+the history editor will not beep in case of an error.
+Use this to allow e.g. silent working in meetings.
+.sp
+The variable
+.B BEEP
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 .B CDPATH
 The search path for the
 .B cd
@@ -1915,6 +1946,64 @@ file.
 .br
 .ne 3
 .TP
+.B HISTFILE
+The name of the file to use in order to read or save the command history.
+If
+.B HISTFILE
+is not set before the shell reads the initial history at startup, the name
+.B $HOME/.history
+is used.
+.B HISTFILE
+is only supported if
+.B sh
+was compiled with support for history editing.
+.sp
+The variable
+.B HISTFILE
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
+.B HISTORY
+The maximum number of lines to keep in the command history editor.
+The default is to keep 128 lines of command history.
+.B HISTORY
+is only supported if
+.B sh
+was compiled with support for history editing.
+This is the historic name that is in use since 1984, it is used as a
+fallback, when the POSIX variable
+.B HISTSIZE
+(introduced 1992) was not set.
+.sp
+The variable
+.B HISTORY
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
+.B HISTSIZE
+The maximum number of lines to keep in the command history editor.
+The default is to keep 128 lines of command history.
+.B HISTSIZE
+is only supported if
+.B sh
+was compiled with support for history editing.
+This is the POSIX variable name that has precedence over
+.BR HISTORY .
+.sp
+The variable
+.B HISTSIZE
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 .B IGNOREEOF
 If set to
 .BR on ,
@@ -1935,22 +2024,6 @@ was compiled with support for history editing.
 .sp
 The variable
 .B IGNOREEOF
-was not supported in older versions of
-.BR sh .
-
-.br
-.ne 3
-.TP
-.B HISTORY
-The maximum number of lines to keep in the command history editor.
-The default is to keep 100 lines of command history.
-.B HISTORY
-is only supported if
-.B sh
-was compiled with support for history editing.
-.sp
-The variable
-.B HISTORY
 was not supported in older versions of
 .BR sh .
 
@@ -2120,31 +2193,17 @@ was not supported in older versions of
 .ne 3
 .TP
 .B PWD
-The present working directory set by the
+The present working directory, set by the
 .BR cd ,
 the
 .B pushd
 and the
 .B popd
 command.
-For efficiency and to avoid NFS based hangs,
+POSIX requires
 .B PWD
-is not set before the first
-.BR cd ,
-.BR dirs ,
-.BR pushd ,
-.BR popd ,
-or
-.B pwd
-command.
-As it may have been imported with invalid content from the
-environment of the calling process, it is recommended to
-call
-.B pwd
-or
-.B cd .
-before depending on the content of
-.BR PWD .
+to be set and verified at program startup. This may prevent a login for users
+with a networked home directory in case of a NFS based hang.
 .sp
 The variable
 .B PWD
@@ -3288,7 +3347,16 @@ If no argument was given,
 .B alias
 lists all current alias definitions.
 .sp
-Alias definitions must be written with appropriate quoting.
+Alias definitions using the 
+.B alias
+shell built-in must be written with appropriate quoting so that it is
+suitable for reinput to the shell parser.
+.sp
+The
+.B # commands
+provide an alternate interface to define aliases that does not use the
+standard shell parser. It thus does not require quoting that goes beyond
+the quoting needed for the final command line in the expanded command.
 .sp
 The
 .B alias
@@ -3789,7 +3857,8 @@ does not exit the shell but returns from the
 .IR command_string .
 The
 .B dosh
-command is often used together with aliases.
+command is often used together with aliases
+in order to implement parameterized aliases.
 .sp
 The
 .B dosh
@@ -4210,7 +4279,7 @@ section below for more detail.)
 .br
 .ne 3
 .TP
-\fBkill\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] \fB%\fIjob\fR .\|.\|.
+\fBkill\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] [ \fIpid\fR ] [ \fB%\fIjob\fR ] .\|.\|.
 .PD 0
 .TP
 .B kill \-l\fR [ \fIsig\fR ] .\|.\|. 
@@ -4264,7 +4333,7 @@ with arguments was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBkillpg\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] \fB%\fIjob\fR .\|.\|.
+\fBkillpg\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] [ \fIpgrp\fR ] [ \fB%\fIjob\fR ] .\|.\|.
 .PD 0
 .TP
 .B killpg \-l\fR [ \fIsig\fR ] .\|.\|. 
@@ -4459,14 +4528,14 @@ Calling
 with an
 .I offset
 argument removes the current the top directory stack element
-from the directory stack, them removes the directory stack element
+from the directory stack, then removes the directory stack element
 named by
 .I offset
-from the current directory stack, makes it
+from the current directory stack and then makes it
 the new top directory stack element and performs a
 .B cd
 to this directory.
-If the new directory stack has more than one element, it is printed.
+The new directory name is always printed as it was not given as an argument.
 See
 .B dirs
 for an explanation of
@@ -4562,7 +4631,7 @@ is supported.
 The integers are handled internally as
 .B intmax_t
 to avoid range problems
-even though only the standard int type spcifiers are supported in the
+even though only the standard int type specifiers are supported in the
 .I format
 operand.
 The format
@@ -6063,8 +6132,7 @@ receives numeric or symbolic signal(s)
 is scanned once when the trap is set and once when the trap
 is taken.) Trap commands are executed in order of signal number or
 corresponding symbolic names. Any attempt to set a trap on a signal that was
-ignored on entry to the current shell is ineffective. An attempt to trap on
-signal 11 (memory fault) produces an error.
+ignored on entry to the current shell is ineffective.
 .sp
 If
 .I argument

@@ -1,4 +1,4 @@
-/* @(#)stdio.h	1.10 16/03/29 Copyright 2009-2016 J. Schilling */
+/* @(#)stdio.h	1.12 16/09/11 Copyright 2009-2016 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
@@ -40,6 +40,10 @@
 #define	_INCL_STDIO_H
 #endif
 #endif	/* INCL_MYSTDIO */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef	HAVE_LARGEFILES
 /*
@@ -84,7 +88,7 @@
  * partially unhide the FILE structure in a 64 bit environment on Solaris
  * to allow to run putc_unlocked() as a marcro.
  *
- * If you believe you can do this on onther platforms, send a note. 
+ * If you believe you can do this on onther platforms, send a note.
  */
 #if	defined(__SVR4) && defined(__sun) && defined(_LP64)
 
@@ -109,6 +113,10 @@ extern int	__flsbuf __PR((int, FILE *));
 
 #endif	/* defined(__SVR4) && defined(__sun) && defined(_LP64) */
 #endif	/* FAST_GETC_PUTC */
+
+#ifdef __cplusplus
+}
+#endif
 
 #else	/* !NO_SCHILY_STDIO_H */
 #undef	_SCHILY_STDIO_H			/* #undef here to pass "hdrchk" */

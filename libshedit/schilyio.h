@@ -1,9 +1,9 @@
-/* @(#)schilyio.h	1.3 16/03/29 Copyright 2006-2008 J. Schilling */
+/* @(#)schilyio.h	1.4 16/09/10 Copyright 2006-2016 J. Schilling */
 /*
  *	Replacement for libschily/stdio/schilyio.h to allow
  *	FILE * -> int *
  *
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

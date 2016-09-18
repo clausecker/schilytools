@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)options.sh	1.2 16/06/16 2015-2016 J. Schilling
+# @(#)options.sh	1.3 16/09/18 2015-2016 J. Schilling
 #
 
 # options.sh:  Testing good and bad options
@@ -33,7 +33,7 @@ Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]
 	[-z backup-ext] [-B backup-prefix] [-d directory]
 	[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]
 	[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]
-	[-W+] [-Wall] [-Wposix] [-W-posix]
+	[-Wv] [-Wversion] [-W+] [-Wall] [-Wposix] [-W-posix]
 "
 
 #

@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.51 16/09/03 Copyright 2001-2014 J. Schilling */
+/* @(#)acl_unix.c	1.52 16/09/16 Copyright 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.51 16/09/03 Copyright 2001-2014 J. Schilling";
+	"@(#)acl_unix.c	1.52 16/09/16 Copyright 2001-2016 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2014 J. Schilling
+ *	Copyright (c) 2001-2016 J. Schilling
  *
  *	There are currently two basic flavors of ACLs:
  *

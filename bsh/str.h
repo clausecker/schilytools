@@ -1,6 +1,6 @@
-/* @(#)str.h	1.16 15/08/05 Copyright 1986-2015 J. Schilling */
+/* @(#)str.h	1.17 16/09/15 Copyright 1986-2016 J. Schilling */
 /*
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -71,6 +71,8 @@ extern	char	prompt2name[];
 extern	char	ignoreeofname[];
 extern	char	histname[];
 extern	char	savehistname[];
+extern	char	histsizename[];
+extern	char	histfilename[];
 extern	char	slashname[];
 extern	char	evlockname[];
 extern	char	mailname[];

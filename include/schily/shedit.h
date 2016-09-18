@@ -1,8 +1,8 @@
-/* @(#)shedit.h	1.7 15/08/29 Copyright 2006-2015 J. Schilling */
+/* @(#)shedit.h	1.9 16/09/10 Copyright 2006-2016 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
- *	Copyright (c) 2006-2015 J. Schilling
+ *	Copyright (c) 2006-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,9 @@
 #endif
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
+#endif
+#ifndef	_SCHILY_SCHILY_H
+#include <schily/schily.h>
 #endif
 
 #ifdef	__cplusplus
@@ -52,7 +55,7 @@ extern "C" {
 extern	int	shedit_egetc	__PR((void));
 extern	int	shedit_getdelim	__PR((void));
 extern	void	shedit_treset	__PR((void));
-extern	void	shedit_bhist	__PR((void));
+extern	void	shedit_bhist	__PR((int **intrcpp));
 extern	void	shedit_bshist	__PR((int **intrpp));
 extern	void	shedit_append_line __PR((char *linep, unsigned int len,
 						unsigned int pos));

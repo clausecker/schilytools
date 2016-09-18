@@ -1,12 +1,12 @@
-/* @(#)patch.c	1.40 15/06/03 2011-2015 J. Schilling */
+/* @(#)patch.c	1.42 16/09/17 2011-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.40 15/06/03 2011-2015 J. Schilling";
+	"@(#)patch.c	1.42 16/09/17 2011-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2016 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -657,13 +657,19 @@ _("Argument to -D not an identifier.\n"));
 					break;
 				}
 
+			printvers:
 				printf(
 				_("patch %s (%s-%s-%s)\n\n"),
 					PATCHVERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				printf(
+				_("Compatibility: %s%s%s\n\n"),
+					do_posix ? "POSIX ":"",
+					do_wall ? "Wall-2.0 ":"",
+					wall_plus ? "Wall+":"");
+				printf(
 				_("Copyright (C) 1984 - 1988 Larry Wall\n"));
-				printf(_("Copyright (C) 2011 - 2015 %s\n"),
+				printf(_("Copyright (C) 2011 - 2016 %s\n"),
 					_("Joerg Schilling"));
 				printf(_(
 "This is free software; see the source for copying conditions.  There is NO\n"
@@ -685,6 +691,9 @@ _("Argument to -D not an identifier.\n"));
 				} else if (strEQ(s, "W-posix")) {
 					do_posix = FALSE;
 					do_wall = FALSE;
+				} else if (strEQ(s, "Wv") ||
+				    strEQ(s, "Wversion")) {
+					goto printvers;
 				}
 				break;
 #ifdef DEBUGGING
@@ -721,7 +730,7 @@ Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]\n\
 \t[-z backup-ext] [-B backup-prefix] [-d directory]\n\
 \t[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
 \t[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\
-\t[-W+] [-Wall] [-Wposix] [-W-posix]\n\
+\t[-Wv] [-Wversion] [-W+] [-Wall] [-Wposix] [-W-posix]\n\
 "));
 				}
 				my_exit(EXIT_FAIL);

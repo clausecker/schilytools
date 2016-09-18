@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.20 15/08/29 Copyright 2006-2015 J. Schilling */
+/* @(#)edit.c	1.22 16/09/10 Copyright 2006-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.20 15/08/29 Copyright 2006-2015 J. Schilling";
+	"@(#)edit.c	1.22 16/09/10 Copyright 2006-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2015 J. Schilling
+ *	Copyright (c) 2006-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,7 +39,7 @@ LOCAL	int	readchar	__PR((fstream *fsp));
 EXPORT	int	shedit_egetc	__PR((void));
 EXPORT	int	shedit_getdelim	__PR((void));
 EXPORT	void	shedit_treset	__PR((void));
-EXPORT	void	shedit_bhist	__PR((void));
+EXPORT	void	shedit_bhist	__PR((int **ctlcpp));
 EXPORT	void	shedit_bshist	__PR((int **ctlcpp));
 
 /*
@@ -291,8 +291,12 @@ shedit_treset()
 }
 
 EXPORT void
-shedit_bhist()
+shedit_bhist(ctlcpp)
+	int	**ctlcpp;
 {
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
 	put_history(gstd[1], TRUE);
 }
 

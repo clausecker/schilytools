@@ -1,7 +1,7 @@
-/* @(#)common.h	1.23 15/06/02 2011-2015 J. Schilling */
+/* @(#)common.h	1.24 16/09/16 2011-2016 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2016 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -186,3 +186,7 @@ EXT char *revision;			/* prerequisite revision, if any */
 EXT LINENUM p_repl_lines;		/* From pch.c # of replacement lines */
 
 extern	void	my_exit __PR((int status));
+
+#ifdef	HAVE_GETDELIM
+#define	fgetaline(f, bufp, lenp)	getdelim(bufp, lenp, '\n', f)
+#endif

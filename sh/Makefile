@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.125 16/08/02  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.126 16/09/09  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -55,7 +55,7 @@ CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
 CPPOPTS +=	-DDO_EMPTY_SEMI		# Permit ";" and ";echo" as valid commands
 CPPOPTS +=	-DDO_PIPE_PARENT	# Optimized pipes: Shell always parent
-CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
+CPPOPTS +=	-DDO_ALLEXPORT		# Bugfix for set -a; read VAR / getopts
 CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
 CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters

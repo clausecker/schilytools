@@ -1,10 +1,10 @@
-/* @(#)sha3.h	1.4 15/12/27 2015 J. Schilling */
+/* @(#)sha3.h	1.5 16/09/11 2015-2016 J. Schilling */
 /* sha3.h */
 /*
  * SHA3 hash code taken from
  * https://github.com/rhash/RHash/tree/master/librhash
  *
- * Portions Copyright (c) 2015 J. Schilling
+ * Portions Copyright (c) 2015-2016 J. Schilling
  */
 #ifndef	_SCHILY_SHA3_H
 #define	_SCHILY_SHA3_H
@@ -75,7 +75,7 @@ void rhash_keccak_final	__PR((sha3_ctx *ctx, unsigned char *result));
 #endif	/* HAVE_LONGLONG */
 
 #ifdef __cplusplus
-} /* extern "C" */
-#endif /* __cplusplus */
+}
+#endif
 
 #endif /* _SCHILY_SHA3_H */

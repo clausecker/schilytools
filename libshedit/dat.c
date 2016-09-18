@@ -1,8 +1,8 @@
-/* @(#)dat.c	1.4 16/03/29 Copyright 2006-2013 J. Schilling */
+/* @(#)dat.c	1.5 16/09/10 Copyright 2006-2016 J. Schilling */
 /*
  *	Global data
  *
- *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2006-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

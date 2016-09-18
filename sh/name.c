@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.65 16/08/20 2008-2016 J. Schilling
+ * @(#)name.c	1.66 16/09/09 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.65 16/08/20 2008-2016 J. Schilling";
+	"@(#)name.c	1.66 16/09/09 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -425,7 +425,11 @@ assign(n, v)
 	}
 #endif
 	replace(&n->namval, v);
-	attrib(n, N_ENVCHG);	/* Mark as changed after env inport */
+	attrib(n, N_ENVCHG);		/* Mark as changed after env inport */
+#ifdef	DO_ALLEXPORT
+	if (flags & exportflg)		/* set -a ?		*/
+		attrib(n, N_EXPORT);	/* Mark for export	*/
+#endif
 
 	use(n);
 }
@@ -603,10 +607,6 @@ readvar(namec, names)
 		if ((*names && anys(c, ifs)) || eolchar(d)) {
 			GROWSTAKTOP();
 			zerostak();
-#ifdef	DO_READ_ALLEXPORT
-			if (flags & exportflg)
-				n->namflg |= N_EXPORT;
-#endif
 			assign(n, absstak(rel));
 			setstak(rel);
 			if (*names)

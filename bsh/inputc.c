@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.80 16/08/14 Copyright 1982, 1984-2016 J. Schilling */
+/* @(#)inputc.c	1.82 16/09/15 Copyright 1982, 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.80 16/08/14 Copyright 1982, 1984-2016 J. Schilling";
+	"@(#)inputc.c	1.82 16/09/15 Copyright 1982, 1984-2016 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -479,8 +479,17 @@ init_input()
 #ifdef DEBUGX
 	printf("init_input()\r\n");
 #endif
-	if ((p = getcurenv(histname)) == NULL) {
-		p = "100";
+	/*
+	 * First check for "HISTSIZE" as this is POSIX
+	 */
+	if ((p = getcurenv(histsizename)) != NULL) {
+		/* EMPTY */;
+	} else if ((p = getcurenv(histname)) == NULL) {
+		/*
+		 * If our historic name "HISTORY" is not present, use the
+		 * minimum size required by POSIX.
+		 */
+		p = "128";
 		ev_insert(concat(histname, eql, p, (char *)NULL));
 	}
 	chghistory(p);
@@ -1500,7 +1509,9 @@ edit_line(cur_line)
 		case CTRLC:
 			multi = 0;
 			delim = CTRLC;
+#ifndef	LIB_SHEDIT
 			ctlc++;			/* Mark for bsh */
+#endif
 			*lp = 0;
 			llen = 1;		/* NULL Byte !!! */
 			cp = lp;
@@ -2434,7 +2445,18 @@ read_init_history()
 {
 	MYFILE	*f;
 
-	hfilename = concat(inithome, slash, historyname, (char *)NULL);
+	/*
+	 * First check for "HISTFILE" as this is required by POSIX.
+	 */
+	if ((hfilename = getcurenv(histfilename)) != NULL) {
+		hfilename = concat(hfilename, (char *)NULL);
+	} else {
+		/*
+		 * Our historic name is "$HOME/.history", use it whenever
+		 * "HISTFILE" is not present.
+		 */
+		hfilename = concat(inithome, slash, historyname, (char *)NULL);
+	}
 	f = fileopen(hfilename, for_read);
 	if (f) {
 		readhistory(f);

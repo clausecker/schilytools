@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.107 16/09/01 2008-2016 J. Schilling
+ * @(#)bltin.c	1.109 16/09/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.107 16/09/01 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.109 16/09/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -944,13 +944,19 @@ builtin(type, argc, argv, t, xflags)
 
 #ifdef	INTERACTIVE
 	case SYSHISTORY:
-		shedit_bhist();
+		shedit_bhist(&intrptr);
+		if (intrptr) {		/* Was set by shedit_bshist()?	*/
+			*intrptr = 0;	/* Clear interrupt counter	*/
+			intrptr = 0;	/* Disable intrptr for now	*/
+		}
 		break;
 
 	case SYSSAVEHIST:
 		shedit_bshist(&intrptr);
-		if (intrptr)		/* Was set by shedit_bshist()?	*/
+		if (intrptr) {		/* Was set by shedit_bshist()?	*/
+			*intrptr = 0;	/* Clear interrupt counter	*/
 			intrptr = 0;	/* Disable intrptr for now	*/
+		}
 		break;
 
 	case SYSMAP:
