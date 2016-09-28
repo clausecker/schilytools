@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.187 16/09/15 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.190 16/09/25 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/09/15" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/09/25" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -941,6 +941,7 @@ is eligible for tilde expansion because tilde follows a colon and none of
 the relevant characters is quoted. Consideration was given to prohibiting
 this behavior because any of the following are reasonable substitutes:
 .sp
+.ne 5
 .in +2
 .nf
 .B
@@ -1036,6 +1037,8 @@ and
 .B $OLDPWD
 respectively.
 
+.br
+.ne 5
 .SS "Command Substitution"
 .sp
 .LP
@@ -2590,11 +2593,15 @@ and
 .sp
 .LP
 The shell gives default values to
+.BR ENV ,
 .BR PATH ,
 .BR PS1 ,
 .BR PS2 ,
+.BR PS3 ,
+.BR PS4 ,
 .BR MAILCHECK ,
 .BR HISTORY ,
+.BR OPTIND ,
 and
 .BR IFS .
 Default values for
@@ -7809,9 +7816,13 @@ marginal cases with negative process id's that caused problems before as well.
 .B read
 .br
 The field splitting required by the POSIX standard does not skip multiple
+.I non-space
 field separators but rather assigns empty values to variables in such a case.
 This is a significant change in the behavior, but the historic behavior is not
-useful.
+useful for
+.I non-space
+field separators as this would not allow to e.g. read the password file via
+.BR read (1).
 .br
 .ne 4
 .TP

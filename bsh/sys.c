@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.79 16/04/08 Copyright 1986-2016 J. Schilling */
+/* @(#)sys.c	1.80 16/09/23 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.79 16/04/08 Copyright 1986-2016 J. Schilling";
+	"@(#)sys.c	1.80 16/09/23 Copyright 1986-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2016 J. Schilling
@@ -488,6 +488,8 @@ printf("       wait       = %4.4x\n", *(int *)&status);
 printf("       exit_state = %2.2x\n", status.exit);
 printf("       return     = %2.2x\n", status.type);
 #endif
+			if (status.type == CLD_EXITED)
+				status.type = 0;
 		} while (died < 0 && geterrno() == EINTR);
 		if (died < 0) {
 			status.type = geterrno();

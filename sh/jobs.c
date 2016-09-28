@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)jobs.c	1.95 16/08/17 2008-2016 J. Schilling
+ * @(#)jobs.c	1.96 16/09/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.95 16/08/17 2008-2016 J. Schilling";
+	"@(#)jobs.c	1.96 16/09/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1633,6 +1633,7 @@ syskill(argc, argv)
 						goto optdone;
 					}
 				}
+				/* FALLTHROUGH */
 		case ':':
 				optbad(argc, UCP argv, &optv);
 				gfailure((unsigned char *)usage, killuse);

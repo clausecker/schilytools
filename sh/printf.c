@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.4 16/07/23 Copyright 2015-2016 J. Schilling */
+/* @(#)printf.c	1.5 16/09/28 Copyright 2015-2016 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	printf builtin
@@ -30,7 +30,7 @@
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.4 16/07/23 Copyright 2015-2016 J. Schilling";
+	"@(#)printf.c	1.5 16/09/28 Copyright 2015-2016 J. Schilling";
 
 #include <schily/errno.h>
 
@@ -401,7 +401,7 @@ sysprintf(argc, argv)
 
 #include <schily/varargs.h>
 
-/* VARARGS2 */
+/* VARARGS1 */
 #ifdef	PROTOTYPES
 EXPORT int
 bprintf(const char *form, ...)

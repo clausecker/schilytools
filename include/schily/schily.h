@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.119 16/08/01 Copyright 1985-2016 J. Schilling */
+/* @(#)schily.h	1.120 16/09/28 Copyright 1985-2016 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -370,7 +370,7 @@ extern	int	ferrmsgno	__PR((FILE *, int, const char *, ...))
 #define	COMERR_RETURN	0
 #define	COMERR_EXIT	1
 #define	COMERR_EXCODE	2
-/*PRINTFLIKE4*/
+/*PRINTFLIKE5*/
 extern	int	_comerr		__PR((FILE *, int, int, int,
 						const char *, va_list));
 #endif

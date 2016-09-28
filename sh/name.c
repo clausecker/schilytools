@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.66 16/09/09 2008-2016 J. Schilling
+ * @(#)name.c	1.67 16/09/25 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.66 16/09/09 2008-2016 J. Schilling";
+	"@(#)name.c	1.67 16/09/25 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -515,6 +515,7 @@ readvar(namec, names)
 	int		d;
 	unsigned int	(*nextwchar)__PR((void));
 	unsigned char	*ifs;
+	BOOL		ifswhite = FALSE;
 #ifdef	DO_SELECT
 	unsigned char	*a[2];
 #endif
@@ -550,6 +551,17 @@ readvar(namec, names)
 	if (ifs == NULL)
 		ifs = (unsigned char *)sptbnl;
 
+#ifdef	DO_POSIX_READ
+	for (rel = ifs; *rel; rel++) {
+		if (anys(rel, UC sptbnl)) {
+			ifswhite = TRUE;
+			break;
+		}
+	}
+#else
+	ifswhite = TRUE;
+#endif
+
 	n = lookup(*names++);		/* done now to avoid storage mess */
 	rel = (unsigned char *)relstak();
 
@@ -581,11 +593,7 @@ readvar(namec, names)
 	 * strip leading IFS characters
 	 */
 	c[0] = '\0';
-#ifndef	DO_POSIX_READ
-	for (;;) {
-#else
 	do {
-#endif
 		d = nextwchar();
 		if (eolchar(d))
 			break;
@@ -594,13 +602,9 @@ readvar(namec, names)
 		while ((*pc++ = *rest++) != '\0')
 			/* LINTED */
 			;
-#ifndef	DO_POSIX_READ
-		if (!anys(c, ifs))
+		if (ifswhite && !anys(c, ifs))
 			break;
-	}
-#else
-	} while (0);
-#endif
+	} while (ifswhite);
 
 	oldstak = curstak();
 	for (;;) {
@@ -617,12 +621,7 @@ readvar(namec, names)
 				break;
 			} else {	/* strip imbedded IFS characters */
 				c[0] = '\0';
-#ifndef	DO_POSIX_READ
-				/* CONSTCOND */
-				while (1) {
-#else
 				do {
-#endif
 					d = nextwchar();
 					if (eolchar(d))
 						break;
@@ -631,13 +630,9 @@ readvar(namec, names)
 					while ((*pc++ = *rest++) != '\0')
 						/* LINTED */
 						;
-#ifndef	DO_POSIX_READ
-					if (!anys(c, ifs))
+					if (ifswhite && !anys(c, ifs))
 						break;
-				}
-#else
-				} while (0);
-#endif
+				} while (ifswhite);
 			}
 		} else {
 			if (d == '\\' && nextwchar == nextwc) {
@@ -659,9 +654,9 @@ readvar(namec, names)
 			}
 			d = nextwchar();
 
-			if (eolchar(d))
+			if (eolchar(d)) {
 				staktop = oldstak;
-			else {
+			} else {
 				rest = readw(d);
 				pc = c;
 				while ((*pc++ = *rest++) != '\0')
