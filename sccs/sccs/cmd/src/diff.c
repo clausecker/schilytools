@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.c	1.44 16/06/16 J. Schilling
+ * @(#)diff.c	1.53 16/10/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.44 16/06/16 J. Schilling"
+#pragma ident "@(#)diff.c 1.53 16/10/10 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -133,7 +133,7 @@
  *	If the code is changed to use "long", it would be possible to have
  *	real large file mode in case that diff is compiled in 64 bit mode.
  *	In 32 bit mode, there is no need to check for an integer overflow
- *	as the process will run "out of memory" before.
+ *	as the process will run "out of memory" before line numbers overflow.
  */
 #ifdef	SCHILY_BUILD
 
@@ -163,8 +163,9 @@
 #include <schily/vfork.h>
 #include <schily/libport.h>
 
-#else	/* non-portable SunOS definitions BEGIN */
+#else	/* non-portable SunOS -only definitions BEGIN */
 
+#define	SCCS_DIFF		0
 #define	_FILE_OFFSET_BITS	64
 #define	_LARGEFILE_SOURCE
 #include <stdio.h>
@@ -189,7 +190,7 @@
 #define	PROVIDER	"Sun"
 #endif
 #ifndef	VERSION
-#define	VERSION		"1.x"
+#define	VERSION		"5.08"
 #endif
 #ifndef	HOST_OS
 #define	HOST_OS		"SunOS"
@@ -227,15 +228,26 @@
 
 #define	HAVE_LARGEFILES
 #define	HAVE_CFTIME
+#define	HAVE_GETEXECNAME
+#define	HAVE_MEMCMP
+#define	HAVE_VFORK
+#define	_FOUND_STAT_NSECS_
 
-#endif	/* non-portable SunOS definitions END */
+/*
+ * Found e.g. on SunOS-5.x
+ */
+#define	stat_ansecs(s)		((s)->st_atim.tv_nsec)
+#define	stat_mnsecs(s)		((s)->st_mtim.tv_nsec)
+#define	stat_cnsecs(s)		((s)->st_ctim.tv_nsec)
+
+#endif	/* non-portable SunOS -only definitions END */
 
 
 #ifdef	HAVE_LARGEFILES
 #undef	fseek
 #define	fseek		fseeko
 #undef	ftell
-#define	ftell		fetllo
+#define	ftell		ftello
 #endif
 
 #include "diff.h"
@@ -272,6 +284,11 @@ int clen = 0;
 int *J;			/* will be overlaid on class */
 off_t *ixold;		/* will be overlaid on klist */
 off_t *ixnew;		/* will be overlaid on file[1] */
+
+#define	FUNCTION_CONTEXT_SIZE	55
+static char	lastbuf[FUNCTION_CONTEXT_SIZE];
+static int	lastline;
+static int	lastmatchline;
 
 static int	didvfork;
 static int	mbcurmax;
@@ -327,6 +344,8 @@ static time_t	gmtoff __PR((const time_t *clk));
 #endif
 static void	cf_time	__PR((char *s, size_t maxsize,
 				char *fmt, const time_t *clk));
+
+static char	*match_function __PR((const off_t *, int, int));
 
 
 /*
@@ -390,7 +409,8 @@ main(argc, argv)
 	diffargv = argv;
 	whichtemp = 0;
 	while ((flag =
-	    getopt(argc, argv, "bitwcuefhnlrsNC:D:S:U:V(version)")) != EOF) {
+	    getopt(argc, argv,
+		    "()abdiptwcuefhnqlrsNC:D:S:U:V(version)")) != EOF) {
 		switch (flag) {
 		case 'D':
 			opt = D_IFDEF;
@@ -399,8 +419,15 @@ main(argc, argv)
 			ifdef2 = optarg;
 			break;
 
+		case 'a':
+			aflag = 1;
+			break;
+
 		case 'b':
 			bflag = 1;
+			break;
+
+		case 'd':		/* -d is a no-op for GNU diff compat */
 			break;
 
 		case 'C':
@@ -456,6 +483,19 @@ main(argc, argv)
 			opt = D_NREVERSE;
 			break;
 
+		case 'p':
+			pflag = 1;
+			if (opt == D_NORMAL) {
+				opt = D_CONTEXT;
+				context = 3;
+				uflag = 0;
+			}
+			break;
+
+		case 'q':
+			opt = D_BRIEF;
+			break;
+
 		case 'r':
 			rflag = 1;
 			break;
@@ -481,8 +521,9 @@ main(argc, argv)
 			break;
 
 		case 'V':		/* version */
-			printf("diff %s-SCCS version %s%s%s (%s-%s-%s)\n",
+			printf("diff %s-%s version %s%s%s (%s-%s-%s)\n",
 				PROVIDER,
+				SCCS_DIFF ? "SCCS":"diff",
 				VERSION,
 				*VDATE ? " ":"",
 				VDATE,
@@ -666,7 +707,8 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 
 notsame:
 	status = 1;
-	if (filebinary(input[0]) || filebinary(input[1])) {
+	if (!aflag &&
+	    (filebinary(input[0]) || filebinary(input[1]))) {
 		if (ferror(input[0]) || ferror(input[1])) {
 			(void) fprintf(stderr, "diff: ");
 			(void) fprintf(stderr, gettext("Error reading "));
@@ -716,6 +758,9 @@ notsame:
 same:
 	if (opt == D_CONTEXT && anychange == 0)
 		(void) printf(gettext("No differences encountered\n"));
+	else if (opt == D_BRIEF && anychange != 0)
+		(void) printf(gettext("Files %s and %s differ\n"),
+		    file1, file2);
 #ifdef	DEBUG
 	fprintf(stderr, "Allocates space: %ld Bytes\n", (long)sbrk(0) - oe);
 #endif
@@ -960,9 +1005,7 @@ skipline(f)
 	wint_t c;
 	int	mlen;
 
-	for (i = 1; (c = getbufwchar(f, &mlen)) != 0; ) {
-		if (c == '\n' || c == WEOF)
-			return (i);
+	for (i = 1; (c = getbufwchar(f, &mlen)) != '\n' && c != WEOF; ) {
 		i += mlen;
 	}
 	return (i);
@@ -1069,6 +1112,8 @@ change(a, b, c, d)
 			}
 			cf_time(time_buf, sizeof (time_buf),
 						dcmsg, &stb1.st_mtime);
+
+#if	!defined(_FOUND_STAT_NSECS_)
 			/*
 			 * Be careful here: in the German locale, the string
 			 * contains "So. " for "Sonntag".
@@ -1081,6 +1126,7 @@ change(a, b, c, d)
 				sprintf(++p, "%9.9ld", ns);
 				p[9] = ' ';	/* '\0' from sprintf() */
 			}
+#endif
 			if (uflag)
 				(void) printf("--- %s	%s\n", input_file1,
 				    time_buf);
@@ -1142,6 +1188,8 @@ change(a, b, c, d)
 	}
 
 	switch (opt) {
+	case D_BRIEF:
+		return;
 	case D_NORMAL:
 	case D_EDIT:
 		range(a, b, ",");
@@ -1253,23 +1301,35 @@ fetch(f, a, b, filen, s, oldfile)
 	}
 
 	for (i = a; i <= b; i++) {
+		wint_t	lastch;
+
 		(void) fseek(lb, f[i - 1], SEEK_SET);
 		initbuf(lb, filen, f[i - 1]);
 		if (opt != D_IFDEF)
 			(void) prints(s);
 		col = 0;
-		while ((ch = getbufwchar(filen, &mlen)) != 0) {
-			if (ch != '\n' && ch != WEOF) {
-				if (ch == '\t' && tflag)
-					do
-						(void) putchar(' ');
-					while (++col & 7);
-				else {
-					(void) wcput(ch);
-					col++;
-				}
-			} else
-				break;
+		lastch = '\0';
+		while ((ch = getbufwchar(filen, &mlen)) != '\n' && ch != WEOF) {
+			if (ch == '\t' && tflag) {
+				do
+					(void) putchar(' ');
+				while (++col & 7);
+			} else {
+				(void) wcput(ch);
+				if (col++ == 0)
+					lastch = ch;
+			}
+		}
+		/*
+		 * When creating an "ed" script, we cannot directly append a
+		 * line that contains only ".\n". We rather enter "..\n", leave
+		 * append mode, substitute ".." by "." and re-enter append mode.
+		 */
+		if (opt == D_EDIT && col == 1 && lastch == '.' && ch == '\n') {
+			char	*cp = ".\n.\ns/.//\na";
+
+			while (*cp)
+				(void) wcput(*cp++);
 		}
 		(void) putchar('\n');
 	}
@@ -1424,15 +1484,31 @@ dump_context_vec()
 			a = 1;
 		if (file2ok == 0)
 			b = 1;
-		(void) printf("@@ -%d,%d +%d,%d @@\n",
+		(void) printf("@@ -%d,%d +%d,%d @@",
 		    lowa > upb ? upb : 		/* Needed for -U0 */
 		    lowa - a, upb - lowa + 1,
 #ifdef	__symmetric_low__			/* othogonal but wrong */
 		    lowc > upd ? upd :
 #endif
 		    lowc - b, upd - lowc + 1);
+		if (pflag) {
+			char	*f;
+
+			f = match_function(ixold, lowa-1, 0);
+			if (f != NULL)
+				(void) printf(" %s", f);
+		}
+		(void) printf("\n");
 	} else {
-		(void) printf("***************\n*** ");
+		(void) printf("***************");
+		if (pflag) {
+			char	*f;
+
+			f = match_function(ixold, lowa-1, 0);
+			if (f != NULL)
+				(void) printf(" %s", f);
+		}
+		(void) printf("\n*** ");
 		range(lowa, upb, ",");
 		(void) printf(" ****\n");
 	}
@@ -1469,7 +1545,7 @@ dump_context_vec()
 					fetch(ixnew, c, d, 1, "+", 0);
 			} else if (ch == 'd') {
 				fetch(ixold, lowa, a - 1, 0, uflag ? " " :
-					    "  ", 1);
+				    "  ", 1);
 				fetch(ixold, a, b, 0, uflag ? "-" : "- ", 1);
 			} else {
 				/* The last argument should not affect */
@@ -1603,10 +1679,12 @@ diffdir(argv)
 				result = compare(d1);
 				if (result > dirstatus)
 					dirstatus = result;
-			} else if (lflag)
+			} else if (lflag) {
 				d1->d_flags |= ONLY;
-			else if (opt == D_NORMAL || opt == D_CONTEXT)
+			} else if (opt == D_NORMAL || opt == D_CONTEXT ||
+			    opt == D_BRIEF) {
 				only(d1, 1);
+			}
 			if (d1->d_entry)
 				d1++;
 			if (!Nflag && dirstatus == 0)
@@ -1900,13 +1978,15 @@ compare(dp)
 
 #ifdef	S_IFLNK
 			case S_IFLNK:
-				if ((i = readlink(file1, buf1, D_BUFSIZ)) == -1) {
+				if ((i = readlink(file1, buf1,
+							D_BUFSIZ)) == -1) {
 					(void) fprintf(stderr, gettext(
 					    "diff: cannot read link\n"));
 					return (2);
 				}
 
-				if ((j = readlink(file2, buf2, D_BUFSIZ)) == -1) {
+				if ((j = readlink(file2, buf2,
+							D_BUFSIZ)) == -1) {
 					(void) fprintf(stderr, gettext(
 					    "diff: cannot read link\n"));
 					return (2);
@@ -1976,9 +2056,14 @@ gettext("File %s is %s while file %s is %s\n"),
 			goto notsame;
 		if (i == 0 && j == 0)
 			goto same;
+#ifdef	HAVE_MEMCMP
+		if (memcmp(buf1, buf2, i))
+			goto notsame;
+#else
 		for (j = 0; j < i; j++)
 			if (buf1[j] != buf2[j])
 				goto notsame;
+#endif
 	}
 same:
 	if (sflag == 0)
@@ -1994,7 +2079,8 @@ closem:
 	return (0);
 
 notsame:
-	if (binary(f1) || binary(f2)) {
+	if (!aflag &&
+	    (binary(f1) || binary(f2))) {
 		if (lflag)
 			dp->d_flags |= DIFFER;
 		else if (opt == D_NORMAL || opt == D_CONTEXT)
@@ -2411,13 +2497,13 @@ prune()
 	int i, j;
 
 	for (pref = 0; pref < len[0] && pref < len[1] &&
-			file[0][pref + 1].value == file[1][pref + 1].value;
+	    file[0][pref + 1].value == file[1][pref + 1].value;
 	    pref++)
 		;
 	for (suff = 0; (suff < len[0] - pref) &&
-			(suff < len[1] - pref) &&
-			(file[0][len[0] - suff].value ==
-			file[1][len[1] - suff].value);
+	    (suff < len[1] - pref) &&
+	    (file[0][len[0] - suff].value ==
+	    file[1][len[1] - suff].value);
 	    suff++)
 		;
 
@@ -2496,21 +2582,22 @@ static void
 usage()
 {
 	(void) fprintf(stderr, gettext(
-	"usage: diff [-bitw] [-c | -e | -f | -h | -n | -u] file1 file2\n\
-       diff [-bitw] [-C number | -U number] file1 file2\n\
-       diff [-bitw] [-D string] file1 file2\n\
-       diff [-bitw] [-c | -e | -f | -h | -n | -u] [-l] [-r] [-s] [-S name] directory1 directory2\n"));
+	"usage: diff [-abiNptw] [-c | -e | -f | -h | -n | -q | -u] file1 file2\n\
+       diff [-abiNptw] [-C number | -U number] file1 file2\n\
+       diff [-abiNptw] [-D string] file1 file2\n\
+       diff [-abiNptw] [-c | -e | -f | -h | -n | -q | -u] [-l] [-r] \
+[-s] [-S name] directory1 directory2\n"));
 	status = 2;
 	done();
 }
 
 #define	NW	1024
 struct buff	{
-	FILE	*iop;	/* I/O stream */
+	FILE	*iop;			/* I/O stream */
 	char	buf[NW + MB_LEN_MAX];	/* buffer */
-	char	*ptr;	/* current pointer in the buffer */
-	int	buffered;	/* if non-zero, buffer has data */
-	off_t	offset;	/* offset in the file */
+	char	*ptr;			/* current pointer in the buffer */
+	int	buffered;		/* if non-zero, buffer has data */
+	off_t	offset;			/* offset in the file */
 };
 
 static struct buff bufwchar[2];
@@ -2707,8 +2794,11 @@ gmtoff(clk)
 }
 #endif
 
-# define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
-# define DO2_(p,n)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0');
+#define	DO2(p, n, c)	*p++ = ((char)((n)/10) + '0'); *p++ = \
+					((char)((n)%10) + '0'); *p++ = c;
+
+#define	DO2_(p, n)	*p++ = ((char)((n)/10) + '0'); *p++ = \
+					((char)((n)%10) + '0');
 
 static void
 cf_time(s, maxsize, fmt, clk)
@@ -2760,4 +2850,64 @@ cf_time(s, maxsize, fmt, clk)
 		s[24] = '\0';
 #endif
 #endif
+}
+
+/*
+ * The next function has been imported from OpenBSD.
+ * Original author is: Otto Moerbeek <otto@drijf.net>
+ */
+#define	begins_with(s, pre)	(strncmp(s, pre, sizeof (pre)-1) == 0)
+#define	C			(char *)
+
+static char *
+match_function(f, pos, filen)
+	const off_t	*f;
+	int		pos;
+	int		filen;
+{
+	unsigned char	buf[FUNCTION_CONTEXT_SIZE];
+	size_t		nc;
+	int		last = lastline;
+	char		*state = NULL;
+	FILE		*fp = bufwchar[filen].iop;
+	off_t		off;
+
+	off = ftellbuf(filen);
+	lastline = pos;
+	while (pos > last) {
+		fseek(fp, f[pos - 1], SEEK_SET);
+		nc = f[pos] - f[pos - 1];
+		if (nc >= sizeof (buf))
+			nc = sizeof (buf) - 1;
+		nc = fread(buf, 1, nc, fp);
+		if (nc > 0) {
+			buf[nc] = '\0';
+			buf[strcspn(C buf, "\n")] = '\0';
+			if (isalpha(buf[0]) || buf[0] == '_' || buf[0] == '$') {
+				if (begins_with(C buf, "private:")) {
+					if (!state)
+						state = " (private)";
+				} else if (begins_with(C buf, "protected:")) {
+					if (!state)
+						state = " (protected)";
+				} else if (begins_with(C buf, "public:")) {
+					if (!state)
+						state = " (public)";
+				} else {
+					strlcpy(lastbuf, C buf,
+					    sizeof (lastbuf));
+
+					if (state)
+						strlcat(lastbuf, state,
+						    sizeof (lastbuf));
+					lastmatchline = pos;
+					initbuf(fp, filen, off);
+					return (lastbuf);
+				}
+			}
+		}
+		pos--;
+	}
+	initbuf(fp, filen, off);
+	return (lastmatchline > 0 ? lastbuf : NULL);
 }

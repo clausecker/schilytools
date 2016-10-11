@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)diff.1	1.11 15/01/17 Copyright (c) 2011-2015 J. Schilling
+.\" @(#)diff.1	1.16 16/10/10 Copyright (c) 2011-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2004, Sun Microsystems, Inc.  All Rights Reserved
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
@@ -47,14 +47,14 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH diff 1 "2015/01/17" "SunOS 5.11" "User Commands"
+.TH diff 1 "2016/10/10" "SunOS 5.11" "User Commands"
 .SH NAME
 diff \- compare two files
 .SH SYNOPSIS
 .LP
 .nf
 .B diff \c
-.RB [ -biNtw "] [" "-c \c
+.RB [ -abiNptw "] [" "-c \c
 .RB "| " -e " | " "-f \c
 .RB "| " -h " | " "-n \c
 .RB "| " -u "] \c
@@ -64,7 +64,7 @@ diff \- compare two files
 .LP
 .nf
 .B diff \c
-.RB [ -biNtw "] [" "-C \c
+.RB [ -abiNptw "] [" "-C \c
 .I number \c
 .RB "| " "-U \c
 .I number\c
@@ -75,7 +75,7 @@ diff \- compare two files
 .LP
 .nf
 .B diff \c
-.RB [ -biNtw "] [" "-D \c
+.RB [ -abiNptw "] [" "-D \c
 .IR string "] \c
 .I file1 file2
 .fi
@@ -83,7 +83,7 @@ diff \- compare two files
 .LP
 .nf
 .B diff \c
-.RB [ -biNtw "] [" "-c \c
+.RB [ -abiNptw "] [" "-c \c
 .RB "| " -e " | " "-f \c
 .RB "| " -h " | " "-n \c
 .RB "| " -u "] \c
@@ -183,6 +183,22 @@ The following options are supported:
 .br
 .ne 2
 .TP
+.B \-a
+Treat all files as
+.B ASCII
+text.
+Normally
+.B diff
+will simply print
+.B `Binary files ... and ... differ'
+if files contain binary characters.
+Use of this option forces
+.B diff
+to produce a diff.
+
+.br
+.ne 2
+.TP
 .B \-b
 Ignores trailing blanks (spaces and tabs) and treats other strings of blanks
 as equivalent.
@@ -205,6 +221,16 @@ If
 .BR diff (1)
 prints time stamps for files, the time stamp for missing files will refer
 to January 1 1970 00:00:00 GMT.
+
+.br
+.ne 2
+.TP
+.B \-p
+With unified and context diffs, show with each change the first
+40 characters of the last line before the context beginning with
+a letter, an underscore or a dollar sign.
+For C source code following standard layout conventions,
+this will show the prototype of the function the change applies to.
 
 .br
 .ne 2
@@ -348,6 +374,13 @@ Produces a script similar to
 .BR \-e ,
 but in the opposite order and with a
 count of changed lines on each insert or delete command.
+
+.br
+.ne 2
+.TP
+.B \-q
+Just print a single line message when the files differ. 
+Does not output a list of changes.
 
 .br
 .ne 2
@@ -624,6 +657,7 @@ Interface StabilityStandard
 .BR comm (1),
 .BR dircmp (1),
 .BR ed (1),
+.BR patch (1),
 .BR pr (1),
 .BR sdiff (1),
 .BR attributes (5),
@@ -635,12 +669,14 @@ Interface StabilityStandard
 .sp
 .LP
 Editing scripts produced under the
-.B \-e
-or
 .B \-f
-options are naive
+option are naive
 about creating lines consisting of a single period
 .RB ( \&. ).
+Editing scripts produced under the
+.B \-e
+option contain a workaround for the problem that is understood by
+.BR patch (1).
 .sp
 .LP
 Missing NEWLINE at end of file indicates that the last line of the file in

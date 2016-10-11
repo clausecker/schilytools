@@ -1,8 +1,8 @@
-/* @(#)mac_label.c	1.20 16/02/08 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling */
+/* @(#)mac_label.c	1.21 16/10/10 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mac_label.c	1.20 16/02/08 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling";
+	"@(#)mac_label.c	1.21 16/10/10 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -55,8 +55,10 @@ static	UConst char sccsid[] =
 void	gen_prepboot_label	__PR((unsigned char *ml));
 
 #endif	/* PREP_BOOT */
+#ifdef	APPLE_HYB
 int	gen_mac_label		__PR((defer * mac_boot));
 int	autostart		__PR((void));
+#endif	/* APPLE_HYB */
 
 #ifdef PREP_BOOT
 void
@@ -154,6 +156,7 @@ gen_prepboot_label(ml)
 
 #endif	/* PREP_BOOT */
 
+#ifdef	APPLE_HYB
 int
 gen_mac_label(mac_boot)
 	defer		*mac_boot;
@@ -422,3 +425,4 @@ autostart()
 
 	return (0);
 }
+#endif	/* APPLE_HYB */

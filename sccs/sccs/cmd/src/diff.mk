@@ -1,4 +1,4 @@
-#ident @(#)diff.mk	1.7 09/04/12 
+#ident @(#)diff.mk	1.8 16/10/05 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -11,6 +11,7 @@ TARGET=		diff
 
 CPPOPTS +=	-DSUN5_0
 CPPOPTS +=	-DUSE_LARGEFILES
+CPPOPTS +=	-DSCCS_DIFF=1
 CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS

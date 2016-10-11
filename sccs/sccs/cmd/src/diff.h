@@ -36,17 +36,17 @@
  * software developed by the University of California, Berkeley, and its
  * contributors.
  */
-/*
- * This file contains modifications Copyright 2006-2011 J. Schilling
- *
- * @(#)diff.h	1.10 11/04/21 J. Schilling
- */
-#if defined(sun)
-#pragma ident "@(#)diff.h 1.10 11/04/21 J. Schilling"
-#endif
 
 #ifndef	_DIFF_H
 #define	_DIFF_H
+/*
+ * Copyright 2006-2016 J. Schilling
+ *
+ * @(#)diff.h	1.14 16/10/10 J. Schilling
+ */
+#if defined(sun)
+#pragma ident "@(#)diff.h 1.14 16/10/10 J. Schilling"
+#endif
 
 #if defined(sun)
 #pragma ident	"@(#)diff.h	1.12	05/06/08 SMI"
@@ -70,6 +70,7 @@ int	opt;
 #define	D_IFDEF		3	/* Diff with merged #ifdef's */
 #define	D_NREVERSE	4	/* Reverse ed script with numbered */
 				/* lines and no trailing . */
+#define	D_BRIEF		5	/* Say if the files differ */
 
 /*
  * Constant declarations
@@ -132,6 +133,7 @@ struct context_vec {
 /*
  * Algorithm related options
  */
+int aflag = 0;
 int bflag = 0;
 int tflag = 0;
 int wflag = 0;
@@ -142,6 +144,7 @@ int sflag = 0;
 int hflag = 0;
 int uflag = 0;
 int Nflag = 0;
+int pflag = 0;
 
 /*
  * Variables for D_IFDEF option.

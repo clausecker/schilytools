@@ -1,13 +1,13 @@
-/* @(#)pch.c	1.29 15/06/03 2011-2015 J. Schilling */
+/* @(#)pch.c	1.31 16/10/09 2011-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.29 15/06/03 2011-2015 J. Schilling";
+	"@(#)pch.c	1.31 16/10/09 2011-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
  *	Copyright (c) 1990 Wayne Davison
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2016 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -1431,10 +1431,20 @@ do_ed_script()
 		}
 		this_line_is_command = (isdigit(UCH *buf) &&
 		    (*t == 'd' || *t == 'c' || *t == 'a'));
+		if (!this_line_is_command) {
+			/*
+			 * Check for the diff workaround for "." in a line
+			 * that inserts ".." and then substitites the result.
+			 * Most diff programs emit "s/.//\na\a", but diff from
+			 * OpenBSD emits the substitute program with address.
+			 */
+			if (strEQ(buf, "a\n") || strEQ(t, "s/.//\n"))
+				this_line_is_command = 1;
+		}
 		if (this_line_is_command) {
 			if (!skip_rest_of_patch)
 				fputs(buf, pipefp);
-			if (*t != 'd') {
+			if (*t != 'd' && *t != 's') {
 				while (pgets(&buf, &bufsize, pfp) > 0) {
 					p_input_line++;
 					if (!skip_rest_of_patch)

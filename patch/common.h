@@ -1,4 +1,4 @@
-/* @(#)common.h	1.24 16/09/16 2011-2016 J. Schilling */
+/* @(#)common.h	1.25 16/10/03 2011-2016 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011-2016 J. Schilling
@@ -82,9 +82,11 @@
 #define	INITHUNKMAX	125		/* initial dynamic allocation size */
 #define	BUFFERSIZE	8192
 #define	SCCSPREFIX	"s."
-#define	GET		"get -e %s"
+#define	GET		"get"		/* use: "get -e %s" */
+#define	GETEDIT		"-e"
 #define	RCSSUFFIX	",v"
-#define	CHECKOUT	"co -l %s"
+#define	CHECKOUT	"co"		/* use: "co -l %s" */
+#define	COEDIT		"-l"
 
 #ifdef FLEXFILENAMES
 #define	ORIGEXT		".orig"

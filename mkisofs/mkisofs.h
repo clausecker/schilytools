@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.149 15/12/15 joerg */
+/* @(#)mkisofs.h	1.150 16/10/10 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2013 J. Schilling
+ * Copyright (c) 1999,2000-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -424,8 +424,9 @@ extern int	dvd_aud_vid_flag;
 #endif /* DVD_AUD_VID */
 
 
-#ifdef APPLE_HYB
 extern int	donotwrite_macpart;
+
+#ifdef APPLE_HYB
 extern int	apple_hyb;	/* create HFS hybrid */
 extern int	apple_ext;	/* use Apple extensions */
 extern int	apple_both;	/* common flag (for above) */

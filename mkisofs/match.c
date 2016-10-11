@@ -1,8 +1,8 @@
-/* @(#)match.c	1.30 10/12/19 joerg */
+/* @(#)match.c	1.31 16/10/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)match.c	1.30 10/12/19 joerg";
+	"@(#)match.c	1.31 16/10/10 joerg";
 #endif
 /*
  * 27-Mar-96: Jan-Piet Mens <jpm@mens.de>
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  * Re-written 13-Apr-2000 James Pearson
  * now uses a generic set of routines
  * Conversions to make the code more portable May 2000 .. March 2004
- * Copyright (c) 2000-2010 J. Schilling
+ * Copyright (c) 2000-2016 J. Schilling
  */
 
 #include <schily/stdio.h>
@@ -229,6 +229,7 @@ h_add_match(fn)
 	return (1);
 }
 
+#ifdef	APPLE_HYB
 EXPORT int
 hfs_add_match(fn)
 	char	*fn;
@@ -239,6 +240,7 @@ hfs_add_match(fn)
 		return (-1);
 	return (1);
 }
+#endif	/* APPLE_HYB */
 
 EXPORT int
 j_add_match(fn)
@@ -332,6 +334,7 @@ u_add_list(fn)
 	return (1);
 }
 
+#ifdef	APPLE_HYB
 EXPORT int
 hfs_add_list(fn)
 	char	*fn;
@@ -339,6 +342,7 @@ hfs_add_list(fn)
 	gen_add_list(fn, HFS_HIDE);
 	return (1);
 }
+#endif	/* APPLE_HYB */
 
 EXPORT int
 gen_matches(fn, n)

@@ -1,8 +1,8 @@
-/* @(#)write.c	1.143 15/12/31 joerg */
+/* @(#)write.c	1.144 16/10/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.143 15/12/31 joerg";
+	"@(#)write.c	1.144 16/10/10 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2015 J. Schilling
+ * Copyright (c) 1999-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,8 +92,10 @@ LOCAL 	void	write_one_file	__PR((char *filename, off_t size,
 LOCAL 	void	write_one_file	__PR((char *filename, off_t size,
 					FILE *outfile));
 #endif
+#ifdef UDF
 LOCAL	void	write_udf_symlink	__PR((char *filename, off_t size,
 					FILE *outfile));
+#endif
 LOCAL 	void	write_files	__PR((FILE *outfile));
 #if 0
 LOCAL 	void	dump_filelist	__PR((void));
@@ -534,6 +536,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 		fclose(infile);
 } /* write_one_file(... */
 
+#ifdef UDF
 LOCAL void
 write_udf_symlink(filename, size, outfile)
 	char		*filename;
@@ -561,6 +564,7 @@ write_udf_symlink(filename, size, outfile)
 	last_extent_written += use / SECTOR_SIZE;
 
 } /* write_udf_symlink(... */
+#endif
 
 LOCAL void
 write_files(outfile)
@@ -609,7 +613,11 @@ write_files(outfile)
 				write_one_file(dwpnt->name, dwpnt->size, outfile, dwpnt->off,
 					file_is_resource(dwpnt->name, dwpnt->hfstype) && (dwpnt->size > 0), rba);
 #else
+#ifdef	USE_LARGEFILES
+				write_one_file(dwpnt->name, dwpnt->size, outfile, dwpnt->off, 0, 0);
+#else
 				write_one_file(dwpnt->name, dwpnt->size, outfile);
+#endif
 #endif	/* APPLE_HYB */
 #ifdef UDF
 			}

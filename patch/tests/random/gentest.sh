@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# gentest @(#)gentest.sh	1.5 16/06/23 Copyright 2015-2016 J. Schilling
+# gentest @(#)gentest.sh	1.6 16/10/07 Copyright 2015-2016 J. Schilling
 #
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
@@ -121,7 +121,7 @@ maxch=4		# Max. 25% of all lines are changed
 # Diff Program to use. Solaris diff -U0 has bugs, so use our fixed Solaris diff
 # from the SCCS distribution.
 #
-diff=/opt/schily/ccs/bin/diff
+: ${diff=/opt/schily/ccs/bin/diff}
 type $diff > /dev/null 2> /dev/null
 [ $? -ne 0 ] && diff=diff	# fallback to probably defective system diff
 LC_ALL=C $diff -? 2>&1 | grep -i Option > /dev/null

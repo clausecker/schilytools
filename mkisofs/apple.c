@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.45 15/09/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2015 J. Schilling */
+/* @(#)apple.c	1.46 16/10/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.45 15/09/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2015 J. Schilling";
+	"@(#)apple.c	1.46 16/10/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2015 J. Schilling
+ *	Copyright (c) 2000-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,16 +39,17 @@ static	UConst char sccsid[] =
  *		Check file size = finder + rsrc [+ data] is needed
  */
 
-#ifdef APPLE_HYB
-
 #include "mkisofs.h"
 #include <schily/errno.h>
 #include <schily/fcntl.h>
 #include <schily/utypes.h>
 #include <schily/ctype.h>
 #include <schily/in.h>
-#include "apple.h"
 #include <schily/schily.h>
+
+#ifdef APPLE_HYB
+
+#include "apple.h"
 
 /* tidy up mkisofs definition ... */
 typedef struct directory_entry dir_ent;
@@ -2976,8 +2977,6 @@ clean_hfs()
 		clean_magic();
 }
 
-#endif	/* APPLE_HYB */
-
 /*
  * We are in hope that errno is set up by libhfs_iso if there
  * is no system error code.
@@ -2991,6 +2990,8 @@ perr(a)
 	else
 		comerr(_("<no error message given>\n"));
 }
+#endif	/* APPLE_HYB */
+
 
 #ifndef APPLE_HFS_HYB
 

@@ -1,12 +1,12 @@
-/* @(#)util.c	1.30 15/06/02 2011-2015 J. Schilling */
+/* @(#)util.c	1.31 16/10/03 2011-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.30 15/06/02 2011-2015 J. Schilling";
+	"@(#)util.c	1.31 16/10/03 2011-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2016 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -34,6 +34,9 @@ static	UConst char sccsid[] =
 #include "util.h"
 #include <schily/varargs.h>
 #include <schily/errno.h>
+#include <schily/wait.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 #ifndef	HAVE_STRERROR
 #define	strerror	errmsgstr
@@ -718,4 +721,36 @@ fetchtime(t)
 	m *= 60;
 	d -= m;			/* Add timezone offset */
 	return (d);
+}
+
+typedef	RETSIGTYPE	(*sigtype) __PR((int));
+
+int
+pspawn(av)
+	char	*av[];
+{
+	pid_t	pid;
+	pid_t	p;
+	int	status;
+	sigtype	sint;
+	sigtype	squit;
+	sigtype	schld;
+
+	if ((pid = vfork()) == 0) {
+		execvp(av[0], av);
+		_exit(127);
+	}
+
+	sint = signal(SIGINT, SIG_IGN);
+	squit = signal(SIGQUIT, SIG_IGN);
+	schld = signal(SIGCHLD, SIG_DFL);
+	while ((p = wait(&status)) != pid && p != (pid_t)-1)
+		;
+	(void) signal(SIGINT, sint);
+	(void) signal(SIGQUIT, squit);
+	(void) signal(SIGCHLD, schld);
+
+	if (p == (pid_t)-1)
+		return (-1);
+	return (status);
 }

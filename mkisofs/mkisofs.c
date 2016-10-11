@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.278 16/01/06 joerg */
+/* @(#)mkisofs.c	1.280 16/10/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.278 16/01/06 joerg";
+	"@(#)mkisofs.c	1.280 16/10/10 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -130,7 +130,7 @@ BOOL	legacy = FALSE;		/* Implement legacy support for historic CLI */
 int	all_files = 1;		/* New default is to include all files */
 BOOL	Hflag = FALSE;		/* Follow links on cmdline (-H)	*/
 BOOL	follow_links = FALSE;	/* Follow all links (-L)	*/
-#if	defined(IS_CYGWIN) || defined(__MINGW32__)
+#if	defined(IS_CYGWIN) || defined(__MINGW32__) || defined(_MSC_VER)
 /*
  * Do not cache inodes on Cygwin by default
  * See below in main(), cache for 64bit ino_t
@@ -209,10 +209,6 @@ findn_t	*find_node;		/* syntaxtree from find_parse()	*/
 void	*plusp;			/* residual for -exec ...{} +	*/
 int	find_patlen;		/* len for -find pattern state	*/
 
-extern	time_t		begun;
-extern	struct timeval	tv_begun;
-
-LOCAL	BOOL		data_change_warn;
 LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT;
 LOCAL	int		maxdepth = -1;
 LOCAL	int		mindepth = -1;
@@ -220,6 +216,11 @@ EXPORT	struct WALK	walkstate;
 #else
 LOCAL 	int		walkflags = 0;
 #endif
+
+extern	time_t		begun;
+extern	struct timeval	tv_begun;
+
+LOCAL	BOOL		data_change_warn;
 
 struct eltorito_boot_entry_info *first_boot_entry = NULL;
 struct eltorito_boot_entry_info *last_boot_entry = NULL;
@@ -290,6 +291,8 @@ char	*prep_boot_image[4];
 int	use_prep_boot = 0;
 int	use_chrp_boot = 0;
 #endif	/* PREP_BOOT */
+#else	/* APPLE_HYB */
+int	donotwrite_macpart = 1;	/* Do not write "hfs" hybrid with UDF */
 #endif	/* APPLE_HYB */
 
 #ifdef UDF
@@ -372,11 +375,6 @@ LOCAL	int	get_prep_boot	__PR((char *opt_arg));
 LOCAL	int	get_chrp_boot	__PR((char *opt_arg));
 #endif
 LOCAL	int	get_bsize	__PR((char *opt_arg));
-LOCAL	void	ldate_error	__PR((char *arg));
-LOCAL	char	*strntoi	__PR((char *p, int n, int *ip));
-LOCAL	int	mosize		__PR((int y, int m));
-LOCAL	char	*parse_date	__PR((char *arg, struct tm *tp));
-LOCAL	int	get_ldate	__PR((char *opt_arg, void *valp));
 
 LOCAL	int	hfs_cap		__PR((void));
 LOCAL	int	hfs_neta	__PR((void));
@@ -393,6 +391,11 @@ LOCAL	int	hfs_xhfs	__PR((void));
 LOCAL	int	hfs_nohfs	__PR((void));
 #endif	/* APPLE_HYB */
 
+LOCAL	void	ldate_error	__PR((char *arg));
+LOCAL	char	*strntoi	__PR((char *p, int n, int *ip));
+LOCAL	int	mosize		__PR((int y, int m));
+LOCAL	char	*parse_date	__PR((char *arg, struct tm *tp));
+LOCAL	int	get_ldate	__PR((char *opt_arg, void *valp));
 
 LOCAL int
 get_boot_image(opt_arg)
@@ -576,6 +579,106 @@ get_bsize(opt_arg)
 	hfs_select |= DO_FEL;
 	return (1);
 }
+
+LOCAL int
+hfs_cap()
+{
+	hfs_select |= DO_CAP;
+	return (1);
+}
+
+LOCAL int
+hfs_neta()
+{
+	hfs_select |= DO_NETA;
+	return (1);
+}
+
+LOCAL int
+hfs_dbl()
+{
+	hfs_select |= DO_DBL;
+	return (1);
+}
+
+LOCAL int
+hfs_esh()
+{
+	hfs_select |= DO_ESH;
+	return (1);
+}
+
+LOCAL int
+hfs_fe()
+{
+	hfs_select |= DO_FEU;
+	hfs_select |= DO_FEL;
+	return (1);
+}
+
+LOCAL int
+hfs_sgi()
+{
+	hfs_select |= DO_SGI;
+	return (1);
+}
+
+LOCAL int
+hfs_mbin()
+{
+	hfs_select |= DO_MBIN;
+	return (1);
+}
+
+LOCAL int
+hfs_sgl()
+{
+	hfs_select |= DO_SGL;
+	return (1);
+}
+
+LOCAL int
+hfs_dave()
+{
+	hfs_select |= DO_DAVE;
+	return (1);
+}
+
+
+LOCAL int
+hfs_sfm()
+{
+	hfs_select |= DO_SFM;
+	return (1);
+}
+
+LOCAL int
+hfs_xdbl()
+{
+	hfs_select |= DO_XDBL;
+	return (1);
+}
+
+LOCAL int
+hfs_xhfs()
+{
+#ifdef	IS_MACOS_X
+	hfs_select |= DO_XHFS;
+#else
+	errmsgno(EX_BAD,
+	_("Warning: --osx-hfs only works on MacOS X ... ignoring\n"));
+#endif
+	return (1);
+}
+
+LOCAL int
+hfs_nohfs()
+{
+	no_apple_hyb = 1;
+	return (1);
+}
+
+#endif	/* APPLE_HYB */
 
 LOCAL void
 ldate_error(arg)
@@ -781,106 +884,6 @@ get_ldate(opt_arg, valp)
 
 	return (1);
 }
-
-LOCAL int
-hfs_cap()
-{
-	hfs_select |= DO_CAP;
-	return (1);
-}
-
-LOCAL int
-hfs_neta()
-{
-	hfs_select |= DO_NETA;
-	return (1);
-}
-
-LOCAL int
-hfs_dbl()
-{
-	hfs_select |= DO_DBL;
-	return (1);
-}
-
-LOCAL int
-hfs_esh()
-{
-	hfs_select |= DO_ESH;
-	return (1);
-}
-
-LOCAL int
-hfs_fe()
-{
-	hfs_select |= DO_FEU;
-	hfs_select |= DO_FEL;
-	return (1);
-}
-
-LOCAL int
-hfs_sgi()
-{
-	hfs_select |= DO_SGI;
-	return (1);
-}
-
-LOCAL int
-hfs_mbin()
-{
-	hfs_select |= DO_MBIN;
-	return (1);
-}
-
-LOCAL int
-hfs_sgl()
-{
-	hfs_select |= DO_SGL;
-	return (1);
-}
-
-LOCAL int
-hfs_dave()
-{
-	hfs_select |= DO_DAVE;
-	return (1);
-}
-
-
-LOCAL int
-hfs_sfm()
-{
-	hfs_select |= DO_SFM;
-	return (1);
-}
-
-LOCAL int
-hfs_xdbl()
-{
-	hfs_select |= DO_XDBL;
-	return (1);
-}
-
-LOCAL int
-hfs_xhfs()
-{
-#ifdef	IS_MACOS_X
-	hfs_select |= DO_XHFS;
-#else
-	errmsgno(EX_BAD,
-	_("Warning: --osx-hfs only works on MacOS X ... ignoring\n"));
-#endif
-	return (1);
-}
-
-LOCAL int
-hfs_nohfs()
-{
-	no_apple_hyb = 1;
-	return (1);
-}
-
-#endif	/* APPLE_HYB */
 
 #ifdef	USE_FIND
 /* ARGSUSED */
@@ -1088,10 +1091,12 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1ID\1Set Application ID")},
 	{{"biblio*", &biblio },
 	__("\1FILE\1Set Bibliographic filename")},
+#if !defined(__MINGW32__) && !defined(_MSC_VER)
 	{{"cache-inodes", &cache_inodes },
 	__("Cache inodes (needed to detect hard links)")},
 	{{"no-cache-inodes%0", &cache_inodes },
 	__("Do not cache inodes (if filesystem has no unique inodes)")},
+#endif
 	{{"rrip110%0", &rrip112 },
 	__("Create old Rock Ridge V 1.10")},
 	{{"rrip112", &rrip112 },
@@ -1638,10 +1643,14 @@ susage(excode)
 	error(_("	-r, -rational-rock	Generate rationalized Rock Ridge directory info\n"));
 	error(_("	-J, -joliet		Generate Joliet directory information\n"));
 	error(_("	-print-size		Print estimated filesystem size and exit\n"));
+#ifdef	UDF
 	error(_("	-UDF			Generate UDF file system\n"));
+#endif
+#ifdef	DVD_AUD_VID
 	error(_("	-dvd-audio		Generate DVD-Audio compliant UDF file system\n"));
 	error(_("	-dvd-video		Generate DVD-Video compliant UDF file system\n"));
 	error(_("	-dvd-hybrid		Generate a hybrid (DVD-Audio/DVD-Video) compliant UDF file system\n"));
+#endif
 	error(_("	-iso-level LEVEL	Set ISO9660 level (1..3) or 4 for ISO9660 v 2\n"));
 	error(_("	-V ID, -volid ID	Set Volume ID\n"));
 	error(_("	-graft-points		Allow to use graft points for filenames\n"));
@@ -2053,7 +2062,7 @@ main(argc, argv)
 	modification_date.l_usec = tv_begun.tv_usec;
 	modification_date.l_gmtoff = -100;
 
-#if	defined(IS_CYGWIN) || defined(__MINGW32__)
+#if	defined(IS_CYGWIN)
 	/*
 	 * If we have 64 bit inode numbers, Cygwin should be able to work
 	 * correctly on NTFS.
@@ -2082,11 +2091,19 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2016 %s\n"),
+		printf(_("mkisofs %s (%s-%s-%s)\n\n\
+Copyright (C) 1993-1997 %s\n\
+Copyright (C) 1997-2016 %s\n"),
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS,
 			_("Eric Youngdale"),
 			_("Joerg Schilling"));
+#ifdef	APPLE_HYB
+		printf(_("Copyright (C) 1997-2001 James Pearson\n"));
+#endif
+#ifdef	UDF
+		printf(_("Copyright (C) 2006      HELIOS Software GmbH\n"));
+#endif
 #ifdef	OPTION_SILO_BOOT
 		printf(_("Warning: this is unofficial (modified) version of mkisofs that incorporates\n"));
 		printf(_("	support for a non Sparc compliant boot method called SILO.\n"));
@@ -2742,7 +2759,7 @@ setcharset:
 		icharset = NULL;
 #endif
 	if (icharset == NULL) {
-#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
+#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
 		icharset = "cp437";
 #else
 		icharset = "default";
@@ -2917,12 +2934,18 @@ setcharset:
 			comerrno(EX_BAD,
 			_("Cannot use multi session with -stream-media-size\n"));
 		if (use_eltorito || use_sparcboot || use_sunx86boot ||
+#ifdef APPLE_HYB
 		    use_genboot || use_prep_boot || hfs_boot_file)
+#else
+		    use_genboot)
+#endif
 			comerrno(EX_BAD,
 			_("Cannot use boot options with -stream-media-size\n"));
+#ifdef APPLE_HYB
 		if (apple_hyb)
 			comerrno(EX_BAD,
 			_("Cannot use Apple hybrid options with -stream-media-size\n"));
+#endif
 	}
 
 	if (use_RockRidge) {
