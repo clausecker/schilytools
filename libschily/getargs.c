@@ -1,8 +1,8 @@
-/* @(#)getargs.c	2.68 16/02/12 Copyright 1985, 1988, 1994-2016 J. Schilling */
+/* @(#)getargs.c	2.70 16/10/23 Copyright 1985, 1988, 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.68 16/02/12 Copyright 1985, 1988, 1994-2016 J. Schilling";
+	"@(#)getargs.c	2.70 16/10/23 Copyright 1985, 1988, 1994-2016 J. Schilling";
 #endif
 #define	NEW
 /*
@@ -92,6 +92,8 @@ LOCAL char	*retnames[] =  {
 #define	ARGVECTOR	2	/* Use vector instead of list interface	*/
 #define	NOEQUAL		4	/* -opt=val not allowed for -opt val	*/
 
+LOCAL	struct ga_props *_getprops __PR((struct ga_props *));
+
 	int	_getargs __PR((int *, char *const **, void *,
 							int,
 							struct ga_props *,
@@ -113,6 +115,7 @@ LOCAL	char	fmtspecs[] = "#?*&~+%";
 #define	isfmtspec(c)		(strchr(fmtspecs, c) != NULL)
 
 LOCAL	struct ga_props	props_default = { 0, 0, sizeof (struct ga_props) };
+LOCAL	struct ga_props	props_posix = { GAF_POSIX_DEFAULT, 0, sizeof (struct ga_props) };
 
 EXPORT int
 _getarginit(props, size, flags)
@@ -123,10 +126,36 @@ _getarginit(props, size, flags)
 	if (size > sizeof (struct ga_props))
 		return (-1);
 
+	/*
+	 * GAF_POSIX may be used as an alias for the flags that currently
+	 * define POSIX behavior.
+	 */
+	if (flags == GAF_POSIX)
+		flags = GAF_POSIX_DEFAULT;
+
 	props->ga_flags = flags;
 	props->ga_oflags = 0;
 	props->ga_size = size;
 	return (0);
+}
+
+LOCAL struct ga_props *
+_getprops(props)
+	struct ga_props	*props;
+{
+	if (props == GA_NO_PROPS)
+		props = &props_default;
+	else if (props == GA_POSIX_PROPS)
+		props = &props_posix;
+	props->ga_oflags = 0;
+	/*
+	 * GAF_POSIX may be used as an alias for the flags that currently
+	 * define POSIX behavior.
+	 */
+	if (props->ga_flags == GAF_POSIX)
+		props->ga_flags = GAF_POSIX_DEFAULT;
+
+	return (props);
 }
 
 /*
@@ -194,11 +223,11 @@ getlargs(pac, pav, props, fmt, va_alist)
  *	get flags until a non flag type argument is reached (vector version)
  */
 EXPORT int
-getvargs(pac, pav, vfmt, props)
+getvargs(pac, pav, props, vfmt)
 	int	*pac;
 	char	* const *pav[];
-	struct ga_flags *vfmt;
 	struct ga_props	*props;
+	struct ga_flags *vfmt;
 {
 	return (_getargs(pac, pav, vfmt, SETARGS | ARGVECTOR, props, va_dummy));
 }
@@ -262,10 +291,15 @@ getlallargs(pac, pav, props, fmt, va_alist)
 #else
 	va_start(args);
 #endif
+	props = _getprops(props);
 	for (; ; (*pac)--, (*pav)++) {
 		if ((ret = _getargs(pac, pav, (void *)fmt, SETARGS, props, args)) < NOTAFLAG)
 			break;
-		if (ret == FLAGDELIM && props && (props->ga_flags & GAF_DELIM_DASHDASH))
+		/*
+		 * The default is to parse all options on the command line and
+		 * to let "--" only make the next argument a non-option.
+		 */
+		if (ret == FLAGDELIM &&	(props->ga_flags & GAF_DELIM_DASHDASH))
 			break;
 	}
 	va_end(args);
@@ -277,18 +311,23 @@ getlallargs(pac, pav, props, fmt, va_alist)
  *	get all flags on the command line, do not stop on files (vector version)
  */
 EXPORT int
-getvallargs(pac, pav, vfmt, props)
+getvallargs(pac, pav, props, vfmt)
 	int	*pac;
 	char	* const *pav[];
-	struct ga_flags *vfmt;
 	struct ga_props	*props;
+	struct ga_flags *vfmt;
 {
 	int	ret;
 
+	props = _getprops(props);
 	for (; ; (*pac)--, (*pav)++) {
 		if ((ret = _getargs(pac, pav, vfmt, SETARGS | ARGVECTOR, props, va_dummy)) < NOTAFLAG)
 			break;
-		if (ret == FLAGDELIM && props && (props->ga_flags & GAF_DELIM_DASHDASH))
+		/*
+		 * The default is to parse all options on the command line and
+		 * to let "--" only make the next argument a non-option.
+		 */
+		if (ret == FLAGDELIM &&	(props->ga_flags & GAF_DELIM_DASHDASH))
 			break;
 	}
 	return (ret);
@@ -329,11 +368,11 @@ getlfiles(pac, pav, props, fmt)
  *	getvfiles() is a dry run getvargs()
  */
 EXPORT int
-getvfiles(pac, pav, vfmt, props)
+getvfiles(pac, pav, props, vfmt)
 	int		*pac;
 	char *const	*pav[];
-	struct ga_flags	*vfmt;
 	struct ga_props	*props;
+	struct ga_flags	*vfmt;
 {
 	return (_getargs(pac, pav, vfmt, SCANONLY | ARGVECTOR, props, va_dummy));
 }
@@ -365,9 +404,8 @@ _getargs(pac, pav, vfmt, flags, props, args)
 		int	ret;
 
 
-	if (props == GA_NO_PROPS)
-		props = &props_default;
-	props->ga_oflags = 0;
+	props = _getprops(props);
+
 	if (props->ga_flags & GAF_NO_EQUAL)
 		flags |= NOEQUAL;
 

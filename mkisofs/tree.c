@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.135 16/10/10 joerg */
+/* @(#)tree.c	1.136 16/10/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.135 16/10/10 joerg";
+	"@(#)tree.c	1.136 16/10/23 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1150,9 +1150,7 @@ scan_directory_tree(this_dir, path, de)
 	DIR		*current_dir;
 	char		whole_path[2*PATH_MAX];	/* Avoid stat buffer overflow */
 	struct dirent	*d_entry;
-	struct directory *parent;
 	int		dflag;
-	char		*old_path;
 extern	BOOL		nodesc;
 
 	if (nodesc)
@@ -1183,8 +1181,6 @@ extern	BOOL		nodesc;
 	 * Apparently NFS sometimes allows you to open the directory, but then
 	 * refuses to allow you to read the contents.  Allow for this
 	 */
-	old_path = path;
-
 	if (current_dir) {
 		errno = 0;
 		d_entry = readdir(current_dir);
@@ -1207,7 +1203,6 @@ extern	BOOL		nodesc;
 		return (ret);
 	}
 
-	parent = de->filedir;
 	/*
 	 * Set up the struct for the current directory, and insert it into
 	 * the tree

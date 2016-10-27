@@ -1,8 +1,8 @@
-/* @(#)getargs.h	1.20 14/01/18 Copyright 1985-2014 J. Schilling */
+/* @(#)getargs.h	1.22 16/10/23 Copyright 1985-2016 J. Schilling */
 /*
  *	Definitions for getargs()/getallargs()/getfiles()
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,12 +52,12 @@ extern "C" {
  * Flag and file arg processing should be terminated after getting a return
  * code <= 0.
  */
-#define	FLAGDELIM	  2	/* "--" stopped flag processing	*/
-#define	NOTAFLAG	  1	/* Not a flag type argument	*/
-#define	NOARGS		  0	/* No more args			*/
-#define	BADFLAG		(-1)	/* Not a valid flag argument	*/
-#define	BADFMT		(-2)	/* Error in format string	*/
-#define	NOTAFILE	(-3)	/* Seems to be a flag type	*/
+#define	FLAGDELIM	  2		/* "--" stopped flag processing	*/
+#define	NOTAFLAG	  1		/* Not a flag type argument	*/
+#define	NOARGS		  0		/* No more args			*/
+#define	BADFLAG		(-1)		/* Not a valid flag argument	*/
+#define	BADFMT		(-2)		/* Error in format string	*/
+#define	NOTAFILE	(-3)		/* Seems to be a flag type	*/
 
 /*
  * The callback functions are called with the following parameters:
@@ -78,7 +78,7 @@ extern "C" {
  * BADFMT	General Error
  * NOTAFILE	Continue to check the format string for matches with option arg
  */
-#define	FLAGPARSED	  1	/* Flag was sucessfully parsed	*/
+#define	FLAGPARSED	  1		/* Flag was sucessfully parsed	*/
 
 typedef	int	(*getargfun)	__PR((const char *__arg, void *__valp));
 typedef	int	(*getpargfun)	__PR((const char *__arg, void *__valp,
@@ -88,18 +88,22 @@ typedef	int	(*getpargfun)	__PR((const char *__arg, void *__valp,
 #define	NO_ARGFUN	(getargpfun)0
 
 struct ga_flags {
-	const char	*ga_format;
-	void		*ga_arg;
-	getpargfun	ga_funcp;
+	const char	*ga_format;	/* Comma separated list for one flag */
+	void		*ga_arg;	/* Ptr. to variable to fill for flag */
+	getpargfun	ga_funcp;	/* Ptr. for function to call (&/~)   */
 };
 
 struct ga_props {
-	UInt32_t	ga_flags;
-	UInt32_t	ga_oflags;
-	size_t		ga_size;
+	UInt32_t	ga_flags;	/* Flags to define behavior	*/
+	UInt32_t	ga_oflags;	/* State flags			*/
+	size_t		ga_size;	/* Size of this struct gs_props	*/
 };
 
-#define	GA_NO_PROPS	(struct ga_props *)0
+/*
+ * This may be used instead of a struct ga_props * parameter:
+ */
+#define	GA_NO_PROPS	(struct ga_props *)0	/* Default behavior	*/
+#define	GA_POSIX_PROPS	(struct ga_props *)-1	/* POSIX behavior	*/
 
 /*
  * Definitions for ga_flags
@@ -110,13 +114,20 @@ struct ga_props {
 #define	GAF_NEED_DASH		0x04	/* Need dash before (-name=val),    */
 					/*  name=val is not allowed	    */
 #define	GAF_DELIM_DASHDASH	0x08	/* "--" stops even get?allargs()    */
+#define	GAF_POSIX		0x1000	/* Will be expanded as shown below  */
 
 /*
  * POSIX does not allow options in the form "+option", "-option=value" or
- * "option=value".
+ * "option=value". get*files() needs to know what may be a valid option.
+ *
+ * If ga_flags == GAF_POSIX, ga_flags is replaced with the value
+ * of the current definition for GAF_POSIX_DEFAULT.
  *
  * GAF_NO_PLUS		do not allow options to start with a '+'
  * GAF_NO_EQUAL		do not allow options to contain '=' between name & val
+ *
+ * Warning: future versions may need different flags for POSIX, better use the
+ * GA_POSIX_PROPS "struct" or the GAF_POSIX flag.
  */
 #define	GAF_POSIX_DEFAULT	(GAF_NO_PLUS | GAF_NO_EQUAL)
 
@@ -146,12 +157,12 @@ extern	int	_getarginit __PR((struct ga_props *, size_t, UInt32_t));
  * The vector versions of the functions need struct ga_flags and thus need
  * getargs.h
  */
-extern	int	getvallargs __PR((int *, char * const**, struct ga_flags *,
-						struct ga_props *));
-extern	int	getvargs __PR((int *, char * const**, struct ga_flags *,
-						struct ga_props *));
-extern	int	getvfiles __PR((int *, char * const**, struct ga_flags *,
-						struct ga_props *));
+extern	int	getvallargs __PR((int *, char * const**, struct ga_props *,
+						struct ga_flags *));
+extern	int	getvargs __PR((int *, char * const**, struct ga_props *,
+						struct ga_flags *));
+extern	int	getvfiles __PR((int *, char * const**, struct ga_props *,
+						struct ga_flags *));
 
 #ifdef	__cplusplus
 }

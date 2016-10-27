@@ -1,0 +1,191 @@
+New features with AN-2016-10-27:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	include/schily/sha3.h: Added new aliases with SHA3_*_DIGEST_LENGTH
+	to create a more uniform interface to other interfaces in libmdigest.
+
+-	libschily: getargs()/getarllargs()/ getfiles() the man page now 
+	mentions the newer features introduced during the past 20 years.
+
+-	libschily: getargs() now supports a new speudo struct ga_props *
+	GA_POSIX_PROPS
+
+-	libschily: the getv*() functions now have the same oder of arguments
+	as the getl*() functions and all functions now have struct ga_props
+	as third parameter.
+
+-	mdigest: Now using SHA3_*_DIGEST_LENGTH
+
+-	mkisofs: the getvargs() call now honors the parameter order change in
+	libschily::getvargs().
+
+-	mkisofs: when stripping off "./" and "//" from graft points, mkisofs
+	now uses ovstrcpy() that supports to copy overlapping strings as Mac OS
+	has a strlcpy() that fails with overlapping strings.
+	Thanks to a hint from Colin Finck <colin@reactos.org>
+
+-	mkisofs: the function prototype readsecs() is now available even when
+	USE_SCG is not defined.
+	Thanks to a hint from Colin Finck <colin@reactos.org>
+
+-	mkisofs: The option -no-cache-inodes is available again in all compile
+	versions.
+
+-	mkisofs: Some unused variables have been removed.
+
+-	SCCS diff(1): support for the option -B has been added.
+
+-	SCCS diff(1): the man page now mentions the original authors
+	James W. Hunt and M. Douglas McIlroy
+
+-	SCCS diff(1): the man page now mentions that Douglas McIlroy did write
+	the initial revision in 1974.
+
+-	SCCS diff(1): directory comparison is now implemented as recursive function
+	call and not longer using vfork()/exec(). This makes diff(1) now 5x-8x faster
+	than the original OpenSolaris diff(1)
+
+-	SCCS diff(1): Regular file comparison as a result from diff -r and directory
+	scanning no longer uses vfork()/exec(). This makes diff(1) now up to 16x
+	faster then the original OpenSolaris diff(1) when fully cached directory
+	trees are compared. Our diff -r now is up to 2x faster than GNU diff
+	with normal sized files and when both trees are in the filesystem cache.
+
+-	SCCS diff(1): Add a free() call to avoid a possible memory leak from calling
+	strdup() more than once while parsing command line arguments.
+
+-	SCCS diff(1): Added support to avoid hanging in directory loops from
+	either virtual (caused by symlinks) or real directory loops (cause by hard
+	linkes directories).
+
+-	SCCS diff(1): Does no longer compare directories that are identical. This
+	helps with virtual directory loops.
+
+-	SCCS diff(1): The malloc() code for variables has been reworked to
+	permit to call the basic code more than once in order to allow in-process
+	recursion for diff -r.
+
+-	SCCS diff(1): The malloc() code for variables has been reworked to avoid
+	frequent calls to realloc()
+
+-	SCCS diff(1): Added code to avoid seeks while creating the diff output.
+	This speeds up things in case of huge files. A speedup of 50% was seen
+	with two 500MB text files.
+
+-	SCCS diff(1): diff -S no longer copies the argument and this way avoids a
+	GCC warning.
+
+-	SCCS diffh(1): The code has been reworked to support lines of arbitrary
+	length. This helps to avoid unexpected behavior when lines are longer
+	than the previous maximum line length 8192 that was already more then
+	the 256 bytes from the Solaris original.
+
+-	Bourne Shell: The builtin commands cd(1), pwd(1), pushd(1), popd(1)
+	and dirs(1) now have a different default when in POSIX mode. In POSIX mode,
+	the defaut is to use logical operations (-L) and otherwise physical (-P).
+	Be careful: the -L default may cause problems (see man page for more
+	information).
+
+-	Bourne Shell: Added text to the man page to explain why cd -L as a default
+	is dangerous.
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

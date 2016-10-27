@@ -1,29 +1,16 @@
-/* @(#)boot.c	1.27 15/11/24 Copyright 1999-2015 J. Schilling */
+/* @(#)boot.c	1.28 16/10/23 Copyright 1999-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)boot.c	1.27 15/11/24 Copyright 1999-2015 J. Schilling";
+	"@(#)boot.c	1.28 16/10/23 Copyright 1999-2016 J. Schilling";
 #endif
 /*
  *	Support for generic boot (sector 0..16)
  *	and to boot Sun sparc and Sun x86 systems.
  *
- *	Copyright (c) 1999-2015 J. Schilling
+ *	Copyright (c) 1999-2016 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
+/*@@C@@*/
 
 #include "mkisofs.h"
 #include <schily/fcntl.h>
@@ -292,7 +279,6 @@ make_sunx86_label()
 	int	bsize;
 	int	i;
 	int	partoff = 1;	/* The offset of the Solaris 0x82 partition */
-	char	*p;
 
 	/*
 	 * Compute the size of the padding for the iso9660 image
@@ -314,7 +300,6 @@ make_sunx86_label()
 	for (i = 0; i < NDKMAP; i++) {
 		if (i == 2)		/* Never include the whole disk in */
 			continue;	/* size/offset computations	   */
-		p = boot_files[i];
 
 		if ((nblk = la_to_4_byte(sx86_label.dkl_vtoc.v_part[i].p_size)) == 0)
 			continue;

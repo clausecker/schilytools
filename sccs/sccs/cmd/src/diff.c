@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.c	1.53 16/10/10 J. Schilling
+ * @(#)diff.c	1.65 16/10/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.53 16/10/10 J. Schilling"
+#pragma ident "@(#)diff.c 1.65 16/10/22 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -187,7 +187,7 @@
 #include <sysexits.h>
 
 #ifndef	PROVIDER
-#define	PROVIDER	"Sun"
+#define	PROVIDER	"Schily"
 #endif
 #ifndef	VERSION
 #define	VERSION		"5.08"
@@ -232,6 +232,7 @@
 #define	HAVE_MEMCMP
 #define	HAVE_VFORK
 #define	_FOUND_STAT_NSECS_
+#define	HAVE_REALLOC_NULL
 
 /*
  * Found e.g. on SunOS-5.x
@@ -275,15 +276,16 @@ extern int	optind, opterr, optopt;
 #undef	min
 #define	min(a, b)	((a) > (b) ? (b) : (a))
 
-int pref, suff;		/* length of prefix and suffix */
-int *class;		/* will be overlaid on file[0] */
-int *member;		/* will be overlaid on file[1] */
-int *klist;		/* will be overlaid on file[0] after class */
-struct cand *clist;	/* merely a free storage pot for candidates */
-int clen = 0;
-int *J;			/* will be overlaid on class */
-off_t *ixold;		/* will be overlaid on klist */
-off_t *ixnew;		/* will be overlaid on file[1] */
+static int pref, suff;		/* length of prefix and suffix */
+static int *class;		/* will be overlaid on file[0] */
+static int *member;		/* will be overlaid on file[1] */
+static int *klist;		/* will be overlaid on file[0] after class */
+static struct cand *clist;	/* merely a free storage pot for candidates */
+static int clen = 0;
+static int camt = 0;
+static int *J;			/* will be overlaid on class */
+static off_t *ixold;		/* will be overlaid on klist */
+static off_t *ixnew;		/* will be overlaid on file[1] */
 
 #define	FUNCTION_CONTEXT_SIZE	55
 static char	lastbuf[FUNCTION_CONTEXT_SIZE];
@@ -292,6 +294,8 @@ static int	lastmatchline;
 
 static int	didvfork;
 static int	mbcurmax;
+
+static char	nulldev[] = "/dev/null";
 
 static void	*talloc __PR((size_t n));
 static void	*ralloc __PR((void *p, size_t n));
@@ -304,7 +308,8 @@ static void	change __PR((int, int, int, int));
 static void	range __PR((int, int, char *));
 static void	fetch __PR((off_t *, int, int, int, char *, int));
 static void	dump_context_vec __PR((void));
-static void	diffdir __PR((char **));
+static void	diffdir __PR((char **, struct pdirs *));
+static void	calldiffdir __PR((char **, struct pdirs *));
 static void	setfile __PR((char **, char **, char *));
 static void	scanpr __PR((struct dir *, int, char *, char *,
 	char *, char *, char *));
@@ -321,6 +326,11 @@ static void	usage __PR((void));
 static void	initbuf __PR((FILE *, int, off_t));
 static void	resetbuf __PR((int));
 
+static int	diffreg __PR((void));
+static void	print_dstatus __PR((void));
+#ifndef	DO_SPAWN_DIFF
+static int	calldiffreg __PR((int, int));
+#endif
 static int	stone __PR((int *, int, int *, int *));
 static int	newcand __PR((int, int, int));
 static int	search __PR((int *, int, int));
@@ -375,6 +385,11 @@ ralloc(p, n)			/* compacting reallocation */
 #if 0
 	free(p);
 #endif
+#ifndef	HAVE_REALLOC_NULL
+	if (p == NULL)
+		q = malloc(n);
+	else
+#endif
 	q = realloc(p, n);
 	if (q == NULL)
 		noroom();
@@ -391,7 +406,6 @@ main(argc, argv)
 	int	argc;
 	char	**argv;
 {
-	int k;
 	char *argp;
 	int flag;			/* option flag read by getopt() */
 	int i, j;
@@ -410,7 +424,7 @@ main(argc, argv)
 	whichtemp = 0;
 	while ((flag =
 	    getopt(argc, argv,
-		    "()abdiptwcuefhnqlrsNC:D:S:U:V(version)")) != EOF) {
+		    "()abBdiptwcuefhnqlrsNC:D:S:U:V(version)")) != EOF) {
 		switch (flag) {
 		case 'D':
 			opt = D_IFDEF;
@@ -425,6 +439,10 @@ main(argc, argv)
 
 		case 'b':
 			bflag = 1;
+			break;
+
+		case 'B':
+			Bflag = 1;
 			break;
 
 		case 'd':		/* -d is a no-op for GNU diff compat */
@@ -501,7 +519,7 @@ main(argc, argv)
 			break;
 
 		case 'S':
-			(void) strlcpy(start, optarg, sizeof (start));
+			start = optarg;
 			break;
 
 		case 's':
@@ -551,11 +569,12 @@ main(argc, argv)
 	file1 = argv[0];
 	file2 = argv[1];
 	file1ok = file2ok = 1;
+	status = 0;
 
 	if (hflag) {
 		if (opt) {
 			error(
-gettext("-h doesn't support -e, -f, -n, -c, or -I"));
+gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 		} else {
 			diffargv[0] = "diffh";
 			(void) execv(diffh, diffargv);
@@ -575,7 +594,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 				file1ok = 0;
 				stb1.st_mode = S_IFREG;	/* assume plain file */
 				stb1.st_size = 0;
-				input[0] = fopen("/dev/null", "r");
+				input[0] = fopen(nulldev, "r");
 				fail += 1;
 			}
 		}
@@ -587,7 +606,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 				else
 					stb2.st_mode = S_IFREG;
 				stb2.st_size = 0;
-				input[1] = fopen("/dev/null", "r");
+				input[1] = fopen(nulldev, "r");
 				fail += 1;
 			}
 		} else if (fail == 1) {			/* file2 exists	    */
@@ -604,9 +623,9 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 	}
 
 	if (strcmp(file1, "-") == 0) {
-		if (fstat(fileno(stdin), &stb1) == 0)
+		if (fstat(fileno(stdin), &stb1) == 0) {
 			stb1.st_mode = S_IFREG;
-		else {
+		} else {
 			(void) fprintf(stderr, "diff: ");
 			perror("stdin");
 			done();
@@ -618,12 +637,12 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 	}
 
 	if (strcmp(file2, "-") == 0) {
-		if (strcmp(file1, "-") == 0)
+		if (strcmp(file1, "-") == 0) {
 			error(gettext("cannot specify - -"));
-		else {
-			if (fstat(fileno(stdin), &stb2) == 0)
+		} else {
+			if (fstat(fileno(stdin), &stb2) == 0) {
 				stb2.st_mode = S_IFREG;
-			else {
+			} else {
 				(void) fprintf(stderr, "diff: ");
 				perror("stdin");
 				done();
@@ -637,7 +656,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 
 	if ((stb1.st_mode & S_IFMT) == S_IFDIR &&
 	    (stb2.st_mode & S_IFMT) == S_IFDIR) {
-		diffdir(argv);
+		diffdir(argv, (struct pdirs *)0);
 		done();
 	    }
 
@@ -724,6 +743,29 @@ notsame:
 		(void) fclose(input[1]);
 		done();
 	}
+	anychange = diffreg();
+	status = anychange;
+
+same:
+	print_dstatus();
+
+#ifdef	DEBUG
+	fprintf(stderr, "Allocates space: %ld Bytes\n", (long)sbrk(0) - oe);
+#endif
+	done();
+	/*NOTREACHED*/
+	return (0);
+}
+
+static int
+diffreg()
+{
+	int	k;
+
+	anychange = 0;
+	lastline = 0;
+	lastmatchline = 0;
+
 	prepare(0, file1);
 	prepare(1, file2);
 	prune();
@@ -740,34 +782,81 @@ notsame:
 
 	klist = (int *)talloc((slen[0] + 2) * sizeof (int));
 	clist = (struct cand *)talloc(sizeof (cand));
+	clen = 0;
+	camt = 0;
 	k = stone(class, slen[0], member, klist);
 	free((void *)member);
 	free((void *)class);
 
-	J = (int *)talloc((len[0] + 2) * sizeof (int));
+	J = (int *)ralloc(J, (len[0] + 2) * sizeof (int));
 	unravel(klist[k]);
 	free((char *)clist);
 	free((char *)klist);
 
-	ixold = (off_t *)talloc((len[0] + 2) * sizeof (off_t));
-	ixnew = (off_t *)talloc((len[1] + 2) * sizeof (off_t));
+	ixold = (off_t *)ralloc(ixold, (len[0] + 2) * sizeof (off_t));
+	ixnew = (off_t *)ralloc(ixnew, (len[1] + 2) * sizeof (off_t));
 	check();
 	output();
-	status = anychange;
 
-same:
+	return (anychange);
+}
+
+static void
+print_dstatus()
+{
 	if (opt == D_CONTEXT && anychange == 0)
 		(void) printf(gettext("No differences encountered\n"));
 	else if (opt == D_BRIEF && anychange != 0)
 		(void) printf(gettext("Files %s and %s differ\n"),
 		    file1, file2);
-#ifdef	DEBUG
-	fprintf(stderr, "Allocates space: %ld Bytes\n", (long)sbrk(0) - oe);
-#endif
-	done();
-	/*NOTREACHED*/
-	return (0);
 }
+
+#ifndef	DO_SPAWN_DIFF
+static int
+calldiffreg(f1, f2)
+	int	f1;
+	int	f2;
+{
+	int	result = anychange;
+	int	ret;
+	char	*in1 = input_file1;
+	char	*in2 = input_file2;
+
+	if ((input[0] = fdopen(f1, "r")) == NULL) {
+		(void) fprintf(stderr, "diff: ");
+		perror(file1);
+		status = 2;
+		done();
+	}
+	if ((input[1] = fdopen(f2, "r")) == NULL) {
+		(void) fprintf(stderr, "diff: ");
+		perror(file1);
+		status = 2;
+		done();
+	}
+
+	initbuf(input[0], 0, (off_t)0);
+	initbuf(input[1], 1, (off_t)0);
+
+#ifdef	HAVE_SETVBUF
+	setvbuf(input[0], NULL, _IOFBF, 32*1024);
+	setvbuf(input[1], NULL, _IOFBF, 32*1024);
+#endif
+	rewind(input[0]);
+	rewind(input[1]);
+
+	ret = diffreg();
+	print_dstatus();
+	fclose(input[0]);
+	fclose(input[1]);
+
+	input_file1 = in1;
+	input_file2 = in2;
+	if (ret > result)
+		result = ret;
+	return (result);
+}
+#endif
 
 static int
 stone(a, n, b, c)
@@ -821,12 +910,16 @@ newcand(x, y, pred)
 {
 	struct cand *q;
 
-	clist = (struct cand *)ralloc((void *)clist, ++clen * sizeof (cand));
-	q = clist + clen -1;
+	if (clen >= camt) {
+		camt += 64;
+		clist = (struct cand *)ralloc((void *)clist,
+		    camt * sizeof (cand));
+	}
+	q = clist + clen;
 	q->x = x;
 	q->y = y;
 	q->pred = pred;
-	return (clen - 1);
+	return (clen++);
 }
 
 static int
@@ -1026,8 +1119,8 @@ output()
 	m = len[0];
 	J[0] = 0;
 	J[m + 1] = len[1] + 1;
-	if (opt != D_EDIT)
-		for (i0 = 1; i0 <= m; i0 = i1+1) {
+	if (opt != D_EDIT) {
+		for (i0 = 1; i0 <= m; i0 = i1 + 1) {
 			while (i0 <= m && J[i0] == J[i0 - 1] + 1)
 				i0++;
 			j0 = J[i0 - 1] + 1;
@@ -1037,7 +1130,9 @@ output()
 			j1 = J[i1 + 1] - 1;
 			J[i1] = j1;
 			change(i0, i1, j0, j1);
-		} else for (i0 = m; i0 >= 1; i0 = i1 - 1) {
+		}
+	} else {
+		for (i0 = m; i0 >= 1; i0 = i1 - 1) {
 			while (i0 >= 1 && J[i0] == J[i0 + 1] - 1 && J[i0] != 0)
 				i0--;
 			j0 = J[i0 + 1] - 1;
@@ -1048,6 +1143,7 @@ output()
 			J[i1] = j1;
 			change(i1, i0, j1, j0);
 		}
+	}
 	if (m == 0)
 		change(1, 0, 1, len[1]);
 	if (opt == D_IFDEF) {
@@ -1086,6 +1182,28 @@ change(a, b, c, d)
 #endif
 	if (opt != D_IFDEF && a > b && c > d)
 		return;
+	if (Bflag) {
+		int	i;
+
+		/*
+		 * On a UNIX system, enpty lines only contain a single "\n" and
+		 * thus cause a file offset difference of 1 to the next line.
+		 */
+		if (a > b) {	/* Inserted */
+			for (i = c; i <= d; i++) {
+				if ((ixnew[i] - ixnew[i - 1]) != 1)
+					goto show;
+			}
+		}
+		if (c > d) {	/* Deleted */
+			for (i = a; i <= b; i++) {
+				if ((ixold[i] - ixold[i - 1]) != 1)
+					goto show;
+			}
+		}
+		return;
+	}
+show:
 	if (anychange == 0) {
 		anychange = 1;
 		if (opt == D_CONTEXT) {
@@ -1154,9 +1272,11 @@ change(a, b, c, d)
 				(void) printf("--- %s	%s\n", input_file2,
 				    time_buf);
 
-			context_vec_start = (struct context_vec *)
+			if (context_vec_start == NULL) {
+				context_vec_start = (struct context_vec *)
 					    malloc(MAX_CONTEXT *
 					    sizeof (struct context_vec));
+			}
 			if (context_vec_start == NULL)
 				error(gettext(NO_MEM_ERR));
 
@@ -1203,9 +1323,9 @@ change(a, b, c, d)
 		(void) printf("\n");
 		break;
 	case D_NREVERSE:
-		if (a > b)
+		if (a > b) {
 			(void) printf("a%d %d\n", b, d - c + 1);
-		else {
+		} else {
 			(void) printf("d%d %d\n", a, b - a + 1);
 			if (!(c > d))
 				/* add changed lines */
@@ -1278,10 +1398,10 @@ fetch(f, a, b, filen, s, oldfile)
 		return;
 	if (opt == D_IFDEF) {
 		int oneflag = (*ifdef1 != '\0') != (*ifdef2 != '\0');
-		if (inifdef)
+		if (inifdef) {
 			(void) fprintf(stdout, "#else /* %s%s */\n",
 			    oneflag && oldfile == 1 ? "!" : "", ifdef2);
-		else {
+		} else {
 			if (oneflag) {
 				/* There was only one ifdef given */
 				endifname = ifdef2;
@@ -1303,8 +1423,15 @@ fetch(f, a, b, filen, s, oldfile)
 	for (i = a; i <= b; i++) {
 		wint_t	lastch;
 
-		(void) fseek(lb, f[i - 1], SEEK_SET);
-		initbuf(lb, filen, f[i - 1]);
+		if (ftellbuf(filen) != f[i - 1]) {
+			/*
+			 * Only seek in case we are not at the expected offset.
+			 * This is marginally slower with small files but 50%
+			 * faster with huge files.
+			 */
+			(void) fseek(lb, f[i - 1], SEEK_SET);
+			initbuf(lb, filen, f[i - 1]);
+		}
 		if (opt != D_IFDEF)
 			(void) prints(s);
 		col = 0;
@@ -1357,7 +1484,7 @@ readhash(f, filen, str)
 	sum = 1;
 	space = 0;
 	if (!bflag && !wflag) {
-		if (iflag)
+		if (iflag) {
 			if (mbcurmax == 1) {
 				/* In this case, diff doesn't have to take */
 				/* care of multibyte characters. */
@@ -1368,8 +1495,9 @@ readhash(f, filen, str)
 							(void) fprintf(stderr,
 	gettext("Warning: missing newline at end of file %s\n"), str);
 							break;
-						} else
+						} else {
 							return (0);
+						}
 					}
 					sum += (isupper(t) ? tolower(t) : t) <<
 						(shift &= HALFMASK);
@@ -1385,14 +1513,15 @@ readhash(f, filen, str)
 							(void) fprintf(stderr,
 	gettext("Warning: missing newline at end of file %s\n"), str);
 							break;
-						} else
+						} else {
 							return (0);
+						}
 					}
 					sum += NCCHRTRAN(wt) <<
 						(shift &= HALFMASK);
 				}
 			}
-		else
+		} else {
 			/* In this case, diff doesn't have to take care of */
 			/* multibyte characters. */
 			for (shift = 0; (t = getc(f)) != '\n'; shift += 7) {
@@ -1401,11 +1530,13 @@ readhash(f, filen, str)
 						(void) fprintf(stderr,
 	gettext("Warning: missing newline at end of file %s\n"), str);
 						break;
-					} else
+					} else {
 						return (0);
+					}
 				}
 				sum += (long)t << (shift &= HALFMASK);
 			}
+		}
 	} else {
 		/* In this case, diff needs to take care of */
 		/* multibyte characters. */
@@ -1422,8 +1553,9 @@ readhash(f, filen, str)
 						(void) fprintf(stderr,
 	gettext("Warning: missing newline at end of file %s\n"), str);
 						break;
-					} else
+					} else {
 						return (0);
+					}
 				default:
 					if (space && !wflag) {
 						shift += 7;
@@ -1518,15 +1650,17 @@ dump_context_vec()
 	 * output if there were no changes to the "old" file (we'll see
 	 * the "old" lines as context in the "new" list).
 	 */
-	if (uflag)
+	if (uflag) {
 		do_output = 1;
-	else
-		for (do_output = 0; cvp <= context_vec_ptr; cvp++)
+	} else {
+		for (do_output = 0; cvp <= context_vec_ptr; cvp++) {
 			if (cvp->a <= cvp->b) {
 				cvp = context_vec_start;
 				do_output++;
 				break;
 			}
+		}
+	}
 
 	if (do_output) {
 		while (cvp <= context_vec_ptr) {
@@ -1555,8 +1689,9 @@ dump_context_vec()
 				if (uflag) {
 					fetch(ixold, a, b, 0, "-", 1);
 					fetch(ixnew, c, d, 1, "+", 0);
-				} else
+				} else {
 					fetch(ixold, a, b, 0, "! ", 1);
+				}
 			}
 			lowa = b + 1;
 			cvp++;
@@ -1577,12 +1712,13 @@ dump_context_vec()
 	(void) printf(" ----\n");
 
 	do_output = 0;
-	for (cvp = context_vec_start; cvp <= context_vec_ptr; cvp++)
+	for (cvp = context_vec_start; cvp <= context_vec_ptr; cvp++) {
 		if (cvp->c <= cvp->d) {
 			cvp = context_vec_start;
 			do_output++;
 			break;
 		}
+	}
 
 	if (do_output) {
 		while (cvp <= context_vec_ptr) {
@@ -1593,11 +1729,11 @@ dump_context_vec()
 			else
 				ch = (a <= b) ? 'd' : 'a';
 
-			if (ch == 'd')
+			if (ch == 'd') {
 				/* The last argument should not affect */
 				/* the behavior of fetch() */
 				fetch(ixnew, lowc, d, 1, "  ", 0);
-			else {
+			} else {
 				/* The last argument should not affect */
 				/* the behavior of fetch() */
 				fetch(ixnew, lowc, c - 1, 1, "  ", 0);
@@ -1623,8 +1759,9 @@ int	header;
 char	title[2 * BUFSIZ], *etitle;
 
 static void
-diffdir(argv)
-	char	**argv;
+diffdir(argv, pdirs)
+	char		**argv;
+	struct pdirs	*pdirs;
 {
 	struct dir *d1, *d2;
 	struct dir *dir1, *dir2;
@@ -1674,6 +1811,8 @@ diffdir(argv)
 			cmp = -1;
 		else
 			cmp = strcmp(d1->d_entry, d2->d_entry);
+
+		file1ok = file2ok = 1;
 		if (cmp < 0) {
 			if (Nflag) {
 				result = compare(d1);
@@ -1704,10 +1843,11 @@ diffdir(argv)
 					dirstatus = result;
 				if (d2->d_flags & DIRECT)
 					d2->d_flags |= XDIRECT;
-			} else if (lflag)
+			} else if (lflag) {
 				d2->d_flags |= ONLY;
-			else if (opt == D_NORMAL || opt == D_CONTEXT)
+			} else if (opt == D_NORMAL || opt == D_CONTEXT) {
 				only(d2, 2);
+			}
 			if (d2->d_entry)
 				d2++;
 			if (!Nflag && dirstatus == 0)
@@ -1730,30 +1870,84 @@ diffdir(argv)
 		    file1, efile1, file2, efile2);
 	}
 	if (rflag) {
+		struct pdirs	pdir;
+
+		pdir.p_last = pdirs;
+
 		if (header && lflag)
 			(void) printf("\f");
-		for (d1 = dir1; d1->d_entry; d1++)  {
+		for (d1 = dir1; d1->d_entry; d1++) {
 			if ((d1->d_flags & DIRECT) == 0)
 				continue;
 			(void) strcpy(efile1, d1->d_entry);
 			(void) strcpy(efile2, d1->d_entry);
-			result = calldiff((char *)0);
-			if (result > dirstatus)
-				dirstatus = result;
+			pdir.p_dev1 = d1->d_dev1;
+			pdir.p_dev2 = d1->d_dev2;
+			pdir.p_ino1 = d1->d_ino1;
+			pdir.p_ino2 = d1->d_ino2;
+			calldiffdir(argv, &pdir);
 		}
 		if (Nflag) {
-			for (d2 = dir2; d2->d_entry; d2++)  {
+			for (d2 = dir2; d2->d_entry; d2++) {
 				if ((d2->d_flags & XDIRECT) == 0)
 						continue;
 				(void) strcpy(efile1, d2->d_entry);
 				(void) strcpy(efile2, d2->d_entry);
-				result = calldiff((char *)0);
-				if (result > dirstatus)
-					dirstatus = result;
+				pdir.p_dev1 = d2->d_dev1;
+				pdir.p_dev2 = d2->d_dev2;
+				pdir.p_ino1 = d2->d_ino1;
+				pdir.p_ino2 = d2->d_ino2;
+				calldiffdir(argv, &pdir);
 			}
 		}
 	}
-	status = dirstatus;
+	for (d1 = dir1; d1->d_entry; d1++)
+		free(d1->d_entry);
+	for (d2 = dir2; d2->d_entry; d2++)
+		free(d2->d_entry);
+	free(dir1);
+	free(dir2);
+	if (dirstatus > status)
+		status = dirstatus;
+}
+
+static void
+calldiffdir(argv, pdirs)
+	char		**argv;
+	struct pdirs	*pdirs;
+{
+	char	*f1 = file1;
+	char	*f2 = file2;
+	char	*ef1 = efile1;
+	char	*ef2 = efile2;
+	struct pdirs	*pd = pdirs->p_last;
+
+#ifndef	DIRCMP_DEBUG
+	/*
+	 * We do not need to compare identical directories.
+	 */
+	if (pdirs->p_dev1 == pdirs->p_dev2 &&
+	    pdirs->p_ino1 == pdirs->p_ino2)
+		return;
+#endif
+	while (pd) {
+		if (pdirs->p_dev1 == pd->p_dev1 &&
+		    pdirs->p_dev2 == pd->p_dev2 &&
+		    pdirs->p_ino1 == pd->p_ino1 &&
+		    pdirs->p_ino2 == pd->p_ino2)
+			return;
+		pd = pd->p_last;
+	}
+
+	diffdir(argv, pdirs);
+	free(file1);
+	free(file2);
+	file1 = f1;
+	file2 = f2;
+	efile1 = ef1;
+	efile2 = ef2;
+	argv[0] = file1;
+	argv[1] = file2;
 }
 
 static void
@@ -1828,6 +2022,7 @@ setupdir(cp)
 	struct dir *dp = 0, *ep;
 	struct dirent *rp;
 	int nitems;
+	int	dplen;
 	int size;
 	DIR *dirp;
 
@@ -1845,17 +2040,19 @@ setupdir(cp)
 		done();
 	}
 	nitems = 0;
+	dplen = 0;
 	dp = (struct dir *)malloc(sizeof (struct dir));
 	if (dp == 0)
 		error(gettext(NO_MEM_ERR));
 
 	while ((rp = readdir(dirp)) != NULL) {
 		ep = &dp[nitems++];
-#ifdef	__needed__
-		ep->d_reclen = rp->d_reclen;
-#endif
 		ep->d_entry = 0;
 		ep->d_flags = 0;
+		ep->d_dev1 = 0;
+		ep->d_dev2 = 0;
+		ep->d_ino1 = 0;
+		ep->d_ino2 = 0;
 		size = strlen(rp->d_name);
 		if (size > 0) {
 			ep->d_entry = (char *)malloc(size + 1);
@@ -1864,8 +2061,11 @@ setupdir(cp)
 
 			(void) strcpy(ep->d_entry, rp->d_name);
 		}
-		dp = (struct dir *)realloc((char *)dp,
-			(nitems + 1) * sizeof (struct dir));
+		if (nitems >= dplen) {
+			dplen += 64;
+			dp = (struct dir *)realloc((char *)dp,
+				(dplen + 1) * sizeof (struct dir));
+		}
 		if (dp == 0)
 			error(gettext(NO_MEM_ERR));
 	}
@@ -1901,7 +2101,10 @@ compare(dp)
 	if (stat(file1, &statb1) == -1) {
 		if (errno == ENOENT && Nflag) {
 			statb1.st_mode = 0;
+			statb1.st_dev = 0;
+			statb1.st_ino = 0;
 			result = 1;
+			file1ok = 0;
 		} else {
 			(void) fprintf(stderr, "diff: ");
 			perror(file1);
@@ -1911,7 +2114,10 @@ compare(dp)
 	if (stat(file2, &statb2) == -1) {
 		if (errno == ENOENT && Nflag) {
 			statb2.st_mode = 0;
+			statb2.st_dev = 0;
+			statb2.st_ino = 0;
 			result = 1;
+			file2ok = 0;
 		} else {
 			(void) fprintf(stderr, "diff: ");
 			perror(file2);
@@ -1924,21 +2130,25 @@ compare(dp)
 
 	if (fmt1 == S_IFREG) {
 		f1 = open(file1, O_RDONLY);
-		if (f1 < 0) {
-			(void) fprintf(stderr, "diff: ");
-			perror(file1);
-			return (2);
-		}
+	} else if (file1ok == 0) {
+		f1 = open(nulldev, O_RDONLY);
+	}
+	if ((fmt1 == S_IFREG || file1ok == 0) && f1 < 0) {
+		(void) fprintf(stderr, "diff: ");
+		perror(file1);
+		return (2);
 	}
 
 	if (fmt2 == S_IFREG) {
 		f2 = open(file2, O_RDONLY);
-		if (f2 < 0) {
-			(void) fprintf(stderr, "diff: ");
-			perror(file2);
-			(void) close(f1);
-			return (2);
-		}
+	} else if (file2ok == 0) {
+		f2 = open(nulldev, O_RDONLY);
+	}
+	if ((fmt2 == S_IFREG || file2ok == 0) && f2 < 0) {
+		(void) fprintf(stderr, "diff: ");
+		perror(file2);
+		(void) close(f1);
+		return (2);
 	}
 
 	if (result) {
@@ -1954,6 +2164,10 @@ compare(dp)
 
 			case S_IFDIR:
 				dp->d_flags = DIRECT;
+				dp->d_dev1 = statb1.st_dev;
+				dp->d_dev2 = statb2.st_dev;
+				dp->d_ino1 = statb1.st_ino;
+				dp->d_ino2 = statb2.st_ino;
 				if (lflag || opt == D_EDIT)
 					goto closem;
 				if (Nflag && rflag)
@@ -2014,9 +2228,9 @@ compare(dp)
 #endif
 			}
 		} else {
-			if (lflag)
+			if (lflag) {
 				dp->d_flags |= DIFFER;
-			else if (opt == D_NORMAL || opt == D_CONTEXT) {
+			} else if (opt == D_NORMAL || opt == D_CONTEXT) {
 /*
  * TRANSLATION_NOTE
  * The second and fourth parameters will take the gettext'ed string
@@ -2090,16 +2304,25 @@ notsame:
 		(void) close(f1); (void) close(f2);
 		return (1);
 	}
+#ifdef	DO_SPAWN_DIFF
 	(void) close(f1); (void) close(f2);
+#endif
 	anychange = 1;
 	if (lflag) {
+#ifndef	DO_SPAWN_DIFF
+		(void) close(f1); (void) close(f2);
+#endif
 		result = calldiff(title);
 	} else {
 		if (opt == D_EDIT)
 			(void) printf("ed - %s << '-*-END-*-'\n", dp->d_entry);
 		else
 			(void) printf("%s%s %s\n", title, file1, file2);
+#ifdef	DO_SPAWN_DIFF
 		result = calldiff((char *)0);
+#else
+		result = calldiffreg(f1, f2);
+#endif
 		if (opt == D_EDIT)
 			(void) printf("w\nq\n-*-END-*-\n");
 	}
@@ -2169,7 +2392,7 @@ calldiff(wantpr)
 #endif
 		done();
 	}
-	if (wantpr)	{
+	if (wantpr) {
 		(void) close(pv[0]);
 		(void) close(pv[1]);
 	}
@@ -2378,6 +2601,9 @@ filename(pa1, pa2, st, ifile)
 	a1 = *pa1;
 	a2 = *pa2;
 
+	if (*ifile)
+		free(*ifile);
+
 	if (strcmp(*pa1, "-") == 0)
 		*ifile = strdup("-");
 	else
@@ -2399,6 +2625,7 @@ filename(pa1, pa2, st, ifile)
 		while ((*a1++ = *a2++) != '\0')
 			if (*a2 && *a2 != '/' && a2[-1] == '/')
 				a1 = b1;
+		free(*ifile);
 		*ifile = strdup(*pa1);
 
 		if (*ifile == (char *)NULL) {
@@ -2413,9 +2640,9 @@ filename(pa1, pa2, st, ifile)
 			perror(*pa1);
 			done();
 		}
-	} else if ((st->st_mode & S_IFMT) == S_IFCHR)
+	} else if ((st->st_mode & S_IFMT) == S_IFCHR) {
 		*pa1 = copytemp(a1);
-	else if (a1[0] == '-' && a1[1] == 0) {
+	} else if (a1[0] == '-' && a1[1] == 0) {
 		*pa1 = copytemp(a1);	/* hack! */
 		if (stat(*pa1, st) < 0) {
 			(void) fprintf(stderr, "diff: ");
@@ -2480,12 +2707,26 @@ prepare(i, arg)
 {
 	struct line *p;
 	int j, h;
+	size_t	isize;
+
+	/*
+	 * Average line length is aprox. 35 chars.
+	 */
+	isize = (i == 0 ? stb1.st_size : stb2.st_size) / 35;
+	if (isize > 1000000)
+		isize = 1000000;
+	if (isize < 64)
+		isize = 64;
 
 	(void) fseek(input[i], (off_t)0, SEEK_SET);
-	p = (struct line *)talloc(3 * sizeof (line));
+	p = (struct line *)talloc((isize + 3) * sizeof (line));
 	for (j = 0; (h = readhash(input[i], i, arg)) != 0; ) {
-		p = (struct line *)ralloc((void *)p, (++j + 3) * sizeof (line));
-		p[j].value = h;
+		if (j >= isize) {
+			isize += 64;
+			p = (struct line *)ralloc((void *)p,
+					(isize + 3) * sizeof (line));
+		}
+		p[++j].value = h;
 	}
 	len[i] = j;
 	file[i] = p;
@@ -2582,10 +2823,11 @@ static void
 usage()
 {
 	(void) fprintf(stderr, gettext(
-	"usage: diff [-abiNptw] [-c | -e | -f | -h | -n | -q | -u] file1 file2\n\
-       diff [-abiNptw] [-C number | -U number] file1 file2\n\
-       diff [-abiNptw] [-D string] file1 file2\n\
-       diff [-abiNptw] [-c | -e | -f | -h | -n | -q | -u] [-l] [-r] \
+	"usage: diff [-abBiNptw] [-c | -e | -f | -h | -n | -q | -u] \
+file1 file2\n\
+       diff [-abBiNptw] [-C number | -U number] file1 file2\n\
+       diff [-abBiNptw] [-D string] file1 file2\n\
+       diff [-abBiNptw] [-c | -e | -f | -h | -n | -q | -u] [-l] [-r] \
 [-s] [-S name] directory1 directory2\n"));
 	status = 2;
 	done();

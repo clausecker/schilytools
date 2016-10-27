@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getfiles
-. \" @(#)getfiles.3	1.3 16/01/27 Copyright 1985 J. Schilling
+. \" @(#)getfiles.3	1.4 16/10/13 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -18,6 +18,8 @@
 getfiles() \- gets next non flag-type argument
 .SH SYNOPSIS
 .nf
+#include <schily/getargs.h>
+
 .B
 int getfiles(pac, pav, fmt)
 .B
@@ -30,9 +32,11 @@ int getfiles(pac, pav, fmt)
 .SH DESCRIPTION
 .BR getfiles ()
 returns, with a value of
-.BR +1 ,
+.BR "+1 " ( NOTAFLAG )
+or
+.BR "+2 " ( FLAGDELIM ),
 whenever a non-flag type argument is encountered.
-Flag-type arguments, along with their
+Flag-type (option) arguments, along with their
 values, are ignored. The filename is at
 .BR *pav[0] .
 The caller must increment
@@ -43,18 +47,49 @@ before calling
 .BR getfiles ()
 again.
 .SH RETURNS
+.TP 14
+.B FLAGDELIM\ 2
+The command line argument "\c
+.B \-\-\c
+"
+stopped flag processing.
 .TP
-.B \-2
-error in format string.
+.B NOTAFLAG\ \ 1
+The argument
+.B *pav
+does not appear to be a flag.
 .TP
-.B \-1
-parameter error.
+.B NOARGS\ \ \ \ 0
+All arguments have been successfully examined.
 .TP
-.B 0
-no more file arguments.
+.B BADFLAG\ \ \-1
+A bad flag (option) argument was supplied to the program.
+The argument
+.B *pav
+contains the offending command line argument.
 .TP
-.B 1
-no more flag-type arguments.
+.B BADFMT\ \ \-2
+A bad format descriptor string has been detected.
+The calling program, rather than the user, was in error.
+.de ..
+.TP
+.B NOTAFILE\ \-3
+A flag type argument rather than a file type argument has been detected.
+..
+.LP
+General rules for the return code:
+.TP 14
+.B >\ 0
+A file type argument was found.
+.TP
+.B \ \ 0
+All arguments have been parsed.
+.TP
+.B <\ 0
+An error occured or not a file type argument.
+.LP
+Flag and file arg processing should be terminated after getting a
+return code <= 0.
 
 .SH EXAMPLES
 
@@ -63,6 +98,7 @@ no more flag-type arguments.
 .sp 
 .LP
 .BR getallargs (3),
+.BR getargerror (3),
 .BR getargs (3).
 
 .SH NOTES

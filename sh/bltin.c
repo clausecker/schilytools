@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.109 16/09/06 2008-2016 J. Schilling
+ * @(#)bltin.c	1.110 16/10/13 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.109 16/09/06 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.110 16/10/13 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1139,6 +1139,10 @@ opt_LP(argc, argv, opts, use)
 			return (-1);
 		} else if (c == '?') {
 			if (opt < 0) {
+				/*
+				 * If *opts has been preinitialzed with -1,
+				 * accept e.g. -2 as a a pushd offset arg.
+				 */
 				c = argv[optv.ooptind][1];
 				if (c >= '0' && c <= '9')
 					return (optv.ooptind);
@@ -1152,6 +1156,15 @@ opt_LP(argc, argv, opts, use)
 			*opts = CHDIR_P;
 		}
 	}
+
+	/*
+	 * POSIX decided in 1992 to introduce an incompatible default for "cd".
+	 * Even though this is incompatible with the Bourne Shell behavior, it
+	 * may be to late to go back.
+	 */
+	if ((flags2 & posixflg) && *opts == 0)
+		*opts = CHDIR_L;
+
 	return (optv.optind);
 }
 #endif	/* DO_POSIX_CD */

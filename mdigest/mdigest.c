@@ -1,14 +1,14 @@
-/* @(#)mdigest.c	1.4 15/12/27 Copyright 2009-2015 J. Schilling */
+/* @(#)mdigest.c	1.5 16/10/26 Copyright 2009-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
 /*static	const char sccsid[] =*/
-	"@(#)mdigest.c	1.4 15/12/27 Copyright 2009-2015 J. Schilling";
+	"@(#)mdigest.c	1.5 16/10/26 Copyright 2009-2016 J. Schilling";
 #endif
 /*
  *	Compute the message digest for files
  *
- *	Copyright (c) 2009-2015 J. Schilling
+ *	Copyright (c) 2009-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -78,16 +78,16 @@ struct adigest dlist[] = {
 #ifdef	SHA512_BLOCK_LENGTH
 { "sha512", SHA512_DIGEST_LENGTH, (PI) SHA512Init, (PU) SHA512Update, (PP) SHA512Pad, (PF) SHA512Final },
 #endif
-#ifdef	sha3_224_hash_size
-{ "sha3-224", sha3_224_hash_size, (PI) SHA3_224_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
+#ifdef	SHA3_224_DIGEST_LENGTH
+{ "sha3-224", SHA3_224_DIGEST_LENGTH, (PI) SHA3_224_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
 #endif
-#ifdef	sha3_256_hash_size
-{ "sha3-256", sha3_256_hash_size, (PI) SHA3_256_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
+#ifdef	SHA3_256_DIGEST_LENGTH
+{ "sha3-256", SHA3_256_DIGEST_LENGTH, (PI) SHA3_256_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
 #endif
-#ifdef	sha3_384_hash_size
+#ifdef	SHA3_384_DIGEST_LENGTH
 { "sha3-384", sha3_384_hash_size, (PI) SHA3_384_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
 #endif
-#ifdef	sha3_512_hash_size
+#ifdef	SHA3_512_DIGEST_LENGTH
 { "sha3-512", sha3_512_hash_size, (PI) SHA3_512_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
 #endif
 { NULL, 0, (PI) NULL, (PU) NULL, (PP) NULL, (PF) NULL },
@@ -152,8 +152,8 @@ struct	adigest	*dp = dlist;
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mdigest %s (%s-%s-%s)\n\n", "1.4", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2009-2015 Jörg Schilling\n");
+		printf("mdigest %s (%s-%s-%s)\n\n", "1.5", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2009-2016 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

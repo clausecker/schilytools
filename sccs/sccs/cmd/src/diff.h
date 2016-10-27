@@ -42,10 +42,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.h	1.14 16/10/10 J. Schilling
+ * @(#)diff.h	1.17 16/10/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.h 1.14 16/10/10 J. Schilling"
+#pragma ident "@(#)diff.h 1.17 16/10/22 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -84,8 +84,6 @@ int	opt;
 /*
  * diff - directory comparison
  */
-#define	d_flags	d_ino
-
 #define	ONLY	1		/* Only in this directory */
 #define	SAME	2		/* Both places and same */
 #define	DIFFER	4		/* Both places and different */
@@ -93,14 +91,24 @@ int	opt;
 #define	XDIRECT	16		/* Directory present only at right side */
 
 struct dir {
-	ino_t		d_ino;
-#ifdef	__needed__
-	int16_t		d_reclen;
-	int16_t		d_namlen;
-#endif
+	char		d_flags;
+	dev_t		d_dev1;
+	dev_t		d_dev2;
+	ino_t		d_ino1;
+	ino_t		d_ino2;
 	char		*d_entry;
 };
 
+/*
+ * Structure used to check for directory loops.
+ */
+struct pdirs {
+	struct pdirs	*p_last;
+	dev_t		p_dev1;
+	dev_t		p_dev2;
+	ino_t		p_ino1;
+	ino_t		p_ino2;
+};
 
 /*
  * type definitions
@@ -135,6 +143,7 @@ struct context_vec {
  */
 int aflag = 0;
 int bflag = 0;
+int Bflag = 0;
 int tflag = 0;
 int wflag = 0;
 int iflag = 0;
@@ -163,7 +172,7 @@ char *empty = "";	/* the empty string */
 
 char **diffargv;	/* keep track of argv for diffdir */
 
-char start[256];	/* specify where to start, used with -S */
+char *start;		/* specify where to start, used with -S */
 
 FILE *input[2];		/* two input files */
 int  len[2];

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)diff.1	1.16 16/10/10 Copyright (c) 2011-2015 J. Schilling
+.\" @(#)diff.1	1.19 16/10/19 Copyright (c) 2011-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2004, Sun Microsystems, Inc.  All Rights Reserved
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
@@ -47,24 +47,36 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH diff 1 "2016/10/10" "SunOS 5.11" "User Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH diff 1 "2016/10/19" "SunOS 5.11" "User Commands"
 .SH NAME
 diff \- compare two files
 .SH SYNOPSIS
 .LP
 .nf
 .B diff \c
-.RB [ -abiNptw "] [" "-c \c
+.RB [ -abBiNptw "] [" "-c \c
 .RB "| " -e " | " "-f \c
 .RB "| " -h " | " "-n \c
-.RB "| " -u "] \c
+.RB "| " -q " | " -u "] \c
 .I file1 file2
 .fi
 
 .LP
 .nf
 .B diff \c
-.RB [ -abiNptw "] [" "-C \c
+.RB [ -abBiNptw "] [" "-C \c
 .I number \c
 .RB "| " "-U \c
 .I number\c
@@ -75,7 +87,7 @@ diff \- compare two files
 .LP
 .nf
 .B diff \c
-.RB [ -abiNptw "] [" "-D \c
+.RB [ -abBiNptw "] [" "-D \c
 .IR string "] \c
 .I file1 file2
 .fi
@@ -83,10 +95,10 @@ diff \- compare two files
 .LP
 .nf
 .B diff \c
-.RB [ -abiNptw "] [" "-c \c
+.RB [ -abBiNptw "] [" "-c \c
 .RB "| " -e " | " "-f \c
 .RB "| " -h " | " "-n \c
-.RB "| " -u "] \c
+.RB "| " -q " | " -u "] \c
 .RB [ -l "] [" -r "] \c
 .RB [ -s ]
 .RB "     [" "-S \c
@@ -202,6 +214,12 @@ to produce a diff.
 .B \-b
 Ignores trailing blanks (spaces and tabs) and treats other strings of blanks
 as equivalent.
+
+.br
+.ne 2
+.TP
+.B \-B
+Ignores changes that just inserted or deleted blank (empty) lines.
 
 .br
 .ne 2
@@ -357,6 +375,8 @@ short and well separated, but does work on files of unlimited length. Options
 .BR \-D ,
 .BR \-e ,
 .BR \-f ,
+.BR \-q ,
+.BR \-u ,
 and
 .B \-n
 are
@@ -665,6 +685,15 @@ Interface StabilityStandard
 .BR largefile (5),
 .BR standards (5)
 .hy 14
+.LP
+James W. Hunt
+and
+M. Douglas McIlroy,
+"An Algorithm for Differential File Comparison",
+.I Computing Science Technical Report,
+Bell Laboratories 41,
+June 1976
+
 .SH NOTES
 .sp
 .LP
@@ -683,3 +712,16 @@ Missing NEWLINE at end of file indicates that the last line of the file in
 question did not have a NEWLINE. If the lines are different, they will be
 flagged and output, although the output will seem to indicate they are the
 same.
+
+.br
+.ne 5
+.SH AUTHORS
+The
+.BR diff (1)
+program was initially written by Douglas McIlroy at Bell Labs in 1974.
+The SVr4 release was written by various authors at AT&T in 1989.
+The
+.BR diff (1)
+programm was later maintained by various people at AT&T and Sun Microsystems.
+Since 2006, it
+is maintained by J\*org Schilling.

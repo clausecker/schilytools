@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.190 16/09/25 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.192 16/10/24 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/09/25" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/10/24" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -3631,7 +3631,15 @@ Symbolic link components are
 .B not
 resolved before
 .B dot-dot
-components are processed.
+components are processed and
+.B dot-dot
+.RB ( .. )
+operations are handled by removing the path component to the left
+of the
+.B dot-dot
+.RB ( .. )
+in the supplied path or in
+.BR PWD .
 .br
 .ne 3
 .TP
@@ -3659,7 +3667,12 @@ is specified,
 .B cd
 behaves as if
 .B \-P
-had been specified.
+had been specified, except when in POSIX mode where
+the default is
+.BR \-L .
+See section
+.B COMPATIBILITY
+below.
 .sp
 The options
 .B \-L
@@ -3820,7 +3833,12 @@ is specified,
 .B pwd
 behaves as if
 .B \-P
-had been specified.
+had been specified, except when in POSIX mode where
+the default is
+.BR \-L .
+See section
+.B COMPATIBILITY
+below.
 .sp
 The
 .B dirs
@@ -4583,7 +4601,12 @@ is specified,
 .B cd
 behaves as if
 .B \-P
-had been specified.
+had been specified, except when in POSIX mode where
+the default is
+.BR \-L .
+See section
+.B COMPATIBILITY
+below.
 .sp
 The
 .B popd
@@ -4725,7 +4748,15 @@ Symbolic link components are
 .B not
 resolved before
 .B dot-dot
-components are processed.
+components are processed and
+.B dot-dot
+.RB ( .. )
+operations are handled by removing the path component to the left
+of the
+.B dot-dot
+.RB ( .. )
+in the supplied path or in
+.BR PWD .
 .br
 .ne 3
 .TP
@@ -4753,7 +4784,12 @@ is specified,
 .B pushd
 behaves as if
 .B \-P
-had been specified.
+had been specified, except when in POSIX mode where
+the default is
+.BR \-L .
+See section
+.B COMPATIBILITY
+below.
 .sp
 The
 .B pushd
@@ -4820,7 +4856,12 @@ is specified,
 .B pwd
 behaves as if
 .B \-P
-had been specified.
+had been specified, except when in POSIX mode where
+the default is
+.BR \-L .
+See section
+.B COMPATIBILITY
+below.
 .sp
 The options
 .B \-L
@@ -5240,9 +5281,11 @@ where its default differs from the POSIX standard.
 .br
 This currently disallows to use
 .RB `` ^ ''
-as the pipe symbol and switches off support for
+as the pipe symbol, switches off support for
 .B test \-t
-without a parameter.
+without a parameter and sets the default for directory
+operations to
+.BR \-L .
 .br
 POSIX mode is enabled by default if the executable path of the
 shell equals a compiled in value, e.g.
@@ -7756,6 +7799,44 @@ command no longer terminates a shell script in case that the
 .B cd
 command did not work for whatever reason. So be careful and always check the
 exit code in shell scripts.
+.br
+.ne 4
+.TP
+.B cd
+POSIX introduced new options
+.B \-L
+and
+.B \-P
+and defaults to logical mode while the historic Burne Shell did implement
+a physical mode that operates on normalized directory names.
+.sp
+In logical mode, the command argument
+.B ../*
+may refer to different files than calling
+.B cd ..
+followed by a command with the argument
+.BR *.
+In logical and physical mode, the command argument
+.B *
+may refer to different files than calling
+.BI cd "\ somedir
+followed by a command with the argument
+.BR ../* .
+.sp
+While the latter problem is caused by the existence of a
+.B symlink
+in the new path, the first problem is caused by the behavior of
+.BR "cd\ \-L" .
+This is why the Bourne Shell, when not in POSIX mode
+.RB ( "set\ \-o\ posix" " not set),
+did not change it's default
+behavior and assumes
+.B "cd\ \-P"
+when neither
+.B \-L
+nor
+.B \-P
+have been specified.
 .br
 .ne 4
 .TP

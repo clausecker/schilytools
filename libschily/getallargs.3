@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getallargs
-. \" @(#)getallargs.3	1.3 16/01/27 Copyright 1985 J. Schilling
+. \" @(#)getallargs.3	1.4 16/10/13 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -18,6 +18,8 @@
 getallargs() \- parses all the flag-type arguments
 .SH SYNOPSIS
 .nf
+#include <schily/getargs.h>
+
 .B
 int getallargs(pac, pav, fmt, a1, \|.\|.\|., an)
 .B
@@ -41,7 +43,7 @@ int getallargs(pac, pav, fmt, a1, \|.\|.\|., an)
 .fi
 .SH DESCRIPTION
 .BR getallargs ()
-parses all flag arguments (anywhere on the line).
+parses all flag (option) arguments (anywhere on the command line).
 It does not return until all the arguments have been parsed
 correctly (returning 0), or an error has occurred (returning <
 0).
@@ -51,17 +53,33 @@ See
 for a more detailed description of the parameter
 matching.
 .SH RETURNS
+.TP 14
+.B NOARGS\ \ \ \ 0
+All arguments have been successfully examined.
 .TP
-.B 0
-successfully examined all arguments.
+.B BADFLAG\ \ \-1
+A bad flag (option) argument was supplied to the program.
+The argument
+.B *pav
+contains the offending command line argument.
 .TP
-.B \-1
-a bad flag argument was supplied to the program.
-The *pav contains the offending switch.
+.B BADFMT\ \ \-2
+A bad format descriptor string has been detected.
+The calling program, rather than the user, was in error.
+.LP
+General rules for the return code:
+.TP 14
+.B >\ 0
+A file type argument was found.
 .TP
-.B \-2
-a bad descriptor string.
-The program, rather than the user, was in error.
+.B \ \ 0
+All arguments have been parsed.
+.TP
+.B <\ 0
+An error occured or not a file type argument.
+.LP
+Flag and file arg processing should be terminated after getting a
+return code <= 0.
 
 .SH EXAMPLES
 
@@ -70,6 +88,7 @@ The program, rather than the user, was in error.
 .sp 
 .LP
 .BR getargs (3),
+.BR getargerror (3),
 .BR getfiles (3).
 
 .SH NOTES

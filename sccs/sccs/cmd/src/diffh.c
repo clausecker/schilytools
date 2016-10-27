@@ -29,17 +29,19 @@
 /*	  All Rights Reserved  	*/
 
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)diffh.c	1.9 09/11/08 J. Schilling
+ * @(#)diffh.c	1.11 16/10/17 J. Schilling
  */
-#if defined(sun) 
-#pragma ident "@(#)diffh.c 1.9 09/11/08 J. Schilling"
+#if defined(sun)
+#pragma ident "@(#)diffh.c 1.11 16/10/17 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)diffh.c	1.20	05/07/22 SMI"
 #endif
+
+#ifdef	SCHILY_BUILD
 
 #include <schily/mconfig.h>
 #include <schily/stdio.h>
@@ -64,15 +66,41 @@
 #define	PATH_MAX	1024
 #endif
 
+#else	/* non-portable SunOS -only definitions BEGIN */
+
+#define	_FILE_OFFSET_BITS	64
+#define	_LARGEFILE_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <locale.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <limits.h>
+#include <stdarg.h>
+
+#define	HAVE_GETDELIM
+#define	HAVE_SETVBUF
+#define	PROTOTYPES
+#define	__PR(a)	a
+#define	EXPORT
+#define	LOCAL	static
+
+#define	Uchar	unsigned char
+#define	Llong	long long
+
+#endif	/* non-portable SunOS -only definitions END */
+
 #define	C		3
 #define	RANGE		30
-#define	LEN		8192	/* Support POSIX linelen (was 255) */
 #define	INF		16384
 
-char *text[2][RANGE];
+char *text[2][RANGE];		/* Line pointers */
+size_t ltext[2][RANGE];		/* Sizes for line pointers */
 off_t lineno[2] = {1, 1};	/* no. of 1st stored line in each file */
-int ntext[2];		/* number of stored lines in each */
-off_t n0, n1;		/* scan pointer in each */
+int ntext[2];			/* number of stored lines in each */
+off_t n0, n1;			/* scan pointer in each */
 int bflag;
 int debug = 0;
 FILE *file[2];
@@ -100,6 +128,7 @@ getln(f, n)
 {
 	char *t;
 	off_t delta, nt;
+	ssize_t	s;
 
 again:
 	delta = n - lineno[f];
@@ -114,17 +143,22 @@ again:
 		progerr("3");
 	if (feof(file[f]))
 		return (NULL);
+
+#ifdef	HAVE_GETDELIM
+	s = getdelim(&text[f][nt], &ltext[f][nt], '\n', file[f]);
+#else
+	s = fgetaline(file[f], &text[f][nt], &ltext[f][nt]);
+#endif
 	t = text[f][nt];
-	if (t == 0) {
-		t = text[f][nt] = (char *)malloc(LEN+1);
-		if (t == NULL) {
-			if (hardsynch())
-				goto again;
-			else
-				progerr("5");
-		}
+	if (s == -1 && t == NULL) {
+		if (hardsynch())
+			goto again;
+		else
+			progerr("5");
 	}
-	t = fgets(t, LEN, file[f]);
+
+	if (s == -1)
+		t = NULL;
 	if (t != NULL)
 		ntext[f]++;
 	return (t);
@@ -364,6 +398,9 @@ dopen(f1, f2)
 	f = fopen(f1, "r");
 	if (f == NULL)
 		error(gettext("can't open %s"), f1);
+#ifdef	HAVE_SETVBUF
+	setvbuf(f, NULL, _IOFBF, 8*1024);
+#endif
 	return (f);
 }
 

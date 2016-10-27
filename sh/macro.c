@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.61 16/08/28 2008-2016 J. Schilling
+ * @(#)macro.c	1.62 16/10/23 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.61 16/08/28 2008-2016 J. Schilling";
+	"@(#)macro.c	1.62 16/10/23 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1024,6 +1024,10 @@ prefsubstr(v, pat, largest)
 	return (r);
 }
 
+/*
+ * Return a pointer to the last multi byte character before "sp".
+ Currently always called after gmatch() and thus from an intact mbstate.
+ */
 static unsigned char *
 mbdecr(s, sp)
 	unsigned char	*s;
@@ -1068,6 +1072,8 @@ suffsubstr(v, pat, largest)
 
 /*
  * If vsize is >= 0, copy vsize characters, else copy all.
+ * The mbstate is reset from our caller, thus we do not need to
+ * call mbtowc(NULL, NULL, 0)
  */
 static void
 sizecpy(vsize, v, trimflag)

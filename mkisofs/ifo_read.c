@@ -1,12 +1,12 @@
-/* @(#)ifo_read.c	1.16 15/12/15 joerg */
+/* @(#)ifo_read.c	1.17 16/10/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ifo_read.c	1.16 15/12/15 joerg";
+	"@(#)ifo_read.c	1.17 16/10/23 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
- * Copyright (C) 2002-2010 Jörg Schilling <schilling@fokus.gmd.de>
+ * Copyright (C) 2002-2016 Jörg Schilling <schilling@fokus.gmd.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -362,7 +362,6 @@ ifoOpen(dvd, title)
 
 	/* File handles and offset */
 	int file;
-	off_t offset;
 	char full_path[ PATH_MAX + 1 ];
 
 	/* Identifier of the IFO */
@@ -387,8 +386,6 @@ ifoOpen(dvd, title)
 		free(ifofile);
 		return (0);
 	}
-
-	offset = 0;
 
 	/* Determine if we have a VMGI or VTSI */
 

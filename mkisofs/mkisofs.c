@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.280 16/10/10 joerg */
+/* @(#)mkisofs.c	1.284 16/10/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.280 16/10/10 joerg";
+	"@(#)mkisofs.c	1.284 16/10/23 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -1091,12 +1091,15 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1ID\1Set Application ID")},
 	{{"biblio*", &biblio },
 	__("\1FILE\1Set Bibliographic filename")},
+	/*
+	 * If this includes UWIN, we need to modify the condition.
+	 */
 #if !defined(__MINGW32__) && !defined(_MSC_VER)
 	{{"cache-inodes", &cache_inodes },
 	__("Cache inodes (needed to detect hard links)")},
+#endif
 	{{"no-cache-inodes%0", &cache_inodes },
 	__("Do not cache inodes (if filesystem has no unique inodes)")},
-#endif
 	{{"rrip110%0", &rrip112 },
 	__("Create old Rock Ridge V 1.10")},
 	{{"rrip112", &rrip112 },
@@ -1456,6 +1459,7 @@ struct directory *get_graft	__PR((char *arg, char *graft_point, size_t glen,
 						char **short_namep, BOOL do_insert));
 EXPORT	void	*e_malloc	__PR((size_t size));
 EXPORT	char	*e_strdup	__PR((const char *s));
+LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 LOCAL	void	checkarch	__PR((char *name));
 
 LOCAL void
@@ -2043,17 +2047,12 @@ main(argc, argv)
 	read_rcfile(argv[0]);
 
 	{
-		int		i,
-				is,
-				il;
+		int		i;
 
-		is = 1;
-		il = 0;
 		for (i = 0; i < (int)OPTION_COUNT; i++) {
-			flags[il] = mki_options[i].opt;
-			++il;
+			flags[i] = mki_options[i].opt;
 		}
-		flags[il].ga_format = NULL;
+		flags[i].ga_format = NULL;
 		gl_flags = flags;
 	}
 	time(&begun);
@@ -2072,7 +2071,7 @@ main(argc, argv)
 #endif
 	cac--;
 	cav++;
-	c = getvargs(&cac, &cav, flags, GA_NO_PROPS);
+	c = getvargs(&cac, &cav, GA_NO_PROPS, flags);
 	if (c < 0) {
 		if (c == BADFLAG && strchr(cav[0], '=')) {
 			argind = argc - cac;
@@ -3721,7 +3720,11 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 			while (*xpnt == PATH_SEPARATOR) {
 				xpnt++;
 			}
-			strlcpy(graft_point, xpnt, glen);
+			/*
+			 * The string becomes shorter, there is no need to check
+			 * the length. Make sure to support overlapping strings.
+			 */
+			ovstrcpy(graft_point, xpnt);
 		} while (xpnt > graft_point);
 
 		if (node) {
@@ -3892,6 +3895,18 @@ e_strdup(s)
 	if (s == NULL)
 		comerr(_("Not enough memory for strdup(%s)\n"), s);
 	return (ret);
+}
+
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+LOCAL void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
 }
 
 LOCAL void
