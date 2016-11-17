@@ -1,30 +1,17 @@
-/* @(#)udf.c	1.45 15/12/28 Copyright 2001-2015 J. Schilling */
+/* @(#)udf.c	1.46 16/11/14 Copyright 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.45 15/12/28 Copyright 2001-2015 J. Schilling";
+	"@(#)udf.c	1.46 16/11/14 Copyright 2001-2016 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2015 J. Schilling.
+ * Copyright 2001-2016 J. Schilling.
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
+/*@@C@@*/
 
 /*
  * Some remaining issues:
@@ -1889,7 +1876,7 @@ write_udf_file_entries(dpnt, outfile)
 				}
 #endif
 				if (correct_inodes &&
-				    (s_hash = find_hash(de->dev, de->inode)) != NULL) {
+				    (s_hash = find_hash(de)) != NULL) {
 					nlink = s_hash->nlink;
 					file_id = s_hash->starting_block;
 				} else {

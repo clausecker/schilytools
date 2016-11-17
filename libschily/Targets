@@ -1,4 +1,4 @@
-# @(#)Targets	1.52 16/04/02 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.54 16/11/06 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -11,6 +11,8 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		fcons64.c fdup64.c fileluopen64.c fileopen64.c filemopen64.c \
 		filepos64.c filereopen64.c fileseek64.c filesize64.c \
 		filestat64.c openfd64.c
+
+HFILES_STDIO=	schilyio.h
 
 #
 # Note: getfp.c must be before getav0.c
@@ -47,7 +49,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		kill.c \
 		lchmod.c linkat.c lutimens.c \
 		lxchdir.c \
-		match.c matchl.c matchw.c matchwl.c movebytes.c \
+		match.c matchl.c matchw.c matchwl.c movebytes.c movecbytes.c \
 		mkdirat.c mkdirs.c mkfifo.c mkfifoat.c mkgmtime.c mknodat.c \
 		mkstemp.c \
 		mem.c jmem.c fjmem.c \
@@ -75,6 +77,8 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		wdabort.c \
 		zerobytes.c
 
+HFILES_REST=	at-defs.h
+
 #
 # These interfaces have been moved to libschilypr in order to make
 # programs that use libschily compatible with all software.
@@ -86,4 +90,4 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 
 CFILES=		$(CFILES_STDIO) $(CFILES_REST)
 
-HFILES=		at-defs.h
+HFILES=		$(HFILES_STDIO) $(HFILES_REST)

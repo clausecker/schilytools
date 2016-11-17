@@ -28,18 +28,19 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)bdiff.c	1.16 15/04/23 J. Schilling
+ * @(#)bdiff.c	1.20 16/11/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.16 15/04/23 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.20 16/11/16 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"
 #endif
 
+#ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #include <fatal.h>
 #include <schily/signal.h>
@@ -53,6 +54,7 @@
 #include <schily/wait.h>
 #include <schily/utypes.h>	/* For Llong */
 #include <schily/schily.h>
+#include <schily/errno.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
 #include <schily/io.h>		/* for setmode() prototype */
@@ -60,6 +62,33 @@
 #undef	printf
 #define	printf	js_printf	/* Use libschily::printf() for %lld */
 #endif
+#else	/* non-portable SunOS -only definitions BEGIN */
+#define	_FILE_OFFSET_BITS	64
+#define	_LARGEFILE_SOURCE
+#include <fatal.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+#include <wait.h>
+#include <errno.h>
+
+#define	PROTOTYPES
+#define	__PR(a)	a
+#define	EXPORT
+#define	LOCAL	static
+#define	setmode(fd, mode)
+#define	FTLVFORK	010000
+
+typedef long long	Llong;
+
+#define	HAVE_LARGEFILES
+#define	HAVE_SETVBUF
+#define	HAVE_VFORK
+#endif	/* non-portable SunOS -only definitions END */
 
 #undef	offset_t
 #define	offset_t	Llong
@@ -90,6 +119,9 @@ static int seglim;	/* limit of size of file segment to be generated */
 
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char diffp[]  =  INS_BASE "/ccs/bin/" "diff";
+#else
+#define	diffp		diff
+#define	INS_BASE	""
 #endif
 static char diff[]  =  "/usr/bin/diff";
 static char tempskel[] = "/tmp/bdXXXXXX"; /* used to generate temp file names */
@@ -100,11 +132,12 @@ static int	fatal_num = 1;		/* exit number for fatal exit */
 static offset_t	linenum;
 static size_t obufsiz, nbufsiz, dbufsiz;
 	int main __PR((int argc, char *argv[]));
-static void saverest __PR((char **linep, size_t *bufsizp, FILE *iptr));
+static void saverest __PR((char **linep, size_t *bufsizp,
+			ssize_t ll, FILE *iptr));
 static void putsave __PR((char **linep, size_t *bufsizp, int type));
-static char *readline __PR((char **, size_t *, FILE *));
-static void addgen __PR((char **, size_t *, FILE *));
-static void delgen __PR((char **, size_t *, FILE *));
+static ssize_t readline __PR((char **, size_t *, FILE *));
+static void addgen __PR((char **, size_t *, ssize_t ll, FILE *));
+static void delgen __PR((char **, size_t *, ssize_t ll, FILE *));
 static void clean_up __PR((void));
 static void fixnum __PR((char *));
 static void fatal __PR((char *));
@@ -122,7 +155,8 @@ main(argc, argv)
 {
 	FILE *poldfile, *pnewfile;
 	char *oline, *nline, *diffline;
-	char *olp, *nlp, *dp;
+	ssize_t	oll;
+	ssize_t	nll;
 	int otcnt, ntcnt;
 	pid_t i;
 	int pfd[2];
@@ -204,13 +238,13 @@ main(argc, argv)
 	 * avoid executing 'diff' completely.
 	 */
 	for (;;) {
-		olp = readline(&oline, &obufsiz, poldfile);
-		nlp = readline(&nline, &nbufsiz, pnewfile);
+		oll = readline(&oline, &obufsiz, poldfile);
+		nll = readline(&nline, &nbufsiz, pnewfile);
 
-		if (!olp && !nlp)	/* EOF found on both:  files equal */
+		if (oll < 0 && nll < 0)	/* EOF found on both:  files equal */
 			return (0);
 
-		if (!olp) {
+		if (oll < 0) {
 			/*
 			 * The entire old file is a prefix of the
 			 * new file. Generate the appropriate "append"
@@ -218,10 +252,10 @@ main(argc, argv)
 			 * 		nan, n
 			 * where 'n' represents a line-number.
 			 */
-			addgen(&nline, &nbufsiz, pnewfile);
+			addgen(&nline, &nbufsiz, nll, pnewfile);
 		}
 
-		if (!nlp) {
+		if (nll < 0) {
 			/*
 			 * The entire new file is a prefix of the
 			 * old file. Generate the appropriate "delete"
@@ -229,10 +263,12 @@ main(argc, argv)
 			 * 		n, ndn
 			 * where 'n' represents a line-number.
 			 */
-			delgen(&oline, &obufsiz, poldfile);
+			delgen(&oline, &obufsiz, oll, poldfile);
 		}
 
-		if (strcmp(olp, nlp) == 0)
+		if (oll != nll)
+			break;
+		if (memcmp(oline, nline, oll) == 0)
 			linenum++;
 		else
 			break;
@@ -247,23 +283,23 @@ main(argc, argv)
 	 */
 	for (;;) {
 		/* If both files are at EOF, everything is done. */
-		if (!olp && !nlp)	/* finished */
+		if (oll < 0 && nll < 0)	/* finished */
 			return (0);
 
-		if (!olp) {
+		if (oll < 0) {
 			/*
 			 * Generate appropriate "append"
 			 * output without executing 'diff'.
 			 */
-			addgen(&nline, &nbufsiz, pnewfile);
+			addgen(&nline, &nbufsiz, nll, pnewfile);
 		}
 
-		if (!nlp) {
+		if (nll < 0) {
 			/*
 			 * Generate appropriate "delete"
 			 * output without executing 'diff'.
 			 */
-			delgen(&oline, &obufsiz, poldfile);
+			delgen(&oline, &obufsiz, oll, poldfile);
 		}
 
 		/*
@@ -272,13 +308,13 @@ main(argc, argv)
 		 */
 		poldtemp = maket(otmp);
 		otcnt = 0;
-		while (olp && otcnt < seglim) {
-			(void) fputs(oline, poldtemp);
+		while (oll > 0 && otcnt < seglim) {
+			(void) fwrite(oline, oll, (size_t)1, poldtemp);
 			if (ferror(poldtemp) != 0) {
 				fflags |= FTLMSG;
 				fatal("Can not write to temporary file");
 			}
-			olp = readline(&oline, &obufsiz, poldfile);
+			oll = readline(&oline, &obufsiz, poldfile);
 			otcnt++;
 		}
 		(void) fclose(poldtemp);
@@ -289,13 +325,13 @@ main(argc, argv)
 		 */
 		pnewtemp = maket(ntmp);
 		ntcnt = 0;
-		while (nlp && ntcnt < seglim) {
-			(void) fputs(nline, pnewtemp);
+		while (nll > 0 && ntcnt < seglim) {
+			(void) fwrite(nline, nll, (size_t)1, pnewtemp);
 			if (ferror(pnewtemp) != 0) {
 				fflags |= FTLMSG;
 				fatal("Can not write to temporary file");
 			}
-			nlp = readline(&nline, &nbufsiz, pnewfile);
+			nll = readline(&nline, &nbufsiz, pnewfile);
 			ntcnt++;
 		}
 		(void) fclose(pnewtemp);
@@ -326,9 +362,15 @@ main(argc, argv)
 
 			/* Execute 'diff' on the segment files. */
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-			(void) execlp(diffp, diffp, otmp, ntmp, (char *)0);
+			(void) execlp(diffp, diffp,
+					"-a", otmp, ntmp, (char *)0);
 #endif
+#ifndef	diffp
+			/*
+			 * The fallback diff may not support -a.
+			 */
 			(void) execlp(diff, diff, otmp, ntmp, (char *)0);
+#endif
 
 			/*
 			 * Exit code here must be > 1.
@@ -347,15 +389,20 @@ main(argc, argv)
 #endif
 			fatal(Error);
 		} else {			/* parent process */
+			ssize_t	dl;
+
 			(void) close(pfd[1]);
 			pipeinp = fdopen(pfd[0], "rb");
 
 			/* Process 'diff' output. */
-			while ((dp = readline(&diffline, &dbufsiz, pipeinp))) {
-				if (isdigit(* (unsigned char *)dp))
+			while ((dl = readline(&diffline, &dbufsiz,
+							pipeinp)) > 0) {
+				if (isdigit(* (unsigned char *)diffline))
 					fixnum(diffline);
 				else
-					(void) printf("%s", diffline);
+					(void) fwrite(diffline, dl, (size_t)1,
+						    stdout);
+
 			}
 
 			(void) fclose(pipeinp);
@@ -378,22 +425,20 @@ main(argc, argv)
 
 /* Routine to save remainder of a file. */
 static void
-saverest(linep, bufsizp, iptr)
+saverest(linep, bufsizp, ll, iptr)
 	char **linep;
 	size_t *bufsizp;
+	ssize_t ll;
 	FILE *iptr;
 {
-	char *lp;
 	FILE *temptr;
 
 	temptr = maket(tempfile);
 
-	lp = *linep;
-
-	while (lp) {
-		(void) fputs(*linep, temptr);
+	while (ll > 0) {
+		(void) fwrite(*linep, ll, (size_t)1, temptr);
 		linenum++;
-		lp = readline(linep, bufsizp, iptr);
+		ll = readline(linep, bufsizp, iptr);
 	}
 	(void) fclose(temptr);
 }
@@ -406,15 +451,17 @@ putsave(linep, bufsizp, type)
 	char type;
 {
 	FILE *temptr;
-	size_t	len;
+	ssize_t	len;
 
 	if ((temptr = fopen(tempfile, "rb")) == NULL) {
 		(void) snprintf(Error, sizeof (Error),
 		    "Can not open tempfile ('%s')", tempfile); fatal(Error);
 	}
 
-	while (readline(linep, bufsizp, temptr))
-		(void) printf("%c %s", type, *linep);
+	while ((len = readline(linep, bufsizp, temptr)) > 0) {
+		(void) printf("%c ", type);
+		(void) fwrite(*linep, len, (size_t)1, stdout);
+	}
 
 	/*
 	 * JS: make bdiff compatible to diff as claimed in the man page.
@@ -455,9 +502,10 @@ fixnum(lp)
 }
 
 static void
-addgen(lpp, bufsizp, fp)
+addgen(lpp, bufsizp, ll, fp)
 	char **lpp;
 	size_t *bufsizp;
+	ssize_t ll;
 	FILE *fp;
 {
 	offset_t oldline;
@@ -465,7 +513,7 @@ addgen(lpp, bufsizp, fp)
 
 	/* Save lines of new file. */
 	oldline = linenum + 1;
-	saverest(lpp, bufsizp, fp);
+	saverest(lpp, bufsizp, ll, fp);
 
 	if (oldline < linenum)
 		(void) printf(",%lld\n", linenum);
@@ -479,9 +527,10 @@ addgen(lpp, bufsizp, fp)
 }
 
 static void
-delgen(lpp, bufsizp, fp)
+delgen(lpp, bufsizp, ll, fp)
 	char **lpp;
 	size_t *bufsizp;
+	ssize_t ll;
 	FILE *fp;
 {
 	offset_t savenum;
@@ -490,7 +539,7 @@ delgen(lpp, bufsizp, fp)
 	savenum = linenum;
 
 	/* Save lines of old file. */
-	saverest(lpp, bufsizp, fp);
+	saverest(lpp, bufsizp, ll, fp);
 
 	if (savenum +1 != linenum)
 		(void) printf(",%lldd%lld\n", linenum, savenum);
@@ -615,47 +664,29 @@ satoi(p, ip)
 
 /*
  * Read a line of data from a file.  If the current buffer is not large enough
- * to contain the line, double the size of the buffer and continue reading.
- * Loop until either the entire line is read or until there is no more space
- * to be malloc'd.
+ * to contain the line, the size of the buffer is increased.
  */
-
-static char *
+static ssize_t
 readline(bufferp, bufsizp, filep)
 	char **bufferp;
 	size_t *bufsizp;
 	FILE *filep;
 {
-	char *bufp;
-	size_t newsize;		/* number of bytes to make buffer */
-	size_t oldsize;
+	ssize_t	ret;
+	char	c = (*bufferp)[0];	/* Hack for last newline in putsave() */
 
-	(*bufferp)[*bufsizp - 1] = '\t'; /* arbitrary non-zero character */
-	(*bufferp)[*bufsizp - 2] = ' ';	/* arbitrary non-newline char */
-	bufp = fgets(*bufferp, *bufsizp, filep);
-	if (bufp == NULL)
-		return (bufp);
-	while ((*bufferp)[*bufsizp -1] == '\0' &&
-	    (*bufferp)[*bufsizp - 2] != '\n' &&
-	    strlen(*bufferp) == *bufsizp - 1) {
-		newsize = 2 * (*bufsizp);
-		bufp = (char *)realloc((void *)*bufferp, newsize);
-		if (bufp == NULL)
+	errno = 0;
+	ret = getdelim(bufferp, bufsizp, '\n', filep);
+	if (ret < 0) {
+		if (errno == ENOMEM)
 			fatal("Out of memory");
-		oldsize = *bufsizp;
-		*bufsizp = newsize;
-		*bufferp = bufp;
-		(*bufferp)[*bufsizp - 1] = '\t';
-		(*bufferp)[*bufsizp - 2] = ' ';
-		bufp = fgets(*bufferp + oldsize -1, oldsize + 1, filep);
-		if (bufp == NULL) {
-			if (feof(filep)) {
-				bufp = *bufferp;
-				break;
-			} else
-				fatal("Read error");
-		} else
-			bufp = *bufferp;
+
+		if (feof(filep)) {
+			(*bufferp)[0] = c;	/* Restore first char in buf */
+			return (ret);
+		} else {
+			fatal("Read error");
+		}
 	}
-	return (bufp);
+	return (ret);
 }

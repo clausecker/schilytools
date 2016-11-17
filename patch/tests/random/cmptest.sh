@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.8 16/10/07 Copyright 2015-2016 J. Schilling
+# cmptest @(#)cmptest.sh	1.9 16/11/07 Copyright 2015-2016 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -124,13 +124,19 @@ maxch=4		# Max. 25% of all lines are changed
 # Diff Program to use. Solaris diff -U0 has bugs, so use our fixed Solaris diff
 # from the SCCS distribution.
 #
+is_bdiff=false
 : ${diff=/opt/schily/ccs/bin/diff}
 type $diff > /dev/null 2> /dev/null
 [ $? -ne 0 ] && diff=diff	# fallback to probably defective system diff
 LC_ALL=C $diff -? 2>&1 | grep -i Option > /dev/null
 if [ $? -ne 0 ]; then
-	echo "No working diff program found"
-	exit 1
+	LC_ALL=C $diff -? 2>&1 | grep -i "bdiff: arg count" > /dev/null
+	if [ $? -eq 0 ]; then
+		is_bdiff=true
+	else
+		echo "No working diff program found"
+		exit 1
+	fi
 fi
 echo "Using diff programm: $diff"
 #
@@ -191,6 +197,9 @@ do
 	elif [ $dtype -eq 4 ]; then
 		dtype="-e"
 	else
+		dtype="  "
+	fi
+	if [ "$is_bdiff" = true ]; then
 		dtype="  "
 	fi
 

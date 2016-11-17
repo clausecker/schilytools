@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.37 15/12/26 Copyright 1986-2015 J. Schilling */
+/* @(#)hdump.c	1.38 16/10/27 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.37 15/12/26 Copyright 1986-2015 J. Schilling";
+	"@(#)hdump.c	1.38 16/10/27 Copyright 1986-2016 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	traditional Solaris interface, /usr/bin/od and /usr/xpg4/bin/od must be
  *	hard linked. Symlinks would be followed by getexecname().
  *
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -427,9 +427,9 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2015 %s\n"),
+		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2016 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.37",
+				"1.38",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -801,7 +801,8 @@ dump(len, dstp)
 		oldbuf = buf;
 		buf = temp;
 	} while (!feof(dstp->f));
-	printf(addrfmt, pos);
+	if (*addrfmt != '\t')
+		printf(addrfmt, pos);
 	printf("\n");
 }
 

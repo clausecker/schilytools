@@ -5,8 +5,9 @@ all-tests:      test-initial \
 		test-format \
 		test-extensions \
                 test-rmdel \
-                test-admin test-delta test-get test-prs test-prt test-unget \
-                test-cdc  test-sact test-val \
+                test-admin test-delta test-get test-prs test-prt \
+		test-random test-unget \
+                test-cdc test-sact test-val \
                 test-large test-sccsdiff test-binary test-sccs test-what \
 		test-help test-sccslog \
                 test-year-2000
@@ -38,6 +39,9 @@ test-prs:
 
 test-prt:
 	cd prt && for i in *.sh; do echo Running test prt/$$i; $(SHELL) $$i; done
+
+test-random:
+	cd random && for i in *.sh; do echo Running test random/$$i; $(SHELL) $$i; done
 
 test-unget:
 	cd unget && for i in *.sh; do echo Running test unget/$$i; $(SHELL) $$i; done

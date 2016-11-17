@@ -1,8 +1,8 @@
-/* @(#)hash.c	1.28 10/12/19 joerg */
+/* @(#)hash.c	1.29 16/11/14 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.28 10/12/19 joerg";
+	"@(#)hash.c	1.29 16/11/14 joerg";
 
 #endif
 /*
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2010 J. Schilling
+ * Copyright (c) 1999,2000-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ static struct file_hash *hash_table[NR_HASH];
 EXPORT	void		debug_hash	__PR((void));
 #endif
 EXPORT	void		add_hash	__PR((struct directory_entry *spnt));
-EXPORT	struct file_hash *find_hash	__PR((dev_t dev, ino_t inode));
+EXPORT	struct file_hash *find_hash	__PR((struct directory_entry *spnt));
 EXPORT	void		flush_hash	__PR((void));
 EXPORT	void		add_directory_hash __PR((dev_t dev, ino_t inode));
 EXPORT	struct file_hash *find_directory_hash __PR((dev_t dev, ino_t inode));
@@ -146,31 +146,25 @@ add_hash(spnt)
 	hash_table[hash_number] = s_hash;
 }
 
-#ifdef	PROTOTYPES
 EXPORT struct file_hash *
-find_hash(dev_t dev, ino_t inode)
-#else
-EXPORT struct file_hash *
-find_hash(dev, inode)
-	dev_t	dev;
-	ino_t	inode;
-#endif
+find_hash(spnt)
+	struct directory_entry	*spnt;
 {
 	unsigned int    hash_number;
-	struct file_hash *spnt;
+	struct file_hash *s_hash;
 
 	if (!cache_inodes)
 		return (NULL);
-	if (dev == UNCACHED_DEVICE &&
-	    (inode == TABLE_INODE || inode == UNCACHED_INODE))
+	if (spnt->dev == UNCACHED_DEVICE &&
+	    (spnt->inode == TABLE_INODE || spnt->inode == UNCACHED_INODE))
 		return (NULL);
 
-	hash_number = HASH_FN((unsigned int) dev, (unsigned int) inode);
-	spnt = hash_table[hash_number];
-	while (spnt) {
-		if (spnt->inode == inode && spnt->dev == dev)
-			return (spnt);
-		spnt = spnt->next;
+	hash_number = HASH_FN((unsigned int) spnt->dev, (unsigned int) spnt->inode);
+	s_hash = hash_table[hash_number];
+	while (s_hash) {
+		if (s_hash->inode == spnt->inode && s_hash->dev == spnt->dev)
+			return (s_hash);
+		s_hash = s_hash->next;
 	};
 	return (NULL);
 }

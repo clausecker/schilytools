@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)io.c	1.29 16/08/28 2008-2016 J. Schilling
+ * @(#)io.c	1.30 16/11/14 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.29 16/08/28 2008-2016 J. Schilling";
+	"@(#)io.c	1.30 16/11/14 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -278,6 +278,25 @@ create(s, iof)
 		 * Returns only if flags & noexit is set.
 		 */
 	} else {
+#ifdef	DO_NOCLOBBER
+		if ((flags2 & noclobberflg) && (iof & IOCLOB) == 0 &&
+		    statb.st_mode != 0) {
+			/*
+			 * Noclobber is set and a non regular file exists.
+			 * Check for a race condition and verify that the
+			 * opened file is not a regular file.
+			 */
+			fstat(rc, &statb);
+			if (S_ISREG(statb.st_mode)) {
+				close(rc);
+				failed(s, eclobber);
+				/*
+				 * Returns only if flags & noexit is set.
+				 */
+				return (-1);
+			}
+		}
+#endif
 		return (rc);
 	}
 	return (-1);

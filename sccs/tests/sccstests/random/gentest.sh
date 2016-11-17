@@ -5,14 +5,21 @@
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
 #
-# A random file test with 1..10 generations of patches in a single patch file.
-# A file is generated, then modified 1..10 times and every time a diff is
-# created and concatenated to a single patch file. Then the original file
-# is patched and compared to the expected result.
+# A random file test with 1..10 generations of diff in a single file.
+# A file is generated, then modified 1..10 times.
 #
-# The diff type is random, this allows to check the quality of the automated
-# diff type recognition.
-#
+
+# Read test core functions
+. ../../common/test-common
+
+cmd=admin		# for ../../common/optv
+ocmd=${admin}		# for ../../common/optv
+g=foo
+s=s.$g
+p=p.$g
+z=z.$g
+
+remove $z $s $p $g
 
 : ${AWK=/usr/bin/nawk}
 #$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk
@@ -112,59 +119,9 @@ changefile() {
 	' "$@"
 }
 
-
 nlines=$$	# seed startup helper, awk would get seed based on time_t
 maxlines=5000	# Longest file for our tests
 maxch=4		# Max. 25% of all lines are changed
-
-#
-# Diff Program to use. Solaris diff -U0 has bugs, so use our fixed Solaris diff
-# from the SCCS distribution.
-#
-is_bdiff=false
-: ${diff=/opt/schily/ccs/bin/diff}
-type $diff > /dev/null 2> /dev/null
-[ $? -ne 0 ] && diff=diff	# fallback to probably defective system diff
-LC_ALL=C $diff -? 2>&1 | grep -i Option > /dev/null
-if [ $? -ne 0 ]; then
-	LC_ALL=C $diff -? 2>&1 | grep -i "bdiff: arg count" > /dev/null
-	if [ $? -eq 0 ]; then
-		is_bdiff=true
-	else
-		echo "No working diff program found"
-		exit 1
-	fi
-fi
-echo "Using diff programm: $diff"
-#
-# Reference patch program, note that gpatch has problems itself
-# and fails with -diff -C0
-#
-rpatch=gpatch
-#LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
-#if [ $? -ne 0 ]; then
-#	echo "Reference patch program \"$rpatch\" not working"
-#	rpatch=/usr/bin/patch
-#	echo "Trying \"$rpatch\"..."
-#	LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
-#	if [ $? -ne 0 ]; then
-#		echo "Reference patch program \"$rpatch\" not working"
-#		exit 1
-#	fi
-#fi
-#echo "Using reference patch programm: $rpatch"
-#
-# Test patch implementation:
-# Add -W+ to permit POSIX + enhancements for "patch -s"
-#
-tpatch="eval ../../OBJ/"`../../../conf/oarch.sh`"/spatch -W+"
-silent=-s
-LC_ALL=C $tpatch -? 2>&1 | grep -i Option > /dev/null
-if [ $? -ne 0 ]; then
-	echo "Test patch program \"$tpatch\" not working"
-	exit 1
-fi
-echo "Using test patch programm: $tpatch"
 
 idx=0
 total=0
@@ -180,59 +137,34 @@ do
 	makefile $nlines > original
 	cp original saved_orig
 
-	>patch_file				# avoid SVr4 :>file redirection bug
-	>generation				# avoid SVr4 :>file redirection bug
 	echo Test $idx: testing lines=$nlines changes=$changes generations=$generations
-	echo Test $idx: testing lines=$nlines changes=$changes generations=$generations >> generation
 	generation=1
 	while [ $generation -le $generations ]; do
 
-		seed=`expr $generation + $nlines`
-		dtype=`rrand 0 93983 $seed`	# rrand 0 6 would be of bad quality, so
-		dtype=`expr $dtype \% 6`	# use "rrand 0 bigprime % 6" instead
-
-		if [ $dtype -eq 0 ]; then
-			dtype="-c"
-		elif [ $dtype -eq 1 ]; then
-			dtype="-u"
-		elif [ $dtype -eq 2 ]; then
-			dtype="-C0"
-		elif [ $dtype -eq 3 ]; then
-			dtype="-U0"
-		elif [ $dtype -eq 4 ]; then
-			dtype="-e"
-		else
-			dtype="  "
-		fi
-		if [ "$is_bdiff" = true ]; then
-			dtype="  "
-		fi
-
-
-		echo "Creating generation $generation of type ($dtype)..."
-		echo "Creating generation $generation of type ($dtype)..." >> generation
 		changefile $nlines $changes original > changed
-		echo "Generation: $generation" >> patch_file
-		echo "Index:original" >> patch_file
-		$diff $dtype original changed >> patch_file
 		mv changed original
+
 		generation=`expr $generation + 1`
 	done
-	cp original expected
+	mv original changed
 	cp saved_orig original
 
-	echo Patching file...
-	$tpatch original < patch_file
+	echo testing file...
+	remove $s foo
+			${admin} -fy -ioriginal $s
+	[ $? -eq 0 ] && ${get} -e $s			&& cp changed foo
+	[ $? -eq 0 ] && ${delta} -ycomment $s
+	[ $? -eq 0 ] && ${get} $s
 	ret=$?
 	if [ $ret -ne 0 ]; then
-		echo Test $idx: Patch returned $ret
+		echo Test $idx: sccs test returned $ret
 		diff original expected > failure
 		trap 0
 		exit 1
 	fi
 
-	diff original expected > failure
-		ret=$?
+	diff changed foo > failure
+	ret=$?
 	if [ $ret -ne 0 ]; then
 		echo Test $idx: diff returned $ret
 		[ $ret -eq 1 ] && trap 0
@@ -242,4 +174,6 @@ do
 	total=`expr $total + $generations`
 done
 idx=`expr $idx - 1`
-echo Test succeeded after $idx runs, total of $total patches...
+echo Test succeeded after $idx runs, total of $total diffs...
+
+remove $z $s $p $g

@@ -1,9 +1,9 @@
-/* @(#)mdigest.c	1.5 16/10/26 Copyright 2009-2016 J. Schilling */
+/* @(#)mdigest.c	1.6 16/11/01 Copyright 2009-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
 /*static	const char sccsid[] =*/
-	"@(#)mdigest.c	1.5 16/10/26 Copyright 2009-2016 J. Schilling";
+	"@(#)mdigest.c	1.6 16/11/01 Copyright 2009-2016 J. Schilling";
 #endif
 /*
  *	Compute the message digest for files
@@ -135,7 +135,6 @@ main(ac, av)
 	BOOL	prvers = FALSE;
 	BOOL	list = FALSE;
 	char	*alg = NULL;
-	char	*filename;
 	char	*buf;
 	FILE	*f;
 struct	adigest	*dp = dlist;
@@ -152,7 +151,7 @@ struct	adigest	*dp = dlist;
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mdigest %s (%s-%s-%s)\n\n", "1.5", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("mdigest %s (%s-%s-%s)\n\n", "1.6", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2009-2016 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -188,7 +187,6 @@ struct	adigest	*dp = dlist;
 	getfiles(&cac, &cav, options);
 
 	if (cac == 0) {
-		filename = "";
 		f = stdin;
 		digest(f, "", dp, buf);
 	} else {

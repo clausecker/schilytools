@@ -1,6 +1,6 @@
-/* @(#)scsi.h	1.3 16/10/13 Copyright 1997-2004 J. Schilling */
+/* @(#)scsi.h	1.4 16/11/14 Copyright 1997-2016 J. Schilling */
 /*
- *	Copyright (c) 1997-2004 J. Schilling
+ *	Copyright (c) 1997-2016 J. Schilling
  */
 /*@@C@@*/
 

@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)args.c	1.76 16/08/28 2008-2016 J. Schilling
+ * @(#)args.c	1.78 16/11/16 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.76 16/08/28 2008-2016 J. Schilling";
+	"@(#)args.c	1.78 16/11/16 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -378,6 +378,17 @@ again:
 			argp[1] = argp[0];
 			argc--;
 #ifdef	DO_POSIX_SET
+			if (comdiv == cp) {
+				/*
+				 * Support sh -c -- command
+				 */
+				if ((comdiv = argp[2]) == NULL) {
+					failed(argv[1], mssgargn);
+				} else {
+					argp[2] = argp[3]?argp[3]:argp[0];
+					argc--;
+				}
+			}
 			dashdash++;
 #endif
 #ifdef	DO_MULTI_OPT
@@ -513,6 +524,10 @@ again:
 				argp[1] = argp[0];
 				argp++;
 				argc--;
+#ifdef	DO_POSIX_SET
+				if (*argp[1] == '-')	/* Check for -- */
+					goto again;
+#endif
 			} else {
 				failed(argv[1], badopt);
 			}

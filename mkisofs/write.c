@@ -1,8 +1,8 @@
-/* @(#)write.c	1.144 16/10/10 joerg */
+/* @(#)write.c	1.145 16/11/14 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.144 16/10/10 joerg";
+	"@(#)write.c	1.145 16/11/14 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -952,7 +952,7 @@ reassign_link_addresses(dpnt)
 				continue;
 
 			/* update the start extent */
-			s_hash = find_hash(s_entry->dev, s_entry->inode);
+			s_hash = find_hash(s_entry);
 			if (s_hash) {
 				set_733((char *)s_entry->isorec.extent, s_hash->starting_block);
 				s_entry->starting_block = s_hash->starting_block;
@@ -1135,7 +1135,7 @@ assign_file_addresses(dpnt, isnest)
 			 * If this is a multi-extent file, we get mxpart == 1
 			 * from find_hash().
 			 */
-			s_hash = find_hash(s_entry->dev, s_entry->inode);
+			s_hash = find_hash(s_entry);
 			if (s_hash) {
 				if (verbose > 2) {
 					fprintf(stderr, _("Cache hit for '%s%s%s'\n"),
@@ -2887,7 +2887,7 @@ adj_size_other(dpnt)
 			 * find any cached entry and assign new starting
 			 * extent
 			 */
-			s_hash = find_hash(s_entry->dev, s_entry->inode);
+			s_hash = find_hash(s_entry);
 			if (s_hash) {
 				set_733((char *)s_entry->isorec.extent,
 						s_hash->starting_block);

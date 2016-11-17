@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.150 16/10/10 joerg */
+/* @(#)mkisofs.h	1.151 16/11/14 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -593,7 +593,7 @@ extern int iso9660_file_length __PR((const char *name,
 extern int iso9660_date __PR((char *, time_t));
 extern int iso9660_ldate __PR((char *, time_t, int, int));
 extern void add_hash __PR((struct directory_entry *));
-extern struct file_hash *find_hash __PR((dev_t, ino_t));
+extern struct file_hash *find_hash __PR((struct directory_entry *spnt));
 
 extern void flush_hash __PR((void));
 extern void add_directory_hash __PR((dev_t, ino_t));

@@ -31,10 +31,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)diffh.c	1.11 16/10/17 J. Schilling
+ * @(#)diffh.c	1.13 16/11/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diffh.c 1.11 16/10/17 J. Schilling"
+#pragma ident "@(#)diffh.c 1.13 16/11/06 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -80,7 +80,6 @@
 #include <limits.h>
 #include <stdarg.h>
 
-#define	HAVE_GETDELIM
 #define	HAVE_SETVBUF
 #define	PROTOTYPES
 #define	__PR(a)	a
@@ -144,11 +143,7 @@ again:
 	if (feof(file[f]))
 		return (NULL);
 
-#ifdef	HAVE_GETDELIM
 	s = getdelim(&text[f][nt], &ltext[f][nt], '\n', file[f]);
-#else
-	s = fgetaline(file[f], &text[f][nt], &ltext[f][nt]);
-#endif
 	t = text[f][nt];
 	if (s == -1 && t == NULL) {
 		if (hardsynch())
@@ -173,8 +168,15 @@ clrl(f, n)
 	int i, j;
 
 	j = n-lineno[f]+1;
-	for (i = 0; i+j < ntext[f]; i++)
+	for (i = 0; i+j < ntext[f]; i++) {
+		if (ltext[f][i+j] < ltext[f][i]) {
+			ltext[f][i+j] = ltext[f][i];
+			text[f][i+j] = realloc(text[f][i+j], ltext[f][i+j]);
+			if (text[f][i+j] == NULL)
+				progerr("5");
+		}
 		movstr(text[f][i+j], text[f][i]);
+	}
 	lineno[f] = n+1;
 	ntext[f] -= j;
 }

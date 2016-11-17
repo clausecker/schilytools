@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.c	1.65 16/10/22 J. Schilling
+ * @(#)diff.c	1.66 16/11/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.65 16/10/22 J. Schilling"
+#pragma ident "@(#)diff.c 1.66 16/11/01 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2618,6 +2618,12 @@ filename(pa1, pa2, st, ifile)
 
 	if ((st->st_mode & S_IFMT) == S_IFDIR) {
 		b1 = *pa1 = (char *)malloc(PATH_MAX);
+		if (b1 == (char *)NULL) {
+			(void) fprintf(stderr, gettext(
+				"no more memory - try again later\n"));
+			status = 2;
+			done();
+		}
 		while ((*b1++ = *a1++) != '\0')
 			;
 		b1[-1] = '/';

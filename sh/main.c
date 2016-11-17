@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.58 16/09/09 2008-2016 J. Schilling
+ * @(#)main.c	1.59 16/11/16 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.58 16/09/09 2008-2016 J. Schilling";
+	"@(#)main.c	1.59 16/11/16 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -547,7 +547,7 @@ main(c, v, e)
 			if (input != 0)
 				preacct(cmdadr);
 #endif
-			comdiv--;
+			comdiv = UC -1;		/* disable "set -c cmd" */
 		}
 	}
 #ifdef pdp11

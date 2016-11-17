@@ -1,6 +1,6 @@
-/* @(#)getdelim.c	1.1 15/05/09 Copyright 2015 J. Schilling */
+/* @(#)getdelim.c	1.3 16/11/06 Copyright 2015-2016 J. Schilling */
 /*
- *	Copyright (c) 2015 J. Schilling
+ *	Copyright (c) 2015-2016 J. Schilling
  *
  */
 /*
@@ -17,6 +17,7 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#define	FAST_GETC_PUTC
 #include "schilyio.h"
 #include <schily/stdlib.h>
 
@@ -32,13 +33,18 @@ getdelim(bufp, lenp, delim, f)
 	register	int	delim;
 	register	FILE	*f;
 {
-	register int	c;
 	register char	*lp;
 	register char	*ep;
 	register size_t line_size;
 	register char	*line;
+#if	defined(HAVE_USG_STDIO) || defined(FAST_GETC_PUTC)
+		char	*p;
+#else
+	register int	c;
+#endif
 
-	if (bufp == NULL || lenp == NULL) {
+	if (bufp == NULL || lenp == NULL ||
+	    delim < 0 || delim > UINT8_MAX) {
 		seterrno(EINVAL);
 		return (-1);
 	}
@@ -59,10 +65,32 @@ getdelim(bufp, lenp, delim, f)
 	lp = line;
 	ep = &line[line_size - 1];
 	do {
+#if	defined(HAVE_USG_STDIO) || defined(FAST_GETC_PUTC)
+		size_t	n;
+
+		if ((__c f)->_cnt <= 0) {
+			if (usg_filbuf(f) == EOF)
+				break;
+			(__c f)->_cnt++;
+			(__c f)->_ptr--;
+		}
+
+		n = ep - lp;
+		if (n > (__c f)->_cnt)
+			n = (__c f)->_cnt;
+		p = movecbytes((__c f)->_ptr, lp, delim, n);
+		if (p) {
+			n = p - lp;
+		}
+		(__c f)->_ptr += n;
+		(__c f)->_cnt -= n;
+		lp += n;
+#else
 		c = getc(f);
 		if (c == EOF)
 			break;
 		*lp++ = c;
+#endif
 		if (lp >= ep) {
 			ep = line;
 			line_size += DEF_LINE_SIZE;
@@ -76,7 +104,11 @@ getdelim(bufp, lenp, delim, f)
 			*bufp = line;
 			*lenp = line_size;
 		}
+#if	defined(HAVE_USG_STDIO) || defined(FAST_GETC_PUTC)
+	} while (p == NULL);
+#else
 	} while (c != delim);
+#endif
 	*lp = '\0';
 	line_size = lp - line;
 	if (line_size > SSIZE_T_MAX) {
