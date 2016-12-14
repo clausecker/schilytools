@@ -1,0 +1,139 @@
+New features with AN-2016-12-14:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libxtermcap is now compiled before libshedit because libshedit
+	needs to link against libxtermcap.
+
+-	SCCS man pages: the order of CDDL header / Copyright header has been
+	aligned with the rest of the OpenSolaris man pages.
+
+-	SCCS sccs: Permit new diff options: -q -a -B -N -p
+
+-	README.SCCS: The expansion of SCCS keywords has been rediced to the first
+	5 lines to prevent to expand keywords that should be readable unexpanded.
+
+-	mkisofs: New option -isort behaves like -sort but ignores the case of
+	filenames in the sort file.
+
+-	mkisofs: new option -hide-ignorecase allows to ignore case with the 
+	-hide* options and with -exclude-list
+
+-	mkisofs: New option -no-allow-lowercase allows to revert the effect to
+	-allow-lowercase from macro options like -untranslated-filenames or
+	-iso-level 4
+
+-	mkisofs: New option -duplicates-once to hard link identical files even
+	on non POSIX platforms.
+	The code was modeled similar to the code from
+	Alex Kopylov cdrtools@bootcd.ru but better fits into the idea of 
+	current versions of mkisofs
+
+-	mkisofs: defaults.h no longer sets the system to "UNIX" if it was
+	compiles by MSVC.
+	Thanks to Collin Finck colin@reactos.org for reporting
+
+-	star: Linux xattrs are now set after chown() as Linux resets xattrs
+	with a chown() call.
+	Thanks to Kristýna Streitová <kstreitova@suse.com>
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

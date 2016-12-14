@@ -1,8 +1,8 @@
-/* @(#)write.c	1.145 16/11/14 joerg */
+/* @(#)write.c	1.146 16/12/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.145 16/11/14 joerg";
+	"@(#)write.c	1.146 16/12/13 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -28,6 +28,8 @@ static	UConst char sccsid[] =
  */
 
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
+
+/* DUPLICATES_ONCE Alex Kopylov cdrtools@bootcd.ru 19.06.2004 */
 
 #include "mkisofs.h"
 #include <schily/time.h>
@@ -1502,6 +1504,19 @@ free_one_directory(dpnt)
 		}
 #endif	/* APPLE_HYB */
 
+#ifdef	DUPLICATES_ONCE
+		if (s_entry_d->digest_fast) {
+
+			if (s_entry_d->digest_full &&
+			    (s_entry_d->digest_full != s_entry_d->digest_fast))
+				free(s_entry_d->digest_full);
+
+			free(s_entry_d->digest_fast);
+
+			s_entry_d->digest_fast = NULL;
+			s_entry_d->digest_full = NULL;
+		}
+#endif
 		free(s_entry_d);
 		s_entry_d = NULL;
 	}

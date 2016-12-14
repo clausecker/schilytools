@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.151 16/11/14 joerg */
+/* @(#)mkisofs.h	1.152 16/12/13 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -23,6 +23,8 @@
  */
 
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
+
+/* DUPLICATES_ONCE Alex Kopylov cdrtools@bootcd.ru 19.06.2004 */
 
 #include <schily/mconfig.h>	/* Must be before stdio.h for LARGEFILE support */
 #include <schily/stdio.h>
@@ -145,6 +147,10 @@ struct directory_entry {
 #ifdef UDF
 	int		udf_file_entry_sector;	/* also used as UDF unique ID */
 #endif
+#ifdef	DUPLICATES_ONCE
+	unsigned char	*digest_fast;
+	unsigned char	*digest_full;
+#endif
 };
 
 struct file_hash {
@@ -154,7 +160,7 @@ struct file_hash {
 	nlink_t		nlink;		/* Used to compute new link count */
 	unsigned int	starting_block;
 	off_t		size;
-#ifdef SORTING
+#if	defined(SORTING) || defined(DUPLICATES_ONCE)
 	struct directory_entry *de;
 #endif /* SORTING */
 };
@@ -376,6 +382,9 @@ extern int	dirmode_to_use;
 extern int	new_dir_mode;
 extern int	follow_links;
 extern int	cache_inodes;
+#ifdef	DUPLICATES_ONCE
+extern int	duplicates_once;
+#endif
 extern int	verbose;
 extern int	debug;
 extern int	gui;

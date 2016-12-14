@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.105 15/08/23 Copyright 1985, 1995, 2001-2015 J. Schilling */
+/* @(#)star_unix.c	1.106 16/12/13 Copyright 1985, 1995, 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.105 15/08/23 Copyright 1985, 1995, 2001-2015 J. Schilling";
+	"@(#)star_unix.c	1.106 16/12/13 Copyright 1985, 1995, 2001-2016 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2015 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -649,10 +649,6 @@ setmodes(info)
 			set_acls(info);
 #endif
 	}
-#ifdef	USE_XATTR
-	if (doxattr)
-		set_xattr(info);
-#endif
 #ifdef	USE_FFLAGS
 	if (dofflags && !asymlink)
 		set_fflags(info);
@@ -688,6 +684,12 @@ setmodes(info)
 			}
 		}
 	}
+
+#ifdef	USE_XATTR
+	if (doxattr)
+		set_xattr(info);
+#endif
+
 #ifdef	HAVE_UTIMENSAT
 	/*
 	 * utimensat() is able to set the time stamps on symlinks, if called

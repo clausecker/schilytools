@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)sccs.c	1.81 15/04/23 J. Schilling
+ * @(#)sccs.c	1.82 16/12/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.81 15/04/23 J. Schilling"
+#pragma ident "@(#)sccs.c 1.82 16/12/05 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -3067,10 +3067,10 @@ char *file;
 			|| ( isfile(pfile) && !isfile(gfile) )
 		)
 		{
-			char	*diffcmd = NOGETTEXT("-diff:elsfnhbwtCIDUu");
+			char	*diffcmd = NOGETTEXT("-diff:elsfnhqabBNpwtCIDUu");
 
 			if (strcmp(maincmd->sccsname, "ldiffs") == 0)
-				diffcmd = NOGETTEXT("-ldiff:elsfnhbwtCIDUu");
+				diffcmd = NOGETTEXT("-ldiff:elsfnhqabBNpwtCIDUu");
 			if( command(&diffs_ap[1], TRUE, diffcmd) > 1 )
 			{
 				Fcnt = 1;

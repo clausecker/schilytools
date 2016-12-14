@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.46 15/12/15 
+#ident @(#)Makefile	1.47 16/12/13 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -29,6 +29,7 @@ CPPOPTS +=	-DAPPLE_HYB
 CPPOPTS +=	-DUDF
 CPPOPTS +=	-DDVD_AUD_VID
 CPPOPTS +=	-DSORTING
+CPPOPTS +=	-DDUPLICATES_ONCE
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libscgcmd
 CPPOPTS +=	-I../libhfs_iso
@@ -56,7 +57,7 @@ HFILES=		apple.h bootinfo.h defaults.h diskmbr.h \
 # LIB_CAP is needed for Linux capability support in librscg.
 #
 LIBS=		-lhfs -lfile -lsiconv -lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt \
-		-lfind -lschily \
+		-lfind -lmdigest -lschily \
 		$(LIB_ACL_TEST) $(SCSILIB) $(LIB_SOCKET) \
 		$(LIB_ICONV) $(LIB_INTL) $(LIB_CAP)
 

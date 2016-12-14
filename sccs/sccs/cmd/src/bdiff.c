@@ -30,10 +30,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)bdiff.c	1.20 16/11/16 J. Schilling
+ * @(#)bdiff.c	1.21 16/12/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.20 16/11/16 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.21 16/12/09 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -346,17 +346,16 @@ main(argc, argv)
 			(void) close(pfd[1]);
 			fatal("Can not fork, try again");
 		} else if (i == (pid_t)0) {	/* child process */
-#ifdef	set_child_standard_fds
+#ifdef	set_child_standard_fds	/* VMS */
 			set_child_standard_fds(STDIN_FILENO,
 						pfd[1],
 						STDERR_FILENO);
 #ifdef	F_SETFD
 			fcntl(pfd[0], F_SETFD, 1);
 #endif
-#else
+#else			/* ! VMS, below is the code for UNIX */
 			(void) close(pfd[0]);
-			(void) close(1);
-			(void) dup(pfd[1]);
+			(void) dup2(pfd[1], STDOUT_FILENO);
 			(void) close(pfd[1]);
 #endif
 

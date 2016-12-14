@@ -1,4 +1,6 @@
-This is a portable and reworked version of the SCCS source.
+#ident "@(#)README.SCCS	1.7 16/12/05 "
+
+This is a portable and reworked version of the original UNIX SCCS source.
 
 SCCS is the most mature Revision Control System. This source is:
 
@@ -9,7 +11,7 @@ SCCS is the most mature Revision Control System. This source is:
 -	Large file aware
 
 -	Allowing to selectively disable/enable expansion of specific SCCS
-	keywords (like 1.5, , ...).
+	keywords (like %I%, %Q%, ...).
 
 -	Correctly dealing with lockfiles even in a NFS based multi machine 
 	environment.

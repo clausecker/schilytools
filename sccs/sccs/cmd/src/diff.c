@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)diff.c	1.66 16/11/01 J. Schilling
+ * @(#)diff.c	1.69 16/12/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.66 16/11/01 J. Schilling"
+#pragma ident "@(#)diff.c 1.69 16/12/11 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -254,7 +254,12 @@
 #include "diff.h"
 
 #ifndef	PATH_MAX
+#ifdef	MAXPATHNAME
 #define	PATH_MAX	MAXPATHNAME
+#endif
+#endif
+#ifndef	PATH_MAX
+#define	PATH_MAX	1024
 #endif
 
 #ifdef	pdp11
@@ -656,7 +661,7 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 
 	if ((stb1.st_mode & S_IFMT) == S_IFDIR &&
 	    (stb2.st_mode & S_IFMT) == S_IFDIR) {
-		diffdir(argv, (struct pdirs *)0);
+		diffdir(argv, (struct pdirs *)NULL);
 		done();
 	    }
 
@@ -2348,16 +2353,15 @@ calldiff(wantpr)
 			error(gettext(NO_PROCS_ERR));
 
 		if (pid == 0) {
-#ifdef	set_child_standard_fds
+#ifdef	set_child_standard_fds	/* VMS */
 			set_child_standard_fds(pv[0],
 						STDOUT_FILENO,
 						STDERR_FILENO);
 #ifdef	F_SETFD
 			fcntl(pv[1], F_SETFD, 1);
 #endif
-#else
-			(void) close(0);
-			(void) dup(pv[0]);
+#else			/* ! VMS, below is the code for UNIX */
+			(void) dup2(pv[0], STDIN_FILENO);
 			(void) close(pv[0]);
 			(void) close(pv[1]);
 #endif
@@ -2376,8 +2380,7 @@ calldiff(wantpr)
 
 	if (pid == 0) {
 		if (wantpr) {
-			(void) close(1);
-			(void) dup(pv[1]);
+			(void) dup2(pv[1], STDOUT_FILENO);
 			(void) close(pv[0]);
 			(void) close(pv[1]);
 		}
