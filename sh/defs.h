@@ -37,9 +37,9 @@
 #endif
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.164 16/08/28 2008-2016 J. Schilling
+ * @(#)defs.h	1.165 17/01/05 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -182,6 +182,7 @@ extern "C" {
 #define		SYSPRINTF	54
 #define		SYSCOMMAND	55
 #define		SYSLOCAL	56
+#define		SYSFC		57
 
 #define		SYSMAX		255	/* Must fit in low 8 ENTRY.data bits */
 
@@ -1005,6 +1006,7 @@ extern const char		rcfile[];
 extern const char		sysrcfile[];
 extern const char		globalname[];
 extern const char		localname[];
+extern const char		fcedit[];
 
 /* locale testing */
 extern const char		localedir[];
@@ -1014,6 +1016,7 @@ extern int			localedir_exists;
 extern struct namnod		fngnod;
 extern struct namnod		cdpnod;
 extern struct namnod		envnod;
+extern struct namnod		fcenod;
 extern struct namnod		ifsnod;
 extern struct namnod		homenod;
 extern struct namnod		pwdnod;
@@ -1048,6 +1051,7 @@ extern const char		pathname[];
 extern const char		ppidname[];
 extern const char		cdpname[];
 extern const char		envname[];
+extern const char		fcename[];
 extern const char		ifsname[];
 extern const char		ps1name[];
 extern const char		ps2name[];

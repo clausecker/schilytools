@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.192 16/10/24 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.196 17/01/16 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/10/24" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/01/16" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1945,6 +1945,23 @@ Make sure
 is the last entry to avoid timing the commands from the
 .B .shrc
 file.
+
+.br
+.ne 3
+.TP
+.B FCEDIT
+The name default editor name for the
+.B fc
+command.
+.sp
+The variable
+.B FCEDIT
+was not supported in older versions of
+.BR sh ,
+it is an artefact from
+.B ksh
+and required by a POSIX feature named
+.BR "user portability" .
 
 .br
 .ne 3
@@ -4068,6 +4085,189 @@ The
 .B false
 command was not a builtin command in older versions of
 .BR sh .
+
+.br
+.ne 3
+.PD 0
+.TP
+\fBfc\fR [\fB\-r\fR] [\fB\-e \fIeditor\fR] [\fIfirst \fR[\fIlast\fR]]
+.TP
+\fBfc \fB\-l\fR [\fB\-nr\fR] [\fIfirst \fR[\fIlast\fR]]
+.TP
+\fBfc \fB\-s\fR [\fIold\fB=\fInew\fR] [\fIfirst\fR]
+.PD
+.sp .6
+The
+.B fc
+builtin lists, or edits and re-executes, commands previously entered to an
+interactive
+.BR sh .
+.sp
+In the first form, a range of commands from
+.I first
+to
+.I last
+is
+.B selected
+and
+.B edited
+followed by a
+.B re-execution
+of the edit result.
+If the editor returns a non-zero exit status, the commands are not re-executed.
+.sp
+In the second form, a range of commands from
+.I first
+to
+.I last
+is
+.BR listed .
+.sp
+In the third form, a range of commands from
+.I first
+to
+.I last
+is
+.BR re-executed .
+.sp
+When commands are edited or re-executed,
+the resulting lines are entered at the end of the history list
+and then re-executed by
+.BR sh .
+The
+.B fc
+command that caused the editing or re-execution
+is not entered into the history list. 
+.RS
+.PP
+The following options are supported:
+.TP
+.BI \-e " editor
+Use
+.I editor
+to edit the commands.
+The value in the
+.B FCEDIT
+variable is used as a default when
+.B \-e
+is not specified.
+If
+.B FCEDIT
+is null or unset,
+.B ed
+is used as the editor.
+.TP
+.B \-l
+List the commands rather than invoking an editor on them.
+The commands are written in the sequence indicated by the
+.I first
+and
+.I last
+operands and affected by
+.BR \-r ,
+with each command preceded by the command number.
+.sp
+In this case, the
+.B fc
+command is entered into the history.
+.TP
+.B \-n
+Suppress command numbers when listing with
+.BR \-l .
+.TP
+.B \-r
+Reverse the order of the commands listed or edited.
+.TP
+.B \-s
+Re-execute the command without invoking an editor.
+.LP
+The following operands are supported:
+.TP
+.IR first , " last
+Select the commands to
+.B list
+or
+.BR edit .
+The number of previous commands that can be accessed is determined by the value of the
+.B HISTSIZE
+variable.
+The value of
+.I first
+or
+.I last
+or both may be one of the following:
+.RS
+.TP
+.BI [+] number
+A positive number representing a command number.
+Command numbers can be displayed with the
+.B \-l
+option.
+.TP
+.BI \- number
+A negative number representing the command that was executed
+.I number
+of commands previously.
+For example,
+.B -1
+is the previous command.
+.TP
+.I string
+A string indicating the most recently entered command that begins with that
+.IR string .
+If the
+.IR old = new
+operand is not also specified with -s,
+the string form of the first operand cannot contain an embedded equal-sign.
+.LP
+If
+.I first
+is omitted,
+.B \-15
+is assumed in list mode
+.RB ( \-l )
+and
+.B \-1
+in other cases.
+If
+.B 0
+is used as the value for
+.IR first ,
+the whole history is selected.
+.RE
+.TP
+.IB old = new
+Replace the first occurrence of the string
+.I old
+in the commands to be re-executed by the string
+.IR new .
+.LP
+Note that the
+.B history
+is an interactive feature;
+commands read from scripts are not entered into the history.
+.LP
+The
+.B fc
+command was not supported in older versions of
+.BR sh ,
+it is an artefact from
+.B ksh
+from a time when
+.B ksh
+still needed an external editor to modify the history.
+The implementation that is used in this version of the Bourne Shell already
+supported fully integrated editing features in the command line in 1984 and
+uses concepts from 1982 that make
+.B fc
+a deprecated feature for editing commands in the history.
+.B fc
+is required by a POSIX feature named
+.BR "user portability" ,
+it should be avoided in favor of the
+.B history
+command.
+.RE
 
 .br
 .ne 3

@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.62 16/10/23 2008-2016 J. Schilling
+ * @(#)macro.c	1.63 17/01/17 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.62 16/10/23 2008-2016 J. Schilling";
+	"@(#)macro.c	1.63 17/01/17 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1026,7 +1026,7 @@ prefsubstr(v, pat, largest)
 
 /*
  * Return a pointer to the last multi byte character before "sp".
- Currently always called after gmatch() and thus from an intact mbstate.
+ * Currently always called after gmatch() and thus from an intact mbstate.
  */
 static unsigned char *
 mbdecr(s, sp)

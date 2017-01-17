@@ -1,4 +1,4 @@
-/* @(#)str.h	1.17 16/09/15 Copyright 1986-2016 J. Schilling */
+/* @(#)str.h	1.18 17/01/11 Copyright 1986-2016 J. Schilling */
 /*
  *	Copyright (c) 1986-2016 J. Schilling
  */
@@ -161,6 +161,7 @@ extern	char	uexec[];
 extern	char	uexit[];
 extern	char	ufunc[];
 extern	char	uglob[];
+extern	char	uhist[];
 extern	char	ukill[];
 extern	char	uulimit[];
 extern	char	ulogin[];

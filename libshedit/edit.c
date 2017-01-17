@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.22 16/09/10 Copyright 2006-2016 J. Schilling */
+/* @(#)edit.c	1.25 17/01/17 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.22 16/09/10 Copyright 2006-2016 J. Schilling";
+	"@(#)edit.c	1.25 17/01/17 Copyright 2006-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2016 J. Schilling
+ *	Copyright (c) 2006-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -297,7 +297,60 @@ shedit_bhist(ctlcpp)
 	if (ctlcpp)
 		*ctlcpp = &ctlc;
 	ctlc = 0;
-	put_history(gstd[1], TRUE);
+	put_history(gstd[1], TRUE, 0, 0);
+}
+
+EXPORT int
+shedit_history(f, ctlcpp, flags, first, last)
+	FILE	*f;
+	int	**ctlcpp;
+	int	flags;
+	int	first;
+	int	last;
+{
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
+	return (put_history(f?f:gstd[1], flags, first, last));
+}
+
+EXPORT int
+shedit_search_history(ctlcpp, flags, first, pat)
+	int	**ctlcpp;
+	int	flags;
+	int	first;
+	char	*pat;
+{
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
+	return (search_history(flags, first, pat));
+}
+
+EXPORT int
+shedit_remove_history(ctlcpp, flags, first, pat)
+	int	**ctlcpp;
+	int	flags;
+	int	first;
+	char	*pat;
+{
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
+	return (remove_history(flags, first, pat));
+}
+
+EXPORT int
+shedit_read_history(f, ctlcpp, flags)
+	FILE	*f;
+	int	**ctlcpp;
+	int	flags;
+{
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
+	shell_readhistory(f);
+	return (0);
 }
 
 EXPORT void

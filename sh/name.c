@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)name.c	1.67 16/09/25 2008-2016 J. Schilling
+ * @(#)name.c	1.68 17/01/05 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.67 16/09/25 2008-2016 J. Schilling";
+	"@(#)name.c	1.68 17/01/05 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -124,10 +124,17 @@ struct namnod ps2nod =			/* PS2= */
 	(struct namnod *)NIL,
 	(unsigned char *)ps2name
 };
-struct namnod envnod =			/* ENV= */
+struct namnod fcenod =			/* FCEDIT= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)fcename
+};
+struct namnod envnod =			/* ENV= */
+{
+	(struct namnod *)NIL,
+	&fcenod,
 	(struct namnod *)NIL,
 	(unsigned char *)envname
 };

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)ifs.sh	1.2 16/06/04 Copyright 2016 J. Schilling
+# @(#)ifs.sh	1.3 16/12/29 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -45,4 +45,15 @@ docommand ifs19 "$SHELL -c 'IFS=\"\"; echo \"\${*}\"' 0 1 2 3" 0 "123\n" ""
 docommand ifs20 "$SHELL -c 'IFS=\"\"; echo \${@}' 0 1 2 3" 0 "1 2 3\n" ""
 docommand ifs21 "$SHELL -c 'IFS=\"\"; echo \"\${@}\"' 0 1 2 3" 0 "1 2 3\n" ""
 
+cat > x << \XEOF
+null_ifs() {
+	IFS=
+	set -- "$@"
+	printf "\$# -> %d\n" $#
+} 
+null_ifs 1 2 3
+XEOF
+docommand ifs22 "$SHELL x" 0 "\$# -> 3\n" ""
+
+remove x
 success

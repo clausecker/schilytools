@@ -37,13 +37,13 @@
 #include <schily/errno.h>
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)msg.c	1.68 16/07/14 2008-2016 J. Schilling
+ * @(#)msg.c	1.69 17/01/05 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.68 16/07/14 2008-2016 J. Schilling";
+	"@(#)msg.c	1.69 17/01/05 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -189,6 +189,7 @@ const char	pathname[]	= "PATH";
 const char	ppidname[]	= "PPID";
 const char	cdpname[]	= "CDPATH";
 const char	envname[]	= "ENV";
+const char	fcename[]	= "FCEDIT";
 const char	homename[]	= "HOME";
 const char	mailname[]	= "MAIL";
 const char	ifsname[]	= "IFS";
@@ -239,6 +240,9 @@ const char	sysrcfile[]	= "/etc/sh.shrc";
 const char	globalname[]	= ".globals";
 const char	localname[]	= ".locals";
 const unsigned char shname[]	= "sh (Schily Bourne Shell)";
+#ifdef	DO_SYSFC
+const char	fcedit[]	= "/bin/ed";
+#endif
 
 /*
  * locale testing
@@ -324,11 +328,6 @@ const int no_test_ops = sizeof (test_ops)/sizeof (struct sysnod);
  * Built-ins marked with "i" may not be permitted intrincics in the future.
  * Built-ins marked with "-" do not follow utility syntax guidelines.
  * Built-ins marked with "U" follow utility syntax guidelines and support --.
- *
- * The POSIX standard in addition defines the regular intrinsic utility
- * "fc" that is not part of the Bourne Shell as the Bourne Shell uses a command
- * line history editor taken from "bsh" that was fully integrated in 1984
- * already, when ksh still called an external editor command.
  */
 const struct sysnod commands[] =
 {
@@ -373,6 +372,9 @@ const struct sysnod commands[] =
 	{ "export",	SYSXPORT,	BLT_SPC },	/* S U */
 #ifdef	DO_SYSTRUE
 	{ "false",	SYSFALSE,	0 },		/*  i  */
+#endif
+#ifdef	DO_SYSFC
+	{ "fc",		SYSFC,		BLT_INT },	/*  I  */
 #endif
 	{ "fg",		SYSFGBG,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSFIND

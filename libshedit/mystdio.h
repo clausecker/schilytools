@@ -1,4 +1,4 @@
-/* @(#)mystdio.h	1.16 16/08/10 Copyright 2006-2016 J. Schilling */
+/* @(#)mystdio.h	1.18 17/01/17 Copyright 2006-2016 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
@@ -110,12 +110,13 @@ extern	int	putc	__PR((int c, FILE *f));
  * These are now only functions (no variables) to allow to use lazy
  * linking and to stay within the features of the limited Mac OS X linker.
  */
-#define	chghistory	shedit_chghistory
-#define	remap		shedit_remap
-#define	list_map	shedit_list_map
-#define	add_map		shedit_add_map
-#define	del_map		shedit_del_map
-#define	append_line	shedit_append_line
+#define	chghistory	shedit_chghistory	/* inputc.c	*/
+#define	histrange	shedit_histrange	/* inputc.c	*/
+#define	remap		shedit_remap		/* map.c	*/
+#define	list_map	shedit_list_map		/* map.c	*/
+#define	add_map		shedit_add_map		/* map.c	*/
+#define	del_map		shedit_del_map		/* map.c	*/
+#define	append_line	shedit_append_line	/* inputc.c	*/
 
 /*
  * dat.c
@@ -202,6 +203,8 @@ extern	int	putc	__PR((int c, FILE *f));
 #define	match_hist	shell_match_hist
 #define	nextc		shell_nextc
 #define	put_history	shell_put_history
+#define	search_history	shell_search_history
+#define	remove_history	shell_remove_history
 #define	read_init_history	shell_read_init_history
 #define	readhistory	shell_readhistory
 #define	save_history	shell_save_history

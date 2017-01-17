@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.65 16/08/14 Copyright 1985-2016 J. Schilling */
+/* @(#)bsh.h	1.68 17/01/16 Copyright 1985-2017 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -314,6 +314,9 @@ extern	Tnode	*expand		__PR((char *s));
 extern	FILE	*getinfile	__PR((void));
 extern	int	get_histlen	__PR((void));
 extern	void	chghistory	__PR((char *cp));
+extern	void	histrange	__PR((unsigned *firstp,
+					unsigned *lastp,
+					unsigned *nextp));
 extern	void	init_input	__PR((void));
 extern	int	getnextc	__PR((void));
 extern	int	nextc		__PR((void));
@@ -323,7 +326,21 @@ extern	void	append_line	__PR((char *linep, unsigned int len,
 extern	char	*match_hist	__PR((char *pattern));
 extern	char	*make_line	__PR((int (*f)(FILE *), FILE *arg));
 extern	char	*get_line	__PR((int n, FILE *f));
-extern	void	put_history	__PR((FILE *f, int intrflg));
+
+/*
+ * Keep #defines in sync with include/schily/shedit.h
+ */
+#define	HI_INTR		1	/* History traversal is interruptable	*/
+#define	HI_NONUM	2	/* Do not print numbers			*/
+#define	HI_TAB		4	/* Print TABs				*/
+#define	HI_REVERSE	8	/* Print in reverse order		*/
+#define	HI_PRETTYP	16	/* Pretty Type non-printable chars	*/
+extern	int	put_history	__PR((FILE *f, int flg,
+					int _first, int _last));
+extern	int	search_history	__PR((int flg,
+					int _first, char *_pat));
+extern	int	remove_history	__PR((int flg,
+					int _first, char *_pat));
 extern	void	save_history	__PR((int intrflg));
 extern	void	read_init_history	__PR((void));
 extern	void	readhistory	__PR((FILE *f));

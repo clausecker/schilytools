@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.254 16/09/03 Copyright 1998-2016 J. Schilling */
+/* @(#)xconfig.h.in	1.256 17/01/05 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2016 J. Schilling
+ *	Copyright (c) 1998-2017 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -1008,7 +1008,9 @@
 
 #ifdef USE_ACL			/* Enable/disable ACL support */
 /*
- * The withdrawn POSIX.1e ACL draft support
+ * The withdrawn POSIX.1e ACL draft support.
+ * It has been written in 1993 and withdrawn in 1997.
+ * Linux started to implement it in 2001.
  */
 #undef HAVE_ACL_GET_FILE	/* acl_get_file() function */
 #undef HAVE_ACL_SET_FILE	/* acl_set_file() function */
@@ -1050,10 +1052,18 @@
 #undef HAVE_ACL_FROMTEXT	/* acl_fromtext() function */
 #undef HAVE_ACL_TOTEXT		/* acl_totext() function */
 
+#if !defined(HAVE_POSIX_ACL)
+/*
+ * Cygwin used to implement the Sun UFS ACL interface but in 2016
+ * moved towards the withdrawn POSIX draft.
+ * Make sure that we do not #define HAVE_POSIX_ACL and HAVE_SUN_ACL
+ * at the same time.
+ */
 #if defined(HAVE_ACL) && defined(HAVE_FACL) && \
     defined(HAVE_ACLFROMTEXT) && defined(HAVE_ACLTOTEXT)
 #	define	HAVE_SUN_ACL	1 /* Sun UFS ACL's present */
 #endif
+#endif /* !defined(HAVE_POSIX_ACL) */
 
 #if defined(HAVE_ACL_GET) && defined(HAVE_ACL_SET) && \
     defined(HAVE_FACL_GET) && defined(HAVE_FACL_SET) && \

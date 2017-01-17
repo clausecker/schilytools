@@ -1,4 +1,4 @@
-/* @(#)common.h	1.25 16/10/03 2011-2016 J. Schilling */
+/* @(#)common.h	1.27 16/12/18 2011-2016 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011-2016 J. Schilling
@@ -8,7 +8,7 @@
  *
  * 1. Redistributions of source code must retain the above copyright notice,
  * this condition and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -39,9 +39,7 @@
 #include <schily/utypes.h>
 #include <schily/errno.h>
 #include <schily/nlsdefs.h>
-#ifndef	NO_SCHILY_PRINT
-#include <schily/schily.h>
-#endif
+#include <schily/schily.h>	/* e.g. ___malloc() */
 
 #define	CH	(char)
 #define	UCH	(unsigned char)
@@ -73,6 +71,7 @@
 #define	Fclose		(void)fclose
 #define	Fflush		(void)fflush
 #define	Sprintf		(void)sprintf
+#define	Snprintf	(void)snprintf
 #define	Mktemp		(void)mktemp
 #define	Strcpy		(void)strcpy
 #define	Strcat		(void)strcat

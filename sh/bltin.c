@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.110 16/10/13 2008-2016 J. Schilling
+ * @(#)bltin.c	1.116 17/01/17 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.110 16/10/13 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.116 17/01/17 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -76,6 +76,10 @@ static	int	opt_LP	__PR((int argc, unsigned char **argv,
 static	int	whatis	__PR((unsigned char *arg, int verbose));
 #ifdef	DO_SYSCOMMAND
 static	void	syscommand __PR((int argc, unsigned char **argv,
+					struct trenod *t, int xflags));
+#endif
+#if	defined(INTERACTIVE) || defined(DO_SYSFC)
+static	void	syshist	__PR((int argc, unsigned char **argv,
 					struct trenod *t, int xflags));
 #endif
 
@@ -944,8 +948,8 @@ builtin(type, argc, argv, t, xflags)
 
 #ifdef	INTERACTIVE
 	case SYSHISTORY:
-		shedit_bhist(&intrptr);
-		if (intrptr) {		/* Was set by shedit_bshist()?	*/
+		syshist(argc, argv, t, xflags);
+		if (intrptr) {		/* Was set by syshist()?	*/
 			*intrptr = 0;	/* Clear interrupt counter	*/
 			intrptr = 0;	/* Disable intrptr for now	*/
 		}
@@ -953,6 +957,7 @@ builtin(type, argc, argv, t, xflags)
 
 	case SYSSAVEHIST:
 		shedit_bshist(&intrptr);
+
 		if (intrptr) {		/* Was set by shedit_bshist()?	*/
 			*intrptr = 0;	/* Clear interrupt counter	*/
 			intrptr = 0;	/* Disable intrptr for now	*/
@@ -1100,6 +1105,16 @@ builtin(type, argc, argv, t, xflags)
 #ifdef	DO_SYSCOMMAND
 	case SYSCOMMAND:
 		syscommand(argc, argv, t, xflags);
+		break;
+#endif
+
+#ifdef	DO_SYSFC
+	case SYSFC:
+		syshist(argc, argv, t, xflags);
+		if (intrptr) {		/* Was set by syshist()?	*/
+			*intrptr = 0;	/* Clear interrupt counter	*/
+			intrptr = 0;	/* Disable intrptr for now	*/
+		}
 		break;
 #endif
 
@@ -1283,3 +1298,199 @@ syscommand(argc, argv, t, xflags)
 	flags &= ~ppath;
 }
 #endif	/* DO_SYSCOMMAND */
+
+#if	defined(INTERACTIVE) || defined(DO_SYSFC)
+#define	LFLAG	1	/* Do listing		*/
+#define	SFLAG	2	/* Re-execute		*/
+#define	EFLAG	4	/* Edit and Re-execute	*/
+#define	ALLFLAG	1024	/* Show full history	*/
+/*
+ * The implementation for the "history" and the "fc" builtin command.
+ *
+ * The "fc" builtin is an historic artefact from ksh.
+ * It is based on the original ksh history concept that has never been used in
+ * our history editor that is rather based on the history editor in "bsh", the
+ * shell from H.Berthold AG that had a fully integrated history editor in 1984
+ * already; based on a concept from 1982. Ksh originally called an external
+ * editor command to modify the history.
+ *
+ * As "fc" is part of the POSIX standard, we have to implement it even though
+ * the features required by POSIX do not match the features from a modern
+ * history editor, so we try to do the best we can...
+ *
+ * The "history" implementation currently just disables the re-run and edit
+ * features.
+ */
+static void
+syshist(argc, argv, t, xflags)
+	int		argc;
+	unsigned char	**argv;
+	struct trenod	*t;
+	int		xflags;
+{
+	struct optv	optv;
+	int		c;
+	int		fd;
+	int		first = 0;
+	int		last = 0;
+	int		flg = 0;
+	int		hflg = HI_INTR|HI_TAB;
+	unsigned char	*av0 = argv[0];
+	unsigned char	*cp;
+	unsigned char	*editor = NULL;
+	struct tempblk	tb;
+	char		*fusage =
+			"fc [-r][-l][-n][-s][-e editor] [first [last]]";
+	char		*husage =
+			"history [-r][-n] [first [last]]";
+	char		*xusage = fusage;
+
+	if (*av0 == 'h') {
+		xusage = husage;
+		flg |= LFLAG;
+	}
+
+	optinit(&optv);
+
+	while ((c = optnext(argc, argv, &optv,
+				"rlnse:1234567890", xusage)) != -1) {
+		if (c == 0) {	/* Was -help */
+			return;
+		} else if (c == 'r') {
+			hflg |= HI_REVERSE;
+		} else if (c == 'l') {
+			flg |= LFLAG;
+		} else if (c == 'n') {
+			hflg |= HI_NONUM;
+		} else if (c == 's') {
+			flg |= SFLAG;
+		} else if (c == 'e') {
+			editor = UC optv.optarg;
+		} else if (digit(c)) {
+			first = stosi(argv[optv.ooptind]);
+			argc--;
+			argv++;
+			break;
+		}
+	}
+	argc -= optv.optind;
+	argv += optv.optind;
+
+	if ((flg & (LFLAG | SFLAG)) == 0)
+		flg |= EFLAG;
+
+	if (!first && argc > 0) {
+		cp = argv[0];
+		if (*cp == '+')
+			cp++;
+		if (digit(*cp)) {
+			first = stoi(UC cp);
+			if (first == 0)
+				flg |= ALLFLAG;
+		} else {
+			first = shedit_search_history(&intrptr,
+							hflg, 0, C argv[0]);
+		}
+		argc--;
+		argv++;
+	}
+	if (first == 0 && (flg & ALLFLAG) == 0) {
+		if (flg & LFLAG)
+			first = -15;
+		else
+			first = -1;
+	}
+	if (flg & SFLAG) {
+		last = first;
+	} else if (argc > 0) {
+		cp = argv[0];
+		if (*cp == '+')
+			cp++;
+		if (digit(*cp)) {
+			last = stosi(UC cp);
+		} else {
+			last = shedit_search_history(&intrptr,
+							hflg, 0, C argv[0]);
+		}
+		argc--;
+		argv++;
+	}
+	if (argc > 0) {
+		gfailure(av0, toomanyargs);
+		return;
+	}
+	if (last == 0) {
+		if (flg & LFLAG) {
+			unsigned	lastn;
+
+			shedit_histrange(NULL, &lastn, NULL);
+			last = lastn;
+		} else {
+			last = first;
+		}
+	}
+
+	if (flg & LFLAG) {
+		if (isatty(STDOUT_FILENO))
+			hflg |= HI_PRETTYP;
+		/*
+		 * We do not remove the new "fc -l" command but should include
+		 * the last command in our listing.
+		 */
+		if (first < 0)
+			first--;
+	} else {
+		unsigned	lastn;
+
+		shedit_histrange(NULL, &lastn, NULL);
+		/*
+		 * Remove this "fc" command from the history.
+		 */
+		(void) shedit_remove_history(&intrptr,
+						hflg, lastn, NULL);
+		if (last == lastn) {
+			shedit_histrange(NULL, &lastn, NULL);
+			last = lastn;
+		}
+		fd = tmpfil(&tb);
+	}
+	if (shedit_history((flg & LFLAG) ? NULL : &fd,
+			&intrptr, hflg, first, last) != 0) {
+		gfailure(av0, "history specification out of range");
+		return;
+	}
+	if (flg & LFLAG)
+		return;
+
+	if (flg & EFLAG) {
+		char	*av[2];
+
+		av[0] = C make(tmpout);
+		av[1] = NULL;
+
+		if (editor == NULL)
+			editor = fcenod.namval;
+		if (editor == NULL)
+			editor = UC fcename;
+		execexp(editor, (Intptr_t)av, xflags);
+		unlink(av[0]);
+		free(av[0]);
+		if (exitval) {
+			close(fd);
+			return;
+		}
+	} else {
+		unlink(C tmpout);
+	}
+
+	lseek(fd, (off_t)0, SEEK_SET);
+	execexp(0, (Intptr_t)fd, xflags);
+	/*
+	 * Add re-executed commands to the history.
+	 */
+	lseek(fd, (off_t)0, SEEK_SET);
+	shedit_read_history(&fd, &intrptr, hflg);
+
+	close(fd);
+}
+#endif	/* defined(INTERACTIVE) || defined(DO_SYSFC) */

@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.91 16/05/19 Copyright 1988-2016 J. Schilling */
+/* @(#)builtin.c	1.92 17/01/11 Copyright 1988-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.91 16/05/19 Copyright 1988-2016 J. Schilling";
+	"@(#)builtin.c	1.92 17/01/11 Copyright 1988-2017 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1457,8 +1457,27 @@ bhistory(vp, std, flag)
 	FILE	*std[];
 	int	flag;
 {
+	int	ac;
+	char	* const *av;
+	int	ret;
+	BOOL	nflag = FALSE;
+	BOOL	rflag = FALSE;
+
+	ac = vp->av_ac - 1;	/* set values */
+	av = &vp->av_av[1];
+	ret = getargs(&ac, &av, "n,r", &nflag, &rflag);
+	if (ret < 0) {
+		fprintf(std[2], "Bad option '%s'\n", av[0]);
+		busage(vp, std);
+		ex_status = 1;
+		return;
+	}
+
 #ifdef	INTERACTIVE
-	put_history(std[1], TRUE);
+	put_history(std[1],
+		HI_INTR|HI_TAB|
+		(nflag ? HI_NONUM : 0)|
+		(rflag ? HI_REVERSE : 0), 0, 0);
 #else
 	hi_list(std[1]);
 #endif

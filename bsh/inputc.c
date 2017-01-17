@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.82 16/09/15 Copyright 1982, 1984-2016 J. Schilling */
+/* @(#)inputc.c	1.87 17/01/17 Copyright 1982, 1984-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.82 16/09/15 Copyright 1982, 1984-2016 J. Schilling";
+	"@(#)inputc.c	1.87 17/01/17 Copyright 1982, 1984-2017 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2016 J. Schilling
+ *	Copyright (c) 1982, 1984-2017 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -112,6 +112,7 @@ static	UConst char sccsid[] =
 #define	towupper	toupper
 #define	wcsrchr		strchr
 #define	wcscmp		strcmp
+#define	wcsncmp		strncmp
 #define	wcscpy		strcpy
 #define	wcslen		strlen
 #define	wcsncpy		strncpy
@@ -127,7 +128,7 @@ static	UConst char sccsid[] =
  * The output buffer for the line editor.
  * It uses multi byte characters.
  */
-#define	BUFSIZE	133
+#define	BUFSIZE	256
 
 typedef struct {
 	int b_index;			/* Index in b_buf	*/
@@ -172,6 +173,7 @@ typedef struct histptr {
 	wchar_t		*h_line;	/* Space to store the line	    */
 	unsigned	h_len;		/* Number of wchar_t elements in line */
 	unsigned	h_pos;		/* wchar_t based offset in line	    */
+	unsigned	h_number;	/* Number used for POSIX "fc"	    */
 	unsigned char	h_flags;	/* Flags, see below		    */
 } _HISTPTR, *HISTPTR;
 
@@ -189,7 +191,9 @@ EXPORT	int	getnextc	__PR((void));
 EXPORT	int	nextc		__PR((void));
 EXPORT	int	_nextwc		__PR((void));
 LOCAL	void	writec		__PR((int c));
+LOCAL	void	_writes		__PR((char *p));
 LOCAL	void	writes		__PR((char *p));
+LOCAL	void	_writews	__PR((wchar_t *p));
 LOCAL	void	writews		__PR((wchar_t *p));
 LOCAL	void	prettyp		__PR((int c, BUF * b));
 LOCAL	void	bflush		__PR((void));
@@ -249,7 +253,12 @@ LOCAL	wchar_t	*iget_line	__PR((void));
 EXPORT	char	*make_line	__PR((int (*f)(MYFILE *), MYFILE *arg));
 LOCAL	char	*fread_line	__PR((MYFILE *f));
 EXPORT	char	*get_line	__PR((int n, MYFILE *f));
-EXPORT	void	put_history	__PR((MYFILE *f, int intrflg));
+EXPORT	int	put_history	__PR((MYFILE *f, int flg,
+					int first, int last));
+EXPORT	HISTPTR	_search_history	__PR((int flg,
+					int first, char *pat));
+EXPORT	int	search_history	__PR((int flg,
+					int first, char *pat));
 EXPORT	void	save_history	__PR((int intrflg));
 EXPORT	void	read_init_history	__PR((void));
 EXPORT	void	readhistory	__PR((MYFILE *f));
@@ -283,6 +292,7 @@ LOCAL	int	histlen		= 0;			/* Max allowed h len */
 LOCAL	int	no_lines	= 0;			/* Current hist len  */
 LOCAL	BUF	buf		= {0};			/* BUF to optimize   */
 LOCAL	char	mapesc		= '\0';			/* ESC char for map  */
+LOCAL	unsigned hnumber	= 0;			/* For POSIX numbers */
 #ifdef	notneeded
 LOCAL	int	eof;
 #endif
@@ -467,6 +477,19 @@ changehistory(n)
 	histlen = n;
 }
 
+EXPORT void
+histrange(firstp, lastp, nextp)
+	unsigned	*firstp;
+	unsigned	*lastp;
+	unsigned	*nextp;
+{
+	if (firstp)
+		*firstp = first_line->h_number;
+	if (lastp)
+		*lastp = last_line->h_number;
+	if (nextp)					/* XXX */
+		*nextp = (hnumber + 1) ? hnumber + 1 : hnumber + 2;
+}
 
 /*
  * Init the history to the default size.
@@ -611,13 +634,20 @@ writec(c)
  * Needed for internal string output like "<EOF>"
  */
 LOCAL void
-writes(p)
+_writes(p)
 	register char	*p;
 {
 	register BUF	*rb = &buf;
 
 	while (*p)
 		prettyp(*p++, rb);
+}
+
+LOCAL void
+writes(p)
+	char	*p;
+{
+	_writes(p);
 	bflush();
 }
 
@@ -625,13 +655,20 @@ writes(p)
  * Write a wide character string
  */
 LOCAL void
-writews(p)
+_writews(p)
 	register wchar_t	*p;
 {
 	register BUF	*rb = &buf;
 
 	while (*p)
 		prettyp(*p++, rb);
+}
+
+LOCAL void
+writews(p)
+	wchar_t	*p;
+{
+	_writews(p);
 	bflush();
 }
 
@@ -1001,6 +1038,7 @@ mktmp()
 	tmp->h_line = malloc(LINEQUANT * sizeof (*tmp->h_line));
 	tmp->h_len = LINEQUANT;
 	tmp->h_pos = 0;
+	tmp->h_number = 0;
 	tmp->h_flags = F_TMP;		/* Mark it temporary */
 	tmp->h_line[0] = '\0';
 	return (tmp);
@@ -1021,6 +1059,7 @@ hold_line(p)
 	tmp->h_line = malloc(p->h_len * sizeof (*tmp->h_line));
 	tmp->h_len = p->h_len;
 	tmp->h_pos = p->h_pos;
+	tmp->h_number = 0;
 	tmp->h_flags = F_TMP;		/* Mark it temporary */
 	movebytes(p->h_line, tmp->h_line, p->h_len * sizeof (*tmp->h_line));
 	return (tmp);
@@ -1152,6 +1191,9 @@ append_wline(linep, len, pos)
 	p->h_line = lp;
 	p->h_len  = len;
 	p->h_pos  = pos;
+	p->h_number = ++hnumber;		/* XXX */
+	if (p->h_number == 0)
+		p->h_number = ++hnumber;
 	p->h_flags = 0;
 	p->h_next = (HISTPTR) NULL;
 	if (last_line)
@@ -1222,6 +1264,9 @@ move_to_end(p)
 		last_line->h_next = p;
 		p->h_prev = last_line;
 		p->h_next = (HISTPTR) NULL;
+		p->h_number = ++hnumber;	/* XXX */
+		if (p->h_number == 0)
+			p->h_number = ++hnumber;
 		p->h_flags &= ~F_TMP;
 		last_line = p;
 	}
@@ -2368,27 +2413,87 @@ get_line(n, f)
 	return (line_pointer?line_pointer:nullstr);
 }
 
-
 /*
  * Write current content of the history to an open file.
- * Add {} brackets if we are writing to stdout.
+ * If we like to be compatible to what was used by "#v on" on UNOS,
+ * add {} brackets if we are writing to stdout.
  */
-EXPORT void
-put_history(f, intrflg)
+EXPORT int
+put_history(f, flg, first, last)
 	register MYFILE	*f;
-	register int	intrflg;
+	register int	flg;
+		int	first;
+		int	last;
 {
 	register HISTPTR p;
+	register HISTPTR pe = last_line;
 
-	for (p = first_line; p; p = p->h_next) {
-		if (ctlc && intrflg)
+	if (f == NULL)
+		f = gstd[1];
+
+	if (first < 0) {
+		register int	i;
+
+		for (i = 0, p = last_line; p; p = p->h_prev) {
+			if (--i == first)
+				break;
+		}
+		if (p == NULL)
+			p = first_line;
+	} else if (first > 0) {
+		for (p = last_line; p; p = p->h_prev) {
+			if (p->h_number == first)
+				break;
+		}
+		if (p == NULL)
+			return (-1);
+	} else {
+		p = first_line;
+	}
+	if (last) {
+		for (pe = last_line; pe; pe = pe->h_prev) {
+			if (pe->h_number == last)
+				break;
+		}
+		if (pe == NULL)
+			pe = last_line;
+	}
+	if (flg & HI_REVERSE) {
+		HISTPTR pt;
+		pt = p;
+		p = pe;
+		pe = pt;
+	}
+	for (; p; p = (flg & HI_REVERSE) ? p->h_prev : p->h_next) {
+		if (ctlc && (flg & HI_INTR))
 			break;
-		if (f == stdout) {
-			writes("{ ");
-			writews(p->h_line);
-			writes(" }");
+		if (f == stdout) {	/* Used to print history */
+			register wchar_t	*cp;
+			register wchar_t	wc;
+				char		s[16];
+#ifdef	JOS_VERBOSE			/* Make output similar to JOS #v on */
+			_writes("{ ");
+#endif
+
+			if ((flg & HI_NONUM) == 0) {
+				js_snprintf(s, sizeof (s), "%d", p->h_number);
+				_writes(s);
+			}
+			if (flg & HI_TAB)
+				putch('\t');
+			for (cp = p->h_line; (wc = *cp++) != '\0'; ) {
+				(flg & HI_PRETTYP) ?
+					prettyp(wc, &buf) :
+					putch(wc);
+				if (wc == '\n')
+					putch('\t');
+			}
+
+#ifdef	JOS_VERBOSE			/* Make output similar to JOS #v on */
+			_writes(" }");
+#endif
 			putch('\n');
-		} else {
+		} else {		/* This is the save_history() variant */
 			char	line[512];
 			char	*lp;
 #ifndef	USE_ANSI_NL_SEPARATOR
@@ -2412,11 +2517,93 @@ put_history(f, intrflg)
 			if (lp != line)
 				free(lp);
 		}
+		if (p == pe)
+			break;
 	}
 	if (f == stdout)
 		bflush();
+
+	return (0);
 }
 
+EXPORT HISTPTR
+_search_history(flg, first, pat)
+	register int	flg;
+		int	first;
+		char	*pat;
+{
+	register HISTPTR p;
+	wchar_t		wline[512];
+	wchar_t		*wp = NULL;
+	size_t		wlen = 0;	/* make silly GCC happy */
+
+	if (pat) {
+		wp = towcs(wline, sizeof (wline) / sizeof (wline[0]), pat, -1);
+		if (wp == NULL)
+			return ((HISTPTR)NULL);
+		wlen = wcslen(wp);
+	}
+	if (first < 0) {
+		register int	i;
+
+		for (i = 0, p = last_line; p; p = p->h_prev) {
+			if (--i == first)
+				break;
+		}
+		if (p == NULL)
+			p = first_line;
+	} else if (first > 0) {
+		for (p = last_line; p; p = p->h_prev) {
+			if (p->h_number == first)
+				break;
+		}
+		if (p == NULL)
+			return (p);
+	} else {
+		p = first_line;
+	}
+	if (pat) {
+		for (; p; p = p->h_next) {
+			if (ctlc && (flg & HI_INTR)) {
+				p = NULL;
+				break;
+			}
+			if (wcsncmp(wp, p->h_line, wlen) == 0)
+				break;
+		}
+		if (wp != wline)
+			free(wp);
+	}
+	return (p);
+}
+
+EXPORT int
+search_history(flg, first, pat)
+	register int	flg;
+		int	first;
+		char	*pat;
+{
+	register HISTPTR p = _search_history(flg, first, pat);
+
+	if (p == NULL)
+		return (-1);
+	return (p->h_number);
+}
+
+EXPORT int
+remove_history(flg, first, pat)
+	register int	flg;
+		int	first;
+		char	*pat;
+{
+	register HISTPTR p = _search_history(flg, first, pat);
+
+	if (p == NULL)
+		return (-1);
+
+	remove_line(p);
+	return (0);
+}
 
 /*
  * Save the history by writing to ~/.history
@@ -2431,7 +2618,7 @@ save_history(intrflg)
 		return;
 	f = fileopen(hfilename, for_wct);
 	if (f) {
-		put_history(f, intrflg);
+		put_history(f, intrflg, 0, 0);
 		fclose(f);
 	}
 }

@@ -1,4 +1,4 @@
-/* @(#)util.h	1.12 16/10/03 2011-2016 J. Schilling */
+/* @(#)util.h	1.13 16/12/18 2011-2016 J. Schilling */
 /*
  *	Copyright (c) 1986 Larry Wall
  *	Copyright (c) 2011-2016 J. Schilling
@@ -8,7 +8,7 @@
  *
  * 1. Redistributions of source code must retain the above copyright notice,
  * this condition and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE

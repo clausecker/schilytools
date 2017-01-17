@@ -1,8 +1,8 @@
-/* @(#)patch.c	1.42 16/09/17 2011-2016 J. Schilling */
+/* @(#)patch.c	1.43 16/12/18 2011-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.42 16/09/17 2011-2016 J. Schilling";
+	"@(#)patch.c	1.43 16/12/18 2011-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  *
  * 1. Redistributions of source code must retain the above copyright notice,
  * this condition and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -561,12 +561,16 @@ get_some_switches()
 				if (!isalpha(UCH *s) && '_' != *s)
 					fatal(
 _("Argument to -D not an identifier.\n"));
-				Sprintf(if_defined, "#ifdef %s\n", s);
-				Sprintf(not_defined, "#ifndef %s\n", s);
+				Snprintf(if_defined, sizeof (if_defined),
+				    "#ifdef %s\n", s);
+				Snprintf(not_defined, sizeof (not_defined),
+				    "#ifndef %s\n", s);
 				if (do_posix) {
-					Sprintf(end_defined, "#endif\n");
+					Snprintf(end_defined,
+					    sizeof (end_defined), "#endif\n");
 				} else {
-					Sprintf(end_defined,
+					Snprintf(end_defined,
+						sizeof (end_defined),
 						"#endif /* %s */\n", s);
 				}
 				break;

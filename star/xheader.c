@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.89 14/03/31 Copyright 2001-2014 J. Schilling */
+/* @(#)xheader.c	1.90 16/12/27 Copyright 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.89 14/03/31 Copyright 2001-2014 J. Schilling";
+	"@(#)xheader.c	1.90 16/12/27 Copyright 2001-2016 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2014 J. Schilling
+ *	Copyright (c) 2001-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2099,11 +2099,13 @@ get_filetype(info, keyword, klen, arg, len)
 		return;
 	}
 
-	for (i = 0; i < XT_BAD; i++) {
+	for (i = 0; i <= XT_BAD; i++) {
+		if (xtnamelen_tab[i] != len)
+			continue;
 		if (streql(xttoname_tab[i], arg))
 			break;
 	}
-	if (i >= XT_BAD)
+	if (i >= XT_BAD)			/* Use type from tarhdr */
 		return;
 
 	if (keyword[7] == 'f') {		/* "SCHILY.filetype" */

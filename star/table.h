@@ -1,9 +1,9 @@
-/* @(#)table.h	1.14 15/08/23 Copyright 1994, 1996, 2000-2015 J. Schilling */
+/* @(#)table.h	1.15 16/12/27 Copyright 1994, 1996, 2000-2016 J. Schilling */
 /*
  *	Conversion table definitions for efficient conversion
  *	of different file type representations
  *
- *	Copyright (c) 1994, 1996, 2000-2015 J. Schilling
+ *	Copyright (c) 1994, 1996, 2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -97,6 +97,7 @@ extern char	xtcpio_tab[];
 
 extern char	*xttostr_tab[];
 extern char	*xttoname_tab[];
+extern char	xtnamelen_tab[];
 
 #define	IFTOXT(t)	(iftoxt_tab[((t)&S_IFMT)>>12])	/* UNIX to XT	*/
 #define	USTOXT(t)	(ustoxt(t))			/* ustar to XT	*/

@@ -1,8 +1,8 @@
-/* @(#)util.c	1.31 16/10/03 2011-2016 J. Schilling */
+/* @(#)util.c	1.33 16/12/18 2011-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.31 16/10/03 2011-2016 J. Schilling";
+	"@(#)util.c	1.33 16/12/18 2011-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  *
  * 1. Redistributions of source code must retain the above copyright notice,
  * this condition and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -531,7 +531,7 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 	char *s;
 	char *name;
 	char *t;
-	char tmpbuf[200];
+	char tmpbuf[512];
 
 	if (isnulldate)
 		*isnulldate = FALSE;
@@ -569,13 +569,14 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 		}
 	}
 	name = savestr(name);
-	Sprintf(tmpbuf, "RCS/%s", name);
+	Snprintf(tmpbuf, sizeof (tmpbuf), "RCS/%s", name);
 	free(s);
 	if (stat(name, &file_stat) < 0 && !assume_exists) {
 		Strcat(tmpbuf, RCSSUFFIX);
 		if (stat(tmpbuf, &file_stat) < 0 &&
 		    stat(tmpbuf+4, &file_stat) < 0) {
-			Sprintf(tmpbuf, "SCCS/%s%s", SCCSPREFIX, name);
+			Snprintf(tmpbuf, sizeof (tmpbuf), "SCCS/%s%s",
+			    SCCSPREFIX, name);
 			if (stat(tmpbuf, &file_stat) < 0 &&
 			    stat(tmpbuf+5, &file_stat) < 0) {
 				free(name);

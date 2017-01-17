@@ -1,14 +1,14 @@
-/* @(#)table.c	1.28 15/08/23 Copyright 1994-96 2000-2015 J. Schilling */
+/* @(#)table.c	1.29 16/12/27 Copyright 1994-96 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)table.c	1.28 15/08/23 Copyright 1994-96 2000-2015 J. Schilling";
+	"@(#)table.c	1.29 16/12/27 Copyright 1994-96 2000-2016 J. Schilling";
 #endif
 /*
  *	Conversion tables for efficient conversion
  *	of different file type representations
  *
- *	Copyright (c) 1994-96 2000-2015 J. Schilling
+ *	Copyright (c) 1994-96 2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -329,3 +329,17 @@ char	*xttoname_tab[] = {
 		/*28 */	"reserved",	"reserved",	"reserved",		"unknown/bad",
 };
 /* END CSTYLED */
+
+/*
+ * String lengths for above table
+ */
+char	xtnamelen_tab[] = {
+		/*  0 */	11,  7, 10,  8,
+		/*  4 */	 7,  9, 17, 13,
+		/*  8 */	 4,  6, 21, 17,
+		/* 12 */	10, 10,  4, 10,
+		/* 16 */	 8,  8,  8,  8,
+		/* 20 */	 7,  8,  8, 21,
+		/* 24 */	 5,  6,  9,  4,
+		/* 28 */	 8,  8,  8, 11,
+};

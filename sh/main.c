@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.59 16/11/16 2008-2016 J. Schilling
+ * @(#)main.c	1.60 17/01/05 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.59 16/11/16 2008-2016 J. Schilling";
+	"@(#)main.c	1.60 17/01/05 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -384,6 +384,9 @@ main(c, v, e)
 
 	dfault(&mchknod, (unsigned char *)MAILCHECK);
 	mailchk = stoi(mchknod.namval);
+#ifdef	DO_SYSFC
+	dfault(&fcenod, (unsigned char *)fcedit);
+#endif
 #ifdef	DO_PS34
 	dfault(&ps3nod, (unsigned char *)selectmsg);
 	dfault(&ps4nod, (unsigned char *)execpmsg);
