@@ -1,11 +1,11 @@
-/* @(#)star.c	1.352 16/07/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
+/* @(#)star.c	1.356 17/01/29 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.352 16/07/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
+	"@(#)star.c	1.356 17/01/29 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -603,6 +603,8 @@ main(ac, av)
 		excode = -2;
 	}
 	if (!isatty(fdown(stderr))) {
+		char	*p;
+
 		/*
 		 * Try to avoid that the verbose or diagnostic messages are
 		 * sometimes lost if called on Linux via "ssh". Unfortunately
@@ -617,7 +619,13 @@ main(ac, av)
 			fsync(fdown(stderr));
 		}
 #endif
-		usleep(100000);
+		/*
+		 * Use the sleep only in case that the environment is set, but
+		 * keep the fflush() as stderr may be buffered.
+		 */
+		if ((p = getenv("STAR_WORKAROUNDS")) != NULL &&
+		    strstr(p, "ssh-tcpip") != NULL)
+			usleep(100000);
 	}
 #ifdef	FIFO
 	/*
@@ -1682,7 +1690,7 @@ star_helpvers(name, help, xhelp, prvers)
 		opt_xattr();
 #endif
 		printf("\n\n");
-		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2016 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2017 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -1863,7 +1871,8 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, llbs)
 	}
 	if (bs)
 		nblocks = bs / TBLOCK;
-	if (nblocks <= 0) {
+	if ((nblocks <= 0) ||
+	    ((rflag || uflag) && nblocks < 2)) {
 		errmsgno(EX_BAD, "Invalid block size %d blocks.\n", nblocks);
 		susage(EX_BAD);
 	}

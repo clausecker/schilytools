@@ -5,7 +5,7 @@ into a few bytes.
 
 A recent version of the files is always on:
 
-	ftp://ftp.berlios.de/pub/star/testscripts/
+	http://sourceforge.net/projects/s-tar/files/testscripts/
 
 
 The file 'ustar-big-2g.tar.bz2' contains a file with the largest size that

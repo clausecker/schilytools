@@ -1,0 +1,17 @@
+
+This is a demonstration that GNU tar may create multi volume archives that
+GNU tar rejects to read back.
+
+Reüeat with the following files
+
+-rw-r--r--    1 root     star       139264 Oct 11 20:26 gnu-multi-fail-volume1.gtar
+-rw-r--r--    1 root     star       136192 Oct 11 20:27 gnu-multi-fail-volume2.gtar
+
+by calling: 
+
+gtar -tvM -f gnu-multi-fail-volume1.gtar -f gnu-multi-fail-volume2.gtar
+
+There are other problems with the multi volume system from GNU tar tat are caused
+by the fact that the concept to create multi volume archives used by GNU tar 
+is broken.
+

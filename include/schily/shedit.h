@@ -1,4 +1,4 @@
-/* @(#)shedit.h	1.13 17/01/17 Copyright 2006-2017 J. Schilling */
+/* @(#)shedit.h	1.14 17/01/18 Copyright 2006-2017 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
@@ -75,14 +75,16 @@ extern	void	shedit_setprompts __PR((int promptidx, int nprompts,
 /*
  * Keep #defines in sync with bsh/bsh.h
  */
+#define	HI_NOINTR	0	/* History traversal noninterruptable	*/
 #define	HI_INTR		1	/* History traversal is interruptable	*/
 #define	HI_NONUM	2	/* Do not print numbers			*/
 #define	HI_TAB		4	/* Print TABs				*/
 #define	HI_REVERSE	8	/* Print in reverse order		*/
 #define	HI_PRETTYP	16	/* Pretty Type non-printable chars	*/
+#define	HI_ANSI_NL	32	/* Convert ASCII newlines to ANSI nl	*/
 
 extern	int	shedit_history		__PR((int *f, int **intrcpp, int flg,
-					int _first, int _last));
+					int _first, int _last, char *_subst));
 extern	int	shedit_search_history	__PR((int **intrcpp, int flg,
 					int _first, char *_pat));
 extern	int	shedit_remove_history	__PR((int **intrcpp, int flg,

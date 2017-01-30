@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.196 17/01/16 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.197 17/01/18 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/01/16" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/01/18" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4123,10 +4123,8 @@ to
 is
 .BR listed .
 .sp
-In the third form, a range of commands from
+In the third form, the command specified by
 .I first
-to
-.I last
 is
 .BR re-executed .
 .sp
@@ -4471,7 +4469,7 @@ is incremented when the recalculation is done.
 .br
 .ne 4
 .TP
-.B history
+.B history \fR[\fB\-nr\fR] [\fIfirst \fR[\fIlast\fR]]
 .sp .6
 Print the current command history.
 The
@@ -4480,10 +4478,30 @@ command is only supported if
 .B sh
 was compiled with support for history editing.
 .sp
+If no command or command range is specified, the last
+.B 16
+commands are listed.
+If only
+.I first
+with a value of
+.B 0
+is specified, the whole history is printed.
+.RS
+.PP
+The following options are supported:
+.TP
+.B \-n
+Suppress command numbers when listing with
+.BR \-l .
+.TP
+.B \-r
+Reverse the order of the commands listed or edited.
+.LP
 The
 .B history
 command was not supported in older versions of
 .BR sh .
+.RE
 
 .br
 .ne 3

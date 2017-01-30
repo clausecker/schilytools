@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.116 17/01/17 2008-2017 J. Schilling
+ * @(#)bltin.c	1.118 17/01/19 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.116 17/01/17 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.118 17/01/19 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1338,6 +1338,7 @@ syshist(argc, argv, t, xflags)
 	unsigned char	*av0 = argv[0];
 	unsigned char	*cp;
 	unsigned char	*editor = NULL;
+	unsigned char	*substp = NULL;
 	struct tempblk	tb;
 	char		*fusage =
 			"fc [-r][-l][-n][-s][-e editor] [first [last]]";
@@ -1378,6 +1379,17 @@ syshist(argc, argv, t, xflags)
 
 	if ((flg & (LFLAG | SFLAG)) == 0)
 		flg |= EFLAG;
+
+	if ((flg & SFLAG) && argc > 0) {
+		/*
+		 * POSIX requires new=old only with "fc -s".
+		 */
+		if (anys(UC "=", argv[0])) {
+			substp = argv[0];
+			argc--;
+			argv++;
+		}
+	}
 
 	if (!first && argc > 0) {
 		cp = argv[0];
@@ -1454,8 +1466,13 @@ syshist(argc, argv, t, xflags)
 		}
 		fd = tmpfil(&tb);
 	}
+	/*
+	 * Even in case we write the history into a file, we do not
+	 * convert ASCII newlines into ANSI newlines, so we may see
+	 * more lines in the file than history entries selected.
+	 */
 	if (shedit_history((flg & LFLAG) ? NULL : &fd,
-			&intrptr, hflg, first, last) != 0) {
+			&intrptr, hflg, first, last, C substp) != 0) {
 		gfailure(av0, "history specification out of range");
 		return;
 	}

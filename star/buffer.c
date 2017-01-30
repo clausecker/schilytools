@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.167 15/11/30 Copyright 1985, 1995, 2001-2015 J. Schilling */
+/* @(#)buffer.c	1.169 17/01/26 Copyright 1985, 1995, 2001-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.167 15/11/30 Copyright 1985, 1995, 2001-2015 J. Schilling";
+	"@(#)buffer.c	1.169 17/01/26 Copyright 1985, 1995, 2001-2017 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2015 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -823,8 +823,11 @@ initbuf(nblocks)
 	 * the shared memory in the FIFO while trying to detect the archive
 	 * format and byte swapping in read/extract modes.
 	 * Note that -r and -u currently disable the FIFO.
+	 * In case that we enable the FIFO for -r and -u, we need to add
+	 * another exception here in order to have space to remember the last
+	 * block of significant data that needs to be modified to append.
 	 */
-	if (!use_fifo || cvolhdr) {
+	if (!use_fifo || cvolhdr || rflag || uflag) {
 		int	pagesize = getpagesize();
 
 		/*
@@ -836,8 +839,12 @@ initbuf(nblocks)
 		 * "bufsize" may be modified by initfifo() in the FIFO case,
 		 * so we use "bigsize" for the extra multivol buffer to
 		 * avoid allocating an unneeded huge amount of data here.
+		 * In "replace" or "update" mode, we also may need to
+		 * save/restore * the buffer for the tape record when doing
+		 * EOF detection. As this space is needed at a different
+		 * time, it may be shared with the extra multivol buffer.
 		 */
-		if (cvolhdr)
+		if (cvolhdr || rflag || uflag)
 			bigsize *= 2;
 
 		/*
@@ -852,7 +859,7 @@ initbuf(nblocks)
 		fillbytes(bigbuf, bigsize, '\0');
 		fillbytes(&bigbuf[bigsize], 10, 'U');
 
-		if (cvolhdr) {
+		if (cvolhdr || rflag || uflag) {
 			bigsize /= 2;
 			bigbase = bigbuf;
 			bigbuf = bigptr = &bigbase[bigsize];
@@ -883,7 +890,8 @@ markeof()
 
 	if (debug) {
 		error("Blocks: %lld\n", tblocks());
-		error("bigptr - bigbuff: %lld %p %p %p lastsize: %ld\n",
+		error(
+		"bigptr - bigbuff: %lld bigbuf: %p bigptr: %p eofptr: %p lastsize: %ld\n",
 			(Llong)(bigptr - bigbuf),
 			(void *)bigbuf, (void *)bigptr, (void *)eofptr,
 			stats->lastsize);
@@ -1513,7 +1521,7 @@ extern	long	hdrtype;
 /*
  * Backspace tape or medium to prepare it for appending to an archive.
  * Note that this currently only handles TAR archives and that even then it
- * will not work if the TAPE recordr size is < 2*TBLOCK (1024 bytes).
+ * will not work if the TAPE record size is < 2*TBLOCK (1024 bytes).
  */
 EXPORT void
 backtape()

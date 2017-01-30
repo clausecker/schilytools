@@ -1,4 +1,13 @@
-# /* @(#)libshedit-mapvers	1.9 15/08/29 Copyright 2006-2015 J. Schilling */
+# /* @(#)libshedit-mapvers	1.10 17/01/19 Copyright 2006-2017 J. Schilling */
+
+SCHILY_1.1 {			# Added interface for POSIX shell "fc"
+global:
+	shedit_histrange;	# report range of history numbers
+	shedit_history;		# print history to stdout or to file
+	shedit_search_history;	# search for history numbers and patterns
+	shedit_remove_history;	# remove a single line from the history
+	shedit_read_history;	# append file content to current history
+} SCHILY_1.0;
 
 SCHILY_1.0 {
 global:

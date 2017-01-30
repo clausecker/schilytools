@@ -1,14 +1,14 @@
-/* @(#)header.c	1.159 16/07/12 Copyright 1985, 1994-2016 J. Schilling */
+/* @(#)header.c	1.161 17/01/26 Copyright 1985, 1994-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.159 16/07/12 Copyright 1985, 1994-2016 J. Schilling";
+	"@(#)header.c	1.161 17/01/26 Copyright 1985, 1994-2017 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2016 J. Schilling
+ *	Copyright (c) 1985, 1994-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2173,6 +2173,9 @@ checkeof(ptb)
 	TCB	*ptb;
 {
 extern	m_stats	*stats;
+extern	long	bigcnt;
+extern	char	*bigbase;
+	long	lastsize = 0;
 
 	if (!eofblock(ptb))
 		return (FALSE);
@@ -2181,12 +2184,21 @@ extern	m_stats	*stats;
 
 	stats->eofblock = tblocks();
 	markeof();
+	if (bigcnt == 0 && (rflag || uflag)) {
+		/*
+		 * If bigcnt == 0, the next readblock() call reads a new
+		 * tape record and overwrites the current bigbuf data.
+		 * Save the current read data in the buffer save area.
+		 */
+		movebytes(bigbuf, bigbase, bigsize);
+		lastsize = stats->lastsize;
+	}
 
 	if (readblock((char *)ptb, TBLOCK) == EOF) {
 		errmsgno(EX_BAD,
 		"Incorrect EOF, second EOF block is missing at %lld.\n",
 		tblocks());
-		return (TRUE);
+		goto goteof;
 	}
 	if (!eofblock(ptb)) {
 		if (!nowarn)
@@ -2199,6 +2211,16 @@ extern	m_stats	*stats;
 		errmsgno(EX_BAD, "Second EOF Block OK at %lld\n", tblocks());
 
 	stats->eofblock = tblocks();
+goteof:
+	if (lastsize) {
+		/*
+		 * Restore the old buffer content and back position the archive
+		 * by one more tape block.
+		 */
+		movebytes(bigbase, bigbuf, bigsize);
+		stats->lastsize = lastsize;
+		backtape();
+	}
 	return (TRUE);
 }
 

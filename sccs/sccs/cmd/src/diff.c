@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)diff.c	1.69 16/12/11 J. Schilling
+ * @(#)diff.c	1.70 17/01/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.69 16/12/11 J. Schilling"
+#pragma ident "@(#)diff.c 1.70 17/01/28 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -827,6 +827,9 @@ calldiffreg(f1, f2)
 	char	*in1 = input_file1;
 	char	*in2 = input_file2;
 
+	input_file1 = file1;
+	input_file2 = file2;
+
 	if ((input[0] = fdopen(f1, "r")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
@@ -1236,7 +1239,7 @@ show:
 			cf_time(time_buf, sizeof (time_buf),
 						dcmsg, &stb1.st_mtime);
 
-#if	!defined(_FOUND_STAT_NSECS_)
+#if	defined(_FOUND_STAT_NSECS_)
 			/*
 			 * Be careful here: in the German locale, the string
 			 * contains "So. " for "Sonntag".
@@ -1258,6 +1261,8 @@ show:
 				    time_buf);
 			cf_time(time_buf, sizeof (time_buf),
 						dcmsg, &stb2.st_mtime);
+
+#if	defined(_FOUND_STAT_NSECS_)
 			/*
 			 * Be careful here: in the German locale, the string
 			 * contains "So. " for "Sonntag".
@@ -1270,6 +1275,7 @@ show:
 				sprintf(++p, "%9.9ld", ns);
 				p[9] = ' ';	/* '\0' from sprintf() */
 			}
+#endif
 			if (uflag)
 				(void) printf("+++ %s	%s\n", input_file2,
 				    time_buf);
@@ -2326,6 +2332,8 @@ notsame:
 #ifdef	DO_SPAWN_DIFF
 		result = calldiff((char *)0);
 #else
+		stb1 = statb1;
+		stb2 = statb2;
 		result = calldiffreg(f1, f2);
 #endif
 		if (opt == D_EDIT)

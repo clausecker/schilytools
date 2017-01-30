@@ -1,14 +1,14 @@
-/* @(#)fio.c	1.7 15/08/07 Copyright 2006-2009 J. Schilling */
+/* @(#)fio.c	1.8 17/01/22 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fio.c	1.7 15/08/07 Copyright 2006-2009 J. Schilling";
+	"@(#)fio.c	1.8 17/01/22 Copyright 2006-2017 J. Schilling";
 #endif
 /*
  *	Replacement for some libschily/stdio/ *.c to allow
  *	FILE * -> int *
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,12 +26,33 @@ static	UConst char sccsid[] =
 
 #include "schilyio.h"
 
+static int	getbufc	__PR((void));
+
+static unsigned char	inbuf[64];
+static unsigned char	*bufp;
+static int		bamt;
+
+static int
+getbufc()
+{
+	if (--bamt < 0) {
+		bamt = read(STDIN_FILENO, inbuf, sizeof (inbuf));
+		if (bamt <= 0)
+			return (EOF);
+		bufp = inbuf;
+		--bamt;
+	}
+	return (*bufp++);
+}
+
 int
 getc(f)
 	FILE	*f;
 {
-	char	c;
+	unsigned char	c;
 
+	if (*f == STDIN_FILENO)
+		return (getbufc());
 	if (read(*f, &c, 1) != 1)
 		return (EOF);
 	return (c);
@@ -41,8 +62,10 @@ int
 fgetc(f)
 	FILE	*f;
 {
-	char	c;
+	unsigned char	c;
 
+	if (*f == STDIN_FILENO)
+		return (getbufc());
 	if (read(*f, &c, 1) != 1)
 		return (EOF);
 	return (c);

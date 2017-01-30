@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.68 17/01/16 Copyright 1985-2017 J. Schilling */
+/* @(#)bsh.h	1.69 17/01/18 Copyright 1985-2017 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -330,18 +330,20 @@ extern	char	*get_line	__PR((int n, FILE *f));
 /*
  * Keep #defines in sync with include/schily/shedit.h
  */
+#define	HI_NOINTR	0	/* History traversal noninterruptable	*/
 #define	HI_INTR		1	/* History traversal is interruptable	*/
 #define	HI_NONUM	2	/* Do not print numbers			*/
 #define	HI_TAB		4	/* Print TABs				*/
 #define	HI_REVERSE	8	/* Print in reverse order		*/
 #define	HI_PRETTYP	16	/* Pretty Type non-printable chars	*/
+#define	HI_ANSI_NL	32	/* Convert ASCII newlines to ANSI nl	*/
 extern	int	put_history	__PR((FILE *f, int flg,
-					int _first, int _last));
+					int _first, int _last, char *_subst));
 extern	int	search_history	__PR((int flg,
 					int _first, char *_pat));
 extern	int	remove_history	__PR((int flg,
 					int _first, char *_pat));
-extern	void	save_history	__PR((int intrflg));
+extern	void	save_history	__PR((int flg));
 extern	void	read_init_history	__PR((void));
 extern	void	readhistory	__PR((FILE *f));
 

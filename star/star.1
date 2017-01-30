@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.173 16/09/16 Copyr 1982-2016 J. Schilling
+. \" @(#)star.1	1.176 17/01/29 Copyr 1982-2017 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "16/09/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "17/01/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -306,7 +306,8 @@ instead of
 .B \-copy \-diff
 is also allowed.
 .sp
-On operating systems with slow file I/O (such as Linux), it may help
+On operating systems with slow file I/O (such as Linux with any filesystem or
+platforms with Copy on Write filesystems like ZFS), it may help
 to use
 .B \-no\-fsync
 in addition, but then
@@ -446,7 +447,8 @@ If the \-U flag is not used,
 .B star 
 extracts no file which is older than the corresponding file on disk.
 .sp
-On operating systems with slow file I/O (such as Linux), it may help
+On operating systems with slow file I/O (such as Linux with any filesystem or
+platforms with Copy on Write filesystems like ZFS), it may help
 to use
 .B \-no\-fsync
 in addition, but then
@@ -2902,7 +2904,8 @@ will not dump files that have the
 flag set. Note that this currently only works on BSD\-4.4 derivates
 and on Linux.
 On Linux, using this option will cause a performance degradation
-(the system time increases by 10%) because of the unlucky kernel interface.
+(the system time increases by 10%) because of the unlucky kernel interface
+that requires a separate open and ioctl.
 .TP
 .B \-no-dirslash
 Do not add a slash to the end of directory names if writing to an archive.
@@ -2933,7 +2936,9 @@ for each file that has been extracted from the archive.
 Using
 .B \-no\-fsync
 may speed up extraction on operating systems
-with slow file I/O (such as Linux), but includes the risk that
+with slow file I/O (such as Linux with any filesystem or
+platforms with Copy on Write filesystems like ZFS),
+but includes the risk that
 .B star
 may not be able to detect extraction problems that occur after the call
 to
@@ -4492,6 +4497,35 @@ before the last incremental dump did take place on the master filesystem.
 If you like to by default let 
 .B star
 use a different fifo size, set this environment variable to the desired size.
+.TP
+.B STAR_WORKAROUNDS
+If this environment variable is present,
+implement workarounds for named problems.
+The environment variable is expected to contain a comma separated list of
+bug names:
+.RS
+.TP
+.B ssh-tcpip
+implement a workaround for a bug caused by
+.B ssh
+or
+.B TCP-IP
+seen on Linux in 2003.
+The bug caused the verbose output from
+.B star
+on
+.B stderr
+to be lost when calling something like:
+.sp
+.B "    ssh \c
+.I host \c
+.B 'star -c ...'
+.sp
+The workaround is activated when
+.B stderr
+is not connected to a terminal and works by waiting for 0.1\ seconds
+for the output to appear.
+.RE
 .TP
 .B TAPE
 Unlike other

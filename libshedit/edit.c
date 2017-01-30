@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.25 17/01/17 Copyright 2006-2017 J. Schilling */
+/* @(#)edit.c	1.27 17/01/22 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.25 17/01/17 Copyright 2006-2017 J. Schilling";
+	"@(#)edit.c	1.27 17/01/22 Copyright 2006-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2017 J. Schilling
@@ -84,6 +84,7 @@ LOCAL void
 einit()
 {
 	char	*p;
+	FILE	*f;
 
 	gstd[0] = stdin;
 	gstd[1] = stdout;
@@ -94,7 +95,12 @@ einit()
 	if (p)
 		inithome = p;
 
-	setinput(stdin);
+	/*
+	 * Use stdin only as a fallback if the input was not yet set.
+	 */
+	f = setinput(stdin);
+	if (f != stdin)
+		setinput(f);
 	init_input();
 	read_init_history();
 	__init = TRUE;
@@ -105,6 +111,9 @@ readchar(fsp)
 	register fstream	*fsp;
 {
 #ifdef	INTERACTIVE
+extern	int	ttyflg;
+
+	ttyflg = isatty(fdown(fsp->fstr_file));
 	pushline(get_line(prompt++, fsp->fstr_file));
 	return (fsgetc(fsp));
 #else
@@ -268,7 +277,7 @@ int	sflg = 1;
 						/* run final file */
 #ifdef	INTERACTIVE
 		if (ev_eql("SAVEHISTORY", "on"))
-			save_history(FALSE);
+			save_history(HI_NOINTR);
 #endif
 	}
 
@@ -284,7 +293,7 @@ EXPORT void
 shedit_treset()
 {
 	if (ev_eql("SAVEHISTORY", "on"))
-		save_history(FALSE);
+		save_history(HI_NOINTR);
 	reset_tty_modes();
 	reset_line_disc();		/* Line discipline */
 	reset_tty_pgrp();
@@ -297,21 +306,22 @@ shedit_bhist(ctlcpp)
 	if (ctlcpp)
 		*ctlcpp = &ctlc;
 	ctlc = 0;
-	put_history(gstd[1], TRUE, 0, 0);
+	put_history(gstd[1], HI_INTR, 0, 0, NULL);
 }
 
 EXPORT int
-shedit_history(f, ctlcpp, flags, first, last)
+shedit_history(f, ctlcpp, flags, first, last, subst)
 	FILE	*f;
 	int	**ctlcpp;
 	int	flags;
 	int	first;
 	int	last;
+	char	*subst;
 {
 	if (ctlcpp)
 		*ctlcpp = &ctlc;
 	ctlc = 0;
-	return (put_history(f?f:gstd[1], flags, first, last));
+	return (put_history(f?f:gstd[1], flags, first, last, subst));
 }
 
 EXPORT int

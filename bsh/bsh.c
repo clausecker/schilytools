@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.75 17/01/10 Copyright 1984,1985,1988,1989,1991,1994-2017 J. Schilling */
+/* @(#)bsh.c	1.76 17/01/18 Copyright 1984,1985,1988,1989,1991,1994-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.75 17/01/10 Copyright 1982,1984,1985,1988,1989,1991,1994-2017 J. Schilling";
+	"@(#)bsh.c	1.76 17/01/18 Copyright 1982,1984,1985,1988,1989,1991,1994-2017 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -935,7 +935,7 @@ exitbsh(excode)
 						/* run final file */
 #ifdef	INTERACTIVE
 		if (!no_histflg && ev_eql(savehistname, on))
-			save_history(FALSE);
+			save_history(HI_NOINTR);
 #endif
 		if (firstsh)
 			dofile(concat(inithome, slash, finalname, (char *)NULL),

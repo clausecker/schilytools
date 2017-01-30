@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.27 16/03/04 
+#ident @(#)Makefile	1.28 17/01/28 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -65,6 +65,7 @@ star_fat.c: star.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.tst
 ###########################################################################
 count:	$(CFILES) $(HFILES)
 	count $r1

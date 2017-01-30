@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.77 16/09/01 2008-2016 J. Schilling
+ * @(#)word.c	1.78 17/01/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.77 16/09/01 2008-2016 J. Schilling";
+	"@(#)word.c	1.78 17/01/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -877,7 +877,8 @@ xread(f, buf, n)
 	char	*buf;
 	int	n;
 {
-	if (f == 0 && isatty(f) && (flags2 & vedflg)) {
+	if ((f == STDIN_FILENO || flags & intflg) &&
+	    (flags2 & vedflg)) {
 		static	int	init = 0;
 			int	c;
 

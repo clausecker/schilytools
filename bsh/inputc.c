@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.87 17/01/17 Copyright 1982, 1984-2017 J. Schilling */
+/* @(#)inputc.c	1.90 17/01/20 Copyright 1982, 1984-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.87 17/01/17 Copyright 1982, 1984-2017 J. Schilling";
+	"@(#)inputc.c	1.90 17/01/20 Copyright 1982, 1984-2017 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -35,7 +35,7 @@ static	UConst char sccsid[] =
  *		space()		Output n spaces
  *		append_line()	Append a line into history (for hashcmd.c #lh)
  *		match_hist()	Return matched history line for csh: !line
- *		make_line()	Read a line from a file anr return allocated
+ *		make_line()	Read a line from a file and return allocated
  *				string
  *		get_line()	-> Write Prompt, then return edited line
  *		put_history()	Put out history to FILE *
@@ -254,12 +254,12 @@ EXPORT	char	*make_line	__PR((int (*f)(MYFILE *), MYFILE *arg));
 LOCAL	char	*fread_line	__PR((MYFILE *f));
 EXPORT	char	*get_line	__PR((int n, MYFILE *f));
 EXPORT	int	put_history	__PR((MYFILE *f, int flg,
-					int first, int last));
+					int first, int last, char *subst));
 EXPORT	HISTPTR	_search_history	__PR((int flg,
 					int first, char *pat));
 EXPORT	int	search_history	__PR((int flg,
 					int first, char *pat));
-EXPORT	void	save_history	__PR((int intrflg));
+EXPORT	void	save_history	__PR((int flg));
 EXPORT	void	read_init_history	__PR((void));
 EXPORT	void	readhistory	__PR((MYFILE *f));
 LOCAL	void	term_init	__PR((void));
@@ -483,10 +483,14 @@ histrange(firstp, lastp, nextp)
 	unsigned	*lastp;
 	unsigned	*nextp;
 {
+	/*
+	 * Make it safe against a state where the history is not yet initialized
+	 * and first_line or last_line are still NULL pointers.
+	 */
 	if (firstp)
-		*firstp = first_line->h_number;
+		*firstp = first_line == 0 ? 0 : first_line->h_number;
 	if (lastp)
-		*lastp = last_line->h_number;
+		*lastp = last_line == 0 ? 0 : last_line->h_number;
 	if (nextp)					/* XXX */
 		*nextp = (hnumber + 1) ? hnumber + 1 : hnumber + 2;
 }
@@ -713,6 +717,8 @@ bflush()
 {
 	register BUF *bp = &buf;
 
+	if (bp->b_index <= 0)
+		return;
 	(void) filewrite(stdout, bp->b_buf, bp->b_index);
 	(void) fflush(stdout);
 	bp->b_index = 0;
@@ -2419,17 +2425,25 @@ get_line(n, f)
  * add {} brackets if we are writing to stdout.
  */
 EXPORT int
-put_history(f, flg, first, last)
+put_history(f, flg, first, last, subst)
 	register MYFILE	*f;
 	register int	flg;
 		int	first;
 		int	last;
+		char	*subst;
 {
 	register HISTPTR p;
 	register HISTPTR pe = last_line;
+		size_t	oldlen = 0;	/* make silly GCC happy */
+		char	*eqp = NULL;	/* make silly GCC happy */
 
 	if (f == NULL)
 		f = gstd[1];
+
+	if (subst) {
+		eqp = strchr(subst, '=');
+		oldlen = eqp++ - subst;
+	}
 
 	if (first < 0) {
 		register int	i;
@@ -2496,24 +2510,31 @@ put_history(f, flg, first, last)
 		} else {		/* This is the save_history() variant */
 			char	line[512];
 			char	*lp;
+			char	*lp2;
 #ifndef	USE_ANSI_NL_SEPARATOR
 			char	*cp;
 #endif
 
-			lp = tombs(line, sizeof (line), p->h_line, -1);
+			lp2 = lp = tombs(line, sizeof (line), p->h_line, -1);
 			if (lp == NULL)
 				continue;
 
+			if (subst && strncmp(lp, subst, oldlen) == 0) {
+				lp2 += oldlen;
+				fprintf(f, "%s", eqp);
+			}
 #ifndef	USE_ANSI_NL_SEPARATOR
-			for (cp = lp; *cp; cp++) {
-				if (*cp == '\n')
-					*cp = '\205';
+			if (flg & HI_ANSI_NL) {
+				for (cp = lp2; *cp; cp++) {
+					if (*cp == '\n')
+						*cp = '\205';
+				}
 			}
 #endif
 			/*
 			 * XXX could be fprintf(f, "%ws\n", p->h_line);
 			 */
-			fprintf(f, "%s\n", lp);
+			fprintf(f, "%s\n", lp2);
 			if (lp != line)
 				free(lp);
 		}
@@ -2609,8 +2630,8 @@ remove_history(flg, first, pat)
  * Save the history by writing to ~/.history
  */
 EXPORT void
-save_history(intrflg)
-	int intrflg;
+save_history(flg)
+	int flg;
 {
 	MYFILE	*f;
 
@@ -2618,7 +2639,7 @@ save_history(intrflg)
 		return;
 	f = fileopen(hfilename, for_wct);
 	if (f) {
-		put_history(f, intrflg, 0, 0);
+		put_history(f, flg | HI_ANSI_NL, 0, 0, NULL);
 		fclose(f);
 	}
 }
