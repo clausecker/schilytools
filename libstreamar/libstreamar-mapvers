@@ -1,0 +1,24 @@
+# /* @(#)libstreamar-mapvers	1.1 17/02/14 Copyright 2017 J. Schilling */
+
+SCHILY_0.1 {		# Not yet a stable interface!
+global:
+	strar_archtype;	#
+	strar_close;	#
+	strar_eof;	#
+	strar_get;	#
+	strar_hparse;	#
+	strar_init;	#
+	strar_list_file; #
+	strar_open;	#
+	strar_receive;	#
+	strar_reset;	#
+	strar_send;	#
+	strar_setnowarn;#
+	strar_skip;	#
+	strar_st_send;	#
+	strar_vprint;	#
+	strar_xbreset;	#
+
+local:
+	*;
+};

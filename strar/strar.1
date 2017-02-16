@@ -1,0 +1,211 @@
+. \" @(#)strar.1	1.2 17/02/15 Copyr 2017 J. Schilling
+. \"  Manual Seite fuer strar
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \(*b
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds A Ae
+.if n .ds O Oe
+.if n .ds U Ue
+.if n .ds s sz
+.ds S SS
+.TH STRAR 1 "17/02/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+strar \- StreamArchive handler
+.SH SYNOPSIS
+.ie n .B "strar\ "
+.el .B "strar\ \ "
+.I command
+[\fIoptions\fP]
+.I file1 .\|.\|. filen
+.SH DESCRIPTION
+.B Strar
+is a simple archiver with
+.B tar
+like command like syntax that handles
+.BR StreamArchive s.
+.PP
+.B Strar
+archives and extracts multiple files to and from a single file
+called a 
+.IR StreamArchive .
+A 
+.I StreamArchive
+is usually used in network communication, but it can be any file.
+.PP
+.B "Strar's
+actions are controlled by the mandatory command flags from the 
+list below.
+The way 
+.B strar 
+acts may be modified by additional options. 
+.PP
+Note that unpacking 
+.B StramArchives
+may be a security risk because 
+.B strar
+may overwrite existing files.
+See SECURITY NOTES for more information.
+.SH COMMAND
+.PP
+.B strar
+is compatible to the command line syntax of a typical POSIX command
+and for this reason expects 
+.I commands
+and
+.I options
+to start with a single dash (\-). In this case, commands
+and options may be specified separately, all boolean or increment type
+options may be specified either separately or combined.
+.TP
+.B \-c
+Create a new
+.I StreamArchive
+and write named files into it.
+Writing starts at the beginning of the
+.I Streamarchive.
+See \-v option for information on how to increase verbosity while the 
+archive is written.
+.TP
+.B \-t
+Table of contents.
+List the contents of the
+.IR StreamArchive .
+If the \-v flag is used, the listing is similar to the format of ls \-l output.
+.TP
+.B \-x
+Extract files from the
+.IR StreamArchive .
+If no filename argument or pattern is specified, the entire content of the
+.I StreamArchive
+is restored.
+.PP
+Exactly one of the commands above must be specified.
+
+.SH OPTIONS
+.TP
+.B \-help
+Print a summary of the options for
+.BR strar (1).
+.TP
+.B \-basemeta
+Only add basic meta data: 
+.BR path ,
+.BR mode ,
+.BR size ,
+.BR filetype .
+.TP
+.B \-nometa
+Only add minimal meta data: 
+.BR path ,
+.BR size .
+In this mode, only plain files may occur in the archive.
+.TP
+.B \-v
+Increment verbose level by one.
+This normally results in more output during operation.
+See also in the description for the
+.I \-t
+flag.
+Normally, 
+.B strar
+does its work silently.
+If the verbose level is 2 or more and
+.B strar
+is in create or update mode, 
+.B strar
+will produce a listing to the format of the ls \-l output.
+.TP
+.B \-version
+Print version information and exit.
+
+.SH SIGNALS
+.PP
+.SH "EXIT STATUS
+.SH EXAMPLES
+.PP
+.SH ENVIRONMENT
+.SH FILES
+.SH "SEE ALSO"
+.BR star (1),
+.BR spax (1),
+.BR suntar (1),
+.BR scpio (1),
+.BR tar (1),
+.BR cpio (1),
+.BR pax (1),
+.BR rcp (1),
+.BR mt (1),
+.BR rmt (1),
+.BR match (1),
+.BR dd (1),
+.BR sdd (1),
+.BR rsh (1),
+.BR ssh (1),
+.BR star (4/5),
+.BR rcmd (3).
+.SH DIAGNOSTICS
+
+.SH NOTES
+.PP
+.SH "SECURITY NOTES
+If you unpack a
+.B StramArchive
+in a non empty directory, any file in that directory 
+may be overwritten.
+If the archive contains symbolic links or hard links, 
+.B strar
+may even overwrite files outside the current directory.
+.SH LIMITATIONS
+If
+.B strar
+is running on a large file aware platform,
+.B strar
+is able to handle files of arbitrary size.
+.SH BUGS
+.SH HISTORY
+.B Strar
+was created in 2017.
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+joerg.schilling@fokus.fraunhofer.de
+or
+.B
+joerg@schily.net
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B strar
+is in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.

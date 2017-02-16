@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.78 17/01/22 2008-2016 J. Schilling
+ * @(#)word.c	1.79 17/02/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.78 17/01/22 2008-2016 J. Schilling";
+	"@(#)word.c	1.79 17/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -877,7 +877,11 @@ xread(f, buf, n)
 	char	*buf;
 	int	n;
 {
-	if ((f == STDIN_FILENO || flags & intflg) &&
+	/*
+	 * If we like to call shedit_egetc() for files other than STDIN_FILENO
+	 * we would need to set up the file descriptor for libshedit.
+	 */
+	if ((f == STDIN_FILENO) &&
 	    (flags2 & vedflg)) {
 		static	int	init = 0;
 			int	c;

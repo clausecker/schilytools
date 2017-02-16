@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.197 17/01/18 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.198 17/02/03 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/01/18" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/02/03" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1682,7 +1682,9 @@ the signal number.
 .ne 3
 .TP
 .B $
-The process number of this shell.
+The decimal process number of this shell.
+In a subshell, this still expands to the same value as that of the current
+invoked shell.
 .br
 .ne 3
 .TP

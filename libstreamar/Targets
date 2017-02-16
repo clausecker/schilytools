@@ -1,0 +1,6 @@
+# @(#)Targets	1.1 17/02/14 Copyright 2011-2017 J. Schilling
+
+CFILES=	init.c open.c close.c header.c unicode.c send.c receive.c list.c \
+	hparse.c get.c skip.c table.c
+
+HFILES=	header.h table.h xtab.h

@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)diff.c	1.70 17/01/28 J. Schilling
+ * @(#)diff.c	1.71 17/02/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.70 17/01/28 J. Schilling"
+#pragma ident "@(#)diff.c 1.71 17/02/03 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -633,11 +633,13 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 		} else {
 			(void) fprintf(stderr, "diff: ");
 			perror("stdin");
+			status = 2;
 			done();
 		}
 	} else if (input[0] == NULL && stat(file1, &stb1) < 0) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
+		status = 2;
 		done();
 	}
 
@@ -650,12 +652,14 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 			} else {
 				(void) fprintf(stderr, "diff: ");
 				perror("stdin");
+				status = 2;
 				done();
 			}
 		}
 	} else if (input[1] == NULL && stat(file2, &stb2) < 0) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file2);
+		status = 2;
 		done();
 	}
 
@@ -2048,6 +2052,7 @@ setupdir(cp)
 	if (dirp == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(cp);
+		status = 2;
 		done();
 	}
 	nitems = 0;
@@ -2379,6 +2384,7 @@ calldiff(wantpr)
 #ifdef	HAVE_VFORK
 			didvfork = 1;
 #endif
+			status = 2;
 			done();
 		}
 	}
@@ -2401,6 +2407,7 @@ calldiff(wantpr)
 #ifdef	HAVE_VFORK
 		didvfork = 1;
 #endif
+		status = 2;
 		done();
 	}
 	if (wantpr) {
@@ -2655,6 +2662,7 @@ filename(pa1, pa2, st, ifile)
 		if (stat(*pa1, st) < 0) {
 			(void) fprintf(stderr, "diff: ");
 			perror(*pa1);
+			status = 2;
 			done();
 		}
 	} else if ((st->st_mode & S_IFMT) == S_IFCHR) {
@@ -2664,6 +2672,7 @@ filename(pa1, pa2, st, ifile)
 		if (stat(*pa1, st) < 0) {
 			(void) fprintf(stderr, "diff: ");
 			perror(*pa1);
+			status = 2;
 			done();
 		}
 	}

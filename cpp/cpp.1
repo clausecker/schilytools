@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.4 15/02/19 Copyright 2010-2015 J. Schilling
+.\" @(#)cpp.1	1.6 17/02/08 Copyright 2010-2017 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "15/02/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "17/02/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
@@ -45,7 +45,7 @@ cpp
 ]
 .SH DESCRIPTION
 .B cpp
-is the C language prepeocessor. This implementation does not implement the
+is the C language preprocessor. This implementation does not implement the
 ANSI C standard but K&R.
 . \" .SH RETURNS
 . \" .SH ERRORS
@@ -58,8 +58,8 @@ directives) to the output.
 The default is to suppress C-style comments.
 .TP
 .B \-H
-Print the path names of includes files on standard error.
-Each name is printed on a separate line, names pay appear more than once.
+Print the path names of include files on standard error.
+Each name is printed on a separate line, names may appear more than once.
 .TP
 .B \-M
 Generates a list of dependencies and
@@ -150,4 +150,5 @@ keeps backslash NEWLINE intact.
 .SH AUTHOR
 .B cpp
 was written by John F. Reiser in July/August 1978.
-This is a version enhanced by J. Schilling.
+This is a version enhanced by J. Schilling and maintained by
+J. Schilling since 2010.

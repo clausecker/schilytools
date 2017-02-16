@@ -50,8 +50,13 @@ then
 	docommand fl7 "${admin} -fs2 $s" 0 "" ""
 	docommand fl8 "${get} -p $s" 0 "bla
 foo\n" IGNORE
+	#
+	# Check whether the line count is reset for multiple files
+	#
+	docommand fl9 "${get} -p $s $s" 0 "bla
+foo\nbla\nfoo\n" IGNORE
 else
-	echo "Test fl6..fl8 skipped"
+	echo "Test fl6..fl9 skipped"
 fi
 
 remove $z $s $p $g

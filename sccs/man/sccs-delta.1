@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.37 15/04/29 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-delta.1	1.38 17/02/14 Copyright 2007-2015 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2015/04/29" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2017/02/14" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -149,6 +149,12 @@ In NSE mode, this option allows to enforce a delta even when no
 exists.
 The new SID is assigned using the same rules as with
 .BR "get -e" .
+.sp
+This option is usually used together with the
+.B \-q
+and
+.B \-n
+options.
 .sp
 This option is an undocumented
 .B \s-1SUN\s+1

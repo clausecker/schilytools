@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.38 15/02/25 Copyright 2007-2015 J. Schilling */
+.\" @(#)sccsfile.4	1.39 17/02/05 Copyright 2007-2015 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2015 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2015/02/25" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2017/02/05" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -909,9 +909,9 @@ represented by:
 .LP
 .in +2
 .nf
-.RI ^AI " ddddd
-.RI ^AD " ddddd
-.RI ^AE " ddddd
+.BI ^AI " ddddd
+.BI ^AD " ddddd
+.BI ^AE " ddddd
 .fi
 .in -2
 
@@ -919,6 +919,26 @@ represented by:
 respectively.
 The digit string is the serial number corresponding to the delta for
 the control line.
+.LP
+An inserted block of lines looks this way:
+.LP
+.nf
+.BI ^AI " ddddd
+.I block of data
+.BI ^AE " ddddd
+.fi
+.LP
+A deleted block of lines looks this way:
+.LP
+.nf
+.BI ^AD " ddddd
+.I block of data
+.BI ^AE " ddddd
+.fi
+.LP
+The
+.B block of data
+may contain control lines with other serial numbers.
 
 .br
 .ne 5
@@ -933,11 +953,11 @@ history file format only.
 .LP
 .RS +2
 .TP 10
-^A^A
+.B ^A^A
 A line in the interleaved delta block that begins with two control characters
 represents a text line that begins at the second control character.
 .TP
-^AN
+.B ^AN
 A line in the interleaved delta block that begins with the
 .B "^AN"
 sequence represents a text line that does not end with a newline character.

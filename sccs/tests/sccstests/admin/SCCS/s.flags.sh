@@ -1,4 +1,8 @@
-h47898
+h03484
+s 00006/00001/00057
+d D 1.3 17/02/04 01:39:45 joerg 3 2
+c Neuer Test mit -fs2 und zwei Dateien bei get
+e
 s 00001/00001/00057
 d D 1.2 15/06/03 00:06:45 joerg 2 1
 c ../common/test-common -> ../../common/test-common
@@ -71,8 +75,20 @@ then
 	docommand fl7 "${admin} -fs2 $s" 0 "" ""
 	docommand fl8 "${get} -p $s" 0 "bla
 foo\n" IGNORE
+I 3
+	#
+	# Check whether the line count is reset for multiple files
+	#
+	docommand fl9 "${get} -p $s $s" 0 "bla
+foo\nbla\nfoo\n" IGNORE
+E 3
 else
+D 3
 	echo "Test fl6..fl8 skipped"
+E 3
+I 3
+	echo "Test fl6..fl9 skipped"
+E 3
 fi
 
 remove $z $s $p $g

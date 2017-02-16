@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.23 15/11/22 
+#ident @(#)Targets	1.24 17/02/15 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -25,7 +25,7 @@ X_MK_LIST=	\
 		siconv.mk shadow.mk \
 		sigblk.mk signal.mk sigset.mk socket.mk standard.mk stat.mk \
 		stdarg.mk stdint.mk stdio.mk \
-		stdlib.mk stkframe.mk string.mk \
+		stdlib.mk stkframe.mk strar.mk string.mk \
 		sunos4_proto.mk \
 		sysexits.mk syslog.mk systeminfo.mk \
 		termcap.mk termios.mk time.mk timeb.mk times.mk \

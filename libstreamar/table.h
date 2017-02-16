@@ -1,4 +1,4 @@
-/* @(#)table.h	1.18 17/02/12 Copyright 1994, 1996, 2000-2017 J. Schilling */
+/* @(#)table.h	1.19 17/02/13 Copyright 1994, 1996, 2000-2017 J. Schilling */
 /*
  *	Conversion table definitions for efficient conversion
  *	of different file type representations
@@ -89,34 +89,23 @@ S_IFEVC		0170000		/* UNOS event count		*/
 #define	XT_META		27	/* Inode meta data only			    */
 #define	XT_BAD		31	/* illegal file type			    */
 
+#define	iftoxt_tab	strar_iftoxt_tab
+#define	xttoif_tab	strar_xttoif_tab
+#define	xttostr_tab	strar_xttostr_tab
+#define	xttoname_tab	strar_xttoname_tab
+#define	xtnamelen_tab	strar_xtnamelen_tab
+
 extern UInt8_t	iftoxt_tab[];
-extern UInt8_t	ustoxt_tab[];
-extern UInt8_t	vttoxt_tab[];
 
 extern mode_t	xttoif_tab[];
-extern UInt8_t	xttost_tab[];
-extern UInt8_t	xttous_tab[];
-
-extern UInt8_t	xtv7tar_tab[];
-extern UInt8_t	xttar_tab[];
-extern UInt8_t	xtstar_tab[];
-extern UInt8_t	xtustar_tab[];
-extern UInt8_t	xtexustar_tab[];
-
-extern UInt8_t	xtcpio_tab[];
 
 extern char	*xttostr_tab[];
 extern char	*xttoname_tab[];
 extern UInt8_t	xtnamelen_tab[];
 
 #define	IFTOXT(t)	(iftoxt_tab[((t)&S_IFMT)>>12])	/* UNIX to XT	*/
-#define	USTOXT(t)	(ustoxt(t))			/* ustar to XT	*/
-#define	_USTOXT(t)	(ustoxt_tab[(t)-REGTYPE])	/* ustar to XT	*/
-#define	_VTTOXT(t)	(vttoxt_tab[(t)-'A'])		/* vendor to XT	*/
 
 #define	XTTOIF(t)	(xttoif_tab[(t)])		/* XT to UNIX	*/
-#define	XTTOST(t)	(xttost_tab[(t)])		/* XT to star	*/
-#define	XTTOUS(t)	(xttous_tab[(t)])		/* XT to ustar	*/
 #define	XTTOSTR(t)	(xttostr_tab[(t)])		/* XT to string	*/
 #define	XTTONAME(t)	(xttoname_tab[(t)])		/* XT to name	*/
 

@@ -1,8 +1,8 @@
-/* @(#)table.c	1.30 17/02/08 Copyright 1994-96 2000-2017 J. Schilling */
+/* @(#)table.c	1.31 17/02/13 Copyright 1994-96 2000-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)table.c	1.30 17/02/08 Copyright 1994-96 2000-2017 J. Schilling";
+	"@(#)table.c	1.31 17/02/13 Copyright 1994-96 2000-2017 J. Schilling";
 #endif
 /*
  *	Conversion tables for efficient conversion
@@ -25,9 +25,8 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include "star.h"
-#include "table.h"
 #include <schily/stat.h>
+#include "table.h"
 
 #ifndef	S_IFIFO			/* If system knows no fifo's		*/
 #define	S_IFIFO		S_IFREG	/* Map fifo's to regular files 		*/
@@ -102,37 +101,6 @@ UInt8_t	iftoxt_tab[] = {
 /* END CSTYLED */
 
 /*
- * Ustar File type to XT_ table
- *
- * Maps the ustar 0..7 filetypes to star's internal XT_ types.
- * Bound checking is done via ustoxt().
- */
-UInt8_t	ustoxt_tab[] = {
-		/* 0 */	XT_FILE, XT_LINK, XT_SLINK, XT_CHR,
-		/* 4 */	XT_BLK,  XT_DIR,  XT_FIFO,  XT_CONT,
-		/* 8 */	XT_BAD,  XT_BAD,
-};
-
-/*
- * Vendor unique File type to XT_ table
- *
- * Maps the filetypes 'A'..'Z' to star's internal XT_ types.
- * Fortunately, the different vendor unique extensions are disjunct.
- * External code does bound checking.
- */
-/* BEGIN CSTYLED */
-UInt8_t	vttoxt_tab[] = {
-		/* A */	XT_NONE,     XT_NONE,   XT_NONE,     XT_DUMPDIR,
-		/* E */	XT_NONE,     XT_NONE,   XT_NONE,     XT_NONE,
-		/* I */	XT_META,     XT_NONE,   XT_LONGLINK, XT_LONGNAME,
-		/* M */	XT_MULTIVOL, XT_NAMES,  XT_NONE,     XT_NONE,
-		/* Q */	XT_NONE,     XT_NONE,   XT_SPARSE,   XT_NONE,
-		/* U */	XT_NONE,     XT_VOLHDR, XT_NONE,     XT_NONE,
-		/* Y */	XT_NONE,     XT_NONE,
-};
-/* END CSTYLED */
-
-/*
  * XT_* codes used (see table.h):
  *				 0..16	Real file types and hard links
  *				20..26	Speudo file types (POSIX 'A' .. 'Z'
@@ -154,136 +122,6 @@ mode_t	xttoif_tab[] = {
 		/*20 */	S_IFDIR, S_IFBAD,  S_IFBAD, S_IFBAD,
 		/*24 */	S_IFBAD, S_IFREG,  S_IFBAD, S_IFREG,
 		/*28 */	S_IFBAD, S_IFBAD,  S_IFBAD, S_IFBAD,
-};
-/* END CSTYLED */
-
-/*
- * XT_ to Star-1985 File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xttost_tab[] = {
-		/* 0 */	0,       F_FILE, F_FILE, F_FILE,
-		/* 4 */	F_SLINK, F_DIR,  F_SPEC, F_SPEC,
-		/* 8 */	F_SPEC,  F_SPEC, F_SPEC, F_SPEC,
-		/*12 */	F_SPEC,  F_SPEC, F_SPEC, F_SPEC,
-		/*16 */	F_SPEC,  F_SPEC, F_SPEC, F_SPEC,
-		/*20 */	F_DIR,   F_FILE, F_FILE, F_FILE,
-		/*24 */	F_FILE,  F_FILE, F_SPEC, F_FILE,
-		/*28 */	F_SPEC,  F_SPEC, F_SPEC, F_SPEC,
-};
-/* END CSTYLED */
-
-/*
- * XT_ Old UNIX V7 tar supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xtv7tar_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	0,	0,	0,	0,
-		/* 8 */	0,	0,	0,	0,
-		/*12 */	0,	0,	0,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	0,	0,	0,
-		/*28 */	0,	0,	0,	0,
-};
-/* END CSTYLED */
-
-/*
- * XT_ Old BSD tar supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xttar_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	1,	1,	0,	0,
-		/* 8 */	0,	0,	0,	0,
-		/*12 */	0,	0,	0,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	0,	0,	0,
-		/*28 */	0,	0,	0,	0,
-			};
-/* END CSTYLED */
-
-/*
- * XT_ Star-1985 supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xtstar_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	1,	1,	1,	1,
-		/* 8 */	1,	1,	1,	1,
-		/*12 */	1,	1,	1,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	1,	0,	1,
-		/*28 */	0,	0,	0,	0,
-};
-/* END CSTYLED */
-
-/*
- * XT_ Ustar-1988 supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xtustar_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	1,	1,	1,	1,
-		/* 8 */	1,	0,	0,	0,
-		/*12 */	0,	0,	0,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	0,	0,	0,
-		/*28 */	0,	0,	0,	0,
-			};
-/* END CSTYLED */
-
-/*
- * XT_ Extended PAX-2001 'exustar' supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xtexustar_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	1,	1,	1,	1,
-		/* 8 */	1,	1,	0,	0,
-		/*12 */	0,	0,	1,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	1,	0,	1,
-		/*28 */	0,	0,	0,	0,
-};
-/* END CSTYLED */
-
-/*
- * XT_ CPIO-1988 supported File type table
- */
-/* BEGIN CSTYLED */
-UInt8_t	xtcpio_tab[] = {
-		/* 0 */	0,	1,	1,	1,
-		/* 4 */	1,	1,	1,	1,
-		/* 8 */	1,	1,	0,	0,
-		/*12 */	0,	0,	0,	0,
-		/*16 */	0,	0,	0,	0,
-		/*20 */	0,	0,	0,	0,
-		/*24 */	0,	0,	0,	0,
-		/*28 */	0,	0,	0,	0,
-};
-/* END CSTYLED */
-
-/*
- * XT_ to Ustar (including Vendor Unique extensions) File type table
- *
- * sockets cannot be handled in ansi tar, they are handled as regular files :-(
- */
-/* BEGIN CSTYLED */
-UInt8_t	xttous_tab[] = {
-		/* 0 */	0,       REGTYPE, CONTTYPE, LNKTYPE,
-		/* 4 */	SYMTYPE, DIRTYPE, CHRTYPE,  BLKTYPE,
-		/* 8 */	FIFOTYPE,REGTYPE/* socket */, 0/* bad */, 0/* bad */,
-		/*12 */	0,       0,       0,        0,
-		/*16 */	0,       0,       0,        0,
-		/*20 */	LF_DUMPDIR, LF_LONGLINK, LF_LONGNAME, LF_MULTIVOL,
-		/*24 */	LF_NAMES,   LF_SPARSE,   LF_VOLHDR,   LF_META,
-		/*28 */	0,       0,       0,        0,
 };
 /* END CSTYLED */
 

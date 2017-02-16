@@ -1,0 +1,260 @@
+'\" t
+. \" @(#)streamarchive.4	1.1 17/02/15 Copyr 2017 J. Schilling
+. \" StreamArchive formats
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \(*b
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds A Ae
+.if n .ds O Oe
+.if n .ds U Ue
+.if n .ds s sz
+.ds S SS
+.TH STREAMARCHIVE 4L "17/02/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+streamarchive \- StreamArchive file format
+.SH DESCRIPTION
+.PP
+.B StreamArchive
+typed archives are a series of
+.B keyword
+and
+.B value
+records that are similar to content of the 
+POSIX.1-2001 extended headers called
+.BR "TAR (PAX) HEADERs" .
+.LP
+A new file always begins with the
+.B path
+keyword and after the mandatory
+.B size
+keyword, file content may follow.
+Each file record is terminated by a
+.B status
+keyword.
+.LP
+An archive begins with an
+.B archtype=StreamArchive
+record and ends with a
+.B status=EOF
+record.
+.ne 10
+.SH "HEADER FORMAT
+.PP
+The header records  use the following format:
+.PP
+.RS
+\&"%d %s=%s\en",
+.IR <length> ", " <keyword> ", " <value>
+.RE
+.PP
+Each record starts with a a decimal length field. The length includes
+the total size of a record including the length field itself and the trailing
+new line.
+.PP
+The
+.I keyword
+may not include an equal sign.
+All keywords beginning with upper case letters are reserved for
+local extensions.
+.PP
+If the value field is of zero length, it deletes any header field of the same
+name that is in effect from the same extended header or from a previous global
+header.
+.PP
+Null characters do not delimit any value. The data used for
+.I value 
+is only limited by its
+implicit length.
+.SH "HEADER KEYWORDS
+All numerical values are represented as decimal strings.
+All texts are represented as 7-bit ascii or UTF-8:
+.TP
+.B atime
+The time from
+.B st_atime
+in sub second granularity. 
+A nanosecond granularity is currently supported.
+.TP
+.B comment
+Any number of characters that  should be treated as comment.
+The comment is ignored.
+.TP
+.B ctime
+The time from
+.B st_ctime
+in sub second granularity. 
+A nanosecond granularity is currently supported.
+.TP
+.B dev
+The device id from
+.B st_dev
+of the file as decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
+.TP
+.B devmajor
+The device major number of the file if it is a character or block special file.
+The argument is a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
+.TP
+.B devminor
+The device minor number of the file if it is a character or block special file.
+The argument is a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
+.TP
+.B filetype
+A textual version of the real file type of the file.
+The following names are used:
+.RS
+.TP 24
+.B unallocated
+An unknown file type that may be a result of a
+.BR unlink (2)
+operation.
+This should never happen.
+.TP
+.B regular
+A regular file.
+.TP
+.B contiguous
+A contiguous file. On operating systems or file systems that don't support
+this file type, it is handled like a regular file.
+.TP
+.B symlink
+A symbolic link to any file type.
+.TP
+.B directory
+A directory.
+.TP
+.B "character special"
+A character special file.
+.TP
+.B "block special"
+A block special file.
+.TP
+.B fifo
+A named pipe.
+.TP
+.B socket
+A UNIX domain socket.
+.TP
+.B "mpx character special"
+A multiplexed character special file.
+.TP
+.B "mpx block special"
+A multiplexed block special file.
+.TP
+.B "XENIX nsem"
+A XENIX named semaphore.
+.TP
+.B "XENIX nshd"
+XENIX shared data.
+.TP
+.B door
+A Solaris door.
+.TP
+.B eventcount
+A UNOS event count.
+.TP
+.B whiteout
+A BSD whiteout directory entry.
+.TP
+.B sparse
+A sparse regular file.
+.TP
+.B volheader
+A volume header.
+.TP
+.B "unknown/bad"
+Any other unknown file type.
+This should never happen.
+.RE
+.TP
+.B arfiletype
+The following additional file types are used in
+.BR arfiletype :
+.RS
+.TP
+.B hardlink
+A hard link to any file type.
+.RE
+
+.TP
+.B gid
+The group ID of the group that owns the file.
+The argument is a decimal number.
+.TP
+.B gname
+The group name of the following file(s) coded in UTF-8.
+.TP
+.B ino
+The inode number from
+.B st_ino
+of the file as decimal number.
+.sp
+The value is an unsigned int.
+An implementation should be able to handle at least 64 bit unsigned values.
+.TP
+.B linkpath
+The name of the 
+.I linkpath
+coded in UTF-8 if it is longer than 100 characters or cannot be expressed in 7-Bit ASCII.
+.TP
+.B mtime
+The time from
+.B st_mtime
+in sub second granularity. 
+A nanosecond granularity is currently supported.
+.TP
+.B nlink
+The link count of the file as decimal number.
+.sp
+The value is an unsigned int.
+An implementation should be able to handle at least 32 bit unsigned values.
+.TP
+.B path
+The name of the 
+.I path
+coded in UTF-8.
+.TP
+.B size
+The size of the file as decimal number.
+The
+.B size
+keyword may not refer to the real file size but is related to the size if the file in the archive.
+.TP
+.B uid
+The uid ID of the group that owns the file.
+The argument is a decimal number.
+.TP
+.B uname
+The user name of the following file(s) coded in UTF-8.
+.TP
+.IR VENDOR .keyword
+Any keyword that starts with a vendor name in capital letters is reserved 
+for vendor specific extensions
+by the standard.
+
+.SH "SEE ALSO"
+.SH NOTES
+.SH BUGS
+.SH AUTHOR

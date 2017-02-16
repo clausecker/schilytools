@@ -1,4 +1,4 @@
-. \" @(#)bsh_de.1	1.1 97/02/19 Copyright 1985-1997 J. Schilling
+. \" @(#)bsh_de.1	1.3 17/02/12 Copyright 1985-1997 J. Schilling
 . \"  Manual Seite fuer bsh
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -6,7 +6,7 @@
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
 .if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
 .if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
-.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
 .if t .ds s \(*b
 .if n .ds a ae
 .if n .ds o oe
@@ -15,6 +15,7 @@
 .if n .ds O Oe
 .if n .ds U Ue
 .if n .ds s sz
+.ds S SS
 .ft 1
 .ft 8
 .if \n(.f=8 .fp 8 C
@@ -31,8 +32,10 @@
 ..
 .de Le
 .br
-.cs 8
-.lg
+.if \\n(.f=8 \{\
+.	cs 8
+.	lg
+.\}
 .ft 1
 .ta .5i
 .fi
@@ -44,7 +47,7 @@ History.
 .SH "SYNOPSIS"
 .B bsh
 [
-.I optinen
+.I optionen
 ] [
 .I "arg1 \|.\|.\|. argn
 ]
@@ -119,7 +122,7 @@ ist ein Kommandointerpreter, der anstelle von
 oder 
 .I csh 
 verwendet werden kann. Seine Vorteile gegenüber den beiden 
-anderen shells sind der Bildschirmeditor für die Kommandozeile 
+anderen Shells sind der Bildschirmeditor für die Kommandozeile 
 und der in diesen Editor integrierte History-Mechanismus.
 .PP
 
@@ -159,8 +162,8 @@ Nach der Interpretation der obengenannten Dateien werden die
 Kommandos aus der Datei 
 .I ~/.init 
 ausgeführt. In dieser Datei 
-kann der Benutzer private immer nötige Anweisungen plazieren 
-z.B. Einstellen des Prompts auf einen gegenüber dem 
+kann der Benutzer private immer nötige Anweisungen platzieren 
+z.B. da Einstellen des Prompts auf einen gegenüber dem 
 Standardprompt bevorzugten Wert oder Ter\%mi\%nal\%ini\%tia\%li\%sie\%rung.
 .PP
 Jeder weitere Kommandointerpreter (nicht der Loginshell aber 
@@ -177,7 +180,7 @@ Wenn der
 .B bsh 
 gestartet wird, dann liest er kurz vor dem ersten interaktiven Prompt das File 
 .I /etc/termcap 
-oder die Environmenvariable 
+oder die Environmentvariable 
 .I TERMCAP, 
 um ein Standardmapping für die 
 Cursortasten zu bekommen. Es ist möglich, zusätzlich zu den 
@@ -200,7 +203,7 @@ beendet wird, die Datei
 .PP
 Außerdem liest jeder 
 .B bsh 
-noch folgende Dateien, wenn er gestartet wird.:
+noch folgende Dateien, wenn er gestartet wird:
 .TP 20
 .B ~/.bshmap
 Datei mit Maps für den Editor.
@@ -242,7 +245,7 @@ Nur Loginshell.
 Jeder nicht Loginshell.
 .TP
 .B ~/.history
-Jeder Interaktive 
+Jeder interaktive 
 .B bsh.
 .TP
 .B /etc/termcap
@@ -339,7 +342,7 @@ so erfolgt eine textuelle Ersetzung direkt in die
 Eingabezeile. Es ist möglich, das Mapping für den nächsten 
 Buchstaben mit Hilfe eines Quotebuchstabens aufzuheben. 
 Dieser Quotebuchstabe ist standartmäßig auf NULL (Control @) 
-gesetzt, und läßt sich ändern(z.Zt. noch nicht implementiert. 
+gesetzt, und läßt sich ändern (z.Zt. noch nicht implementiert).
 .PP
 Das File 
 .I ~/.bshmap 
@@ -351,7 +354,8 @@ mapstr:textersatz:Kommentar
 .PP
 .I mapstr 
 ist dabei der String, der ersetzt werden soll. 
-textersatz ist der String, der in der Eingabezeile erscheint. 
+.I textersatz
+ist der String, der in der Eingabezeile erscheint. 
 .I Kommentar 
 ist ein optionaler Kommentar, der nicht beachtet wird. 
 .I mapstr 
@@ -363,10 +367,10 @@ Kontrollzeichen können wie in
 .I /etc/termcap 
 durch eine Ersatzdarstellung eingetragen werden:
 .PP
-Ein '^' vor einem Buchstaben, bedeutet, daß das entsprechende 
+Ein '^' vor einem Buchstaben bedeutet, daß das entsprechende 
 Kontrollzeichen gemeint ist. Das Zeichen ESCAPE läßt sich 
 durch '\\E' darstellen. Diese beiden ebengenannten 
-Fluchtsymble lassen sich durch '\\^' bzw. '\\\\' erzeugen. Es 
+Fluchtsymbole lassen sich durch '\\^' bzw. '\\\\' erzeugen. Es 
 ist außerdem möglich die in c bekannte Oktaldarstellung zu 
 verwenden. Nur mit der Oktaldarstellung ist es möglich, einen 
 Doppelpunkt zu erzeugen in dem man \\072 einträgt.
@@ -437,7 +441,7 @@ von Kommando-Files leitet er eine Kommentarzeile ein, wenn
 direkt hinter ihm ein Blank, ein Tab oder ein Newline steht.
 .PP
 Ein einfaches Kommando ist eine Sequenz von Worten, von denen 
-das Erste Wort der 
+das erste Wort der 
 .I Kommando-Name 
 des auszuführenden Kommandos ist.
 .PP
@@ -498,7 +502,7 @@ scheitert, zusätzlich
 .I bullshit 
 ausgegeben wird, denn der 
 .I Exitcode 
-der Kommandogrupe in Klammern ist der 
+der Kommandogruppe in Klammern ist der 
 .I Exitcode 
 des letzten Kommandos.
 .RE
@@ -509,7 +513,7 @@ XXX
 
 .SS "Textuelle Ersetzungen
 .PP
-Textuelle Ersetzungen finden auf verschieden Ebenen statt.
+Textuelle Ersetzungen finden auf verschiedenen Ebenen statt.
 .PP
 Zunächst durch das Editierungsmapping (direkt in der 
 Kommandozeile sichtbar).
@@ -539,7 +543,7 @@ Metabuchstaben sind:
 .Le
 .PP
 Für die Expansion gilt folgende zeitliche Reihenfolge und 
-Präferenz.:
+Präferenz:
 .TP 35
 Zuerst während des Editierens
 Editierungsmapping.
@@ -551,7 +555,7 @@ die lokalen Abkürzungen.
 Noch vor dem Parsing
 z.Zt. !!! '$' \- Variablen.
 .TP
-Vom Interpreter (direkt vorder Ausführung des Programms) 
+Vom Interpreter (direkt vor der Ausführung des Programms) 
 Expansionen über das File-System.
 .PP
 Alle diese Ersetzungen lassen sich durch das Voranstellen 
@@ -568,15 +572,17 @@ verbunden ist.
 .B stdout
 : Die Standartausgabedatei
 .TP 
-stderr
+.B stderr
 : Die Standartdiagnostikdatei
 .PP
 Diese drei Dateien sind normalerweise dem Terminal 
 zugeordnet. Sie lassen sich jedoch mit folgender Syntax 
-umleiten.:
+umleiten:
 .TP
 < name
-Die Datei name wird als Eingabedatei eröffnet.
+Die Datei
+.I name
+wird als Eingabedatei eröffnet.
 .TP
 << delimiter
 Der 
@@ -601,7 +607,7 @@ bereits besteht, wird der alte Inhalt zerstört.
 Das File 
 .I name
 wird als Ausgabedatei eröffnet. Falls es 
-bereits besteht, wird der kommene Output des Programmes 
+bereits besteht, wird der kommende Output des Programmes 
 an den bereits bestehenden Inhalt angehängt.
 .TP
 % name
@@ -649,7 +655,7 @@ Der Abruf geschieht durch Expansion. Beginnt ein Wort mit
 Variablen gesucht und das gesamte Wort (einschließlich '$') 
 durch den Wert dieser Variablen ersetzt.
 .PP
-Die Expansion der Variablen geschieht Zeilenweise. Es ist 
+Die Expansion der Variablen geschieht zeilenweise. Es ist 
 nicht möglich, innerhalb einer Kommandozeile den Wert einer 
 Variablen zu setzen und ihren Wert danach auszugeben. Konnte 
 das Wort nicht expandiert werden, wird es direkt übernommen.
@@ -691,7 +697,7 @@ liefern die aktuellen Argumente eines
 $r1
 liefert alle Argumente eines 
 .IR command -files 
-(entsprechend argv in c \- files).
+(entsprechend argv+1 in c \- files).
 .TP
 $r3
 liefert alle Argumente eines 
@@ -702,7 +708,7 @@ argv+3 in c \- files).
 $#
 liefert die Anzahl der Argumente des aktuellen 
 .IR command -files 
-(Entsprechend argc in c \- files $0 zählt mit).
+(Entsprechend argc in c \- Argument $0 zählt mit).
 .TP
 $$
 liefert die 
@@ -781,7 +787,7 @@ Joerg> _
 .PP
 Es gibt bestimmte Buchstaben, die bei der Expansion von 
 Filenamen, beim Suchen in der History und bei der Ausgabe 
-von '#' Abkürzungen besondere Bedeutung haben. Es sind:
+von '#' Abkürzungen eine besondere Bedeutung haben. Es sind:
 .PP
 .B "! # % * { } [ ] ?
 .PP
@@ -807,7 +813,7 @@ Für Vorrang Gruppierung. Kann geschachtelt werden.
 Jede beliebige Anzahl eines bestimmten Zeichens.
 .TP
 .B "[]	CLASS
-Unschließt eine Menge von Zeichen.
+Umschließt eine Menge von Zeichen.
 .TP
 .B "\-	RANGE
 Bereich für Mengen.
@@ -819,7 +825,7 @@ Anfang einer Zeile, in [] das Boolsche nicht.
 Fluchtsymbol für den Pattern-Matcher.
 .TP
 .B "$	END
-Ende eine Zeile.
+Ende einer Zeile.
 .PP
 Beispiele:
 .Ls
@@ -900,9 +906,9 @@ Ersatz für die '#'-Kommandos (noch nicht fertig implementiert).
 .B alloc
 .RI [ arg ]
 .br
-Dient zum debuggen der allozierungs-Routine des 
+Dient zum Debuggen der allozierungs-Routine des 
 .B bsh.
-Ohne Argumente werden Statisktiken über den allozierten Bereich ausgegeben. 
+Ohne Argumente werden Statistiken über den allozierten Bereich ausgegeben. 
 Mit einem Argument werden die Adressen und Größen der verwalteten Stücke,
 sowie der Zustand der Stücke ausgegeben. Dabei werden zerstörte Stücke
 durch einen Stern hinter der Statusinformation gekennzeichnet.
@@ -926,7 +932,9 @@ spezifiziert werden.
 .B break
 .br
 Bricht eine Schleife ab. Die Interpretation setzt bei 
-dem, dem nächsten end folgenden Kommando fort.
+dem Kommando fort, das nächsten
+.B end
+folgt.
 .IP
 Beispiele:
 .Ls
@@ -978,7 +986,7 @@ gegen die aktuelle getauscht.
 .HP
 .B compute
 .br
-Veraltete Instrinsinc-Routine des bsh für die 
+Veraltete Intrinsic-Routine des bsh für die 
 Grundrechenarten auf Integer-Zahlen.
 .IP
 Setzt die Variable $? auf das Ergebnis der Berechnung. 
@@ -1040,7 +1048,7 @@ eines Newlinecharacters am Ende der Zeile.
 Werden keine Argumente angegeben, so erfolgt auch keine 
 Ausgabe des Newlinecharacters. Wenn man nur ein Newline 
 ausgeben möchte, dann muß man einen leeren String als 
-Paramter angeben.
+Parameter angeben.
 .IP
 Wenn keine Argumente angegeben werden, und stdin 
 umgeleitet wird, dann liest echo von stdin und schreibt 
@@ -1093,7 +1101,7 @@ Kommando command.
 Mit der Option av0=name ist es möglich, dem Kommando 
 einen von seinem Namen abweichendes av[0] zu übergeben. 
 Wird beim Loginshell exec aufgerufen, so bekommt man 
-einen neuen Login-Prompt , wenn das Kommando command 
+einen neuen Login-Prompt, wenn das Kommando command 
 beendet ist.
 .IP
 Beispiele:
@@ -1109,9 +1117,12 @@ Das letzte Beispiel startet einen bsh, der glaubt, durch
 einen Login-Prozess entstanden zu sein.
 .HP
 .B exit
+.RI [ Rückgabewert ]
 .br
 Beenden eines Kommandointerpreters oder Abbruch einer 
-Kommandodatei. Der Rückgabewert kann durch exit <n> 
+Kommandodatei. Der
+.I Rückgabewert
+kann durch exit <n> 
 definiert werden. exit ohne Parameter erzeugt einen 
 Rückgabewert von Null.
 .IP
@@ -1158,7 +1169,7 @@ Definition einer Funktion mit Namen name und Body
 cmdlist. cmdlist sollte bei der Eingabe unbedingt in ''' 
 gesetzt werden. cmdlist kann sich auch über mehrere 
 Zeilen erstrecken, wenn direkt vor dem Ende einer jeden 
-Zeile ein '\\' steht. (siehe auch quoting) Funktionen 
+Zeile ein '\\' steht (siehe auch quoting). Funktionen 
 können rekursiv aufgerufen werden.
 .IP
 Der Aufruf erfolgt durch Eingabe des Funktionsnamens. 
@@ -1357,7 +1368,7 @@ Joerg> _
 .br
 Mit map ist es möglich, beliebige Buchstaben oder 
 Strings des Terminalinputs, bevor sie den Editor des bsh 
-erreichen umzumappen. Damit kann unter anderem eine 
+erreichen, umzumappen. Damit kann unter anderem eine 
 Anpassung der Cursortasten an die Kommandos des bsh 
 vorgenommen werden. Wenn kein Argument angeben wird, 
 dann wird das aktuelle Mapping ausgegeben. Es wird 
@@ -1467,7 +1478,7 @@ Das Kommando command wird wiederholt ausgeführt. Eine
 Variablensubstitution wird nur einmal durchgeführt. Wird 
 count nicht angegeben, so ist count = MAXLONG. Wird delay 
 angegeben, ist die Zeit zwischen dem Starten von zwei 
-einander folgenden Kommandos # Sekunden.
+aufeinander folgenden Kommandos # Sekunden.
 .IP
 Beispiele:
 .Ls
@@ -1600,7 +1611,7 @@ Mit dem setmask Kommando läßt sich die File-Erzeugungsmaske
 des bsh verändern oder ansehen. Diese 
 Maske wird immer benutzt, wenn ein Prozess ein File 
 erzeugt. Die aktuelle Maske wird durch logisches 
-Verunden der Maske und den verlangten modes erzeugt. Die 
+Verunden der Maske und den verlangten Modes erzeugt. Die 
 File-Erzeugungsmaske vererbt sich auf die Kinder und ist 
 wichtig für neu erzeugte Files.
 .RS
@@ -1626,8 +1637,8 @@ werden. Es muß für Owner, Group und World ein Modestring
 angegeben werden. Wenn kein Zugriff erwünscht ist, kann 
 ein '.' angegeben werden, wenn sich ein Mode nicht 
 ändern soll, kann für diesen Mode ein '=' angegeben 
-werden. Setmask verändert nicht die modes von 
-existierenden files.
+werden. Setmask verändert nicht die Modes von 
+existierenden Files.
 .IP
 Wird keine Maske angegeben, so wird die aktuelle Maske 
 ausgegeben.
@@ -1670,10 +1681,10 @@ Joerg> _
 .RI [ cmdlist "] " sig#1\|.\|.\|.sig#n
 .br
 cmdlist wird ausgeführt, wenn der bsh auf ein Kind 
-wartet und ein Signal aus der angegeben Liste erhält. 
+wartet und ein Signal aus der angegebenen Liste erhält. 
 Das ist z.B. wichtig, um in Commandfiles bei einem 
 Interrupt Files zu löschen, die temporär erzeugt wurden. 
-Das Kommando, das in cmdlist angegeben wurde muß sich in 
+Das Kommando, das in cmdlist angegeben wurde, muß sich in 
 av[1] befinden, d.h. wenn es Zeichen bzw. Wort-Trennzeichen 
 enthält, muß es in ''' stehen. Wenn 
 cmdlist ausgeführt wird, gibt es eine Environment-Variable 
@@ -1759,19 +1770,23 @@ Benutzers 'peter'.
 .RI [ pid1 " \|.\|.\|. " pidn ]
 .br
 Wenn suspend ohne Parameter aufgerufen wird, dann wird 
-der bsh selbst suspendiert. Mit Parametern wird der 
-Prozess mit der Prozessid pid1 \|.\|.\|. pidn suspendiert. Damit 
-ist es möglich ein su Kommando zeitweilig zu verlassen 
+der bsh selbst suspendiert. Mit Parametern werden die
+Prozesse mit der Prozessids pid1 \|.\|.\|. pidn suspendiert. Damit 
+ist es möglich, ein su Kommando zeitweilig zu verlassen 
 und später ohne Password wieder zu starten. Das geht 
 leider nicht unter SYSTEM V.
 .HP
 .B switch 
 .IR val " of
 .br
-Bedingte Mehrfachverzweigung. Der erste Parameter wird 
-in einer folgenden Patternliste gesucht. Alle Kommandos 
-nach dem ersten Pattern, der mit dem ersten Parameter 
-übereinstimmt, werden ausgeführt. Es gelten die üblichen 
+Bedingte Mehrfachverzweigung. Der erste Parameter
+.I val
+wird der Reihe nach in einer folgenden Patternliste gesucht (siehe case).
+Alle Kommandos nach dem ersten erfolgreichen Patternmatch für den Parameter
+.I val
+werden bis zum Schlüsselword
+.B break
+ausgeführt. Es gelten die üblichen 
 oben erklärten Patternmatch-Regeln. Für den default \- 
 Fall steht ein '*'.
 .IP
@@ -1826,7 +1841,7 @@ Wahr, wenn das File existiert.
 Wahr, wenn das File existiert, und eine Größe ungleich Null hat.
 .TP
 .BI \-S " file
-Die Größe des Files.
+Die Größe des Files ist der Exitcode.
 .br
 Wenn das File nicht existiert: \-1.
 .TP
@@ -1872,7 +1887,7 @@ Stringtests:
 .RS
 .TP
 .BI \-l " string
-Die Länge des Strings.
+Die Länge des Strings ist der Exitcode.
 .TP
 .BI \-n " string
 Wahr, wenn der String eine Länge ungleich Null hat.
@@ -1985,7 +2000,7 @@ Geplante Funktion als Ersatz für ein '#' -Kommando.
 Mit dem unmap Kommando lassen sich Maps, die mit dem map 
 Kommando gesetzt wurden, wieder aufheben. Da es möglich 
 ist, verschiedene Fromstrings in den gleichen Tostring 
-zu mappen muß, um Eindeutigkeit zu bekommen, der 
+zu mappen, muß, um Eindeutigkeit zu bekommen, der 
 Fromstring als Argument angeben werden. Das ist nur 
 durch Quoten oder durch die Verwendung der 
 Ersatzdarstellung möglich, es läßt sich also kein 
@@ -2071,7 +2086,7 @@ Tabellen mit Abkürzungen. Solche, die überall gelten
 Directory gelten (.locals). Bei dem Versuch, ein Wort zu 
 expandieren, wird immer zuerst die lokale Tabelle durchsucht. 
 Ist dort keine Abkürzung zu finden, wird versucht, eine 
-globale Abkürzung zu finden. Abkürzunsgexpansionen haben 
+globale Abkürzung zu finden. Abkürzungsexpansionen haben 
 Vorrang vor den $ \- Expansionen. Es gibt Abkürzungen, die nur 
 am Anfang eines Kommandos stehen dürfen (auch nach einem ';' 
 oder einem '&' sowie direkt nach einer '(' , die eine 
@@ -2109,7 +2124,7 @@ Kommandos.
 Ausgabe aller Abkürzungen aus der Tabelle. Ist kein 
 Modifier angegeben, wird die Defaulttabelle ausgegeben. 
 Ist name angegeben, wird nur der Eintrag für name 
-ausgegeben. Es ist erlaubt, das in name Wildcarts des 
+ausgegeben. Es ist erlaubt, das in name Wildcards des 
 Pattern-Matchers stehen, um einen Teil der Tabelle 
 auszugeben.
 .PP
@@ -2122,7 +2137,7 @@ Editors des bsh verändern und neu eintragen.
 Mit dem '#p' \- Kommando wird eine Abkürzung einer 
 eventuell bestehenden überlagert, ohne sie in das 
 dazugehörige File einzutragen. Damit lassen sich 
-änderungen für die Lebensdauer eines bsh erwirken. Die 
+Änderungen für die Lebensdauer eines bsh erwirken. Die 
 Information wird in einem Stack verwaltet. Wird ein 
 gepushter Wert gelöscht, dann erscheint eine eventuell 
 überlagerte Abkürzung wieder.
@@ -2135,12 +2150,12 @@ angegeben ist. Das '#s' \- Kommando ohne Modifier bzw.
 mit dem Default-Wert, bewirkt eine Ausgabe der Default-Tabelle.
 .TP
 .B #v[on|off]
-Setzen oder lesen des verbose Modes, der falls 
+Setzen oder Lesen des verbose Modes, der falls 
 eingeschaltet, jedes Kommando vor der Filenamenexpansion 
 ausgibt.
 .TP
 .BI #! " shell " [ " args " ]
-Ein alternativer Shell wird zur Ausführung des Aktuellen 
+Ein alternativer Shell wird zur Ausführung des aktuellen 
 Kommandofiles benutzt. Nur innerhalb von Command-Files 
 möglich. shell wird mit args und '$r0' gestartet.
 .TP
@@ -2282,7 +2297,7 @@ Joerg> _
 .B CDPATH
 .br
 Diese Variable hat den gleichen Aufbau wie PATH. Sie ist 
-für das Suchen nach Directroy's bei dem cd \- Kommando 
+für das Suchen nach Directories bei dem cd \- Kommando 
 zuständig. Der erste Eintrag muß !! leer sein, sonst 
 funktioniert das cd \- Kommando nicht.
 .IP
@@ -2399,7 +2414,7 @@ erzeugte Kommandointerpreter schützen, gehört in das
 Kommandinterpreter können jedoch mit dem pushd bzw. dem 
 popd \- Kommando weitgehend vermieden werde. Ist 
 IGNOREEOF nicht auf on, wird beim Eintippen von ^D 
-solange vorwärts gelöscht, bis evt. der Cursor sich am 
+solange vorwärts gelöscht, bis evtl. der Cursor sich am 
 Anfang einer leeren Zeile befindet; dann wird der bsh 
 verlassen. (Befindet der Cursor sich nicht am Anfang 
 einer Zeile, so ertönt die Glocke, wenn sich keine 
@@ -2453,7 +2468,7 @@ Temporäres File für <<.
 .SS "Allgemeines
 .PP
 Einige eingebaute Funktionen des bsh lassen sich nicht mit 
-mit ^C abbrechen. Alle Eingaben, die nach einem '>' Prompt 
+^C abbrechen. Alle Eingaben, die nach einem '>' Prompt 
 eingegeben wurden, erscheinen nicht in der History. Es ist 
 nicht möglich Kontroll-Strukturen aus if, for, loop und 
 switch durch ';' oder '&' zu trennen.
@@ -2461,14 +2476,14 @@ switch durch ';' oder '&' zu trennen.
 Das Quoting von speziellen Buchstaben ist verwirrend, weil an 
 vielen verschiedenen Stellen expandiert wird und jeweils das 
 Zeichen '\\' entfernt wird. Besonders verwirrend ist das bei 
-repeat signal und function. Am besten ausprobieren und 
+'repeat', 'signal' und 'function'. Am besten ausprobieren und 
 Meister werden.
 .PP
 Symbolische Links überlisten den bsh. Wenn ein cd über einen 
 symbolischen Link führt, hat die Variable $CWD nicht mehr den 
 korrekten Wert.
 .PP
-Das Kommando cat <<EOF& verwirrt den bsh er forkt, bevor der 
+Das Kommando cat <<EOF& verwirrt den bsh. Er forkt, bevor der 
 Input gelesen ist, was zur Folge hat, daß man zwei Prompts 
 hat, und Vater und Sohn gleichzeitig lesen wollen.
 .PP
@@ -2484,7 +2499,7 @@ an den sh behandelt:
 d.h.:
 .IP \(bu
 Mit dem doppelten Anführungszeichen wird nur ein String 
-zusammengefaßt und die Expansion von wildcart's 
+zusammengefaßt und die Expansion von wildcards 
 ($*?{}[]) verhindert. Environment Variablen werden hier 
 noch expandiert.
 .IP \(bu
@@ -2494,7 +2509,7 @@ Kommando arbeiten, müssen !! in einfachen
 Anführungszeichen stehen, damit sie nicht schon vor der 
 Ausführung des eigentlichen Kommandos expandiert werden. 
 Man sollte, falls man sich nicht sicher über den Grund 
-einer möglichen Fehlfunktion eines do Macros ist das 
+einer möglichen Fehlfunktion eines do Macros ist, das 
 Kommando:
 .Ls
 change '"' "'" ~/.globals ~/.locals
@@ -2507,4 +2522,3 @@ Kommando nicht korrekt läuft.
 Eine Concatenierung von Strings wie im sh ist z.Zt. nicht möglich.
 .PP
 .B "Änderungen, die dem technischen Fortschritt dienen, vorbehalten.
-.SH BUGS

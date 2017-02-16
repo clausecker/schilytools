@@ -1,0 +1,194 @@
+New features with AN-2017-02-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily: added a missing null-byte to the filename in the
+	opendir() emulation for Win-DOS.
+
+	Thanks to Collin Finck colin@reactos.org for reporting
+
+-	libschily: The movebytes() man page now mentions other *bytes()
+	functions.
+
+-	libschily: cmpbytes() new man page
+
+-	libstreamar: A new library for StreamArchives,
+	simple archives based on POSIX.1-2001 tar extended headers.
+
+	This library is based on code from star and implements a simple but
+	highly extensible and very compact archive format that may be used 
+	e.g. on network streams	to bundle a set of files.
+
+	Check "man streamarchive" to understand the structure of a
+	StreamArchive.
+
+	This library is intended to be used by the upcomming network
+	features in SCCS.
+
+-	Bourne Shell: Fixed a bug with the libshedit interface that was 
+	introduced in the last release and caused "echo `ls *.c`" to
+	fail in an interactive shell.
+
+-	SCCS: diff did not always exit(2) in case of errors since the code
+	was restructured in late 2016.
+
+-	SCCS: new help page: "sccs help admin_flags" prints a summary od the
+	flags supported by the admin command.
+
+-	SCCS: "sccs get SCCS" no longer suppresses keyword expansion in case
+	that the 's' flag is set. Old versions did not reset the line count
+	for multiple files, the new version uses the "line number in g-file"
+	variable in struct packet instead and thus something that gets reset
+	automatically.
+
+-	SCCS: the man page sccs-delta.1 has been enhanced to mention that
+	the force delta option (-f) is usually used together with -q and -n.
+
+-	SCCS: the man page sccsfile.4 has been enhanced with respect to
+	the weave format.
+
+-	SCCS: added a test to verify that the admin -fs# flag works correctly
+	even  when retrieving more than one file at once.
+
+-	ved: sleep one second past writing the warning "BAD POS in .vedtmp"
+	because this text may get overwritten by "READ ONLY ..."
+
+-	cstyle: fixed a typo in the man page.
+	Thanks to Heiko Eißfeldt for reporting
+
+-	cpp: fixed a typo in the man page.
+	Thanks to Heiko Eißfeldt for reporting
+
+-	bsh: fixed various typos in the man page.
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: table.c & table.h: changed some tables from signed char
+	to uint8_t as the values are used as index for other tables.
+
+-	strar: A new command to handle StreamArchives has been added.
+
+	Note that this command extracts files always in "install" mode.
+	This is implemented by first extracting the file under a random name
+	and to atomically rename it to the final original name using
+	"rename(2)".
+
+	Missing intermediate directories are created by default.
+
+	This command is usable for basic work already The following features
+	are currently missing:
+
+	-	A noclobber flag
+
+	-	A method to avoid to replace files that are more recent on
+		disk than in the archive.
+
+	-	Set the file permissions
+
+	-	Set the original file time stamps
+
+	-	Set the original file owners.
+
+	These features will be implemented in a future version.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

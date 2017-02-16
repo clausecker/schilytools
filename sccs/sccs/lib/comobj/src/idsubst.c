@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)idsubst.c	1.70 15/02/23 J. Schilling
+ * @(#)idsubst.c	1.71 17/02/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)idsubst.c 1.70 15/02/23 J. Schilling"
+#pragma ident "@(#)idsubst.c 1.71 17/02/04 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -97,7 +97,6 @@ static char	Dir[BUFSIZ];		/* P Used for file dir prefix	*/
 static char	*Qsect;			/* 'q' flag for current file	*/
 static char	*Type;			/* 't' flag for current file	*/
 static int	num_ID_lines;		/* 's' flag for current file	*/
-static int	cnt_ID_lines;		/* current line cmp with above	*/
 static int	expand_IDs;		/* whether to expand ISs	*/
 static char	*list_expand_IDs;	/* 'y' flag for current file	*/
 
@@ -291,7 +290,6 @@ char line[];
 	char *expand_ID;
 	register char **sflags = pkt->p_sflags;
 
-	cnt_ID_lines++;
 	if (HADK) {
 		if (!expand_IDs)
 			return (line);
@@ -299,7 +297,7 @@ char line[];
 		if (!any('%', line))
 			return (line);
 	}
-	if (cnt_ID_lines > num_ID_lines) {
+	if (pkt->p_glnno > num_ID_lines) {
 		if (!expand_IDs) {
 			return (line);
 		}

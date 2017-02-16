@@ -21,9 +21,9 @@
 * Copyright 1991 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2015 J. Schilling
+* Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.46 16/06/09 J. Schilling 
+* @(#)cmds	1.47 17/02/04 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -159,6 +159,32 @@ options:
 	-C	Working directory for g-file
 	-V	Print version number
 	-V6	Create a SCCS v6 history file
+
+	(do 'help admin_flags' for a list of sccs flags)
+-admin_flags
+
+	List of flags recognized by _a_d_m_i_n -f and _a_d_m_i_n -d
+
+	The first character is the flag letter, the rest are parameters
+
+b		Enables branch deltas
+cceil		Sets a ceiling on the releases that can be checked out
+dsid		Specify default delta number to be used by an SCCS get command
+e		The content is UUencoded
+ffloor		Sets a floor on the releases that can be checked out
+i[value]	Treat the `No id keywords (cm7)' message as an error
+j		Allow concurrent get -e calls
+lrelease[,...]	Locks the indicated list of releases against deltas
+mmodule		Supply a value for the module name
+n		Create empty releases when releases are skipped
+qvalue		Supplies a value to the %Q% keyword
+snumber		Set how many lines are scanned for keyword expansion
+ttype		Supplies a name for the module type
+v[prog]		Set a MR validation program
+x		Enable SCCS extensions
+y[val[,...]]	Specifies which SCCS keywords are expanded
+zapp		Set a CMF application program
+
 -help
 	help [arg]
 
