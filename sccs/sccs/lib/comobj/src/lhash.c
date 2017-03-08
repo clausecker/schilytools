@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)lhash.c	1.1 15/01/27 Copyright 1988-2015 J. Schilling
+ * @(#)lhash.c	1.2 17/02/27 Copyright 1988-2017 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lhash.c	1.1 15/01/27 Copyright 1988-2015 J. Schilling";
+#pragma ident "@(#)lhash.c	1.2 17/02/27 Copyright 1988-2017 J. Schilling";
 #endif
 
 #if defined(sun)
@@ -33,6 +33,7 @@ static struct h_elem {
 static size_t	h_size;
 
 EXPORT	size_t	lhash_size	__PR((size_t size));
+EXPORT	void	lhash_destroy	__PR((void));
 EXPORT	char	*lhash_add	__PR((char *str));
 LOCAL	char	*_lhash_add	__PR((char *str, struct h_elem **htab));
 EXPORT	char	*lhash_lookup	__PR((char *str));
@@ -47,6 +48,17 @@ lhash_size(size)
 	return (h_size);
 }
 
+/*
+ * Warning: we use fmalloc() and thus our memory is freed by ffreeall(), but
+ * the variables h_size and h_tab keep their values unless we clear them.
+ */
+EXPORT void
+lhash_destroy()
+{
+	h_size = 0;
+	h_tab = NULL;
+}
+
 EXPORT char *
 lhash_add(str)
 	char	*str;
@@ -56,7 +68,9 @@ lhash_add(str)
 		register	size_t	size = lhash_size(HASH_DFLT_SIZE);
 
 		h_tab = fmalloc(size * sizeof (struct h_elem *));
-		for (i = 0; i < size; i++) h_tab[i] = 0;
+		for (i = 0; i < size; i++) {
+			h_tab[i] = NULL;
+		}
 	}
 	return (_lhash_add(str, h_tab));
 }

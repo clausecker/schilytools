@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.23 16/12/27 Copyr 2003-2016 J. Schilling
+. \" @(#)star.4	1.25 17/02/23 Copyr 2003-2016 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "16/12/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2017/02/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -934,7 +934,10 @@ for storing the
 .B NFSv4 ACL
 entries.
 .sp
-The format for the ACL text is the format created by the function
+Previous versions of
+.B star
+used a format for the ACL text that is
+is the format created by the function
 .BR acl_totext ()
 from
 .B libsec
@@ -1001,10 +1004,43 @@ system completely from a backup, as initially the name-to-identifier
 mappings may not be available, and then file ownership restoration 
 would not work.
 .PP
-In addition to the documented entry format, a compatible implementation
+Newer versions of star use a highly compact variant of the format
+mentioned above that avoids the
+\&'-' characters in the text.
+The example below is using lines broken the same way as in
+the previous example.
+.sp
+.nf
+SCHILY.acl.ace= user:lisa:rwx::allow:502,\ \e
+            group:toolies:rwx::allow:102,\ \e
+                   owner@:x::deny,\ \ \ \ \ \ \ \ \e
+                   owner@:rwpAWCo::allow,\ \e
+                   group@:wxp::deny,\ \ \ \ \ \ \e
+                   group@:r::allow,\ \ \ \ \ \ \ \e
+                everyone@:wxpAWCo::deny,\ \ \e
+                everyone@:raRcs::allow
+.fi
+.PP
+This highly compact format is understood by
+.B acl_fromtext()
+in
+.B libsec
+from Solaris and by the corresponding code from FreeBSD.
+.PP
+In addition to the documented entry formats, a compatible implementation
 needs to be able to understand the long
 .B ace
 format, if it appears in extended tar headers.
+The long format for the ACL text is the format created by the function
+.BR acl_totext ()
+from
+.B libsec
+on Solaris, using the call:
+.sp
+.nf
+.B acl_totext(aclp, ACL_APPEND_ID | ACL_SID_FMT);
+.fi
+.sp
 .PP
 As the archive format that is used for backing up access control lists is
 compatible with the
@@ -1013,9 +1049,9 @@ archive format, archives created that way can be restored by
 .B star
 or a POSIX.1-2001 compliant
 .BR pax .
-Note that programs other than
+Note that programs that do not implement compatibility to the
 .B star
-will ignore the ACL information.
+extensions will ignore the ACL information.
 .RE
 .sp
 .TP

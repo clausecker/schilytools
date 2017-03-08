@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)defines.h	1.95 15/03/10 J. Schilling
+ * @(#)defines.h	1.96 17/02/27 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.95 15/03/10 J. Schilling"
+#pragma ident "@(#)defines.h 1.96 17/02/27 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -705,6 +705,7 @@ extern	void	sccs_setinsbase __PR((char *));
 extern	int	sccsfatalhelp __PR((char *));
 extern	int	sccshelp __PR((FILE *, char *));
 extern	size_t	lhash_size	__PR((size_t size));
+extern	void	lhash_destroy	__PR((void));
 extern	char	*lhash_add	__PR((char *str));
 extern	char	*lhash_lookup	__PR((char *str));
 extern	void	sccs_xpg4 __PR((int val));

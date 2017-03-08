@@ -1,3 +1,5 @@
+# @(#)README.compile	1.32 17/02/20 Copyright 1997-2017 J. Schilling
+
 Short overview for those who don't read manuals:
 
 	Calling configure manually is outdated because this is a task of the
@@ -13,7 +15,7 @@ Short overview for those who don't read manuals:
 	All results in general will be placed into a directory named 
 	OBJ/<arch-name>/ in the current projects leaf directory.
 
-	You **need** either my "smake" program, the SunPRO make 
+	You **need** either the Schily "smake" program, the SunPRO make 
 	from /usr/bin/make (SunOS 4.x) or /usr/ccs/bin/make (SunOS 5.x)
 	or GNU make to compile this program. Read READMEs/README.gmake for 
 	more information on gmake and a list of the most annoying bugs in gmake.
@@ -42,6 +44,10 @@ Short overview for those who don't read manuals:
 	***** Schily makefilesystem you cannot use GNU make.		 *****
 	***** In this case, the automake features of smake are required. *****
 
+	Note that GNU make has major bugs on various platforms and thus cannot
+	be used at all on VMS and OS/2. GNU make on Cygwin causes problems
+	because it does not deal with spaces and newlines correctly.
+
 	Please read the README's for your operating system too.
 
 			WARNING
@@ -56,14 +62,14 @@ Short overview for those who don't read manuals:
 
 	To unpack an archive, use:
 
-		gzip -d < some-arch.tar.gz | tar -xpf -
+		gzip -d < some-arch.tar.gz | tar xpf -
 
-	Replace 'star' by the actual archive name.
+	Replace 'some-arch.tar.gz' by the actual archive name.
 
 	If your platform does not support hard links or symbolic links, you
 	first need to compile "star" and then call:
 
-		star -xpz -copy-links < some-arch.tar.gz
+		star -xp -copy-links < some-arch.tar.gz
 
 	If your platform does not support hard links but supports
 	symbolic links, you only need to call the command above once.
@@ -87,10 +93,11 @@ PREFACE:
 	all needed targets. Calling 'make install' will install all needed
 	files.
 
-	This program uses a new makefilesystem. This makefilesystem uses
-	techniques and ideas from the 1980s and 1990s, is designed in a
-	modular way and allows sources to be combined in a modular way.
-	For mor information on the modular features read README.SSPM.
+	This program uses a new makefilesystem, introduced in 1993. This
+	makefilesystem uses techniques and ideas from the 1980s and 1990s,
+	is designed in a modular way and allows sources to be combined in a
+	modular way. For mor information on the modular features read
+	README.SSPM.
 
 	The makefilesystem is optimized for a program called 'smake'
 	Copyright 1985 by Jörg Schilling, but SunPro make (the make program
@@ -104,10 +111,10 @@ PREFACE:
 
 Finding Compilation Results:
 
-	To allow this, all binaries and results of a 'compilation' in any form
-	are placed in sub-directories. This includes automatically generated
-	include files. Results will in general be placed into
-	a directory named OBJ/<arch-name>/ in the current project's
+	To allow simultaneous compilations, all binaries and results of a
+	'compilation' in any form are placed in sub-directories. This includes
+	automatically generated include files. Results will in general be
+	placed into a directory named OBJ/<arch-name>/ in the current project's
 	leaf directory, libraries will be placed into a directory called
 	libs/<arch-name>/ that is located in the source tree root directory.
 
@@ -121,8 +128,10 @@ How to compile:
 
 	To compile a system or sub-system, simply enter 'smake', 'make' or 
 	'Gmake'. Compilation may be initialized at any point of the source
-	tree of a system. If compilation is started in a sub tree, all objects
-	in that sub tree will be made.
+	tree of a system.
+
+	WARNING: If compilation is started in a sub tree, only all objects
+	in that sub tree will be made. This usually excludes needed libraries.
 
 
 How to install results:
@@ -149,14 +158,17 @@ How to install results:
 
 Using a different installation directory:
 
-	If your system does not yet use the standard installation path /opt
+	If your system does not yet use the standard installation path in
+
+		/opt/<vendor>
+
 	or if you don't like this installation directory, you can easily 
 	change the installation directory. You may edit the DEFAULTS file 
 	for your system and modify the macro INS_BASE.
 
 	You may  use a different installation directory without editing the
-	DEFAULTS files. If you like to install everything in /usr/local, call:
-
+	DEFAULTS files. If you like to install everything in the deprecated path
+	/usr/local, the next paragraph describes the procedure.
 
 	If your make program supports to propagate make macros to sub make programs
 	which is the case for recent smake releases as well as for a recent gnumake:
@@ -171,7 +183,7 @@ Using a different installation directory:
 		env INS_BASE=/usr/local make -e install
 
 	Note that INS_BASE=/usr/local needs to be specified for every operation
-	that compiles or links programs, as the path is stored inside the
+	that compiles or links programs, as the path may be stored inside the
 	binaries.
 
 	The location for the root specific configuratin files is controlled
@@ -220,7 +232,7 @@ Setting up a different Link mode:
 	instead.
 
 
-Compiling in a different ELF RUNPATH:
+Compiling a different ELF RUNPATH into the binaries:
 
 	In order to allow binaries to work correctly even if the shared
 	libraries are not in the default search path of the runtime linker,
@@ -270,7 +282,7 @@ Installing to a prototype directory to implement package creation staging:
 	and then create a usr/local tree below /tmp (i.e. /tmp/usr/local).
 
 	Note that you need to call "smake clean" before in case that the code
-	was previously compiled with different defaults.
+	was previously compiled with different defaults with regards to INS_BASE
 
 Setting different default directory permissions for install directories:
 
@@ -292,6 +304,10 @@ Setting different default directory permissions for install directories:
 		smake DEFINSUMASK=002 install
 
 Using a different C compiler:
+
+	The compiler family is configured via the CCOM= make macro. This selects
+	a whole set of related macros that are needed to support a specific
+	compiler family.
 
 	If the configured default compiler is not present on the current machine,
 	the makefilesystem will try an automatic fallback to GCC. For this reason,
@@ -318,8 +334,8 @@ Creating 64 bit executables on Solaris:
 
 	It is not clear if GCC already supports other platforms in 64 bit mode.
 	As all GCC versions before 3.1 did emit hundreds of compilation
-	warnings related to 64 bit bugs when compiling itself, there is little
-	hope that other platforms are already supported in 64 bit mode.
+	warnings related to 64 bit bugs when compiling itself, so there may be
+	other platforms are not supported in 64 bit mode.
 
 Creating executables using the Sun Studio compiler on Linux:
 
@@ -355,19 +371,24 @@ Using a different compiler binary name:
 
 		make CC=/opt/instrumented/bin/cc
 
-	Note that all knowledge about the options of a compiler are derived
+	Note that all knowledge about the options of a compiler is derived
 	from the CCOM= variable, so if you like to use an instrumented gcc
 	variant, you may like to call:
 
 		make CCOM=gcc CC=fluffy-gcc
 
+	You may use CC="fluffy-gcc fluffy-gcc-specific options" if you like
+	to enforce specific options with the compiler. See hints on cross
+	compilation below.
 
 
-Getting help from make:
+Getting help from the make file system:
 
 	For a list of targets call:
 
 		make .help
+
+	.help is a special target that prints help for the makefile system.
 
 
 Getting more information on the make file system:
@@ -401,8 +422,8 @@ Hints for compilation:
 		export MAKEPROG
 		exec gmake "$@"
 
-	and call 'Gmake' instead of gmake. On Linux, there is no gmake, 'make'
-	on Linux is really a gmake.
+	and call 'Gmake' instead of gmake. On Linux, there is no gmake, the
+	program installed as 'make' on Linux is really a gmake.
 
 	'Gmake' and 'Gmake.linux' are part of this distribution.
 
@@ -449,6 +470,19 @@ Compiling the project using engineering defaults:
 
 		make DEFAULTSDIR=DEFAULTS_ENG
 
+	Note however, that some GCC versions print a lot of wrong warnings
+	in this mode. Well known problems with GCC warnings are:
+
+	-	The recursive printf format "%r" that is in use since ~ 1980
+		is not supported and causes a lot of incorrect warnings as
+		GCC does not know that "%r" takes 2 parameters.
+
+	-	The standard C construct "(void) read(fd, buf, sizeof (buf))"
+		is flagged by some versions of GCC even though the void cast
+		is a clear expression of the fact that the return code from read
+		is intentionally ignored. This may cause many useless warnings
+		for last resort error messages used in programs.
+
 
 Compiling the project to allow debugging with dbx/gdb:
 
@@ -465,7 +499,7 @@ Compiling the project to allow debugging with dbx/gdb:
 	or
 		 make "COPTX=-g -O0" LDOPTX=-g
 
-	depending on the option system of your C compiler.
+	depending on the option system used by your C compiler.
 
 
 Compiling the project to allow performance monitoring with gprof from BSD:
@@ -479,7 +513,7 @@ Compiling the project to allow performance monitoring with gprof from BSD:
 	or
 		make COPTX=-pg LDOPTX=-pg LINKMODE=profiled
 
-	depending on the option system of your C compiler.
+	depending on the option system used by your C compiler.
 
 
 Creating Blastwave packages:
@@ -526,8 +560,8 @@ Compiling in a cross compilation environment:
 	run on the target system.
 
 	The Schily autoconf system now supports a method to run these ~70
-	tests natively on a target system. You either need a machine with
-	remote login features or you need an emulator with a method to
+	tests natively on a target system. You either need a target machine
+	with remote login features or you need an emulator with a method to
 	copy files into the emulated system and to run binaries on the
 	emulated system as e.g. the Android emulator.
 
@@ -556,7 +590,7 @@ Compiling in a cross compilation environment:
 				CONFIG_RMTHOST=user@hostname
 
 				use a dummy if you like to use something
-				like to the Android emulator.
+				like the Android emulator.
 
 	CONFIG_RMTDEBUG=	Set to something non-null in order to 
 				let the remote execution script mark
@@ -604,7 +638,7 @@ Compiling in a cross compilation environment:
 	It is usually suffucient to set ARCH and OSNAME.
 
 	In order to use a cross compiler environment instead of a native compiler,
-	set the make macro CC_COM to something different than "cc".
+	set the make macro CC_COM or CC to something different than "cc".
 
 	If you are on Linux and like to compile for Android, do the following:
 
@@ -627,7 +661,12 @@ Compiling in a cross compilation environment:
 	3)	call smake:
 
 		smake ARCH=armv5 OSNAME=linux CCOM=gcc "CC_COM=$CC"
-	
+
+		or
+
+		smake ARCH=armv5 OSNAME=linux CCOM=gcc "CC=$CC"
+
+
 
 
 Author:

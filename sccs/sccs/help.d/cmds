@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.47 17/02/04 J. Schilling 
+* @(#)cmds	1.48 17/02/27 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -721,7 +721,6 @@ options:
 options:
 	-rm	Remove RCS files after completion
 	-V6	Convert into SCCS v6 history
-
 -init
 	init [-f] [-i] [dir]
 
@@ -730,3 +729,23 @@ options:
 options:
 	-f	Force to initialize even if already initialized
 	-i	Keep SCCS directories inside the source tree
+-add
+	add file...
+
+	Add files to the project list for the next commit
+-commit
+	commit
+
+	Commit changes in project files  to the project repository
+-remove
+	remove file...
+
+	Remove files from the project list for the next commit
+-rename
+	rename source destination
+
+	Rename files in the project list for the next commit
+-status
+	status [file...]
+
+	Show changed files in the project

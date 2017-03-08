@@ -1,8 +1,8 @@
-/* @(#)acl_unix.c	1.52 16/09/16 Copyright 2001-2016 J. Schilling */
+/* @(#)acl_unix.c	1.53 17/02/23 Copyright 2001-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.52 16/09/16 Copyright 2001-2016 J. Schilling";
+	"@(#)acl_unix.c	1.53 17/02/23 Copyright 2001-2016 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -188,6 +188,9 @@ LOCAL	char	*acl_add_ids	__PR((char *dst, char *from, char *end, int *sizep));
 LOCAL	char	*base_acl	__PR((mode_t mode));
 LOCAL	void	acl_check_ids	__PR((char *acltext, char *infotext, BOOL is_nfsv4));
 
+#ifdef	HAVE_NFSV4_ACL
+LOCAL	void	nfsv4_shrink	__PR((char *acltext));
+#endif
 
 #ifdef HAVE_POSIX_ACL	/* The withdrawn POSIX.1e draft */
 
@@ -775,6 +778,8 @@ get_acls(info)
 			return (FALSE);
 		}
 		free(acltext);
+		nfsv4_shrink(acl_ace_text.ps_path);
+
 		info->f_xflags |= XF_ACL_ACE;
 		info->f_acl_ace = acl_ace_text.ps_path;
 		return (TRUE);
@@ -1527,6 +1532,48 @@ acl_check_ids(acltext, infotext, is_nfsv4)
 	}
 	*(--acltext) = '\0';
 }
+
+#ifdef	HAVE_NFSV4_ACL
+LOCAL void
+nfsv4_shrink(acltext)
+	register char	*acltext;
+{
+	register char		*ap;
+	register char		*cp;
+	register char		*ep;
+		int		asize = strlen(acltext) - 24;
+
+	for (ap = cp = acltext; *cp; *ap++ = *cp++) {
+		if (*cp == ':') {
+			/*
+			 * Check whether the rest of the string is long
+			 * enough for a complete ACE and whether this
+			 * colon is the beginning of a
+			 * ":rwxpdDaARWcCos:fdinSFI:" block.
+			 */
+			if ((cp - acltext) > asize)
+				continue;
+			if (cp[15] != ':')
+				continue;
+			if (cp[23] != ':')
+				continue;
+			/*
+			 * Remove '-'s from the ACE block to make it
+			 * higly compact in order to let more ACEs
+			 * fit into a 512 Byte exteded header block.
+			 */
+			for (ep = &cp[23]; cp <= ep; ) {
+				if (*cp == '-') {
+					cp++;
+					continue;
+				}
+				*ap++ = *cp++;
+			}
+		}
+	}
+	*ap = '\0';	/* Add null byte to the new end */
+}
+#endif	/* HAVE_NFSV4_ACL */
 
 #endif  /* USE_ACL */
 

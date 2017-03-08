@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)sccs.c	1.82 16/12/05 J. Schilling
+ * @(#)sccs.c	1.83 17/02/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.82 16/12/05 J. Schilling"
+#pragma ident "@(#)sccs.c 1.83 17/02/27 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -2492,7 +2492,7 @@ do_unedit(fn)
 	}
 	gfile = auxf(pfn, 'g');
 	if (Cwd && Cwd[2]) {
-		Gfile = malloc(strlen(&Cwd[2] + strlen(gfile) + 1));
+		Gfile = malloc(strlen(&Cwd[2]) + strlen(gfile) + 1);
 		if (Gfile == NULL) {
 			perror(gettext("Sccs: no mem"));
 			exit(EX_OSERR);

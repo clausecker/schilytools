@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)get.c	1.72 16/06/17 J. Schilling
+ * @(#)get.c	1.73 17/02/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.72 16/06/17 J. Schilling"
+#pragma ident "@(#)get.c 1.73 17/02/27 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -687,6 +687,8 @@ unlock:
 		unlockit(auxf(pkt->p_file, 'z'), getpid(), uuname);
 	}
 	ffreeall();
+	if (HADUCA)				/* ffreeall() killed it	*/
+		lhash_destroy();		/* need to reset it	*/
 }
 
 static void
