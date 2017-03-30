@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.63 17/01/17 2008-2017 J. Schilling
+ * @(#)macro.c	1.64 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.63 17/01/17 2008-2017 J. Schilling";
+	"@(#)macro.c	1.64 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -72,7 +72,7 @@ static unsigned int dolname	__PR((unsigned char **argpp,
 					unsigned int c, unsigned int addc));
 static int	getch		__PR((unsigned char endch, int trimflag));
 	unsigned char *macro	__PR((unsigned char *as));
-static	unsigned char *_macro	__PR((unsigned char *as));
+	unsigned char *_macro	__PR((unsigned char *as));
 static void	comsubst	__PR((int, int));
 	void	subst		__PR((int in, int ot));
 static void	flush		__PR((int));
@@ -676,7 +676,7 @@ macro(as)
 	return (fixstak());
 }
 
-static unsigned char *
+unsigned char *
 _macro(as)
 	unsigned char	*as;
 {

@@ -1,8 +1,8 @@
-/* @(#)memory.c	1.22 12/12/20 Copyright 1985-2012 J. Schilling */
+/* @(#)memory.c	1.23 17/03/17 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)memory.c	1.22 12/12/20 Copyright 1985-2012 J. Schilling";
+	"@(#)memory.c	1.23 17/03/17 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Make program
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -145,9 +147,18 @@ prmem()
 
 
 /*
- * malloc() needs 16 bytes for each allocated chunk.
- * We need to allocate 8 bytes in most cases (hundereds or thousands of
- * times) and therefore try to optimize things.
+ * In 32-bit mode, malloc() usually needs 16 bytes for each allocated chunk.
+ * In 32-bit mode, we need to allocate sizeof (list_t) -> 8 bytes in most cases
+ * (hundereds or thousands of times) and therefore try to optimize things.
+ *
+ * If size is > sizeof (list_t), we take the memory from the current chunk in
+ * case there is still a sufficient amount of free space in the chunk.
+ * Otherwise, we forward the call to checkalloc(size).
+ *
+ * Objects allocated via fastalloc() and greater than sizeof (list_t) cannot be
+ * free()d. This applies to data type obj_t and strings that name obj_t or to
+ * data type patr_t and the strings used inside these pattern rules. This data
+ * however does not need to be free()d during the lifetime of the program.
  */
 EXPORT char *
 fastalloc(size)
@@ -179,11 +190,12 @@ fastalloc(size)
 
 	if (result + size > spcend) {
 
-		if (size >= 4*sizeof (long))
+		if (size > sizeof (list_t))
 			return (checkalloc(size)); /* keep rest of space */
 
-		spc =    result = checkalloc(512);
-		spcend = result + 512;
+#define	FAST_CHUNK	1024
+		spc =    result = checkalloc(FAST_CHUNK);
+		spcend = result + FAST_CHUNK;
 	}
 	spc += size;
 	return (result);
@@ -237,7 +249,7 @@ strsave(p)
 	char	*p;
 {
 	unsigned i	= strlen(p) + 1;
-	char	 *res	= fastalloc(i);
+	char	 *res	= fastalloc(i);		/* may be larger than list_t */
 
 	if (i > 16) {
 		movebytes(p, res, (int) i);

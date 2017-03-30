@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.256 17/01/05 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.257 17/03/02 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -74,7 +74,7 @@
 #undef HAVE_UTIME_H		/* to use utime.h for the utimbuf structure declaration, else declare struct utimbuf yourself */
 #undef HAVE_SYS_UTIME_H		/* to use sys/utime.h if utime.h does not exist */
 #undef HAVE_SYS_IOCTL_H		/* if sys/ioctl.h is present */
-#undef HAVE_SYS_FILIO_H		/* if sys/ioctl.h is present */
+#undef HAVE_SYS_FILIO_H		/* if sys/filio.h is present */
 #undef HAVE_SYS_PARAM_H		/* if sys/param.h is present */
 #undef HAVE_MACH_MACHINE_H	/* if mach/machine.h is present */
 #undef HAVE_MNTENT_H		/* if mntent.h is present */

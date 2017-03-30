@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)io.c	1.30 16/11/14 2008-2016 J. Schilling
+ * @(#)io.c	1.31 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.30 16/11/14 2008-2016 J. Schilling";
+	"@(#)io.c	1.31 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -348,8 +348,8 @@ void
 copy(ioparg)
 	struct ionod	*ioparg;
 {
-	unsigned char	*cline;
-	unsigned char	*clinep;
+	unsigned char	*cline;		/* Start of current line */
+	unsigned char	*clinep;	/* Current add pointer */
 	struct ionod	*iop;
 	unsigned int	c;
 	unsigned char	*ends;
@@ -386,7 +386,16 @@ copy(ioparg)
 				ends++;
 		}
 		for (;;) {
+			staktop = &clinep[1];
 			chkpr();
+			if (stakbot != start) {
+				poff = stakbot - start;
+				start += poff;
+				cline += poff;
+				clinep += poff;
+				poff = 0;
+			}
+			staktop = start;
 			if (nosubst) {
 				c = readwc();
 				if (stripflg)

@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.116 15/04/15 Copyright 1985-2015 J. Schilling */
+/* @(#)parse.c	1.117 17/03/15 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.116 15/04/15 Copyright 1985-2015 J. Schilling";
+	"@(#)parse.c	1.117 17/03/15 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2015 by J. Schilling
+ *	Copyright (c) 1985-2017 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -481,7 +481,7 @@ define_patrule(obj, dep, cmd, type)
 	char	*s;
 	register list_t *l;
 
-	p = (patr_t *) fastalloc(sizeof (*p));
+	p = (patr_t *) fastalloc(sizeof (*p));	/* larger than list_t */
 
 	p->p_name = obj;
 	p->p_list = dep;
@@ -1475,7 +1475,8 @@ _objlook(table, name, create)
 	/*
 	 * Add new entry to ObjTab.
 	 */
-	*pp = p = (obj_t *) fastalloc(sizeof (obj_t));	/* insert into list */
+	*pp = p = (obj_t *) fastalloc(sizeof (obj_t));	/* larger than list_t */
+							/* insert into list */
 	p->o_left = p->o_right = (obj_t *) NULL;	/* old 'p' was NULL */
 	p->o_cmd = (cmd_t *) NULL;
 	p->o_list = (list_t *) NULL;

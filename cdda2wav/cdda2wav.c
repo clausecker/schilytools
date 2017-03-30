@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.165 16/02/14 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling */
+/* @(#)cdda2wav.c	1.168 17/03/29 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.165 16/02/14 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling";
+"@(#)cdda2wav.c	1.168 17/03/29 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004,2015	(C) Heiko Eissfeldt
- * Copright 2004-2016		(C) J. Schilling
+ * Copright 2004-2017		(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -3785,6 +3785,15 @@ main(argc, argv)
 #if defined(HAVE_FORK_AND_SHAREDMEM)
 
 	/*
+	 * Linux comes with a broken libc that makes "stderr" buffered even
+	 * though POSIX requires "stderr" to be never "fully buffered".
+	 * As a result, we would get garbled output once our fork()d child
+	 * calls exit(). We work around the Linux bug by calling fflush()
+	 * before fork()ing.
+	 */
+	fflush(outfp);
+
+	/*
 	 * Everything is set up. Now fork and let one process read cdda sectors
 	 * and let the other one store them in a wav file
 	 */
@@ -3956,7 +3965,7 @@ gargs(argc, argv)
 	BOOL	domax = FALSE;
 	BOOL	dump_rates = FALSE;
 	BOOL	md5blocksize = FALSE;
-	int	userverbose = -1;
+	long	userverbose = -1;
 	int	outfd = -1;
 	int	audiofd = -1;
 
@@ -4051,7 +4060,7 @@ gargs(argc, argv)
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004,2015 %s (C) 2004-2016 %s\n"),
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004,2015 %s (C) 2004-2017 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Heiko Eissfeldt"),
@@ -4071,6 +4080,13 @@ gargs(argc, argv)
 		global.out_fp = fdopen(outfd, "wa");
 		if (global.out_fp == NULL)
 			comerr(_("Cannot open output fd %d.\n"), outfd);
+#ifdef	HAVE_SETVBUF
+		setvbuf(global.out_fp, NULL, _IONBF, 0);
+#else
+#ifdef	HAVE_SETVBUF
+		setbuf(global.out_fp, NULL);
+#endif
+#endif
 	}
 	if (!global.scanbus)
 		cdr_defaults(&global.dev_name, NULL, NULL, &global.bufsize, NULL);

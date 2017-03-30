@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.60 17/01/05 2008-2017 J. Schilling
+ * @(#)main.c	1.62 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.60 17/01/05 2008-2017 J. Schilling";
+	"@(#)main.c	1.62 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -642,12 +642,15 @@ exfile(prof)
 #define	EDIT_RPOMPTS	2
 			if (flags2 & vedflg) {
 				editpr(0);
-			} else
+			} else {
 #endif
 #ifdef	DO_PS34
-				prs(ps_macro(ps1nod.namval));
+				prs(ps_macro(ps1nod.namval, FALSE));
 #else
 				prs(ps1nod.namval);	/* Ignores NULL ptr */
+#endif
+#ifdef	INTERACTIVE
+			}
 #endif
 
 #ifdef TIME_OUT
@@ -703,12 +706,15 @@ chkpr()
 #ifdef	INTERACTIVE
 		if (flags2 & vedflg) {
 			editpr(1);
-		} else
+		} else {
 #endif
 #ifdef	DO_PS34
-			prs(ps_macro(ps2nod.namval));
+			prs(ps_macro(ps2nod.namval, FALSE));
 #else
 			prs(ps2nod.namval);	/* Ignores NULL ptr */
+#endif
+#ifdef	INTERACTIVE
+		}
 #endif
 	}
 }
@@ -719,14 +725,25 @@ editpr(idx)
 	int	idx;
 {
 	if (flags2 & vedflg) {
-		char *prompts[EDIT_RPOMPTS];
+	static	char *prompts[EDIT_RPOMPTS];
+	static	char palloc[EDIT_RPOMPTS];
 
-		if ((prompts[0] = C ps1nod.namval) == NULL)
-			prompts[0] = C nullstr;
-		if ((prompts[1] = C ps2nod.namval) == NULL)
-			prompts[1] = C nullstr;
+		if (palloc[idx])
+			free(prompts[idx]);
+
+		if (idx == 0 || prompts[0] == NULL) {
+			if ((prompts[0] = C ps1nod.namval) == NULL)
+				prompts[0] = C nullstr;
+			palloc[0] = FALSE;
+		}
+		if (idx == 1 || prompts[1] == NULL) {
+			if ((prompts[1] = C ps2nod.namval) == NULL)
+				prompts[1] = C nullstr;
+			palloc[1] = FALSE;
+		}
 #ifdef	DO_PS34
-		prompts[idx] = C ps_macro(UC prompts[idx]);
+		prompts[idx] = C ps_macro(UC prompts[idx], TRUE);
+		palloc[idx] = TRUE;
 #endif
 		shedit_setprompts(idx, EDIT_RPOMPTS, prompts);
 	}

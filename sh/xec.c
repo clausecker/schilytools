@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.74 16/08/28 2008-2016 J. Schilling
+ * @(#)xec.c	1.75 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.74 16/08/28 2008-2016 J. Schilling";
+	"@(#)xec.c	1.75 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -75,7 +75,7 @@ static jmp_buf	forkjmp;	/* To go back to TNOFORK in case of builtins */
 					int xflags, int errorflg,
 					int *pf1, int *pf2));
 #ifdef	DO_PS34
-	unsigned char *ps_macro	__PR((unsigned char *as));
+	unsigned char *ps_macro	__PR((unsigned char *as, int perm));
 #endif
 	void	execexp		__PR((unsigned char *s, Intptr_t f,
 					int xflags));
@@ -1097,8 +1097,9 @@ execexp(s, f, xflags)
 
 #ifdef	DO_PS34
 unsigned char *
-ps_macro(as)
+ps_macro(as, perm)
 	unsigned char	*as;
+	int		perm;
 {
 extern	int		macflag;
 	int		oflags = flags;
@@ -1108,9 +1109,12 @@ extern	int		macflag;
 	flags &= ~(execpr|readpr);
 	if ((flags2 & promptcmdsubst) == 0)
 		macflag |= M_NOCOMSUBST;
-	res = macro(as);
+	res = _macro(as);
 	macflag = omacflag;
 	flags = oflags;
+
+	if (perm)
+		return (make(res));
 
 	return (res);
 }
@@ -1124,7 +1128,7 @@ execprint(com)
 	unsigned char	*s;
 
 #ifdef	DO_PS34
-	prs(ps_macro(ps4nod.namval?ps4nod.namval:UC execpmsg));
+	prs(ps_macro(ps4nod.namval?ps4nod.namval:UC execpmsg, FALSE));
 #else
 	prs(_gettext(execpmsg));
 #endif

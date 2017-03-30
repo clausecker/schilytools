@@ -1,4 +1,4 @@
-# @(#)README.compile	1.32 17/02/20 Copyright 1997-2017 J. Schilling
+# @(#)README.compile	1.33 17/03/15 Copyright 1997-2017 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -667,6 +667,61 @@ Compiling in a cross compilation environment:
 		smake ARCH=armv5 OSNAME=linux CCOM=gcc "CC=$CC"
 
 
+Compiling with the address sanitizer:
+
+	Be careful with a compiler enhancement called "addess sanitizer".
+
+	First a note: the address sanitizer needs a lot of memory when in
+	64-bit mode. For this reason, it is recommended to run the tests
+	in 32-bit mode as it may be impossible to provdie a sufficient amount
+	of memory for the 64-bit mode.
+
+	1) The address sanitizer may cause autoconf to behave incorrectly in
+	case that the compiler options used by the "configure" run include the
+	address sanitizer. It seems that in addition, the address sanitizer
+	adds more libraries to the link list and as a result prevents
+	the correct autoconf decision on whether a specific library from
+	a "configure" test is needed by some binaries.
+
+	For this reason, first run e.g.:
+
+		cd inc/
+		smake CCOM=gcc32
+		cd ..
+
+	to prepare the auto-configuration without using the address sanitizer.
+
+	2) The address sanitizer ignores installed SIGSEGV handlers and thus
+	ignores the intention of the author of the code.
+
+	The correct behavior may be switched on via setting the environment
+	variable:
+
+		ASAN_OPTIONS=allow_user_segv_handler=true
+
+	As a redult, the command line to compile the code after the
+	auto-configuration has been done as mentioned above is:
+
+	ASAN_OPTIONS=allow_user_segv_handler=true smake CCOM=gcc32 COPTX="-g -O0 -fsanitize=address" LDOPTX="-g -fsanitize=address" 
+
+	If you like to disable the memory leak detection because your program
+	is a short running program that intentionally does not free() resources
+	before calling exit(), use:
+
+		ASAN_OPTIONS=allow_user_segv_handler=true:detect_leaks=0
+
+	If you also like to get a core dump on error to debug, you may like
+	to use:
+
+		ASAN_OPTIONS=allow_user_segv_handler=true:detect_leaks=0:abort_on_error=1
+
+
+Compiling with the "Americal fuzzy lop":
+
+	Follow the instruction from above for the address sanitizer, but
+	use this command line to call the compiler:
+
+	ASAN_OPTIONS=allow_user_segv_handler=true AFL_HARDEN=1 AFL_USE_ASAN=1 smake CC=afl-gcc CCOM=gcc32
 
 
 Author:

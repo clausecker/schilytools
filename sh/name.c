@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)name.c	1.68 17/01/05 2008-2017 J. Schilling
+ * @(#)name.c	1.69 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.68 17/01/05 2008-2017 J. Schilling";
+	"@(#)name.c	1.69 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -331,7 +331,8 @@ setlist(arg, xp)
 		arg = arg->argnxt;
 		if (flags & execpr) {
 #ifdef	DO_PS34
-			prs(ps_macro(ps4nod.namval?ps4nod.namval:UC execpmsg));
+			prs(ps_macro(ps4nod.namval?ps4nod.namval:UC execpmsg,
+								FALSE));
 #endif
 			prs(s);
 			if (arg)

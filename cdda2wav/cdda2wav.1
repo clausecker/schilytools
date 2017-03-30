@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.63 16/01/26 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling
+.\" @(#)cdda2wav.1	1.64 17/03/29 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -14,7 +14,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDDA2WAV 1 "Version 3.02 2016/01/26"
+.TH CDDA2WAV 1 "Version 3.02 2017/03/29"
 .SH NAME
 cdda2wav \- dumps CD audio data into sound files with extra data verification
 .SH SYNOPSIS
@@ -616,6 +616,12 @@ Warning: some drives have been reported to fail reading hidden tracks when
 the
 .B c2check
 mode is in effect.
+If you encounter a drive where
+.B cdda2wav
+is not able to auto-detect whether
+.B c2check
+is usable, please report.
+.sp
 When you plan to use
 .B c2check
 while extracting hidden tracks, first verify that your drive will report
@@ -655,7 +661,14 @@ Note that previous versions did include
 .B c2check
 with the
 .B proof
-macro, but this has been reported to fail on some drives.
+macro, but this has been reported to fail on some drives and thus
+.B c2check
+was disabled by default.
+Current versions of
+.B cdda2wav
+auto-detect whether the actual drive supports the
+.B c2check
+feature and use it if possible.
 
 .RE
 .br
@@ -1708,7 +1721,7 @@ D-13353 Berlin
 Germany
 .fi
 .SH DATE
-2016/01/26
+2017/03/29
 .br
 .ne 7
 .SH "INTERFACE STABILITY

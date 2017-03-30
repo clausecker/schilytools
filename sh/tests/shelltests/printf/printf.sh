@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)printf.sh	1.2 16/07/24 Copyright 2016 J. Schilling
+# @(#)printf.sh	1.3 17/03/17 Copyright 2016-2017 J. Schilling
 #
 
 # Read printf core functions
@@ -37,6 +37,13 @@ docommand printf24 "$SHELL -c 'printf \"%*b\n\" 10 123'" 0 "       123\n" ""
 docommand printf25 "$SHELL -c 'printf \"%*b\n\" -10 123'" 0 "123       \n" ""
 docommand printf26 "$SHELL -c 'printf \"%.3b\n\" 1234567890'" 0 "123\n" ""
 docommand printf27 "$SHELL -c 'printf \"%.*b\n\" 3 1234567890'" 0 "123\n" ""
+
+#
+# Check whether printf '\0123' behaves like the C-syntax and stops after
+# the 3rd octal number even in case that the first number is a '0'
+#
+docommand printf30 "$SHELL -c 'printf \"\\1234\n\"'" 0 "S4\n" ""
+docommand printf31 "$SHELL -c 'printf \"\\0123\n\"'" 0 "\n3\n" ""
 
 cat > x <<"XEOF"
 printf '%b' 'abc'

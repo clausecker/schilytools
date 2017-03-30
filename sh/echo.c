@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)echo.c	1.16 16/07/15 2008-2016 J. Schilling
+ * @(#)echo.c	1.17 17/03/15 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.16 16/07/15 2008-2016 J. Schilling";
+	"@(#)echo.c	1.17 17/03/15 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -182,6 +182,8 @@ escape_char(cp, res, echomode)
 
 	case '0':
 		j = wd = 0;
+		if (!echomode)		/* '\0123' must be '\n3' */
+			j = 1;
 	oct:
 		while ((*++cp >= '0' &&
 		    *cp <= '7') && j++ < 3) {

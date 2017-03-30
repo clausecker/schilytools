@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.165 17/01/05 2008-2017 J. Schilling
+ * @(#)defs.h	1.166 17/03/15 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -605,6 +605,7 @@ extern	int	getrusage	__PR((int who, struct rusage *r_usage));
 #define	M_SPLIT		(M_PARM|M_COMMAND|M_DOLAT)
 #define	M_NOCOMSUBST	8	/* Do not expand ` ` and $()	*/
 extern	unsigned char *macro	__PR((unsigned char *as));
+extern	unsigned char *_macro	__PR((unsigned char *as));
 extern	void	subst		__PR((int in, int ot));
 
 /*
@@ -876,7 +877,7 @@ extern	unsigned int	readwc	__PR((void));
 extern	int	execute		__PR((struct trenod *argt, int xflags,
 						int errorflg,
 						int *pf1, int *pf2));
-extern	unsigned char *ps_macro	__PR((unsigned char *as));
+extern	unsigned char *ps_macro	__PR((unsigned char *as, int perm));
 extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
 						int xflags));
 

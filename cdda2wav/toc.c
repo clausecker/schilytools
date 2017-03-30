@@ -1,12 +1,12 @@
-/* @(#)toc.c	1.100 16/02/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)toc.c	1.101 17/03/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.100 16/02/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)toc.c	1.101 17/03/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2013 J. Schilling
+ * Copyright (c) 2004-2017 J. Schilling
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -2746,6 +2746,7 @@ Get_Set_MCN()
 	subq_catalog	*subq_cat = NULL;
 
 	fprintf(outfp, _("scanning for MCN..."));
+	fflush(outfp);
 
 	sub_ch = ReadSubQ(get_scsi_p(), GET_CATALOGNUMBER, 0);
 
@@ -2852,6 +2853,7 @@ Get_Set_ISRC(tr)
 	subq_track_isrc	*subq_tr;
 
 	fprintf(outfp, _("\rscanning for ISRCs: %u ..."), tr);
+	fflush(outfp);
 
 	subq_tr = NULL;
 	sub_ch = ReadSubQ(get_scsi_p(), GET_TRACK_ISRC, tr);
