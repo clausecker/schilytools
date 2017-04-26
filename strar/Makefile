@@ -1,4 +1,4 @@
-#	@(#)Makefile	1.1 17/02/14 Copyr 2017 J. Schilling
+#	@(#)Makefile	1.2 17/04/21 Copyr 2017 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,7 +12,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		strar.c
 HFILES=
-LIBS=		-lstreamar -lfind -lschily
+LIBS=		-lstreamar -lfind -lschily $(LIB_INTL)
+#
+#	Wenn -lfind, dann auch  $(LIB_INTL)
+#
 XMK_FILE=	Makefile.man
 
 ###########################################################################

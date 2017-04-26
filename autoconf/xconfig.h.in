@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.257 17/03/02 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.258 17/04/19 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -187,6 +187,7 @@
 #undef HAVE_DLFCN_H		/* if we may include dlfcn.h */
 #undef HAVE_LINK_H		/* if we may include link.h */
 #undef HAVE_DL_H		/* if we may include dl.h */
+#undef HAVE_LIBELF_H		/* if we may include libelf.h */
 
 #undef HAVE_EXPAT_H		/* if we may include expat.h */
 
@@ -601,6 +602,8 @@
 #undef HAVE_GETPROFATTR		/* getprofattr() is present in -lsecdb */
 
 #undef HAVE_GMATCH		/* gmatch() is present in -lgen */
+
+#undef HAVE_ELF_BEGIN		/* elf_begin() is present in -lelf */
 
 #undef HAVE_CLONE_AREA		/* clone_area() is present in libc */
 #undef HAVE_CREATE_AREA		/* create_area() is present in libc */

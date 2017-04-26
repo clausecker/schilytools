@@ -1,6 +1,6 @@
-#ident "@(#)rules.prg	1.21 15/03/26 "
+#ident "@(#)rules.prg	1.23 17/04/16 "
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2017 by J. Schilling
 ###########################################################################
 #
 # Generic rules for program names
@@ -47,8 +47,8 @@ LN=		/bin/ln
 SYMLINK=	/bin/ln -s
 RM=		/bin/rm
 MV=		/bin/mv
-LORDER=		lorder
-TSORT=		tsort
+LORDER=		$(LORDER_PROG)
+TSORT=		$(TSORT_PROG)
 CTAGS=		vctags
 ETAGS=		etags
 UMASK=		umask $(UMASK_VAL)
@@ -63,6 +63,7 @@ RM_RF=		$(RM_RECURS) $(RM_FORCE)
 RM_F=		$(RM) $(RM_FORCE)
 
 INSMODEF_DEF=	444
+INSMODED_DEF=	755
 INSMODEX_DEF=	755
 INSUSR_DEF=	root
 INSGRP_DEF=	bin
@@ -78,6 +79,10 @@ UMASK_VAL=	$(__DEFUMASK:$(_UNIQ)%=%)
 _DEFINSMODEF=	$(_UNIQ)$(DEFINSMODEF)
 __DEFINSMODEF=	$(_DEFINSMODEF:$(_UNIQ)=$(INSMODEF_DEF))
 INSMODEF=	$(__DEFINSMODEF:$(_UNIQ)%=%)
+
+_DEFINSMODED=	$(_UNIQ)$(DEFINSMODED)
+__DEFINSMODED=	$(_DEFINSMODED:$(_UNIQ)=$(INSMODED_DEF))
+INSMODED=	$(__DEFINSMODED:$(_UNIQ)%=%)
 
 _DEFINSMODEX=	$(_UNIQ)$(DEFINSMODEX)
 __DEFINSMODEX=	$(_DEFINSMODEX:$(_UNIQ)=$(INSMODEX_DEF))

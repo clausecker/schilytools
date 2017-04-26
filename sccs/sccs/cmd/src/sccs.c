@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)sccs.c	1.83 17/02/27 J. Schilling
+ * @(#)sccs.c	1.84 17/04/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.83 17/02/27 J. Schilling"
+#pragma ident "@(#)sccs.c 1.84 17/04/15 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -369,9 +369,9 @@ static struct sccsprog SccsProg[] =
 	{ "edit",	CMACRO,	RF_OK|NO_SDOT,		"get -e" },
 	{ "editor",	EDITOR,	NO_SDOT,		NULL },
 	{ "delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysropd/get:ixbeskcl -t" },
+	   "delta:mysropd/get:ixbeskclo -t" },
 	{ "deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysropd/get:ixbskcl -e -t -d" },
+	   "delta:mysropd/get:ixbskclo -e -t -d" },
 	{ "fix",	FIX,	NO_SDOT,		NULL },
 	{ "clean",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CLEANC },
 	{ "info",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) INFOC },
@@ -389,7 +389,7 @@ static struct sccsprog SccsProg[] =
 	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g" },
 	{ "enter",	ENTER,	NO_SDOT,		NULL },
 	{ "create",	CMACRO,	NO_SDOT,
-	   "enter:abdfmortyzV/get:ixbeskcl -t" },
+	   "enter:abdfmortyzV/get:ixbeskclo -t" },
 	{ "add",	ADD,	REALUSER|NO_SDOT,	NULL },
 	{ "commit",	COMMIT,	REALUSER|NO_SDOT,	NULL },
 	{ "init",	INIT,	REALUSER|NO_SDOT,	NULL },

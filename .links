@@ -243,6 +243,12 @@
 ./RULES/aarch64-linux-gcc.rul
 ./RULES/aarch64-linux-gcc32.rul
 ./RULES/aarch64-linux-gcc64.rul
+./RULES/aarch64-sunos5-clang.rul
+./RULES/aarch64-sunos5-clang32.rul
+./RULES/aarch64-sunos5-clang64.rul
+./RULES/aarch64-sunos5-gcc.rul
+./RULES/aarch64-sunos5-gcc32.rul
+./RULES/aarch64-sunos5-gcc64.rul
 ./RULES/alpha-linux-cc.rul
 ./RULES/alpha-linux-gcc.rul
 ./RULES/alpha-netbsd-cc.rul

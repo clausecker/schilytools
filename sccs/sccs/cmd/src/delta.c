@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)delta.c	1.69 15/04/23 J. Schilling
+ * @(#)delta.c	1.70 17/04/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.69 15/04/23 J. Schilling"
+#pragma ident "@(#)delta.c 1.70 17/04/15 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -435,6 +435,7 @@ char *file;
         }
 	sid_ba(&gpkt.p_reqsid, nsid);
 	Nsid=nsid;
+	gfile_mtime.tv_sec = gfile_mtime.tv_nsec = 0;
         if ((HADO || HADQ) && stat(gfilename, &sbuf) == 0) {
                 /*
 		 * When specifying -o (original date) and when
@@ -698,6 +699,31 @@ command, to check the differences found between two files.
 
 	chown(gpkt.p_file, (unsigned int)sbuf.st_uid,
 			(unsigned int)sbuf.st_gid);
+	if (HADO) {
+		struct timespec	ts[2];
+		extern dtime_t	Timenow;
+
+		ts[0].tv_sec = Timenow.dt_sec;
+		ts[0].tv_nsec = Timenow.dt_nsec;
+		ts[1].tv_sec = gfile_mtime.tv_sec;
+		ts[1].tv_nsec = gfile_mtime.tv_nsec;
+
+		/*
+		 * As SunPro make and gmake call sccs get when the time
+		 * if s.file equals the time stamp of the g-file, make
+		 * sure the s.file is a bit older.
+		 */
+		if (!(gpkt.p_flags & PF_V6)) {
+			struct timespec	tn;
+
+			getnstimeofday(&tn);
+			ts[1].tv_nsec = tn.tv_nsec;
+		}
+		if (ts[1].tv_nsec > 500000000)
+			ts[1].tv_nsec -= 500000000;
+
+		utimensat(AT_FDCWD, gpkt.p_file, ts, 0);
+	}
 	if (!HADF || Pfilename[0] != '\0') {
 		char	*qfile;
 		

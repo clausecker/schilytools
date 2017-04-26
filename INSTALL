@@ -1,4 +1,4 @@
-# @(#)README.compile	1.33 17/03/15 Copyright 1997-2017 J. Schilling
+# @(#)README.compile	1.34 17/04/06 Copyright 1997-2017 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -683,16 +683,27 @@ Compiling with the address sanitizer:
 	the correct autoconf decision on whether a specific library from
 	a "configure" test is needed by some binaries.
 
-	For this reason, first run e.g.:
+	If you are not sure about the current state of the source tree, start
+	with calling:
+
+		./.clean
+
+	in the top level source directory. This makes the source tree to behave
+	as if if was recently unpacked from the tar archive.
+
+	Then run run e.g.:
 
 		cd inc/
 		smake CCOM=gcc32
 		cd ..
 
 	to prepare the auto-configuration without using the address sanitizer.
+	This special treatment is needed as the assumptions in the address
+	sanitizer would not allow us to run the autoconfiguration code
+	correctly.
 
-	2) The address sanitizer ignores installed SIGSEGV handlers and thus
-	ignores the intention of the author of the code.
+	2) The address sanitizer by default ignores installed SIGSEGV handlers
+	and thus ignores the intention of the author of the code.
 
 	The correct behavior may be switched on via setting the environment
 	variable:
@@ -704,6 +715,14 @@ Compiling with the address sanitizer:
 
 	ASAN_OPTIONS=allow_user_segv_handler=true smake CCOM=gcc32 COPTX="-g -O0 -fsanitize=address" LDOPTX="-g -fsanitize=address" 
 
+	3) If you are on Linux, do not forget to call "ulimit -c unlimited",
+	before calling the binary. This is needed as the default on Linux is
+	not to create a core file.
+
+	4) Set the environment ASAN_OPTIONS= for the execution of the binary
+	to control the behavior of the Address Sanitizer while the binary
+	is run.
+
 	If you like to disable the memory leak detection because your program
 	is a short running program that intentionally does not free() resources
 	before calling exit(), use:
@@ -714,6 +733,10 @@ Compiling with the address sanitizer:
 	to use:
 
 		ASAN_OPTIONS=allow_user_segv_handler=true:detect_leaks=0:abort_on_error=1
+
+	Note that the Address Sanitizer disables the creation of a core file
+	for 64 bit binaries as the tables used by the Address Sanitizer may
+	cause the core file to have a size of 16 TB.
 
 
 Compiling with the "Americal fuzzy lop":

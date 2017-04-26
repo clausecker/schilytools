@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)get.c	1.73 17/02/27 J. Schilling
+ * @(#)get.c	1.74 17/04/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.73 17/02/27 J. Schilling"
+#pragma ident "@(#)get.c 1.74 17/04/15 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -665,6 +665,21 @@ get(pkt, file)
 					ts[1].tv_sec = mktime(&tm);
 				}
 #endif
+				/*
+				 * As SunPro make and gmake call sccs
+				 * get when the time if s.file equals
+				 * the time stamp of the g-file, make
+				 * sure the g-file is a bit younger.
+				 */
+				if (!(gpkt.p_flags & PF_V6)) {
+					struct timespec	tn;
+
+					getnstimeofday(&tn);
+					ts[1].tv_nsec = tn.tv_nsec;
+				}
+				if (ts[1].tv_nsec <= 500000000)
+					ts[1].tv_nsec += 499999999;
+
 				utimensat(AT_FDCWD, gfile, ts, 0);
 			}
 		}

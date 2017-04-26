@@ -1,0 +1,46 @@
+/* @(#)README	1.1 17/04/25 Copyright 2017 J. Schilling */
+
+The CPP macros SCHILY_BUILD and SCHILY_INCLUDES are used to modify compile
+behavior:
+
+SCHILY_BUILD		Is set by the Schily Makefile System and indicates that
+			the autoconfiguration was retrieved dynamically by the
+			Schily autoconf system. This macro os not defined on a
+			OpenSolaris-ON based build system.
+
+SCHILY_INCLUDES		Is set by a build system that likes to indicate that
+			the (probably statically configured) schily include
+			files are used in order to abstract from platform
+			specific system include files.
+
+The code has been converted from catgets() to gettext() and to use only a
+single text dmomain for the whole project. The original code from Sun used a
+separate text domain for the libraries.
+
+These sources compile the following binaries:
+
+.../bin/make		A program that is compatible to the SunPro make basic
+			binary installed on Solaris as /usr/ccs/bin/make
+
+			In contrary to the original SunPro make binary, this
+			binary does not ignore the -j dmake_max_jobs option.
+			It defaults to -j 1.
+
+.../bin/dmake		A program that is partially compatible to the SunPro
+			dmake enhanced binary installed on Solaris as
+			/opt/SUNWspro/bin/dmake.
+
+			In contrary to the original SunPro dmake binary, this
+			binary neither supports any distributed make features
+			nor any grid build features.
+
+			It supports the -j dmake_max_jobs option and
+			defaults to -j 2.
+
+
+.../xpg4/bin/make	A POSIX compliant version of the SunPro make basic
+			binary. It is installed on Solaris as
+			/usr/xpg4/bin/make.
+
+.../lib/svr4.make	A program that is compatible to the SVr4 make binary.
+			It is installed on Solaris as /usr/ccs/lib/svr4.make.

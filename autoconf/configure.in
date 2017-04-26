@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.267 16/03/09 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.272 17/04/21 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.267)dnl
+AC_REVISION(1.272)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -44,6 +44,18 @@ AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AC_CHECK_PROGS(YACC, yacc 'bison -y' byacc, noyacc)
 AC_CHECK_PROGS(BISON, bison, nobison)
+#
+# We need both tsort/lorder or none of them
+#
+AC_PATH_PROG(LORDER, lorder, echo, $PATH:/usr/ccs/bin)
+if test "$LORDER" = echo; then
+	TSORT=cat
+else
+	AC_PATH_PROG(TSORT, tsort, cat, $PATH:/usr/ccs/bin)
+	if test "$TSORT" = cat; then
+		LORDER=echo
+	fi
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -121,7 +133,7 @@ AC_CHECK_HEADERS(direct.h)
 AC_CHECK_HEADERS(pthread.h thread.h)
 AC_CHECK_HEADERS(libgen.h)
 AC_CHECK_HEADERS(regex.h regexp.h regexpr.h)
-AC_CHECK_HEADERS(dlfcn.h link.h dl.h)
+AC_CHECK_HEADERS(dlfcn.h link.h dl.h libelf.h)
 AC_CHECK_HEADERS(expat.h)
 
 dnl from aclocal.m4 (uses AC_TRY_COMPILE)
@@ -906,10 +918,24 @@ LIBS="$LIBS $lib_gen"
 AC_CHECK_FUNCS(gmatch)
 LIBS="$ac_save_LIBS"
 
+AC_CHECKING(for ELF support)
+AC_CHECK_LIB(elf, elf_begin, lib_elf="-lelf")
+ac_save_LIBS="$LIBS"
+LIBS="$LIBS $lib_elf"
+AC_CHECK_FUNCS(elf_begin)
+LIBS="$ac_save_LIBS"
+
 AC_CHECK_FUNCS(thr_yield)
 
-AC_CHECK_LIB(pthread, pthread_create, lib_pthread="-lpthread",
-  [AC_CHECK_LIB(c, pthread_create, lib_pthread="")])
+dnl AC_CHECK_LIB(c, sem_post, lib_sem="",
+dnl   [AC_CHECK_LIB(pthread, sem_post, lib_sem="-lpthread")])
+dnl ac_save_LIBS="$LIBS"
+dnl LIBS="$LIBS $lib_sem"
+dnl AC_CHECK_FUNCS(sem_post)
+dnl LIBS="$ac_save_LIBS"
+
+AC_CHECK_LIB(c, pthread_create, lib_pthread="",
+  [AC_CHECK_LIB(pthread, pthread_create, lib_pthread="-lpthread")])
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_pthread"
@@ -1022,6 +1048,7 @@ AC_SUBST(lib_acl_test)
 AC_SUBST(lib_attr)
 AC_SUBST(lib_secdb)
 AC_SUBST(lib_gen)
+AC_SUBST(lib_elf)
 AC_SUBST(lib_pthread)
 AC_SUBST(lib_rt)
 AC_SUBST(lib_dl)

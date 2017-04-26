@@ -1,6 +1,6 @@
-#ident "@(#)cc-sco_uw.rul	1.13 13/11/13 "
+#ident "@(#)cc-sco_uw.rul	1.14 17/04/19 "
 ###########################################################################
-# Written 1999-2013 by J. Schilling/Santa Cruz Operation
+# Written 1999-2017 by J. Schilling/Santa Cruz Operation
 ###########################################################################
 #
 # Platform dependent MACROS for SCO UnixWare 2.x / 7.x cc
@@ -64,6 +64,7 @@ CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
 
 CC_COM_DEF=	cc
 CC++_COM_DEF=	echo "C++ not yet supported"; exit -1; :
+C++BUILD=	$(NUMBER_SIGN)		# Use to comment out C++ projects
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 

@@ -10,6 +10,8 @@ rm -f */TAGS */*/TAGS
 rm -rf sccs/sccs/*/*/OBJ
 rm -rf sccs/sccs/*/*/src/OBJ
 
+rm -rf sunpro/*/*/*/*/OBJ
+
 rm -rf proto/* packages/*
 
 for i in */.; do

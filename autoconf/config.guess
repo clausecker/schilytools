@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.17 15/11/10 Copyright 1999-2014 J. Schilling
+# @(#)config.guess	1.18 17/04/05 Copyright 1999-2014 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -558,6 +558,9 @@ EOF
 	exit 0 ;;
     prep*:SunOS:5.*:*)
 	echo powerpcle-unknown-solaris2`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
+	exit 0 ;;
+    aarch64:SunOS:5.*:*)
+	echo aarch64-unknown-solaris2`echo ${UNAME_RELEASE}|sed -e 's/[^.]*//'`
 	exit 0 ;;
     *:GNU:*:*)
 	echo `echo ${UNAME_MACHINE}|sed -e 's,[-/].*$,,'`-unknown-gnu`echo ${UNAME_RELEASE}|sed -e 's,/.*$,,'`

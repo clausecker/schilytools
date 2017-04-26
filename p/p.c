@@ -1,13 +1,13 @@
-/* @(#)p.c	1.54 16/06/14 Copyright 1985-2016 J. Schilling */
+/* @(#)p.c	1.55 17/04/05 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.54 16/06/14 Copyright 1985-2016 J. Schilling";
+	"@(#)p.c	1.55 17/04/05 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -274,7 +274,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		printf("p %s (%s-%s-%s)\n\n", "2.1", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2016 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2017 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -940,23 +940,28 @@ unul(ob, ib, amt)
 				continue;
 			}
 			ib++;
+			amt--;
 			if (ib[0] == '_') {
 				goto bold;
 			}
-		} else if (c == '+' && ib[0] == '\b' && underline) {		/* underlining */
+		} else if (c == '+' && ib[0] == '\b' && underline) {	/* underlining */
 			/* + ^H o */
 
 			ib++;
+			amt--;
 		} else if (ib[0] == '\b' && underline) {
 
 			/* N ^H N ^H N ^H N */
 			ib++;				/* eat ^H */
+			amt--;
 		bold:
-			while (ib[0] == c) {
+			while (amt > 0 && ib[0] == c) {
 				ib++;			/* eat c */
-				if (ib[0] == '\b')	/* Check for ^H */
+				amt--;
+				if (ib[0] == '\b') {	/* Check for ^H */
 					ib++;		/* eat ^H */
-				else
+					amt--;
+				} else
 					break;
 			}
 			*ob++ = c;

@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.48 17/02/27 J. Schilling 
+* @(#)cmds	1.49 17/04/15 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -589,7 +589,7 @@ options:
 	Sccs delta followed by sccs get
 
 options:
-	-o	Use original time of edited file to apply delta
+	-o	Use original time of edited file to apply delta and get
 	-s	Be silent
 	-ycmt	Supply delta comment
 -deledit
@@ -689,12 +689,14 @@ options:
 	-xSID	Specify deltas to exclude
 	-rSID	Supply SCCS ID
 -enter
-	enter [-o] file...
+	enter [-o] [options] file...
 
 	Similar to sccs create but omits the final sccs get
 
 options:
 	-o	Use original time of edited file to apply to initial delta
+
+	Other options are passed to the admin program
 -create
 	create [-o] file...
 	

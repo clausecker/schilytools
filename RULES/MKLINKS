@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.127 15/12/01 "
+#ident "@(#)MKLINKS	1.128 17/04/06 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -372,6 +372,12 @@ $symlink	i86pc-sunos5-clang.rul	i86pc-sunos5-clang32.rul
 $symlink	i86pc-sunos5-clang.rul	i86pc-sunos5-clang64.rul
 $symlink	i86pc-sunos5-gcc.rul	i86pc-sunos5-gcc32.rul
 $symlink	i86pc-sunos5-gcc.rul	i86pc-sunos5-gcc64.rul
+$symlink	sun4-sunos5-gcc.rul	aarch64-sunos5-gcc.rul
+$symlink	sun4-sunos5-gcc.rul	aarch64-sunos5-gcc32.rul
+$symlink	sun4-sunos5-gcc.rul	aarch64-sunos5-gcc64.rul
+$symlink	sun4-sunos5-clang.rul	aarch64-sunos5-clang.rul
+$symlink	sun4-sunos5-clang.rul	aarch64-sunos5-clang32.rul
+$symlink	sun4-sunos5-clang.rul	aarch64-sunos5-clang64.rul
 $symlink	sun4-sunos5-cc.rul	sun4-sunos5-cc32.rul
 $symlink	sun4-sunos5-cc.rul	sun4-sunos5-cc64.rul
 $symlink	sun4-sunos5-clang.rul	sun4-sunos5-clang32.rul

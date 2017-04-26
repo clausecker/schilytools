@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)admin.c	1.102 15/03/07 J. Schilling
+ * @(#)admin.c	1.103 17/04/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.102 15/03/07 J. Schilling"
+#pragma ident "@(#)admin.c 1.103 17/04/15 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -1458,6 +1458,31 @@ char	*afile;
 			chmod(gpkt.p_file, sbuf.st_mode);
 			chown(gpkt.p_file,sbuf.st_uid, sbuf.st_gid);
 		}
+		if (HADO) {
+			struct timespec	ts[2];
+			extern dtime_t	Timenow;
+
+			ts[0].tv_sec = Timenow.dt_sec;
+			ts[0].tv_nsec = Timenow.dt_nsec;
+			ts[1].tv_sec = ifile_mtime.tv_sec;
+			ts[1].tv_nsec = ifile_mtime.tv_nsec;
+
+			/*
+			 * As SunPro make and gmake call sccs get when the time
+			 * if s.file equals the time stamp of the g-file, make
+			 * sure the s.file is a bit older.
+			 */
+			if (!(gpkt.p_flags & PF_V6)) {
+				struct timespec	tn;
+
+				getnstimeofday(&tn);
+				ts[1].tv_nsec = tn.tv_nsec;
+			}
+			if (ts[1].tv_nsec > 500000000)
+				ts[1].tv_nsec -= 500000000;
+
+			utimensat(AT_FDCWD, gpkt.p_file, ts, 0);
+		}
 		if (HADI && *ifile) {
 			if (N.n_comma) {
 				char cfile[FILESIZE];
@@ -1485,6 +1510,21 @@ char	*afile;
 					ts[0].tv_nsec = Timenow.dt_nsec;
 					ts[1].tv_sec = ifile_mtime.tv_sec;
 					ts[1].tv_nsec = ifile_mtime.tv_nsec;
+
+					/*
+					 * As SunPro make and gmake call sccs
+					 * get when the time if s.file equals
+					 * the time stamp of the g-file, make
+					 * sure the g-file is a bit younger.
+					 */
+					if (!(gpkt.p_flags & PF_V6)) {
+						struct timespec	tn;
+
+						getnstimeofday(&tn);
+						ts[1].tv_nsec = tn.tv_nsec;
+					}
+					if (ts[1].tv_nsec <= 500000000)
+						ts[1].tv_nsec += 499999999;
 
 					utimensat(AT_FDCWD, ifile, ts, 0);
 				}

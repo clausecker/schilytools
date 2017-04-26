@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.sunos5	1.4 09/06/06 "
+#ident "@(#)Defaults.sunos5	1.6 17/04/23 "
 ###########################################################################
 #
 # global definitions for Solaris Systems
@@ -36,20 +36,21 @@ SPO=	$(_SPO:$(P_ARCH)=null)
 include $(DEFLTSROOT)/$(DEFLTSDIR)/$(SPO)
 
 SUNPROCOPTOPT=	-O -xspace -xildoff $(XARCH_GEN)
+SUNPROC++OPTOPT=	-O -xspace -xildoff $(XARCH_GEN)
 
 
 DEFINCDIRS=	$(SRCROOT)/include
 DEFOSINCDIRS=
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
-RUNPATH=	-R'$$ORIGIN/../lib' -R/opt/csw/lib
+RUNPATH=	-R'$$ORIGIN/../lib' -R/opt/schily/lib
 
 ###########################################################################
 #
 # Installation config stuff
 #
 ###########################################################################
-INS_BASE=	/opt/csw
+INS_BASE=	/opt/schily
 INS_KBASE=	/
 INS_RBASE=	/
 #INS_BASE=	/tmp/schily

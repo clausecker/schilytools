@@ -1,6 +1,6 @@
-#ident @(#)rules.ins	1.23 15/06/03 
+#ident @(#)rules.ins	1.24 17/04/17 
 ###########################################################################
-# Written 1996-2015 by J. Schilling
+# Written 1996-2017 by J. Schilling
 ###########################################################################
 #
 # Rules for target installation
@@ -42,10 +42,10 @@ __INSMODEINS=	$(_INSMODEINS:$(_UNIQ)=$(INSMODEX))
 INSMODEINS=	$(__INSMODEINS:$(_UNIQ)%=%)
 
 dummy $(PHARDLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; $(LN) $(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
+	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(LN) $(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
 
 symdummy $(PSYMLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
+	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
 
 xinstall:
 	@if [ ".$(XMK_FILE)" != . ] ; then				\

@@ -1,0 +1,18 @@
+#ident @(#)Makefile.man	1.1 17/04/17 
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	../../../../..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	make
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	make.1s
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################
