@@ -1,4 +1,4 @@
-# @(#)rules.cnf.in	1.31 17/04/19 Copyright 1998-2014 J. Schilling
+# @(#)rules.cnf.in	1.32 17/04/27 Copyright 1998-2014 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
@@ -29,6 +29,7 @@ LIB_EXPAT= @lib_expat@
 LIB_PCSC= @lib_pcsc@
 LIB_CRYPTO= @lib_crypto@
 LIB_SSL= @lib_ssl@
+LIB_NSL= @lib_nsl@		# For gethostbyname() users
 LIB_ACL= @lib_acl@		# Full (test/set) ACL users like star
 LIB_ACL_TEST= @lib_acl_test@	# Test only ACL users like libfind
 LIB_ATTR = @lib_attr@

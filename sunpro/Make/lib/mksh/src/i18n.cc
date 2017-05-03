@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)i18n.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)i18n.cc	1.3 17/04/30 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)i18n.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)i18n.cc	1.3 17/04/30 2017 J. Schilling";
 #endif
 
 /*
@@ -48,12 +48,9 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
+#include <mksh/defs.h>
 #include <mksh/i18n.h>
 #include <mksh/misc.h>		/* setup_char_semantics() */
-#if defined (linux)
-#	include <wctype.h>
-#	include <wchar.h>
-#endif
 
 /*
  *	get_char_semantics_value(ch)

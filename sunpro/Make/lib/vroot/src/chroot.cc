@@ -28,12 +28,22 @@
 
 #pragma	ident	"@(#)chroot.cc	1.4	06/12/12"
 
-#include <unistd.h>
-
-extern int chroot(const char *path);
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)chroot.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)chroot.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+
+extern int chroot(const char *path);
+
 
 static int	chroot_thunk(char *path)
 {

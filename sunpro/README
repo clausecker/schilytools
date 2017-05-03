@@ -1,4 +1,4 @@
-/* @(#)README	1.1 17/04/25 Copyright 2017 J. Schilling */
+/* @(#)README	1.2 17/05/02 Copyright 2017 J. Schilling */
 
 The CPP macros SCHILY_BUILD and SCHILY_INCLUDES are used to modify compile
 behavior:
@@ -12,6 +12,16 @@ SCHILY_INCLUDES		Is set by a build system that likes to indicate that
 			the (probably statically configured) schily include
 			files are used in order to abstract from platform
 			specific system include files.
+
+WARNING:	HP-UX-10.x is unable to compile C++ pograms in large file mode
+		because of a bug in /usr/include/sys/_inttypes.h.
+
+		You may compile the SunPro make program using:
+
+			smake CCOM=gcc C++OPTX=-DNO_LARGEFILES
+
+		or by editing /usr/include/sys/_inttypes.h and fixing the
+		content.
 
 The code has been converted from catgets() to gettext() and to use only a
 single text dmomain for the whole project. The original code from Sun used a

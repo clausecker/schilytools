@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read.cc	1.5 17/04/24 2017 J. Schilling
+ * @(#)read.cc	1.7 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.5 17/04/24 2017 J. Schilling";
+	"@(#)read.cc	1.7 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -49,14 +49,11 @@ static	UConst char sccsid[] =
  * Included files
  */
 #include <avo/avo_alloca.h>		/* alloca() */
-#include <errno.h>		/* errno */
-#include <fcntl.h>		/* fcntl() */
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* expand_value(), expand_macro() */
 #include <mksh/misc.h>		/* getmem() */
 #include <mksh/read.h>		/* get_next_block_fn() */
 #include <sys/uio.h>		/* read() */
-#include <unistd.h>		/* read(), unlink() */
 
 #if defined(TEAMWARE_MAKE_CMN)
 #if defined(HP_UX) || defined(linux)
@@ -175,14 +172,13 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 						&makefile_path,
 						-1);
 #if !defined(TEAMWARE_MAKE_CMN)
-                		run_dir = find_run_dir();
+                		run_dir = make_run_dir;
 				if (run_dir) {
                         		(void) sprintf(makerules_dir,
 						NOCATGETS("%s/../share/lib/make"), run_dir);
 					add_dir_to_path(makerules_dir,
 							&makefile_path,
 							-1);
-					free(run_dir);
 				}
 				add_dir_to_path(NOCATGETS("/usr/share/lib/make"),
 						&makefile_path,

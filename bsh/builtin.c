@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.93 17/01/18 Copyright 1988-2017 J. Schilling */
+/* @(#)builtin.c	1.94 17/05/03 Copyright 1988-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.93 17/01/18 Copyright 1988-2017 J. Schilling";
+	"@(#)builtin.c	1.94 17/05/03 Copyright 1988-2017 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -827,6 +827,8 @@ bkill(vp, std, flag)
 		return;
 	}
 	if (list) {
+		int	maxsig = NSIG-1;
+
 		if (ac > 0) {
 			char	sname[32];
 			char	*cp;
@@ -846,11 +848,17 @@ bkill(vp, std, flag)
 			}
 			return;
 		}
-		for (i = 1; i <= NSIG-1; i++) {
+#ifdef	SIGRTMAX
+		if (SIGRTMAX > maxsig)
+			maxsig = SIGRTMAX;
+#endif
+		for (i = 1; i <= maxsig; i++) {
 			char	sname[32];
 
 			if (sig2str(i, sname) == 0)
 				fprintf(std[1], "%s ", sname);
+			else
+				fprintf(std[1], "%d ", i);
 			if (i % 8 == 0)
 				fprintf(std[1], "%s", nl);
 		}

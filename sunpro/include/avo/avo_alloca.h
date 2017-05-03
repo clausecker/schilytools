@@ -28,9 +28,18 @@
 
 #pragma ident   "@(#)avo_alloca.h 1.4     06/12/12"
 
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)avo_alloca.h	1.2 17/04/27 2017 J. Schilling
+ */
+
 #ifndef _AVO_ALLOCA_H
 #define _AVO_ALLOCA_H
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/alloca.h>
+#else
 #include <alloca.h>
 
 #ifdef __SunOS_5_4
@@ -44,6 +53,7 @@
 extern "C" void *__builtin_alloca(size_t);
 
 #endif  // ifdef __SunOS_5_4
+#endif  // defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 
 #endif  // ifdef _AVO_ALLOCA_H
 

@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)parallel.cc	1.7 17/04/25 2017 J. Schilling
+ * @(#)parallel.cc	1.12 17/05/02 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parallel.cc	1.7 17/04/25 2017 J. Schilling";
+	"@(#)parallel.cc	1.12 17/05/02 2017 J. Schilling";
 #endif
 
 /*
@@ -55,8 +55,7 @@ static	UConst char sccsid[] =
 #include <dm/Avo_DoJobMsg.h>
 #include <dm/Avo_MToolJobResultMsg.h>
 #endif
-#include <errno.h>		/* errno */
-#include <fcntl.h>
+
 #ifdef TEAMWARE_MAKE_CMN
 #include <avo/util.h>		/* avo_get_user(), avo_hostname() */
 #endif
@@ -64,12 +63,8 @@ static	UConst char sccsid[] =
 #include <mksh/dosys.h>		/* redirect_io() */
 #include <mksh/macro.h>		/* expand_value() */
 #include <mksh/misc.h>		/* getmem() */
-#include <sys/signal.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
-#include <unistd.h>
 
 #ifdef SGE_SUPPORT
 #include <dmthread/Avo_PathNames.h>
@@ -80,6 +75,14 @@ static	UConst char sccsid[] =
  * Defined macros
  */
 #define MAXRULES		100
+
+#if !defined(SCHILY_BUILD) && !defined(SCHILY_INCLUDES)
+#ifdef	sun
+#ifndef	HAVE_GETLOADAVG
+#define	HAVE_GETLOADAVG
+#endif
+#endif
+#endif
 
 /*
  * This const should be in avo_dms/include/AvoDmakeCommand.h
@@ -467,11 +470,13 @@ append_dmake_cmd(Avo_DoJobMsg *dmake_job_msg,
 #include <sys/ipc.h>		/* ftok() */
 #include <sys/shm.h>		/* shmget(), shmat(), shmdt(), shmctl() */
 #include <semaphore.h>		/* sem_init(), sem_trywait(), sem_post(), sem_destroy() */
-#if defined(linux)
-#define	LOADAVG_1MIN	0
-#else
+
+#ifdef	HAVE_SYS_LOADAVG_H
 #include <sys/loadavg.h>	/* getloadavg() */
-#endif /* linux */
+#endif
+#ifndef	LOADAVG_1MIN
+#define	LOADAVG_1MIN	0
+#endif
 
 /*
  *	adjust_pmake_max_jobs (int pmake_max_jobs)
@@ -491,12 +496,20 @@ adjust_pmake_max_jobs (int pmake_max_jobs)
 	int		adjustment;
 	int		adjusted_max_jobs;
 
+#ifdef	_SC_NPROCESSORS_ONLN
 	if (ncpu <= 0) {
 		if ((ncpu = sysconf(_SC_NPROCESSORS_ONLN)) <= 0) {
 			ncpu = 1;
 		}
 	}
+#else
+	ncpu = 1;
+#endif
+#ifndef	HAVE_GETLOADAVG
+	return(pmake_max_jobs);
+#else
 	if (getloadavg(loadavg, 3) != 3) return(pmake_max_jobs);
+#endif
 	adjustment = ((int)loadavg[LOADAVG_1MIN]);
 	if (adjustment < 2) return(pmake_max_jobs);
 	if (ncpu > 1) {

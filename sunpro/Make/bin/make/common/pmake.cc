@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)pmake.cc	1.4 17/04/24 2017 J. Schilling
+ * @(#)pmake.cc	1.6 17/05/02 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pmake.cc	1.4 17/04/24 2017 J. Schilling";
+	"@(#)pmake.cc	1.6 17/05/02 2017 J. Schilling";
 #endif
 
 /*
@@ -52,17 +52,19 @@ static	UConst char sccsid[] =
 #ifdef TEAMWARE_MAKE_CMN
 #include <sys/socket.h>
 #endif
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/utsname.h>
 #include <rpc/rpc.h>		/* host2netname(), netname2host() */
-#ifdef linux
-#	include <unistd.h>	/* getdomainname() */
-#endif
 
 /*
  * Defined macros
  */
+#if !defined(SCHILY_BUILD) && !defined(SCHILY_INCLUDES)
+#ifdef	sun
+#ifndef	HAVE_HOST2NETNAME
+#define	HAVE_HOST2NETNAME
+#endif
+#endif
+#endif
 
 /*
  * typedefs & structs
@@ -214,9 +216,9 @@ read_make_machines(Name make_machines_name)
 	local_host_wslen = wcslen(local_host);
 
 	// There is no getdomainname() function on Solaris.
-	// And netname2host() function does not work on Linux.
+	// And netname2host() function does not work on older Linux.
 	// So we have to use different APIs.
-#ifdef linux
+#ifndef	HAVE_HOST2NETNAME
 	if (getdomainname(mbs_buffer, MAXNETNAMELEN+1) == 0) {
 		sprintf(mbs_buffer2, "%s.%s", local_host_mb, mbs_buffer);
 #else

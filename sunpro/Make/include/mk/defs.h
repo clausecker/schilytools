@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.4 17/04/25 2017 J. Schilling
+ * @(#)defs.h	1.6 17/04/29 2017 J. Schilling
  */
 
 /*
@@ -319,6 +319,7 @@ extern	Dependency	suffixes;
 extern	Name		suffixes_name;
 extern	Name		sunpro_dependencies;
 extern	Boolean		target_variants;
+extern	char		*make_run_dir;
 extern	char		*tmpdir;
 extern	char		*temp_file_directory;
 extern	Name		temp_file_name;
@@ -337,9 +338,11 @@ extern	long int	hostid;
 /*
  * Declarations of system defined variables
  */
+#if !defined(HAVE_STRSIGNAL)
 #if !defined(linux)
 /* On linux this variable is defined in 'signal.h' */
 extern	char		*sys_siglist[];
+#endif
 #endif
 
 /*

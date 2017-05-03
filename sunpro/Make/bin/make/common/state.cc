@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)state.cc	1.3 17/04/24 2017 J. Schilling
+ * @(#)state.cc	1.5 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)state.cc	1.3 17/04/24 2017 J. Schilling";
+	"@(#)state.cc	1.5 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -51,8 +51,6 @@ static	UConst char sccsid[] =
 #include <mk/defs.h>
 #include <mksh/misc.h>		/* errmsg() */
 #include <setjmp.h>		/* setjmp() */
-#include <unistd.h>		/* getpid() */
-#include <errno.h>		/* errno    */
 #include <locale.h>		/* MB_CUR_MAX    */
 
 /*
@@ -169,9 +167,9 @@ write_state_file(int, Boolean exiting)
  	(void) sprintf(make_state_lockfile,
  	               NOCATGETS("%s.lock"),
  	               make_state->string_mb);
-	if (lock_err = file_lock(make_state->string_mb, 
+	if ((lock_err = file_lock(make_state->string_mb, 
 				 make_state_lockfile, 
-				 (int *) &make_state_locked, 0)) {
+				 (int *) &make_state_locked, 0)) != 0) {
  		retmem_mb(make_state_lockfile);
 		make_state_lockfile = NULL;
 		
@@ -281,7 +279,7 @@ write_state_file(int, Boolean exiting)
 		for (m = 0, dependency = lines->body.line.dependencies;
 		     dependency != NULL;
 		     dependency = dependency->next) {
-			if (m = !dependency->stale
+			if ((m = !dependency->stale) != 0
 			    && (dependency->name != force)
 #ifndef PRINT_EXPLICIT_DEPEN
 			    && dependency->automatic

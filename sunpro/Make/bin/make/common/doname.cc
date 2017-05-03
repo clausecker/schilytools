@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)doname.cc	1.5 17/04/25 2017 J. Schilling
+ * @(#)doname.cc	1.11 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.5 17/04/25 2017 J. Schilling";
+	"@(#)doname.cc	1.11 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -64,7 +64,6 @@ static	UConst char sccsid[] =
 #	include <rw/xdrstrea.h>
 #endif
 
-#include <fcntl.h>
 #include <mk/defs.h>
 #include <mksh/i18n.h>		/* get_char_semantics_value() */
 #include <mksh/macro.h>		/* getvar(), expand_value() */
@@ -75,18 +74,8 @@ static	UConst char sccsid[] =
 #	include <rx/api.h>
 #endif
 
-#include <signal.h>
-
-#ifndef HP_UX
-#	include <stropts.h>
-#endif
-
-#include <sys/errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/utsname.h>	/* uname() */
 #include <sys/wait.h>
-#include <unistd.h>		/* close() */
 
 /*
  * Defined macros
@@ -235,9 +224,7 @@ try_again:
 		fatal(gettext("Don't know how to make target `%s'"), target->string_mb);
 		break;
 	}
-#ifdef lint
 	return build_failed;
-#endif
 }
 
 
@@ -1493,7 +1480,7 @@ dynamic_dependencies(Name target)
 		/* We also have to deal with dependencies that expand to */
 		/* lib.a(members) notation */
 		for (p = start; *p != (int) nul_char; p++) {
-			if ((*p == (int) parenleft_char)) {
+			if (*p == (int) parenleft_char) {
 				lib = GETNAME(start, p - start);
 				lib->is_member = true;
 				first_member = dependency;
@@ -2908,8 +2895,8 @@ touch_command(register Property line, register Name target, Doname result)
 				retmem(touch_string.buffer.start);
 			}
 			if (!silent ||
-			    do_not_exec_rule &&
-			    (target_group == NULL)) {
+			    (do_not_exec_rule &&
+			    (target_group == NULL))) {
 				(void) printf("%s\n", touch_cmd->string_mb);
 				SEND_MTOOL_MSG(
 					job_result_msg->appendOutput(AVO_STRDUP(touch_cmd->string_mb));
@@ -3635,7 +3622,16 @@ pollResultsAction(char *outFn, char *errFn)
 	}
 
 	while (!pollResultsActionTimeToFinish && stat(outFn, &statbuf) == 0) {
-#ifdef linux
+#if defined(stat_mnsecs)
+		if ((statbuf.st_mtime > file_time) ||
+		    ((statbuf.st_mtime == file_time) &&
+		    (stat_mnsecs(&statbuf) > file_time_nsec))
+		   ) {
+			file_time = statbuf.st_mtime;
+			file_time_nsec = stat_mnsecs(&statbuf);
+			rxmGetNextResultsBlock(fd);
+		}
+#elif linux
 		if ((statbuf.st_mtime > file_time)
 		   ) {
 			file_time = statbuf.st_mtime;

@@ -28,13 +28,22 @@
 
 #pragma	ident	"@(#)chown.cc	1.4	06/12/12"
 
-#include <unistd.h>
-#include <sys/types.h>
-
-extern int chown(const char *path, uid_t owner, gid_t group);
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)chown.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)chown.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+
+extern int chown(const char *path, uid_t owner, gid_t group);
+
 
 static int	chown_thunk(char *path)
 {

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)report.cc	1.4 17/04/25 2017 J. Schilling
+ * @(#)report.cc	1.7 17/04/30 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)report.cc	1.4 17/04/25 2017 J. Schilling";
+	"@(#)report.cc	1.7 17/04/30 2017 J. Schilling";
 #endif
 
 #include <stdio.h>
@@ -247,7 +247,7 @@ report_dep(char *iflag, char *filename)
 		if ((search_dir = getenv(NOCATGETS("NSE_DEP"))) == NULL) {
 			return;
 		}
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 		atexit(close_file);
 #else
 		on_exit(close_file, 0);
@@ -259,7 +259,7 @@ report_dep(char *iflag, char *filename)
 		fprintf(command_output_fp, "%s:", sfile);
 	}
 	fprintf(command_output_fp, " ");
-	fprintf(command_output_fp, iflag);
+	fprintf(command_output_fp, "%s", iflag);
 	if (iflag != NULL) {
 		is_path = 1;
 	}
@@ -303,11 +303,7 @@ report_search_path(char *iflag)
 		return;
 	}
 	sprintf(filename, NOCATGETS("%s-CPP"), ptr+1);
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-	getcwd(curdir, sizeof(curdir));
-#else
-	getwd(curdir);
-#endif
+	(void)getcwd(curdir, sizeof(curdir));
 	if (strcmp(curdir, sdir) != 0 && strlen(iflag) > 2 && 
 	    iflag[2] != '/') {
 		/* Makefile must have had an "cd xx; cc ..." */

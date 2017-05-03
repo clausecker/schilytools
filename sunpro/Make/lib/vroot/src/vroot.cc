@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)vroot.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)vroot.cc	1.3 17/04/30 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vroot.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)vroot.cc	1.3 17/04/30 2017 J. Schilling";
 #endif
 
 #include <stdlib.h>
@@ -112,7 +112,8 @@ parse_path_string(register char *string, register int remove_slash)
 
 	if (string != NULL)
 		for (; 1; string= p+1) {
-			if (p= strchr(string, ':')) *p= 0;
+			if ((p = strchr(string, ':')) != NULL)
+				*p = 0;
 			if ((remove_slash == 1) && !strcmp(string, "/"))
 				add_dir_to_path("", &result, -1);
 			else

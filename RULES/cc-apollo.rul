@@ -1,4 +1,4 @@
-#ident "@(#)cc-apollo.rul	1.16 17/04/19 "
+#ident "@(#)cc-apollo.rul	1.17 17/04/27 "
 ###########################################################################
 # Written 2001-2017 by J. Schilling
 ###########################################################################
@@ -66,7 +66,11 @@ CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
 #CC_COM=	cc -A systype,bsd4.3
 CC_COM_DEF=	/bsd4.3/bin/cc
 CC++_COM_DEF=	echo "C++ not yet supported"; exit -1; :
-C++BUILD=	$(NUMBER_SIGN)		# Use to comment out C++ projects
+#
+# Use to comment out C++ projects
+#
+C++BUILD=	$(NUMBER_SIGN)
+
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 

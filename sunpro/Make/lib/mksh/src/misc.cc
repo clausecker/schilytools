@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.5 17/04/25 2017 J. Schilling
+ * @(#)misc.cc	1.8 17/05/02 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.5 17/04/25 2017 J. Schilling";
+	"@(#)misc.cc	1.8 17/05/02 2017 J. Schilling";
 #endif
 
 /*
@@ -59,21 +59,21 @@ static	UConst char sccsid[] =
 #include <mksh/i18n.h>		/* get_char_semantics_value() */
 #include <mksh/misc.h>
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
-#include <stdlib.h>		/* mbstowcs() */
-#include <sys/signal.h>		/* SIG_DFL */
 #include <sys/wait.h>		/* wait() */
-
-#ifdef SUN5_0
-#include <string.h>		/* strerror() */
-#endif
-
-#if defined (HP_UX) || defined (linux)
-#include <unistd.h>
-#endif
 
 /*
  * Defined macros
  */
+
+#ifndef	HAVE_VSNPRINTF
+#ifdef	__hpux
+extern "C" {
+int	_vsnprintf(char*, int, const char*, va_list);
+}
+#define	vsnprintf	_vsnprintf
+#endif
+#endif
+
 
 /*
  * typedefs & structs
@@ -592,11 +592,7 @@ get_current_path_mksh(void)
 	static char		*current_path;
 
 	if (current_path == NULL) {
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-		getcwd(pwd, sizeof(pwd));
-#else
-		(void) getwd(pwd);
-#endif
+		(void)getcwd(pwd, sizeof(pwd));
 		if (pwd[0] == (int) nul_char) {
 			pwd[0] = (int) slash_char;
 			pwd[1] = (int) nul_char;

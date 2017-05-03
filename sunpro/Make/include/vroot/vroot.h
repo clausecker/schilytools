@@ -31,13 +31,19 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)vroot.h	1.3 17/04/25 2017 J. Schilling
+ * @(#)vroot.h	1.4 17/05/01 2017 J. Schilling
  */
 
 #ifndef _VROOT_H_
 #define _VROOT_H_
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/unistd.h>
+#include <schily/stdio.h>
+#else
+#include <unistd.h>
 #include <stdio.h>
+#endif
 
 #define VROOT_DEFAULT ((pathpt)-1)
 

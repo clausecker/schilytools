@@ -28,13 +28,21 @@
 
 #pragma	ident	"@(#)utimes.cc	1.4	06/12/12"
 
-#include <sys/types.h>
-#include <sys/time.h>
-
-extern int utimes(char *file, struct timeval *tvp);
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)utimes.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)utimes.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+
+extern int utimes(char *file, struct timeval *tvp);
 
 static int	utimes_thunk(char *path)
 {

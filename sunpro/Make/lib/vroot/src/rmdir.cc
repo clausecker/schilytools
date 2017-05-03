@@ -28,12 +28,21 @@
 
 #pragma	ident	"@(#)rmdir.cc	1.4	06/12/12"
 
-#include <unistd.h>
-
-extern int rmdir(const char *path);
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)rmdir.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)rmdir.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+
+extern int rmdir(const char *path);
 
 static int	rmdir_thunk(char *path)
 {

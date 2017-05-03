@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.5 17/04/25 2017 J. Schilling
+ * @(#)globals.cc	1.7 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.5 17/04/25 2017 J. Schilling";
+	"@(#)globals.cc	1.7 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -49,7 +49,6 @@ static	UConst char sccsid[] =
  * Included files
  */
 #include <mk/defs.h>
-#include <sys/stat.h>
 
 /*
  * Defined macros
@@ -201,6 +200,7 @@ static	UConst char sccsid[] =
 	Name		suffixes_name;
 	Name		sunpro_dependencies;
         Boolean		target_variants;
+	char		*make_run_dir;
 	char		*tmpdir = (char *)NOCATGETS("/tmp");
 	char		*temp_file_directory = (char *)NOCATGETS(".");
 	Name		temp_file_name;

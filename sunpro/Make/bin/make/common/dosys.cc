@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)dosys.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)dosys.cc	1.3 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)dosys.cc	1.3 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -48,12 +48,9 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
-#include <fcntl.h>		/* open() */
 #include <mk/defs.h>
 #include <mksh/dosys.h>		/* doshell(), doexec() */
 #include <mksh/misc.h>		/* getmem() */
-#include <sys/stat.h>		/* open() */
-#include <unistd.h>		/* getpid() */
 
 /*
  * Defined macros

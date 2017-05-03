@@ -1,4 +1,4 @@
-#ident "@(#)cc-dec.rul	1.14 17/04/19 "
+#ident "@(#)cc-dec.rul	1.15 17/04/27 "
 ###########################################################################
 # Written 1998-2017 by J. Schilling
 ###########################################################################
@@ -64,7 +64,11 @@ CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
 
 CC_COM_DEF=	cc
 CC++_COM_DEF=	echo "C++ not yet supported"; exit -1; :
-C++BUILD=	$(NUMBER_SIGN)		# Use to comment out C++ projects
+#
+# Use to comment out C++ projects
+#
+C++BUILD=	$(NUMBER_SIGN)
+
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 

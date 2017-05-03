@@ -28,10 +28,25 @@
 
 #pragma	ident	"@(#)args.h	1.7	06/12/12"
 
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)args.h	1.2 17/05/01 2017 J. Schilling
+ */
+
 #ifndef _ARGS_H_
 #define _ARGS_H_
 
-#include <sys/syscall.h>
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/unistd.h>
+#include <schily/errno.h>
+#include <schily/time.h>
+#include <schily/param.h>
+#include <schily/stdio.h>
+#include <schily/fcntl.h>	/* also sys/file.h if present */
+#include <schily/types.h>
+#include <schily/stat.h>
+#else
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/param.h>
@@ -40,6 +55,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#endif
+
+#ifdef	HAVE_YS_SYSCALL_H
+sss
+#include <sys/syscall.h>
+#endif
 
 typedef enum { rw_read, rw_write} rwt, *rwpt;
 

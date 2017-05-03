@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.258 17/04/19 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.265 17/05/02 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -95,6 +95,7 @@
 #undef HAVE_SYS_PRIOCNTL_H	/* to use SVr4 priocntl() instead of nice()/setpriority() */
 #undef HAVE_SYS_RTPRIOCNTL_H	/* if the system supports SVr4 real time classes */
 #undef HAVE_SYS_PROCSET_H	/* if the system supports SVr4 process sets */
+#undef HAVE_SYS_LOADAVG_H	/* to use getloadavg() */
 #undef HAVE_SYS_SYSCALL_H	/* to use syscall() */
 #undef HAVE_SYS_MTIO_H		/* to use mtio definitions from sys/mtio.h */
 #undef HAVE_SYS_TAPE_H		/* to use mtio definitions from AIX sys/tape.h */
@@ -188,6 +189,8 @@
 #undef HAVE_LINK_H		/* if we may include link.h */
 #undef HAVE_DL_H		/* if we may include dl.h */
 #undef HAVE_LIBELF_H		/* if we may include libelf.h */
+
+#undef HAVE_RANLIB_H		/* if we may include ranlib.h */
 
 #undef HAVE_EXPAT_H		/* if we may include expat.h */
 
@@ -449,6 +452,10 @@
 #undef HAVE_UNSETENV		/* unsetenv() is present in libc */
 #undef HAVE_UNAME		/* uname() is present in libc */
 #undef HAVE_SNPRINTF		/* snprintf() is present in libc */
+#undef HAVE_VPRINTF		/* vprintf() is present in libc */
+#undef HAVE_VFPRINTF		/* vfprintf() is present in libc */
+#undef HAVE_VSPRINTF		/* vsprintf() is present in libc */
+#undef HAVE_VSNPRINTF		/* vsnprintf() is present in libc */
 #undef HAVE_STRCAT		/* strcat() is present in libc */
 #undef HAVE_STRNCAT		/* strncat() is present in libc */
 #undef HAVE_STRCMP		/* strcmp() is present in libc */
@@ -519,12 +526,15 @@
 #undef HAVE_SPAWNVE		/* spawnve() is present in libc */
 #undef HAVE_SPAWNVP		/* spawnvp() is present in libc */
 #undef HAVE_SPAWNVPE		/* spawnvpe() is present in libc */
+#undef HAVE_ATEXIT		/* atexit() is present in libc */
+#undef HAVE_ON_EXIT		/* on_exit() (SunOS-4.x) is present in libc */
 #undef HAVE_GETEXECNAME		/* getexecname() is present in libc */
 #undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
 #undef HAVE_SETPROGNAME		/* setprogname() is present in libc */
 #undef HAVE_PROC_PIDPATH	/* proc_pidpath() is present in libc */
 #undef HAVE_VAR_PROGNAME	/* extern char *__progname is present in libc */
 #undef HAVE_VAR_PROGNAME_FULL	/* extern char *__progname_full is present in libc */
+#undef HAVE_GETLOADAVG		/* getloadavg() is present in libc */
 #undef HAVE_ALLOCA		/* alloca() is present (else use malloc())*/
 #undef HAVE_MALLOC		/* malloc() is present in libc */
 #undef HAVE_CALLOC		/* calloc() is present in libc */
@@ -751,6 +761,9 @@
 #undef HAVE_INET_NTOA		/* inet_ntoa() is present in libc/libsocket */
 #undef HAVE_GETADDRINFO		/* getaddrinfo() is present in libc/libsocket */
 #undef HAVE_GETNAMEINFO		/* getnameinfo() is present in libc/libsocket */
+#undef HAVE_HOST2NETNAME	/* host2netname() is present in libc/libsocket */
+#undef HAVE_NETNAME2HOST	/* netname2host() is present in libc/libsocket */
+
 
 #if	defined(HAVE_QUOTACTL) || defined(HAVE_QUOTAIOCTL)
 #	define HAVE_QUOTA	/* The system inludes quota */
@@ -968,6 +981,8 @@
 
 #undef wctype_t			/* To be used if wctype_t is not in wchar.h */
 #undef mbstate_t		/* To be used if mbstate_t is not in wchar.h */
+
+#undef timestruc_t		/* To be used if timestruc_t is not in sys/stat.h */
 
 /*#undef HAVE_SIZE_T*/
 /*#undef NO_SIZE_T*/

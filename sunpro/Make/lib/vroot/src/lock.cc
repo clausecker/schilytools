@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)lock.cc	1.3 17/04/25 2017 J. Schilling
+ * @(#)lock.cc	1.5 17/04/29 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.cc	1.3 17/04/25 2017 J. Schilling";
+	"@(#)lock.cc	1.5 17/04/29 2017 J. Schilling";
 #endif
 
 #include <avo/intl.h>	/* for NOCATGETS */
@@ -53,7 +53,7 @@ static	UConst char sccsid[] =
 #include <signal.h>
 #include <errno.h>			/* errno */
 
-#if !defined(linux)
+#if	!defined(HAVE_STRERROR)
 extern	char		*sys_errlist[];
 extern	int		sys_nerr;
 #endif
@@ -147,11 +147,7 @@ file_lock(char *name, char *lockname, int *file_locked, int timeout)
 
 			if ((counter > 5) && (!printed_warning)) {
 				/* Print waiting message after 5 secs */
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 				(void) getcwd(msg, MAXPATHLEN);
-#else
-				(void) getwd(msg);
-#endif
 				fprintf(stderr,
 					gettext("file_lock: file %s is already locked.\n"),
 					name);

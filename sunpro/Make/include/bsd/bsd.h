@@ -29,15 +29,25 @@
 #pragma	ident	"@(#)bsd.h	1.6	06/12/12"
 
 /*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)bsd.h	1.4 17/05/01 2017 J. Schilling
+ */
+
+/*
  * bsd/bsd.h: Interface definitions to BSD compatibility functions for SVR4.
  */
 
 #ifndef _BSD_BSD_H
 #define _BSD_BSD_H
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/signal.h>
+#else
 #include <signal.h>
+#endif
 
-#if defined (HP_UX) || defined (linux)
+#if !defined(SIG_PF)
 typedef void SIG_FUNC_TYP(int);
 typedef SIG_FUNC_TYP *SIG_TYP;
 #define SIG_PF SIG_TYP

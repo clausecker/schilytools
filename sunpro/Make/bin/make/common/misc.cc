@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.5 17/04/24 2017 J. Schilling
+ * @(#)misc.cc	1.7 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.5 17/04/24 2017 J. Schilling";
+	"@(#)misc.cc	1.7 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -55,16 +55,11 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
-#include <errno.h>
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* SETVAR() */
 #include <mksh/misc.h>		/* enable_interrupt() */
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
 #include <vroot/report.h>	/* SUNPRO_DEPENDENCIES */
-
-#if defined(HP_UX) || defined(linux)
-#include <unistd.h>
-#endif
 
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 #define MAXJOBS_ADJUST_RFE4694000
@@ -73,10 +68,6 @@ static	UConst char sccsid[] =
 extern void job_adjust_fini();
 #endif /* MAXJOBS_ADJUST_RFE4694000 */
 #endif /* TEAMWARE_MAKE_CMN */
-
-#if defined(linux)
-#include <time.h>		/* localtime() */
-#endif
 
 /*
  * Defined macros
@@ -307,11 +298,7 @@ get_current_path(void)
 	static char		*current_path;
 
 	if (current_path == NULL) {
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-		getcwd(pwd, sizeof(pwd));
-#else
-		(void) getwd(pwd);
-#endif
+		(void)getcwd(pwd, sizeof(pwd));
 		if (pwd[0] == (int) nul_char) {
 			pwd[0] = (int) slash_char;
 			pwd[1] = (int) nul_char;

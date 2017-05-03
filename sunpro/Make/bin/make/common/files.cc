@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)files.cc	1.4 17/04/24 2017 J. Schilling
+ * @(#)files.cc	1.6 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)files.cc	1.4 17/04/24 2017 J. Schilling";
+	"@(#)files.cc	1.6 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -52,16 +52,9 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
-#if defined(SUN5_0) || defined(HP_UX)
-#include <dirent.h>		/* opendir() */
-#else
-#include <sys/dir.h>		/* opendir() */
-#endif
-#include <errno.h>		/* errno */
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* getvar() */
 #include <mksh/misc.h>		/* get_prop(), append_prop() */
-#include <sys/stat.h>		/* lstat() */
 
 /*
  * Defined macros
@@ -166,9 +159,14 @@ exists(register Name target)
 			target->stat.time = file_is_dir;
 		} else {
 			/* target->stat.time = buf.st_mtime; */
+
+#ifdef	stat_mnsecs
+			timestruc_t ttime = { buf.st_mtime, stat_mnsecs(&buf) };
+			target->stat.time = MAX(ttime, file_min_time);
+
 /* BID_1129806 */
 /* vis@nbsp.nsk.su */
-#if defined(linux)
+#elif defined(linux)
 			timestruc_t ttime = { buf.st_mtime, 0 };
 			target->stat.time = MAX(ttime, file_min_time);
 #else
@@ -208,9 +206,13 @@ set_target_stat(register Name target, struct stat buf)
 		target->stat.time = file_is_dir;
 	} else {
 		/* target->stat.time = buf.st_mtime; */
+
+#ifdef	stat_mnsecs
+		timestruc_t ttime = { buf.st_mtime, stat_mnsecs(&buf) };
+		target->stat.time = MAX(ttime, file_min_time);
 /* BID_1129806 */
 /* vis@nbsp.nsk.su */
-#if defined(linux)
+#elif defined(linux)
 		timestruc_t ttime = { buf.st_mtime, 0 };
 		target->stat.time = ttime;
 #else

@@ -28,12 +28,21 @@
 
 #pragma	ident	"@(#)unlink.cc	1.4	06/12/12"
 
-#include <unistd.h>
-
-extern int unlink(const char *path);
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)unlink.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)unlink.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+
+extern int unlink(const char *path);
 
 static int	unlink_thunk(char *path)
 {

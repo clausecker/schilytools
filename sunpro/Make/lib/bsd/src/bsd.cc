@@ -31,15 +31,13 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)bsd.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)bsd.cc	1.3 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsd.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)bsd.cc	1.3 17/05/01 2017 J. Schilling";
 #endif
-
-#include <signal.h>
 
 #include <bsd/bsd.h>
 

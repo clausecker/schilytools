@@ -28,15 +28,25 @@
 
 #pragma	ident	"@(#)mount.cc	1.5	06/12/12"
 
-#include <sys/types.h>
+/*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)mount.cc	1.2 17/05/01 2017 J. Schilling
+ */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)mount.cc	1.2 17/05/01 2017 J. Schilling";
+#endif
+
+#include <vroot/vroot.h>
+#include <vroot/args.h>
+
 #include <sys/mount.h>
 
 #ifndef HP_UX
 extern int mount(const char *spec, const char *dir, int mflag, ...);
 #endif
-
-#include <vroot/vroot.h>
-#include <vroot/args.h>
 
 static int	mount_thunk(char *path)
 {

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)read.cc	1.3 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)read.cc	1.3 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -51,7 +51,6 @@ static	UConst char sccsid[] =
 #include <mksh/misc.h>		/* retmem() */
 #include <mksh/read.h>
 #include <sys/uio.h>		/* read() */
-#include <unistd.h>		/* close(), unlink(), read() */
 
 #define	STRING_LEN_TO_CONVERT	(8*1024)
 

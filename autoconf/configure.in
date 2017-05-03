@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.272 17/04/21 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.280 17/05/02 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.272)dnl
+AC_REVISION(1.280)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -86,6 +86,7 @@ AC_CHECK_HEADERS(pwd.h grp.h sys/acl.h aclutils.h acllib.h acl/libacl.h)
 AC_CHECK_HEADERS(signal.h siginfo.h sys/siginfo.h ucontext.h)
 AC_CHECK_HEADERS(shadow.h syslog.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h utime.h sys/utime.h sys/ioctl.h sys/filio.h sys/param.h sys/systeminfo.h sys/sysctl.h)
+AC_CHECK_HEADERS(sys/loadavg.h)
 AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
@@ -134,6 +135,7 @@ AC_CHECK_HEADERS(pthread.h thread.h)
 AC_CHECK_HEADERS(libgen.h)
 AC_CHECK_HEADERS(regex.h regexp.h regexpr.h)
 AC_CHECK_HEADERS(dlfcn.h link.h dl.h libelf.h)
+AC_CHECK_HEADERS(ranlib.h)
 AC_CHECK_HEADERS(expat.h)
 
 dnl from aclocal.m4 (uses AC_TRY_COMPILE)
@@ -352,6 +354,15 @@ AC_INCL_CHECK_TYPE(
 #endif
 ], mbstate_t, int)
 
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_SYS_STAT_H
+[#include <sys/stat.h>
+#endif
+#ifdef	HAVE_STAT_H
+#include <stat.h>
+#endif
+], timestruc_t, timespec)
+
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short int)
 AC_CHECK_SIZEOF(int)
@@ -511,6 +522,7 @@ AC_CHECK_FUNCS(cwait)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
 AC_CHECK_FUNCS(proc_pidpath)
+AC_CHECK_FUNCS(getloadavg)
 AC_CHECK_FUNCS(gethostid gethostname getdomainname getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)
 AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
@@ -554,6 +566,7 @@ AC_CHECK_FUNCS(strsignal str2sig sig2str)
 AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sighold sigrelse sigignore sigpause sigprocmask sigsetmask sigset sigaltstack sigblock)
 AC_CHECK_FUNCS(alarm sleep usleep yield)
+AC_CHECK_FUNCS(atexit on_exit)
 dnl tcgetattr and tcsetattr are a inline functions in termios.h on Android
 AC_CHECK_DFUNC([
 #ifdef	HAVE_TERMIOS_H
@@ -568,6 +581,7 @@ AC_CHECK_DFUNC([
 AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp tcgetsid)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
 AC_CHECK_FUNCS(snprintf strcasecmp strncasecmp)
+AC_CHECK_FUNCS(vprintf vfprintf vsprintf vsnprintf)
 
 AC_CHECK_DFUNCS([
 #ifdef	HAVE_STRING_H
@@ -718,14 +732,17 @@ AC_CHECK_DFUNCS([
 
 dnl ??? AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")
 dnl
-AC_CHECK_LIB(socket, rcmd, lib_socket="-lsocket")
 ac_save_LIBS="$LIBS"
+AC_CHECK_LIB(c, socket, lib_socket="",
+  [AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")])
 LIBS="$LIBS $lib_socket"
-AC_CHECK_LIB(nsl, inet_ntoa, lib_nsl="-lnsl")
+AC_CHECK_LIB(c, inet_ntoa, lib_nsl="",
+  [AC_CHECK_LIB(nsl, inet_ntoa, lib_nsl="-lnsl")])
 LIBS="$LIBS $lib_nsl"
 AC_CHECK_FUNCS(rcmd socket socketpair)
 AC_CHECK_FUNCS(getservbyname inet_ntoa)
 AC_CHECK_FUNCS(getaddrinfo getnameinfo)
+AC_CHECK_FUNCS(host2netname netname2host)
 LIBS="$ac_save_LIBS"
 
 ac_save_LIBS="$LIBS"
@@ -1041,6 +1058,7 @@ AC_SUBST(lib_expat)
 AC_SUBST(lib_pcsc)
 AC_SUBST(lib_crypto)
 AC_SUBST(lib_ssl)
+AC_SUBST(lib_nsl)
 AC_SUBST(scsi_lib)
 AC_SUBST(lib_scsi)
 AC_SUBST(lib_acl)

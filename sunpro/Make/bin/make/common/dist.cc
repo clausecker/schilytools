@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)dist.cc	1.2 17/04/24 2017 J. Schilling
+ * @(#)dist.cc	1.3 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dist.cc	1.2 17/04/24 2017 J. Schilling";
+	"@(#)dist.cc	1.3 17/05/01 2017 J. Schilling";
 #endif
 
 #ifdef DISTRIBUTED
@@ -57,18 +57,13 @@ static	UConst char sccsid[] =
 #include <rw/pstream.h>
 #include <rw/queuecol.h>
 #include <rw/xdrstrea.h>
-#include <signal.h>
 #ifdef linux
 #include <sstream>
 using namespace std;
 #else
 #include <strstream.h>
 #endif
-#include <sys/stat.h>		/* stat() */
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
-#include <errno.h>
 
 /*
  * Defined macros

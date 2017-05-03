@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)mksh.cc	1.3 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)mksh.cc	1.3 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -55,8 +55,6 @@ static	UConst char sccsid[] =
 #include <mksh/dosys.h>		/* redirect_io() */
 #include <mksh/misc.h>		/* retmem() */
 #include <mksh/mksh.h>
-#include <errno.h>
-#include <signal.h>
 
 #ifdef HP_UX
 	extern void (*sigset(int, void (*)(__harg)))(__harg);

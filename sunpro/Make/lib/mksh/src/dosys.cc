@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)dosys.cc	1.5 17/04/25 2017 J. Schilling
+ * @(#)dosys.cc	1.8 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.5 17/04/25 2017 J. Schilling";
+	"@(#)dosys.cc	1.8 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -48,7 +48,6 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
-#include <sys/wait.h>			/* WIFEXITED(status) */
 #include <avo/avo_alloca.h>		/* alloca() */
 
 #if defined(TEAMWARE_MAKE_CMN) || defined(MAKETOOL) /* tolik */
@@ -59,23 +58,12 @@ static	UConst char sccsid[] =
 #endif
 #endif
 
-#include <stdio.h>		/* errno */
-#include <errno.h>		/* errno */
-#include <fcntl.h>		/* open() */
+#include <mksh/defs.h>
 #include <mksh/dosys.h>
 #include <mksh/macro.h>		/* getvar() */
 #include <mksh/misc.h>		/* getmem(), fatal_mksh(), errmsg() */
-#include <sys/signal.h>		/* SIG_DFL */
-#include <sys/stat.h>		/* open() */
-#include <sys/wait.h>		/* wait() */
+#include <sys/wait.h>		/* wait(), WIFEXITED(status) */
 #include <ulimit.h>		/* ulimit() */
-#include <unistd.h>		/* close(), dup2() */
-
-#if defined (HP_UX) || defined (linux)
-#	include <sys/param.h>
-#	include <wctype.h>
-#	include <wchar.h>
-#endif
 
 /*
  * Defined macros
@@ -141,7 +129,10 @@ redirect_io(char *stdout_file, char *stderr_file)
 	long		descriptor_limit;
 	int		i;
 
-#if defined (HP_UX) || defined (linux)
+#if !defined(UL_GDESLIM)
+	/*
+	 * XXX we should try to use getrlimit() in this case.
+	 */
         /*
          *  HP-UX does not support the UL_GDESLIM command for ulimit().
 	 *  NOFILE == max num open files per process (from <sys/param.h>)
@@ -155,6 +146,9 @@ redirect_io(char *stdout_file, char *stderr_file)
 	for (i = 3; i < descriptor_limit; i++) {
 		(void) close(i);
 	}
+#ifndef	O_DSYNC
+#define	O_DSYNC	O_SYNC
+#endif
 	if ((i = my_open(stdout_file,
 	         O_WRONLY | O_CREAT | O_TRUNC | O_DSYNC,
 	         S_IREAD | S_IWRITE)) < 0) {

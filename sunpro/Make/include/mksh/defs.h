@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.6 17/04/25 2017 J. Schilling
+ * @(#)defs.h	1.15 17/05/01 2017 J. Schilling
  */
 
 /*
@@ -43,30 +43,57 @@
  */
 
 #include <avo/intl.h>
+
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/limits.h>	/* MB_LEN_MAX */
+#include <schily/stdio.h>
+#include <schily/stdlib.h>	/* wchar_t */
+#include <schily/unistd.h>	/* close(), dup2() */
+#include <schily/string.h>	/* strcmp() */
+#include <schily/nlsdefs.h>	/* gettext() */
+#include <schily/param.h>	/* MAXPATHLEN */
+#include <schily/types.h>	/* time_t, caddr_t */
+#include <schily/fcntl.h>	/* open() */
+#include <schily/time.h>	/* timestruc_t */
+#include <schily/errno.h>	/* errno */
+#include <schily/stat.h>	/* stat_ansecs() */
+#include <schily/maxpath.h>	/* MAXNAMELEN */
+#include <schily/getcwd.h>
+#include <schily/signal.h>
+#include <schily/dirent.h>	/* opendir() */
+#else
 #include <limits.h>		/* MB_LEN_MAX */
 #include <stdio.h>
 #include <stdlib.h>		/* wchar_t */
+#include <unistd.h>
 #include <string.h>		/* strcmp() */
-#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
-#include <schily/nlsdefs.h>	/* gettext() */
-#else
 #include <libintl.h>		/* gettext() */
-#endif
 #include <sys/param.h>		/* MAXPATHLEN */
 #include <sys/types.h>		/* time_t, caddr_t */
-#include <vroot/vroot.h>	/* pathpt */
+#include <sys/fcntl.h>		/* open() */
 #include <sys/time.h>		/* timestruc_t */
 #include <errno.h>		/* errno */
+#include <sys/stat.h>
+#include <signal.h>
+#if defined(SUN5_0) || defined(HP_UX)
+#include <dirent.h>		/* opendir() */
+#else
+#include <sys/dir.h>		/* opendir() */
+#endif
+#endif
+
+#include <vroot/vroot.h>	/* pathpt */
 
 #if defined (HP_UX) || defined (linux)
-#define  MAXNAMELEN           256
 #define  RW_NO_OVERLOAD_WCHAR 1  /* Rogue Wave, belongs in <rw/compiler.h> */
 #endif
 
 /*
  * Definition of wchar functions.
  */
+#ifdef	HAVE_WCTYPE_H	/* HP-UX-10.x does not have it */
 #include <wctype.h>
+#endif
 #include <wchar.h>
 
 /*
@@ -399,7 +426,10 @@ typedef enum {
  * Magic values for the timestamp stored with each name object
  */
 
-#if defined (linux)
+#if !defined(sun) || !defined(__SVR4)
+/*
+ * timestruc_t is SVR4 specific
+ */
 typedef struct timespec timestruc_t;
 #endif
 

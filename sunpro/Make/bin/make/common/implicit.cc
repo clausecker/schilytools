@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)implicit.cc	1.4 17/04/24 2017 J. Schilling
+ * @(#)implicit.cc	1.5 17/04/30 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)implicit.cc	1.4 17/04/24 2017 J. Schilling";
+	"@(#)implicit.cc	1.5 17/04/30 2017 J. Schilling";
 #endif
 
 /*
@@ -244,10 +244,13 @@ posix_attempts:
 				/* + 8 to add "s." or "SCCS/s." */
 			        memset(tmpbuf,0,source->hash.length + 8);
 			        source->string_mb[source->hash.length - 1] = '\0';
-			        if(p = (char *) memchr((char *)source->string_mb,'/',source->hash.length)) 
-				{
-			          while(1) {  	
-				    if(np = (char *) memchr((char *)p+1,'/',source->hash.length - (p - source->string_mb))) {
+			        if ((p = (char *)memchr((char *)source->string_mb,
+				    '/',
+				    source->hash.length)) != NULL) {
+			          while(1) {
+				    if ((np = (char *) memchr((char *)p+1,
+					'/',
+					source->hash.length - (p - source->string_mb))) != NULL) {
 			              p = np;
 			            } else {break;}
 			          }

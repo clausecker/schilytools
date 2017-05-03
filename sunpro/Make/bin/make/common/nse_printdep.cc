@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)nse_printdep.cc	1.3 17/04/24 2017 J. Schilling
+ * @(#)nse_printdep.cc	1.4 17/04/30 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)nse_printdep.cc	1.3 17/04/24 2017 J. Schilling";
+	"@(#)nse_printdep.cc	1.4 17/04/30 2017 J. Schilling";
 #endif
 
 /*
@@ -520,7 +520,7 @@ print_rec_info(Name target)
 		 * if found,  print starting with the space after the ':'
 		 */
 		colon = (wchar_t *) wcschr(rp->oldline, (int) colon_char);
-		(void) printf("%s", colon + 1);
+		(void) printf("%ls", colon + 1);
 	}
 }
 		

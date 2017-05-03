@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)ar.cc	1.3 17/04/24 2017 J. Schilling
+ * @(#)ar.cc	1.5 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ar.cc	1.3 17/04/24 2017 J. Schilling";
+	"@(#)ar.cc	1.5 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -57,12 +57,12 @@ static	UConst char sccsid[] =
  */
 #include <avo/avo_alloca.h>		/* alloca() */
 #include <ar.h>
-#include <errno.h>		/* errno */
-#include <fcntl.h>		/* open() */
 #include <mk/defs.h>
 #include <mksh/misc.h>		/* retmem_mb() */
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_RANLIB_H
+#include <ranlib.h>
+#else
 struct ranlib {
 	union {
 		off_t	ran_strx;	/* string table index of */
@@ -70,15 +70,9 @@ struct ranlib {
 	}	ran_un;
 	off_t	ran_off;		/* library member at this offset */
 };
-#else
-#include <ranlib.h>
 #endif
 
-#if defined(linux)
 #include <ctype.h>		/* isspace */
-#else
-#include <unistd.h>		/* close() */
-#endif
 
 
 /*
@@ -449,7 +443,7 @@ read_archive_dir(register Ar *arp, Name library, char **)
 	long			date;
 
 #if defined(SUN5_0) || defined(linux) //XXX
-	int			offset;
+	long			offset;
 
 	/*
 	 * If any of the members has a name > 15 chars,
@@ -612,6 +606,8 @@ read_error:
 	      library->string_mb,
 	      errmsg(errno));
 	    /* NOTREACHED */
+
+	return (failed); /* fake return if compiler doesn't grok NOTREACHED */
 }
 
 
@@ -634,7 +630,7 @@ int
 process_long_names_member(register Ar *arp, char **long_names_table, char *filename)
 {  
 	Ar_port			*ar_member_header;
-	int			table_size;
+	long			table_size;
 
 	if (fseek(arp->fd, arp->first_ar_mem, 0) != 0) {
 		return failed;
@@ -693,11 +689,11 @@ translate_entry(register Ar *arp, Name target, register Property member, char **
 	char			*syms;		 /* string table */
 	char			*csym;		 /* string table */
 	ar_port_word		*offend;	 /* end of offsets table */
-	int			date;
+	long			date;
 	register wchar_t	*ap;
 	register char		*hp;
 	int			maxs;
-	int			offset;
+	long			offset;
 	char		buffer[4];
 
 	if (arp->sym_begin == 0L || arp->num_symbols == 0L) {

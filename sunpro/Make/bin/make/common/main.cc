@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.7 17/04/24 2017 J. Schilling
+ * @(#)main.cc	1.13 17/05/01 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.7 17/04/24 2017 J. Schilling";
+	"@(#)main.cc	1.13 17/05/01 2017 J. Schilling";
 #endif
 
 /*
@@ -80,9 +80,6 @@ static	UConst char sccsid[] =
 #endif
 
 #include <locale.h>		/* setlocale() */
-#ifndef TEAMWARE_MAKE_CMN
-#include <libintl.h>		/* textdomain() */
-#endif
 #include <mk/copyright.h>
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* getvar() */
@@ -96,15 +93,8 @@ static	UConst char sccsid[] =
 
 #include <pwd.h>		/* getpwnam() */
 #include <setjmp.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/errno.h>		/* ENOENT */
-#include <sys/stat.h>		/* fstat() */
-#include <fcntl.h>		/* open() */
 
-#include <sys/types.h>		/* stat() */
 #include <sys/wait.h>		/* wait() */
-#include <unistd.h>		/* execv(), unlink(), access() */
 #include <vroot/report.h>	/* report_dependency(), get_report_file() */
 
 // From read2.cc
@@ -119,9 +109,7 @@ extern void job_adjust_fini();
 #endif /* MAXJOBS_ADJUST_RFE4694000 */
 #endif /* TEAMWARE_MAKE_CMN */
 
-#if defined(linux)
 #include <ctype.h>
-#endif
 
 #ifdef	HAVE_LIBGEN_H
 #include <libgen.h>
@@ -428,7 +416,16 @@ main(int argc, char *argv[])
 	/* Sun OS make standart */
 	svr4 = false;  
 	posix = false;
+	make_run_dir = find_run_dir();
 	if(!strcmp(argv_zero_string, NOCATGETS("/usr/xpg4/bin/make"))) {
+		svr4 = false;
+		posix = true;
+	} else if (make_run_dir && (cp = strstr(make_run_dir, "xpg4/bin")) &&
+	    strcmp(cp, "xpg4/bin") == 0) {
+		svr4 = false;
+		posix = true;
+	} else if ((cp = strstr(argv_zero_string, "xpg4/bin/make")) &&
+	    strcmp(cp, "xpg4/bin/make") == 0) {
 		svr4 = false;
 		posix = true;
 	} else {
@@ -511,7 +508,7 @@ main(int argc, char *argv[])
 	 * If running with .KEEP_STATE, curdir will be set with
 	 * the connected directory.
 	 */
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 	(void) atexit(cleanup_after_exit);
 #else
 	(void) on_exit(cleanup_after_exit, (char *) NULL);
@@ -2550,7 +2547,7 @@ read_files_and_state(int argc, char **argv)
 		cp = makeflags_and_macro.start;
 		do {
 			append_char(tmp_char, &makeflags_string_posix);
-		} while ( tmp_char = *cp++ ); 
+		} while ((tmp_char = *cp++) != '\0'); 
 		retmem_mb(makeflags_and_macro.start);
 	}
 
@@ -2850,7 +2847,7 @@ read_files_and_state(int argc, char **argv)
 		   char tmp_path[MAXPATHLEN];
 		   char *slashp;
 
-		   if (slashp = strrchr(make_state->string_mb, '/')) {
+		   if ((slashp = strrchr(make_state->string_mb, '/')) != 0) {
 		      strncpy(tmp_path, make_state->string_mb, 
 				(slashp - make_state->string_mb));
 			tmp_path[slashp - make_state->string_mb]=0;

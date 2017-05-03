@@ -31,6 +31,12 @@
 #pragma	ident	"@(#)mksh.h	1.7	06/12/12"
 
 /*
+ * This file contains modifications Copyright 2017 J. Schilling
+ *
+ * @(#)mksh.h	1.3 17/05/01 2017 J. Schilling
+ */
+
+/*
  * Included files
  */
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
@@ -38,7 +44,6 @@
 #endif
 
 #include <mksh/defs.h>
-#include <unistd.h>
 
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 
