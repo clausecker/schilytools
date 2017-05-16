@@ -483,6 +483,8 @@
 ./RULES/r-build.obj
 ./RULES/r-build.tag
 ./RULES/r-gmake.obj
+./RULES/r-sunpro.tag
+./RULES/r-sunpro.obj
 ./RULES/rs6000-aix-cc32.rul
 ./RULES/rs6000-aix-cc64.rul
 ./RULES/rs6000-aix-gcc32.rul

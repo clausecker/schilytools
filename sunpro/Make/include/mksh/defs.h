@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.15 17/05/01 2017 J. Schilling
+ * @(#)defs.h	1.16 17/05/13 2017 J. Schilling
  */
 
 /*
@@ -983,9 +983,7 @@ extern "C" {
 extern char		**environ;
 };
 extern Envvar		envvar;
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 extern int		exit_status;
-#endif
 extern wchar_t		*file_being_read;
 /* Variable gnu_style=true if env. var. SUN_MAKE_COMPAT_MODE=GNU (RFE 4866328) */
 extern Boolean		gnu_style;

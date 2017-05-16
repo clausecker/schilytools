@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.8 17/05/02 2017 J. Schilling
+ * @(#)misc.cc	1.10 17/05/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.8 17/05/02 2017 J. Schilling";
+	"@(#)misc.cc	1.10 17/05/13 2017 J. Schilling";
 #endif
 
 /*
@@ -136,9 +136,7 @@ getmem(register int size)
 		sprintf(buf, NOCATGETS("*** Error: malloc(%d) failed: %s\n"), size, strerror(errno));
 		strcat(buf, gettext("mksh: Fatal error: Out of memory\n"));
 		fputs(buf, stderr);
-#ifdef SUN5_0
 		exit_status = 1;
-#endif
 		exit(1);
 	}
 	return result;
@@ -474,9 +472,7 @@ fatal_mksh(const char *message, ...)
 	if (buf != static_buf) {
 		retmem_mb(buf);
 	}
-#ifdef SUN5_0
 	exit_status = 1;
-#endif
 	exit(1);
 }
 
@@ -538,9 +534,7 @@ fatal_reader_mksh(const char *pattern, ...)
 			       get_current_path_mksh());
 	}
 	(void) fflush(stderr);
-#ifdef SUN5_0
 	exit_status = 1;
-#endif
 	exit(1);
 }
 
@@ -883,12 +877,10 @@ handle_interrupt_mksh(int)
 	}
 #if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 	while (wait((int *) NULL) != -1);
-#if defined(SUN5_0)
-	exit_status = 2;
-#endif
 #else
 	while (wait((union wait *) NULL) != -1);
 #endif
+	exit_status = 2;
 	exit(2);
 }
 

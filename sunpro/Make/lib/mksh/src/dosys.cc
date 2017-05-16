@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)dosys.cc	1.8 17/05/01 2017 J. Schilling
+ * @(#)dosys.cc	1.10 17/05/14 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.8 17/05/01 2017 J. Schilling";
+	"@(#)dosys.cc	1.10 17/05/14 2017 J. Schilling";
 #endif
 
 /*
@@ -63,7 +63,12 @@ static	UConst char sccsid[] =
 #include <mksh/macro.h>		/* getvar() */
 #include <mksh/misc.h>		/* getmem(), fatal_mksh(), errmsg() */
 #include <sys/wait.h>		/* wait(), WIFEXITED(status) */
+#if defined(sun) && !defined(HAVE_ULIMIT)
+#define	HAVE_ULIMIT
+#endif
+#ifdef	HAVE_ULIMIT
 #include <ulimit.h>		/* ulimit() */
+#endif
 
 /*
  * Defined macros
@@ -125,9 +130,13 @@ my_open(const char *path, int oflag, mode_t mode) {
  */
 void
 redirect_io(char *stdout_file, char *stderr_file)
-{        
-	long		descriptor_limit;
+{
 	int		i;
+
+#ifdef	HAVE_CLOSEFROM
+	closefrom(3);
+#else
+	long		descriptor_limit;
 
 #if !defined(UL_GDESLIM)
 	/*
@@ -146,6 +155,7 @@ redirect_io(char *stdout_file, char *stderr_file)
 	for (i = 3; i < descriptor_limit; i++) {
 		(void) close(i);
 	}
+#endif	/* HAVE_CLOSEFROM */
 #ifndef	O_DSYNC
 #define	O_DSYNC	O_SYNC
 #endif

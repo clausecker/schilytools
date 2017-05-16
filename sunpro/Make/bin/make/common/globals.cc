@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.7 17/05/01 2017 J. Schilling
+ * @(#)globals.cc	1.8 17/05/07 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.7 17/05/01 2017 J. Schilling";
+	"@(#)globals.cc	1.8 17/05/07 2017 J. Schilling";
 #endif
 
 /*
@@ -196,6 +196,9 @@ static	UConst char sccsid[] =
 	char		script_file[MAXPATHLEN] = "";
 #endif
 	Boolean		stdout_stderr_same;
+#ifdef	DO_MAKE_NAME
+	Name		sunpro_make_name;
+#endif
 	Dependency	suffixes;
 	Name		suffixes_name;
 	Name		sunpro_dependencies;

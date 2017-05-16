@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)doname.cc	1.11 17/05/01 2017 J. Schilling
+ * @(#)doname.cc	1.13 17/05/14 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.11 17/05/01 2017 J. Schilling";
+	"@(#)doname.cc	1.13 17/05/14 2017 J. Schilling";
 #endif
 
 /*
@@ -1706,9 +1706,7 @@ run_command(register Property line, Boolean)
 			result = execute_serial(line);
 #endif
 		}
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 		exit_status = 1;
-#endif
 		exit(1);
 	}
 	/* We actually had to do something this time */
@@ -3300,8 +3298,15 @@ add_pattern_conditionals(register Name target)
 		pattern = wcb1.get_string();
 		if (pattern[1] != 0) {
 			percent = (wchar_t *) wcschr(pattern, (int) percent_char);
+			/*
+			 * Check whether right the side of the pattern is
+			 * longer than the target string length.
+			 */
+			length = wcb.length() - wcslen(percent+1);
+			if (length < 0)
+				continue;
 			if (!wcb.equaln(pattern, percent-pattern) ||
-			    !IS_WEQUAL(wcb.get_string(wcb.length()-wcslen(percent+1)), percent+1)) {
+			    !IS_WEQUAL(wcb.get_string(length), percent+1)) {
 				continue;
 			}
 		}

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read2.cc	1.5 17/04/24 2017 J. Schilling
+ * @(#)read2.cc	1.6 17/05/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.5 17/04/24 2017 J. Schilling";
+	"@(#)read2.cc	1.6 17/05/13 2017 J. Schilling";
 #endif
 
 /*
@@ -1945,9 +1945,7 @@ fatal_reader(const char *pattern, ...)
 			       get_current_path());
 	}
 	(void) fflush(stderr);
-#if defined(SUN5_0) || defined(HP_UX)
 	exit_status = 1;
-#endif
 	exit(1);
 }
 

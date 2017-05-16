@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.12 17/04/30 
+#ident @(#)Makefile	1.17 17/05/12 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -19,6 +19,10 @@ CPPOPTS +=	-DSUN5_0
 CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
+CPPOPTS +=	-DDO_MAKE_NAME	# Set up "MAKE_NAME=sunpro"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
+#CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_SPRO_MAKE\"
+
 #CFILES=		socket.c
 C++FILES=	ar.cc depvar.cc dist.cc dmake.cc doname.cc dosys.cc \
 		files.cc globals.cc implicit.cc macro.cc main.cc \
@@ -34,12 +38,13 @@ C++FILES=	ar.cc depvar.cc dist.cc dmake.cc doname.cc dosys.cc \
 # $(LIB_INTL)	needed for gettext()
 # $(LIB_NSL)	needed for gethostbyname()/netname2host()/host2netname()
 # -lschily	needed if wcsdup(), ... are missing
-# $(LIB_PTHREAD) needed for PMAKE to support sem_post()
+# $(LIB_RT)	needed for PMAKE to support sem_post()
+# $(LIB_PTHREAD) WARNING: in Linux, sem_post() is in libpthread
 #
 #LIBS=		-lmksh  -lmksdmsi18n  -lbsd  -lvroot -lintl -lnsl  -lsocket  -lw
-LIBS=		-lmksh  -lbsd  -lvroot $(LIB_NSL) -lschily $(LIB_PTHREAD) $(LIB_INTL)
+LIBS=		-lmksh  -lbsd  -lvroot $(LIB_NSL) -lschily $(LIB_RT) $(LIB_PTHREAD) $(LIB_INTL)
 
-XMK_FILE=	Makefile.man svmakeman.mk Makefile.def svmakedef.mk
+XMK_FILE=	Makefile.man svmakeman.mk dmakeman.mk Makefile.def svmakedef.mk
 
 LDCC=		$(LDCC++)
 ###########################################################################

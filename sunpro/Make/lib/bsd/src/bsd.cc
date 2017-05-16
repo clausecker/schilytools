@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)bsd.cc	1.3 17/05/01 2017 J. Schilling
+ * @(#)bsd.cc	1.4 17/05/04 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsd.cc	1.3 17/05/01 2017 J. Schilling";
+	"@(#)bsd.cc	1.4 17/05/04 2017 J. Schilling";
 #endif
 
 #include <bsd/bsd.h>
@@ -53,13 +53,13 @@ static	UConst char sccsid[] =
 extern SIG_PF
 bsd_signal (int Signal, SIG_PF Handler)
 {
-  auto SIG_PF                   previous_handler;
+	SIG_PF			previous_handler;
 #ifdef SUN5_0
 #ifdef sun
-  previous_handler = sigset (Signal, Handler);
+	previous_handler = sigset(Signal, Handler);
 #else
-  auto struct sigaction         new_action;
-  auto struct sigaction         old_action;
+	struct sigaction	new_action;
+	struct sigaction	old_action;
 
   new_action.sa_flags = SA_SIGINFO;
   new_action.sa_handler = Handler;

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.280 17/05/02 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.281 17/05/11 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.280)dnl
+AC_REVISION(1.281)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -562,6 +562,7 @@ dnl This are POSIX extensions not found on Solaris 10
 AC_CHECK_FUNCS(mkdirat faccessat fchmodat linkat mkfifoat mknodat readlinkat symlinkat)
 AC_CHECK_FUNCS(pipe _pipe)
 AC_CHECK_FUNCS(popen pclose _popen _pclose)
+AC_CHECK_FUNCS(closefrom)
 AC_CHECK_FUNCS(strsignal str2sig sig2str)
 AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sighold sigrelse sigignore sigpause sigprocmask sigsetmask sigset sigaltstack sigblock)

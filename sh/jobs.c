@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)jobs.c	1.97 17/05/02 2008-2017 J. Schilling
+ * @(#)jobs.c	1.98 17/05/04 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.97 17/05/02 2008-2017 J. Schilling";
+	"@(#)jobs.c	1.98 17/05/04 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1564,8 +1564,16 @@ listsigs()
 		maxtrap = i;
 #endif
 	for (i = 1; i < maxtrap; i++) {
-		if (sig2str(i, buf) < 0)
-			strcpy(buf, "bad sig");	/* continue; */
+		if (sig2str(i, buf) < 0) {
+			/*
+			 * The original code was just:
+			 *	continue;
+			 * but we would not realize that there may be gaps in
+			 * the list. So print the number, usable as kill arg.
+			 */
+			itos(i);
+			strcpy(buf, C numbuf);
+		}
 		if (sep)
 			prc_buff(sep);
 		prs_buff((unsigned char *)buf);

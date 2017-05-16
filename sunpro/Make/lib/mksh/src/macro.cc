@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)macro.cc	1.5 17/04/25 2017 J. Schilling
+ * @(#)macro.cc	1.7 17/05/08 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.cc	1.5 17/04/25 2017 J. Schilling";
+	"@(#)macro.cc	1.7 17/05/08 2017 J. Schilling";
 #endif
 
 /*
@@ -1006,7 +1006,11 @@ init_mach_macros(void)
 	FILE		*pipe;
 	Name		value;
 	int		set_host, set_target;
+#if !defined(__sun)
+	const char	*arch_command = NOCATGETS("/bin/uname -m");
+#else
 	const char	*arch_command = NOCATGETS("/bin/arch");
+#endif
 
 	set_host = (get_prop(host_mach->prop, macro_prop) == NULL);
 	set_target = (get_prop(target_mach->prop, macro_prop) == NULL);

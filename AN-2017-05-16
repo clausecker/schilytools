@@ -1,0 +1,253 @@
+New features with AN-2017-05-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	autoconf/config.guess now groks Cygwin with amd64 on NT-10.
+
+	Thanks to Thomas Plank for reporting.
+
+-	autoconf got a new test for closefrom(). This helps to close all files
+	from a certain fd on Solaris and recent BSDs.
+
+-	RULES/rules.top: we now clear the macro COMPILE.cc= from SunPro make
+	as well, in order to get our definition from the Schily Makefilesystem.
+	Before, when using SunPro Make, C++ code was compiled without enabling
+	the optimizer, as the SunPro Make default rule definition was used.
+
+-	RULES/: Since SunPro Make from Schilytools now supports multiple
+	includes with a single include directive, we added a new configuration
+	for a SunPro Make that itself identifies now as "sunpro" via MAKE_NAME.
+
+-	SunPro Make: removed an "auto" keyword in lin/bsd/src/bsd.cc
+	as g++ 6.3 uses a new incompatible definition for "auto". The new
+	incompatible definitin for "auto" was introduced by the new C++
+	standard.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	SunPro Make: Our version now identifies itself by setting the macro:
+
+		MAKE_NAME=sunpro
+
+	This helps to identify that a SunPro Make version supports to include
+	more than a single file with a single include directive.
+
+-	SunPro Make: Fixed a bug in the "include" parser that caused dmake
+	with (note the 2 spaces):
+
+		"include  \n"
+
+	to try to include a file with a name that equals the first word
+	on the next line, regardless to whether the next line starts with
+	a '#'. Dmake now silently ignores include directives with no filename
+	argument which is aligned with the behavior from "smake" and "gmake".
+
+-	SunPro Make: The sequence:
+
+		FOO=
+		include $(FOO)
+
+	no longer complains about trying to include an empty file name
+	but just ignores empty include lists. This makes SunPro Make
+	better aligned as it now behaves like "smake" and "gmake".
+
+-	SunPro Make: the include directive is now able to include
+	more than a single file. This makes SunPro Make now compatible to
+	"smake" and "gmake" and thus massively enhances the usability.
+
+-	SunPro Make: HOST_MACH and TARGET_MACH now call "uname -m"
+	if not on Solaris
+
+-	SunPro Make: The option -R (do not run in parallel) has been
+	enabled.
+
+-	SunPro Make: A manpage for "dmake" has been created.
+
+-	SunPro Make: The make.1s manpage now mentions the dmake.1
+	manpage
+
+-	SunPro Make: The make.1s manpage now better explains the
+	Special-Purpose Macros HOST_ARCH, HOST_MACH, TARGET_ARCH,
+	TARGET_MACH
+
+-	SunPro Make: Cygwin does neither have ulimit.h nor ulimit()
+
+	Thanks for Thomas Plank for reporting
+
+-	SunPro Make: On Solaris 10, sem_post() is not in libc.
+	On solaris, sem_post() is not in libpthread but in librt,
+	so we need to fix the Makefile. Because of Linux, we need
+	to link against $(LIB_RT) _and_ $(LIB_PTHREAD).
+
+	Thanks to Dennis Clarke for reporting.
+
+-	SunPro Make: The source has been converted to use an external
+	#define TEXT_DOMAIN for the textdomain() call. This is to
+	make it compatible to the OpenSolaris-ON makefile system.
+
+-	SunPro Make: No longer set NLSPATH with a string that ends
+	in ".cat" as we no longer use catgets().
+
+-	SunPro Make: Allow to interpret the "USE_SVID" and
+	"USE_SVR4_MAKE" environment on Linux the same way as on Solaris.
+
+-	SunPro Make: Added a warning to main.cc that mentions that
+	the automatic selection of the POSIX behavior is only possible
+	in case that /usr/bin/make and /usr/xpg4/bin/make must be hardlinked.
+	For this reason, /usr/bin/make and /usr/xpg4/bin/make definitely
+	must be installed hard linked or as two separate copies on
+	OpenSolaris.
+
+-	SunPro Make: changed the #ifdefs to select between atexit()
+	and on_exit() to be based on HAVE_ATEXIT.
+
+-	SunPro Make: changed #ifdefs to make "exit_status" always
+	available. This makes the code more readable and is not
+	a great problem as most systems support atexit() anyway.
+
+-	SunPro Make: avoid a close(i) loop if closefrom() is available.
+
+-	SunPro Make: Avoid to address parts of the target strings
+	before the start of the target string when trying to find
+	a pattern match.
+
+-	SunPro Make state:
+
+	-	It compiles on Solaris, Linux, FreeBSD, NetBSD, HP-UX,
+		Cygwin (if g++ is not broken), Mac OS X.
+
+	-	We need feedback for AIX, OpenBSD, DragonFlyBSD,
+		HAIKU, IRIX, SCO
+
+-	Bourne Shell: kill -l now no longer lists "bad sig" for nameless
+	signals, but rather the signal number.
+
+-	Bourne Shell: conformance testsuite: some missing "\" chars have been
+	added before $(( in order to make sure that arithmetic expressions
+	are evaluated by the shell under test. 
+
+	Thanks to Robert Elz for reporting.
+
+
+-	strar: Not yet ready, the current status is:
+
+	This command is usable for basic work already The following features
+	are currently missing:
+
+	-	A method to descend directory trees, e.g. libfind
+
+	-	A noclobber flag
+
+	-	A method to avoid to replace files that are more recent on
+		disk than in the archive.
+
+	-	Set the file permissions
+
+	-	Set the original file time stamps
+
+	-	Set the original file owners.
+
+	These features will be implemented in a future version.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

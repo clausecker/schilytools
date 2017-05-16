@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.7 17/05/01 2017 J. Schilling
+ * @(#)misc.cc	1.9 17/05/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.7 17/05/01 2017 J. Schilling";
+	"@(#)misc.cc	1.9 17/05/13 2017 J. Schilling";
 #endif
 
 /*
@@ -171,9 +171,7 @@ fatal(const char *message, ...)
 	}
 	(void) fflush(stderr);
 	if (fatal_in_progress) {
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 		exit_status = 1;
-#endif
 		exit(1);
 	}
 	fatal_in_progress = true;
@@ -208,9 +206,7 @@ fatal(const char *message, ...)
 	job_adjust_fini();
 #endif
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 	exit_status = 1;
-#endif
 	exit(1);
 }
 
@@ -620,6 +616,10 @@ load_cached_names(void)
 	 */
 	MBSTOWCS(wcs_buffer, NOCATGETS("VERSION-1.0"));
 	current_make_version = GETNAME(wcs_buffer, FIND_LENGTH);
+#ifdef	DO_MAKE_NAME
+	MBSTOWCS(wcs_buffer, NOCATGETS("MAKE_NAME"));
+	sunpro_make_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#endif
 	MBSTOWCS(wcs_buffer, NOCATGETS(".SVR4"));
 	svr4_name = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".POSIX"));

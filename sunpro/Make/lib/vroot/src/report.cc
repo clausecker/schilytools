@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)report.cc	1.7 17/04/30 2017 J. Schilling
+ * @(#)report.cc	1.9 17/05/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)report.cc	1.7 17/04/30 2017 J. Schilling";
+	"@(#)report.cc	1.9 17/05/13 2017 J. Schilling";
 #endif
 
 #include <stdio.h>
@@ -74,7 +74,7 @@ get_target_being_reported_for(void)
 	return(target_being_reported_for);
 }
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 extern "C" {
 static void
 close_report_file(void)
@@ -111,9 +111,8 @@ clean_up(FILE *nse_depinfo_fp, FILE *merge_fp, char *nse_depinfo_file, char *mer
  *  the file if we don't have to because we don't want the time of the file
  *  to change in that case.
  */
-
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 extern "C" {
+#ifdef	HAVE_ATEXIT
 static void
 close_file(void)
 #else
@@ -229,9 +228,7 @@ close_file(int, ...)
 	}
 }
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 } // extern "C"
-#endif
 
 static void
 report_dep(char *iflag, char *filename)
@@ -349,7 +346,7 @@ report_dependency(register const char *name)
 				return;
 			}
 		}
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 		atexit(close_report_file);
 #else
 		(void)on_exit(close_report_file, (char *)report_file);

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.13 17/05/01 2017 J. Schilling
+ * @(#)main.cc	1.21 17/05/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.13 17/05/01 2017 J. Schilling";
+	"@(#)main.cc	1.21 17/05/13 2017 J. Schilling";
 #endif
 
 /*
@@ -171,7 +171,7 @@ static	Boolean		getname_stat = false;
 /*
  * File table of contents
  */
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 	extern "C" void		cleanup_after_exit(void);
 #else
 	extern	void		cleanup_after_exit(int, ...);
@@ -279,17 +279,6 @@ main(int argc, char *argv[])
 
 	(void) setlocale(LC_ALL, "");
 
-#if defined (HP_UX) || defined(linux)
-       /* HP-UX users typically will not have NLSPATH set, and this binary
-        * requires that it be set.  On HP-UX 9.0x, /usr/lib/nls/%L/%N.cat is
-        * the path to set it to.
-        */
-
-       if (getenv(NOCATGETS("NLSPATH")) == NULL) {
-         putenv((char *)NOCATGETS("NLSPATH=/usr/lib/nls/%L/%N.cat"));
-	}
-#endif
-
 #ifdef DMAKE_STATISTICS
 	if (getenv(NOCATGETS("DMAKE_STATISTICS"))) {
 		getname_stat = true;
@@ -346,7 +335,10 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-	textdomain(NOCATGETS("SUNW_SPRO_MAKE"));
+#if !defined(TEXT_DOMAIN)	/* Should be defined by CC -D */
+#define TEXT_DOMAIN "SYS_TEST"	/* Use this only if it weren't */
+#endif
+	textdomain(TEXT_DOMAIN);
 
 #ifdef TEAMWARE_MAKE_CMN
 	g_argc = argc;
@@ -411,6 +403,9 @@ main(int argc, char *argv[])
 	 * look for last slash char in the path to look at the binary 
 	 * name. This is to resolve the hard link and invoke make
 	 * in svr4 mode.
+	 *
+	 * WARNING: /usr/bin/make and /usr/xpg4/bin/make must be
+	 *	hardlinked or we will not be able to distinct them.
 	 */
 
 	/* Sun OS make standart */
@@ -440,12 +435,10 @@ main(int argc, char *argv[])
 			posix = false;
 		}
 	}
-#if !defined(HP_UX) && !defined(linux)
 	if (getenv(USE_SVR4_MAKE) || getenv(NOCATGETS("USE_SVID"))){
 	   svr4 = true;
 	   posix = false;
 	}
-#endif
 
 	/*
 	 * Find the dmake_compat_mode: posix, sun, svr4, or gnu_style, .
@@ -800,20 +793,16 @@ main(int argc, char *argv[])
 	working_on_targets = true;
 	if (trace_status) {
 		dump_make_state();
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 		fclose(stdout);
 		fclose(stderr);
 		exit_status = 0;
-#endif
 		exit(0);
 	}
 	if (list_all_targets) {
 		dump_target_list();
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 		fclose(stdout);
 		fclose(stderr);
 		exit_status = 0;
-#endif
 		exit(0);
 	}
 	trace_reader = false;
@@ -862,16 +851,12 @@ main(int argc, char *argv[])
         exit(nse_exit_status());
 #else
 	if (build_failed_ever_seen) {
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 		if (posix) {
 			exit_status = 1;
 		}
-#endif
 		exit(1);
 	}
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 	exit_status = 0;
-#endif
 	exit(0);
 #endif
 	/* NOTREACHED */
@@ -903,7 +888,7 @@ main(int argc, char *argv[])
  *		usage_tracking  Should have been constructed in main()
  *			        should destroyed just before exiting
  */
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 extern "C" void
 cleanup_after_exit(void)
 #else
@@ -974,7 +959,7 @@ if(getname_stat) {
 
 		MBSTOWCS(wcs_buffer, NOCATGETS(".FAILED"));
 		failed_name = GETNAME(wcs_buffer, FIND_LENGTH);
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
+#ifdef	HAVE_ATEXIT
 		if ((exit_status != 0) && (failed_name->prop != NULL)) {
 #else
 		if ((status != 0) && (failed_name->prop != NULL)) {
@@ -1282,9 +1267,7 @@ handle_interrupt(int)
 
 	report_dir_enter_leave(false);
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
 	exit_status = 2;
-#endif
 	exit(2);
 }
 
@@ -1956,7 +1939,7 @@ parse_command_option(register char ch)
 		}
 		return 0;
 	case 'R':			 /* Don't run in parallel */
-#ifdef TEAMWARE_MAKE_CMN
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 		if (invert_this) {
 			pmake_cap_r_specified = false;
 			no_parallel = false;
@@ -2321,6 +2304,13 @@ read_files_and_state(int argc, char **argv)
 		              new_make_value,
 		              false);
 	}
+
+#ifdef	DO_MAKE_NAME
+	MBSTOWCS(wcs_buffer, NOCATGETS("sunpro"));
+	SETVAR(sunpro_make_name,
+			GETNAME(wcs_buffer, FIND_LENGTH),
+			false);
+#endif
 
 	default_target_to_build = NULL;
 	trace_reader = false;

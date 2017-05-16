@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)arith.sh	1.19 16/06/07 Copyright 2016 J. Schilling
+# @(#)arith.sh	1.20 17/05/09 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -324,10 +324,10 @@ docommand a289 "$SHELL -c 'echo \$((0?3:(2?-2:2)))'" 0 "-2\n" ""
 docommand a290 "$SHELL -c 'echo \$((1?3:(2?-2:2)))'" 0 "3\n" ""
 docommand a291 "$SHELL -c 'echo \$((0?3:(0?-2:2)))'" 0 "2\n" ""
 
-docommand a292 "$SHELL -c 'echo $((1?0^0:1?-2:3))'" 0 "0\n" ""
-docommand a293 "$SHELL -c 'echo $((0?0^0:1?-2:3))'" 0 "-2\n" ""
-docommand a294 "$SHELL -c 'echo $((1?0^0:0?-2:3))'" 0 "0\n" ""
-docommand a295 "$SHELL -c 'echo $((0?0^0:0?-2:3))'" 0 "3\n" ""
+docommand a292 "$SHELL -c 'echo \$((1?0^0:1?-2:3))'" 0 "0\n" ""
+docommand a293 "$SHELL -c 'echo \$((0?0^0:1?-2:3))'" 0 "-2\n" ""
+docommand a294 "$SHELL -c 'echo \$((1?0^0:0?-2:3))'" 0 "0\n" ""
+docommand a295 "$SHELL -c 'echo \$((0?0^0:0?-2:3))'" 0 "3\n" ""
 
 if [ "$var_incr" = true ]; then
 docommand a300 "$SHELL -c 'echo \$((QQ_*=XCd<<=Y++^O++?Y>>=H++:T++!=C++))'" 0 "0\n" ""

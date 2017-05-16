@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read.cc	1.7 17/05/01 2017 J. Schilling
+ * @(#)read.cc	1.10 17/05/09 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.7 17/05/01 2017 J. Schilling";
+	"@(#)read.cc	1.10 17/05/09 2017 J. Schilling";
 #endif
 
 /*
@@ -575,6 +575,7 @@ parse_makefile(register Name true_makefile_name, register Source source)
 
 	Boolean                 save_do_not_exec_rule = do_not_exec_rule;
 	Name                    makefile_name;
+	Name                    makefile_name_raw;
 
 	static Name		sh_name;
 	static Name		shell_name;
@@ -819,10 +820,13 @@ start_new_line_no_skip:
 	    if ((IS_WEQUALN(source_p, include_space, 8)) ||
 		(IS_WEQUALN(source_p, include_tab, 8))) {
 		source_p += 7;
+	try_next_include:	/* More than one include name on the line? */
+
 		if (iswspace(*source_p)) {
 			Makefile_type save_makefile_type;
 			wchar_t		*name_start;
 			int		name_length;
+			String_rec	destination;
 
 			/*
 			 * Yes, this is an include.
@@ -831,6 +835,9 @@ start_new_line_no_skip:
 			while (iswspace(*source_p) ||
 			       (*source_p == (int) nul_char)) {
 				switch (GET_CHAR()) {
+				case newline_char:
+					goto start_new_line;
+
 				case nul_char:
 					GET_NEXT_BLOCK(source);
 					if (source == NULL) {
@@ -924,33 +931,53 @@ start_new_line_no_skip:
 
 			/* Even when we run -n we want to create makefiles */
 			do_not_exec_rule = false;
-			makefile_name = GETNAME(name_start, name_length);
-			if (makefile_name->dollar) {
-				String_rec	destination;
+			makefile_name_raw = GETNAME(name_start, name_length);
+			if (makefile_name_raw->dollar) {
 				wchar_t		buffer[STRING_BUFFER_LENGTH];
 				wchar_t		*p;
 				wchar_t		*q;
 
 				INIT_STRING_FROM_STACK(destination, buffer);
-				expand_value(makefile_name,
+				expand_value(makefile_name_raw,
 					     &destination,
 					     false);
-				for (p = destination.buffer.start;
+
+				destination.text.p = destination.buffer.start;
+			next_in_var:
+				for (p = destination.text.p;
 				     (*p != (int) nul_char) && iswspace(*p);
 				     p++);
 				for (q = p;
 				     (*q != (int) nul_char) && !iswspace(*q);
 				     q++);
+				destination.text.p = q;
+
 				makefile_name = GETNAME(p, q-p);
-				if (destination.free_after_use) {
+				if (destination.text.p >= destination.text.end &&
+				    destination.free_after_use) {
+					/*
+					 * Free it after we did a complete
+					 * parsing of the macro value.
+					 */
 					retmem(destination.buffer.start);
 				}
+			} else {
+				makefile_name = makefile_name_raw;
 			}
-			source_p++;
 			UNCACHE_SOURCE();
 			/* Read the file */
 			save_makefile_type = makefile_type;
-			if (read_simple_file(makefile_name,
+			/*
+			 * The original make program from Sun did complain with:
+			 * FOO=
+			 * include $(FOO)
+			 * but this is in conflict with the behavior of smake
+			 * and gmake and it would cause prolems if we allow
+			 * $(FOO) to expand to more than one incude file name.
+			 * So let us be quiet with empty includes.
+			 */
+			if (*makefile_name->string_mb != nul_char &&
+			    read_simple_file(makefile_name,
 					     true,
 					     true,
 					     true,
@@ -963,6 +990,25 @@ start_new_line_no_skip:
 			makefile_type = save_makefile_type;
 			do_not_exec_rule = save_do_not_exec_rule;
 			CACHE_SOURCE(0);
+			if (makefile_name != makefile_name_raw) {
+				/*
+				 * The "makefile_name" is not from a line in
+				 * Makefile, but from a macro expansion. Check
+				 * whether there may be more names in the value
+				 * of that macro.
+				 */
+				if (destination.text.p < destination.text.end)
+					goto next_in_var;
+			}
+			if (*source_p != newline_char) {
+				/*
+				 * The next character after the filename in the
+				 * include directive was not a newline, there
+				 * may be more names in that directive line.
+				 */
+				goto try_next_include;
+			}
+			source_p++;
 			goto start_new_line;
 		} else {
 			source_p -= 7;

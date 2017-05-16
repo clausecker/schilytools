@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.6 17/04/29 2017 J. Schilling
+ * @(#)defs.h	1.7 17/05/07 2017 J. Schilling
  */
 
 /*
@@ -315,6 +315,7 @@ extern	char		*stdout_file;
 extern	char		script_file[];
 #endif
 extern	Boolean		stdout_stderr_same;
+extern	Name		sunpro_make_name;
 extern	Dependency	suffixes;
 extern	Name		suffixes_name;
 extern	Name		sunpro_dependencies;

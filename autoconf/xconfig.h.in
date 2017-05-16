@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.265 17/05/02 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.266 17/05/11 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -279,6 +279,7 @@
 #undef HAVE_PCLOSE		/* pclose() is present in libc */
 #undef HAVE__POPEN		/* _popen() is present in libc */
 #undef HAVE__PCLOSE		/* _pclose() is present in libc */
+#undef HAVE_CLOSEFROM		/* closefrom() is present in libc */
 #undef HAVE_STATVFS		/* statvfs() is present in libc */
 #undef HAVE_QUOTACTL		/* quotactl() is present in libc */
 #undef HAVE_QUOTAIOCTL		/* use ioctl(f, Q_QUOTACTL, &q) instead of quotactl() */

@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.18 17/04/05 Copyright 1999-2014 J. Schilling
+# @(#)config.guess	1.19 17/05/09 Copyright 1999-2014 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -545,6 +545,9 @@ EOF
 	echo ${UNAME_MACHINE}-unknown-openbsd`echo ${UNAME_RELEASE}|sed -e 's/[-_].*/\./'`
 	exit 0 ;;
     i*:CYGWIN*:*)
+	echo ${UNAME_MACHINE}-pc-cygwin
+	exit 0 ;;
+    x*:CYGWIN*:*)
 	echo ${UNAME_MACHINE}-pc-cygwin
 	exit 0 ;;
     i*:MINGW*:*)

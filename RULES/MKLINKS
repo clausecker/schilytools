@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.128 17/04/06 "
+#ident "@(#)MKLINKS	1.129 17/05/09 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -47,6 +47,8 @@ $symlink	r-smake.dep		r-build.dep
 $symlink	r-smake.obj		r-build.obj
 $symlink	r-smake.tag		r-build.tag
 $symlink	r-make.obj		r-gmake.obj
+$symlink	r-make.obj		r-sunpro.obj
+$symlink	r-make.tag		r-sunpro.tag
 
 $symlink	cc-clang.rul		cc-clang32.rul
 $symlink	cc-clang.rul		cc-clang64.rul

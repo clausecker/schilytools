@@ -1,0 +1,278 @@
+. \" @(#)dmake.1	1.2 17/05/06 Copyr 2017 J. Schilling
+. \"  Manual Seite fuer dmake
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \(*b
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds A Ae
+.if n .ds O Oe
+.if n .ds U Ue
+.if n .ds s sz
+.ds S SS
+.TH DMAKE 1 "2017/05/06" "SunOS 5.11" "SunOS Specific Commands"
+.SH NAME
+dmake \- parallel make from Distributed Make
+.SH SYNOPSIS
+.BR dmake " [" \-c
+.IR dmake-rcfile "] ["\c
+.BI \-g\  dmake-group\c
+.RB "] ["\c
+.BI \-j\  dmake-max-jobs\c
+.RB "] [" "\-m " { serial\ \c
+.RB |\  parallel }\c
+.RB "] [" \-o
+.IR dmake-odir ]
+.RB [ \-R ]
+.LP
+.SH DESCRIPTION
+This man page supplements the man page for the Solaris
+.BR make (1s)
+utility.
+.LP
+This version of
+.BR dmake (1)
+implements a subset of the features of the
+.BR dmake (1)
+program delivered with the
+.B Sun Studio
+compiler suite.
+It implements
+.B serial
+and
+.B parallel
+mode, but neither the
+.B distributed
+nor the
+.B grid
+mode.
+
+.SH OPTIONS
+.TP 24
+.BI \-c\  dmake-rcfile
+This version of
+.B dmake
+neither supports the default configuration file
+.B $(HOME)/.dmakerc
+nor an alternate location specified by the
+.B \-c
+option.
+.TP
+.BI \-g\  dmake-group
+This version of
+.B dmake
+does not support to set a dmake group via the
+.B \-g
+option.
+.TP
+.BI \-j\  dmake-max-jobs
+Specifies the maximum total number of jobs that are
+run in parallel.
+.TP
+.BR \-m\  { serial " | " parallel }
+Allows to specify one of the following key words:
+.RS
+.TP 10
+.B serial
+Causes
+.B dmake
+to behave like the standard serial version of
+.BR make .
+.TP
+.B parallel
+Causes
+.B dmake
+to run several jobs in parallel on the
+.B dmake
+host.
+.RE
+.TP
+.BI \-o\  dmake-odir
+This version of
+.B dmake
+does not support to set a common physical directory via the
+.B \-o
+option.
+.TP
+.B \-R
+Do not run in parallel mode.
+
+.SH USAGE
+.LP
+For the general usage, see the
+.BR make (1s)
+man page for more information.
+
+.SS Special-purpose Targets
+.B dmake
+supports the
+.B "special targets"
+.SM \fB.PARALLEL\fP\s0,
+.SM \fB.NO_PARALLEL\fP\s0,
+.SM \fB.LOCAL\fP\s0,
+and
+.SM \fB.WAIT\fP
+to control the way the targets are made.
+
+.br
+.ne 3
+.TP 17
+.SM \fB.NO_PARALLEL\fP:
+Add targets to the dependency list of this target to control
+which targets are to be processed serially.
+.br
+.ne 3
+.TP
+.SM \fB.PARALLEL\fP:
+Add targets to the dependency list of this target to control
+which targets are to be processed in parallel.
+.br
+.ne 3
+.TP
+.SM \fB.LOCAL\fP:
+Add targets to the dependency list of this target to control
+which targets are to be processed serially.
+This version of
+.B dmake
+does not support distributed builds.
+.br
+.ne 3
+.TP
+.SM \fB.WAIT\fP
+When this target is specified in a dependency list,
+.B dmake
+waits until the dependencies to the left of the
+.SM \fB.WAIT\fP
+pseudo target are finished before starting to process
+targets to the right of
+.SM \fB.WAIT\fP.
+
+.SH "ENVIRONMENT/MACROS"
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_ADJUST_MAX_JOBS\fP
+This macro allows to control the parallel make behavior.
+The following values are possible:
+.RS
+.TP
+.B YES
+Allow
+.B dmake
+to control the number of jobs based on the current system load.
+If the load is high, the number of jobs will be reduced.
+If the load is low, the number of jobs specified by the user is used.
+.TP
+.B NO
+The number of jobs is not adjusted based on the load of the system.
+.RE
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_GROUP\fP
+This version of
+.B dmake
+does not support to set a dmake group via the
+.B DMAKE_GROUP
+environment or macro.
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_MAX_JOBS\fP
+Allows to set the maximum number of jobs in case that
+.B \-j
+was not specified.
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_MODE\fP
+May contain one of the following key words:
+.RS
+.TP 10
+.B serial
+Causes
+.B dmake
+to behave like the standard serial version of
+.BR make .
+.TP
+.B parallel
+Causes
+.B dmake
+to run several jobs in parallel on the
+.B dmake
+host.
+.RE
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_ODIR\fP
+This version of
+.B dmake
+does not support to set the
+.I dmake-odir
+via the
+.B DMAKE_ODIR
+environment or macro.
+.TP
+.SM \fBDMAKE_OUTPUT_MODE\fP
+Controls the output format used by
+.BR dmake .
+The following values are possible:
+.RS
+.TP 8
+.B TXT1
+The default behavior.
+Serialize stdout and stderr, and print a label before the output
+from a new job starts.
+.TP
+.B TXT2
+Serialize stdout and stderr, but do not print the labels from
+.B TXT1
+mode.
+.RE
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_RCFILE\fP
+This version of
+.B dmake
+neither supports the default configuration file
+.B $(HOME)/.dmakerc
+nor an alternate location specified by the
+.B DMAKE_RCFILE
+environment or macro. 
+
+.SH FILES
+See
+.BR make (1s)
+for a list of files.
+
+.SH "SEE ALSO
+.BR make (1s),
+.BR attributes (5),
+.BR largefile (5)

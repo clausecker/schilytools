@@ -48,7 +48,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "23 Apr 2008" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2017/05/09" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -88,6 +88,10 @@ traces when deciding whether or
 not to rebuild a
 .IR target .
 .sp
+.LP
+For a description of the parallel make features, check the
+.BR dmake (1)
+man page.
 .LP
 The
 .B make
@@ -702,10 +706,12 @@ The macros
 .BR SHELL ,
 .BR HOST_ARCH ,
 .BR HOST_MACH ,
+.BR TARGET_ARCH ,
 and
 .B TARGET_MACH
 are special cases. See
-Special-Purpose Macros below for details.
+.B Special-Purpose Macros
+below for details.
 .SS "Makefile Target Entries"
 .sp
 .LP
@@ -768,14 +774,10 @@ begins another target or macro definition.
 .LP
 Special characters are defined below.
 .SS "\fIGlobal\fR"
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP 21n
 .B #
-.ad
-.RS 20n
-.rt
 Start a comment. The comment ends at the next
 .BR NEWLINE .
 If the
@@ -786,17 +788,11 @@ in a command line, that line is passed to the shell
 (which also treats
 .B #
 as the start of a comment).
-.RE
 
-.sp
+.br
 .ne 2
-.mk
-.na
-.B include
-.I filename
-.ad
-.RS 20n
-.rt
+.TP
+.BI "include " "filename .\|.\|."
 If the word
 .B include
 appears as the first seven letters of a line and
@@ -808,11 +804,17 @@ the string that follows is taken
 as a filename to interpolate at that line.
 .B include
 files can be nested
-to a depth of no more than 38 nested makefiles . If
+to a depth of no more than 38 nested makefiles. If
 .I filename
 is a
 macro reference, it is expanded.
-.RE
+.sp
+Previous versions os
+.B make
+did only supoport one filename after the
+.B include
+directive, this version supports any number of filenames
+and macros that expand to more than one name.
 
 .SS "\fITargets and Dependencies\fR"
 .sp
@@ -1780,50 +1782,62 @@ are executed.
 .sp
 .LP
 The following macros are provided for use with cross-compilation:
-.sp
+
+.br
 .ne 2
-.mk
-.na
+.TP 15n
 .B HOST_ARCH
-.ad
-.RS 15n
-.rt
 The processor type of the host system. By default, this is the output of
 the
 .BR mach (1)
-command, prepended with
+command or
+.BR "uname\ -p" ,
+prepended with
 .BR - \&.
 Under normal
 circumstances, this value should never be altered by the user.
-.RE
 
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP
 .B HOST_MACH
-.ad
-.RS 15n
-.rt
 The machine architecture of the host system. By default, this is the output
 of the
 .BR arch (1)
-command, prepended with \fB\(mi\fR\&. Under normal
+command or
+.BR "uname\ -m" ,
+prepended with \fB\(mi\fR\&. Under normal
 circumstances, this value should never be altered by the user.
-.RE
+Note that on Solaris,
+.B sun4
+is returned in case that
+.B "uname\ -p"
+returns
+.BR sparc,
+.B sun3
+is returned for
+.B mc68020
+and
+.B i86pc
+is returned for
+.BR i386 .
 
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP
 .B TARGET_ARCH
-.ad
-.RS 15n
-.rt
-The processor type of the target system. By default, the output of
-.BR mach ,
-prepended with \fB\(mi\fR\&.
-.RE
+The processor type of the target system. By default, the output of the
+.BR mach (1)
+command, prepended with \fB\(mi\fR\&.
+
+.br
+.ne 2
+.TP
+.B TARGET_MACH
+The machine architecture of the target system. By default, this is the output
+of the
+.BR arch (1)
+command, prepended with \fB\(mi\fR\&.
 
 .SS "Dynamic Macros"
 .sp
@@ -3467,6 +3481,7 @@ StandardSee \fBstandards\fR(5).
 .BR arch (1),
 .BR cd (1),
 .BR cpp (1),
+.BR dmake (1),
 .BR lex (1),
 .BR mach (1),
 .BR sccs-get (1),
