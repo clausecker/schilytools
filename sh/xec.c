@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.75 17/03/15 2008-2017 J. Schilling
+ * @(#)xec.c	1.76 17/05/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.75 17/03/15 2008-2017 J. Schilling";
+	"@(#)xec.c	1.76 17/05/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -815,6 +815,19 @@ script:
 			/* NOTREACHED */
 #endif	/* DO_PIPE_PARENT */
 
+#ifdef	DO_SETIO_NOFORK
+		case TSETIO:		/* save and reset IO streams */
+		{
+			short	fdindex;
+
+			fdindex = initio(t->treio, 1);
+			execute(forkptr(t)->forktre,
+				xflags, errorflg,
+				no_pipe, no_pipe);
+			restore(fdindex);
+			break;
+		}
+#endif	/* DO_SETIO_NOFORK */
 
 		case TPAR:		/* "()" parentized cmd */
 			/*

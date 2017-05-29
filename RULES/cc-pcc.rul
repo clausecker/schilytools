@@ -1,4 +1,4 @@
-#ident "@(#)cc-pcc.rul	1.7 13/11/13 "
+#ident "@(#)cc-pcc.rul	1.8 17/05/28 "
 ###########################################################################
 # Written 2010-2013 by J. Schilling
 ###########################################################################
@@ -43,6 +43,8 @@ C++OPTGPROF=	-pg
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
 SHL_SUFFIX=	.so.1
+
+LIB_C=		-lc
 
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.79 17/02/02 2008-2016 J. Schilling
+ * @(#)word.c	1.80 17/05/26 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.79 17/02/02 2008-2016 J. Schilling";
+	"@(#)word.c	1.80 17/05/26 2008-2017 J. Schilling";
 #endif
 
 /*

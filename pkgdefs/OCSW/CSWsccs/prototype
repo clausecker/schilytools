@@ -5,12 +5,10 @@ d none bin ? ? ?
 s none bin/sccs=../ccs/bin/sccs
 d none ccs 0755 root bin
 d none ccs/lib 0755 root bin
-f none ccs/lib/libcassi.a 0444 root bin
-f none ccs/lib/libcomobj.a 0444 root bin
-f none ccs/lib/libmpw.a 0444 root bin
+#f none ccs/lib/libcassi.a 0444 root bin
+#f none ccs/lib/libcomobj.a 0444 root bin
+#f none ccs/lib/libmpw.a 0444 root bin
 d none ccs/lib/help 0755 root bin
-d none ccs/lib/help/lib 0755 root bin
-f none ccs/lib/help/lib/help2 0755 root bin
 d none ccs/lib/help/locale 0755 root bin
 d none ccs/lib/help/locale/C 0755 root bin
 f none ccs/lib/help/locale/C/ad 0444 root bin

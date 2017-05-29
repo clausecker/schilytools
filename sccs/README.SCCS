@@ -1,4 +1,4 @@
-#ident "@(#)README.SCCS	1.7 16/12/05 "
+#ident "@(#)README.SCCS	1.8 17/05/25 "
 
 This is a portable and reworked version of the original UNIX SCCS source.
 
@@ -48,9 +48,12 @@ call:
 The binaries then are located in /usr/ccs/bin and /usr/xpg4/bin
 
 
-Note that you need to at least recompile sccs.c, delta.c, help.c and help2.c
+Note that you need to at least recompile sccs.c, delta.c and help.c
 in case that you like to change the install directory. The other programs
 need to be recompiled too, in order to allow them to find their international
+string translation files or in case that SCCS_FATALHELP has been defined for
+compilation, so is is a good idea to recompile everything:
+
 string translation files, so is is a good idea to recompile everything:
 
 smake clean

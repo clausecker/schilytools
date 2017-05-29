@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)service.c	1.49 16/07/31 2008-2016 J. Schilling
+ * @(#)service.c	1.51 17/05/26 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.49 16/07/31 2008-2016 J. Schilling";
+	"@(#)service.c	1.51 17/05/26 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -701,6 +701,9 @@ extern	int		macflag;
 	for (;;) {
 		int clength;
 		sigchk();
+		/*
+		 * Point past argnext ptr (&argval[0]).
+		 */
 		argp = locstak() + BYTESPERWORD;
 		while ((c = *s) != 0) {
 			wchar_t wc;
@@ -733,6 +736,10 @@ extern	int		macflag;
 			if (*ifs && anys(s, ifs)) {
 				/* skip to next character position */
 				s += clength;
+#ifdef	DO_POSIX_FIELD_SPLIT
+				if (wc != ' ' && wc != '\t' && wc != '\n')
+					goto newname;
+#endif
 				break;
 			}
 
@@ -742,6 +749,9 @@ extern	int		macflag;
 			}
 		}
 		if (argp == staktop + BYTESPERWORD) {
+			/*
+			 * Empty argument
+			 */
 			if (c) {
 				continue;
 			} else {
@@ -751,7 +761,9 @@ extern	int		macflag;
 		/*
 		 * file name generation
 		 */
-
+#ifdef	DO_POSIX_FIELD_SPLIT
+	newname:
+#endif
 		argp = endstak(argp);
 		trims(((struct argnod *)argp)->argval);
 		if ((flags & nofngflg) == 0 &&

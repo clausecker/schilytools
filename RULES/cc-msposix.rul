@@ -1,4 +1,4 @@
-#ident "@(#)cc-msposix.rul	1.23 13/11/13 "
+#ident "@(#)cc-msposix.rul	1.24 17/05/28 "
 ###########################################################################
 # Written 2006-2013 by J. Schilling
 ###########################################################################
@@ -47,6 +47,8 @@ C++OPTDYN=
 LIB_PREFIX=
 LIB_SUFFIX=	.lib
 SHL_SUFFIX=	.dll
+
+LIB_C=		-lc
 
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 

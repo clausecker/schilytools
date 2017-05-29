@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.3 17/05/02 
+#ident @(#)Makefile	1.4 17/05/28 
 ###########################################################################
 SRCROOT=	../../../../..
 RULESDIR=	RULES
@@ -12,7 +12,7 @@ INSDIR=		lib
 TARGETLIB=	makestate
 CPPOPTS +=	-DSCHILY_INCLUDES	# To use schily include files
 CFILES=		ld_file.c lock.c
-LIBS=		$(LIB_ELF) -lc
+LIBS=		$(LIB_ELF) $(LIB_C)
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

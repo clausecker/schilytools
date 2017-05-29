@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)name.c	1.69 17/03/15 2008-2017 J. Schilling
+ * @(#)name.c	1.71 17/05/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.69 17/03/15 2008-2017 J. Schilling";
+	"@(#)name.c	1.71 17/05/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -974,6 +974,16 @@ printpexp(n)
 }
 #endif
 
+#ifdef	DO_POSIX_EXPORT_ENV
+void
+exportenv(n)
+	struct namnod	*n;
+{
+	if (n->namflg & N_ENVNAM)
+		n->namflg |= N_EXPORT;
+}
+#endif
+
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN) || defined(DO_SYSLOCAL)
 /*
  * Push the current value by dulicating the content in
@@ -984,14 +994,13 @@ pushval(n, t)
 	struct namnod	*n;
 	void		*t;
 {
-	if (n->namval) {
-		struct namnod *nscan = (struct namnod *)alloc(sizeof (*nscan));
+	struct namnod *nscan = (struct namnod *)alloc(sizeof (*nscan));
 
-		*nscan = *n;
-		n->namval = make(n->namval);
-		n->nampush = nscan;
-		nscan->funcval = t;
-	}
+	*nscan = *n;
+	n->namval = make(n->namval);
+	n->nampush = nscan;
+	nscan->funcval = t;
+
 	attrib(n, t ? N_LOCAL : N_PUSHOV);
 }
 #endif

@@ -31,19 +31,18 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)lock.cc	1.5 17/04/29 2017 J. Schilling
+ * @(#)lock.cc	1.6 17/05/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.cc	1.5 17/04/29 2017 J. Schilling";
+	"@(#)lock.cc	1.6 17/05/18 2017 J. Schilling";
 #endif
 
 #include <avo/intl.h>	/* for NOCATGETS */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/errno.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/types.h>

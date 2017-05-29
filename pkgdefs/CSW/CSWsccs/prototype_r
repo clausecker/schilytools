@@ -8,12 +8,10 @@ d none /opt/csw/bin ? ? ?
 s none /opt/csw/bin/sccs=../ccs/bin/sccs
 d none /opt/csw/ccs 0755 root bin
 d none /opt/csw/ccs/lib 0755 root bin
-f none /opt/csw/ccs/lib/libcassi.a 0444 root bin
-f none /opt/csw/ccs/lib/libcomobj.a 0444 root bin
-f none /opt/csw/ccs/lib/libmpw.a 0444 root bin
+#f none /opt/csw/ccs/lib/libcassi.a 0444 root bin
+#f none /opt/csw/ccs/lib/libcomobj.a 0444 root bin
+#f none /opt/csw/ccs/lib/libmpw.a 0444 root bin
 d none /opt/csw/ccs/lib/help 0755 root bin
-d none /opt/csw/ccs/lib/help/lib 0755 root bin
-f none /opt/csw/ccs/lib/help/lib/help2 0755 root bin
 d none /opt/csw/ccs/lib/help/locale 0755 root bin
 d none /opt/csw/ccs/lib/help/locale/C 0755 root bin
 f none /opt/csw/ccs/lib/help/locale/C/ad 0444 root bin

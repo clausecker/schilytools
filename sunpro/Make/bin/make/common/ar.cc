@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)ar.cc	1.5 17/05/01 2017 J. Schilling
+ * @(#)ar.cc	1.6 17/05/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ar.cc	1.5 17/05/01 2017 J. Schilling";
+	"@(#)ar.cc	1.6 17/05/18 2017 J. Schilling";
 #endif
 
 /*
@@ -56,7 +56,9 @@ static	UConst char sccsid[] =
  * Included files
  */
 #include <avo/avo_alloca.h>		/* alloca() */
+#ifdef	HAVE_AR_H
 #include <ar.h>
+#endif
 #include <mk/defs.h>
 #include <mksh/misc.h>		/* retmem_mb() */
 

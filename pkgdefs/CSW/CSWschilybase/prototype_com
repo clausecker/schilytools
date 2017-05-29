@@ -83,6 +83,7 @@ f none share/man/man3/abspath.3 0444 root bin
 f none share/man/man3/astoi.3 0444 root bin
 f none share/man/man3/astol.3 0444 root bin
 f none share/man/man3/breakline.3 0444 root bin
+f none share/man/man3/cmpbytes.3 0444 root bin
 f none share/man/man3/comerr.3 0444 root bin
 f none share/man/man3/comerrno.3 0444 root bin
 f none share/man/man3/errmsg.3 0444 root bin

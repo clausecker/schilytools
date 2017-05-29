@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)jobs.c	1.98 17/05/04 2008-2017 J. Schilling
+ * @(#)jobs.c	1.99 17/05/18 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.98 17/05/04 2008-2017 J. Schilling";
+	"@(#)jobs.c	1.99 17/05/18 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -2063,6 +2063,7 @@ ruadd(ru, ru2)
 	timeradd(&ru->ru_utime, &ru2->ru_utime);
 	timeradd(&ru->ru_stime, &ru2->ru_stime);
 
+#if !defined(__BEOS__) && !defined(__HAIKU__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;
@@ -2081,6 +2082,7 @@ ruadd(ru, ru2)
 	ru->ru_nsignals += ru2->ru_nsignals;
 	ru->ru_nvcsw += ru2->ru_nvcsw;
 	ru->ru_nivcsw += ru2->ru_nivcsw;
+#endif /* !defined(__BEOS__) && !defined(__HAIKU__) */
 }
 #endif	/* DO_TIME */
 

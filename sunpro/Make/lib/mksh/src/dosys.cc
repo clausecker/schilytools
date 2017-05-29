@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)dosys.cc	1.10 17/05/14 2017 J. Schilling
+ * @(#)dosys.cc	1.11 17/05/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.10 17/05/14 2017 J. Schilling";
+	"@(#)dosys.cc	1.11 17/05/18 2017 J. Schilling";
 #endif
 
 /*
@@ -62,7 +62,11 @@ static	UConst char sccsid[] =
 #include <mksh/dosys.h>
 #include <mksh/macro.h>		/* getvar() */
 #include <mksh/misc.h>		/* getmem(), fatal_mksh(), errmsg() */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/wait.h>	/* wait(), WIFEXITED(status) */
+#else
 #include <sys/wait.h>		/* wait(), WIFEXITED(status) */
+#endif
 #if defined(sun) && !defined(HAVE_ULIMIT)
 #define	HAVE_ULIMIT
 #endif

@@ -1,4 +1,4 @@
-#ident "@(#)cc-sgi64.rul	1.13 13/11/13 "
+#ident "@(#)cc-sgi64.rul	1.14 17/05/28 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -40,6 +40,8 @@ C++WOPTS=
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
 SHL_SUFFIX=	.so.1
+
+LIB_C=		-lc
 
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 

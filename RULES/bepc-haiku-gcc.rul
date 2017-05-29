@@ -1,6 +1,6 @@
-#ident "@(#)bepc-haiku-gcc.rul	1.4 15/04/13 "
+#ident "@(#)bepc-haiku-gcc.rul	1.6 17/05/29 "
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2017 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Haiku, a BeOS like OS
@@ -40,7 +40,9 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so
+SHL_SUFFIX=	.so.1.0
+
+LIB_C=
 
 #LIB_SOCKET=	-lsocket -lbind
 LIB_SOCKET=	-lnetwork

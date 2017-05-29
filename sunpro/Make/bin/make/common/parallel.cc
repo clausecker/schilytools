@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)parallel.cc	1.12 17/05/02 2017 J. Schilling
+ * @(#)parallel.cc	1.13 17/05/21 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parallel.cc	1.12 17/05/02 2017 J. Schilling";
+	"@(#)parallel.cc	1.13 17/05/21 2017 J. Schilling";
 #endif
 
 /*
@@ -467,9 +467,17 @@ append_dmake_cmd(Avo_DoJobMsg *dmake_job_msg,
 #ifdef MAXJOBS_ADJUST_RFE4694000
 
 #include <unistd.h>	/* sysconf(_SC_NPROCESSORS_ONLN) */
+#ifdef	HAVE_SYS_IPC_H
 #include <sys/ipc.h>		/* ftok() */
+#endif
+#ifdef	HAVE_SYS_SHM_H
 #include <sys/shm.h>		/* shmget(), shmat(), shmdt(), shmctl() */
+#else
+#include <sys/mman.h>		/* mmap(), munmap() */
+#endif
+#ifdef	HAVE_SEMAPHORE_H
 #include <semaphore.h>		/* sem_init(), sem_trywait(), sem_post(), sem_destroy() */
+#endif
 
 #ifdef	HAVE_SYS_LOADAVG_H
 #include <sys/loadavg.h>	/* getloadavg() */
@@ -541,16 +549,57 @@ adjust_pmake_max_jobs (int pmake_max_jobs)
  *	m2_file		- tmp file name to create ipc key for shared memory
  *	m2_shm_id	- shared memory id
  *	m2_shm_sem	- shared memory semaphore
+ *	m2_toplevel	- true if we are the root process
  */
 
 static char	m2_file[MAXPATHLEN];
 static int	m2_shm_id = -1;
 static sem_t*	m2_shm_sem = 0;
+static int	m2_toplevel = 0;
+
+static int
+m2_getshm(char *var)
+{
+#ifdef	HAVE_SYS_SHM_H
+	key_t	key;
+
+	/* combine IPC key */
+	if ((key = ftok(m2_file, 38)) == (key_t) -1) {
+		return -1;
+	}
+
+	/* create shared memory */
+	if ((m2_shm_id = shmget(key, sizeof(*m2_shm_sem),
+			0666 | (var ? 0 : IPC_CREAT|IPC_EXCL))) == -1) {
+		return -1;
+	}
+
+	/* attach shared memory */
+	if ((m2_shm_sem = (sem_t*) shmat(m2_shm_id, 0, 0666)) == (sem_t*)-1) {
+		return -1;
+	}
+#else
+	int	fd = open(m2_file, O_RDWR);
+	sem_t	shm_sem;
+
+	if (fd < 0)
+		return (-1);
+
+	write(fd, &shm_sem, sizeof(shm_sem));
+
+	m2_shm_sem = (sem_t *) mmap(0, sizeof(*m2_shm_sem),
+				PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
+	if (m2_shm_sem == MAP_FAILED)
+		return (-1);
+	m2_shm_id = 0;
+#endif
+	return (0);
+}
 
 static int
 m2_init() {
 	char	*var;
-	key_t	key;
 
 	if ((var = getenv(NOCATGETS("__DMAKE_M2_FILE__"))) == 0) {
 		/* compose tmp file name */
@@ -563,25 +612,15 @@ m2_init() {
 		} else {
 			close(fd);
 		}
+		m2_toplevel = 1;
 	} else {
 		/* using existing semaphore */
 		strcpy(m2_file, var);
+		m2_toplevel = 0;
 	}
 
-	/* combine IPC key */
-	if ((key = ftok(m2_file, 38)) == (key_t) -1) {
-		return -1;
-	}
-
-	/* create shared memory */
-	if ((m2_shm_id = shmget(key, sizeof(*m2_shm_sem), 0666 | (var ? 0 : IPC_CREAT|IPC_EXCL))) == -1) {
-		return -1;
-	}
-
-	/* attach shared memory */
-	if ((m2_shm_sem = (sem_t*) shmat(m2_shm_id, 0, 0666)) == (sem_t*)-1) {
-		return -1;
-	}
+	if (m2_getshm(var) < 0)
+		return (-1);
 
 	/* root process */
 	if (var == 0) {
@@ -607,6 +646,7 @@ m2_init() {
 static void
 m2_fini() {
 	if (m2_shm_id >= 0) {
+#ifdef	HAVE_SYS_SHM_H
 		struct shmid_ds stat;
 
 		/* determine the number of attached processes */
@@ -629,7 +669,19 @@ m2_fini() {
 				}
 			}
 		}
+#else
+		if (m2_toplevel) {
+			/* destroy semaphore */
+			if (m2_shm_sem != 0) {
+				(void) sem_destroy(m2_shm_sem);
+			}
 
+			/* remove tmp file created for the key */
+			(void) unlink(m2_file);
+		}
+		/* unmap shared memory */
+		(void) munmap((char *) m2_shm_sem, sizeof(*m2_shm_sem));
+#endif
 		m2_shm_id = -1;
 		m2_shm_sem = 0;
 	}

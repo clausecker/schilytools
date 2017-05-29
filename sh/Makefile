@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.127 17/01/05  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.130 17/05/27  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -55,6 +55,7 @@ CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
 CPPOPTS +=	-DDO_EMPTY_SEMI		# Permit ";" and ";echo" as valid commands
 CPPOPTS +=	-DDO_PIPE_PARENT	# Optimized pipes: Shell always parent
+CPPOPTS +=	-DDO_SETIO_NOFORK	# Avoid to fork w. redir. IO in compound cmd
 CPPOPTS +=	-DDO_ALLEXPORT		# Bugfix for set -a; read VAR / getopts
 CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
 CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
@@ -68,6 +69,8 @@ CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
 CPPOPTS +=	-DDO_POSIX_CD		# cd/pwd/... implement POSIX -L/-P
 CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
 CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
+CPPOPTS +=	-DDO_POSIX_EXPORT_ENV	# Autoexport imported environ w. -o posix
+#CPPOPTS +=	-DDO_EXPORT_ENV		# Always autoexport imported environ
 CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 CPPOPTS +=	-DDO_POSIX_SET		# Let set -- clear the arguments
 CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
@@ -82,6 +85,7 @@ CPPOPTS +=	-DDO_POSIX_PATH		# Implement set -o posix from PATH
 					# call smake 'CPPOPTX=-DPOSIX_BOSH_PATH=\"/bin/sh\"'
 					# or add CPPOPTS += -DPOSIX_BOSH_PATH=\"/bin/sh\"
 					# to make a PATH auto set -o posix
+CPPOPTS +=	-DDO_POSIX_FIELD_SPLIT	# IFS=: var=a::b echo $var -> a '' b
 
 CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
 CPPOPTS +=	-DDO_SELECT		# Implement ksh "select" feature

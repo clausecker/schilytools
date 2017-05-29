@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)ifs.sh	1.3 16/12/29 Copyright 2016 J. Schilling
+# @(#)ifs.sh	1.4 17/05/26 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -54,6 +54,45 @@ null_ifs() {
 null_ifs 1 2 3
 XEOF
 docommand ifs22 "$SHELL x" 0 "\$# -> 3\n" ""
+
+#
+# POSIX field splitting does not skip multiple field separators
+# in case they are not " \t\n"
+#
+cat > x << \XEOF
+IFS=:
+a=a:
+b=:b
+printf "<%s>\n" $a$b
+XEOF
+docommand ifs50 "$SHELL ./x" 0 "<a>\n<>\n<b>\n" ""
+
+cat > x << \XEOF
+IFS=' '
+a='a '
+b=' b'
+printf "<%s>\n" $a$b
+XEOF
+docommand ifs51 "$SHELL ./x" 0 "<a>\n<b>\n" ""
+
+cat > x << \XEOF
+IFS='	'
+a='a	'
+b='	b'
+printf "<%s>\n" $a$b
+XEOF
+docommand ifs52 "$SHELL ./x" 0 "<a>\n<b>\n" ""
+
+cat > x << \XEOF
+IFS='
+'
+a='a
+'
+b='
+b'
+printf "<%s>\n" $a$b
+XEOF
+docommand ifs53 "$SHELL ./x" 0 "<a>\n<b>\n" ""
 
 remove x
 success

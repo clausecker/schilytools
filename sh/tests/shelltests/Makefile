@@ -19,6 +19,7 @@ all-tests:	test-alias \
 		test-pipe	\
 		test-printf	\
 		test-quoting	\
+		test-redir	\
 		test-return	\
 		test-set	\
 		test-test
@@ -86,6 +87,9 @@ test-printf:
 
 test-quoting:
 	cd quoting && for i in *.sh; do echo Running test quoting/$$i; $(SHELL) $$i; done
+
+test-redir:
+	cd redir && for i in *.sh; do echo Running test redir/$$i; $(SHELL) $$i; done
 
 test-return:
 	cd return && for i in *.sh; do echo Running test return/$$i; $(SHELL) $$i; done

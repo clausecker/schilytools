@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.166 17/03/15 2008-2017 J. Schilling
+ * @(#)defs.h	1.168 17/05/27 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -105,6 +105,7 @@ extern "C" {
 #define		TFND		0x00C0	/* function definition node	*/
 #define		TTIME		0x00D0	/* "time" node			*/
 #define		TNOT		0x10D0	/* "!" node			*/
+#define		TSETIO		0x00E0	/* node to redirect io		*/
 
 /*
  * execute table
@@ -648,6 +649,7 @@ extern	void	printpro	__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
 extern	void	printpexp	__PR((struct namnod *n));
 extern	void	printlocal	__PR((struct namnod *n));
+extern	void	exportenv	__PR((struct namnod *n));
 extern	void	pushval		__PR((struct namnod *n, void *t));
 extern	void	popvars		__PR((void));
 extern	void	poplvars	__PR((void));

@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.27 17/01/22 Copyright 2006-2017 J. Schilling */
+/* @(#)edit.c	1.28 17/05/28 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.27 17/01/22 Copyright 2006-2017 J. Schilling";
+	"@(#)edit.c	1.28 17/05/28 Copyright 2006-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2017 J. Schilling
@@ -112,8 +112,9 @@ readchar(fsp)
 {
 #ifdef	INTERACTIVE
 extern	int	ttyflg;
+extern	int	prflg;
 
-	ttyflg = isatty(fdown(fsp->fstr_file));
+	prflg = ttyflg = isatty(fdown(fsp->fstr_file));
 	pushline(get_line(prompt++, fsp->fstr_file));
 	return (fsgetc(fsp));
 #else

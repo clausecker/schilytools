@@ -25,60 +25,177 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)help.c	1.7 11/11/01 J. Schilling
+ * @(#)help.c	1.8 17/05/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.7 11/11/01 J. Schilling"
+#pragma ident "@(#)help.c 1.8 17/05/22 J. Schilling"
 #endif
 /*
- * @(#)help.c 1.6 06/12/12
+ * @(#)help2.c 1.10 06/12/12
  */
 
 #if defined(sun)
 #pragma ident	"@(#)help.c"
 #pragma ident	"@(#)sccs:cmd/help.c"
 #endif
-#define	NO_SNPRINTF
 #include	<defines.h>
 #include	<i18n.h>
+#include	<ccstypes.h>
 
-#ifdef	PROTOTYPES
-static unsigned char Ohelpcmd[] = NOGETTEXT(INS_BASE "/ccs/lib/help/lib/help2");
-#else
-static unsigned char Ohelpcmd[] = NOGETTEXT("/usr/ccs/lib/help/lib/help2");
-#endif
+/*
+ *	Program to locate helpful info in an ascii file.
+ *	The program accepts a variable number of arguments.
+ *
+ *	I18N changes are as follows:
+ *
+ *	First determine the appropriate directory to search for help text
+ *	files corresponding to the user's locale.  Consistent with the
+ *	setlocale() routine algorithm, environment variables are here
+ *	searched in the following order of descending priority: LC_ALL,
+ *	LC_MESSAGES, LANG.  The first one found to be defined is used
+ *	as the locale for help messages.  If this directory does in fact
+ *	not exist, a fallback to the (default) "C" locale is done.
+ *
+ *	The file to be searched is determined from the argument. If the
+ *	argument does not contain numerics, the search
+ *	will be attempted on '/usr/ccs/lib/help/cmds', with the search key
+ *	being the whole argument. This is used for SCCS command help.
+ *
+ *	If the argument begins with non-numerics but contains
+ *	numerics (e.g, zz32) the file /usr/ccs/lib/help/helploc
+ *	will be checked for a file corresponding to the non numeric prefix,
+ *	That file will then be seached for the mesage. If
+ *	/usr/ccs/lib/help/helploc
+ *	does not exist or the prefix is not found there the search will
+ *	be attempted on '/usr/ccs/lib/help/<non-numeric prefix>',
+ *	(e.g., /usr/ccs/lib/help/zz), with the search key
+ *	being <remainder of arg>, (e.g., 32).
+ *	If the argument is all numeric, or if the file as
+ *	determined above does not exist, the search will be attempted on
+ *	'/usr/ccs/lib/help/default' with the search key being
+ *	the entire argument.
+ *	In no case will more than one search per argument be performed.
+ *
+ *	File is formatted as follows:
+ *
+ *		* comment
+ *		* comment
+ *		-str1
+ *		text
+ *		-str2
+ *		text
+ *		* comment
+ *		text
+ *		-str3
+ *		text
+ *
+ *	The "str?" that matches the key is found and
+ *	the following text lines are printed.
+ *	Comments are ignored.
+ *
+ *	If the argument is omitted, the program requests it.
+ */
 
-int main __PR((int argc, char **argv));
 
-/*ARGSUSED*/
+	int	main __PR((int argc, char **argv));
+static char *	ask __PR((void));
+
+
 int
-main(argc,argv)
-int argc;
-char *argv[];
+main(argc, argv)
+	int	argc;
+	char	*argv[];
 {
+	register int	i;
+		int	numerrs = 0;
+#ifdef	PROTOTYPES
+	char default_locale[] = NOGETTEXT("C"); /* Default English. */
+#else
+	char *default_locale = NOGETTEXT("C"); /* Default English. */
+#endif
+	char *helpdir = NOGETTEXT("/ccs/lib/help/locale/");
+	char help_dir[200]; /* Directory to search for help text. */
+	char *locale = NULL; /* User's locale. */
+
+
 	/*
 	 * Set locale for all categories.
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
-	
-	/* 
+
+	sccs_setinsbase(INS_BASE);
+
+#ifdef	LC_MESSAGES
+	/*
+	 * Returns the locale value for the LC_MESSAGES category.  This
+	 * will be used to set the path to retrieve the appropriate
+	 * help files in "/.../help.d/locale/<locale>".
+	 */
+	locale = setlocale(LC_MESSAGES, NOGETTEXT(""));
+	if (locale == NULL) {
+		locale = default_locale;
+	}
+#else
+	locale = default_locale;
+#endif
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
-	 * Note this is not the same directory tree as that for the
-	 * help text above.
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	    NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT("/usr/ccs/lib/locale/"));
+	    NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
-	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
-	execv((char *) Ohelpcmd, (char **) argv);
-	fprintf(stderr, gettext("help: Could not exec: %s.  Errno=%d\n"), Ohelpcmd, errno);
-	return (1);
+	Fflags = FTLMSG;
+
+	/*
+	 * Set directory to search for SCCS help text, not general
+	 * message text wrapped with "gettext()".
+	 */
+	strlcpy(help_dir, sccs_insbase?sccs_insbase:"/usr", sizeof (help_dir));
+	strlcat(help_dir, helpdir, sizeof (help_dir));
+	strlcat(help_dir, locale, sizeof (help_dir));
+
+	/*
+	 * The text of the printf statement below should not be wrapped
+	 * with gettext().  Since we don't know what the locale is, we
+	 * don't know how to get the proper translation text.
+	 */
+	if (stat(help_dir, &Statbuf) != 0) { /* Does help directory exist? */
+		printf(
+		    NOGETTEXT("Unrecognized locale... setting to English\n"));
+	}
+
+	if (argc == 1) {
+		char	*he = ask();
+		if (*he == '\0') {
+			numerrs += sccshelp(stdout, "intro");
+		} else {
+			numerrs += sccshelp(stdout, he);
+		}
+	} else {
+		for (i = 1; i < argc; i++)
+			numerrs += sccshelp(stdout, argv[i]);
+	}
+	return ((numerrs == (argc-1)) ? 1 : 0);
+}
+
+static char *
+ask()
+{
+	static char resp[51];
+		FILE	*iop;
+
+	iop = stdin;
+
+	printf(gettext("Enter the message number or SCCS command name: "));
+	fgets(resp, sizeof (resp), iop);
+	return (repl(resp, '\n', '\0'));
 }

@@ -11,10 +11,10 @@
  */
 /*
  *
- * @(#)zrealloc.c	1.1 11/06/26 Copyright 2011 J. Schilling
+ * @(#)zrealloc.c	1.2 17/05/24 Copyright 2011-2017 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)zrealloc.c	1.1 11/06/26 Copyright 2011 J. Schilling";
+#pragma ident "@(#)zrealloc.c	1.2 17/05/24 Copyright 2011-2017 J. Schilling"
 #endif
 
 #if defined(sun)

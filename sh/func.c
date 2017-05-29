@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)func.c	1.31 16/07/01 2008-2016 J. Schilling
+ * @(#)func.c	1.32 17/05/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.31 16/07/01 2008-2016 J. Schilling";
+	"@(#)func.c	1.32 17/05/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -460,6 +460,16 @@ prf(t)
 		case TNOFORK:
 #ifdef	PARSE_DEBUG
 			prs_buff(UC "TNOFORK ");
+#endif
+			prf(forkptr(t)->forktre);
+			prio(forkptr(t)->forkio);
+			if (forkptr(t)->forktyp & FAMP)
+				prs_buff(UC " &");
+			break;
+
+		case TSETIO:
+#ifdef	PARSE_DEBUG
+			prs_buff(UC "TSETIO ");
 #endif
 			prf(forkptr(t)->forktre);
 			prio(forkptr(t)->forkio);

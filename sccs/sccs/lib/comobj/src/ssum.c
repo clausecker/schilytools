@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)ssum.c	1.1 11/08/27 Copyright 2011 J. Schilling
+ * @(#)ssum.c	1.2 17/05/24 Copyright 2011-2017 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)ssum.c	1.1 11/08/27 Copyright 2011 J. Schilling";
+#pragma ident "@(#)ssum.c	1.2 17/05/24 Copyright 2011-2017 J. Schilling"
 #endif
 
 #if defined(sun)

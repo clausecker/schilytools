@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)msg.c	1.69 17/01/05 2008-2017 J. Schilling
+ * @(#)msg.c	1.70 17/05/25 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.69 17/01/05 2008-2017 J. Schilling";
+	"@(#)msg.c	1.70 17/05/25 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -211,14 +211,14 @@ const char	timefmtname[]	= "TIMEFORMAT";
  */
 const char	nullstr[]	= "";
 const char	sptbnl[]	= " \t\n";
-const char	defpath[]	= "/usr/bin:";
+const char	defpath[]	= "/usr/bin::";
 #ifdef	DO_SYSCOMMAND
 /*
  * The correct POSIX default PATH for Solaris + "/bin" after "/usr/bin" should
  * be sufficient for all platforms.
  */
 const char	defppath[]	=
-"/usr/xpg6/bin:/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/bin:/opt/SUNWspro/bin:";
+"/usr/xpg6/bin:/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/bin:/opt/SUNWspro/bin::";
 #endif
 const char	colon[]		= ": ";
 const char	minus[]		= "-";

@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)pmake.cc	1.6 17/05/02 2017 J. Schilling
+ * @(#)pmake.cc	1.9 17/05/29 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pmake.cc	1.6 17/05/02 2017 J. Schilling";
+	"@(#)pmake.cc	1.9 17/05/29 2017 J. Schilling";
 #endif
 
 /*
@@ -53,17 +53,26 @@ static	UConst char sccsid[] =
 #include <sys/socket.h>
 #endif
 #include <sys/utsname.h>
-#include <rpc/rpc.h>		/* host2netname(), netname2host() */
 
 /*
  * Defined macros
  */
-#if !defined(SCHILY_BUILD) && !defined(SCHILY_INCLUDES)
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/hostname.h>
+#else
 #ifdef	sun
 #ifndef	HAVE_HOST2NETNAME
 #define	HAVE_HOST2NETNAME
 #endif
 #endif
+#endif
+
+#ifdef HAVE_RPC_RPC_H
+#include <rpc/rpc.h>		/* host2netname(), netname2host() */
+#endif
+
+#ifndef	MAXNETNAMELEN
+#define MAXNETNAMELEN	255	/* maximum length of network user's name */
 #endif
 
 /*

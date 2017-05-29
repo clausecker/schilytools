@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)delta.c	1.70 17/04/15 J. Schilling
+ * @(#)delta.c	1.71 17/05/24 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.70 17/04/15 J. Schilling"
+#pragma ident "@(#)delta.c 1.71 17/05/24 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -69,17 +69,20 @@ static off_t	size_of_file;
 static off_t	Szqfile;
 static off_t	Checksum_offset;
 #ifdef	PROTOTYPES
-static char	BDiffpgm[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
+static char	BDiffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
 #else
 /*
  * XXX If you are using a K&R compiler and like to install to a path
  * XXX different from "/usr/ccs/bin/", you need to edit this string.
  */
-static char	BDiffpgm[]  =   NOGETTEXT("/usr/ccs/bin/bdiff");
+static char	BDiffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/bdiff");
 #endif
-static char	BDiffpgm2[]  =   NOGETTEXT("bdiff");
+static char	BDiffpgm[]  =   NOGETTEXT("/usr/bin/bdiff");
+static char	BDiffpgm2[]  =   NOGETTEXT("/bin/bdiff");
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	Diffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "diff");
+#else
+static char	Diffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/diff");
 #endif
 static char	Diffpgm[]   =   NOGETTEXT("/usr/bin/diff");
 static char	Diffpgm2[]   =   NOGETTEXT("/bin/diff");
@@ -1100,6 +1103,9 @@ int difflim;
  		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
  		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
  		} else {
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+ 		   execl(BDiffpgmp,BDiffpgm,oldf,newf,num,"-s", (char *)0);
+#endif
  		   execl(BDiffpgm,BDiffpgm,oldf,newf,num,"-s", (char *)0);
  		   execl(BDiffpgm2,BDiffpgm,oldf,newf,num,"-s", (char *)0);
  		}

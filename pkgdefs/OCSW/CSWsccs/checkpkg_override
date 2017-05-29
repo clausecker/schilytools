@@ -17,7 +17,6 @@ CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/val
 CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/vc
 CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/what
 CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/lib/diffh
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/lib/help/lib/help2
 CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/xpg4/bin/get
 CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/xpg4/bin/sccs
 CSWsccs: disallowed-path opt

@@ -1,23 +1,13 @@
-/* @(#)sccslog.c	1.35 11/10/07 Copyright 1997-2011 J. Schilling */
+/* @(#)sccslog.c	1.37 17/05/28 Copyright 1997-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.35 11/10/07 Copyright 1997-2011 J. Schilling";
+	"@(#)sccslog.c	1.37 17/05/28 Copyright 1997-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2011 J. Schilling
+ *	Copyright (c) 1997-2017 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -215,7 +205,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2011 Jörg Schilling\n",
+		printf("sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2017 Jörg Schilling\n",
 			PROVIDER,
 			VERSION,
 			VDATE,
@@ -226,6 +216,7 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 
+	i = 0;
 	while (getfiles(&cac, &cav, opts) > 0) {
 		struct stat	sb;
 
@@ -233,9 +224,15 @@ main(ac, av)
 			dodir(cav[0]);
 		else
 			dofile(cav[0]);
+		i++;
 		cac--;
 		cav++;
 	}
+	/*
+	 * Make sure that "sccs -R log" results in useful output.
+	 */
+	if (i == 0 && *SccsPath)
+		dodir(SccsPath);
 
 	qsort(list, listsize, sizeof (struct xx), xxcmp);
 
@@ -317,6 +314,7 @@ dofile(name)
 	FILE	*f;
 	char	buf[8192];
 	int	len;
+	BOOL	firstline = TRUE;
 	struct tm tm;
 	char	*bname;
 	char	*pname;
@@ -367,6 +365,13 @@ dofile(name)
 		comerr("No memory.\n");
 
 	while ((len = fgetline(f, buf, sizeof (buf))) >= 0) {
+		if (firstline) {
+			firstline = FALSE;
+			if (buf[0] != 1 || buf[1] != 'h') {
+				fclose(f);
+				return;
+			}
+		}
 		if (len == 0)
 			continue;
 		if (buf[0] != 1)

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.45 16/08/20 2008-2016 J. Schilling
+ * @(#)cmd.c	1.46 17/05/27 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.45 16/08/20 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.46 17/05/27 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -388,6 +388,7 @@ item(flag)
 		{
 			int	w;
 			struct ifnod *t;
+			struct trenod *tt = NULL; /* Make silly gcc quiet */
 
 			t = (struct ifnod *)getstor(sizeof (struct ifnod));
 			r = (struct trenod *)t;
@@ -398,9 +399,22 @@ item(flag)
 			t->eltre = ((w = wdval) == ELSYM ?
 					cmd(FISYM, NLFLG) :
 						(w == EFSYM ?
-						(wdval = IFSYM, item(0)) : 0));
-			if (w == EFSYM)
+						(wdval = IFSYM, tt = item(0)) :
+						0));
+			if (w == EFSYM) {
+#ifdef	DO_SETIO_NOFORK
+				if (tt->tretyp != TSETIO)
+					return (r);
+				/*
+				 * Let post-command IO redirection apply to the
+				 * whole command and not only to the else part.
+				 */
+				t->eltre = forkptr(tt)->forktre;
+				forkptr(tt)->forktre = (struct trenod *)t;
+				r = tt;
+#endif
 				return (r);
+			}
 			break;
 		}
 
@@ -636,8 +650,15 @@ item(flag)
 	reserv++;
 	word();
 	if ((io = inout(io)) != NULL) {
+#ifdef	DO_SETIO_NOFORK
+		int type = r->tretyp & COMMSK;
+#endif
 		r = makefork(0, r);
 		r->treio = io;
+#ifdef	DO_SETIO_NOFORK
+		if (type != TFORK)
+			r->tretyp = TSETIO;
+#endif
 	}
 	return (r);
 }

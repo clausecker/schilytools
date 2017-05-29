@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.11 17/04/03 Copyright 1999-2017 J. Schilling
+# @(#)config.sub	1.12 17/05/18 Copyright 1999-2017 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -505,7 +505,11 @@ case $basic_machine in
 		;;
 	ppc)	basic_machine=powerpc-unknown
 	        ;;
+	ppc64)	basic_machine=powerpc64-unknown
+	        ;;
 	ppc-*)	basic_machine=powerpc-`echo $basic_machine | sed 's/^[^-]*-//'`
+		;;
+	ppc64-*) basic_machine=powerpc64-`echo $basic_machine | sed 's/^[^-]*-//'`
 		;;
 	ppcle | powerpclittle | ppc-le | powerpc-little)
 		basic_machine=powerpcle-unknown

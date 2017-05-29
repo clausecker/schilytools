@@ -31,18 +31,20 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)mount.cc	1.2 17/05/01 2017 J. Schilling
+ * @(#)mount.cc	1.3 17/05/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mount.cc	1.2 17/05/01 2017 J. Schilling";
+	"@(#)mount.cc	1.3 17/05/18 2017 J. Schilling";
 #endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
 
+#ifdef	HAVE_SYS_MOUNT_H
 #include <sys/mount.h>
+#endif
 
 #ifndef HP_UX
 extern int mount(const char *spec, const char *dir, int mflag, ...);

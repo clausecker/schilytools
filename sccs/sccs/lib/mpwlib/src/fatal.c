@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2013 J. Schilling
  *
- * @(#)fatal.c	1.12 13/04/28 J. Schilling
+ * @(#)fatal.c	1.13 17/05/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fatal.c 1.12 13/04/28 J. Schilling"
+#pragma ident "@(#)fatal.c 1.13 17/05/22 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
@@ -124,7 +124,7 @@ char *msg;
 		errstr = get_progname();
 #else
 #ifdef	HAVE_GETPROGNAME
-		errstr = (char *)getprogname() 
+		errstr = (char *)getprogname();
 #endif
 #endif
 		if (errstr) {

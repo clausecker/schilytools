@@ -1,4 +1,4 @@
-#ident "@(#)cc-msc.rul	1.26 14/04/03 "
+#ident "@(#)cc-msc.rul	1.27 17/05/28 "
 ###########################################################################
 # Written 2006-2014 by J. Schilling
 ###########################################################################
@@ -47,6 +47,8 @@ C++OPTDYN=
 LIB_PREFIX=
 LIB_SUFFIX=	.lib
 SHL_SUFFIX=	.dll
+
+LIB_C=		-lc
 
 #LIBS_PATH=	-libpath:$(OLIBSDIR)
 #LIBS_PATH_STATIC= -libpath:$(OLIBSDIR_STATIC) 

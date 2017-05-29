@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.118 17/01/19 2008-2017 J. Schilling
+ * @(#)bltin.c	1.119 17/05/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.118 17/01/19 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.119 17/05/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -51,7 +51,7 @@ static	UConst char sccsid[] =
  *
  */
 
-#ifdef	INTERACTIVE
+#if	defined(INTERACTIVE) || defined(DO_SYSFC)
 #include	<schily/shedit.h>
 #endif
 

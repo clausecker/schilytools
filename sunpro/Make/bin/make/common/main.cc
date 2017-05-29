@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.21 17/05/13 2017 J. Schilling
+ * @(#)main.cc	1.22 17/05/17 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.21 17/05/13 2017 J. Schilling";
+	"@(#)main.cc	1.22 17/05/17 2017 J. Schilling";
 #endif
 
 /*
@@ -408,7 +408,7 @@ main(int argc, char *argv[])
 	 *	hardlinked or we will not be able to distinct them.
 	 */
 
-	/* Sun OS make standart */
+	/* Sun OS make standard */
 	svr4 = false;  
 	posix = false;
 	make_run_dir = find_run_dir();

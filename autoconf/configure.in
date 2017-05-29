@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.281 17/05/11 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.284 17/05/20 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.281)dnl
+AC_REVISION(1.284)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -74,6 +74,7 @@ dnl check whether select() needs sys/select.h
 AC_HEADER_SYS_SELECT
 dnl check whether select() needs sys/socket.h (BeOS)
 AC_HEADER_SELECT2
+AC_CHECK_HEADERS(ar.h)
 AC_CHECK_HEADERS(assert.h)
 AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h unistd.h fcntl.h io.h sys/file.h)
 AC_CHECK_HEADERS(conio.h)
@@ -95,7 +96,7 @@ AC_CHECK_HEADERS(ulimit.h)
 AC_CHECK_HEADERS(process.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
-AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h)
+AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h semaphore.h)
 AC_CHECK_HEADERS(sys/dkio.h sys/dklabel.h sun/dkio.h sun/dklabel.h)
 AC_CHECK_HEADERS(sys/types.h sys/stat.h types.h stat.h)
 AC_CHECK_HEADERS(sys/stypes.h sys/filedesc.h)
@@ -105,6 +106,7 @@ AC_CHECK_HEADERS(netdb.h arpa/aixrcmds.h sys/socket.h netinet/in.h stropts.h)
 AC_CHECK_HEADERS(ieeefp.h fp.h)
 AC_CHECK_HEADERS(values.h float.h math.h)
 AC_CHECK_HEADERS(arpa/inet.h)
+AC_CHECK_HEADERS(rpc/rpc.h)
 AC_CHECK_HEADERS(bsd/dev/scsireg.h)
 dnl Check for HP-UX sys/bsdtty.h (needed for TIOCGPGRP)
 AC_CHECK_HEADERS(sys/bsdtty.h)

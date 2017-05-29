@@ -1,8 +1,9 @@
 '\" te
+. \" @(#)make.1s	1.9 17/05/21 Copyr 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
-.\" Copyright (c) 2012-2013, J. Schilling
+.\" Copyright (c) 2012-2017, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
@@ -48,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2017/05/09" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2017/05/21" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -3146,27 +3147,22 @@ variables that affect the execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP 17n
 .B KEEP_STATE
-.ad
-.RS 17n
-.rt
 This environment variable has the same effect as the .KEEP_STATE:
 special-function target. It enables command dependencies, hidden
 dependencies and writing of the state file.
-.RE
 
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP 17n
 .B USE_SVR4_MAKE
-.ad
-.RS 17n
-.rt
+.PD 0
+.TP
+.B USE_SVID
+.PD
 This environment variable causes
 .B make
 to invoke the generic System V
@@ -3175,27 +3171,20 @@ version of
 .RB ( /usr/lib/svr4.make ).
 See
 .BR sysV-make (1).
-.RE
 
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP
 .B MAKEFLAGS
-.ad
-.RS 17n
-.rt
 This variable is interpreted as a character string representing a series of
 option characters to be used as the default options. The implementation
 accepts both of the following formats (but need not accept them when
 intermixed):
-.RS +4
+.RS +21
 .TP
 1.
 The characters are option letters without the leading hyphens or blank
 character separation used on a command line.
-.RE
-.RS +4
 .TP
 2.
 The characters are formatted in a manner similar to a portion of the
@@ -3222,6 +3211,8 @@ otherwise appear in
 .BR MAKEFLAGS ,
 the result is undefined.
 .RE
+.RS 17n
+.sp
 The
 .B MAKEFLAGS
 variable is accessed from the environment before the
@@ -3244,14 +3235,10 @@ the
 variable currently found in the environment.
 .RE
 
-.sp
+.br
 .ne 2
-.mk
-.na
+.TP
 .B PROJECTDIR
-.ad
-.RS 17n
-.rt
 Provides a directory to be used to search for SCCS files not found in the
 current directory. In all of the following cases, the search for SCCS files
 is made in  the directory SCCS in the identified directory. If the value of
@@ -3276,7 +3263,37 @@ setting of
 .B PROJECTDIR
 affects all files listed in the remainder of
 this utility description for files  with a component named SCCS.
+
+.br
+.ne 2
+.TP
+.B SUN_MAKE_COMPAT_MODE
+Set up compatibility for other make programs. Supported values are:
+.RS
+.TP 7
+.B GNU
+Implement the expansion for the dynamic macros
+.B $<
+and
+.B $*
+for explicit rules the same was as GNU make does.
+Note that the expansion of these dynamic macros for explicit
+rules is unspecified by the standard.
+.TP
+other
+Ingnored
 .RE
+
+.br
+.ne 2
+.TP
+.B TMPDIR
+Set up the directory where the temporary files from
+.B make
+are stored.
+If this environment is missing,
+.B /tmp
+is used.
 
 .SH EXIT STATUS
 .sp

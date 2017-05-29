@@ -1,4 +1,4 @@
-#ident @(#)help.mk	1.2 08/01/02 
+#ident @(#)help.mk	1.3 17/05/22 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -17,10 +17,11 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		help.c
 
-LIBS=		-lcomobj -lcassi -lmpw $(LIB_INTL)
+LIBS=		-lcomobj -lcassi -lmpw -lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

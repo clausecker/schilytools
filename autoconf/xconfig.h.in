@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.266 17/05/11 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.269 17/05/20 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -17,7 +17,8 @@
  */
 #undef PROTOTYPES	/* if Compiler supports ANSI C prototypes */
 #undef HAVE_INLINE	/* if Compiler supports "inline" keyword */
-#undef HAVE_ASSERT_H	/* to use stdio.h */
+#undef HAVE_AR_H	/* to use ar.h */
+#undef HAVE_ASSERT_H	/* to use assert.h */
 #undef HAVE_STDIO_H	/* to use stdio.h */
 #undef HAVE_STDARG_H	/* to use stdarg.h, else use varargs.h NOTE: SaberC on a Sun has prototypes but no stdarg.h */
 #undef HAVE_VARARGS_H	/* to use use varargs.h NOTE: The free HP-UX C-compiler has stdarg.h but no PROTOTYPES */
@@ -103,6 +104,7 @@
 #undef HAVE_SYS_SHM_H		/* to use definitions for shmget() ... from sys/shm.h */
 #undef HAVE_SYS_SEM_H		/* to use definitions for semget() ... from sys/sem.h */
 #undef HAVE_SYS_IPC_H		/* to use definitions for ftok() ... from sys/ipc.h */
+#undef HAVE_SEMAPHORE_H		/* to use definitions for sema_init() ... from semaphore.h */
 #undef MAJOR_IN_MKDEV		/* if we should include sys/mkdev.h to get major()/minor()/makedev() */
 #undef MAJOR_IN_SYSMACROS	/* if we should include sys/sysmacros.h to get major()/minor()/makedev() */
 #undef HAVE_SYS_DKIO_H		/* if we may include sys/dkio.h for disk ioctls */
@@ -143,6 +145,7 @@
 #undef HAVE_VFORK_H		/* if we should include vfork.h for vfork() definitions */
 #undef HAVE_ARPA_INET_H		/* if we have arpa/inet.h (missing on BeOS) */
 				/* BeOS has inet_ntoa() in <netdb.h> */
+#undef HAVE_RPC_RPC_H		/* if we may include rpc/rpc.h */
 #undef HAVE_BSD_DEV_SCSIREG_H	/* if we have a NeXT Step compatible sg driver */
 #undef HAVE_SCSI_SCSI_H		/* if we may include scsi/scsi.h */
 #undef HAVE_SCSI_SG_H		/* if we may include scsi/sg.h */

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.62 17/03/15 2008-2017 J. Schilling
+ * @(#)main.c	1.64 17/05/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.62 17/03/15 2008-2017 J. Schilling";
+	"@(#)main.c	1.64 17/05/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -314,6 +314,15 @@ main(c, v, e)
 	if ((flags & stdflg) == 0)
 		dolc--;
 
+#ifdef	DO_EXPORT_ENV
+	namscan(exportenv);
+#else
+#ifdef	DO_POSIX_EXPORT_ENV
+	if (flags2 & posixflg)
+		namscan(exportenv);
+#endif
+#endif
+
 	if ((flags & privflg) == 0) {
 		uid_t euid;
 		gid_t egid;
@@ -451,7 +460,12 @@ main(c, v, e)
 			 * This is an interactive shell, mark it as interactive.
 			 */
 			if ((flags & intflg) == 0) {
-				flags |= intflg;
+				/*
+				 * Do not switch on interactive mode in case
+				 * "sh < file" was called.
+				 */
+				if (isatty(STDIN_FILENO))
+					flags |= intflg;
 			}
 #ifdef	DO_BGNICE
 			flags2 |= bgniceflg;

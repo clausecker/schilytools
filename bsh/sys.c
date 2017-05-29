@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.80 16/09/23 Copyright 1986-2016 J. Schilling */
+/* @(#)sys.c	1.81 17/05/17 Copyright 1986-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.80 16/09/23 Copyright 1986-2016 J. Schilling";
+	"@(#)sys.c	1.81 17/05/17 Copyright 1986-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2016 J. Schilling
+ *	Copyright (c) 1986-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -935,6 +935,7 @@ ruadd(ru, ru2)
 	timeradd(&ru->ru_utime, &ru2->ru_utime);
 	timeradd(&ru->ru_stime, &ru2->ru_stime);
 
+#if !defined(__BEOS__) && !defined(__HAIKU__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;
@@ -953,6 +954,7 @@ ruadd(ru, ru2)
 	ru->ru_nsignals += ru2->ru_nsignals;
 	ru->ru_nvcsw += ru2->ru_nvcsw;
 	ru->ru_nivcsw += ru2->ru_nivcsw;
+#endif /* !defined(__BEOS__) && !defined(__HAIKU__) */
 }
 
 LOCAL void
@@ -963,6 +965,7 @@ rusub(ru, ru2)
 	timersub(&ru->ru_utime, &ru2->ru_utime);
 	timersub(&ru->ru_stime, &ru2->ru_stime);
 
+#if !defined(__BEOS__) && !defined(__HAIKU__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;
@@ -981,5 +984,6 @@ rusub(ru, ru2)
 	ru->ru_nsignals -= ru2->ru_nsignals;
 	ru->ru_nvcsw -= ru2->ru_nvcsw;
 	ru->ru_nivcsw -= ru2->ru_nivcsw;
+#endif /* !defined(__BEOS__) && !defined(__HAIKU__) */
 }
 #endif	/* HAVE_WAITID */

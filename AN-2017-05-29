@@ -1,0 +1,279 @@
+New features with AN-2017-05-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	autoconf/config.sub now groks ppc64 on Linux.
+
+-	autoconf: new tests for ar.h and rpc/rpc.h
+
+-	autoconf: new test for semaphore.h
+
+-	RULES/*haiku-*.rul The rules for shared libraries now work
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	RULES/cc-*.rul: added a LIB_C=-lc to prepare compilation on Haiku
+
+-	RULES/bepc-haiku-cc.rul and RULES/bepc-haiku-gcc.rul: Added LIB_C=
+	to clean the name of libc on Haiku that does not have libc.
+	We need to link all shared libraries against -lc in case they use
+	system interfaces but are not allowed to do the same on Haiku.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	libshedit/mystdio.h got a new #undef EOF to make compilation
+	on Haiku quiet.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	bsh sys.c & Bourne Shell jobs.c : Do not rely on more than the
+	time values in struct rusage when on Haiku
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: fixed a typo in a comment in main.cc
+
+	Thanks to a report from Robert Clausecker
+
+-	SunPro Make: let libmksh/dosys.cc use schily/wait.h to deal with
+	the missing macro WCOREDUMP() on Haiku
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: make::ar.cc no longer includes ar.h in case it does
+	not exist (e.g. on Haiku). The include file ar.h is not needed
+	as all needed definitions are already in ar.cc
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: make::pmake.cc no longer includes rpc/rpc.h in case it
+	does not exist (e.g. on Haiku). The include file is not needed in case
+	that host2netname() is not used.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: make::parallel.cc no longer includes sys/shm.h in case
+	it does not exist (e.h. on Haiku). We now may use mmap() instead
+	of shmat() in case that shmat() is not available.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: make::pmake.cc now includes <schily/hostname.h> to get
+	a getdomainname() prototype.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: Make/include/mk/defs.h now calls #undef MAX to avoid a warning
+	on Haiku
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: libmakestate::lock.c and libvroot::lock.cc no longer #include
+	sys/errno.h. They already include errno.h which is POSIX and sys/errno.h
+	is missing on Haiku
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: libmakestate::Makefile now uses $(LIB_C) to avoid
+	linking against -lc on Haiku but allow it on any other OS.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: libvroot::mount.cc no longer includes sys/mount.h in case
+	it does not exist (e.g. on Haiku). The include file is not needed.
+	Fortunately, libvroot::mount.cc is nit needed in case make is not
+	compiled with NSE support.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: The man pages now document several previously
+	undocumented environment variables. This is e.g.:
+
+	-	Document that DMAKE_ADJUST_MAX_JOBS supports the
+		value "M2" to create a global job counter that is
+		shared between all recursive make instances.
+
+	-	Mention that USE_SVID is an alias for USE_SVR4_MAKE.
+
+	-	Nention SUN_MAKE_COMPAT_MODE and that the value GNU
+		modifies the behavior fpr expansion of $< and $*.
+
+	-	Mention TMPDIR
+
+-	SunPro Make now should work on Haiku
+
+-	SCCS: fixed a missing semicolon in libcassi/fatal.c that was
+	active when not compiling inside the Schily Makefilesystem.
+
+-	SCCS: removed the "help2" program and put the content from
+	help2.c into the program help.c
+
+-	SCCS: the delta program now uses the same search strategy for "bdiff"
+	as already used for "diff".
+
+-	SCCS: several source files removed a superfluous semicolon after
+	a "#pragma ident" statement.
+
+-	SCCS: sccs/README.SCCS no longer mentions "help2" that has been
+	removed.
+
+-	SCCS: "sccs -R log SCCS" now gives useful output.
+
+-	SCCS: "sccs log ...." now silently skips files that do not start
+	with "^Ah"
+
+-	OCSW/CSWsccs: removed the help2 binary
+
+-	Bourne Shell: Fixed a bug in the default PATH that is used when
+	PATH is unset: The algorithm needs the string "::" to mark the
+	current direcgtory as part of the search path. The algorithm
+	adds a second ":" to a PATH parameter that ends in ":", but it
+	does not for the built in default path search strings.
+
+-	Bourne Shell: Variables imported from the environment are now
+	(when initially in POSIX mode) automatically given the "export"
+	property and thus cannot be modified separately internally from
+	the exported environment.
+
+	Thanks to Stephane Chazelas for reporting
+
+-	Bourne Shell: Multiple non-space IFS characters now cause
+	empty words in the argument list as POSIX requires. Multiple
+	space IFS characters are still skipped as before.
+
+	Thanks to Stephane Chazelas for reporting
+
+-	Bourne Shell: New conformance tests check whether multiple
+	non-space IFS characters create empty words.
+
+-	Bourne Shell: post-command IO redirection directives on
+	if/then/elif constructs no longer apply only to the elif
+	part but to the whole command.
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+	now prints the last line of /etc/passwd without the exec "trick"
+	that is documented in the man page.
+
+-	Bourne Shell: added a new conformance test to check whether
+	the IO redirection on if/then/elif constructs works correctly.
+
+-	Bourne Shell: IO redirection on compound commands no longer
+	cause them to be executed in a sub-shell. This causes:
+
+		A=1; { A=2; } < /dev/null; echo $A
+
+	to print "2" instead of "1" as done by a historic Bourne Shell.
+
+-	Bourne Shell: Fixed a bug with "local" that caused a previous
+	undefined variable to keep the local value from the function
+	instead of being reset to the undefined state after the function
+	did end.
+
+-	Bourne Shell: The shell compiles again when INTERACTIVE is
+	not #defined but DO_SYSFC is #defined
+
+-	Bourne Shell: do no longer switch on interactive mode automatically
+	unless stdin is connected to a terminal.
+
+-	libshedit: do no longer print prompts unless stdin is connected
+	to a terminal.
+
+-	pkgdefs: some of the Svr4 package metadata files have been
+	updated to match the current projects.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

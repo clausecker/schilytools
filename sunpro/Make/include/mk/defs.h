@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.7 17/05/07 2017 J. Schilling
+ * @(#)defs.h	1.8 17/05/29 2017 J. Schilling
  */
 
 /*
@@ -89,6 +89,7 @@
 				setvar_daemon(name, value, append, no_daemon, \
 					      true, debug_level)
 #ifdef SUN5_0
+#undef	MAX
 #define MAX(a,b)		(((a)>(b))?(a):(b))
 /*
  * New feature added to SUN5_0 make,  invoke the vanilla svr4 make when

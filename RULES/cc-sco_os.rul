@@ -1,4 +1,4 @@
-#ident "@(#)cc-sco_os.rul	1.18 17/04/27 "
+#ident "@(#)cc-sco_os.rul	1.19 17/05/28 "
 ###########################################################################
 # Written 1999-2017 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -40,6 +40,8 @@ C++WOPTS=
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
 SHL_SUFFIX=	.so.1.0
+
+LIB_C=		-lc
 
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 

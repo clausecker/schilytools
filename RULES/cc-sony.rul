@@ -1,4 +1,4 @@
-#ident @(#)cc-sony.rul	1.14 17/04/27 
+#ident @(#)cc-sony.rul	1.15 17/05/28 
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -40,6 +40,8 @@ C++WOPTS=
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
 SHL_SUFFIX=	.so.1
+
+LIB_C=		-lc
 
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 

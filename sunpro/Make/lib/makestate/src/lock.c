@@ -29,12 +29,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)lock.c	1.5 17/04/20 2017 J. Schilling
+ * @(#)lock.c	1.6 17/05/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.c	1.5 17/04/20 2017 J. Schilling";
+	"@(#)lock.c	1.6 17/05/18 2017 J. Schilling";
 #endif
 
 #include <stdio.h>
@@ -45,7 +45,6 @@ static	UConst char sccsid[] =
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
-#include <sys/errno.h>
 #include <errno.h>		/* errno */
 
 #ifdef	HAVE_STRERROR

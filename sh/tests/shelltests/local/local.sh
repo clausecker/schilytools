@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)local.sh	1.1 16/07/06 2016 J. Schilling
+# @(#)local.sh	1.2 17/05/28 2016 J. Schilling
 #
 
 # Read test core functions
@@ -59,6 +59,11 @@ docommand local14 "$SHELL -c 'var=init; export var; f() { local var; var=neu; ec
 #
 docommand local15 "$SHELL -c 'var=init; f() { local var; export var; var=neu; echo \$var; ./echo1; } ; f; echo \$var; ./echo1'" 0 "neu\nneu\ninit\n\n" ""
 docommand local16 "$SHELL -c 'var=init; f() { local var; export var; var=neu; echo \$var; ./echo2; } ; f; echo \$var; ./echo2'" 0 "neu\nneu\ninit\n\n" ""
+
+#
+# Unset var: local variable in function must be reverted into unset variable
+#
+docommand local17 "$SHELL -c 'unset var; f() { local var; var=neu; echo \$var; } ; f; echo \$var'" 0 "neu\n\n" ""
 
 #exit
 remove	./echo1 ./echo2

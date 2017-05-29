@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.199 17/03/15 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.202 17/05/27 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/03/15" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/05/27" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2629,6 +2629,16 @@ and
 .B MAIL
 are set by
 .BR login (1).
+For security reasons, the value for
+.B IFS
+is never imported from the environment.
+.LP
+When the shell is initially in POSIX mode, it marks all variables
+imported from the environment with the
+.B export
+property. See
+.B Environment 
+section below.
 .SS "Blank Interpretation"
 .sp
 .LP
@@ -3055,6 +3065,13 @@ plus any modifications or additions, all of
 which must be noted in
 .B export
 commands.
+.LP
+When the shell starts in
+.B POSIX
+mode, all variables imported from the environment are given the
+.B export
+property and the shell internal values cannot be modified independently
+from the values propagated via the environment to child processes.
 .sp
 .LP
 The environment for any
@@ -5506,6 +5523,10 @@ as the pipe symbol, switches off support for
 without a parameter and sets the default for directory
 operations to
 .BR \-L .
+If this option is enabled at startup, all shell variables from the
+imported environment are given the
+.B export
+property.
 .br
 POSIX mode is enabled by default if the executable path of the
 shell equals a compiled in value, e.g.
@@ -7865,61 +7886,29 @@ section above). For example,
 .B cat file1 >a*
 creates a file named
 .BR a* .
+.LP
+The built-in command
+.BI . " file
+reads the whole file before any commands are executed.
+When a command substitution, a set of commands from
+.BR eval ,
+.BR dosh ,
+.BR repeat ,
+.BR command ,
+.BR fc ,
+.BR jobs
+or
+.B trap
+are parsed, the whole set of command are read at once.
+.B alias
+and
+.B unalias
+commands in the file do not apply to any commands defined in the file
+or inside a set of commands executed with the named built-ins.
 .sp
 .LP
 Because commands in pipelines are run as separate processes, variables set
 in a pipeline have no effect on the parent shell.
-.sp
-.LP
-If the input or the output of a
-.B while
-or
-.B until
-loop is
-redirected, the commands in the loop are run in a sub-shell, and variables
-set or changed there have no effect on the parent process:
-.sp
-.in +2
-.nf
-   lastline=
-   while read line
-   do
-
-           lastline=$line
-   done < /etc/passwd
-   echo "lastline=$lastline"       # lastline is empty!
-.fi
-.in -2
-.sp
-
-.sp
-.LP
-In these cases, the input or output can be redirected by using
-.BR exec ,
-as in the following example:
-.sp
-.in +2
-.nf
-   # Save standard input (file descriptor 0) as file
-   # descriptor 3, and redirect standard input from the file
-   /etc/passwd:
-
-   exec 3<&0               # save standard input as fd 3
-   exec </etc/passwd       # redirect input from file
-
-   lastline=
-   while read line
-   do
-           lastline=$line
-   done
-
-   exec 0<&3               # restore standard input
-   exec 3<&-               # close file descriptor 3
-   echo "$lastline"        # lastline
-.fi
-.in -2
-.sp
-
 .sp
 .LP
 If you get the error message, "\c
@@ -7942,7 +7931,7 @@ command was found, the shell continues to
 .B exec
 the original command.
 Use the
-.B hash
+.B hash\ \-r
 command to correct this situation.
 .sp
 .LP
@@ -8006,6 +7995,21 @@ With this version of the Bourne Shell, parameter assignment preceding
 builtin commands only affects the shell itself if this is related to a
 .BR "special builtin command" . 
 In previous versions, this affected the shell itself for any builtin command.
+.br
+.ne 4
+.TP
+.B parameter import from the environment
+When the shell is on POSIX mode, it sets the
+.B export
+property on all shell variables imported from the environment.
+This makes all changes in these variables automatically visible to
+the next child process. The historic behavior is to pass the imported
+values to the childs environment but to use a separate storage location
+for the internal shell variable until the
+.B export
+builtin is explicitly called for a specific variable.
+.br
+.ne 4
 .TP
 .B syntax errors in builtin commands
 With this version of the Bourne Shell, only special builtin commands may
@@ -8225,6 +8229,65 @@ This permits commands like:
 to set the variable
 .I var
 in the main shell.
+.br
+.ne 4
+.TP
+.B I/O redirection on compound commands
+With the original Bourne Shell, I/O redirection on compound commands
+cause the compound commands to be run in a subshell and variable
+assignment inside such constructs not to affect the main shell.
+This version of the shell tries to avoid to run compound commands
+with I/O redirection in a subshell. Variable assignment thus works
+as expected.
+.sp
+If the input or the output of a
+.B while
+or
+.B until
+loop was
+redirected in the original Bourne Shell,
+the commands in the loop have been run in a sub-shell, and variables
+set or changed there had no effect on the parent process:
+.sp
+.in +2
+.nf
+   lastline=
+   while read line
+   do
+
+           lastline=$line
+   done < /etc/passwd
+   echo "lastline=$lastline"       # lastline is empty!
+.fi
+.in -2
+.sp
+.sp
+In these cases, the input or output could be redirected by using
+.BR exec ,
+as in the following example:
+.sp
+.in +2
+.nf
+   # Save standard input (file descriptor 0) as file
+   # descriptor 3, and redirect standard input from the file
+   /etc/passwd:
+
+   exec 3<&0               # save standard input as fd 3
+   exec </etc/passwd       # redirect input from file
+
+   lastline=
+   while read line
+   do
+           lastline=$line
+   done
+
+   exec 0<&3               # restore standard input
+   exec 3<&-               # close file descriptor 3
+   echo "$lastline"        # lastline
+.fi
+.in -2
+.sp
+This version of the shell works with both variants.
 .br
 .ne 4
 .TP
