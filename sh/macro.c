@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.64 17/03/15 2008-2017 J. Schilling
+ * @(#)macro.c	1.70 17/06/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.64 17/03/15 2008-2017 J. Schilling";
+	"@(#)macro.c	1.70 17/06/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -326,6 +326,9 @@ retry:
 #ifdef	DO_U_DOLAT_NOFAIL
 			int		isg = 0;
 #endif
+#ifdef	DO_SUBSTRING
+			int		largest = 0;
+#endif
 			int		vsize = -1;
 			BOOL		bra;
 			BOOL		nulflg;
@@ -376,11 +379,22 @@ getname:
 #ifdef	DO_POSIX_PARAM
 					if (bra) {
 						int	dd;
+						int	overflow = 0;
+						int	maxmult = INT_MAX / 10;
 
 						while ((dd = readwc(),
-							digit(dd)))
-							c = 10 * c + (dd - '0');
+							digit(dd))) {
+							dd -= '0';
+							if (c > maxmult)
+								overflow = 1;
+							c *= 10;
+							if (INT_MAX - c < dd)
+								overflow = 1;
+							c += dd;
+						}
 						peekc = dd | MARK;
+						if (overflow)
+							c = INT_MAX;
 					}
 #endif
 				}
@@ -401,7 +415,27 @@ getname:
 #ifdef	DO_SUBSTRING
 				if (bra == 1) {
 					c = readwc();
-					if (c != '}') {
+					if (c == ':' ||
+					    c == '-' ||
+					    c == '+' ||
+					    c == '?' ||
+					    c == '=') {
+						/*
+						 * Check for corner case ${#?}
+						 */
+						if (c == '?') {
+							int nc = readwc();
+
+							peekc = nc|MARK;
+							if (nc == '}') {
+								bra++;
+								goto getname;
+							}
+						}
+						itos(dolc);
+						v = numbuf;
+						goto docolon;
+					} else if (c != '}') {
 						bra++;
 						goto getname;
 					} else {
@@ -444,6 +478,9 @@ getname:
 				goto retry;
 			}
 			c = readwc();
+#ifdef	DO_SUBSTRING
+docolon:
+#endif
 			if (c == ':' && bra == 1) { /* null and unset fix */
 				nulflg = 1;
 				c = readwc();	/* c now holds char past ':' */
@@ -467,8 +504,16 @@ getname:
 					    (setchar(c))) {
 						int	ntrim = trimflag;
 #ifdef	DO_SUBSTRING
-						if (c == '#' || c == '%')
+						if (c == '#' || c == '%') {
+							int	nc = readwc();
+
 							ntrim = 0;
+							if (nc == c) {
+								largest++;
+							} else {
+								peekc = nc|MARK;
+							}
+						}
 #endif
 						copyto('}', ntrim);
 					} else {
@@ -494,7 +539,6 @@ getname:
 			}
 			if ((c == '#' || c == '%')) {
 				if (v) {
-					int		largest = 0;
 					UIntptr_t	a;
 					UIntptr_t	b = relstakp(argp);
 
@@ -506,10 +550,6 @@ getname:
 						 * shrink.
 						 */
 						trim(argp);
-					}
-					if (*argp == c) {
-						largest++;
-						argp++;
 					}
 
 					staktop++;
@@ -588,7 +628,8 @@ getname:
 								GROWSTAKTOP();
 								pushstak(sep);
 							} else {
-								macflag |=
+								if (*id == '@')
+								    macflag |=
 									M_DOLAT;
 								GROWSTAKTOP();
 								pushstak(' ');
@@ -805,6 +846,8 @@ comsubst(trimflag, type)
 			 */
 			i = strexpr(argc);
 			staktop = movstrstak(&numbuf[slltos(i)], staktop);
+
+			macflag = omacflag | M_ARITH;
 			return;
 		}
 		peekc = d | MARK;

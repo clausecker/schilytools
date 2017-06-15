@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.76 17/05/27 2008-2017 J. Schilling
+ * @(#)xec.c	1.78 17/06/11 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.76 17/05/27 2008-2017 J. Schilling";
+	"@(#)xec.c	1.78 17/06/11 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -179,6 +179,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				struct parnod	*p = parptr(t);
 				struct job	j;
 				int		osystime = flags2 & systime;
+				int		oflags = flags;
 
 				exitval = 0;
 				exval_clear();
@@ -186,10 +187,11 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				gettimeofday(&j.j_start, NULL);
 				ruget(&j.j_rustart);
 				flags2 |= systime;
-				execute(p->partre, xflags, errorflg, pf1, pf2);
+				execute(p->partre, xflags, 0, pf1, pf2);
 				prtime(&j);
 				if (!osystime)
 					flags2 &= ~systime;
+				flags = oflags;
 				break;
 			}
 #endif
@@ -202,7 +204,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				exitval = 0;
 				exval_clear();
 
-				execute(p->partre, xflags, errorflg, pf1, pf2);
+				execute(p->partre, xflags, 0, pf1, pf2);
 				/*
 				 * In extended Bourne Shell mode, exitval does
 				 * not suffer from the exitcode mod 256 problem
@@ -453,6 +455,10 @@ execute(argt, xflags, errorflg, pf1, pf2)
 			exitval = 0;
 			exval_clear();
 
+#ifdef	DO_TRAP_EXIT
+			if (trapcom[0])
+				xflags &= ~XEC_EXECED;
+#endif
 			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP)) {
 				int forkcnt = 1;
 
@@ -1085,6 +1091,8 @@ out:
 #endif
 	sigchk();
 	tdystak(sav, iosav);
+	if (flags & errflg && exitval)
+		done(0);
 	flags |= eflag;
 	return (exitval);
 }

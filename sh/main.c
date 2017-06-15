@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.64 17/05/28 2008-2017 J. Schilling
+ * @(#)main.c	1.65 17/06/09 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.64 17/05/28 2008-2017 J. Schilling";
+	"@(#)main.c	1.65 17/06/09 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -472,6 +472,14 @@ main(c, v, e)
 #endif
 #ifdef	INTERACTIVE
 			flags2 |= vedflg;
+#endif
+#ifdef	DO_POSIX_M
+			/*
+			 * POSIX requires to auto-enable -m when
+			 * in interactive mode.
+			 */
+			if ((flags & intflg) != 0)
+				flags |= monitorflg;
 #endif
 			setopts();			/* set flagadr */
 		}

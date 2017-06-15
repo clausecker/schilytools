@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.168 17/05/27 2008-2017 J. Schilling
+ * @(#)defs.h	1.170 17/06/14 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -603,8 +603,9 @@ extern	int	getrusage	__PR((int who, struct rusage *r_usage));
 #define	M_PARM		1	/* Normal parameter expansion	*/
 #define	M_COMMAND	2	/* Command substitution		*/
 #define	M_DOLAT		4	/* $@ was expanded		*/
-#define	M_SPLIT		(M_PARM|M_COMMAND|M_DOLAT)
-#define	M_NOCOMSUBST	8	/* Do not expand ` ` and $()	*/
+#define	M_ARITH		8	/* $(()) was expanded		*/
+#define	M_SPLIT		(M_PARM|M_COMMAND|M_DOLAT|M_ARITH)
+#define	M_NOCOMSUBST	0x100	/* Do not expand ` ` and $()	*/
 extern	unsigned char *macro	__PR((unsigned char *as));
 extern	unsigned char *_macro	__PR((unsigned char *as));
 extern	void	subst		__PR((int in, int ot));
@@ -1173,6 +1174,7 @@ extern unsigned			brkincr;
 
 extern BOOL			trapnote;
 extern int			trapsig;
+extern unsigned char		*trapcom[];
 
 /* name tree and words */
 #ifdef	HAVE_ENVIRON_DEF

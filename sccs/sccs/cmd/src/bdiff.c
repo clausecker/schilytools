@@ -28,12 +28,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)bdiff.c	1.21 16/12/09 J. Schilling
+ * @(#)bdiff.c	1.22 17/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.21 16/12/09 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.22 17/06/13 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -628,6 +628,10 @@ setsig()
 	int j;
 
 	for (j = 1; j < ONSIG; j++) {
+#ifdef	SIGCHLD
+		if (j == SIGCHLD)
+			continue;
+#endif
 		act = signal(j, setsig1);
 		if (act == SIG_ERR)
 			continue;

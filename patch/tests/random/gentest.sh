@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# gentest @(#)gentest.sh	1.7 16/11/07 Copyright 2015-2016 J. Schilling
+# gentest @(#)gentest.sh	1.10 17/06/15 Copyright 2015-2017 J. Schilling
 #
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
@@ -149,7 +149,13 @@ rpatch=gpatch
 #	LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
 #	if [ $? -ne 0 ]; then
 #		echo "Reference patch program \"$rpatch\" not working"
-#		exit 1
+#		rpatch=/bin/patch
+#		echo "Trying \"$rpatch\"..."
+#		LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
+#		if [ $? -ne 0 ]; then
+#			echo "Reference patch program \"$rpatch\" not working"
+#			exit 1
+#		fi
 #	fi
 #fi
 #echo "Using reference patch programm: $rpatch"
@@ -165,6 +171,13 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 echo "Using test patch programm: $tpatch"
+
+mod=6
+type ed > /dev/null 2> /dev/null
+[ $? -ne 0 ] && mod=5		# Skip diff -e tests
+if [ $mod = 5 ]; then
+	echo "No ed program found, skipping diff -e tests"
+fi
 
 idx=0
 total=0
@@ -189,7 +202,7 @@ do
 
 		seed=`expr $generation + $nlines`
 		dtype=`rrand 0 93983 $seed`	# rrand 0 6 would be of bad quality, so
-		dtype=`expr $dtype \% 6`	# use "rrand 0 bigprime % 6" instead
+		dtype=`expr $dtype \% $mod`	# use "rrand 0 bigprime % 6" instead
 
 		if [ $dtype -eq 0 ]; then
 			dtype="-c"
@@ -199,7 +212,7 @@ do
 			dtype="-C0"
 		elif [ $dtype -eq 3 ]; then
 			dtype="-U0"
-		elif [ $dtype -eq 4 ]; then
+		elif [ $dtype -eq 5 ]; then
 			dtype="-e"
 		else
 			dtype="  "

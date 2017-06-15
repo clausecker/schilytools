@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.80 17/05/26 2008-2017 J. Schilling
+ * @(#)word.c	1.82 17/06/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.80 17/05/26 2008-2017 J. Schilling";
+	"@(#)word.c	1.82 17/06/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -289,6 +289,7 @@ extern	int		abegin;
 			if (c == 0) {
 				GROWSTAK(argp);
 				*argp++ = 0;
+				parm = 0;	/* EOF -> abort ${..} scan */
 			} else {
 				pc = readw(c);
 				while (*pc) {
@@ -469,10 +470,6 @@ match_arith(argp)
 	*argp++ = '(';
 	*argp = 0;
 	while ((c = nextwc()) != '\0') {
-		if (c == '`') {
-			argp = match_block(argp, c, c);
-			continue;
-		}
 		/*
 		 * quote each character within
 		 * single quotes
@@ -481,6 +478,10 @@ match_arith(argp)
 		while (*pc) {
 			GROWSTAK(argp);
 			*argp++ = *pc++;
+		}
+		if (c == '`') {
+			argp = match_block(argp, c, c);
+			continue;
 		}
 		if (c == NL) {
 			chkpr();

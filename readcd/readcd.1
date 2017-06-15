@@ -1,4 +1,4 @@
-.\" @(#)readcd.1	1.49 16/01/26 Copyright 1996-2016 J. Schilling
+.\" @(#)readcd.1	1.50 17/06/06 Copyright 1996-2017 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -24,7 +24,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH READCD 1 "Version 3.02 2016/01/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH READCD 1 "Version 3.02 2017/06/06" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 readcd \- read or write data Compact Discs or related madia
 .SH SYNOPSIS
@@ -611,6 +611,32 @@ but the program pointed to by
 Note that the remote SCSI server program name will be ignored if you log in
 using an account that has been created with a remote SCSI server program as
 login shell.
+.SH EXIT STATUS
+The following exit codes are used:
+.TP
+.B 0
+No error appeared.
+.TP
+.B \-1
+A specific error appeared. This may be a usage error caused by an illegal command line
+or another error with a problem specific error message from
+.BR readcd .
+.TP
+.B \-2
+An unspecified error appeared during the process of talking to the drive.
+See SCSI error message for more informations. The section
+.B DIAGNOSTICS
+below contains an explanation on how to read SCSI error messages.
+.LP
+Note that older operating systems and older shells may not support the full 32 bit
+range of the exit code
+and mask the value with 0xFF. This results in shortened exit codes in the range
+.BR 0 .. 255
+where
+.B \-1
+is mapped to
+.BR 255 .
+
 .SH FILES
 .SH SEE ALSO
 .BR cdrecord (1),

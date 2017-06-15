@@ -1,0 +1,246 @@
+New features with AN-2017-06-15:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	configure: the test for libnsl now uses gethostbyname() instead of 
+	inet_ntoa() and also checks for "libnetwork". This should finally cover
+	Haiku to fully automatically compile SunPro Make.
+
+-	SunPro Make: With the new autoconf test from above, SunPro Make now
+	should compile and run on Haiku.
+
+-	smake: Added new automake code that supports the rules for "uname -p"
+	from Haiku.
+
+-	cdrecord: man page now mentions the exit code
+
+-	readcd: man page now mentions the exit code
+
+-	SCCS: "bdiff" no longer tries to install a signel handler for
+	SIGCHLD and then exits after the called "diff" program exited.
+	This was caused by an unusual numbering for the signals on Haiku.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SCCS: "delta" now prints the really used path for the diff program
+	in some failure cases.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	patch: The conformance tests "cmptest" and "gentest" now also check
+	for "/bin/patch" while searching for a reference patch binary.
+	This is needed s Haiku does not have a /usr/bin/ directory.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	patch: The conformance tests "cmptest" and "gentest" now also check
+	whether the system supports an "ed" binary and skips "diff -e" tests
+	in case "ed" is missing. This is needed on Haiku that does not have
+	an "ed" binary.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: The conformance tests that check the star -tv behavior now set
+	the timezone to GMT to get a test result that does not depend on the
+	configured timezone of the system.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: set -u now aborts arithmetic expressions with unset
+	variables.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: If the shell starts up in interactive mode, it
+	now auto-enables the monitor mode (set -m) as this is required
+	by POSIX.
+
+-	Bourne Shell: The command
+
+		( trap "echo exiting" EXIT; /usr/bin/true )
+
+	no longer optimizes out the fork() for /usr/bin/true and thus
+	is able to fire the trap command.
+
+	This is a bug that is present in the Bourne Shell since 1977.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: The parser for ${var#value} has been restructured
+	to check for ${var##value} before value is expanded. This
+	permits to expand X=# ${var#$X} correctly.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: the command
+
+		sh -c 'set -- a b c d; echo ${4294967297}'
+
+	no longer prints "a", as there now is an overflow check.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: Avoid an endless loop while getting a hard
+	EOF inside "${..}"
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: the command:
+
+		bosh -c '(set -e; ! false; echo OK); echo OK'
+
+	now prints two times "OK" as expected. This happens as the
+	evaluation for "set -e" for builtin commands now has been fully moved 
+	into the the main interpreter code. The same modification now causes:
+
+		bosh -c '(set -e; time false)'
+
+	to print the timing results before exiting the shell.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: A bug in arithmetic expansion with nested backtick-
+	style command substitutions like:
+
+		bosh -c 'echo $(( `echo 77` `echo -` `echo 44` ))'
+
+	has been fixed.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: echo ${#:-99} does now do what is expected.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: echo ${#-99} ${#+99} ${#?99} and ${#=99}
+	now work as well, while the corner case ${#?} behaves as it
+	did before.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: IFS=5; echo $(( 123456789 )) now works as
+	expected.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: added a compliance test for the above case.
+
+-	Bourne Shell: The man page now mentions the flags -b and -C
+	in the SYNOPSIS description.
+
+-	Bourne Shell: The man page no longer mentions
+
+		IFS=X
+		echoXfoo
+
+	as this problem does no longer exist in POSIX mode.
+
+-	Bourne Shell: added two new tests from Robert Elz to check the
+	correct handling of backslash-newline sequences.
+
+-	Old Bourne Shell: A man page was added.
+	This was needed as some distributions seem to be interested
+	to include a portable shell that is 100% compliant with the
+	Historic Bourne Shell as distributed with OpenSolaris.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

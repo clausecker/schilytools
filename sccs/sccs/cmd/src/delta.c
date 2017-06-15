@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)delta.c	1.71 17/05/24 J. Schilling
+ * @(#)delta.c	1.72 17/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.71 17/05/24 J. Schilling"
+#pragma ident "@(#)delta.c 1.72 17/06/13 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -68,7 +68,7 @@ static int	number_of_lines;
 static off_t	size_of_file;
 static off_t	Szqfile;
 static off_t	Checksum_offset;
-#ifdef	PROTOTYPES
+#if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	BDiffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
 #else
 /*
@@ -86,6 +86,7 @@ static char	Diffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/diff");
 #endif
 static char	Diffpgm[]   =   NOGETTEXT("/usr/bin/diff");
 static char	Diffpgm2[]   =   NOGETTEXT("/bin/diff");
+static char	*diffpgm = "";
 static char	*ilist, *elist, *glist, Cmrs[300], *Nsid;
 static char	Pfilename[FILESIZE];
 static char	*uuname;
@@ -624,7 +625,7 @@ char *file;
  		 */
  		if (WEXITSTATUS(status) == 32) { /* 'execl' failed */
  		   sprintf(SccsError,
- 		      gettext("cannot execute '%s' (de12)"), BDiffpgm);
+ 		      gettext("cannot execute '%s' (de12)"), diffpgm);
  		   fatal(SccsError);
  		}
  		if ((status != 0) && (HADD == 0)) { /* diff failed */
@@ -634,7 +635,7 @@ char *file;
 			if (difflim -= 3000) {	/* reduce segmentation */
 				fprintf(stderr,
 					gettext("'%s' failed, re-trying, segmentation = %d (de13)\n"),
- 					BDiffpgm,
+ 					diffpgm,
 					difflim);
 				if (gpkt.p_xiop)
 					fclose(gpkt.p_xiop); /* set up */
@@ -1098,16 +1099,22 @@ int difflim;
 		sprintf(num, NOGETTEXT("%d"), difflim);
  		if (HADD) {
 #if	defined(PROTOTYPES) && defined(INS_BASE)
+		   diffpgm = Diffpgmp;
  		   execl(Diffpgmp,Diffpgmp,oldf,newf, (char *)0);
 #endif
+		   diffpgm = Diffpgm;
  		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
+		   diffpgm = Diffpgm2;
  		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
  		} else {
 #if	defined(PROTOTYPES) && defined(INS_BASE)
- 		   execl(BDiffpgmp,BDiffpgm,oldf,newf,num,"-s", (char *)0);
+		   diffpgm = BDiffpgmp;
+ 		   execl(BDiffpgmp,BDiffpgmp,oldf,newf,num,"-s", (char *)0);
 #endif
+		   diffpgm = BDiffpgm;
  		   execl(BDiffpgm,BDiffpgm,oldf,newf,num,"-s", (char *)0);
- 		   execl(BDiffpgm2,BDiffpgm,oldf,newf,num,"-s", (char *)0);
+		   diffpgm = BDiffpgm2;
+ 		   execl(BDiffpgm2,BDiffpgm2,oldf,newf,num,"-s", (char *)0);
  		}
 		close(1);
 		_exit(32);	/* tell parent that 'execl' failed */

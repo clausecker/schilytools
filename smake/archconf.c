@@ -1,14 +1,14 @@
-/* @(#)archconf.c	1.29 13/04/28 Copyright 1996-2013 J. Schilling */
+/* @(#)archconf.c	1.30 17/06/14 Copyright 1996-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.29 13/04/28 Copyright 1996-2013 J. Schilling";
+	"@(#)archconf.c	1.30 17/06/14 Copyright 1996-2017 J. Schilling";
 #endif
 /*
  *	Make program
  *	Architecture autoconfiguration support
  *
- *	Copyright (c) 1996-2013 by J. Schilling
+ *	Copyright (c) 1996-2017 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -35,6 +37,10 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include "make.h"
 
+#ifdef __HAIKU__
+#include <OS.h>
+#endif
+
 #ifdef	NO_SYSINFO
 #	ifdef	HAVE_SYS_SYSTEMINFO_H
 #		undef	HAVE_SYS_SYSTEMINFO_H
@@ -45,6 +51,7 @@ EXPORT	void	setup_arch	__PR((void));
 LOCAL	BOOL	do_uname	__PR((void));
 LOCAL	BOOL	do_sysinfo	__PR((void));
 LOCAL	BOOL	do_sysctl	__PR((void));
+LOCAL	BOOL	do_haiku	__PR((void));
 LOCAL	void	do_gethostname	__PR((void));
 LOCAL	void	do_defs		__PR((void));
 LOCAL	void	do_archheuristics __PR((void));
@@ -71,6 +78,7 @@ setup_arch()
 		do_defs();		/* Evaluate CPP definitions	*/
 	}
 	do_sysctl();
+	do_haiku();
 
 	do_archheuristics();
 }
@@ -353,6 +361,79 @@ do_sysctl()
  */
 LOCAL BOOL
 do_sysctl()
+{
+	return (FALSE);
+}
+#endif
+
+
+#ifdef __HAIKU__
+LOCAL BOOL
+do_haiku()
+{
+	char			*archname = "unknown";
+	cpu_topology_node_info	root;
+	uint32			count = 1;
+	status_t		error = get_cpu_topology_info(&root, &count);
+
+	if (error == B_OK && count >= 1) {
+		switch (root.data.root.platform) {
+
+		case B_CPU_x86:
+			archname = "x86";
+			break;
+
+		case B_CPU_x86_64:
+			archname = "x86_64";
+			break;
+
+		case B_CPU_PPC:
+			archname = "ppc";
+			break;
+
+		case B_CPU_PPC_64:
+			archname = "ppc64";
+			break;
+
+		case B_CPU_M68K:
+			archname = "m68k";
+			break;
+
+		case B_CPU_ARM:
+			archname = "arm";
+			break;
+
+		case B_CPU_ARM_64:
+			archname = "arm64";
+			break;
+
+		case B_CPU_ALPHA:
+			archname = "alpha";
+			break;
+
+		case B_CPU_MIPS:
+			archname = "mips";
+			break;
+
+		case B_CPU_SH:
+			archname = "sh";
+			break;
+
+		default:
+			archname = "other";
+			break;
+		}
+	}
+
+	define_var("MAKE_ARCH", archname);
+	return (TRUE);
+}
+#else
+/*
+ * Dummy for platforms that don't implement Haiku get_cpu_topology_info().
+ */
+LOCAL BOOL
+do_haiku()
 {
 	return (FALSE);
 }

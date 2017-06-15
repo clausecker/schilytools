@@ -22,7 +22,8 @@ all-tests:	test-alias \
 		test-redir	\
 		test-return	\
 		test-set	\
-		test-test
+		test-test	\
+		test-trap
 	echo Tests passed.
 
 test-alias:
@@ -99,3 +100,6 @@ test-set:
 
 test-test:
 	cd test && for i in *.sh; do echo Running test test/$$i; $(SHELL) $$i; done
+
+test-trap:
+	cd trap && for i in *.sh; do echo Running test trap/$$i; $(SHELL) $$i; done

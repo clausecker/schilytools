@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.9 16/11/07 Copyright 2015-2016 J. Schilling
+# cmptest @(#)cmptest.sh	1.12 17/06/15 Copyright 2015-2017 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -152,7 +152,13 @@ if [ $? -ne 0 ]; then
 	LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
 	if [ $? -ne 0 ]; then
 		echo "Reference patch program \"$rpatch\" not working"
-		exit 1
+		rpatch=/bin/patch
+		echo "Trying \"$rpatch\"..."
+		LC_ALL=C $rpatch -? 2>&1 | grep -i Option > /dev/null
+		if [ $? -ne 0 ]; then
+			echo "Reference patch program \"$rpatch\" not working"
+			exit 1
+		fi
 	fi
 fi
 echo "Using reference patch programm: $rpatch"
@@ -169,6 +175,13 @@ if [ $? -ne 0 ]; then
 fi
 echo "Using test patch programm: $tpatch"
 
+mod=6
+type ed > /dev/null 2> /dev/null
+[ $? -ne 0 ] && mod=5		# Skip diff -e tests
+if [ $mod = 5 ]; then
+	echo "No ed program found, skipping diff -e tests"
+fi
+
 idx=0
 maxidx=${1:-1000}
 while [ $idx -le $maxidx ]
@@ -184,7 +197,7 @@ do
 	echo Test $idx:  testing nlines=$nlines changes=$changes
 
 	dtype=`rrand 0 93983 $nlines`	# rrand 0 6 would be of bad quality, so
-	dtype=`expr $dtype \% 6`	# use "rrand 0 bigprime % 6" instead
+	dtype=`expr $dtype \% $mod`	# use "rrand 0 bigprime % 6" instead
 
 	if [ $dtype -eq 0 ]; then
 		dtype="-c"
@@ -194,7 +207,7 @@ do
 		dtype="-C0"
 	elif [ $dtype -eq 3 ]; then
 		dtype="-U0"
-	elif [ $dtype -eq 4 ]; then
+	elif [ $dtype -eq 5 ]; then
 		dtype="-e"
 	else
 		dtype="  "

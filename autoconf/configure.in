@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.284 17/05/20 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.285 17/06/12 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.284)dnl
+AC_REVISION(1.285)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -739,8 +739,9 @@ ac_save_LIBS="$LIBS"
 AC_CHECK_LIB(c, socket, lib_socket="",
   [AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")])
 LIBS="$LIBS $lib_socket"
-AC_CHECK_LIB(c, inet_ntoa, lib_nsl="",
-  [AC_CHECK_LIB(nsl, inet_ntoa, lib_nsl="-lnsl")])
+AC_CHECK_LIB(c, gethostbyname, lib_nsl="",
+  [AC_CHECK_LIB(nsl, gethostbyname, lib_nsl="-lnsl",
+    [AC_CHECK_LIB(network, gethostbyname, lib_nsl="-lnetwork")])])
 LIBS="$LIBS $lib_nsl"
 AC_CHECK_FUNCS(rcmd socket socketpair)
 AC_CHECK_FUNCS(getservbyname inet_ntoa)

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.76 17/05/27  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.79 17/06/11  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -73,8 +73,10 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_EXPORT_ENV		# Always autoexport imported environ
 #CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 #CPPOPTS +=	-DDO_POSIX_SET		# Let set -- clear the arguments
+#CPPOPTS +=	-DDO_POSIX_M		# Imply "set -m" for interactive shells
 #CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 #CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
+#CPPOPTS +=	-DDO_TRAP_EXIT		# Fork for (trap cmd EXIT; /usr/bin/true)
 #CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 #CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
 #CPPOPTS +=	-DDO_POSIX_SH		# set -o posix if basename(argv[0]) == "sh"
@@ -154,6 +156,7 @@ LIBS=		$(LIB_GEN) $(LIB_SECDB) -lgetopt -lschily \
 		$(LIB_INTL)
 #LIBS=		-lgen -lsecdb 
 #XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
+XMK_FILE=	Makefile.man
 
 signames.c args.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS

@@ -1,12 +1,12 @@
-/* @(#)strexpr.c	1.21 16/06/07 Copyright 2016 J. Schilling */
+/* @(#)strexpr.c	1.22 17/06/06 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.21 16/06/07 Copyright 2016 J. Schilling";
+	"@(#)strexpr.c	1.22 17/06/06 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
  *
- *	Copyright (c) 2016 J. Schilling
+ *	Copyright (c) 2016-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -283,7 +283,11 @@ exprtok(ep)
 		staktop = absstak(b);
 		ep->tokenp = --np;
 		n = lookup(staktop);
-		if (n->namval == NULL || *n->namval == '\0') {
+		if (n->namval == NULL) {
+			 if (flags & setflg)
+				failed(n->namid, unset);
+			ep->val = i;
+		} else if(*n->namval == '\0') {
 			ep->val = i;
 		} else {
 			unsigned char	*nv = n->namval;

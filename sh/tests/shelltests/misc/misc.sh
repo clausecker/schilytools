@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)misc.sh	1.2 16/06/04 2016 J. Schilling
+# @(#)misc.sh	1.3 17/06/14 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -271,6 +271,65 @@ o\
 esac
 XEOF
 docommand misc15 "$SHELL ./x" 0 'pass\n' ""
+remove x
+
+#
+# The following two tests are from Robert Elz:
+#
+cat > x <<"XEOF"
+V\
+AR=hel\
+lo
+unset U V1
+pri\
+ntf '%s' ${\
+VAR\
+}
+p\
+r\
+i\
+n\
+t\
+f\
+ \
+'%s' \
+$\
+{\
+V\
+A\
+R}
+printf '%s' ${U\
+-\
+"$\
+{V\
+1:\
+=$\
+{V\
+AR+\
+${V\
+AR}\
+}\
+}"}
+printf '%s' ${V\
+1?V1\
+ \
+FAIL}
+XEOF
+
+docommand misc30 "$SHELL ./x" 0 'hellohellohellohello' ""
+remove x
+
+cat > x <<"XEOF"
+l\
+s=7 bi\
+n\
+=\
+3
+echo $(\
+( ls /bin )\
+)
+XEOF
+docommand misc31 "$SHELL ./x" 0 '2\n' ""
 remove x
 
 success

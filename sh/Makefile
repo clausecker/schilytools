@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.130 17/05/27  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.132 17/06/11  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -73,8 +73,10 @@ CPPOPTS +=	-DDO_POSIX_EXPORT_ENV	# Autoexport imported environ w. -o posix
 #CPPOPTS +=	-DDO_EXPORT_ENV		# Always autoexport imported environ
 CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 CPPOPTS +=	-DDO_POSIX_SET		# Let set -- clear the arguments
+CPPOPTS +=	-DDO_POSIX_M		# Imply "set -m" for interactive shells
 CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
+CPPOPTS +=	-DDO_TRAP_EXIT		# Fork for (trap cmd EXIT; /usr/bin/true)
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
 #CPPOPTS +=	-DDO_POSIX_SH		# set -o posix if basename(argv[0]) == "sh"

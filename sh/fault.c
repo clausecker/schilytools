@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)fault.c	1.33 16/08/02 2008-2016 J. Schilling
+ * @(#)fault.c	1.34 17/06/11 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.33 16/08/02 2008-2016 J. Schilling";
+	"@(#)fault.c	1.34 17/06/11 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -126,9 +126,9 @@ static void	sigsegv		__PR((int sig, siginfo_t *sip,
 static void	set_sigval	__PR((int sig, void (*fun)(int)));
 	void	init_sigval	__PR((void));
 
-static BOOL sleeping = 0;
-static unsigned char *trapcom[MAXTRAP]; /* array of actions, one per signal */
-static BOOL trapflg[MAXTRAP] =
+static BOOL	sleeping = 0;
+	unsigned char *trapcom[MAXTRAP]; /* array of actions, one per signal */
+static BOOL	trapflg[MAXTRAP] =
 {
 	0,
 	0,	/* hangup */

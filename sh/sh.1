@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.202 17/05/27 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.206 17/06/11 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,28 +59,28 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/05/27" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/06/11" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
 .LP
 .nf
 .B /usr/bin/sh\c
-.RB "   [" \(miacefhikmnprstuvxP "] ["\c
+.RB "   [" \(miabCcefhikmnprstuvxP "] ["\c
 .IR argument ]...
 .fi
 
 .LP
 .nf
 .B /usr/bin/bosh\c
-.RB " [" \(miacefhikmnprstuvxP "] ["\c
+.RB " [" \(miabCcefhikmnprstuvxP "] ["\c
 .IR argument ]...
 .fi
 
 .LP
 .nf
 .B /usr/bin/jsh\c
-.RB "  [" \(miacefhikmnprstuvxP "] ["\c
+.RB "  [" \(miabCcefhikmnprstuvxP "] ["\c
 .IR argument ]...
 .fi
 
@@ -2241,6 +2241,11 @@ This variable is set by the
 statement and by the
 .B read
 special builtin command when no arguments are supplied.
+.sp
+The variable
+.B REPLY
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2653,6 +2658,8 @@ are retained. Implicit null arguments (those resulting from
 .IR parameter s
 that have no values) are
 removed.
+.if 0 \{
+.\" This does not apply to a POSIX shell anymore.
 .LP
 The
 .B IFS
@@ -2666,6 +2673,7 @@ parameter is applied to any unquoted word. Thus.
 .sp
 .RE
 executes the `echo' command with the argument `foo'.
+\}
 
 .SS "Input/Output Redirection"
 .sp
@@ -4069,7 +4077,7 @@ The
 option causes the word
 .B export
 to be inserted before each name.
-(Variable names exported from a parent shell
+(When not in POSIX mode, variable names exported from a parent shell
 are listed only if they have been exported again during the current shell's
 execution.) Function names are
 .B not
@@ -5328,6 +5336,17 @@ those that precede the command name.
 .TP
 .B \-m
 Switch job control mode on.
+All jobs are run in their own process groups. 
+See section
+.B "Job Control (jsh)
+below.
+On systems with job control, this flag is turned on automatically
+for interactive shells.
+.sp
+The option
+.B \-m
+was not auto-enabled for interactive shells in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -6905,7 +6924,8 @@ background processes are waited for and the return code is zero.
 .sp
 .LP
 When the shell is invoked as
-.B jsh 
+.BR jsh ,
+when the shell is invoked as interactive shell
 or after
 .B set -m
 was called,

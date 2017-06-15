@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.119 17/05/28 2008-2017 J. Schilling
+ * @(#)bltin.c	1.120 17/06/11 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.119 17/05/28 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.120 17/06/11 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1037,8 +1037,6 @@ builtin(type, argc, argv, t, xflags)
 		break;
 	case SYSFALSE:
 		exitval = 1;
-		if (flags & errflg)
-			done(0);
 		break;
 #endif
 

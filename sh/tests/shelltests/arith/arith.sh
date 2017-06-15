@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)arith.sh	1.20 17/05/09 Copyright 2016 J. Schilling
+# @(#)arith.sh	1.22 17/06/14 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -388,6 +388,12 @@ else
 	echo "Skipping comma operator tests."
 	echo
 fi
+
+docommand a500 "$SHELL -c 'set -u; unset x; echo \$(( x+=3 )); echo \$x'" !=0 "" NONEMPTY
+docommand a501 "$SHELL -c 'set -u; unset a; echo \$((a++ , a++)); echo \$a'" !=0 "" NONEMPTY
+
+docommand a600 "$SHELL -c 'echo \$(( `echo 77` `printf %s -` `echo 44` ))'" 0 "33\n" ""
+docommand a601 "$SHELL -c 'echo \$(( \$(echo 77) \$(printf %s -) \$(echo 44) ))'" 0 "33\n" ""
 
 #
 # Test cases that are similar to the tests from ksh93

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)ifs.sh	1.4 17/05/26 Copyright 2016 J. Schilling
+# @(#)ifs.sh	1.5 17/06/15 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -93,6 +93,9 @@ b'
 printf "<%s>\n" $a$b
 XEOF
 docommand ifs53 "$SHELL ./x" 0 "<a>\n<b>\n" ""
+
+docommand ifs80 "$SHELL -c 'IFS=5; echo \$(( 123456789 )) '" 0 "1234 6789\n" ""
+docommand ifs81 "$SHELL -c 'IFS=5; echo \$( echo 123456789 ) '" 0 "1234 6789\n" ""
 
 remove x
 success
