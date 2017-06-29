@@ -1,6 +1,6 @@
-#ident "@(#)rules.hlp	1.19 16/08/10 "
+#ident "@(#)rules.hlp	1.20 17/06/28 "
 ###########################################################################
-# Written 1996-2016 by J. Schilling
+# Written 1996-2017 by J. Schilling
 ###########################################################################
 #
 # Help rules
@@ -56,6 +56,7 @@
 	@echo "	install		install the default target to final destination"
 	@echo "	installman	install the man pages to final destination"
 	@echo "	ibins		install the default target to local dir 'bins'"
+	@echo "	uninstall	uninstall the default target from final destination"
 	@echo "	html		create html vesions from the manual pages"
 	@echo "	htmlx		create enhanced html vesions from the manual pages"
 	@echo "	htmlxn		create enhanced html vesions from the manual pages if needed"

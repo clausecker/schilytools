@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.22 17/05/17 2017 J. Schilling
+ * @(#)main.cc	1.23 17/06/17 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.22 17/05/17 2017 J. Schilling";
+	"@(#)main.cc	1.23 17/06/17 2017 J. Schilling";
 #endif
 
 /*
@@ -157,10 +157,10 @@ static	Boolean		trace_status;			/* `-p' */
 static	Boolean		getname_stat = false;
 #endif
 
-#if defined(TEAMWARE_MAKE_CMN)
-	static	time_t		start_time;
 	static	int		g_argc;
 	static	char		**g_argv;
+#if defined(TEAMWARE_MAKE_CMN)
+	static	time_t		start_time;
 #ifdef USE_DMS_CCR
 	static  Avo_usage_tracking *usageTracking = NULL;
 #else
@@ -340,14 +340,12 @@ main(int argc, char *argv[])
 #endif
 	textdomain(TEXT_DOMAIN);
 
-#ifdef TEAMWARE_MAKE_CMN
 	g_argc = argc;
 	g_argv = (char **) malloc((g_argc + 1) * sizeof(char *));
 	for (i = 0; i < argc; i++) {
 		g_argv[i] = argv[i];
 	}
 	g_argv[i] = NULL;
-#endif /* TEAMWARE_MAKE_CMN */
 
 	/*
 	 * Set argv_zero_string to some form of argv[0] for
@@ -3865,8 +3863,24 @@ find_run_dir()
 	char		*exname = getexecpath();
 	char		*ret;
 
-	if (exname == NULL)
-		exname = findinpath(argv_zero_base, X_OK, TRUE, NULL);
+	if (exname == NULL) {
+		if (strchr(g_argv[0], (int) slash_char) == NULL) {
+			/*
+			 * Do pathname search only if we have been
+			 * called via PATH.
+			 */
+			exname = findinpath(g_argv[0], X_OK, TRUE, NULL);
+		} else {
+			/*
+			 * If arvg[0] starts with a slash, use it,
+			 * else use its concatenation with `pwd`.
+			 */
+			if (*g_argv[0] == slash_char)
+				exname = strdup(g_argv[0]);
+			else
+				exname = strdup(argv_zero_string);
+		}
+	}
 	if (exname == NULL)
 		return (NULL);
 	ret = strdup(dirname(exname));

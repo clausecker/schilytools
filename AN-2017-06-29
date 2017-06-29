@@ -1,0 +1,301 @@
+New features with AN-2017-06-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	configure: The tests for -lsocket and for -lnsl/-lnetwork
+	have been better separated to correctly recognize -lnetwork
+	on Haiku.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	configure: the vfork() test has been enhanced to check whether
+	a modification in the data segment of the child affects the
+	parent as well. This feature is used (needed) by the Bourne Shell 
+	to signal a ENOEXEC case for shell scripts to the parent and in
+	general to report the reason for a failed execve() call back
+	to the parent.
+
+	Note that vfork() in Haiku does not share data and thus canot
+	be used by the Bourne Shell.
+
+-	configure: a new test AC_STAT_FILES has been written to replace
+	AC_CHECK_FILES. AC_CHECK_FILES does not work on Haiku due to
+	a bug in "bash" that makes "test -r /dev/stdin" to report an exit
+	code of 0 even though the file /dev/stdin does not exist.
+
+-	Schily Makefilesystem: RULES/rules.loc and RULES/rules.man have been
+	make safe against a parallel make program like SunPro Make.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Schily Makefilesystem: SunPro Make does not understand ".PHONY:".
+	Use the AT&T method "FRC" as well to make the .PHONY targets always 
+	out of date.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Schily Makefilesystem: added a new target "uninstall" that removes
+	all non-directory type files that previously may have been installed via
+	the "install" target.
+
+	Thanks to a report from Michael Siegel
+
+-	smake fixed some GCC warnings for unused variables.
+
+-	smake: include some BSD and Mac OS related include files earlier
+	in the file archconf.c in order to get HW_MODEL #defined earlier.
+
+-	cpp: Added a workaround to "Makefile" for a bug in SunPro Make
+	that results in not checking for a new file in VPATH.
+
+-	tartest fixed some GCC warnings for unused variables.
+
+-	p: The pager now supports UTF-8 characters. The pattern matcher
+	has not yet been enhanced to match any multi byte character by a '?'.
+
+-	Bourne Shell: the behavior for exiting with command substitutions
+	has been changed to match general rules for the POSIX shell.
+
+	This causes:
+
+		bosh -c '(set -e; echo ERR `false`; echo ERR); echo OK'
+
+	to print:
+
+		ERR
+		ERR
+		OK
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: A command substitution no longer sets "retval"
+	for $? to make shure, exit/return without parameter use the
+	exit value from the last regular command and not the exit code
+	from the last command substitution.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: A compliance test has been added for above bug.
+
+-	Bourne Shell: "Y=${X=b} Z=$X; echo $Z" now again prints "b"
+	instead of the incorrect "Y=b". This fixes a bug introduced
+	2012-04-11 while trying to make the shell be correct even
+	when the string stack is relocated as a result from a realloc()
+	call.
+
+-	Bourne Shell: A compliance test has been added for above bug.
+
+-	Bourne Shell: There now may be further options between 
+	-c and "commandstring" as required by POSIX.
+
+		bosh -c -x 'echo foo'
+
+	and
+
+		bosh -c -o time 'echo foo'
+
+	or
+
+		bosh -c +o time 'echo foo'
+
+	now work. Before, only bosh -c 'command' did work, as 'command'
+	was implemented as an option argument for -c.
+
+-	Bourne Shell: When parsing numbers, additional chars after
+	digits are now flagged as an error. This prevents the shell
+	from silently accepting "shift 0x12" as "shift 0".
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: The parameter expansion ${var-word} now
+	processes "word" for IFS field splitting.
+
+	Thanks to a report from Robert Elz
+
+-	Bourne Shell: A compliance test has been added for above bug.
+
+-	Bourne Shell fixed some GCC warnings for unused variables.
+
+-	Bourne Shell: non-existent 2> /dev/null did not redirect the error
+	message while /non/existent 2> /dev/null did redirect. This is a
+	very old Bourne Shell bug from ~ 1977.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Bourne Shell: a compliance test was added for above bug.
+
+-	Bourne Shell: The management code in the Bourne Shell used hard links
+	to ensure that a shell /tmp File (e.g. representing a here document)
+	lives at least as long as the processes that need the file. Hardlinks
+	on Haiku are not implemented even though link() exists. We therefore
+	now copy the /tmp/ file content to a new /tmp file if errno from
+	link() is any other then EEXIST.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Bourne Shell: a compliance test was added for above bug.
+
+-	Bourne Shell: A bug introduced March 15 2017 was fixed. At that
+	time, the expansion for $PS4 was modified to use _macro() instead of
+	macro() but _macro() does not reset the "stack top" and thus left
+	active text on the stack that was later included while expanding
+	e.g. the argument "/dev/null" for "> /dev/null". As a result,
+	bosh in -x mode could complain about:
+
+		'+ /dev/null' cannot open
+
+-	Bourne Shell: a compliance test was added for above bug.
+
+-	Bourne Shell: Compliance test sh/tests/shelltests/here/here02.sh
+	Test "here24" added a workaround for a ksh93/bash/mksh POSIX
+	non-compliance bug. These shells illegally expand "\E" to the ESC
+	character when using the built in "echo" command. We changed
+	"\EOF" -> "\FIN" in the test "here24" to avoid the problem.
+
+-	Bourne Shell: Compliance test sh/tests/shelltests/error/error.sh
+	Tests "error117" ... "error132" have been disabled for Haiku to
+	prevent an OS bug to make our test fail. Haiku illegally permits:
+
+		: > /
+
+	as opening the root directory does not fail.
+
+-	Bourne Shell: The shell now passes all compliance tests on Hailu,
+	except for the tests named above that fail due to a Haiku OS bug.
+
+-	Bourne Shell: The compliance tests "conf" and "bugs" have been moved
+	to the beginning to reduce the test time by making "conf" start first
+	and to run the regression tests for fixed bugs first.
+
+-	Bourne Shell: The compliance test "trap03" has been fixed as the old
+	PATH detection code for the external "echo" command did not work.
+
+-	SCCS: sccs admin/delta, ... could write nanoseconds to the timestamp
+	into the history file even when in SCCSv4 mode and the time stamp is
+	from before 1968 or past 2037. This is no longer possible as the
+	nanosecods are now cleared in that case.
+
+-	SCCS: val now checks whether a SCCSv4 history file contains SCCSv6
+	elements in the delta line. The checks in the schilytools development
+	area did not discover the problem, so it seems that out bug was only
+	triggered on Haiku due to a time_t implementation bug in the Haiku libc.
+
+-	SCCS: sccs/man/Makefile if now a normal serial Makefile using "rules.mks"
+	in order to make all localizations and the directory OBJ/<arch-dir>/man
+	which "make all" already. This avoids that OBJ/<arch-dir>/man is created
+	late by root when running "make install" as root after a "make all" call
+	from a normal user.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make: The path to the file with internal rules now
+	is corrctly constructed even when the binary is in .../xpg4/bin/make
+	where we need to use "../../share/..." instead of "../share/...".
+
+-	SunPro Make: Install path detection now works on Haiku as well.
+	findinpath() only works when the binariy was located via PATH search.
+	Use the absolute path in other cases.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SunPro Make now has been verified to compile and work correctly on
+	Haiku.
+
+	If you like to test SunPro Make with the schilytools, call e.g.
+
+		dmake -f SMakefile
+
+	in the top level directory to prevent the automated redirection to 
+	smake.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

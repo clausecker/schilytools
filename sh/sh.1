@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.206 17/06/11 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.211 17/06/18 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/06/11" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/06/18" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -179,9 +179,20 @@ positional parameters to that command file:
 If the
 .B \-c
 option is present commands are read from
-.IR string .
+.IR string ,
+where
+.I string
+is the first non-option argument after
+.BR \-c .
 The remaining arguments become positional parameters starting at
 .BR $0 .
+.sp
+Optional options between
+.B \-c
+and
+.I string
+have not been supported by older versions of
+.BR sh .
 .br
 .ne 5
 .TP
@@ -8002,6 +8013,16 @@ standard.
 .br
 .ne 4
 .TP
+.B number parameters
+This version of the Bourne Shell is more picky when parsing numbers.
+Previous versions of the shell did accept e.g.
+.B 0x12
+for the number
+.B 0
+as parsing just stopped at the first non digit.
+.br
+.ne 4
+.TP
 .B parameter assignment
 This version of the Bourne Shell fixed the order of evaluation for
 parameter assignements to be left to right instead of right to left (as
@@ -8148,6 +8169,23 @@ useful for
 .I non-space
 field separators as this would not allow to e.g. read the password file via
 .BR read (1).
+.ne 4
+.TP
+.BR retval " and " "Command Substitution
+This version of the shell no longer uses a command substitution as a
+checkpoint where the
+.B exitcode
+is remembered for
+.BR $? .
+This affects calls to
+.B exit
+and
+.B return
+without parameter.
+If such a call did not happen after a regular command, but e.g.
+after a parameter assignment with a command substitution, the
+implicit return/exit code was the exit code of the last command
+substitution and now is the exit code of the last regular command.
 .br
 .ne 4
 .TP
@@ -8184,6 +8222,38 @@ now causes the positional parameters to be unset. Previous versions of the shell
 left the positional parameters untouched in this case.
 A portable method to clear the positional parameters is to call
 .RB `` "shift $#" ''.
+.ne 4
+.TP
+.BR "set \-e" " and " "Command Substitution
+The historic Bourne Shell did abort the first
+.B echo
+command in the following exanple:
+.sp
+.in +2
+.nf
+.B
+sh -c '(set -e; echo ERR `false`; echo ERR); echo OK'
+.fi
+.in -2
+.sp
+and printed only a single line with:
+.BR OK .
+.sp
+POSIX requires to treat
+.B `false`
+as a sub shell, to let the main shell ignore the exit code from
+the command substitution and let it only use the exit code from the
+.B echo
+command. This requires to print:
+.sp
+.in +2
+.nf
+.B ERR
+.B ERR
+.B OK
+.fi
+.in -2
+.sp
 .ne 4
 .TP
 .B test
@@ -8353,6 +8423,8 @@ J\*org Schilling and P. Teuchert for the shell
 .BR bsh (1)
 and is maintained
 by J\*org Schilling since 1985.
+.br
+.ne 8
 .SH "SOURCE DOWNLOAD"
 The source code for the
 .B Bourne Shell

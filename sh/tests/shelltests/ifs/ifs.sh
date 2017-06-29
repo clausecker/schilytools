@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)ifs.sh	1.5 17/06/15 Copyright 2016 J. Schilling
+# @(#)ifs.sh	1.6 17/06/18 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -96,6 +96,14 @@ docommand ifs53 "$SHELL ./x" 0 "<a>\n<b>\n" ""
 
 docommand ifs80 "$SHELL -c 'IFS=5; echo \$(( 123456789 )) '" 0 "1234 6789\n" ""
 docommand ifs81 "$SHELL -c 'IFS=5; echo \$( echo 123456789 ) '" 0 "1234 6789\n" ""
+
+docommand ifs100 "$SHELL -c 'IFS=\". \"; set -- a \"b.c\"; echo \$# \$*'" 0 "2 a b c\n" ""
+docommand ifs101 "$SHELL -c 'IFS=\". \"; set -- a \"b.c\"; echo \$# \${xXx:-\$*}'" 0 "2 a b c\n" ""
+
+docommand ifs110 "$SHELL -c 'set -- \${x-a b c}; echo \$#'" 0 "3\n" ""
+docommand ifs111 "$SHELL -c 'x=BOGUS; set -- \${x+a b c}; echo \$#'" 0 "3\n" ""
+docommand ifs112 "$SHELL -c 'IFS=q; set \${x-aqbqc}; echo \$#'" 0 "3\n" ""
+docommand ifs113 "$SHELL -c 'x=B; IFS=q; set \${x+aqbqc}; echo \$#'" 0 "3\n" ""
 
 remove x
 success

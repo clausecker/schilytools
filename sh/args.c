@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)args.c	1.79 17/01/04 2008-2017 J. Schilling
+ * @(#)args.c	1.81 17/06/22 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.79 17/01/04 2008-2017 J. Schilling";
+	"@(#)args.c	1.81 17/06/22 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -396,6 +396,13 @@ again:
 #endif
 			return (argc);
 		}
+#ifdef	DO_MULTI_OPT
+		/*
+		 * Mark that we will later need to correct comdiv.
+		 */
+		if (comdiv && dolv == NULL)
+			comdiv = UC -1;
+#endif
 		if (cp[1] == '\0')
 			flags &= ~(execpr|readpr);
 
@@ -470,13 +477,17 @@ again:
 					failed(argv[1], badopt);
 				} else {
 					unsigned long *fp = &flags;
+#ifdef	DO_PS34
 					unsigned long oflags;
+#endif
 
 							/* LINTED */
 					fv = flagval[flagc-flagchar];
 					if (fv & fl2)
 						fp = &flags2;
+#ifdef	DO_PS34
 					oflags = *fp;
+#endif
 					*fp |= fv & ~fl2;
 					/*
 					 * Disallow to set -n on an interactive
@@ -525,7 +536,8 @@ again:
 				argp++;
 				argc--;
 #ifdef	DO_POSIX_SET
-				if (*argp[1] == '-')	/* Check for -- */
+				if (*argp[1] == '-' ||	/* Check for --    */
+				    *argp[1] == '+')	/* or more options */
 					goto again;
 #endif
 			} else {
@@ -537,7 +549,13 @@ again:
 		argp++;
 	} else if (argc > 1 &&
 		    *argp[1] == '+') { /* unset flags x, k, t, n, v, e, u */
-
+#ifdef	DO_MULTI_OPT
+		/*
+		 * Mark that we will later need to correct comdiv.
+		 */
+		if (comdiv && dolv == NULL)
+			comdiv = UC -1;
+#endif
 		(void) mbtowc(NULL, NULL, 0);
 		cp = argp[1];
 		cp++;
@@ -618,6 +636,20 @@ again:
 #ifdef	DO_MULTI_OPT
 	if (argc > 1 && (*argp[1] == '-' || *argp[1] == '+'))
 		goto again;
+
+	if (comdiv == UC -1 && dolv == NULL) {
+		/*
+		 * Correct comdiv to point past last option.
+		 */
+		if (argc > 1) {
+			comdiv = argp[1];
+			argp[1] = argp[0];
+			argv++;
+			argc--;
+		} else {
+			failed(argv[1], mssgargn);
+		}
+	}
 #endif
 
 	setopts();

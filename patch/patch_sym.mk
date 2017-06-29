@@ -1,4 +1,4 @@
-#ident "@(#)patch_sym.mk	1.1 11/09/05 "
+#ident "@(#)patch_sym.mk	1.2 17/06/28 "
 ###########################################################################
 SRCROOT=	../
 RULESDIR=	RULES
@@ -12,6 +12,9 @@ ORIG=		spatch
 PSYMLINKS=	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
 
 install: $(PSYMLINKS)
+
+uninstall:
+		$(RM) $(RM_FORCE) $(PSYMLINKS)
 
 $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/bin/$(ORIG)$(_EXEEXT)
 	$(MKDIR) -p $(DEST_DIR)$(INS_BASE)/$(INSDIR)

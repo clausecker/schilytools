@@ -1,11 +1,11 @@
-/* @(#)job.c	1.9 15/12/26 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)job.c	1.10 17/06/22 Copyright 1985, 87, 88, 91, 1995-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.9 15/12/26 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)job.c	1.10 17/06/22 Copyright 1985, 87, 88, 91, 1995-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2017 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -321,7 +321,6 @@ cmd_run(jobp)
 	int	Exit;
 #endif
 	int	NoError = (jobp->j_flags & J_NOERROR) != 0;
-	obj_t	*shello;
 	char	*shell = NULL;
 	char	*shellflag;
 	char	*cmd = jobp->j_cmd;
@@ -357,10 +356,8 @@ cmd_run(jobp)
 			shellflag = NoError ? cflag:ceflag;
 	}
 
-	shello = objlook("SHELL", FALSE);
 	shell = get_var("SHELL");
 	if (shell == NULL || *shell == '\0') {
-		shello = NULL;
 		shell = "/bin/sh";
 	}
 
@@ -377,7 +374,7 @@ cmd_run(jobp)
 		comerr("Can't spawn %s.\n", shell);
 #else	/* ! __EMX__ */
 
-	if (shello == NULL)
+	if (shell == NULL)
 		comerr("Can't find sh.exe.\n");		/* DJGPP setup problem */
 
 	Exit = spawnl(P_WAIT, shell, filename(shell), shellflag,
@@ -443,15 +440,12 @@ cmd_wait(jobp)
 	int	Exit;
 	int	Silent = (jobp->j_flags & J_SILENT) != 0;
 	int	NoError = (jobp->j_flags & J_NOERROR) != 0;
-	obj_t	*shello;
 	char	*shell = NULL;
 	char	*cmd = jobp->j_cmd;
 	obj_t	*obj = jobp->j_obj;
 
-	shello = objlook("SHELL", FALSE);
 	shell = get_var("SHELL");
 	if (shell == NULL || *shell == '\0') {
-		shello = NULL;
 		shell = "/bin/sh";
 	}
 

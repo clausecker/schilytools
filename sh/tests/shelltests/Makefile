@@ -1,9 +1,10 @@
-all-tests:	test-alias \
-		test-arith \
+all-tests:	test-bugs	\
+		test-conf	\
+		test-alias	\
+		test-arith	\
 		test-bltin	\
 		test-break	\
 		test-cmdsub	\
-		test-conf	\
 		test-echo	\
 		test-errflg	\
 		test-error	\
@@ -37,6 +38,9 @@ test-bltin:
 
 test-break:
 	cd break && for i in *.sh; do echo Running test break/$$i; $(SHELL) $$i; done
+
+test-bugs:
+	cd bugs && for i in *.sh; do echo Running test bugs/$$i; $(SHELL) $$i; done
 
 test-cmdsub:
 	cd cmdsub && for i in *.sh; do echo Running test cmdsub/$$i; $(SHELL) $$i; done

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.108 16/03/22 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.109 17/06/28 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -3452,3 +3452,49 @@ fi
 if test $ac_cv_prog_shell_broken_e = yes; then
   AC_DEFINE(HAVE_PROG_SHELL_BROKEN_E)
 fi])])
+
+dnl Checks if a file exists
+dnl Do not use test -r <file> as bash on Haiku returns 0 for test -r /dev/stdin
+dnl even though /dev/stdin does not exist.
+dnl
+dnl Defines HAVE_<PATH> on success.
+dnl AC_STAT_FILE(FILE, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+AC_DEFUN([AC_STAT_FILE],
+[AC_REQUIRE([AC_PROG_CC]) 
+dnl Do the transliteration at runtime so arg 1 can be a shell variable. 
+ac_safe=`echo "$1" | sed 'y%./+-%__p_%'` 
+AC_MSG_CHECKING([for $1])
+AC_CACHE_VAL(ac_cv_file_$ac_safe,
+                [AC_TRY_RUN([
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int
+main()
+{
+	struct	stat	sb;
+
+	exit(stat("$1", &sb) < 0);
+}],
+                [eval ac_cv_file_$ac_safe=yes],
+                [eval ac_cv_file_$ac_safe=no])])
+if eval "test \"`echo '$ac_cv_file_'$ac_safe`\" = yes"; then
+  AC_MSG_RESULT(yes)
+  ifelse([$2], , :, [$2])
+else
+  AC_MSG_RESULT(no)
+  ifelse([$3], , , [$3])
+fi
+])
+
+dnl AC_STAT_FILES(FILE... [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+AC_DEFUN(AC_STAT_FILES,
+[for ac_file in $1
+do
+AC_STAT_FILE($ac_file,
+[changequote(, )dnl
+  ac_tr_file=HAVE_`echo $ac_file | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
+changequote([, ])dnl
+  AC_DEFINE_UNQUOTED($ac_tr_file) $2], $3)dnl
+done
+])

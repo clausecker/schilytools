@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)io.c	1.31 17/03/15 2008-2017 J. Schilling
+ * @(#)io.c	1.32 17/06/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.31 17/03/15 2008-2017 J. Schilling";
+	"@(#)io.c	1.32 17/06/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -81,6 +81,7 @@ static	void	pushtemp	__PR((int fd, struct tempblk *tb));
 	int	tmpfil		__PR((struct tempblk *tb));
 	void	copy		__PR((struct ionod *ioparg));
 	void	link_iodocs	__PR((struct ionod *i));
+static	int	copy_file	__PR((char *fromname, char *toname));
 	void	swap_iodoc_nm	__PR((struct ionod *i));
 	int	savefd		__PR((int fd));
 	void	restore		__PR((int last));
@@ -495,11 +496,10 @@ link_iodocs(i)
 			    size_left, "%u", serial);
 			serial++;
 			r = link(i->ioname, (char *)tmpout);
-
-#ifdef	HAVE_SYMLINK	/* Need to support Haiku */
+			/* Need to support Haiku */
 			if (r == -1 && errno != EEXIST)
-				r = symlink(i->ioname, (char *)tmpout);
-#endif
+				r = copy_file(i->ioname, (char *)tmpout);
+
 			if ((serial >= UINT_MAX) || (len >= size_left)) {
 			/*
 			 * We've already cycled through all the possible
@@ -519,6 +519,38 @@ link_iodocs(i)
 		}
 
 	}
+}
+
+/*
+ * If link() fails because it is unimplemented (as on Haiku), we copy the file.
+ */
+static int
+copy_file(fromname, toname)
+	char	*fromname;
+	char	*toname;
+{
+	int	fi = open(fromname, O_RDONLY);
+	int	fo;
+	int	amt;
+	char	buf[1024];
+
+	if (fi < 0)
+		return (-1);
+
+	fo = open(toname, O_WRONLY|O_CREAT|O_EXCL, 0600);
+	if (fo < 0) {
+		close(fi);
+		return (-1);
+	}
+	while ((amt = read(fi, buf, sizeof (buf))) > 0) {
+		if (write(fo, buf, amt) != amt) {
+			amt = -1;
+			break;
+		}
+	}
+	close(fi);
+	close(fo);
+	return (amt);
 }
 
 void

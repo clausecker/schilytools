@@ -1,4 +1,4 @@
-#ident "@(#)rules.loc	1.9 15/01/31 "
+#ident "@(#)rules.loc	1.10 17/06/18 "
 ###########################################################################
 # Written 1997 by J. Schilling
 ###########################################################################
@@ -31,11 +31,11 @@ _INSMODEI=	$(_UNIQ)$(INSMODE)
 __INSMODEI=	$(_INSMODEI:$(_UNIQ)=$(INSMODEF))
 INSMODEI=	$(__INSMODEI:$(_UNIQ)%=%)
 
-all:		$(ARCHDIR) $(PTARGET)
+all:		$(PTARGET)
 
 install:	$(ARCHDIR)
 
-$(PTARGET):	$(SRCFILE)
+$(PTARGET):	$(ARCHDIR) $(SRCFILE)
 		$(LOCALIZE) $(SRCFILE) $@
 
 $(ARCHDIR):

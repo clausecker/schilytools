@@ -1,4 +1,4 @@
-#ident @(#)testscripts.mk	1.2 09/04/14 
+#ident @(#)testscripts.mk	1.3 17/06/28 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -12,6 +12,9 @@ install:
 	mkdir -p $(DEST_DIR)$(INSBASE)/share/doc/star/testscripts
 	chmod 755 $(DEST_DIR)$(INSBASE)/share/doc/star/testscripts
 	cp -p testscripts/* $(DEST_DIR)$(INSBASE)/share/doc/star/testscripts || true
+
+uninstall:
+	$(RM) $(RM_FORCE) $(DEST_DIR)$(INSBASE)/share/doc/star/testscripts/*
 
 #INSDIR=		share/doc/cdrecord
 #TARGET=		README.copy

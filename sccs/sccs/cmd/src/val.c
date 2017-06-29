@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)val.c	1.43 15/02/06 J. Schilling
+ * @(#)val.c	1.44 17/06/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.43 15/02/06 J. Schilling"
+#pragma ident "@(#)val.c 1.44 17/06/21 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -699,6 +699,39 @@ struct packet *pkt;
 			printf(gettext("%s%s: missing field in delta in line %d\n"),
 			"    ", pkt->p_file, pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
+	}
+	if ((pkt->p_flags & PF_V6) == 0) {
+		int	dterr = 0;
+
+		p = strchr(delp->datetime, '/');
+		if ((p - delp->datetime) > 2) {
+			if (dt.d_dtime.dt_sec < Y1969 ||
+			    dt.d_dtime.dt_sec >= Y2038) {
+				/*
+				 * In this case, 4-digit year numbers are OK.
+				 */
+				if ((p - delp->datetime) != 4)
+					dterr++;
+			} else {
+				dterr++;
+			}
+		}
+		/*
+		 * Nanoseconds not allowed in SCCSv4 mode.
+		 */
+		if (strchr(delp->datetime, '.'))
+			dterr++;
+		/*
+		 * With 2-digit year, the length is 17.
+		 */
+		if (strlen(delp->datetime) > 19)
+			dterr++;
+		if (dterr) {
+			if (debug)
+				printf(gettext("%s%s: invalid v4 datetime field '%s' in line %d\n"),
+				"    ", pkt->p_file, delp->datetime, pkt->p_slnno);
+			infile_err |= CORRUPT_ERR;
+		}
 	}
 }
 

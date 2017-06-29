@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)trap.sh	1.1 17/06/11 Copyright 2017 J. Schilling
+# @(#)trap.sh	1.2 17/06/28 Copyright 2017 J. Schilling
 #
 
 # Read test core functions
@@ -13,8 +13,8 @@ docommand trap00 "$SHELL -c 'trap \"echo exited\" EXIT; echo bla'" 0 "bla\nexite
 docommand trap01 "$SHELL -c '(trap \"echo exited\" EXIT; echo bla)'" 0 "bla\nexited\n" ""
 
 ECHO=""
-type /bin/echo > /dev/null 2> /dev/null && ECHO=/bin/echo || \
-type /usr/bin/echo > /dev/null 2> /dev/null && ECHO=/usr/bin/echo
+type /bin/echo > /dev/null 2> /dev/null && ECHO=/bin/echo
+[ $? -ne 0 ] && type /usr/bin/echo > /dev/null 2> /dev/null && ECHO=/usr/bin/echo
 
 if [ -z "$ECHO" ]; then
 echo "No PATH for echo found, skipping test trap03"

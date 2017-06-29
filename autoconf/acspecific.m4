@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.16 12/04/09 Copyright 1998-2011 J. Schilling
+dnl @(#)acspecific.m4	1.17 17/06/27 Copyright 1998-2017 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -1355,6 +1355,7 @@ sparc_address_test (arg) int arg;
 }
 #endif
 int exc = 0;
+int data = 0;
 
 int
 main() {
@@ -1394,6 +1395,16 @@ main() {
        Test for this by closing stdout in the child.  */
     if (exc == 0)
 	exc = close(fileno(stdout)) != 0;
+
+    /*
+     * Check whether a modification in the data segment of the child
+     * is forwarded to the data segment of the parent, vfork() on Haiku
+     * fails to do this. We cannot use vfork() in this case as vfork()
+     * children usually signal things to their parent by modifying the
+     * data segment.
+     */
+    data = 1;
+
     /*
      * VMS hangs if we do not call execl()
      */
@@ -1422,6 +1433,8 @@ main() {
 
 	 /* Did the vfork/compiler bug occur?  */
 	 || parent != getpid()
+
+	 || data == 0
 
 	 /* Did the file descriptor bug occur?  */
 	 || fstat(fileno(stdout), &st) != 0

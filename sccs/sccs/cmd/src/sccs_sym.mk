@@ -1,4 +1,4 @@
-#ident @(#)sccs_sym.mk	1.3 09/07/28 
+#ident @(#)sccs_sym.mk	1.4 17/06/28 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -11,6 +11,9 @@ TARGET=		sccs
 PSYMLINKS=	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
 
 install: $(PSYMLINKS)
+
+uninstall:
+		$(RM) $(RM_FORCE) $(PSYMLINKS)
 
 $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/ccs/bin/$(TARGET)$(_EXEEXT)
 	$(MKDIR) -p $(DEST_DIR)$(INS_BASE)/$(INSDIR)

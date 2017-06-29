@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.70 17/06/14 2008-2017 J. Schilling
+ * @(#)macro.c	1.75 17/06/21 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.70 17/06/14 2008-2017 J. Schilling";
+	"@(#)macro.c	1.75 17/06/21 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -492,6 +492,13 @@ docolon:
 			}
 			argp = 0;
 			if (bra) {		/* ${...} */
+				/*
+				 * This place is probably the wrong place to
+				 * mark the word as expandet, but before, we
+				 * did not mark a substitution to word in
+				 * ${var-word} if "var" is unset.
+				 */
+				macflag |= M_PARM;
 
 				if (c != '}') {	/* word follows parameter */
 					/*
@@ -646,6 +653,7 @@ docolon:
 				} else if (c == '=') {
 					if (n) {
 						int slength = staktop - stakbot;
+						UIntptr_t aoff = argp - stakbot;
 						unsigned char *savp = fixstak();
 						struct ionod *iosav = iotemp;
 						unsigned char *newargp;
@@ -655,7 +663,7 @@ docolon:
 						 * will relocate the last item
 						 * if we call fixstak();
 						 */
-						argp = savp;
+						argp = savp + aoff;
 
 						/*
 						 * copy word onto stack, trim
@@ -857,6 +865,12 @@ comsubst(trimflag, type)
 	{
 		struct trenod	*t;
 		int		pv[2];
+#ifdef	DO_POSIX_E
+		int		oret = retval;
+		struct excode	oex;
+
+		oex = retex;
+#endif
 
 		/*
 		 * this is done like this so that the pipe
@@ -876,6 +890,10 @@ comsubst(trimflag, type)
 		prtree(t, "Command Substitution: ");
 #endif
 		execute(t, XEC_NOSTOP, (int)(flags & errflg), 0, pv);
+#ifdef	DO_POSIX_E
+		retval = oret;	/* Restore old retval for $? */
+		retex = oex;
+#endif
 		close(pv[OTPIPE]);
 		savpipe = -1;
 	}
@@ -928,14 +946,18 @@ comsubst(trimflag, type)
 		else if (wstatus != 0 && rc == 0)
 			rc = SIGFLG;	/* Use special value 128 */
 #endif
+#ifndef	DO_POSIX_E
 		if (rc && (flags & errflg))
 			exitsh(rc);
+#endif
 		exitval = rc;
 		ex.ex_status = wstatus;
 		ex.ex_code = wcode;
 		ex.ex_pid = parent;
 		flags |= eflag;
-		exitset();
+#ifndef	DO_POSIX_E
+		exitset();	/* Set retval from exitval for $? */
+#endif
 	}
 	while (oldstaktop != staktop) {
 		/*

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read.cc	1.10 17/05/09 2017 J. Schilling
+ * @(#)read.cc	1.11 17/06/17 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.10 17/05/09 2017 J. Schilling";
+	"@(#)read.cc	1.11 17/06/17 2017 J. Schilling";
 #endif
 
 /*
@@ -174,8 +174,13 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 #if !defined(TEAMWARE_MAKE_CMN)
                 		run_dir = make_run_dir;
 				if (run_dir) {
-                        		(void) sprintf(makerules_dir,
+					if (strstr(run_dir, "xpg4/bin")) {
+	                        		(void) sprintf(makerules_dir,
+						NOCATGETS("%s/../../share/lib/make"), run_dir);
+					} else {
+	                        		(void) sprintf(makerules_dir,
 						NOCATGETS("%s/../share/lib/make"), run_dir);
+					}
 					add_dir_to_path(makerules_dir,
 							&makefile_path,
 							-1);

@@ -1,8 +1,8 @@
-/* @(#)p.c	1.55 17/04/05 Copyright 1985-2017 J. Schilling */
+/* @(#)p.c	1.57 17/06/26 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.55 17/04/05 Copyright 1985-2017 J. Schilling";
+	"@(#)p.c	1.57 17/06/26 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -40,19 +40,35 @@ static	UConst char sccsid[] =
 #define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */
 #include <schily/termios.h>
 #undef	ungetch			/* Restore our old value */
+#include <schily/nlsdefs.h>
+#include <schily/limits.h>	/* for  MB_LEN_MAX	*/
+#include <schily/ctype.h>	/* For isprint()	*/
+#include <schily/wchar.h>	/* wchar_t		*/
+#include <schily/wctype.h>	/* For iswprint()	*/
 
 /*#define SEARCHSIZE	80*/
 #define	SEARCHSIZE	256
 #define	DEF_PSIZE	24;
 #define	DEF_LWIDTH	80;
 
+#if	MB_LEN_MAX > 1
+/*
+ * We are on a platform that supports multi byte characters.
+ */
+#define	nextc()		nextwc()
+#define	peekc()		peekwc()
+#define	getnextch()	getnextwch()
+#define	ungetch(c)	ungetwch(c)
+#else
 #define	nextc()	(--len >= 0 ? (int) *bp++ : \
 			(fill_buf() <= 0 ? (len == 0 ? EOF : -2) : \
 			(len--, (int) *bp++)))
 #define	peekc()	(len > 0 ? (int) *bp : \
 			(fill_buf() <= 0 ? (len == 0 ? EOF : -2) : \
 			((int) *bp)))
+#define	getnextch() (len--, bp++)
 /*#define	peekc() (ungetch(nextc()))*/
+#endif
 
 #	ifdef	USE_V7_TTY
 struct sgttyb old;
@@ -64,7 +80,6 @@ struct sgttyb new;
 struct termios	old;
 struct termios	new;
 #endif
-
 #	endif	/* USE_V7_TTY */
 int	tty = -1;
 
@@ -121,10 +136,20 @@ BOOL	has_ul;
 int	standout;
 int	underl;
 
-#define	P_BUFSIZE	((8*1024)+1)
+/*
+ * As an incomplete multi byte character after a buffer refill
+ * is partially before the begin of the buffer, we need to be
+ * able to store a second character before that. This happens
+ * when peekc() triggered a buffer refill and then ungetch()
+ * is called.
+ */
+#define	P_BUFSIZE	((8*1024)+(2*MB_LEN_MAX))
 unsigned char mybuf[P_BUFSIZE];	/* Fuer nextc */
 unsigned char *bp;		/* ditto */
 int len = 0;			/* ditto */
+int clen = 0;
+int pclen = 0;
+unsigned char *cp;
 
 #ifdef	BUFSIZ
 char	buffer[BUFSIZ];		/* our buffer for stdout */
@@ -151,7 +176,20 @@ LOCAL	int	get_action	__PR((void));
 LOCAL	void	onlinehelp	__PR((void));
 LOCAL	void	redraw		__PR((void));
 LOCAL	char	inchar		__PR((void));
+#ifndef	nextc
+LOCAL	int	nextc		__PR((void));
+#endif
+#if	MB_LEN_MAX > 1
+LOCAL	int	nextwc		__PR((void));
+LOCAL	int	peekwc		__PR((void));
+#endif
+#ifndef	ungetch
 LOCAL	int	ungetch		__PR((int c));
+#endif
+#if	MB_LEN_MAX > 1
+LOCAL	int	ungetwch	__PR((int c));
+LOCAL	void	getnextwch	__PR((void));
+#endif
 LOCAL	int	fill_buf	__PR((void));
 LOCAL	BOOL	read_pattern	__PR((void));
 LOCAL	int	do_search	__PR((void));
@@ -252,6 +290,9 @@ main(ac, av)
 	char	**fav;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
 	cac = --ac;
 	cav = ++av;
 
@@ -273,7 +314,7 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("p %s (%s-%s-%s)\n\n", "2.1", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("p %s (%s-%s-%s)\n\n", "2.2", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2017 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -306,7 +347,7 @@ main(ac, av)
 		getfiles(&cac, &cav, options);
 	}
 
-	if (isatty(fdown(stdin)) && cac == 0)
+	if (cac == 0 && isatty(fdown(stdin)))
 		usage(EX_BAD);
 
 	if (get_modes() < 0) {
@@ -435,13 +476,13 @@ page()
 					return;
 				continue;
 			}
-			nextc();			/* it _is_ a ^H ! */
+			getnextch();			/* it _is_ a ^H ! */
 			if (peekc() == '_')
 				goto bold;
 			underl++;
 
 		} else if (c == '+' && underline && peekc() == '\b') {
-			nextc();
+			getnextch();
 		} else if (c == '\r' &&
 			    (autodos || dosmode) && peekc() == '\n') {
 			/* EMPTY */
@@ -459,26 +500,36 @@ page()
 				if (outchar(' '))
 					return;
 		} else if (peekc() == '\b' && underline) {
-			nextc();		/* ^H */
+			getnextch();		/* ^H */
 		bold:
 			while (peekc() == c) {
-				nextc();
+				getnextch();
 				if (peekc() == '\b')
-					nextc();
+					getnextch();
 				else
 					break;
 			}
 			ungetch(c);
 			standout++;
 		} else {
-			if (raw) {
+			if (raw || iswprint(c)) {
 				if (outchar(c))
 					return;
 			} else {
+#if	MB_LEN_MAX > 1
+				int	i = clen;
+				while (--i >= 0) {
+					s = rctab[*cp++];
+					while (*s)
+						if (outchar(*s++))
+							return;
+				}
+#else
 				s = rctab[c];
 				while (*s)
 					if (outchar(*s++))
 						return;
+#endif
 			}
 		}
 	}
@@ -487,8 +538,21 @@ page()
 
 LOCAL int
 outchar(c)
-	char	c;
+	int	c;
 {
+#if	MB_LEN_MAX > 1
+	unsigned char	b[MB_LEN_MAX];
+	unsigned char	*p = b;
+	int		l;
+
+
+	l = wctomb((char *)b, c);
+	if (l < 0) {
+		l = 1;
+		b[0] = '?';
+	}
+#endif
+
 	if (c == '\n') {
 		if (len <= lwidth)
 			fflush(stdout);
@@ -503,7 +567,12 @@ outchar(c)
 		colcnt = 0;
 		return (0);
 	} else {
-		if (++colcnt > lwidth) {
+		int	w = wcwidth(c);
+
+		if (w < 0)
+			w = 1;
+		colcnt += w;
+		if (colcnt > lwidth) {
 			if (outchar('\n'))
 				return (1);
 			colcnt = 1;
@@ -514,21 +583,41 @@ outchar(c)
 				underl--;
 				start_ul();
 				start_xstandout();
+#if	MB_LEN_MAX > 1
+				while (--l >= 0)
+					putc(*p++, stdout);
+#else
 				putc(c, stdout);
+#endif
 				end_xstandout();
 				end_ul();
 			} else {
 				start_xstandout();
+#if	MB_LEN_MAX > 1
+				while (--l >= 0)
+					putc(*p++, stdout);
+#else
 				putc(c, stdout);
+#endif
 				end_xstandout();
 			}
 		} else if (underl) {
 			underl--;
 			start_ul();
+#if	MB_LEN_MAX > 1
+			while (--l >= 0)
+				putc(*p++, stdout);
+#else
 			putc(c, stdout);
+#endif
 			end_ul();
 		} else {
+#if	MB_LEN_MAX > 1
+			while (--l >= 0)
+				putc(*p++, stdout);
+#else
 			putc(c, stdout);
+#endif
 		}
 		return (0);
 	}
@@ -764,6 +853,92 @@ nextc()
 }
 #endif
 
+#if	MB_LEN_MAX > 1
+/*
+ * Read the next multi byte character from the buffer.
+ * If the buffer is empty or if less than a multi byte character is inside,
+ * it is refilled. When an illegal byte sequence is discovered, a single
+ * byte is removed from the buffer in hope to be able to resync.
+ */
+LOCAL int
+nextwc()
+{
+	int	mlen;
+	wchar_t	c;
+
+	if (len <= 0) {
+again:
+		if (fill_buf() <= 0)
+			return (len == 0 ? EOF : -2);
+	}
+	mlen = mbtowc(&c, (char *)bp, len);
+	if (mlen >= 0) {
+		if (mlen == 0)
+			mlen = 1;
+		clen = mlen;
+		cp = bp;
+		bp += mlen;
+		len -= mlen;
+		return (c);
+	} else {
+		mbtowc(NULL, NULL, 0);
+		if (len < MB_CUR_MAX) {
+			seterrno(0);
+			goto again;
+		}
+		clen = 1;
+		cp = bp;
+		bp++;
+		len--;
+#ifdef	EILSEQ
+		if (geterrno() == EILSEQ) {
+			cp = (unsigned char *)"?";
+			return ('?');
+		}
+#endif
+	}
+	return (-2);
+}
+
+/*
+ * The same as nextwc(), but the buffer is untouched.
+ */
+LOCAL int
+peekwc()
+{
+	int	mlen;
+	wchar_t	c;
+
+	if (len <= 0) {
+again:
+		if (fill_buf() <= 0)
+			return (len == 0 ? EOF : -2);
+	}
+	mlen = mbtowc(&c, (char *)bp, len);
+	if (mlen >= 0) {
+		if (mlen == 0)
+			mlen = 1;
+		pclen = mlen;
+		return (c);
+	} else {
+		mbtowc(NULL, NULL, 0);
+		if (len < MB_CUR_MAX) {
+			seterrno(0);
+			goto again;
+		}
+		pclen = 1;
+#ifdef	EILSEQ
+		if (geterrno() == EILSEQ) {
+			cp = (unsigned char *)"?";
+			return ('?');
+		}
+#endif
+	}
+	return (-2);
+}
+#endif
+
+#ifndef	ungetch
 LOCAL int
 ungetch(c)
 	int	c;
@@ -777,17 +952,81 @@ ungetch(c)
 	len++;
 	return (*--bp = c);
 }
+#endif
+
+#if	MB_LEN_MAX > 1
+/*
+ * Return the character back to the buffer.
+ */
+LOCAL int
+ungetwch(c)
+	int	c;
+{
+	unsigned char	b[MB_LEN_MAX];
+	unsigned char	*p;
+	int		l;
+
+	if (c == EOF)
+		return (c);
+
+	l = wctomb((char *)b, c);
+	if (l < 0) {
+		l = 1;
+		b[0] = '?';
+	}
+	len += l;
+	p = &b[l];
+	while (--l >= 0)
+		*--bp = *--p;
+
+	return (c);
+}
+
+/*
+ * Consume the last character fetched by peekwc()
+ */
+LOCAL void
+getnextwch()
+{
+	len -= pclen;
+	bp += pclen;
+	pclen = 0;
+}
+#endif
 
 LOCAL int
 fill_buf()
 {
+	int		i;
+
 	/*
 	 * Allow ungetch() to always put back one character.
 	 * This is done by reserving one char before the normal
 	 * space in "mybuf".
 	 */
-	bp = &mybuf[1];
-	return (len = fileread(f, &mybuf[1], sizeof (mybuf)-1));
+
+	if (len > 0) {
+		unsigned char	*p = bp;
+
+		/*
+		 * Move a partial character left at the end of the buffer
+		 * to the space before the beginning of the buffer.
+		 */
+		if (len > MB_LEN_MAX)
+			len = MB_LEN_MAX;
+		p = &mybuf[(2*MB_LEN_MAX) - len];
+		for (i = len; --i >= 0; ) {
+			*p++ = *bp++;
+		}
+		bp = &mybuf[(2*MB_LEN_MAX) - len];
+	} else {
+		len = 0;
+		bp = &mybuf[(2*MB_LEN_MAX)];
+	}
+	i = fileread(f, &mybuf[2*MB_LEN_MAX], sizeof (mybuf) - 2*MB_LEN_MAX);
+	if (i < 0)
+		return (i);
+	return (len += i);
 }
 
 LOCAL BOOL

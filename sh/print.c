@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)print.c	1.37 16/05/09 2008-2016 J. Schilling
+ * @(#)print.c	1.38 17/06/17 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.37 16/05/09 2008-2016 J. Schilling";
+	"@(#)print.c	1.38 17/06/17 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -309,7 +309,11 @@ stoi(icp)
 		r = r * 10 + c - '0';
 		cp++;
 	}
+#ifdef	DO_STOI_PICKY
+	if (r < 0 || cp == icp || *cp != '\0') {
+#else
 	if (r < 0 || cp == icp) {
+#endif
 		failed(icp, badnum);
 		/* NOTREACHED */
 	} else {

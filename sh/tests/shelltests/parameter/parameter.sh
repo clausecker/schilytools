@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter.sh	1.10 17/06/14 Copyright 2016-2017 J. Schilling
+# @(#)parameter.sh	1.12 17/06/18 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -160,10 +160,21 @@ docommand param82 "$SHELL -c 'set -- a b c d; echo \${2147483646}'" 0 "\n" ""
 docommand param83 "$SHELL -c 'set -- a b c d; echo \${2147483647}'" 0 "\n" ""
 docommand param84 "$SHELL -c 'set -- a b c d; echo \${4294967297}'" 0 "\n" ""
 docommand param85 "$SHELL -c 'set -- a b c d; echo \${4294967297-hello}'" 0 "hello\n" ""
+#
+# End test from Robert Elz <kre@munnari.oz.au>
+#
 
 #
 # Test that set -u does not cause "$@" to fail
 #
 docommand param100 "$SHELL -cu 'echo \"\$@\"'" 0 "\n" ""
+
+#
+# Test left to right parameter evaluation
+#
+docommand param150 "$SHELL -c 'X=BAD; X=OK Z=\$X; echo \$Z'" 0 "OK\n" ""
+docommand param151 "$SHELL -c 'X=OLD Y=\${X=OK} Z=\$X; echo \$X \$Z'" 0 "OLD OLD\n" ""
+docommand param152 "$SHELL -c 'Y=\${X=OK} Z=\$X; echo \$X \$Z'" 0 "OK OK\n" ""
+docommand param153 "$SHELL -c 'Y=\${X:=OK} Z=\$X; echo \$X \$Z'" 0 "OK OK\n" ""
 
 success

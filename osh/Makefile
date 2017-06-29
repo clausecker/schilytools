@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.79 17/06/11  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.82 17/06/27  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -68,6 +68,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
 #CPPOPTS +=	-DDO_POSIX_CD		# cd/pwd/... implement POSIX -L/-P
 #CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
+#CPPOPTS +=	-DDO_POSIX_E		# Use POSIX rules for set -e, e.g. cmd subst
 #CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
 #CPPOPTS +=	-DDO_POSIX_EXPORT_ENV	# Autoexport imported environ w. -o posix
 #CPPOPTS +=	-DDO_EXPORT_ENV		# Always autoexport imported environ
@@ -87,6 +88,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 					# call smake 'CPPOPTX=-DPOSIX_BOSH_PATH=\"/bin/sh\"'
 					# or add CPPOPTS += -DPOSIX_BOSH_PATH=\"/bin/sh\"
 					# to make a PATH auto set -o posix
+#CPPOPTS +=	-DDO_POSIX_REDIRECT	# Redirect all error messages
 #CPPOPTS +=	-DDO_POSIX_FIELD_SPLIT	# IFS=: var=a::b echo $var -> a '' b
 
 #CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
@@ -112,6 +114,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_PPID		# Include support for POSIX PPID
 #CPPOPTS +=	-DDO_LINENO		# Include support for POSIX LINENO
 #CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
+#CPPOPTS +=	-DDO_STOI_PICKY		# Be more picky when parsing numbers
 #CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
 #CPPOPTS +=	-DDO_SYSCOMMAND		# Include the "command" builtin
 #CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin

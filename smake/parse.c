@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.117 17/03/15 Copyright 1985-2017 J. Schilling */
+/* @(#)parse.c	1.118 17/06/22 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.117 17/03/15 Copyright 1985-2017 J. Schilling";
+	"@(#)parse.c	1.118 17/06/22 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Make program
@@ -386,7 +386,6 @@ define_dcolon(obj)
 {
 static	int	serial = 0;
 	obj_t	*o;
-	list_t	*l;
 	list_t	*lo;
 	char	_name[TYPICAL_NAMEMAX];
 	char	*name = _name;
@@ -403,7 +402,6 @@ static	int	serial = 0;
 		free(np);
 	o->o_type = ':';
 	o->o_flags |= F_DCOLON;		/* Mark as intermediate :: object */
-	l = obj->o_list;
 	lo = (list_t *) fastalloc(sizeof (list_t));
 	lo->l_next = NULL;
 	lo->l_obj = o;

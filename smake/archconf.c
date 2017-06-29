@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.30 17/06/14 Copyright 1996-2017 J. Schilling */
+/* @(#)archconf.c	1.32 17/06/28 Copyright 1996-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.30 17/06/14 Copyright 1996-2017 J. Schilling";
+	"@(#)archconf.c	1.32 17/06/28 Copyright 1996-2017 J. Schilling";
 #endif
 /*
  *	Make program
@@ -37,6 +37,19 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include "make.h"
 
+#ifdef	HAVE_SYS_SYSCTL_H
+#include <schily/types.h>
+#include <schily/param.h>
+#include <sys/sysctl.h>
+
+#ifdef	HAVE_MACH_MACHINE_H
+#include <mach/machine.h>
+#endif
+#ifdef	IS_MACOS_X
+#include <mach-o/arch.h>
+#endif
+#endif
+
 #ifdef __HAIKU__
 #include <OS.h>
 #endif
@@ -56,7 +69,8 @@ LOCAL	void	do_gethostname	__PR((void));
 LOCAL	void	do_defs		__PR((void));
 LOCAL	void	do_archheuristics __PR((void));
 LOCAL	void	archcvt		__PR((char *));
-#if defined(HAVE_SYS_SYSTEMINFO_H) || defined(HAVE_SYS_SYSCTL_H)
+#if defined(HAVE_SYS_SYSTEMINFO_H) || \
+	(defined(HAVE_SYS_SYSCTL_H) && defined(HW_MODEL))	/* See do_sysctl() */
 LOCAL	void	unblank		__PR((char *));
 #endif
 
@@ -278,17 +292,6 @@ do_sysinfo()
 #endif
 
 #ifdef	HAVE_SYS_SYSCTL_H
-#include <schily/types.h>
-#include <schily/param.h>
-#include <sys/sysctl.h>
-
-#ifdef	HAVE_MACH_MACHINE_H
-#include <mach/machine.h>
-#endif
-#ifdef	IS_MACOS_X
-#include <mach-o/arch.h>
-#endif
-
 /*
  * See #ifdef statement below in unblank()
  */

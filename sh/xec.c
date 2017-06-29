@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.78 17/06/11 2008-2017 J. Schilling
+ * @(#)xec.c	1.80 17/06/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.78 17/06/11 2008-2017 J. Schilling";
+	"@(#)xec.c	1.80 17/06/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -275,6 +275,9 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						execprint(com);
 
 					if (comtype == NOTFOUND) {
+#ifdef	DO_POSIX_REDIRECT
+						short	fdindex;
+#endif
 #ifdef	DO_PIPE_PARENT
 						resetjobfd();	/* Rest stdin */
 						if (ismonitor(xflags)) {
@@ -284,6 +287,9 @@ execute(argt, xflags, errorflg, pf1, pf2)
 #endif
 						pos = hashdata(cmdhash);
 						ex.ex_status = C_NOEXEC;
+#ifdef	DO_POSIX_REDIRECT
+						fdindex = initio(t->treio, 1);
+#endif
 						if (pos == 1) {
 							ex.ex_status =
 							ex.ex_code = C_NOTFOUND;
@@ -298,6 +304,9 @@ execute(argt, xflags, errorflg, pf1, pf2)
 							failurex(ERR_NOEXEC,
 								*com, badperm);
 						}
+#ifdef	DO_POSIX_REDIRECT
+						restore(fdindex);
+#endif
 						break;
 					} else if (comtype == PATH_COMMAND) {
 						pos = -1;
@@ -1131,6 +1140,7 @@ extern	int		macflag;
 	if ((flags2 & promptcmdsubst) == 0)
 		macflag |= M_NOCOMSUBST;
 	res = _macro(as);
+	staktop = res;		/* Restore to previous stakbot offset */
 	macflag = omacflag;
 	flags = oflags;
 

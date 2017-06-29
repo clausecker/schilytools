@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * This file contains modifications Copyright 2008-2017 J. Schilling
  *
- * @(#)date_bal.c	1.11 15/01/26 J. Schilling
+ * @(#)date_bal.c	1.12 17/06/21 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.11 15/01/26 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.12 17/06/21 J. Schilling"
 #endif
 # include	<defines.h>
 
@@ -84,6 +84,12 @@ int	flags;
 		zone = DT_NO_ZONE;
 	}
 #endif
+	/*
+	 * We may be called in SCCSv4 mode, when the year is < 1969 or > 2038.
+	 * In SCCSv4 mode, we are hoewever not allowed to output nanoseconds.
+	 */
+	if ((flags & PF_V6) == 0)
+		nsec = 0;
 	p = adt;
 	lcltm->tm_year += 1900;
 

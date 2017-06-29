@@ -1,6 +1,6 @@
-#ident "@(#)rules1.top	1.50 16/08/10 "
+#ident "@(#)rules1.top	1.53 17/06/28 "
 ###########################################################################
-# Written 1996-2016 by J. Schilling
+# Written 1996-2017 by J. Schilling
 ###########################################################################
 #
 # Rules that should be included at top of every Makefile
@@ -325,7 +325,7 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # - lint					: rules.lnt
 # - clean, clobber, distclean, relink, rmtarget	: rules.clr
 # - rel						: rules.rel
-# - install, ibins				: rules.ins
+# - install, ibins, uninstall			: rules.ins
 # - html, htmlx, htmlxn				: rules.htm & sub.htm
 # - tarpkg tarpkg1 tarpkg2			: rules.sps
 # - depend, rmdep				: rules.dep
@@ -345,20 +345,32 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 #
 # If we would add .help and tinfo, we would get multiple defined target
 # messages.
+#
+# Use ALLTARGETS=$(ALLTARGETS_NT) if there should be no directory descend
+# for e.g. the "test" target.
 ###########################################################################
 ALLTARGETS=	all man lint clean clobber cstyle distclean ibins depend rmdep \
 		config TAGS tags tests rmtarget relink rel \
-		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
+		$(INSTALLTARGETS) $(UNINSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
 ALLTARGETS_NT=	all man lint clean clobber cstyle distclean ibins depend rmdep \
 		config TAGS tags rmtarget relink rel \
-		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
+		$(INSTALLTARGETS) $(UNINSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
 INSTALLTARGETS=	install installman
+UNINSTALLTARGETS= uninstall uninstallman
 MANTARGETS=	html htmlx htmlxn
 PKGTARGETS=	tarpkg tarpkg1 tarpkg2
 
 .PHONY:	$(ALLTARGETS) .help tinfo shell
+
+###########################################################################
+# SunPro Make does not understand .PHONY: - use FRC
+###########################################################################
+$(ALLTARGETS) .help tinfo shell: FRC
+
+FRC:
+
 
 ###########################################################################
 # Allow to start a shell in order to check the environment

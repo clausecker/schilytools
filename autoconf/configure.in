@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.285 17/06/12 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.287 17/06/28 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.285)dnl
+AC_REVISION(1.287)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -738,11 +738,12 @@ dnl
 ac_save_LIBS="$LIBS"
 AC_CHECK_LIB(c, socket, lib_socket="",
   [AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")])
-LIBS="$LIBS $lib_socket"
+LIBS="$ac_save_LIBS"
 AC_CHECK_LIB(c, gethostbyname, lib_nsl="",
   [AC_CHECK_LIB(nsl, gethostbyname, lib_nsl="-lnsl",
     [AC_CHECK_LIB(network, gethostbyname, lib_nsl="-lnetwork")])])
-LIBS="$LIBS $lib_nsl"
+LIBS="$ac_save_LIBS"
+LIBS="$LIBS $lib_nsl $lib_socket"
 AC_CHECK_FUNCS(rcmd socket socketpair)
 AC_CHECK_FUNCS(getservbyname inet_ntoa)
 AC_CHECK_FUNCS(getaddrinfo getnameinfo)
@@ -986,10 +987,19 @@ AC_CHECK_FUNCS(cap_get_proc cap_set_proc cap_set_flag cap_clear_flag)
 LIBS="$ac_save_LIBS"
 
 dnl Misc OS checks.
-AC_CHECK_FILES(/dev/tty /dev/null /dev/zero)
-AC_CHECK_FILES(/dev/stdin /dev/stdout /dev/stderr)
-AC_CHECK_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
-AC_CHECK_FILES(/usr/src/linux/include)
+dnl
+dnl WARNING: AC_CHECK_FILES uses "test -r file" and bash on Haiku returns wrong results
+dnl for /dev/stdin /dev/stdout /dev/stderr /dev/fd/0 /dev/fd/1 /dev/fd/2
+dnl For this reason, we rather use AC_STAT_FILES
+dnl AC_CHECK_FILES(/dev/tty /dev/null /dev/zero)
+dnl AC_CHECK_FILES(/dev/stdin /dev/stdout /dev/stderr)
+dnl AC_CHECK_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
+dnl AC_CHECK_FILES(/usr/src/linux/include)
+
+AC_STAT_FILES(/dev/tty /dev/null /dev/zero)
+AC_STAT_FILES(/dev/stdin /dev/stdout /dev/stderr)
+AC_STAT_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
+AC_STAT_FILES(/usr/src/linux/include)
 
 dnl Checks for OS madness.
 UNAME=`uname || true`

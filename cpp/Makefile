@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.17 13/07/14 "
+#ident "@(#)Makefile	1.18 17/06/20 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -26,6 +26,18 @@ CFILES=		cpp.c $(CPY.C)
 HFILES=		cpp.h
 LIBS=		-lschily
 XMK_FILE=	Makefile.man
+
+#
+# The next line is a work around for a bug in SunPro Make:
+# SunPro Make just cals readdir() for VPATH at startup and never again
+# checks whether a command did create more interesing files in VPATH.
+#
+# This workaround makes smake and SunPro Make call YACC twice and gmake
+# complain about "circular dependencies", but all finally compile the
+# program. Given that we have many workarounds for gmake problems, this
+# looks like a fair deal.
+#
+cpy.c: $(ARCHDIR)/cpy.c
 
 cpy.c $(ARCHDIR)/cpy.c:	cpy.y
 		@echo "	==> YACCING $@"; $(YACC) cpy.y

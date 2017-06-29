@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.19 13/10/09 Copyright 2002-2013 J. Schilling */
+/* @(#)tartest.c	1.20 17/06/22 Copyright 2002-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.19 13/10/09 Copyright 2002-2013 J. Schilling";
+	"@(#)tartest.c	1.20 17/06/22 Copyright 2002-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2013 J. Schilling
+ *	Copyright (c) 2002-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -85,9 +85,9 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.19",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.20",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-	printf("Copyright (C) 2002-2013 Jörg Schilling\n");
+	printf("Copyright (C) 2002-2017 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	if (prversion)
@@ -352,7 +352,9 @@ checkoctal(ptr, len, text)
 	BOOL	foundoctal = FALSE;
 	int	i;
 	int	endoff = 0;
+#ifdef		END_ALL_THESAME
 	char	endc = '\0';
+#endif
 	char	cs[4];
 
 	for (i = 0; i < len; i++) {
@@ -382,7 +384,9 @@ checkoctal(ptr, len, text)
 		if (ptr[i] == ' ' || ptr[i] == '\0') {
 			if (foundoctal) {
 				endoff = i;
+#ifdef		END_ALL_THESAME
 				endc = ptr[i];
+#endif
 				continue;
 			}
 		}

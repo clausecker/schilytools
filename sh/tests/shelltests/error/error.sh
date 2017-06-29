@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)error.sh	1.2 16/06/21 Copyright 2016 J. Schilling
+# @(#)error.sh	1.4 17/06/28 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -118,6 +118,9 @@ echo OK'" 0 "OK\n" NONEMPTY
 #
 # Redirection errors with special builtins in interactive mode shall not exit
 #
+if [ "`uname -s`" = Haiku ]; then
+	echo "Skipping tests error117 ... error132 because of a Haiku OS bug"
+else
 docommand error117 "$SHELL -ci 'LC_ALL=C; . > /
 echo OK'" 0 "OK\n" NONEMPTY
 docommand error118 "$SHELL -ci 'LC_ALL=C; : > /
@@ -151,6 +154,7 @@ echo OK'" 0 "OK\n" NONEMPTY
 
 docommand error132 "$SHELL -ci 'LC_ALL=C; echo > /
 echo OK'" 0 "OK\n" NONEMPTY
+fi
 docommand error133 "$SHELL -ci 'LC_ALL=C; readonly LC_ALL; LC_ALL=6
 echo OK'" 0 "OK\n" NONEMPTY
 docommand error134 "$SHELL -ci 'LC_ALL=C; : \"\${x!y}\"

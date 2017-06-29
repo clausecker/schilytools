@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.3 16/08/01 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.4 17/06/28 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -404,14 +404,19 @@ remove x
 # heredoc-weird-5
 # Tests for here documents, taken from Austin ML
 #
+# We need to work around a POSIX non-compliance with
+# bash, ksh93 and mksh. These shells incorrectly expand
+# \E to the ESC character with "echo".
+# So we replaced END by FIN
+#
 cat > x <<"XEOF"
-cat <<END
+cat <<FIN
 hello
-\END
-END
+\FIN
+FIN
 echo end
 XEOF
-docommand here24 "$SHELL ./x" 0 "hello\n\END\nend\n" ""
+docommand here24 "$SHELL ./x" 0 "hello\n\FIN\nend\n" ""
 remove x
 
 #
