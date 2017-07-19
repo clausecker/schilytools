@@ -1,0 +1,310 @@
+New features with AN-2017-07-19:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	Schily Makefilesystem: Use the correct rules to create shared libraries
+	on Cygwin. Before this release, shared libraries with Cygwin have not
+	been tested and the old rules have been guessed.
+
+-	RULES/rules.ins: fixed a typo in the symlink install rule
+
+-	libschily: New pattern matcher functions
+
+		patmbmatch() and patmblmatch()
+
+	support multi byte strings with a wchar_t * pattern. The pattern is
+	a wide char string for performance reasons.
+
+-	TARGETS/55star_sym added a newline to make "make tinfo" work when
+	/bin/sh is not a classical Bourne Shell. The code worked before because
+	there was a bug in the classical Bourne Shell with sh -ce cmd.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	DEFAULTS/Defaults.cygwin*: We no longer read the Microsoft configuration
+	for cl.exe except when the makeprogram in use is "smake". This is needed
+	as neither GNU make nor SunPro make support spaces in filenames and
+	SunPro make aborts in case ".NO_WARN: :=" from DEFAULTS/vc7-cygwin-setup
+	is seen.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	configure: New tests for /usr/xpg4/bin/sh and /opt/schily/xpg4/bin/sh
+	This helps to make SunPro Make in POSIX mode able to find a POSIX shell.
+
+-	conf/oarch.sh: Fixed a typo that caused oarch to output e.g.
+
+		i686-cygwin_nt-5.1-cc
+
+	instead of
+
+		i686-cygwin32_nt-cc
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	libfind: use $(LIB_INTL) to support Cygwin when creating a shared library
+
+-	libdefault: Avoid a possible double fclose() call.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	libschily: added a va_end() call after a va_copy()
+	call in getargs.c
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	libedc: avoid a free()less malloc()  in the speedtest
+	program.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	libfile: better realloc() handling in case of a failure.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	libscg::scsi-vms.c: abort scg__open() in case that "busno"
+	has an illegal value. This avoids using uninitialized data
+	as index in an array.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	btcflash: added a missing (but not really needed) free()
+	and fclose() call.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	ved: added a missing "wp" argument for the rmap() macro
+	for a currently unused compile variant. The new parameter
+	was introduced in June 1999 but was not added to that
+	piece of "dead code".
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SCCS: libcassi: Avoided a malloc() call that created an unneeded
+	and unfreed space.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SCCS: libcomobj: make date_ab() safe against date strings
+	then end in '.' but do not include nanoseconds.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SCCS: libmpw: added a missing va_end() in cat().
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	bsh: added a missing free() call when macros are searched
+	using patcompile()/patmatch().
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	bsh::cond.c: added a missing va_end() in the error case of
+	skipuntil()
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	bsh::sys.c: avoid a double free() on the path when doing
+	PATH search.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	bsh::evops.c: realloc() returning NULL is now handled correctly
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	change: realloc() returning NULL is now handled correctly
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	star: added a missing '{' in commented out code.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SunPro Make: added a missing free() call in report_search_path()
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	cdda2wav: a patch from Heiko Eiﬂfeldt results in only trying
+	to read the ISRC values for the tracks that should be extracted
+	later.
+
+-	cdrecord: updated the man page to list the names of the drives that support
+	the defpregap= option.
+
+-	cdrecord::subchan.c changed #ifdef sss -> #if 0 to calm down a
+	static code analyzer.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	mkisofs::apple_drive.c added a missing fclose(fp);
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	mkisofs::vms.c corrected a typo and now call ISO_ROUND_UP(use) instead
+	of ROUND_UP(use)
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	Bourne Shell: added a hardlink /opt/schily/xpg4/bin/sh when installing
+	the shell for the 100% POSIX variant of the Bourne Shell.
+
+-	Bourne Shell: added a conformance test that checks whether
+
+			bosh -ce 'read line < /dev/null; echo $?'
+
+	exits before printing $?
+	This bug caused the Bourne Shell not to fail in the Schily
+	Makefile system with "smake tinfo" even though there was incorrect code.
+	See above for more information.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	Bourne Shell: added a new compliance test for above bug.
+
+-	Bourne Shell: bosh -c 'set -u; echo $(( x = 3 ))' no longer
+	aborts with "parameter not set" error.
+
+	Thanks to Robert Elz for reporting
+
+-	Bourne Shell: added a new compliance test for above bug.
+
+-	Bourne Shell: rmfunctmp() now has a "base" parameter like rmtemp() to
+	limit the removed files to files newer than a limit.
+
+-	Bourne Shell: New variable "xiotemp" allows to limit the files
+	removed by rmtemp() from inside done() to files newer than a limit.
+
+-	Bourne Shell: added a forgotten initialization for hentry.next in hashserv.c
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	Bourne Shell: reworked the /tmp file management in the interpreter (xec.c)
+	in order to avoid left over shell /tmp files. The previous Bourne Shells
+	did not remove three /tmp files after running the Bourne Shell test suite.
+
+-	SunPro Make: When in POSIX mode, use the new autoconf tests for
+	/usr/xpg4/bin/sh and /opt/schily/xpg4/bin/sh and add a fallback to /bin/sh
+	in case neither /usr/xpg4/bin/sh nor /opt/schily/xpg4/bin/sh are installed.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SunPro Make: add our own libgetopt to work around a libc bug on Haiku
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SunPro Make: add INS_BASE "/share/lib/make" to the search PATH to give ./dmake
+	a fallback chance to start with reading "make.rules".
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SunPro Make: $(MAKE) is now set to a useful value even when it has not been
+	defined at all. This makes SunPro Make usable together with the option -r.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	SunPro Make: the man page now describes MAKE_NAME and the way MAKE is set up.
+
+-	SunPro Make: The setup for SGS_SUPPORT= no longer uses unspecified
+	behavior with the output buffer in snprintf() used as input by now using
+	strcat() instead.
+
+	Thanks to Heiko Eiﬂfeldt for reporting
+
+-	smake: man page: The MAKE macro description was fixed.
+
+-	p: use $(LIB_INTL) to support Cygwin
+
+-	p: Avoid an endless loop in search mode when there still are a few characters
+	in the buffer but reading the file does not return more data.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

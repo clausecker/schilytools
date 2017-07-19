@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)fault.c	1.34 17/06/11 2008-2017 J. Schilling
+ * @(#)fault.c	1.36 17/07/13 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.34 17/06/11 2008-2017 J. Schilling";
+	"@(#)fault.c	1.36 17/07/13 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -283,8 +283,13 @@ done(sig)
 	} else {
 		chktrap();
 	}
-	rmtemp(0);
-	rmfunctmp();
+	if (xiotemp) {
+		rmtemp(xiotemp);
+		xiotemp = NULL;
+	} else {
+		rmtemp(0);
+	}
+	rmfunctmp(0);
 
 #ifdef ACCT
 	doacct();

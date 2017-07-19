@@ -1,8 +1,8 @@
-/* @(#)cond.c	1.25 15/08/24 Copyright 1985-2015 J. Schilling */
+/* @(#)cond.c	1.26 17/07/15 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cond.c	1.25 15/08/24 Copyright 1985-2015 J. Schilling";
+	"@(#)cond.c	1.26 17/07/15 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  *		switch .. case .. end
  *		read
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -425,8 +425,10 @@ skipuntil(ilev, va_alist)
 #else
 	va_start(args);
 #endif
-	if (!makevec(vec, args))
+	if (!makevec(vec, args)) {
+		va_end(args);
 		return (ABORTED);
+	}
 	va_end(args);
 	ret = parseuntil(SKIP, ilev, gstd, vec);
 	return (ret);

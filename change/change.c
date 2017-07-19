@@ -1,13 +1,13 @@
-/* @(#)change.c	1.43 15/06/02 Copyright 1985, 87-90, 95-99, 2000-2015 J. Schilling */
+/* @(#)change.c	1.44 17/07/17 Copyright 1985, 87-90, 95-99, 2000-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)change.c	1.43 15/06/02 Copyright 1985, 87-90, 95-99, 2000-2015 J. Schilling";
+	"@(#)change.c	1.44 17/07/17 Copyright 1985, 87-90, 95-99, 2000-2017 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
  *
- *	Copyright (c) 1985, 87-90, 95-99, 2000-2015 J. Schilling
+ *	Copyright (c) 1985, 87-90, 95-99, 2000-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -157,8 +157,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prversion) {
-		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2015 Jörg Schilling\n",
-				"1.43",
+		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2017 Jörg Schilling\n",
+				"1.44",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -448,16 +448,18 @@ showchange(name, linep, start, end, subst, out, max)
 {
 static	char	*tmp = NULL;
 static	size_t	tmpsize = 0;
+	char	*new;
 
 	max++;
 	while (tmpsize < max)
 		tmpsize += LINEINCR;
-	tmp = realloc(tmp, tmpsize);
-	if (tmp == NULL) {
+	new = realloc(tmp, tmpsize);
+	if (new == NULL) {
 		errmsg("No memory for change preview.\n");
 		return;
 	}
 
+	tmp = new;
 	movebytes(newline, tmp, max);
 	out = catsubst(linep, &tmp, start, end, subst, out, &tmpsize);
 	if (appchar('\0', &tmp, out, &tmpsize) < 0)

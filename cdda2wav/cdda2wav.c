@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.168 17/03/29 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
+/* @(#)cdda2wav.c	1.169 17/07/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.168 17/03/29 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
+"@(#)cdda2wav.c	1.169 17/07/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -27,7 +27,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * Copright 1993-2004,2015	(C) Heiko Eissfeldt
+ * Copright 1993-2004,2015,2017	(C) Heiko Eissfeldt
  * Copright 2004-2017		(C) J. Schilling
  *
  * last changes:
@@ -3323,8 +3323,6 @@ main(argc, argv)
 		}
 	}
 
-	Read_MCN_ISRC();
-
 	/*
 	 * check if start track is in range
 	 */
@@ -3387,6 +3385,8 @@ main(argc, argv)
 			}
 		}
 	} while ((bulk != 0 || global.alltracks) && track <= cdtracks && lSector < 0);
+
+	Read_MCN_ISRC(track, global.endtrack);
 
 	if ((global.illleadout_cd == 0 || global.reads_illleadout != 0) &&
 	    global.cd_index != -1) {
@@ -3496,7 +3496,7 @@ main(argc, argv)
 		} else if (!bulk && !global.alltracks &&
 			    !((lSector == Get_AudioStartSector(track)) &&
 			    ((long)(lSector + global.rectime*75.0 + 0.5) ==
-			    Get_EndSector(track) + 1))) {
+			    Get_EndSector(global.endtrack) + 1))) {
 			fprintf(stderr,
 			_("W Duration is not set for complete tracks (option -d), this disables generation\n  of info files!\n"));
 		} else {

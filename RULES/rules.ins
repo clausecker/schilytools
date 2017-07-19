@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.25 17/06/28 
+#ident @(#)rules.ins	1.26 17/07/04 
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -45,7 +45,7 @@ dummy $(PHARDLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARG
 	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(LN) $(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
 
 symdummy $(PSYMLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
+	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
 
 xinstall:
 	@if [ ".$(XMK_FILE)" != . ] ; then				\

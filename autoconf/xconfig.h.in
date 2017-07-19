@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.269 17/05/20 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.270 17/07/04 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -712,6 +712,8 @@
 #undef HAVE__DEV_FD_1		/* /dev/fd/1 present */
 #undef HAVE__DEV_FD_2		/* /dev/fd/2 present */
 #undef HAVE__USR_SRC_LINUX_INCLUDE	/* /usr/src/linux/include present */
+#undef HAVE__USR_XPG4_BIN_SH	/* /usr/xpg4/bin/sh present */
+#undef HAVE__OPT_SCHILY_XPG4_BIN_SH	/* /opt/schily/xpg4/bin/sh present */
 #endif
 
 /*

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)oarch.sh  1.16 16/06/17 Copyright 2005-2016 J. Schilling
+# @(#)oarch.sh  1.17 17/07/08 Copyright 2005-2016 J. Schilling
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -42,10 +42,10 @@ if [ .$1 = .-help ]; then
 	echo "Usage: oarch.sh [options]"
 	echo "Options:"
 	echo "	-debug	Print debugging information"
-	echo "	-c	Print C_ARCH instrad of OARCH"
-	echo "	-o	Print O_ARCH instrad of OARCH"
-	echo "	-p	Print PARCH instrad of OARCH"
-	echo "	-x	Print XARCH instrad of OARCH"
+	echo "	-c	Print C_ARCH instead of OARCH"
+	echo "	-o	Print O_ARCH instead of OARCH"
+	echo "	-p	Print PARCH instead of OARCH"
+	echo "	-x	Print XARCH instead of OARCH"
 	exit
 fi
 if [ .$1 = .-debug ]; then
@@ -101,7 +101,7 @@ OSVERS=`uname -v | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrst
 
 O_ARCH="$OSNAME"
 
-case "$OSREL" in
+case "$OSNAME" in
 	cygwin*) O_ARCH=cygwin32_nt;;
 esac
 

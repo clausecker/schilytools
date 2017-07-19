@@ -1,4 +1,4 @@
-/* @(#)toc.h	1.12 10/04/26 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)toc.h	1.13 17/07/08 Copyright 1998,1999,2017 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 
 /*
  * The contents of this file are subject to the terms of the
@@ -7,6 +7,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -63,7 +65,7 @@ extern	void		DisplayToc	__PR((void));
 extern	unsigned	FixupTOC	__PR((unsigned no_tracks));
 extern	void		calc_cddb_id	__PR((void));
 extern	void		calc_cdindex_id	__PR((void));
-extern	void		Read_MCN_ISRC	__PR((void));
+extern	void		Read_MCN_ISRC	__PR((unsigned startTrack, unsigned endTrack));
 extern	unsigned	ScanIndices	__PR((unsigned trackval, unsigned indexval, int bulk));
 extern	int		handle_cdtext	__PR((void));
 extern	int		lba_2_msf	__PR((long lba, int *m, int *s, int *f));

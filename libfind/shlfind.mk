@@ -1,4 +1,4 @@
-#ident @(#)shlfind.mk	1.4 15/09/12 
+#ident @(#)shlfind.mk	1.5 17/07/06 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -23,7 +23,7 @@ CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_FIND\"
 CPPOPTS +=	-DSCHILY_PRINT
 
 include		Targets
-LIBS=		-lschily $(LIB_ACL_TEST) -lc
+LIBS=		-lschily $(LIB_ACL_TEST) $(LIB_INTL) -lc
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

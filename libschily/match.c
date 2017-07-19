@@ -1,10 +1,10 @@
-/* @(#)match.c	1.24 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)match.c	1.25 17/07/02 Copyright 1985, 1995-2017 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 /*
  *	Pattern matching functions
  *
- *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -13,6 +13,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -53,11 +55,30 @@
 #define	patmatch	patwmatch
 #endif
 #define	CHAR		wchar_t
+#define	PCHAR		wchar_t
+#endif
+
+#ifdef	__MB_CHAR
+#undef	patmatch
+#ifdef	__LINE_MATCH
+#define	patmatch	patmblmatch
+#else
+#define	patmatch	patmbmatch
+#endif
+#define	PCHAR		wchar_t
 #endif
 
 #ifndef	CHAR
 typedef	unsigned char	Uchar;
+#define	DID_UCHAR_TYPE
 #define	CHAR		Uchar
+#endif
+
+#ifndef	PCHAR
+#ifndef	DID_UCHAR_TYPE
+typedef	unsigned char	Uchar;
+#endif
+#define	PCHAR		Uchar
 #endif
 
 #define	ENDSTATE	(-1)
@@ -93,7 +114,7 @@ typedef	unsigned char	Uchar;
  *	match a character in class
  */
 #define	in_class(found, pat, c)	{			\
-	register const CHAR	*lpat	= pat;		\
+	register const PCHAR	*lpat	= pat;		\
 	register int		lc	= c;		\
 	int	lo_bound;				\
 	int	hi_bound;				\
@@ -129,10 +150,10 @@ typedef	unsigned char	Uchar;
  *	Trys to match a string beginning at offset
  *	against the compiled pattern.
  */
-#ifndef	__WIDE_CHAR
+#if !defined(__WIDE_CHAR) && !defined(__MB_CHAR)
 EXPORT CHAR
 *opatmatch(pat, aux, str, soff, slen, alt)
-	const CHAR	*pat;
+	const PCHAR	*pat;
 	const int	*aux;
 	const CHAR	*str;
 	int		soff;
@@ -153,7 +174,7 @@ EXPORT CHAR
  */
 EXPORT CHAR *
 patmatch(pat, aux, str, soff, slen, alt, state)
-	const CHAR	*pat;
+	const PCHAR	*pat;
 	const int	*aux;
 	const CHAR	*str;
 	int		soff;
@@ -166,7 +187,12 @@ patmatch(pat, aux, str, soff, slen, alt, state)
 	register int	*i;
 	register int	p;
 	register int	q, s, k;
+#ifdef	__MB_CHAR
+	wchar_t		c;
+	int		mlen = 1;
+#else
 	int		c;
+#endif
 	const CHAR	*lastp = (CHAR *)NULL;
 
 #ifdef	__LINE_MATCH
@@ -178,14 +204,29 @@ for (; soff <= slen; soff++) {
 	if (alt != ENDSTATE)
 		put(sp, state, sp, alt);
 
+#ifdef	__MB_CHAR
+	mbtowc(NULL, NULL, 0);
+	for (s = soff; ; s += mlen) {
+#else
 	for (s = soff; ; s++) {
+#endif
 		/*
 		 * next char from input string
 		 */
-		if (s >= slen)
+		if (s >= slen) {
 			c = 0;
-		else
+		} else {
+#ifdef	__MB_CHAR
+			mlen = mbtowc(&c, (char *)str, slen - s);
+			if (mlen < 0) {
+				mbtowc(NULL, NULL, 0);
+				c = str[s];
+				mlen = 1;	
+			}
+#else
 			c = str[s];
+#endif
+		}
 		/*
 		 * first complete the closure
 		 */
@@ -287,17 +328,17 @@ return ((CHAR *)lastp);
 }
 
 
-#ifndef	__LINE_MATCH
+#if !defined(__LINE_MATCH) && !defined(__MB_CHAR)
 /*
  *	The Compiler
  */
 
 typedef	struct args {
-	const CHAR	*pattern;
+	const PCHAR	*pattern;
 	int		*aux;
 	int		patp;
 	int		length;
-	CHAR		Ch;
+	PCHAR		Ch;
 } arg_t;
 
 LOCAL	void	nextitem __PR((arg_t *));
@@ -381,7 +422,7 @@ expr(ap, altp)
 	int	exits = ENDSTATE;
 	int	a;
 	int	*aux = ap->aux;
-	CHAR	Ch;
+	PCHAR	Ch;
 
 	for (;;) {
 		a = prim(ap);
@@ -445,7 +486,7 @@ join(aux, a, b)
  */
 EXPORT int
 patcompile(pat, len, aux)
-	const CHAR	*pat;
+	const PCHAR	*pat;
 	int		len;
 	int		*aux;
 {
@@ -467,4 +508,4 @@ patcompile(pat, len, aux)
 	setexits(aux, i, ENDSTATE);
 	return (alt);
 }
-#endif	/* LMATCH */
+#endif /* !defined(__LINE_MATCH) && !defined(__MB_CHAR) */

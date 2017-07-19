@@ -1,8 +1,8 @@
-/* @(#)apprentice.c	1.13 09/07/11 joerg */
+/* @(#)apprentice.c	1.14 17/07/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apprentice.c	1.13 09/07/11 joerg";
+	"@(#)apprentice.c	1.14 17/07/17 joerg";
 #endif
 /*
 **	find file types by using a modified "magic" file
@@ -185,13 +185,15 @@ int *ndx, check;
 	int i = 0, nd = *ndx;
 	struct magic *m;
 	char *t, *s;
+	struct magic *__f_magic2;
 
 #define ALLOC_INCR	20
 	if (nd+1 >= maxmagic){
 	    maxmagic += ALLOC_INCR;
-	    if ((__f_magic = (struct magic *) realloc(__f_magic, 
+	    if ((__f_magic2 = (struct magic *) realloc(__f_magic, 
 						  sizeof(struct magic) * 
 						  maxmagic)) == NULL) {
+		    maxmagic -= ALLOC_INCR;
 #ifdef	MAIN
 		(void) fprintf(stderr, "%s: Out of memory.\n", progname);
 #else
@@ -202,6 +204,7 @@ int *ndx, check;
 		else
 			exit(1);
 	    }
+	    __f_magic = __f_magic2;
 	    memset(&__f_magic[*ndx], 0, sizeof(struct magic) * ALLOC_INCR);
 	}
 	m = &__f_magic[*ndx];

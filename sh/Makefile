@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.135 17/06/27  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.136 17/07/04  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,8 +9,9 @@ INSDIR=		bin
 					# Shell
 TARGET=		sh
 SYMLINKS=	pfsh			# Profile Bourne Shell
-SYMLINKS +=	bosh			# Bo urne Shell
+SYMLINKS +=	bosh			# Bourne Shell
 SYMLINKS +=	jsh			# Job control Bourne Shell
+HARDLINKS +=	../xpg4/bin/sh		# POSIX Bourne Shell
 
 ##CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
 

@@ -1,7 +1,8 @@
-/* @(#)version.h	1.54 17/07/19 Copyright 2012-2017 J. Schilling */
-
+/* @(#)matchmbl.c	1.1 17/07/02 Copyright 2017 J. Schilling */
 /*
- * The version for the Bourne Shell
+ *	Pattern matching function for multi byte line match (grep like).
+ *
+ *	Copyright (c) 2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,5 +18,9 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2017/07/19"
-#define	VERSION_STR	"a+"
+#define	USE_WCHAR
+#include <schily/wchar.h>
+
+#define	__MB_CHAR
+#define	__LINE_MATCH
+#include "match.c"

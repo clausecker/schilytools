@@ -1,11 +1,11 @@
-/* @(#)create.c	1.138 16/07/20 Copyright 1985, 1995, 2001-2016 J. Schilling */
+/* @(#)create.c	1.139 17/07/16 Copyright 1985, 1995, 2001-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.138 16/07/20 Copyright 1985, 1995, 2001-2016 J. Schilling";
+	"@(#)create.c	1.139 17/07/16 Copyright 1985, 1995, 2001-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2016 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -505,7 +505,7 @@ createi(sname, name, namlen, info, last)
 
 #ifdef	nonono_NICHT_BEI_CREATE	/* XXX */
 	if (!abs_path &&	/* XXX VVV siehe skip_slash() */
-		(info->f_name[0] == '/' /* || info->f_lname[0] == '/' */))
+		(info->f_name[0] == '/' /* || info->f_lname[0] == '/' */)) {
 		skip_slash(info);
 		info->f_namelen -= info->f_name - name;
 		if (info->f_namelen == 0) {

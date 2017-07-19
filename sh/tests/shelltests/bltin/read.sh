@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)read.sh	1.2 16/09/25 2016 J. Schilling
+# @(#)read.sh	1.3 17/07/08 2016 J. Schilling
 #
 
 # Read test core functions
@@ -29,4 +29,12 @@ echo "1  2  3  4  5  6  7  8  9" > is
 docommand read05 "$SHELL -c 'read a b c d e f < is; echo \$f \$e \$d \$c \$b \$a'" 0 "6 7 8 9 5 4 3 2 1\n" ""
 
 remove i ii is
+
+#
+# Check whether read without newline exits with 1 and whether this
+# causes an exit of the shell with -e
+#
+docommand read10 "$SHELL -c 'read LINE < /dev/null; echo \$?'" 0 "1\n" ""
+docommand read11 "$SHELL -ce 'read LINE < /dev/null; echo \$?'" 1 "" ""
+
 success

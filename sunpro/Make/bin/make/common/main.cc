@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.23 17/06/17 2017 J. Schilling
+ * @(#)main.cc	1.25 17/07/17 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.23 17/06/17 2017 J. Schilling";
+	"@(#)main.cc	1.25 17/07/17 2017 J. Schilling";
 #endif
 
 /*
@@ -2140,9 +2140,10 @@ set_sgs_support()
 	maybe_append_str_to_env_var(newpath, LD_SUPPORT_MAKE_LIB);
 #else
 	if (oldpath == NULL) {
-		sprintf(newpath, "%s%s", newpath, LD_SUPPORT_MAKE_LIB);
+		strcat(newpath, LD_SUPPORT_MAKE_LIB);
 	} else {
-		sprintf(newpath, "%s:%s", newpath, LD_SUPPORT_MAKE_LIB);
+		strcat(newpath, ":");
+		strcat(newpath, LD_SUPPORT_MAKE_LIB);
 	}
 #endif
 	putenv(newpath);
@@ -2289,13 +2290,18 @@ read_files_and_state(int argc, char **argv)
 	 * default makefile (make.rules), then we'd like to
 	 * change the macro value of MAKE to be some form
 	 * of argv[0] for recursive MAKE builds.
+	 * Since POSIX claims for the option -r:
+	 *	Clear the suffix list and do not use the built-in rules.
+	 * $(MAKE) should not be affected by -r. We need to provide a
+	 * useful default in case $(MAKE) has not been defined at all.
 	 */
 	MBSTOWCS(wcs_buffer, NOCATGETS("MAKE"));
 	def_make_name = GETNAME(wcs_buffer, wcslen(wcs_buffer));
 	def_make_macro = get_prop(def_make_name->prop, macro_prop);
-	if ((def_make_macro != NULL) &&
+	if ((def_make_macro == NULL) ||
+	    ((def_make_macro != NULL) &&
 	    (IS_EQUAL(def_make_macro->body.macro.value->string_mb,
-	              NOCATGETS("make")))) {
+	              NOCATGETS("make"))))) {
 		MBSTOWCS(wcs_buffer, argv_zero_string);
 		new_make_value = GETNAME(wcs_buffer, wcslen(wcs_buffer));
 		(void) SETVAR(def_make_name,

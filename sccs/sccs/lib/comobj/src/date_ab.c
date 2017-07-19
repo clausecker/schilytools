@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2017 J. Schilling
  *
- * @(#)date_ab.c	1.18 11/08/26 J. Schilling
+ * @(#)date_ab.c	1.19 17/07/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ab.c 1.18 11/08/26 J. Schilling"
+#pragma ident "@(#)date_ab.c 1.19 17/07/16 J. Schilling"
 #endif
 /*
  * @(#)date_ab.c 1.8 06/12/12
@@ -304,8 +304,9 @@ gN(str, next, num, digits, chars)
 
 /*
  * Multiplicator to get nanoseconds from 9 - "number of digits read".
+ * The 11th entry is for the theoretical case when *str == '\0'.
  */
-static int	nsmult[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0 };
+static int	nsmult[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0, 0 };
 
 /*
  * Get nanoseconds of a time stamp.
@@ -323,6 +324,8 @@ gns(str, next)
 		while ((--num >= 0) && numeric(*str)) {
 			c = (c * 10) + (*str++ - '0');
 		}
+	} else {
+		str--;
 	}
 	if (next) {
 		*next = str;

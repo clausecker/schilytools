@@ -1,4 +1,4 @@
-#ident "@(#)i486-cygwin32_nt-gcc.rul	1.11 14/04/01 "
+#ident "@(#)i486-cygwin32_nt-gcc.rul	1.12 17/07/06 "
 ###########################################################################
 # Written 1998 by J. Schilling
 ###########################################################################
@@ -41,11 +41,8 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 #LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-LDOPTDYN=
 #LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 LNDYNLIB=
-
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
 
 LORDER=		echo
 TSORT=		cat

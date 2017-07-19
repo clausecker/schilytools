@@ -1,7 +1,7 @@
-/* @(#)apple_driver.c	1.9 10/12/19 joerg */
+/* @(#)apple_driver.c	1.10 17/07/17 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)apple_driver.c	1.9 10/12/19 joerg";
+	"@(#)apple_driver.c	1.10 17/07/17 joerg";
 #endif
 /*
  *	apple_driver.c: extract Mac partition label, maps and boot driver
@@ -25,7 +25,7 @@ static	char sccsid[] =
  *	Apple Computer, Inc. Software License Agreements.
  *
  *	James Pearson 17/5/98
- *	Copyright (c) 1998-2010 J. Schilling
+ *	Copyright (c) 1998-2010,2017 J. Schilling
  */
 
 #include <schily/mconfig.h>
@@ -206,5 +206,6 @@ main(argc, argv)
 
 	} while (i++ < pmMapBlkCnt);
 
+	fclose(fp);
 	return (0);
 }

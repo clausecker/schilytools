@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read.cc	1.11 17/06/17 2017 J. Schilling
+ * @(#)read.cc	1.12 17/07/12 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.11 17/06/17 2017 J. Schilling";
+	"@(#)read.cc	1.12 17/07/12 2017 J. Schilling";
 #endif
 
 /*
@@ -185,6 +185,11 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 							&makefile_path,
 							-1);
 				}
+#ifdef INS_BASE
+				add_dir_to_path(NOCATGETS(INS_BASE "/share/lib/make"),
+						&makefile_path,
+						-1);
+#endif
 				add_dir_to_path(NOCATGETS("/usr/share/lib/make"),
 						&makefile_path,
 						-1);

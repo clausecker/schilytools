@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.120 17/06/11 2008-2017 J. Schilling
+ * @(#)bltin.c	1.121 17/07/13 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.120 17/06/11 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.121 17/07/13 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -260,7 +260,7 @@ builtin(type, argc, argv, t, xflags)
 			flags |= forcexit; /* bad exec will terminate shell */
 			oldsigs(TRUE);
 			rmtemp(0);
-			rmfunctmp();
+			rmfunctmp(0);
 #ifdef ACCT
 			doacct();
 #endif

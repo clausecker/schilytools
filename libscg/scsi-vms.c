@@ -1,7 +1,7 @@
-/* @(#)scsi-vms.c	1.35 11/03/07 Copyright 1997 J. Schilling */
+/* @(#)scsi-vms.c	1.36 17/07/17 Copyright 1997,2017 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-vms.c	1.35 11/03/07 Copyright 1997 J. Schilling";
+	"@(#)scsi-vms.c	1.36 17/07/17 Copyright 1997,2017 J. Schilling";
 #endif
 /*
  *	Interface for the VMS generic SCSI implementation.
@@ -19,7 +19,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997 J. Schilling
+ *	Copyright (c) 1997,2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,8 @@ static	char __sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -55,7 +57,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-vms.c-1.35";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-vms.c-1.36";	/* The version for this transport*/
 
 #define	VMS_MAX_DK	4		/* DK[A-D] VMS device controllers */
 #define	VMS_MAX_GK	4		/* GK[A-D] VMS device controllers */
@@ -258,6 +260,12 @@ scgo_open(scgp, device)
 	} else if (busno < VMS_DQRANGE_MAX) {		/* in the dq range?   */
 		range = 2;
 		range_offset = busno - VMS_GKRANGE_MAX;
+	} else {
+		errno = EINVAL;
+		if (scgp->errstr)
+			js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
+				"Illegal value for busno '%d'", busno);
+		return (-1);
 	}
 	buschar = vmschar[range];			/* get first device char*/
 	buschar1 = vmschar1[range];			/* get 2nd device char*/

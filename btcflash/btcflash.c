@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.17 10/12/19 2004-2010 J. Schilling */
+/* @(#)btcflash.c	1.18 17/07/15 2004-2017 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-	"@(#)btcflash.c	1.17 10/12/19 2004-2010 J. Schilling";
+	"@(#)btcflash.c	1.18 17/07/15 2004-2017 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -80,6 +80,8 @@ loadfirmware(firmware)
 		rewind(f);
 		if (fread(fwbuf, 1, FLASHSIZE, f) != FLASHSIZE) {
 			fprintf(stderr, _("%s: Short read\n"), firmware);
+			fclose(f);
+			free(fwbuf);
 			return (NULL);
 		}
 		fclose(f);
@@ -213,7 +215,7 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf(_("BTC DVD+/-RW firmware flash utility release %s %s\n"), "1.17", "10/12/19");
+	printf(_("BTC DVD+/-RW firmware flash utility release %s %s\n"), "1.18", "17/07/15");
 	printf(_("USE AT YOUR OWN RISK!\n\n"));
 
 	if (!(fwbuf = loadfirmware(fwfile)))

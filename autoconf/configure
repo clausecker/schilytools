@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in 1.287
+# From configure.in 1.288
 
 
 
@@ -24003,7 +24003,7 @@ else
 fi
 done
 
-for ac_file in /usr/src/linux/include
+for ac_file in /usr/src/linux/include /usr/xpg4/bin/sh /opt/schily/xpg4/bin/sh
 do
  
 ac_safe=`echo "$ac_file" | sed 'y%./+-%__p_%'` 

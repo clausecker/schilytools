@@ -1,13 +1,13 @@
-/* @(#)io.c	1.39 16/08/05 Copyright 1984-2016 J. Schilling */
+/* @(#)io.c	1.40 17/07/16 Copyright 1984-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.39 16/08/05 Copyright 1984-2016 J. Schilling";
+	"@(#)io.c	1.40 17/07/16 Copyright 1984-2017 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
  *
- *	Copyright (c) 1984-2016 J. Schilling
+ *	Copyright (c) 1984-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -191,7 +191,7 @@ inchar(wp)
 #ifdef MAPESC
 		if ((c = mapgetc()) == mapesc)
 			c = mapgetc();
-		else if (rmap(c))
+		else if (rmap(wp, c))
 #else
 		c = mapgetc(wp);
 		if (c < 0)

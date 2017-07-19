@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2017 J. Schilling
  *
- * @(#)cmrcheck.c	1.8 11/04/22 J. Schilling
+ * @(#)cmrcheck.c	1.9 17/07/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)cmrcheck.c 1.8 11/04/22 J. Schilling"
+#pragma ident "@(#)cmrcheck.c 1.9 17/07/16 J. Schilling"
 #endif
 /*
  * @(#)cmrcheck.c 1.5 06/12/12
@@ -71,12 +71,6 @@ char	*cmr,
 	char		lcmr[CMRLIMIT],	/* Local copy of CMR list. */
 				*p[2], /* Field to match in .FRED file. */
 				*formatp;
-
-       /*
-	* A safe estimate is that the longest localized string should 
-	* not be more than 3 times as long as the "C" locale string.
-	*/
-	formatp = (char *) malloc(3 * sizeof("%s is not a valid CMR.\n") + 1);
 
 	formatp = gettext("%s is not a valid CMR.\n");
 

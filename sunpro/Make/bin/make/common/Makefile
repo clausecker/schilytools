@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.17 17/05/12 
+#ident @(#)Makefile	1.21 17/07/19 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -20,6 +20,7 @@ CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
 CPPOPTS +=	-DDO_MAKE_NAME	# Set up "MAKE_NAME=sunpro"
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 #CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_SPRO_MAKE\"
 
@@ -42,7 +43,7 @@ C++FILES=	ar.cc depvar.cc dist.cc dmake.cc doname.cc dosys.cc \
 # $(LIB_PTHREAD) WARNING: in Linux, sem_post() is in libpthread
 #
 #LIBS=		-lmksh  -lmksdmsi18n  -lbsd  -lvroot -lintl -lnsl  -lsocket  -lw
-LIBS=		-lmksh  -lbsd  -lvroot $(LIB_NSL) -lschily $(LIB_RT) $(LIB_PTHREAD) $(LIB_INTL)
+LIBS=		-lmksh  -lbsd  -lvroot $(LIB_NSL) -lgetopt -lschily $(LIB_RT) $(LIB_PTHREAD) $(LIB_INTL)
 
 XMK_FILE=	Makefile.man svmakeman.mk dmakeman.mk Makefile.def svmakedef.mk
 

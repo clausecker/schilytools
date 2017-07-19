@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2017 J. Schilling
  *
- * @(#)cat.c	1.8 09/11/08 J. Schilling
+ * @(#)cat.c	1.9 17/07/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)cat.c 1.8 09/11/08 J. Schilling"
+#pragma ident "@(#)cat.c 1.9 17/07/16 J. Schilling"
 #endif
 /*
  * @(#)cat.c 1.4 06/12/12
@@ -74,5 +74,6 @@ cat(dest, va_alist)
 		while ((*d++ = *s++) != '\0') ;
 		d--;
 	}
+	va_end(ap);
 	return (dest);
 }

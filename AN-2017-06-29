@@ -65,7 +65,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	code of 0 even though the file /dev/stdin does not exist.
 
 -	Schily Makefilesystem: RULES/rules.loc and RULES/rules.man have been
-	make safe against a parallel make program like SunPro Make.
+	made safe against a parallel make program like SunPro Make.
 
 	Thanks to a report from Heiko Eiﬂfeldt
 
@@ -218,7 +218,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	SCCS: val now checks whether a SCCSv4 history file contains SCCSv6
 	elements in the delta line. The checks in the schilytools development
-	area did not discover the problem, so it seems that out bug was only
+	area did not discover the problem, so it seems that our bug was only
 	triggered on Haiku due to a time_t implementation bug in the Haiku libc.
 
 -	SCCS: sccs/man/Makefile if now a normal serial Makefile using "rules.mks"

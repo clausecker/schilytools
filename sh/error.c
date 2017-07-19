@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)error.c	1.23 16/07/04 2008-2016 J. Schilling
+ * @(#)error.c	1.24 17/07/13 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.23 16/07/04 2008-2016 J. Schilling";
+	"@(#)error.c	1.24 17/07/13 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -64,7 +64,7 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 	void exitsh	__PR((int xno));
 #ifdef	DO_DOT_SH_PARAMS
 	void rmtemp	__PR((struct ionod *base));
-	void rmfunctmp	__PR((void));
+	void rmfunctmp	__PR((struct ionod *base));
 #endif
 
 /*
@@ -248,9 +248,10 @@ rmtemp(base)
 }
 
 void
-rmfunctmp()
+rmfunctmp(base)
+	struct ionod	*base;
 {
-	while (fiotemp) {
+	while (fiotemp && fiotemp != base) {
 		unlink(fiotemp->ioname);
 		fiotemp = fiotemp->iolst;
 	}

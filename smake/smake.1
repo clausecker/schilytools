@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.43 14/12/03 Copyright 1985-2014 J. Schilling
+. \" @(#)smake.1	1.44 17/07/12 Copyright 1985-2014 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "14/12/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "17/07/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -1299,7 +1299,7 @@ Reserved for future use.
 This macro contains a path name that is sufficient to recursively
 call the same 
 .I make
-program again (either that last path component or the full path
+program again (it either contains the last path component or the full path
 name of the make program).
 Note that this may differ from the name that was used on the command line
 if the name that was used on the command line would not allow to call the

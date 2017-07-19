@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.9 17/05/21 Copyr 2012-2017 J. Schilling
+. \" @(#)make.1s	1.10 17/07/12 Copyr 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2017/05/21" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2017/07/12" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -704,6 +704,7 @@ take precedence over those imported from the environment.
 The macros
 .BR MAKEFLAGS ,
 .BR MAKE ,
+.BR MAKE_NAME ,
 .BR SHELL ,
 .BR HOST_ARCH ,
 .BR HOST_MACH ,
@@ -1634,6 +1635,35 @@ This lets you use
 .B "make -n"
 to test an entire
 hierarchy of makefiles.
+.LP
+The
+.B MAKE 
+macro contains a path name that is sufficient to recursively call the same
+.I make
+program again (it either contains the last path component or the full path
+name of the make program).
+Note that this may differ from the name that was used on the command line
+if the name that was used on the command line would not allow to call the
+same
+.I make
+program from a different directory using this name.
+For this reason 
+.I $(MAKE)
+may not be used to check for a specific
+.I make
+program. Use
+.B $(MAKE_NAME)
+instead.
+.LP
+The
+.B MAKE_NAME
+macro is set up by
+.B make
+to help writing makefiles that depend on vendor specific features.
+It contains the official name of the
+make program \- in our case
+.BR sunpro .
+
 .sp
 .LP
 For compatibility with the 4.2

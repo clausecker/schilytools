@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.8 07/12/02 
+#ident @(#)Makefile	1.9 17/07/06 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,7 +12,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		p.c ctab.c
 HFILES=
-LIBS=		-lxtermcap -lschily
+LIBS=		-lxtermcap -lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

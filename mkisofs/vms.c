@@ -1,7 +1,7 @@
-/* @(#)vms.c	1.10 06/09/13 joerg */
+/* @(#)vms.c	1.11 17/07/17 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)vms.c	1.10 06/09/13 joerg";
+	"@(#)vms.c	1.11 17/07/17 joerg";
 
 #endif
 /*
@@ -295,7 +295,7 @@ vms_write_one_file(char *filename, off_t size, FILE * outfile)
 
 	while (remain > 0) {
 		use = (remain > SECTOR_SIZE * NSECT - 1 ? NSECT * SECTOR_SIZE : remain);
-		use = ROUND_UP(use);	/* Round up to nearest sector boundary */
+		use = ISO_ROUND_UP(use); /* Round up to nearest sector boundary */
 		memset(buffer, 0, use);
 		rab->rab$l_ubf = buffer;
 		rab->rab$w_usz = sizeof (buffer);

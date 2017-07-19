@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.cygwin32_wow	1.1 15/06/29 "
+#ident "@(#)Defaults.cygwin32_wow	1.2 17/07/09 "
 ###########################################################################
 #
 # global definitions for Cygnus GCC for WINNT Systems
@@ -61,8 +61,13 @@ _PLATFORM=	cygwin
 VC=7
 VC=9
 
+_VCNAME=	$(_UNIQ)$(XMAKEPROG)
+__VCNAME=	$(_VCNAME:$(_UNIQ)=dummy)
+___VCNAME=	$(__VCNAME:$(_UNIQ)smake=vc$(VC)$(_PLATFORM:%=-%))
+VCNAME=		$(___VCNAME:$(_UNIQ)%=dummy)
+
 _VC_SETUP=	$(_UNIQ)$(VC_SETUP)
-__VC_SETUP=	$(_VC_SETUP:$(_UNIQ)=vc$(VC)$(_PLATFORM:%=-%)-setup)
+__VC_SETUP=	$(_VC_SETUP:$(_UNIQ)=$(VCNAME)-setup)
 VCSETUP=	$(__VC_SETUP:$(_UNIQ)%=%)
 
 ###########################################################################

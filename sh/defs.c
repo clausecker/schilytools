@@ -33,14 +33,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.c	1.17 16/07/06 2008-2016 J. Schilling
+ * @(#)defs.c	1.18 17/07/12 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.17 16/07/06 2008-2016 J. Schilling";
+	"@(#)defs.c	1.18 17/07/12 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -69,6 +69,7 @@ static	UConst char sccsid[] =
 int		output = STDERR_FILENO;
 int		ioset;
 struct ionod	*iotemp;	/* files to be deleted sometime */
+struct ionod	*xiotemp;	/* limit for files to be deleted sometime */
 struct ionod	*fiotemp;	/* function files to be deleted sometime */
 struct ionod	*iopend;	/* documents waiting to be read at NL */
 struct fdsave	fdmap[NOFILE];

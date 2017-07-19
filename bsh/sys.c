@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.81 17/05/17 Copyright 1986-2017 J. Schilling */
+/* @(#)sys.c	1.82 17/07/15 Copyright 1986-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.81 17/05/17 Copyright 1986-2017 J. Schilling";
+	"@(#)sys.c	1.82 17/07/15 Copyright 1986-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2017 J. Schilling
@@ -169,6 +169,7 @@ start(vp, std, flag)
 			firstsh = FALSE;		/* for vfork	*/
 			dofile(path, GLOBAL_AB, 0, std, TRUE);
 			free(path);
+			path = NULL;
 			firstsh = i;			/* restore firstsh*/
 			if ((i = do_status) == 0)
 				_exit(0);

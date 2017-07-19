@@ -1,12 +1,12 @@
-/* @(#)toc.c	1.101 17/03/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
+/* @(#)toc.c	1.104 17/07/19 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.101 17/03/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
+"@(#)toc.c	1.104 17/07/19 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2017 J. Schilling
+ * Copyright (c) 2004-2017 J. Schilling, Heiko Eissfeldt
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -3079,7 +3079,9 @@ Get_Set_ISRC(tr)
  *  and Track International Standard Recording Codes (for each track)
  */
 void
-Read_MCN_ISRC()
+Read_MCN_ISRC(startTrack, endTrack)
+	unsigned	startTrack;
+	unsigned	endTrack;
 {
 	int	old_hidden = have_hiddenAudioTrack;
 
@@ -3114,6 +3116,9 @@ Read_MCN_ISRC()
 
 			if (ii == CDROM_LEADOUT)
 				break;
+
+			if (ii < startTrack || ii > endTrack)
+				continue;
 
 			if (!IS__AUDIO(p))
 				continue;
@@ -3655,13 +3660,9 @@ ScanIndices(track, cd_index, bulk)
 	if (!global.quiet && !(global.verbose & SHOW_INDICES))
 		fprintf(outfp, _("seeking index start ..."));
 
-	if (bulk != 1) {
-		starttrack = track;
-		endtrack = track;
-	} else {
-		starttrack = 1;
-		endtrack = cdtracks;
-	}
+	starttrack = track;
+	endtrack = global.endtrack;
+
 	baseindex_pool = (index_list *) malloc(sizeof (index_list) * (endtrack - starttrack + 1));
 #ifdef DEBUG_INDLIST
 	fprintf(outfp, "index0-mem-pool %p\n", baseindex_pool);

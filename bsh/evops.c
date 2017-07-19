@@ -1,13 +1,13 @@
-/* @(#)evops.c	1.37 13/04/25 Copyright 1984-2013 J. Schilling */
+/* @(#)evops.c	1.38 17/07/17 Copyright 1984-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)evops.c	1.37 13/04/25 Copyright 1984-2013 J. Schilling";
+	"@(#)evops.c	1.38 17/07/17 Copyright 1984-2017 J. Schilling";
 #endif
 /*
  *	bsh environment section
  *
- *	Copyright (c) 1984-2013 J. Schilling
+ *	Copyright (c) 1984-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -202,6 +204,11 @@ ev_ins(val)
 	}
 	if ((evaent+1) >= evasize)
 		ev_inc();
+	if ((evaent+1) >= evasize) {	/* ev_inc() did not work */
+		free(val);
+		ex_status = 1;
+		return;
+	}
 	evarray[evaent++] = val;
 	evarray[evaent] = NULL;
 	ev_check("ev_ins()");
@@ -260,14 +267,20 @@ ev_delete(name)
 EXPORT void
 ev_inc()
 {
-	if (evarray == (char **)NULL)
-		evarray = (char **)malloc(EVAINC*sizeof (char *));
-	else
-		evarray = (char **)realloc(evarray,
+	char	**nevarray;
+
+	if (evarray == (char **)NULL) {
+		nevarray = (char **)malloc(EVAINC*sizeof (char *));
+	} else {
+		nevarray = (char **)realloc(evarray,
 					(evasize+EVAINC)*sizeof (char *));
-	if (evarray == (char **)NULL)
+	}
+	if (nevarray == (char **)NULL) {
 		berror("%s", sn_no_mem);
-	evarray[evasize] = NULL;
+		return;
+	}
+	nevarray[evasize] = NULL;
+	evarray = nevarray;
 	evasize += EVAINC;
 }
 

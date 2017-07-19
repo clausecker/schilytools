@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.69 16/08/09 Copyright 1985-2016 J. Schilling */
+/* @(#)abbrev.c	1.70 17/07/15 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.69 16/08/09 Copyright 1985-2016 J. Schilling";
+	"@(#)abbrev.c	1.70 17/07/15 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *
@@ -1075,6 +1075,8 @@ ab_list(tab, pattern, f, aflags)
 			fflush(f);
 		} else {
 			berror("%s", ebadpattern);
+			free((char *)aux);
+			free((char *)state);
 			return (FALSE);
 		}
 		free((char *)aux);

@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.22 17/06/06 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.23 17/07/09 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.22 17/06/06 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.23 17/07/09 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -233,7 +233,7 @@ peektok(ep)
 /*
  * Returns the next token.
  * If the next token is a variable or a constant, then the variable is put
- * ino ep->val.
+ * into ep->val.
  */
 LOCAL int
 exprtok(ep)
@@ -284,8 +284,6 @@ exprtok(ep)
 		ep->tokenp = --np;
 		n = lookup(staktop);
 		if (n->namval == NULL) {
-			 if (flags & setflg)
-				failed(n->namid, unset);
 			ep->val = i;
 		} else if(*n->namval == '\0') {
 			ep->val = i;
@@ -303,6 +301,8 @@ exprtok(ep)
 		otokenp = ep->tokenp;
 		otoken = ep->token;
 		xtok = getop(ep);
+		if ((flags & setflg) && xtok != TK_ASSIGN && n->namval == NULL)
+			failed(n->namid, unset);
 		if (xtok == TK_PLUSPLUS || xtok == TK_MINUSMINUS) {
 			unary(ep, ep->val, xtok);
 			ep->token = otoken;

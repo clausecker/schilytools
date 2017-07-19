@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.170 17/06/14 2008-2017 J. Schilling
+ * @(#)defs.h	1.172 17/07/13 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -474,7 +474,7 @@ extern	void	exval_set	__PR((int xno));
 #define	exval_set(a)
 #endif
 extern	void	rmtemp		__PR((struct ionod *base));
-extern	void	rmfunctmp	__PR((void));
+extern	void	rmfunctmp	__PR((struct ionod *base));
 
 
 /*
@@ -951,6 +951,7 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
 extern int		output;
 extern int		ioset;
 extern struct ionod	*iotemp; /* files to be deleted sometime */
+extern struct ionod	*xiotemp; /* limit for files to be deleted sometime */
 extern struct ionod	*fiotemp; /* function files to be deleted sometime */
 extern struct ionod	*iopend; /* documents waiting to be read at NL */
 extern struct fdsave	fdmap[];

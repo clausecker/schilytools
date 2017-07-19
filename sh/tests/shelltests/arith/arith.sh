@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)arith.sh	1.22 17/06/14 Copyright 2016-2017 J. Schilling
+# @(#)arith.sh	1.23 17/07/09 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -391,6 +391,7 @@ fi
 
 docommand a500 "$SHELL -c 'set -u; unset x; echo \$(( x+=3 )); echo \$x'" !=0 "" NONEMPTY
 docommand a501 "$SHELL -c 'set -u; unset a; echo \$((a++ , a++)); echo \$a'" !=0 "" NONEMPTY
+docommand a502 "$SHELL -c 'set -u; unset x; echo \$(( x = 3 )); echo \$x'" 0 "3\n3\n" ""
 
 docommand a600 "$SHELL -c 'echo \$(( `echo 77` `printf %s -` `echo 44` ))'" 0 "33\n" ""
 docommand a601 "$SHELL -c 'echo \$(( \$(echo 77) \$(printf %s -) \$(echo 44) ))'" 0 "33\n" ""

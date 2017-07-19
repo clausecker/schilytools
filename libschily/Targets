@@ -1,4 +1,4 @@
-# @(#)Targets	1.54 16/11/06 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.55 17/07/02 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -49,7 +49,8 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		kill.c \
 		lchmod.c linkat.c lutimens.c \
 		lxchdir.c \
-		match.c matchl.c matchw.c matchwl.c movebytes.c movecbytes.c \
+		match.c matchl.c matchmb.c matchmbl.c matchw.c matchwl.c \
+		movebytes.c movecbytes.c \
 		mkdirat.c mkdirs.c mkfifo.c mkfifoat.c mkgmtime.c mknodat.c \
 		mkstemp.c \
 		mem.c jmem.c fjmem.c \

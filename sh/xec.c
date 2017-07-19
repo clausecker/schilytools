@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.80 17/06/27 2008-2017 J. Schilling
+ * @(#)xec.c	1.81 17/07/18 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.80 17/06/27 2008-2017 J. Schilling";
+	"@(#)xec.c	1.81 17/07/18 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -102,6 +102,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 	struct trenod	*t;
 	unsigned char		*sav = savstak();
 	struct ionod		*iosav = iotemp;
+	struct ionod		*fiosav = fiotemp;
 
 	sigchk();
 	if (!errorflg)
@@ -472,14 +473,21 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				int forkcnt = 1;
 
 #ifdef	DO_PIPE_PARENT
-				if ((xflags & XEC_ALLOCJOB) ||
+				if (!(xflags & XEC_ALLOCJOB) ||
 				    !(treeflgs & FPOU)) {
 #else
 				if (!(treeflgs & FPOU)) {
 #endif
 					/*
 					 * Allocate job slot
+					 * Make sure, this happens even when
+					 * XEC_ALLOCJOB is set but curjob()
+					 * returns NULL.
 					 */
+#ifdef	DO_PIPE_PARENT
+					if (!curjob())
+						xflags &= ~XEC_ALLOCJOB;
+#endif
 					monitor = exallocjob(t, xflags);
 #ifdef	DO_PIPE_PARENT
 					xflags |= XEC_ALLOCJOB;
@@ -509,6 +517,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				if (!isvfork &&
 				    (treeflgs & (FPOU|FAMP))) {
 					link_iodocs(iotemp);
+					link_iodocs(fiotemp);
 					linked = 1;
 				}
 script:
@@ -688,13 +697,14 @@ script:
 
 			flags |= (forked|jcoff);
 
-			fiotemp  = 0;
-
 			if (linked == 1) {
 				swap_iodoc_nm(iotemp);
+				swap_iodoc_nm(fiotemp);
 				xflags |= XEC_LINKED;
-			} else if (!(xflags & XEC_LINKED))
+			} else if (!(xflags & XEC_LINKED)) {
 				iotemp = 0;
+				fiotemp  = 0;
+			}
 #ifdef ACCT
 			suspacct();
 #endif
@@ -738,12 +748,14 @@ script:
 				eflag = 0;
 				setlist(comptr(t)->comset, N_EXPORT|pushov);
 #ifdef	HAVE_VFORK
-				if (isvfork)
+				if (isvfork) {
 					rmtemp(oiot);
-				else
+					rmfunctmp(ofiot);
+				} else
 #endif
 				{
 					rmtemp(0);
+					rmfunctmp(0);
 					clearjobs();
 				}
 				execa(com, pos, isvfork, NULL);
@@ -1099,6 +1111,7 @@ script:
 out:
 #endif
 	sigchk();
+	rmfunctmp(fiosav);
 	tdystak(sav, iosav);
 	if (flags & errflg && exitval)
 		done(0);
@@ -1120,6 +1133,15 @@ execexp(s, f, xflags)
 		fb.feval = (unsigned char **)(f);
 	} else if (f >= 0)
 		initf(f);
+
+	/*
+	 * xflags != 0 currently only happens from bltin.c
+	 * so we switch off XEC_EXECED here. This may change
+	 * in the future.
+	 * We need to do this because "eval cmd&" may otherwise
+	 * leave shell tempfiles if "cmd" contains a here document.
+	 */
+	xflags &= ~XEC_EXECED;
 	execute(cmd(NL, NLFLG | MTFLG | SEMIFLG),
 		xflags, (int)(flags & errflg), no_pipe, no_pipe);
 	pop();

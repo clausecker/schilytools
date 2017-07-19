@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.9 17/05/13 2017 J. Schilling
+ * @(#)misc.cc	1.10 17/07/04 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.9 17/05/13 2017 J. Schilling";
+	"@(#)misc.cc	1.10 17/07/04 2017 J. Schilling";
 #endif
 
 /*
@@ -740,7 +740,15 @@ load_cached_names(void)
 	#else
 	#if defined(SUN5_0)
 	if (posix) {
+#ifdef	HAVE__USR_XPG4_BIN_SH
 	  MBSTOWCS(wcs_buffer, NOCATGETS("/usr/xpg4/bin/sh"));
+#else
+#ifdef	HAVE__OPT_SCHILY_XPG4_BIN_SH
+	  MBSTOWCS(wcs_buffer, NOCATGETS("/opt/schily/xpg4/bin/sh"));
+#else
+	  MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
+#endif
+#endif
 	} else {
 	  MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
 	}

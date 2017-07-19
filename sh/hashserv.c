@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)hashserv.c	1.30 16/06/19 2008-2016 J. Schilling
+ * @(#)hashserv.c	1.31 17/07/17 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.30 16/06/19 2008-2016 J. Schilling";
+	"@(#)hashserv.c	1.31 17/07/17 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -310,6 +310,7 @@ hash_func(name)
 		hentry.key = make(name);
 		hentry.cost = 0;
 		hentry.hits = 0;
+		hentry.next = NULL;
 		henter(hentry);
 	}
 }

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read2.cc	1.6 17/05/13 2017 J. Schilling
+ * @(#)read2.cc	1.7 17/07/04 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.6 17/05/13 2017 J. Schilling";
+	"@(#)read2.cc	1.7 17/07/04 2017 J. Schilling";
 #endif
 
 /*
@@ -1194,7 +1194,15 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 		keep_state = false;
 		#if defined(SUN5_0)
 		/* Use /usr/xpg4/bin/sh on Solaris */
+#ifdef	HAVE__USR_XPG4_BIN_SH
 		MBSTOWCS(wcs_buffer, NOCATGETS("/usr/xpg4/bin/sh"));
+#else
+#ifdef	HAVE__OPT_SCHILY_XPG4_BIN_SH
+		MBSTOWCS(wcs_buffer, NOCATGETS("/opt/schily/xpg4/bin/sh"));
+#else
+		MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
+#endif
+#endif
 		(void) SETVAR(shell_name, GETNAME(wcs_buffer, FIND_LENGTH), false);
 		#endif
 		if (trace_reader) {

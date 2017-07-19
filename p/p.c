@@ -1,8 +1,8 @@
-/* @(#)p.c	1.57 17/06/26 Copyright 1985-2017 J. Schilling */
+/* @(#)p.c	1.58 17/07/11 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.57 17/06/26 Copyright 1985-2017 J. Schilling";
+	"@(#)p.c	1.58 17/07/11 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -1101,7 +1101,9 @@ do_search()
 /*fprintf(stderr, "Efilepos: %lld len: %d bp: 0x%X\n", (Llong)filepos(f), len, bp);*/
 	for (;;) {
 		if (!rest) {
-			if (fill_buf() <= 0) {
+			int	olen = len;
+
+			if (fill_buf() <= 0 || olen == len) {
 				if (!nobeep)
 					putchar('\007');
 				printf("Pattern not found.\r");

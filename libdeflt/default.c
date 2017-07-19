@@ -1,11 +1,11 @@
-/* @(#)default.c	1.10 13/04/25 Copyright 1997-2013 J. Schilling */
+/* @(#)default.c	1.11 17/07/15 Copyright 1997-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)default.c	1.10 13/04/25 Copyright 1997-2013 J. Schilling";
+	"@(#)default.c	1.11 17/07/15 Copyright 1997-2017 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2013 J. Schilling
+ *	Copyright (c) 1997-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -45,12 +47,12 @@ EXPORT int
 defltopen(name)
 	const char	*name;
 {
-	if (dfltfile != (FILE *)NULL)
-		fclose(dfltfile);
-
-	if (name == (char *)NULL) {
+	if (dfltfile != (FILE *)NULL) {
 		fclose(dfltfile);
 		dfltfile = NULL;
+	}
+
+	if (name == (char *)NULL) {
 		return (0);
 	}
 
