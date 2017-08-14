@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.23 17/07/09 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.24 17/07/21 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.23 17/07/09 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.24 17/07/21 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -352,6 +352,10 @@ expreval(ep, precedence)
 	tok = exprtok(ep);		/* get next token (operator) */
 	prec = ep->precedence;
 
+	if (precedence == PR_QUEST && tok == TK_COMMA && prec > precedence) {
+		ep->token = tok;
+		return (ep->val);
+	}
 	/*
 	 * If there is no next token, then we return the previous value.
 	 */
@@ -513,6 +517,10 @@ expreval(ep, precedence)
 						nprec = PR_MAXPREC +1;
 					}
 					ntok = ep->token;
+					if (ntok == TK_COMMA) {
+						ep->token = TK_NONE;
+						return (expreval(ep, PR_MAXPREC));
+					}
 					if (v)
 						ep->val = oval;
 				}

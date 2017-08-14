@@ -27,8 +27,8 @@
 #pragma ident	"@(#)sym.h	1.8	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * Copyright 2009-2016 J. Schilling
- * @(#)sym.h	1.10 16/08/28 2009-2016 J. Schilling
+ * Copyright 2009-2017 J. Schilling
+ * @(#)sym.h	1.11 17/08/01 2009-2017 J. Schilling
  */
 /*
  *	UNIX shell
@@ -81,3 +81,7 @@
 #define	ESCAPE	'\\'
 #define	BRACE	'{'
 #define	COMCHAR '#'
+
+/* wdset flags */
+#define	KEYFLAG		1	/* var=value detected */
+#define	IN_CASE		2	/* inside "case" - no keywords */

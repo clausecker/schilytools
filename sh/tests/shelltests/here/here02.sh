@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.4 17/06/28 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.5 17/07/20 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -662,6 +662,29 @@ cat <<-EOF
 EOF
 XEOF
 docommand here34 "$SHELL ./x" 0 'x " \" \ \ $ $ baz `echo baz` bar $foo x\n' ""
+remove x
+
+#
+# Check whether the quoting state is reset while expanding a here document.
+#
+cat > x <<"XEOF"
+var="you"
+echo "`cat <<EOF
+Hi ${var}
+EOF
+`"
+XEOF
+docommand here35 "$SHELL ./x" 0 "Hi you\n" ""
+remove x
+
+cat > x <<"XEOF"
+var="you"
+echo "$(cat <<EOF
+Hi ${var}
+EOF
+)"
+XEOF
+docommand here36 "$SHELL ./x" 0 "Hi you\n" ""
 remove x
 
 cat > x <<"XEOF"

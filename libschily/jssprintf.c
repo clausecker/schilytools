@@ -1,6 +1,6 @@
-/* @(#)jssprintf.c	1.18 16/08/10 Copyright 1985, 1995-2016 J. Schilling */
+/* @(#)jssprintf.c	1.19 17/08/03 Copyright 1985, 1995-2017 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2016 J. Schilling
+ *	Copyright (c) 1985, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,12 +28,12 @@ EXPORT	int js_sprintf __PR((char *, const char *, ...));
 
 #ifdef	PROTOTYPES
 static void
-_cput(char c, long ba)
+_cput(char c, void *ba)
 #else
 static void
 _cput(c, ba)
 	char	c;
-	long	ba;
+	void	*ba;
 #endif
 {
 	*(*(char **)ba)++ = c;
@@ -60,7 +60,7 @@ js_sprintf(buf, form, va_alist)
 #else
 	va_start(args);
 #endif
-	cnt = format(_cput, (long)&bp, form,  args);
+	cnt = format(_cput, &bp, form,  args);
 	va_end(args);
 	*bp = '\0';
 

@@ -1,4 +1,4 @@
-# @(#)Targets	1.55 17/07/02 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.56 17/08/05 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -75,6 +75,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c wcscspn.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcatl.c wcslcpy.c wcsncat.c wcsncmp.c \
 		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsspn.c wcsstr.c \
+		wctype.c \
 		wdabort.c \
 		zerobytes.c
 

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.288 17/07/04 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.289 17/08/05 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.288)dnl
+AC_REVISION(1.289)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -231,8 +231,8 @@ AC_CHECK_TYPE(u_int, unsigned int)
 AC_CHECK_TYPE(u_long, unsigned long)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -240,8 +240,8 @@ AC_INCL_CHECK_TYPE(
 ], int8_t, Int8_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -249,8 +249,8 @@ AC_INCL_CHECK_TYPE(
 ], int16_t, Int16_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -258,8 +258,8 @@ AC_INCL_CHECK_TYPE(
 ], int32_t, Int32_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -267,8 +267,8 @@ AC_INCL_CHECK_TYPE(
 ], int64_t, Int64_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -276,8 +276,8 @@ AC_INCL_CHECK_TYPE(
 ], intmax_t, Intmax_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -285,8 +285,8 @@ AC_INCL_CHECK_TYPE(
 ], intptr_t, Intptr_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -294,8 +294,8 @@ AC_INCL_CHECK_TYPE(
 ], uint8_t, UInt8_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -303,8 +303,8 @@ AC_INCL_CHECK_TYPE(
 ], uint16_t, UInt16_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -312,8 +312,8 @@ AC_INCL_CHECK_TYPE(
 ], uint32_t, UInt32_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -321,8 +321,8 @@ AC_INCL_CHECK_TYPE(
 ], uint64_t, UInt64_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -330,8 +330,8 @@ AC_INCL_CHECK_TYPE(
 ], uintmax_t, UIntmax_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_INTTYPES_H
-[#include <inttypes.h>
+[#ifdef	HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 #ifdef	HAVE_STDINT_H
 #include <stdint.h>
@@ -339,8 +339,8 @@ AC_INCL_CHECK_TYPE(
 ], uintptr_t, UIntptr_t)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_WCHAR_H
-[#include <wchar.h>
+[#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
 #endif
 #ifdef	HAVE_WCTYPE_H
 #include <wctype.h>
@@ -348,8 +348,18 @@ AC_INCL_CHECK_TYPE(
 ], wctype_t, int)
 
 AC_INCL_CHECK_TYPE(
-#ifdef	HAVE_WCHAR_H
-[#include <wchar.h>
+[#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+#include <sys/types.h>
+], wint_t, int)
+
+AC_INCL_CHECK_TYPE(
+[#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
 #endif
 #ifdef	HAVE_WCTYPE_H
 #include <wctype.h>
@@ -646,6 +656,21 @@ AC_CHECK_DFUNC([
 #include <wctype.h>
 #endif
 ], iswprint)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], iswblank)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+], isblank)
 
 AC_CHECK_DFUNC([
 #ifdef	HAVE_WCHAR_H

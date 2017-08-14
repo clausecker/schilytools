@@ -1,6 +1,14 @@
-/* @(#)match.c	1.25 17/07/02 Copyright 1985, 1995-2017 J. Schilling */
+/* @(#)match.c	1.27 17/08/13 Copyright 1985, 1995-2017 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
+#define	POSIX_CLASS		/* Support [[:alpha:]] by default */
+#ifdef	NO_POSIX_CLASS		/* Allow to disable [[:alpha:]]	  */
+#undef	POSIX_CLASS
+#endif
+#ifdef	POSIX_CLASS
+#include <schily/wchar.h>	/* With [[:alpha:]], we need wctype()	*/
+#include <schily/wctype.h>	/* and thus wchar.h and wctype.h	*/
+#endif
 /*
  *	Pattern matching functions
  *
@@ -35,6 +43,7 @@
  *
  *	Character classes have been added to allow "[<character list>]"
  *	to be used.
+ *	POSIX features like [[:alpha:]] have been added.
  *	Start of line '^' and end of line '$' have been added.
  */
 
@@ -83,6 +92,8 @@ typedef	unsigned char	Uchar;
 
 #define	ENDSTATE	(-1)
 
+#define	CL_SIZE		32	/* Max size for '[: :]'			*/
+
 /*
  *	The Interpreter
  */
@@ -112,22 +123,63 @@ typedef	unsigned char	Uchar;
 
 /*
  *	match a character in class
+ *
+ *	Syntax errors do not appear here, they are handled by the compiler,
+ *	so in theory we could remove the "return (0)" statements from the
+ *	the POSIX class code.
  */
+#ifdef	POSIX_CLASS
+#define	CHK_POSIX_CLASS						\
+	else if (*lpat == LCLASS) {				\
+		if (lpat[1] == ':') {				\
+			char	class[CL_SIZE+1];		\
+			char	*pc = class;			\
+								\
+			lpat += 2;	/* Eat ':' */		\
+			for (;;) {				\
+				if (*lpat == '\0') {		\
+					ok = FALSE;		\
+					goto out;		\
+				}				\
+				if (*lpat == ':' && lpat[1] == RCLASS) \
+					break;			\
+				if (pc >= &class[CL_SIZE]) {	\
+					ok = FALSE;		\
+					goto out;		\
+				}				\
+				*pc++ = *lpat++;		\
+			}					\
+			if (pc == class) {			\
+				ok = FALSE;			\
+				goto out;			\
+			}					\
+			*pc = '\0';				\
+			lpat += 2;	/* Skip ":]" */		\
+			if (iswctype(lc, wctype(class))) {	\
+				ok = !ok;			\
+				goto out;			\
+			}					\
+			continue;				\
+		}						\
+	}
+#else
+#define	CHK_POSIX_CLASS
+#endif
 #define	in_class(found, pat, c)	{			\
 	register const PCHAR	*lpat	= pat;		\
 	register int		lc	= c;		\
 	int	lo_bound;				\
 	int	hi_bound;				\
-							\
-	found = FALSE;					\
+	BOOL	ok			= FALSE;	\
 							\
 	if (*lpat == NOT) {				\
 		lpat++;					\
-		found = TRUE;				\
+		ok = TRUE;				\
 	}						\
 	while (*lpat != RCLASS) {			\
 		if (*lpat == QUOTE)			\
 			lpat++;				\
+		CHK_POSIX_CLASS				\
 		lo_bound = *lpat++;			\
 		if (*lpat == RANGE) {			\
 			lpat++;				\
@@ -138,10 +190,12 @@ typedef	unsigned char	Uchar;
 			hi_bound = lo_bound;		\
 		}					\
 		if (lo_bound <= lc && lc <= hi_bound) {	\
-			found = !found;			\
-			break;				\
+			ok = !ok;			\
+			goto out;			\
 		}					\
 	}						\
+out:							\
+	found = ok;					\
 }
 
 /*
@@ -221,7 +275,7 @@ for (; soff <= slen; soff++) {
 			if (mlen < 0) {
 				mbtowc(NULL, NULL, 0);
 				c = str[s];
-				mlen = 1;	
+				mlen = 1;
 			}
 #else
 			c = str[s];
@@ -359,6 +413,15 @@ LOCAL	int	join	 __PR((int *, int, int));
 }
 
 /*
+ *	'peek' the next character from pattern
+ */
+#define	pch(ap)						\
+	((((ap)->patp + 1) >= (ap)->length) ?		\
+		0					\
+	:						\
+		(ap)->pattern[(ap)->patp+1])		\
+
+/*
  *	get the next item from pattern
  */
 LOCAL void
@@ -389,8 +452,39 @@ prim(ap)
 	case RBRACK:
 		return (ENDSTATE);
 	case LCLASS:
-		while (ap->Ch != RCLASS && ap->Ch != '\0')
+		while (ap->Ch != RCLASS && ap->Ch != '\0') {
+#ifdef	POSIX_CLASS
+			if (ap->Ch == LCLASS) {
+				if (pch(ap) == ':') {	/* [:alpha:] */
+					char	class[CL_SIZE+1];
+					char	*pc = class;
+
+					nextitem(ap);
+					nextitem(ap);
+					while (ap->Ch != ':' &&
+					    ap->Ch != '\0') {
+						if (pc > &class[CL_SIZE])
+							return (ENDSTATE);
+						*pc = ap->Ch;
+						if (*pc++ != ap->Ch)
+							return (ENDSTATE);
+						nextitem(ap);
+					}
+					if (pc == class)
+						return (ENDSTATE);
+					*pc = '\0';
+					if (ap->Ch == '\0')
+						return (ENDSTATE);
+					if (wctype(class) == 0)
+						return (ENDSTATE);
+					nextitem(ap);
+				}
+				if (ap->Ch != RCLASS)
+					return (ENDSTATE);
+			}
+#endif
 			nextitem(ap);
+		}
 		if (ap->Ch == '\0')
 			return (ENDSTATE);
 		nextitem(ap);
@@ -426,6 +520,8 @@ expr(ap, altp)
 
 	for (;;) {
 		a = prim(ap);
+		if (a == ENDSTATE)
+			return (ENDSTATE);
 		Ch = ap->Ch;
 		if (Ch == ALT || Ch == RBRACK || Ch == '\0') {
 			exits = join(aux, exits, a);

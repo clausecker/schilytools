@@ -1,4 +1,4 @@
-#ident "@(#)rules.tpk	1.7 08/12/27 "
+#ident "@(#)rules.tpk	1.8 17/08/04 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -54,7 +56,7 @@ tarpkg1:
 		tarpkg/$(INSBASE)/lib tarpkg/$(INSBASE)/share/man
 	ln -s share/man tarpkg/$(INSBASE)/man
 	if [ ."$(PRE_INST_CMDS)" != . ]; then cd tarpkg && eval "$(PRE_INST_CMDS)" ; fi
-	$(MAKE) $(MAKE_FILE) $(MAKEMACS) DESTDIR=`pwd`/tarpkg install
+	"$(MAKE)" $(MAKE_FILE) $(MAKEMACS) DESTDIR=`pwd`/tarpkg install
 	if [ ."$(POST_INST_CMDS)" != . ]; then cd tarpkg && eval "$(POST_INST_CMDS)" ; fi
 	-if [ ."$(STRIPLIST)" != . ];  then chmod u+w $(STRIPLIST:%=tarpkg/%); strip $(STRIPLIST:%=tarpkg/%); fi
 	-if [ ."$(STRIPXLIST)" != . ]; then chmod u+w $(STRIPXLIST:%=tarpkg/%); strip -x $(STRIPXLIST:%=tarpkg/%); fi

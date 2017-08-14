@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.82 17/06/14 2008-2017 J. Schilling
+ * @(#)word.c	1.84 17/08/01 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.82 17/06/14 2008-2017 J. Schilling";
+	"@(#)word.c	1.84 17/08/01 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -106,7 +106,7 @@ word()
 	unsigned int	c, d;
 
 	wdnum = 0;
-	wdset = 0;
+	wdset &= ~KEYFLAG;
 
 	/*
 	 * We first call readwc() in order to make sure that the history editor
@@ -142,7 +142,7 @@ word()
 		argp = match_word(argp, c, MARK, &wordc);
 		arg = (struct argnod *)endstak(argp);
 		if (!letter(arg->argval[0]))
-			wdset = 0;
+			wdset &= ~KEYFLAG;
 
 		c = wordc;		/* Last c from inside match_word() */
 		if (arg->argval[1] == 0 &&
@@ -167,6 +167,7 @@ word()
 #endif
 		} else { /* check for reserved words */
 			if (reserv == FALSE ||
+			    (wdset & IN_CASE) ||
 			    (wdval = syslook(arg->argval,
 			    reserved, no_reserved)) == 0) {
 				wdval = 0;
@@ -459,6 +460,7 @@ match_arith(argp)
 	int		nest = 2;
 	unsigned int	c;
 	unsigned char	*pc;
+	UIntptr_t	p = relstakp(argp);
 
 	/*
 	 * Add the "((".
@@ -496,6 +498,8 @@ match_arith(argp)
 		}
 	}
 	*argp = 0;
+	if (nest != 0)		/* Need a generalized syntax error function */
+		failed(absstak(p), synmsg); /* instead if calling failed()  */
 	return (argp);
 }
 #endif

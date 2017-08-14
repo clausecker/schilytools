@@ -1,8 +1,8 @@
-/* @(#)cond.c	1.26 17/07/15 Copyright 1985-2017 J. Schilling */
+/* @(#)cond.c	1.27 17/08/06 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cond.c	1.26 17/07/15 Copyright 1985-2017 J. Schilling";
+	"@(#)cond.c	1.27 17/08/06 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -459,8 +459,10 @@ execuntil(std, ilev, va_alist)
 #else
 	va_start(args);
 #endif
-	if (!makevec(vec, args))
+	if (!makevec(vec, args)) {
+		va_end(args);
 		return (ABORTED);
+	}
 	va_end(args);
 	ret = parseuntil(EXEC, ilev, std, vec);
 	return (ret);

@@ -1,6 +1,7 @@
 all-tests:	test-bugs	\
 		test-conf	\
 		test-alias	\
+		test-arg	\
 		test-arith	\
 		test-bltin	\
 		test-break	\
@@ -23,12 +24,16 @@ all-tests:	test-bugs	\
 		test-redir	\
 		test-return	\
 		test-set	\
+		test-syntax	\
 		test-test	\
 		test-trap
 	echo Tests passed.
 
 test-alias:
 	cd alias && for i in *.sh; do echo Running test alias/$$i; $(SHELL) $$i; done
+
+test-arg:
+	cd arg && for i in *.sh; do echo Running test arg/$$i; $(SHELL) $$i; done
 
 test-arith:
 	cd arith && for i in *.sh; do echo Running test arith/$$i; $(SHELL) $$i; done
@@ -101,6 +106,9 @@ test-return:
 
 test-set:
 	cd set && for i in *.sh; do echo Running test set/$$i; $(SHELL) $$i; done
+
+test-syntax:
+	cd syntax && for i in *.sh; do echo Running test syntax/$$i; $(SHELL) $$i; done
 
 test-test:
 	cd test && for i in *.sh; do echo Running test test/$$i; $(SHELL) $$i; done

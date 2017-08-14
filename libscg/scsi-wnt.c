@@ -1,7 +1,7 @@
-/* @(#)scsi-wnt.c	1.50 13/07/30 Copyright 1998-2013 J. Schilling, A.L. Faber, J.A. Key */
+/* @(#)scsi-wnt.c	1.51 17/08/01 Copyright 1998-2017 J. Schilling, A.L. Faber, J.A. Key */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-wnt.c	1.50 13/07/30 Copyright 1998-2013 J. Schilling, A.L. Faber, J.A. Key";
+	"@(#)scsi-wnt.c	1.51 17/08/01 Copyright 1998-2017 J. Schilling, A.L. Faber, J.A. Key";
 #endif
 /*
  *	Interface for the Win32 ASPI library.
@@ -14,7 +14,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2013 J. Schilling
+ *	Copyright (c) 1998-2017 J. Schilling
  *	Copyright (c) 1999 A.L. Faber for the first implementation
  *			   of this interface.
  *	TODO:
@@ -71,8 +71,8 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.50";	/* The version for this transport*/
-LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.50";	/* The version for SPTI */
+LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.51";	/* The version for this transport*/
+LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.51";	/* The version for SPTI */
 
 /*
  * Local defines and constants
@@ -523,7 +523,7 @@ GetDriveInformation(BYTE i, DRIVE *pDrive)
 	swb.spt.CdbLength	= 6;
 	swb.spt.SenseInfoLength	= 24;
 	swb.spt.DataIn		= SCSI_IOCTL_DATA_IN;
-	swb.spt.DataTransferLength = 100;
+	swb.spt.DataTransferLength = sizeof (inqData);
 	swb.spt.TimeOutValue	= 2;
 	swb.spt.DataBuffer	= inqData;
 	swb.spt.SenseInfoOffset	= offsetof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER, ucSenseBuf);

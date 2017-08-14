@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.12 17/06/15 Copyright 2015-2017 J. Schilling
+# cmptest @(#)cmptest.sh	1.13 17/07/21 Copyright 2015-2017 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -25,6 +25,17 @@ $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=awk
+
+: ${CPP=/lib/cpp}
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/lib/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/ccs/lib/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/bin/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/bin/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/opt/schily/lib/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=../../../cpp/OBJ/"`../../../conf/oarch.sh`"/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/sfw/bin/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/gnu/bin/cpp
+$CPP < /dev/null > /dev/null 2> /dev/null || CPP=cpp
 
 trap cleanup EXIT INT HUP
 
@@ -255,8 +266,8 @@ do
 			fi
 		fi
 	else
-		cpp original | grep This > xo
-		cpp -DXXX original | grep This > xm
+		$CPP original | grep This > xo
+		$CPP -DXXX original | grep This > xm
 		diff saved_orig xo > xof
 		ret=$?
 		if [ $ret -ne 0 ]; then

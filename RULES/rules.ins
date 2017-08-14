@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.26 17/07/04 
+#ident @(#)rules.ins	1.27 17/08/01 
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -25,17 +25,18 @@ $(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS):
 $(SRCROOT)/bins/$(OARCH):
 			$(MKDIR) -p $@
 
-$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT):	$(PTARGET)
+$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT):	$(PTARGET) \
+					$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)
 			$(INSTALL) $(INSFLAGS) $(INSOPTX) $(PTARGET) $@
 
 $(SRCROOT)/bins/$(OARCH)/$(TARGET)$(_EXEEXT):	$(PTARGET)
 			$(INSTALL) $(INSFLAGS) $(INSOPTX) $(PTARGET) $@
 
 PHARDLINKS=	$(HARDLINKS:%=$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/%$(_EXEEXT))
-hardlinks:	$(PHARDLINKS)
+hardlinks:	finstall $(PHARDLINKS)
 
 PSYMLINKS=	$(SYMLINKS:%=$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/%$(_EXEEXT))
-symlinks:	$(PSYMLINKS)
+symlinks:	finstall $(PSYMLINKS)
 
 _INSMODEINS=	$(_UNIQ)$(INSMODEI)
 __INSMODEINS=	$(_INSMODEINS:$(_UNIQ)=$(INSMODEX))
@@ -47,7 +48,7 @@ dummy $(PHARDLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARG
 symdummy $(PSYMLINKS):	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
 	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
 
-xinstall:
+xinstall: finstall
 	@if [ ".$(XMK_FILE)" != . ] ; then				\
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
@@ -95,8 +96,10 @@ man installman:
 		done							\
 	fi
 
-install:	all	$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS) \
-			$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) \
+finstall:		$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS) \
+			$(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
+
+install:	all	finstall \
 			hardlinks symlinks \
 			xinstall
 

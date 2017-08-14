@@ -1,6 +1,6 @@
-/* @(#)jsdprintf.c	1.1 16/04/02 Copyright 1985, 1989, 1995-2016 J. Schilling */
+/* @(#)jsdprintf.c	1.2 17/08/03 Copyright 1985, 1989, 1995-2017 J. Schilling */
 /*
- *	Copyright (c) 1985, 1989, 1995-2016 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,7 +33,7 @@ typedef struct {
 } *BUF, _BUF;
 
 LOCAL	void	_bflush	__PR((BUF));
-LOCAL	void	_bput	__PR((char, long));
+LOCAL	void	_bput	__PR((char, void *));
 EXPORT	int	js_dprintf __PR((int, const char *, ...))	__printflike__(2, 3);
 
 LOCAL void
@@ -49,12 +49,12 @@ _bflush(bp)
 
 #ifdef	PROTOTYPES
 LOCAL void
-_bput(char c, long l)
+_bput(char c, void *l)
 #else
 LOCAL void
 _bput(c, l)
 		char	c;
-		long	l;
+		void	*l;
 #endif
 {
 	register BUF	bp = (BUF)l;
@@ -88,7 +88,7 @@ js_dprintf(fd, form, va_alist)
 #else
 	va_start(args);
 #endif
-	format(_bput, (long)&bb, form, args);
+	format(_bput, &bb, form, args);
 	va_end(args);
 	if (bb.cnt < BFSIZ)
 		_bflush(&bb);

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)arith.sh	1.23 17/07/09 Copyright 2016-2017 J. Schilling
+# @(#)arith.sh	1.24 17/07/21 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -329,26 +329,32 @@ docommand a293 "$SHELL -c 'echo \$((0?0^0:1?-2:3))'" 0 "-2\n" ""
 docommand a294 "$SHELL -c 'echo \$((1?0^0:0?-2:3))'" 0 "0\n" ""
 docommand a295 "$SHELL -c 'echo \$((0?0^0:0?-2:3))'" 0 "3\n" ""
 
+docommand a296 "$SHELL -c 'echo \$(( 0 ? 2 : 3 , 0 ? 7 : 4 ))'" 0 "4\n" ""
+docommand a297 "$SHELL -c 'echo \$(( 1 ? 2 : 3 , 0 ? 7 : 4 ))'" 0 "4\n" ""
+docommand a298 "$SHELL -c 'echo \$(( 0 ? 2 : 3 , 1 ? 7 : 4 ))'" 0 "7\n" ""
+docommand a299 "$SHELL -c 'echo \$(( 1 ? 2 : 3 , 1 ? 7 : 4 ))'" 0 "7\n" ""
+docommand a300 "$SHELL -c 'echo \$(( 1 ? 2 : 3 , 1 ? 7 : 4 , 9 ))'" 0 "9\n" ""
+
 if [ "$var_incr" = true ]; then
-docommand a300 "$SHELL -c 'echo \$((QQ_*=XCd<<=Y++^O++?Y>>=H++:T++!=C++))'" 0 "0\n" ""
-docommand a301 "$SHELL -c 'echo \$((YHz-=M++|Z++<<X++>N++==(M|=P_+=L+++T++)))'" 0 "0\n" ""
+docommand a301 "$SHELL -c 'echo \$((QQ_*=XCd<<=Y++^O++?Y>>=H++:T++!=C++))'" 0 "0\n" ""
+docommand a302 "$SHELL -c 'echo \$((YHz-=M++|Z++<<X++>N++==(M|=P_+=L+++T++)))'" 0 "0\n" ""
 #
 # The next may fail nor not, C does not permit it as a parenthesis is missing.
 # So we do not run it.
 #
-#docommand a301b "$SHELL -c 'echo \$((YHz-=M++|Z++<<X++>N++==M|=P_+=L+++T++))'" "!=0" "" IGNORE
+#docommand a302b "$SHELL -c 'echo \$((YHz-=M++|Z++<<X++>N++==M|=P_+=L+++T++))'" "!=0" "" IGNORE
 else
 	echo
 	echo "Skipping more variable pre/post increment/decrement tests..."
 	echo
 fi
 
-docommand a302 "$SHELL -c 'echo \$((N>>=U+=F&=J!=(H*=S-P<=K<<I-X!=G<<V>=(Z|=R<I<<O))))'" 0 "0\n" ""
+docommand a303 "$SHELL -c 'echo \$((N>>=U+=F&=J!=(H*=S-P<=K<<I-X!=G<<V>=(Z|=R<I<<O))))'" 0 "0\n" ""
 #
 # The next may fail nor not, C does not permit it as a parenthesis is missing.
 # So we do not run it.
 #
-#docommand a302b "$SHELL -c 'echo \$((N>>=U+=F&=J!=H*=S-P<=K<<I-X!=G<<V>=Z|=R<I<<O))'" "!=0" "" IGNORE
+#docommand a303b "$SHELL -c 'echo \$((N>>=U+=F&=J!=H*=S-P<=K<<I-X!=G<<V>=Z|=R<I<<O))'" "!=0" "" IGNORE
 
 #
 # lvalue and division by zero - so this must fail
@@ -395,6 +401,10 @@ docommand a502 "$SHELL -c 'set -u; unset x; echo \$(( x = 3 )); echo \$x'" 0 "3\
 
 docommand a600 "$SHELL -c 'echo \$(( `echo 77` `printf %s -` `echo 44` ))'" 0 "33\n" ""
 docommand a601 "$SHELL -c 'echo \$(( \$(echo 77) \$(printf %s -) \$(echo 44) ))'" 0 "33\n" ""
+
+docommand a900 "$SHELL -c 'echo \$(( 3 ))'" 0 "3\n" ""
+docommand a901 "$SHELL -c 'echo \$(( 3 )'" !=0 "" NONEMPTY
+docommand a902 "$SHELL -c 'echo \$(( 3 '" !=0 "" NONEMPTY
 
 #
 # Test cases that are similar to the tests from ksh93

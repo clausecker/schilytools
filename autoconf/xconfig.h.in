@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.270 17/07/04 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.271 17/08/05 Copyright 1998-2017 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -670,6 +670,8 @@
 
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
 #undef HAVE_ISWPRINT		/* iswprint() is present in libc */
+#undef HAVE_ISWBLANK		/* iswblank() is present in libc */
+#undef HAVE_ISBLANK		/* isblank() is present in libc */
 #undef HAVE_MBSINIT		/* mbsinit() is present in libc */
 #undef HAVE_MBTOWC		/* mbtowc() is present in libc */
 #undef HAVE_WCTOMB		/* wctomb() is present in libc */
@@ -986,6 +988,7 @@
 #undef u_long			/* To be used if u_long is not present	*/
 
 #undef wctype_t			/* To be used if wctype_t is not in wchar.h */
+#undef wint_t			/* To be used if wint_t is not in wchar.h */
 #undef mbstate_t		/* To be used if mbstate_t is not in wchar.h */
 
 #undef timestruc_t		/* To be used if timestruc_t is not in sys/stat.h */

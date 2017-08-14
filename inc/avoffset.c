@@ -1,8 +1,8 @@
-/* @(#)avoffset.c	1.33 11/11/28 Copyright 1987, 1995-2011 J. Schilling */
+/* @(#)avoffset.c	1.35 17/08/01 Copyright 1987, 1995-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)avoffset.c	1.33 11/11/28 Copyright 1987, 1995-2011 J. Schilling";
+	"@(#)avoffset.c	1.35 17/08/01 Copyright 1987, 1995-2017 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -13,19 +13,9 @@ static	UConst char sccsid[] =
  *	FP_INDIR	- number of stack frames above main()
  *			  before encountering a NULL pointer.
  *
- *	Copyright (c) 1987, 1995-2011 J. Schilling
+ *	Copyright (c) 1987, 1995-2017 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
@@ -115,6 +105,14 @@ main(ac, av)
 	 * does not affect the new code extended as well.
 	 */
 	while (i <= 1000 && fp->fr_savfp) {
+		/*
+		 * Workaround for the still buggy clang...
+		 * clang version 4.0.0 on ARM64 FreeBSD has become worse.
+		 * If we do not have the strange write() call, this loop
+		 * becomes an endless loop and the last line in the loop
+		 * is never touched.
+		 */
+		write(-1, "", 0);
 		if (fp->fr_savpc == 0)
 			break;
 
@@ -158,7 +156,13 @@ main(ac, av)
 	return (0);	/* keep lint happy */
 }
 
-LOCAL int
+#if	__clang__ || (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ >= 2)
+#define	__NO_INL__	__attribute__((noinline))
+#else
+#define	__NO_INL__
+#endif
+
+LOCAL int __NO_INL__
 stack_direction(lp)
 	long	*lp;
 {

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)cmd.c	1.47 17/06/11 2008-2017 J. Schilling
+ * @(#)cmd.c	1.48 17/08/01 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.47 17/06/11 2008-2017 J. Schilling";
+	"@(#)cmd.c	1.48 17/08/01 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -137,6 +137,7 @@ cmd(sym, flg)
 {
 	struct trenod *i, *e;
 
+	wdset = 0;
 	i = list(flg);
 	if (wdval == NL) {
 		if (flg & NLFLG) {
@@ -290,10 +291,23 @@ static struct regnod *
 syncase(esym)
 	int	esym;
 {
+#ifdef	DO_POSIX_CASE
+	wdset |= IN_CASE;
+#endif
 	skipnl(0);
-	if (wdval == esym)
+
+#ifdef	DO_POSIX_CASE
+	if (wdval == 0 &&
+	    syslook(wdarg->argval,
+			    reserved, no_reserved) == esym) {
+		wdval = esym;
+	}
+#endif
+
+	if (wdval == esym) {
+		wdset &= ~IN_CASE;
 		return (0);
-	else {
+	} else {
 		struct regnod *r =
 		    (struct regnod *)getstor(sizeof (struct regnod));
 		struct argnod *argp;
@@ -326,6 +340,7 @@ syncase(esym)
 			else
 				break;
 		}
+		wdset &= ~IN_CASE;
 		r->regcom = cmd(0, NLFLG | MTFLG);
 		if (wdval == ECSYM)
 			r->regnxt = syncase(esym);

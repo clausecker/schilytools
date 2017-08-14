@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)glob.sh	1.5 16/06/14 Copyright 2016 J. Schilling
+# @(#)glob.sh	1.7 17/08/13 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -20,16 +20,21 @@ docommand gl03 "$SHELL -c 'echo gl[abco]b.sh'" 0 "glob.sh\n" ""
 docommand gl04 "$SHELL -c 'echo gl[a-o]b.sh'" 0 "glob.sh\n" ""
 docommand gl05 "$SHELL -c 'echo gl\ob.sh'" 0 "glob.sh\n" ""
 
+docommand gl10 "$SHELL -c 'echo gl[[:alpha:]]b.sh'"  0 "glob.sh\n" ""
+docommand gl11 "$SHELL -c 'echo gl[![:alpha:]]b.sh'" 0 "gl[![:alpha:]]b.sh\n" ""
+docommand gl12 "$SHELL -c 'echo gl[[:digit:]]b.sh'"  0 "gl[[:digit:]]b.sh\n" ""
+docommand gl13 "$SHELL -c 'echo gl[![:digit:]]b.sh'" 0 "glob.sh\n" ""
+
 #
 # Basic tests to check whether globbing with syntax error does not expand
 #
-docommand gl06 "$SHELL -c 'echo ![*[*'" 0 "![*[*\n" ""
+docommand gl50 "$SHELL -c 'echo ![*[*'" 0 "![*[*\n" ""
 
 $SRCROOT/conf/mkdir-sh -p '[x'
 : > '[x/foo'
-docommand gl07 "$SHELL -c 'echo [*'" 0 "[*\n" ""
-docommand gl08 "$SHELL -c 'echo *[x'" 0 "*[x\n" ""
-docommand gl09 "$SHELL -c 'echo [x/*'" 0 "[x/foo\n" ""
+docommand gl51 "$SHELL -c 'echo [*'" 0 "[*\n" ""
+docommand gl52 "$SHELL -c 'echo *[x'" 0 "*[x\n" ""
+docommand gl53 "$SHELL -c 'echo [x/*'" 0 "[x/foo\n" ""
 remove '[x/foo'
 rmdir '[x'
 
@@ -47,19 +52,23 @@ if [ "$symlink" != cp ]; then
 $SRCROOT/conf/mkdir-sh -p 'dir'
 $symlink non-existent dir/abc
 
-docommand gl10 "$SHELL -c 'echo d*/*'" 0 "dir/abc\n" ""
-docommand gl11 "$SHELL -c 'echo d*/abc'" 0 "dir/abc\n" ""
+docommand gl60 "$SHELL -c 'echo d*/*'" 0 "dir/abc\n" ""
+docommand gl61 "$SHELL -c 'echo d*/abc'" 0 "dir/abc\n" ""
 
 remove dir/abc
 rmdir dir
 fi
 
-docommand gl20 "$SHELL -c 'case foo in f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl21 "$SHELL -c 'case foo in bla|f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl22 "$SHELL -c 'case f\\* in f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl23 "$SHELL -c 'case f\\* in f\*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl24 "$SHELL -c 'case f\\* in f'*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl25 "$SHELL -c 'case f\\* in 'f*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl100 "$SHELL -c 'case foo in f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl101 "$SHELL -c 'case foo in bla|f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl102 "$SHELL -c 'case f\\* in f*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl103 "$SHELL -c 'case f\\* in f\*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl104 "$SHELL -c 'case f\\* in f'*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl105 "$SHELL -c 'case f\\* in 'f*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+
+docommand gl106 "$SHELL -c 'case bla in [[:alpha:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl107 "$SHELL -c 'case bla in [![:digit:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl108 "$SHELL -c 'case 1la in [[:alpha:]]la) echo FAIL;; *) echo OK;; esac'" 0 "OK\n" ""
 
 #
 # The ideas from the following tests have been taken from the "mksh" test suite

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.211 17/06/18 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.212 17/07/19 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/06/18" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/07/19" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -8064,6 +8064,27 @@ command no longer terminates a shell script in case that the
 .B cd
 command did not work for whatever reason. So be careful and always check the
 exit code in shell scripts.
+.br
+.ne 4
+.TP
+.B expanding here documents
+With this version of the Bourne Shell, the quoting state is reset before
+a here document is expanded and restored thereafter. This avoids that
+.sp
+.in +2
+.nf
+var=you
+echo "`cat <<EOF
+Hi $var
+EOF`"
+.fi
+.in -2
+.sp
+prints
+.RB `` "Hi \ey\eo\eu" ''
+as done by the historical Bourne Shell,
+instead of the expected
+.RB `` "Hi you" ''.
 .br
 .ne 4
 .TP

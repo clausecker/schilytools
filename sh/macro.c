@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.75 17/06/21 2008-2017 J. Schilling
+ * @(#)macro.c	1.76 17/07/19 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.75 17/06/21 2008-2017 J. Schilling";
+	"@(#)macro.c	1.76 17/07/19 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -985,12 +985,18 @@ subst(in, ot)
 	struct fileblk	fb;
 	int	count = CPYSIZ;
 	unsigned char	*pc;
+#ifdef	DO_POSIX_HERE
+	int	oquote = quote;
+#endif
 
 	push(&fb);
 	initf(in);
 	/*
 	 * DQUOTE used to stop it from quoting
 	 */
+#ifdef	DO_POSIX_HERE
+	quote = 0;
+#endif
 	while ((c = (getch(DQUOTE, 0))) != '\0') {
 		/*
 		 * read characters from here document and interpret them
@@ -1021,6 +1027,9 @@ subst(in, ot)
 			count = CPYSIZ;
 		}
 	}
+#ifdef	DO_POSIX_HERE
+	quote = oquote;
+#endif
 	flush(ot);
 	pop();
 }

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.136 17/07/04  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.138 17/08/13  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -51,6 +51,8 @@ CPPOPTS +=	-DDO_GETOPT_POSIX	# Fail: $OPTARG has optopt for optstr[0] = ':'
 CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )
+CPPOPTS +=	-DDO_POSIX_GMATCH	# Support for POSIX [:alpha:] ...
+#CPPOPTS +=	-DGMATCH_CLERR_NORM	# Handle glob class error as normal char
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
@@ -81,6 +83,7 @@ CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_TRAP_EXIT		# Fork for (trap cmd EXIT; /usr/bin/true)
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
+CPPOPTS +=	-DDO_POSIX_HERE		# Clear "quote" before expanding here document
 #CPPOPTS +=	-DDO_POSIX_SH		# set -o posix if basename(argv[0]) == "sh"
 					# This has precedence before DO_POSIX_PATH
 					# Define DO_POSIX_SH if you like to use

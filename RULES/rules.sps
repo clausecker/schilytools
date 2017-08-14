@@ -1,4 +1,4 @@
-#ident "@(#)rules.sps	1.14 13/07/22 "
+#ident "@(#)rules.sps	1.15 17/08/04 "
 ###########################################################################
 # Written 2005-2013 by J. Schilling
 ###########################################################################
@@ -41,10 +41,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules.tpk
 ###########################################################################
 
 all: $(ARCHDIR)/config.status $(POSTCONFIG)
-	cd $(ARCHDIR)/; $(MAKE) $(MAKEMACS) $(MAKEOPTS) $@
+	cd $(ARCHDIR)/; "$(MAKE)" $(MAKEMACS) $(MAKEOPTS) $@
 
 install: all
-	cd $(ARCHDIR)/; DESTDIR=$(DEST_DIR) $(MAKE) $(MAKEMACS) $(MAKEOPTS) DESTDIR=$(DEST_DIR) $@
+	cd $(ARCHDIR)/; DESTDIR=$(DEST_DIR) "$(MAKE)" $(MAKEMACS) $(MAKEOPTS) DESTDIR=$(DEST_DIR) $@
 
 #
 # Hack until the <mach>-<os>-*cc.rul files are updated

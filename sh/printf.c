@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.5 16/09/28 Copyright 2015-2016 J. Schilling */
+/* @(#)printf.c	1.6 17/08/03 Copyright 2015-2017 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	printf builtin
@@ -10,7 +10,7 @@
  *	to use a callback function to output a character. This can be done
  *	using the format() function from libschily.
  *
- *	Copyright (c) 2015-2016 J. Schilling
+ *	Copyright (c) 2015-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,7 +30,7 @@
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.5 16/09/28 Copyright 2015-2016 J. Schilling";
+	"@(#)printf.c	1.6 17/08/03 Copyright 2015-2017 J. Schilling";
 
 #include <schily/errno.h>
 
@@ -425,7 +425,7 @@ bprintf(form, va_alist)
 	 * use lazy linking via -zlazyload and avoid to link agaist
 	 * libschily as long as the printf(1) builtin is not used.
 	 */
-	cnt = format((void (*)__PR((char, long)))prc_buff, (long)NULL,
+	cnt = format((void (*)__PR((char, void *)))prc_buff, NULL,
 			form, args);
 	va_end(args);
 	return (cnt);

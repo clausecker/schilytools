@@ -1,6 +1,6 @@
-/* @(#)fprint.c	1.4 16/08/10 Copyright 1985, 1989, 1995-2016 J. Schilling */
+/* @(#)fprint.c	1.5 17/08/03 Copyright 1985, 1989, 1995-2017 J. Schilling */
 /*
- *	Copyright (c) 1985, 1989, 1995-2016 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,7 +36,7 @@ typedef struct {
 } *BUF, _BUF;
 
 LOCAL	void	_bflush	__PR((BUF));
-LOCAL	void	_bput	__PR((char, long));
+LOCAL	void	_bput	__PR((char, void *));
 EXPORT	int	fprintf	__PR((FILE *, const char *, ...)) __printflike__(2, 3);
 EXPORT	int	printf	__PR((const char *, ...))	  __printflike__(1, 2);
 
@@ -53,12 +53,12 @@ _bflush(bp)
 
 #ifdef	PROTOTYPES
 LOCAL void
-_bput(char c, long l)
+_bput(char c, void *l)
 #else
 LOCAL void
 _bput(c, l)
 		char	c;
-		long	l;
+		void	*l;
 #endif
 {
 	register BUF	bp = (BUF)l;
@@ -91,7 +91,7 @@ printf(form, va_alist)
 #else
 	va_start(args);
 #endif
-	format(_bput, (long)&bb, form, args);
+	format(_bput, &bb, form, args);
 	va_end(args);
 	if (bb.cnt < BFSIZ)
 		_bflush(&bb);
@@ -122,7 +122,7 @@ fprintf(file, form, va_alist)
 #else
 	va_start(args);
 #endif
-	format(_bput, (long)&bb, form, args);
+	format(_bput, &bb, form, args);
 	va_end(args);
 	if (bb.cnt < BFSIZ)
 		_bflush(&bb);
@@ -134,12 +134,12 @@ EXPORT	int sprintf __PR((char *, const char *, ...));
 
 #ifdef	PROTOTYPES
 static void
-_cput(char c, long ba)
+_cput(char c, void *ba)
 #else
 static void
 _cput(c, ba)
 	char	c;
-	long	ba;
+	void	*ba;
 #endif
 {
 	*(*(char **)ba)++ = c;
@@ -166,7 +166,7 @@ sprintf(buf, form, va_alist)
 #else
 	va_start(args);
 #endif
-	cnt = format(_cput, (long)&bp, form,  args);
+	cnt = format(_cput, &bp, form,  args);
 	va_end(args);
 	*bp = '\0';
 
@@ -182,12 +182,12 @@ typedef struct {
 
 #ifdef	PROTOTYPES
 static void
-_scput(char c, long l)
+_scput(char c, void *l)
 #else
 static void
 _scput(c, l)
 	char	c;
-	long	l;
+	void	*l;
 #endif
 {
 	register SBUF	bp = (SBUF)l;
@@ -227,7 +227,7 @@ snprintf(buf, maxcnt, form, va_alist)
 #else
 	va_start(args);
 #endif
-	cnt = format(_scput, (long)&bb, form,  args);
+	cnt = format(_scput, &bb, form,  args);
 	va_end(args);
 	if (maxcnt > 0)
 		*(bb.ptr) = '\0';

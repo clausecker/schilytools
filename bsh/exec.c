@@ -1,13 +1,13 @@
-/* @(#)exec.c	1.63 13/04/25 Copyright 1985-2013 J. Schilling */
+/* @(#)exec.c	1.64 17/08/06 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.63 13/04/25 Copyright 1985-2013 J. Schilling";
+	"@(#)exec.c	1.64 17/08/06 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -463,10 +465,14 @@ execcmd(vp, std, flag)
 			/*
 			 * Did not fork yet, so do it now.
 			 */
+#ifndef	VFORK
+		} else {
+			child = shfork(flag);
+		}
+#else
 		} else if (flag & NOVFORK) {
 			child = shfork(flag);
 		} else {
-#ifdef	VFORK
 			block_sigs();
 			child = vfork();
 			if (child < 0) {
@@ -493,8 +499,6 @@ execcmd(vp, std, flag)
 			if (child >= 0)
 				pset(child, flag);	/* vfork only ?? */
 			unblock_sigs();
-#else
-			child = shfork(flag);
 #endif
 		}
 		if (child < 0)

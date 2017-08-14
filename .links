@@ -271,6 +271,9 @@
 ./RULES/amiga-netbsd-cc.rul
 ./RULES/amiga-netbsd-gcc.rul
 ./RULES/aranym-freemint-gcc.rul
+./RULES/arm64-freebsd-clang.rul
+./RULES/arm64-freebsd-clang32.rul
+./RULES/arm64-freebsd-clang64.rul
 ./RULES/armv4l-linux-cc.rul
 ./RULES/armv4l-linux-gcc.rul
 ./RULES/armv4tl-linux-cc.rul
