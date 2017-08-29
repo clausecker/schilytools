@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.39 17/04/15 Copyright 2007-2017 J. Schilling
+.\" @(#)sccs.1	4.41 17/08/28 Copyright 2007-2017 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2017/04/15" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2017/08/28" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -878,6 +878,7 @@ implementations.
 .ne 5
 .HP
 .BR deledit " [" \-o "] [" \-s "] [\c
+.BR \-f "] [" \-q "] [\c
 .BR \-y [\c
 .IR comment "]\|]"
 .sp .6
@@ -903,9 +904,18 @@ are passed to ``edit''.
 Use the original file time instead of the current time for
 the time of the delta.
 .TP
-.B -s
+.B \-s
 .sp .6
 Silent. Do not report delta numbers or statistics.
+.TP
+.B \-f
+.sp .6
+In NSE mode, force to create a delta even when no
+.B p.
+file is present.
+.TP
+.B \-q
+Switch on NSE mode.
 
 .br
 .ne 3
@@ -920,6 +930,16 @@ is omitted,
 prompts for a comment.  A null
 .I comment
 results in an empty comment field for the delta.
+.LP
+The options
+.B \-f
+and
+.B \-q
+are
+.B SCHILY
+extensions that do not exist in historic
+.B sccs
+implementations.
 
 .RE
 
@@ -927,6 +947,7 @@ results in an empty comment field for the delta.
 .ne 5
 .HP
 .BR delget " [" \-o "] [" \-s "] [\c
+.BR \-f "] [" \-q "] [\c
 .BR \-y [\c
 .IR comment "]\|]"
 .sp .6
@@ -938,7 +959,9 @@ to check in a delta and retrieve read-only copies of the resulting new version.
 See the
 .B deledit
 subcommand for a description of
-.B -s
+.BR \-s ,
+.BR \-f ,
+.BR \-q , 
 and
 .BR -y .
 .B sccs
@@ -953,7 +976,8 @@ the
 is not performed.
 The
 .BR \-m ",
-.BR \-o ", "\-p ", " \-r , 
+.BR \-o ", " \-p ", " \-r , 
+.BR \-f ", " \-q ,
 .BR \-s ", and " \-y
 flags will be passed to delta,
 and the
@@ -966,6 +990,7 @@ flags will be passed to get.
 .ne 5
 .HP
 .BR delta " [" \-o "] [" \-s "] [\c
+.BR \-f "] [" \-q "] [\c
 .BR \-y [\c
 .IR comment "]\|]"
 .sp .6
@@ -984,9 +1009,11 @@ utility.
 See the
 .B deledit
 subcommand for a description of
-.B -s
+.BR \-s ,
+.BR \-f ,
+.BR \-q ,
 and
-.BR -y .
+.BR \-y .
 
 .br
 .ne 5

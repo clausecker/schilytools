@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.121 17/07/13 2008-2017 J. Schilling
+ * @(#)bltin.c	1.122 17/08/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.121 17/07/13 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.122 17/08/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -82,6 +82,8 @@ static	void	syscommand __PR((int argc, unsigned char **argv,
 static	void	syshist	__PR((int argc, unsigned char **argv,
 					struct trenod *t, int xflags));
 #endif
+
+#define	no_pipe	(int *)0
 
 void
 builtin(type, argc, argv, t, xflags)
@@ -1286,9 +1288,16 @@ syscommand(argc, argv, t, xflags)
 		} else {
 			unsigned char		*sav = savstak();
 			struct ionod		*iosav = iotemp;
+			struct comnod	cnod;
+
+			cnod.comtyp = TCOM;
+			cnod.comio  = NULL;
+			cnod.comarg = (struct argnod *)argv;
+			cnod.comset = comptr(t)->comset;
 
 			flags |= nofuncs;
-			execexp(argv[0], (Intptr_t)&argv[1], xflags);
+			execute((struct trenod *)&cnod, xflags | XEC_HASARGV,
+				0, no_pipe, no_pipe);
 			flags &= ~nofuncs;
 			tdystak(sav, iosav);
 		}

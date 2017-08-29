@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.5 17/07/20 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.6 17/08/27 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -685,6 +685,49 @@ EOF
 )"
 XEOF
 docommand here36 "$SHELL ./x" 0 "Hi you\n" ""
+remove x
+
+cat > x <<"XEOF"
+read var <<EOF
+$(echo Hi)
+EOF
+echo "${var-nothing was read}"
+XEOF
+docommand here37 "$SHELL ./x" 0 "Hi\n" ""
+remove x
+
+cat > x <<"XEOF"
+for N in 1 4; do echo "$( cat <<- EOF
+	Mary had ${N}
+	little
+	lamb$( [ $N -gt 1 ] && echo s )
+	EOF
+	)"; done
+XEOF
+docommand here38 "$SHELL ./x" 0 "Mary had 1
+little
+lamb
+Mary had 4
+little
+lambs
+" ""
+remove x
+
+cat > x <<"XEOF"
+for N in 1 4; do echo "` cat <<- EOF
+	Mary had ${N}
+	little
+	lamb\` [ $N -gt 1 ] && echo s \`
+	EOF
+	`"; done
+XEOF
+docommand here39 "$SHELL ./x" 0 "Mary had 1
+little
+lamb
+Mary had 4
+little
+lambs
+" ""
 remove x
 
 cat > x <<"XEOF"

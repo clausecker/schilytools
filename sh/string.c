@@ -38,13 +38,13 @@
 #include	"defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)string.c	1.18 16/08/28 2008-2016 J. Schilling
+ * @(#)string.c	1.19 17/08/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.18 16/08/28 2008-2016 J. Schilling";
+	"@(#)string.c	1.19 17/08/27 2008-2017 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -117,6 +117,23 @@ anys(c, s)
 	}
 	/* NOTREACHED */
 }
+
+#ifdef	__needed__
+int
+clen(c)
+	unsigned char	*c;
+{
+	wchar_t		f;
+	int		n;
+
+	(void) mbtowc(NULL, NULL, 0);
+	if ((n = mbtowc(&f, (char *)c, MULTI_BYTE_MAX)) <= 0) {
+		(void) mbtowc(NULL, NULL, 0);
+		return (1);
+	}
+	return (n);
+}
+#endif
 
 int
 cf(s1, s2)

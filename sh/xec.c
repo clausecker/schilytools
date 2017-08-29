@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.81 17/07/18 2008-2017 J. Schilling
+ * @(#)xec.c	1.85 17/08/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.81 17/07/18 2008-2017 J. Schilling";
+	"@(#)xec.c	1.85 17/08/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -232,11 +232,19 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				exitval = 0;
 				exval_clear();
 
-				gchain = 0;
-				argn = getarg((struct comnod *)t);
-				com = scan(argn);
-				gchain = schain;
-
+				if (xflags & XEC_HASARGV) {
+					/*
+					 * Cheat code to support "command cmd"
+					 */
+					com = (unsigned char **)
+							comptr(t)->comarg;
+					argn = 1;	/* Cheat */
+				} else {
+					gchain = 0;
+					argn = getarg((struct comnod *)t);
+					com = scan(argn);
+					gchain = schain;
+				}
 				if (argn != 0)
 					cmdhash = pathlook(com[0],
 							1, comptr(t)->comset);
@@ -516,15 +524,15 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				}
 				if (!isvfork &&
 				    (treeflgs & (FPOU|FAMP))) {
-					link_iodocs(iotemp);
-					link_iodocs(fiotemp);
-					linked = 1;
+					linked |= link_iodocs(iotemp);
+					linked |= link_iodocs(fiotemp);
 				}
 script:
 				while ((parent = isvfork?vfork():fork()) == -1)
 #else
 				if (treeflgs & (FPOU|FAMP)) {
 					link_iodocs(iotemp);
+					link_iodocs(fiotemp);
 					linked = 1;
 				}
 				while ((parent = fork()) == -1)
@@ -1156,15 +1164,18 @@ ps_macro(as, perm)
 extern	int		macflag;
 	int		oflags = flags;
 	int		omacflag = macflag;
+	int		otrapnote = trapnote;
 	unsigned char	*res;
 
 	flags &= ~(execpr|readpr);
 	if ((flags2 & promptcmdsubst) == 0)
 		macflag |= M_NOCOMSUBST;
+	trapnote = 0;
 	res = _macro(as);
 	staktop = res;		/* Restore to previous stakbot offset */
 	macflag = omacflag;
 	flags = oflags;
+	trapnote = otrapnote;
 
 	if (perm)
 		return (make(res));
@@ -1215,7 +1226,20 @@ exallocjob(t, xflags)
 		int save_fd;
 
 		save_fd = setb(-1);
-		prcmd(t);
+		if (xflags & XEC_HASARGV) {
+			unsigned char	**av = UCP comptr(t)->comarg;
+
+			/*
+			 * Cheat code to support "command cmd"
+			 */
+			while (*av) {
+				prs_buff(*av++);
+				if (*av)
+					prc_buff(SPACE);
+			}
+		} else {
+			prcmd(t);
+		}
 		/*
 		 * We use cwdget(CHDIR_L) as this does not modify PWD
 		 * unless it is definitely invalid.

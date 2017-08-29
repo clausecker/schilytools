@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.49 17/04/15 J. Schilling 
+* @(#)cmds	1.50 17/08/28 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -584,22 +584,26 @@ options:
 	on all files not checked out for editing
 
 -delget
-	delget [-o] [-s] [-y<comment>] file...
+	delget [-o] [-s] [-f] [-q] [-y<comment>] file...
 
 	Sccs delta followed by sccs get
 
 options:
 	-o	Use original time of edited file to apply delta and get
 	-s	Be silent
+	-f	Enforce a delta in NSE mode, even when there is no p file
+	-q	Switch on NSE mode
 	-ycmt	Supply delta comment
 -deledit
-	deledit [-o] [-s] [-y<comment>] file...
+	deledit [-o] [-s] [-f] [-q] [-y<comment>] file...
 
 	Sccs delta followed by sccs edit
 
 options:
 	-o	Use original time of edited file to apply delta
 	-s	Be silent
+	-f	Enforce a delta in NSE mode, even when there is no p file
+	-q	Switch on NSE mode
 	-ycmt	Supply delta comment
 -fix
 	fix -r<SID> [-d] file...

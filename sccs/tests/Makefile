@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.6 17/08/04 "
+#ident "@(#)Makefile	1.7 17/08/17 "
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
@@ -8,17 +8,21 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 all tests: /tmp/SCCSTEST all-tests all-v6-tests
 	@echo "Don't forget to remove /tmp/SCCSTEST in case you don't like to repeat the test"
 
-all-tests: cssc-tests sccs-tests
+all-tests: /tmp/SCCSTEST cssc-tests sccs-tests
 
-all-v6-tests: cssc-v6-tests sccs-v6-tests
+all-v6-tests: /tmp/SCCSTEST all-tests cssc-v6-tests sccs-v6-tests
 
+#
+# ksh yields in an exit code of 1 for unset in case that SCCS_V6 has not been set before.
+# We thus set SCCS_V6 for "unset"...
+#
 cssc-tests:
-	unset SCCS_V6 && \
+	SCCS_V6=a unset SCCS_V6 && \
 	cd cssctests && dir=$${dir-/tmp/SCCSTEST/ccs/bin} "$(MAKE)"
 	@echo "Watch for FAIL and XFAIL in the output"
 
 sccs-tests:
-	unset SCCS_V6 && \
+	SCCS_V6=a unset SCCS_V6 && \
 	cd sccstests && dir=$${dir-/tmp/SCCSTEST/ccs/bin} "$(MAKE)"
 	@echo "Watch for FAIL and XFAIL in the output"
 

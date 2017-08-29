@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)glob.sh	1.7 17/08/13 Copyright 2016 J. Schilling
+# @(#)glob.sh	1.8 17/08/20 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -66,9 +66,13 @@ docommand gl103 "$SHELL -c 'case f\\* in f\*) echo OK;; *) echo FAIL;; esac'" 0 
 docommand gl104 "$SHELL -c 'case f\\* in f'*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
 docommand gl105 "$SHELL -c 'case f\\* in 'f*') echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
 
-docommand gl106 "$SHELL -c 'case bla in [[:alpha:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl107 "$SHELL -c 'case bla in [![:digit:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
-docommand gl108 "$SHELL -c 'case 1la in [[:alpha:]]la) echo FAIL;; *) echo OK;; esac'" 0 "OK\n" ""
+docommand gl120 "$SHELL -c 'case ] in *[ab\]cd]*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl121 "$SHELL -c 'case e in *[!ab\]cd]*) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+
+docommand gl150 "$SHELL -c 'case bla in [[:alpha:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl151 "$SHELL -c 'case bla in [![:digit:]]la) echo OK;; *) echo FAIL;; esac'" 0 "OK\n" ""
+docommand gl152 "$SHELL -c 'case 1la in [[:alpha:]]la) echo FAIL;; *) echo OK;; esac'" 0 "OK\n" ""
+
 
 #
 # The ideas from the following tests have been taken from the "mksh" test suite

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.172 17/07/13 2008-2017 J. Schilling
+ * @(#)defs.h	1.176 17/08/28 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -57,6 +57,7 @@ extern "C" {
 #define		XEC_NOBLTIN	010	/* Do not execute functions / bltins */
 #define		XEC_STDINSAV	020	/* STDIN_FILENO was moved away	    */
 #define		XEC_ALLOCJOB	040	/* A job slot was already allocated */
+#define		XEC_HASARGV	0100	/* t->comarg holds expanded argv[]  */
 
 /* endjobs flags */
 #define		JOB_STOPPED	01
@@ -232,6 +233,7 @@ extern "C" {
 #define		IOSTRIP		0x0200	/* <<-word: strip leading tabs	    */
 #define		IODOC_SUBST	0x0400	/* <<\word: no substitution	    */
 #define		IOCLOB		0x1000	/* >| clobber files		    */
+#define		IOBARRIER	0x2000	/* tmpfile link/unlink barrier	    */
 
 #define		INPIPE		0	/* Input fd index in pipe fd array  */
 #define		OTPIPE		1	/* Output fd index in pipe fd array */
@@ -551,7 +553,7 @@ extern	void	renamef		__PR((int f1, int f2));
 extern	int	create		__PR((unsigned char *s, int iof));
 extern	int	tmpfil		__PR((struct tempblk *tb));
 extern	void	copy		__PR((struct ionod *ioparg));
-extern	void	link_iodocs	__PR((struct ionod *i));
+extern	int	link_iodocs	__PR((struct ionod *i));
 extern	void	swap_iodoc_nm	__PR((struct ionod *i));
 extern	int	savefd		__PR((int fd));
 extern	void	restore		__PR((int last));
@@ -790,6 +792,7 @@ extern	Intmax_t	strexpr	__PR((unsigned char *arg));
 extern	unsigned char *movstr	__PR((unsigned char *a, unsigned char *b));
 extern	int		any	__PR((wchar_t c, unsigned char *s));
 extern	int		anys	__PR((unsigned char *c, unsigned char *s));
+extern	int		clen	__PR((unsigned char *c));
 extern	int		cf	__PR((unsigned char *s1, unsigned char *s2));
 extern	int		length	__PR((unsigned char *as));
 extern	unsigned char *movstrn	__PR((unsigned char *a,

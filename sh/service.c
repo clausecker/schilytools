@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)service.c	1.51 17/05/26 2008-2017 J. Schilling
+ * @(#)service.c	1.52 17/08/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.51 17/05/26 2008-2017 J. Schilling";
+	"@(#)service.c	1.52 17/08/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -705,6 +705,17 @@ extern	int		macflag;
 		 * Point past argnext ptr (&argval[0]).
 		 */
 		argp = locstak() + BYTESPERWORD;
+#ifdef	DO_POSIX_FIELD_SPLIT
+		/*
+		 * Skip initial whitespace
+		 */
+		if (*ifs && *s != '\0') {
+			while (white(*s) && anys(s, ifs)) {
+				if (*++s == '\0')
+					break;
+			}
+		}
+#endif
 		while ((c = *s) != 0) {
 			wchar_t wc;
 
@@ -737,6 +748,24 @@ extern	int		macflag;
 				/* skip to next character position */
 				s += clength;
 #ifdef	DO_POSIX_FIELD_SPLIT
+				/*
+				 * Skip trailing white space
+				 */
+				if (*ifs && white(wc)) {
+					while (*s && anys(s, ifs)) {
+						if ((clength = mbtowc(&wc,
+							    (char *)s,
+							    MB_LEN_MAX)) <= 0) {
+							(void) mbtowc(NULL,
+								    NULL, 0);
+							wc = (unsigned char)*s;
+							clength = 1;
+						}
+						s += clength;
+						if (!white(wc))
+							break;
+					}
+				}
 				if (wc != ' ' && wc != '\t' && wc != '\n')
 					goto newname;
 #endif

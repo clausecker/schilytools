@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)io.c	1.32 17/06/27 2008-2017 J. Schilling
+ * @(#)io.c	1.33 17/08/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.32 17/06/27 2008-2017 J. Schilling";
+	"@(#)io.c	1.33 17/08/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -80,7 +80,7 @@ static	void	pushtemp	__PR((int fd, struct tempblk *tb));
 	int	create		__PR((unsigned char *s, int iof));
 	int	tmpfil		__PR((struct tempblk *tb));
 	void	copy		__PR((struct ionod *ioparg));
-	void	link_iodocs	__PR((struct ionod *i));
+	int	link_iodocs	__PR((struct ionod *i));
 static	int	copy_file	__PR((char *fromname, char *toname));
 	void	swap_iodoc_nm	__PR((struct ionod *i));
 	int	savefd		__PR((int fd));
@@ -479,15 +479,18 @@ copy(ioparg)
 	}
 }
 
-void
+int
 link_iodocs(i)
 	struct ionod	*i;
 {
 	int r;
 	int len;
+	int ret = 0;
 	size_t size_left = TMPOUTSZ - tmpout_offset;
 
 	while (i) {
+		if (i->iofile & IOBARRIER)
+			break;
 		free(i->iolink);
 
 		/* make sure tmp file does not already exist. */
@@ -512,6 +515,7 @@ link_iodocs(i)
 		} while (r == -1 && errno == EEXIST);
 
 		if (r != -1) {
+			ret = 1;
 			i->iolink = (char *)make(tmpout);
 			i = i->iolst;
 		} else {
@@ -519,6 +523,7 @@ link_iodocs(i)
 		}
 
 	}
+	return (ret);
 }
 
 /*
@@ -558,6 +563,8 @@ swap_iodoc_nm(i)
 	struct ionod	*i;
 {
 	while (i) {
+		if (i->iofile & IOBARRIER)
+			break;
 		free(i->ioname);
 		i->ioname = i->iolink;
 		i->iolink = 0;

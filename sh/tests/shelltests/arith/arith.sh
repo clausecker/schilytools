@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)arith.sh	1.24 17/07/21 Copyright 2016-2017 J. Schilling
+# @(#)arith.sh	1.25 17/08/20 Copyright 2016-2017 J. Schilling
 #
 
 # Read test core functions
@@ -405,6 +405,12 @@ docommand a601 "$SHELL -c 'echo \$(( \$(echo 77) \$(printf %s -) \$(echo 44) ))'
 docommand a900 "$SHELL -c 'echo \$(( 3 ))'" 0 "3\n" ""
 docommand a901 "$SHELL -c 'echo \$(( 3 )'" !=0 "" NONEMPTY
 docommand a902 "$SHELL -c 'echo \$(( 3 '" !=0 "" NONEMPTY
+
+#
+# Test whether strange state causes problems
+#
+docommand a1000 "$SHELL -c 'x=foo; : \$((x=1)); echo \$x'" 0 "1\n" ""
+docommand a1001 "$SHELL -c 'x=foo; : \$((x += 1)); echo \$x'" "!=0" IGNORE NONEMPTY
 
 #
 # Test cases that are similar to the tests from ksh93

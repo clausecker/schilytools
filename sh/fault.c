@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)fault.c	1.36 17/07/13 2008-2017 J. Schilling
+ * @(#)fault.c	1.37 17/08/21 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.36 17/07/13 2008-2017 J. Schilling";
+	"@(#)fault.c	1.37 17/08/21 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -314,7 +314,12 @@ done(sig)
 		sigaddset(&set, sig);
 		sigprocmask(SIG_UNBLOCK, &set, 0);
 		handle(sig, SIG_DFL);
-		kill(mypid, sig);
+		/*
+		 * We cannot use mypid here as we may get a signal before we
+		 * did set up mypid. Using mypid thus includes the chance to
+		 * kill out parent instead of ourself.
+		 */
+		kill(getpid(), sig);
 	}
 	if (exflag)
 		_exit(exitval);

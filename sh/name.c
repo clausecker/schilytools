@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)name.c	1.71 17/05/28 2008-2017 J. Schilling
+ * @(#)name.c	1.73 17/08/28 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.71 17/05/28 2008-2017 J. Schilling";
+	"@(#)name.c	1.73 17/08/28 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -521,6 +521,12 @@ readvar(namec, names)
 	unsigned char *oldstak;
 	unsigned char *pc, *rest;
 	int		d;
+#ifdef	DO_POSIX_READ
+	wchar_t		wc;
+	unsigned char	ifsw[3];	/* Max.: space and tab */
+#else
+	unsigned char	*ifsw;
+#endif
 	unsigned int	(*nextwchar)__PR((void));
 	unsigned char	*ifs;
 	BOOL		ifswhite = FALSE;
@@ -560,14 +566,24 @@ readvar(namec, names)
 		ifs = (unsigned char *)sptbnl;
 
 #ifdef	DO_POSIX_READ
-	for (rel = ifs; *rel; rel++) {
-		if (anys(rel, UC sptbnl)) {
+	ifsw[0] = '\0';
+	ifsw[1] = '\0';
+	pc = ifsw;
+	for (rel = ifs; *rel; rel += d) {
+		if ((d = mbtowc(&wc, C rel, MULTI_BYTE_MAX)) <= 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			wc = *rel;
+		}
+		if (space(wc)) {
+			if (ifsw[0] != wc && ifsw[1] != wc)
+				*pc++ = wc;
 			ifswhite = TRUE;
-			break;
 		}
 	}
+	*pc = '\0';
 #else
 	ifswhite = TRUE;
+	ifsw = UC sptbnl;
 #endif
 
 	n = lookup(*names++);		/* done now to avoid storage mess */
@@ -598,7 +614,7 @@ readvar(namec, names)
 
 	/*
 	 * Read first character and
-	 * strip leading IFS characters
+	 * strip leading IFS white characters
 	 */
 	c[0] = '\0';
 	do {
@@ -610,7 +626,7 @@ readvar(namec, names)
 		while ((*pc++ = *rest++) != '\0')
 			/* LINTED */
 			;
-		if (ifswhite && !anys(c, ifs))
+		if (ifswhite && !anys(c, ifsw))
 			break;
 	} while (ifswhite);
 
@@ -638,7 +654,7 @@ readvar(namec, names)
 					while ((*pc++ = *rest++) != '\0')
 						/* LINTED */
 						;
-					if (ifswhite && !anys(c, ifs))
+					if (ifswhite && !anys(c, ifsw))
 						break;
 				} while (ifswhite);
 			}

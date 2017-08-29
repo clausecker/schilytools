@@ -1,8 +1,8 @@
-/* @(#)signames.c	1.20 17/05/02 Copyright 1998-2017 J. Schilling */
+/* @(#)signames.c	1.21 17/08/28 Copyright 1998-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.20 17/05/02 Copyright 1998-2017 J. Schilling";
+	"@(#)signames.c	1.21 17/08/28 Copyright 1998-2017 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
@@ -438,7 +438,8 @@ LOCAL struct signames rtsignames[] = {
 	{ _SIGRTMAX-27,	"RTMAX-27",	"Twenty-eighth Last Realtime Signal", },
 #endif
 #if	(_SIGRTMAX - _SIGRTMIN) >= 53
-	{ _SIGRTMAX-26,	"RTMAX-26",	"Twenty-seventh Last Realtime Signal", },
+	{ _SIGRTMAX-26,	"RTMAX-26",
+				    "Twenty-seventh Last Realtime Signal", },
 #endif
 #if	(_SIGRTMAX - _SIGRTMIN) >= 51
 	{ _SIGRTMAX-25,	"RTMAX-25",	"Twenty-sixth Last Realtime Signal", },

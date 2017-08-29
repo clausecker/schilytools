@@ -1,8 +1,8 @@
-/* @(#)gmatch.c	1.17 17/08/13 2008-2017 J. Schilling */
+/* @(#)gmatch.c	1.19 17/08/18 2008-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.17 17/08/13 2008-2017 J. Schilling";
+	"@(#)gmatch.c	1.19 17/08/18 2008-2017 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
@@ -114,11 +114,21 @@ cclass(p, sub, ret)
 		if (lc == '-' && p[n] != ']') {
 			p += n;
 			nextwc(p, d);
+			if (d == '\\') {
+				nextwc(p, d);
+			}
 			if (mbtowc(&lc, p, MB_LEN_MAX) < 0) {
 				(void) mbtowc(NULL, NULL, 0);
 				return (0);
 			}
 		} else {
+			if (c == '\\') {
+				nextwc(p, c);
+				if (mbtowc(&lc, p, MB_LEN_MAX) < 0) {
+					(void) mbtowc(NULL, NULL, 0);
+					return (0);
+				}
+			}
 			d = c;
 		}
 		if (c == sub || (c <= sub && sub <= d))
@@ -191,7 +201,9 @@ again:
 				return (0);
 			/* FALLTROUGH */
 
+#ifdef	GMATCH_CLERR_NORM
 		def:
+#endif
 		default:
 			if (sc == pc) {
 				;

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.76 17/07/19 2008-2017 J. Schilling
+ * @(#)macro.c	1.77 17/08/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.76 17/07/19 2008-2017 J. Schilling";
+	"@(#)macro.c	1.77 17/08/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -777,9 +777,21 @@ comsubst(trimflag, type)
 	unsigned char *oldstaktop;
 	unsigned char *savptr = fixstak();
 	struct ionod *iosav = iotemp;
+	struct ionod *fiosav = fiotemp;
+	int		oiof = 0;
+	int		ofiof = 0;
 	unsigned char	*pc;
 	struct trenod	*tc = NULL;
 	int		omacflag = macflag;
+
+	if (iosav) {
+		oiof = iosav->iofile;
+		iosav->iofile |= IOBARRIER;
+	}
+	if (fiosav) {
+		oiof = fiosav->iofile;
+		fiosav->iofile |= IOBARRIER;
+	}
 
 	if (type == COM_BACKQUOTE) {  /* `command`  type command substitution */
 
@@ -856,6 +868,10 @@ comsubst(trimflag, type)
 			staktop = movstrstak(&numbuf[slltos(i)], staktop);
 
 			macflag = omacflag | M_ARITH;
+			if (iosav)
+				iosav->iofile = oiof;
+			if (fiosav)
+				fiosav->iofile = ofiof;
 			return;
 		}
 		peekc = d | MARK;
@@ -959,6 +975,10 @@ comsubst(trimflag, type)
 		exitset();	/* Set retval from exitval for $? */
 #endif
 	}
+	if (iosav)
+		iosav->iofile = oiof;
+	if (fiosav)
+		fiosav->iofile = ofiof;
 	while (oldstaktop != staktop) {
 		/*
 		 * strip off trailing newlines from command substitution only

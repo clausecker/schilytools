@@ -1,0 +1,178 @@
+New features with AN-2017-08-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Bourne Shell: Fixed a GCC warning in sh/gmatch.c
+
+-	Bourne Shell: Our gmatch() now honors backslash escapes in character
+	sets.
+
+	Thanks to a report from Martijn Dekker.
+
+-	Bourne Shell: Added a conformance test for the bugfix above.
+
+-	Bourne Shell: Hitting ^C with PS1="$(pwd)> " caused the shell to go
+	into an endless loop because the PS1 expansion tried to execute
+	trap commands in the main loop after a longjmp() from expanding
+	PS1.
+
+	Thanks to a report from Leonard König
+
+-	Bourne Shell: x=foo; : $((x=1)) no longer aborts with "bad number".
+
+	Thanks to a report from Martijn Dekker.
+
+-	Bourne Shell: Added a conformance test for the bugfix above.
+
+-	Bourne Shell: Added a workaround for a signal race condition introduced
+	most likely in 1989. The problem was that a signal that arrives in a 
+	shell child - few instructions after a fork() call, may cause the child
+	to kill it's parent instead of killing itself because the child did not
+	yet call mypid = getpid().
+
+	Thanks to a report from Martijn Dekker.
+
+-	Bourne Shell: We now also hardlink the heredoc files in "fiotemp"
+	in case we are not using vfork(). This was forgotten when the bug was
+	fixed Tue Jul 18 2017 for vfork().
+
+-	Bourne Shell: A bug was fixed that caused tmp files from here documents
+	to be removed too early when (in some cases) here documents were used
+	together with command substitution.
+
+	Thanks to Robert Elz for reporting the problem first.
+	Thanks to Martijn Dekker for reporting a simple command that finally
+	allowed to trace and fix the problem.
+
+-	Bourne Shell: Aded some tests to the testsuite to check whether the
+	bug avove was fixed.
+
+-	Bourne Shell: The "read" builtin now only skips those repeated IFS
+	characters that are whitespace. This is required by POSIX.
+
+-	Bourne Shell: Aded some tests to the testsuite to check whether the
+	bug avove was fixed.
+
+-	Bourne Shell: Field splitting now skips leading and trailing 
+	"IFS whitespace". This is required by POSIX.
+
+-	Bourne Shell: Aded some tests to the testsuite to check whether the
+	bug avove was fixed.
+
+	Thanks to a test program from Martijn Dekker.
+
+-	Bourne Shell: "command cmd" is no longer implemented via code
+	similar to "eval cmd", but directly calls execute() with a special
+	flag that prevents to re-expand the arg vector.
+
+	This now allows: "command expr 1 \< 2" to work as expected.
+
+	Thanks to a report from Martijn Dekker.
+
+-	Bourne Shell: Added a conformance test to check whether the command
+	from above works correctly.
+
+-	Bourne Shell: "VAR=val command env" now works as expected.
+	Previous versions of bosh did not export VAR=val to the external
+	program in this case.
+
+-	Bourne Shell: Added conformance tests to check whether the command
+	builtin works correctly.
+
+-	SCCS testsuite: The file sccs/tests/Makefile now contains more rules
+	to avoid to run the tests in an unexpected order with a parallel make
+	program. We partially had the test staring before the binaries were 
+	fully installed in /tmp/SCCSTESTS and SCCSv4 and SCCSv6 tests running
+	contemporarily in the same directory.
+
+-	SCCS: sccs now supports to use the options -f and -q for delget and
+	deledit
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)ifs.sh	1.6 17/06/18 Copyright 2016 J. Schilling
+# @(#)ifs.sh	1.7 17/08/28 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -104,6 +104,23 @@ docommand ifs110 "$SHELL -c 'set -- \${x-a b c}; echo \$#'" 0 "3\n" ""
 docommand ifs111 "$SHELL -c 'x=BOGUS; set -- \${x+a b c}; echo \$#'" 0 "3\n" ""
 docommand ifs112 "$SHELL -c 'IFS=q; set \${x-aqbqc}; echo \$#'" 0 "3\n" ""
 docommand ifs113 "$SHELL -c 'x=B; IFS=q; set \${x+aqbqc}; echo \$#'" 0 "3\n" ""
+
+#
+# This is a test from Martijn Dekker:
+#
+cat > x << \XEOF
+IFS=': '
+TEST='  ::  \on\e :\tw'\''o \th\'\''re\e :\\'\''fo\u\r:   : :  '
+testf() {
+	printf '%s\n' "$#,${1-U},${2-U},${3-U},${4-U},${5-U},${6-U},${7-U},${8-U},${9-U},${10-U},${11-U},${12-U}"
+}
+testf $TEST
+XEOF
+#
+# Expected output: 8,,,\on\e,\tw'o,\th\'re\e,\\'fo\u\r,,,U,U,U,U
+#
+docommand ifs150 "$SHELL ./x" 0 '8,,,\\on\\e,\\tw'\''o,\\th\\'\''re\\e,\\\\'\''fo\\u\\r,,,U,U,U,U\n' ""
+
 
 remove x
 success

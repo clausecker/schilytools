@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)read.sh	1.3 17/07/08 2016 J. Schilling
+# @(#)read.sh	1.4 17/08/28 2016 J. Schilling
 #
 
 # Read test core functions
@@ -28,7 +28,13 @@ docommand read04 "$SHELL -c 'read < i; echo \$REPLY'" 0 "1 2 3 4 5 6 7 8 9\n" ""
 echo "1  2  3  4  5  6  7  8  9" > is
 docommand read05 "$SHELL -c 'read a b c d e f < is; echo \$f \$e \$d \$c \$b \$a'" 0 "6 7 8 9 5 4 3 2 1\n" ""
 
-remove i ii is
+#
+# POSIX removes repeated "IFS white space"
+#
+echo "  ::  1::2: 3  :4  5  6  7  8  9" > iss
+docommand read06 "$SHELL -c 'IFS=\": \";read a b c d e f < iss; echo \$f, \$e, \$d, \$c, \$b, \$a,'" 0 "3 4 5 6 7 8 9, 2, , 1, , ,\n" ""
+
+remove i ii is iss
 
 #
 # Check whether read without newline exits with 1 and whether this

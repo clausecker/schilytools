@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.24 17/07/21 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.26 17/08/21 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.24 17/07/21 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.26 17/08/21 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -258,6 +258,8 @@ exprtok(ep)
 		unsigned char	*np;
 
 		i = number(ep, ep->tokenp, &np);
+		if (alphanum(*np))
+			failed(ep->expr, badnum);
 		ep->val = unary(ep, i, ep->unop);
 		ep->var = NULL;
 		ep->tokenp = np;
@@ -283,9 +285,10 @@ exprtok(ep)
 		staktop = absstak(b);
 		ep->tokenp = --np;
 		n = lookup(staktop);
+		np = NULL;
 		if (n->namval == NULL) {
 			ep->val = i;
-		} else if(*n->namval == '\0') {
+		} else if (*n->namval == '\0') {
 			ep->val = i;
 		} else {
 			unsigned char	*nv = n->namval;
@@ -301,6 +304,10 @@ exprtok(ep)
 		otokenp = ep->tokenp;
 		otoken = ep->token;
 		xtok = getop(ep);
+
+		if (xtok != TK_ASSIGN && np && *np)
+			failed(ep->expr, badnum);
+
 		if ((flags & setflg) && xtok != TK_ASSIGN && n->namval == NULL)
 			failed(n->namid, unset);
 		if (xtok == TK_PLUSPLUS || xtok == TK_MINUSMINUS) {
@@ -519,7 +526,8 @@ expreval(ep, precedence)
 					ntok = ep->token;
 					if (ntok == TK_COMMA) {
 						ep->token = TK_NONE;
-						return (expreval(ep, PR_MAXPREC));
+						return (expreval(ep,
+							    PR_MAXPREC));
 					}
 					if (v)
 						ep->val = oval;
@@ -679,16 +687,12 @@ number(ep, str, endptr)
 	unsigned char	**endptr;
 {
 	UIntmax_t	i;
-	int		c;
 
 #ifdef	HAVE_STRTOULL
 	i = strtoull(C str, CP endptr, 0);
 #else
 	*endptr = UC astoull(C str, &i);
 #endif
-	c = **endptr;
-	if (alphanum(c))
-		failed(ep->expr, badnum);
 	return (i);
 }
 

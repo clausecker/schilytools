@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)error.c	1.24 17/07/13 2008-2016 J. Schilling
+ * @(#)error.c	1.25 17/08/27 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.24 17/07/13 2008-2016 J. Schilling";
+	"@(#)error.c	1.25 17/08/27 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -241,6 +241,8 @@ rmtemp(base)
 	struct ionod	*base;
 {
 	while (iotemp && iotemp != base) {
+		if (iotemp->iofile & IOBARRIER)
+			break;
 		unlink(iotemp->ioname);
 		free(iotemp->iolink);
 		iotemp = iotemp->iolst;
@@ -252,6 +254,8 @@ rmfunctmp(base)
 	struct ionod	*base;
 {
 	while (fiotemp && fiotemp != base) {
+		if (fiotemp->iofile & IOBARRIER)
+			break;
 		unlink(fiotemp->ioname);
 		fiotemp = fiotemp->iolst;
 	}

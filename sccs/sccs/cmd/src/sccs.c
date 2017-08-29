@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)sccs.c	1.84 17/04/15 J. Schilling
+ * @(#)sccs.c	1.85 17/08/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.84 17/04/15 J. Schilling"
+#pragma ident "@(#)sccs.c 1.85 17/08/28 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -369,9 +369,9 @@ static struct sccsprog SccsProg[] =
 	{ "edit",	CMACRO,	RF_OK|NO_SDOT,		"get -e" },
 	{ "editor",	EDITOR,	NO_SDOT,		NULL },
 	{ "delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysropd/get:ixbeskclo -t" },
+	   "delta:mysropdfq/get:ixbeskclo -t" },
 	{ "deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysropd/get:ixbskclo -e -t -d" },
+	   "delta:mysropdfq/get:ixbskclo -e -t -d" },
 	{ "fix",	FIX,	NO_SDOT,		NULL },
 	{ "clean",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CLEANC },
 	{ "info",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) INFOC },
@@ -851,6 +851,7 @@ command(argv, forkflag, arg0)
 	listftailp = &head_files;
 	editchs = NULL;		/* arg0 -> cmd:editchs/next... */
 	macro_opstr_p = NULL;
+	buf[0] = '\0';
 	for (p = arg0, q = buf; *p != '\0' && *p != '/'; )
 	{
 		*np++ = q;
@@ -1376,6 +1377,18 @@ command(argv, forkflag, arg0)
 						/* 'delta' command closed delta of file. */
 						/* its necessary to run get command */
 						ap_for_get[size_ap_for_get - 3] = *Arr;
+
+						/*
+						 * If we call "delget -f -q", we
+						 * have no p. file and thus *Arr
+						 * is NULL. Do not add a sid
+						 * argument in this case, but
+						 * hope that get -t will do.
+						 * Check out with -k to keep the
+						 * file writable.
+						 */
+						if (*Arr == NULL)
+							ap_for_get[size_ap_for_get - 3] = "-k";
 						ap_for_get[size_ap_for_get - 2] = ap[ind];
 					}
 					rval = callprog(cmd->sccspath, cmd->sccsflags, ap_for_get, TRUE);
