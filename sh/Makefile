@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.138 17/08/13  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.140 17/09/06  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -70,9 +70,11 @@ CPPOPTS +=	-DDO_SUBSTRING		# Include support for substring operations
 CPPOPTS +=	-DDO_POSIX_SPEC_BLTIN	# Only special builtins keep var assignment
 CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
 CPPOPTS +=	-DDO_POSIX_CD		# cd/pwd/... implement POSIX -L/-P
+CPPOPTS +=	-DDO_POSIX_RETURN	# Allow "return" inside "dot" scripts
 CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
 CPPOPTS +=	-DDO_POSIX_E		# Use POSIX rules for set -e, e.g. cmd subst
 CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
+					# and export prefix vars to "exec"
 CPPOPTS +=	-DDO_POSIX_EXPORT_ENV	# Autoexport imported environ w. -o posix
 #CPPOPTS +=	-DDO_EXPORT_ENV		# Always autoexport imported environ
 CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v

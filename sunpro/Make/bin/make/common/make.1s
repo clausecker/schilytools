@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.10 17/07/12 Copyr 2012-2017 J. Schilling
+. \" @(#)make.1s	1.11 17/09/03 Copyr 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2017/07/12" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2017/09/03" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -3309,9 +3309,20 @@ and
 for explicit rules the same was as GNU make does.
 Note that the expansion of these dynamic macros for explicit
 rules is unspecified by the standard.
+.sp
+When in GNU compatibility mode, command line
+macro definitions are forwarded to recursively
+called
+.B make
+programs.
 .TP
 other
-Ingnored
+Implement 100% compatibility to the SunPro make program.
+This currently results in disabling to forward command line
+macro definitions to recursively
+called
+.B make
+programs.
 .RE
 
 .br

@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.16 17/05/13 2017 J. Schilling
+ * @(#)defs.h	1.17 17/09/03 2017 J. Schilling
  */
 
 /*
@@ -987,6 +987,7 @@ extern int		exit_status;
 extern wchar_t		*file_being_read;
 /* Variable gnu_style=true if env. var. SUN_MAKE_COMPAT_MODE=GNU (RFE 4866328) */
 extern Boolean		gnu_style;
+extern Boolean		sunpro_compat;
 extern Name_set		hashtab;
 extern Name		host_arch;
 extern Name		host_mach;

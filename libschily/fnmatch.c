@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.23 17/08/13 2005-2017 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.24 17/08/30 2005-2017 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.23 17/08/13 2005-2017 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.24 17/08/30 2005-2017 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.23 (Berkeley) 08/13/17";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.24 (Berkeley) 08/30/17";
 #endif /* LIBC_SCCS and not lint */
 /* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
@@ -296,6 +296,7 @@ rangematch(pattern, test, flags, newp, patmbs)
 {
 	int negate, ok;
 	wchar_t c, c2;
+	wchar_t	otest = test;
 	size_t pclen;
 	const char *origpat;
 #ifdef	XXX_COLLATE
@@ -362,8 +363,21 @@ rangematch(pattern, test, flags, newp, patmbs)
 					return (RANGE_ERROR);
 				*pc = '\0';
 				pattern = p + 2;	/* Skip ":]" */
-				if (iswctype(test, wctype(class)))
+				if (iswctype(otest, wctype(class))) {
 					ok = 1;
+				} else if (flags & FNM_CASEFOLD) {
+					/*
+					 * Convert to the other case
+					 */
+					if (strcmp(class, "upper") == 0)
+						if (iswctype(otest,
+						    wctype("lower")))
+							ok = 1;
+					else if (strcmp(class, "lower") == 0)
+						if (iswctype(otest,
+						    wctype("upper")))
+							ok = 1;
+				}
 				continue;
 			}
 		}

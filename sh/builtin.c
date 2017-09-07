@@ -1,12 +1,12 @@
-/* @(#)builtin.c	1.9 15/12/17 Copyright 2015 J. Schilling */
+/* @(#)builtin.c	1.10 17/09/01 Copyright 2015-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.9 15/12/17 Copyright 2015 J. Schilling";
+	"@(#)builtin.c	1.10 17/09/01 Copyright 2015-2017 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
  *
- *	Copyright (c) 2015 J. Schilling
+ *	Copyright (c) 2015-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -102,10 +102,12 @@ sysbuiltin(argc, argv)
 	/*
 	 * Add or delete builtin
 	 */
+#ifdef	BUILTIN_DEBUG				/* Optional until ready */
 	for (; optv.optind < argc; optv.optind++) {
 		/* XXX avoid printf */
 		printf("arg[%d] '%s'\n", optv.optind, argv[optv.optind]);
 	}
+#endif
 }
 
 struct sysnod2 *

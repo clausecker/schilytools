@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)alias.sh	1.6 16/08/01 2016 J. Schilling
+# @(#)alias.sh	1.7 17/09/06 2016 J. Schilling
 #
 
 # Read test core functions
@@ -192,6 +192,29 @@ alias bar="foo world"
 echo $(bar)
 XEOF
 docommand al11 "$SHELL ./x" 0 "hello world\n" ""
+remove x
+
+#
+# Check whether aliases work in eval
+#
+cat > x <<"XEOF"
+LC_ALL=C
+alias foo="echo"
+foo a
+eval foo b
+XEOF
+docommand al11 "$SHELL ./x" 0 "a\nb\n" ""
+remove x
+
+cat > x <<"XEOF"
+LC_ALL=C
+alias foo="echo ok"
+foo
+foo a
+eval foo
+eval foo b
+XEOF
+docommand al12 "$SHELL ./x" 0 "ok\nok a\nok\nok b\n" ""
 remove x
 
 success

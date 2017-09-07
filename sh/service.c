@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)service.c	1.52 17/08/28 2008-2017 J. Schilling
+ * @(#)service.c	1.53 17/09/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.52 17/08/28 2008-2017 J. Schilling";
+	"@(#)service.c	1.53 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -406,6 +406,7 @@ execs(ap, t, isvfork, av0)
 			_exit(126);
 		}
 		funcnt = 0;	/* Reset to global argc/argv */
+		dotcnt = 0;	/* Reset dot script counter */
 		flags = 0;	/* Clear flags		*/
 		flags2 = 0;	/* Clear flags2		*/
 		*flagadr = 0;	/* Clear $-		*/

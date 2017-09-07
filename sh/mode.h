@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)mode.h	1.24 16/08/21 2008-2016 J. Schilling
+ * @(#)mode.h	1.25 17/09/06 2008-2017 J. Schilling
  */
 
 /*
@@ -108,6 +108,7 @@ struct fileblk
 {
 	int		fdes;
 	unsigned	flin;
+	int		peekn;
 	BOOL		feof;
 #if BUFFERSIZE > 128
 	unsigned int	fsiz;
@@ -135,8 +136,13 @@ struct filehdr
 {
 	int		fdes;
 	unsigned	flin;
+	int		peekn;
 	BOOL		feof;
+#if BUFFERSIZE > 128
+	unsigned int	fsiz;
+#else
 	unsigned char	fsiz;
+#endif
 	unsigned char	*fnxt;
 	unsigned char	*fend;
 	off_t		nxtoff;		/* file offset */

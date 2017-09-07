@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.85 17/08/28 2008-2017 J. Schilling
+ * @(#)xec.c	1.89 17/09/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.85 17/08/28 2008-2017 J. Schilling";
+	"@(#)xec.c	1.89 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -274,7 +274,18 @@ execute(argt, xflags, errorflg, pf1, pf2)
 					if (sp && (sp->sysflg & BLT_SPC) == 0)
 						pushov = N_PUSHOV;
 #endif
+#ifdef	DO_POSIX_EXPORT
+					/*
+					 * Exporting a shell variable with
+					 * "VAR=val exec cmd" is not required
+					 * by POSIX but looks more orthogonal.
+					 */
+					setlist(comptr(t)->comset,
+						(argn > 0?N_EXPORT:0)|pushov);
+#else
 					setlist(comptr(t)->comset, pushov);
+#endif
+
 				}
 
 				if (argn && (flags&noexec) == 0) {
@@ -372,6 +383,12 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						}
 #endif
 						freejobs();
+#ifdef	DO_POSIX_RETURN
+						if (dotcnt > 0 && execbrk) {
+							execbrk = 0;
+							longjmp(dotshell->jb, 1);
+						}
+#endif
 						break;
 					} else if (comtype == FUNCTION) {
 						unsigned long	oflags = flags;
@@ -468,10 +485,14 @@ execute(argt, xflags, errorflg, pf1, pf2)
 			struct ionod *ofiot = fiotemp;
 			struct ionod *oiot = iotemp;
 			struct fileblk *ostandin = standin;
+			struct excode oex;
 #endif
 
 			exitval = 0;
 			exval_clear();
+#ifdef	HAVE_VFORK
+			oex = ex;
+#endif
 
 #ifdef	DO_TRAP_EXIT
 			if (trapcom[0])
@@ -590,6 +611,7 @@ script:
 						mypid = opid;
 						mypgid = opgid;
 						flags = oflags;
+						ex = oex;
 					}
 #endif
 					if (monitor)

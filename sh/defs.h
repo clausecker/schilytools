@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.176 17/08/28 2008-2017 J. Schilling
+ * @(#)defs.h	1.177 17/09/06 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -262,6 +262,9 @@ extern "C" {
 #include	<schily/wctype.h>	/* needed before we use wchar_t */
 #undef	feof				/* to make mode.h compile with K&R */
 
+#include	<schily/setjmp.h>
+#include	<schily/jmpdefs.h>
+
 #include 	"mac.h"
 #include	"mode.h"
 #include	"name.h"
@@ -295,6 +298,8 @@ extern "C" {
 
 #include	<stdlib.h>
 #include	<limits.h>
+
+#include	<setjmp.h>
 
 #define	PROTOTYPES
 #define	__PR(a)	a
@@ -1162,9 +1167,9 @@ extern int			dashdash;	/* flags set -- encountered */
 #endif
 
 /* error exits from various parts of shell */
-#include	<setjmp.h>
 extern jmp_buf			subshell;
 extern jmp_buf			errshell;
+extern jmps_t			*dotshell;
 
 /* fault handling */
 extern unsigned			brkincr;
@@ -1203,6 +1208,7 @@ extern BOOL			execbrk;
 extern int			loopcnt;
 extern int			breakcnt;
 extern int			funcnt;
+extern int			dotcnt;
 extern void			*localp;
 extern int			localcnt;
 extern int			tried_to_exit;

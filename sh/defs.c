@@ -31,16 +31,16 @@
 #endif
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.c	1.18 17/07/12 2008-2016 J. Schilling
+ * @(#)defs.c	1.19 17/09/06 2008-2017 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.18 17/07/12 2008-2016 J. Schilling";
+	"@(#)defs.c	1.19 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -49,7 +49,6 @@ static	UConst char sccsid[] =
 
 #ifdef	SCHILY_INCLUDES
 #include	<schily/mconfig.h>
-#include	<setjmp.h>
 #include	"mode.h"
 #include	"name.h"
 #include	<schily/param.h>
@@ -111,6 +110,7 @@ int		dashdash;	/* flags set -- encountered */
 /* error exits from various parts of shell */
 jmp_buf		subshell;
 jmp_buf		errshell;
+jmps_t		*dotshell;
 
 /* fault handling */
 BOOL		trapnote;
@@ -125,6 +125,7 @@ BOOL		execbrk;
 int		loopcnt;
 int		breakcnt;
 int		funcnt;
+int		dotcnt;
 void		*localp;
 int		localcnt;
 int		eflag;

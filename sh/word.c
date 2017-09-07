@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.84 17/08/01 2008-2017 J. Schilling
+ * @(#)word.c	1.86 17/09/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.84 17/08/01 2008-2017 J. Schilling";
+	"@(#)word.c	1.86 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -217,10 +217,11 @@ word()
 
 #ifdef	DO_SYSALIAS
 	/*
-	 * Aliases only expand on plain words and
-	 * not when in an eval(1) call.
+	 * We previously did not expand aliases while in an eval(1) call.
+	 * Since all other shells expand aliases inside an eval call, we
+	 * now do it as well.
 	 */
-	if (wdval == 0 && standin->feval == 0) {
+	if (wdval == 0) {
 			char	*val;
 		extern	int	abegin;
 			int	aflags = abegin > 0 ? AB_BEGIN:0;
@@ -233,15 +234,11 @@ word()
 		if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));
 
-			if (peekn &&
-			    (peekn & 0x7fffffff) == standin->fnxt[-1]) {
-				peekn = 0;
-				standin->fnxt--;
-				standin->nxtoff--;
-			}
 			push((struct fileblk *)fb);	/* Push tmp filehdr */
 			estabf(UC val);			/* Install value    */
 			standin->fdes = -2;		/* Make it auto-pop */
+			standin->peekn = peekn;		/* Remember peekn   */
+			peekn = 0;			/* for later use    */
 
 			if (abegin > 0) {		/* Was a begin alias */
 				size_t	len = strlen(val);
@@ -680,6 +677,7 @@ readwc()
 	int	mbmax;
 	int	i, mlen;
 
+top:
 	if (peekn) {
 		c = peekn & 0x7fffffff;
 		peekn = 0;
@@ -772,9 +770,12 @@ retry:
 
 			if (f->fdes == -3) /* Continue with begin alias */
 				abegin++;
+			peekn = f->peekn;
 			pop();
 			free(f);
 			f = standin;
+			if (peekn)
+				goto top;
 			goto retry;
 		}
 		c = EOF;

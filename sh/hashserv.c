@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)hashserv.c	1.31 17/07/17 2008-2017 J. Schilling
+ * @(#)hashserv.c	1.32 17/09/05 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.31 17/07/17 2008-2017 J. Schilling";
+	"@(#)hashserv.c	1.32 17/09/05 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -404,8 +404,16 @@ what_is_path(name, verbose)
 				prc_buff(NL);
 				return (0);
 			}
+#ifdef DO_POSIX_TYPE
+			/*
+			 * In POSIX mode, we distinct three different types of
+			 * builtins and thus need to check explicitly.
+			 */
+			goto checkbuiltin;
+#else
 			prs_buff(_gettext(" is a shell builtin\n"));
 			return (0);
+#endif
 
 		case FUNCTION: {
 			struct namnod *n = lookup(name);
@@ -468,6 +476,8 @@ what_is_path(name, verbose)
 		prs_buff(_gettext(" is a keyword\n"));
 		return (0);
 	}
+
+checkbuiltin:
 #endif
 
 	if ((sp = sysnlook(name, commands, no_commands)) != NULL) {

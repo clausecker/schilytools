@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)io.c	1.33 17/08/27 2008-2017 J. Schilling
+ * @(#)io.c	1.35 17/09/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.33 17/08/27 2008-2017 J. Schilling";
+	"@(#)io.c	1.35 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -93,6 +93,7 @@ initf(fd)
 	struct fileblk *f = standin;
 
 	f->fdes = fd;
+	f->peekn = 0;
 	f->fsiz = ((flags & oneflg) == 0 ? BUFFERSIZE : 1);
 	f->fnxt = f->fend = f->fbuf;
 	f->nxtoff = f->endoff = 0;
@@ -122,6 +123,7 @@ push(af)
 	struct fileblk *f;
 
 	(f = af)->fstak = standin;
+	f->peekn = 0;
 	f->feof = 0;
 	f->feval = 0;
 	standin = f;
@@ -270,6 +272,10 @@ create(s, iof)
 	}
 #endif
 #ifdef	O_CREAT
+#if defined(DO_O_APPEND) && defined(O_APPEND)
+	if (iof & IOAPP)
+		omode |= O_APPEND;
+#endif
 	if ((rc = open((char *)s, omode, 0666)) < 0) {
 #else
 	if ((rc = creat((char *)s, 0666)) < 0) {

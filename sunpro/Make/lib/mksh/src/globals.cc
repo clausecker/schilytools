@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.3 17/05/13 2017 J. Schilling
+ * @(#)globals.cc	1.4 17/09/03 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.3 17/05/13 2017 J. Schilling";
+	"@(#)globals.cc	1.4 17/09/03 2017 J. Schilling";
 #endif
 
 /*
@@ -109,6 +109,7 @@ int		exit_status;
 wchar_t		*file_being_read;
 /* Variable gnu_style=true if env. var. SUN_MAKE_COMPAT_MODE=GNU (RFE 4866328) */
 Boolean		gnu_style = false;
+Boolean		sunpro_compat = false;
 Name_set	hashtab;
 Name		host_arch;
 Name		host_mach;

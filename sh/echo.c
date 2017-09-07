@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)echo.c	1.17 17/03/15 2008-2017 J. Schilling
+ * @(#)echo.c	1.18 17/09/01 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.17 17/03/15 2008-2017 J. Schilling";
+	"@(#)echo.c	1.18 17/09/01 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -69,14 +69,16 @@ echo(argc, argv)
 	struct namnod   *sysv3;
 	int	do_sysv3 = 0;
 
-	sysv3 = findnam((unsigned char *)"SYSV3");
-	if (sysv3 && (sysv3->namflg & (N_EXPORT | N_ENVNAM)))
-		do_sysv3 = 1;
+	if ((flags & ppath) == 0) {
+		sysv3 = findnam((unsigned char *)"SYSV3");
+		if (sysv3 && (sysv3->namflg & (N_EXPORT | N_ENVNAM)))
+			do_sysv3 = 1;
+	}
 
 	/* Do the -n parsing if sysv3 is set or if ucb_builtsin is set */
-	if (ucb_builtins && !do_sysv3) {
+	if (ucb_builtins && !do_sysv3 && ((flags & ppath) == 0)) {
 #else
-	if (ucb_builtins) {
+	if (ucb_builtins && ((flags & ppath) == 0)) {
 #endif /* _iBCS2 */
 
 		nflg = 0;

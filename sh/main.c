@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.65 17/06/09 2008-2017 J. Schilling
+ * @(#)main.c	1.66 17/09/01 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.65 17/06/09 2008-2017 J. Schilling";
+	"@(#)main.c	1.66 17/09/01 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -605,6 +605,10 @@ exfile(prof)
 	setmode(prof);
 
 	if (setjmp(errshell)) {
+		/*
+		 * clear special "command -p" flag.
+		 */
+		flags &= ~ppath;
 #ifdef	DO_SYSLOCAL
 		if (localp) {
 			localp = NULL;

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.25 17/07/17 2017 J. Schilling
+ * @(#)main.cc	1.27 17/09/04 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.25 17/07/17 2017 J. Schilling";
+	"@(#)main.cc	1.27 17/09/04 2017 J. Schilling";
 #endif
 
 /*
@@ -443,7 +443,9 @@ main(int argc, char *argv[])
 	 */
 	char * dmake_compat_mode_var = getenv(NOCATGETS("SUN_MAKE_COMPAT_MODE"));
 	if (dmake_compat_mode_var != NULL) {
+		sunpro_compat = true;
 		if (0 == strcasecmp(dmake_compat_mode_var, NOCATGETS("GNU"))) {
+			sunpro_compat = false;
 			gnu_style = true;
 		}
 		//svr4 = false;
@@ -2540,6 +2542,8 @@ read_files_and_state(int argc, char **argv)
 		tmp_char = (char) space_char;
 		cp = makeflags_and_macro.start;
 		do {
+			if (!sunpro_compat && !svr4)
+				append_char(tmp_char, &makeflags_string);
 			append_char(tmp_char, &makeflags_string_posix);
 		} while ((tmp_char = *cp++) != '\0'); 
 		retmem_mb(makeflags_and_macro.start);

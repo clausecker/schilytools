@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.122 17/08/28 2008-2017 J. Schilling
+ * @(#)bltin.c	1.124 17/09/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.122 17/08/28 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.124 17/09/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -148,8 +148,28 @@ builtin(type, argc, argv, t, xflags)
 
 			if ((f = pathopen(getpath(a1), a1)) < 0)
 				failed(a1, notfound);
-			else
+			else {
+#ifdef	DO_POSIX_RETURN
+				jmps_t	dotjmp;
+				jmps_t	*odotjmp = dotshell;
+
+				if (setjmp(dotjmp.jb)) {
+					pop();	/* pushed in execexp() */
+					dotshell = odotjmp;
+					dotcnt--;
+					break;
+				}
+				dotshell = &dotjmp;
+				dotcnt++;
+#endif
+
 				execexp(0, (Intptr_t)f, xflags);
+
+#ifdef	DO_POSIX_RETURN
+				dotcnt--;
+				dotshell = odotjmp;
+#endif
+			}
 		}
 		break;
 
@@ -812,7 +832,7 @@ builtin(type, argc, argv, t, xflags)
 		break;
 
 	case SYSRETURN:			/* POSIX special builtin */
-		if (funcnt == 0)
+		if (funcnt == 0 && dotcnt == 0)
 			error(badreturn);
 
 		execbrk = 1;
@@ -1273,7 +1293,16 @@ syscommand(argc, argv, t, xflags)
 	} else if (Vflg) {
 		exitval = whatis(*argv, 1);
 	} else if (*argv) {
-		short	cmdhash = pathlook(argv[0], 0, (struct argnod *)0);
+		short		cmdhash;
+		unsigned long	oflags = flags;
+
+		/*
+		 * A function may overlay a builtin command.
+		 * We therefore do not search for functions.
+		 */
+		flags |= nofuncs;
+		cmdhash = pathlook(argv[0], 0, (struct argnod *)0);
+		flags = oflags;
 
 		if (hashtype(cmdhash) == BUILTIN) {
 			struct ionod	*iop = t->treio;

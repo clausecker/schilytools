@@ -1,0 +1,182 @@
+New features with AN-2017-09-07:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily::fnmatch(): The POSIX specifiers [:upper:] and [:lower:] now
+	work together with FNM_CASEFOLD.
+
+-	Bourne Shell: cmd >> file now sets O_APPEND in the open file even when
+	"file" does not yet exist.
+
+	Thanks to a report from Steffen Nurpmeso.
+
+-	Bourne Shell: Depending on vfork() timing, vfork() could clobber
+	the exit code ($?) in the parent process. struct excode ex is now
+	restored to the saved value in the vfork() parent.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: Added a conformance test for above bug
+
+-	Bourne Shell: The echo builtin now always behaves POSIX
+	compliant in case that it is called as "command -p echo".
+	This is independent from whether SYSV3 is set or whether
+	/usr/ucb is before /usr/bin in PATH.
+
+-	Bourne Shell: A conformance tests was added for above change.
+
+-	Bourne Shell: A bug introduced with schily-2017-08-29 has been
+	fixed: "command cmd" now again calls the builtin "cmd",
+	even when a function "cmd" exists.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: Added a compliance test for above problem
+
+-	Bourne Shell: The builtin "builtin", if called with a file
+	type argument no longer prints  debug messages on stdout that
+	cannot be redirected.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: "VAR=val exec cmd" now exports VAR to "cmd".
+	This is not needed for POSIX compliance, but it is much
+	more orthogonal than the previous behavior that was derived from
+	the historical Bourne Shell.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a conformance test for above modification
+
+-	Bourne Shell: the command "type xxx" with xxx being a builtin command
+	now always prints the correct enhanced text (*) instead of just printing
+	"is a shell builtin" in case that the builtin was hashed already.
+
+	*) This may be:
+
+		-	is a special shell builtin
+		-	is a shell intrinsic
+		-	is a shell builtin
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: aliases now are expanded also when inside the "eval"
+	command. It is not 100% clear whether this is intended by POSIX, but
+	all other known shells do it this way.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: IO stacking for alias expansion has been rewritten
+	to deal with multiple arguments to eval. This needs to remember the
+	characters peeked by the parser and a NULL pointer that appeares at
+	the end of the argument list of an "eval" with more than a single
+	argument.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: "return" now affects not only functions but also "dot"
+	scripts. This is needed in order to become POSIX compliant.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a compliance test for above change.
+
+
+-	SunPro Make: Even when called as "make" or "dmake", the program now
+	forwards command line macro assignments to recursively called make
+	programs. Before, this feature was only enabled when in the POSIX
+	or GNU emulation mode.
+
+	To switch to the old behavior, set up an empty environment variable
+	with the name:
+
+		SUN_MAKE_COMPAT_MODE=
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

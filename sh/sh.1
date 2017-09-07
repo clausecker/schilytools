@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.212 17/07/19 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.213 17/09/06 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/07/19" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/09/06" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -8190,6 +8190,20 @@ useful for
 .I non-space
 field separators as this would not allow to e.g. read the password file via
 .BR read (1).
+.ne 4
+.TP
+.B return
+In the original Bourne Shell, the
+.B return
+command only returns from inside a function.
+This version of the shell implements return also from inside a
+.B dot
+script as required by POSIX.
+.sp
+This change causes an incompatibility in case that a
+.B dot
+script is read from inside a function and the script is intended to return from
+the function.
 .ne 4
 .TP
 .BR retval " and " "Command Substitution
