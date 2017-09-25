@@ -1,12 +1,13 @@
-/* @(#)file.c	1.8 09/07/13 joerg */
+/* @(#)file.c	1.9 17/09/20 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)file.c	1.8 09/07/13 joerg";
+	"@(#)file.c	1.9 17/09/20 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
  * Copyright (C) 1996, 1997 Robert Leslie
+ * Copyright (C) 2001-2017 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,7 +140,7 @@ int f_doblock(file, number, bp, func)
 	    if this happens, then a serious problem has occured, may be
 	    a hard linked file? */
 #ifdef DEBUG
-	    fprintf(stderr,"fragmented file: %s %d\n",file->name, i); */
+	    fprintf(stderr,"fragmented file: %s %d\n",file->name, i);
 #endif /* DEBUG */
 	    ERROR(HCE_ERROR, "Possible Catalog file overflow - please report error");
 	    return -1; 

@@ -1,4 +1,4 @@
-/* @(#)comerr.c	1.44 17/03/13 Copyright 1985-1989, 1995-2017 J. Schilling */
+/* @(#)comerr.c	1.45 17/09/21 Copyright 1985-1989, 1995-2017 J. Schilling */
 /*
  *	Routines for printing command errors
  *
@@ -317,7 +317,12 @@ _ex_clash(exc)
 	 * complement) are available as software specific exit codes.
 	 * We map all other negative exit codes to EX_CLASH if they would fold
 	 * to -2..-63.
+	 *
+	 * Do not map exit codes in case that the "COMERR_EXCODE" environment
+	 * is present.
 	 */
+	if (getenv("COMERR_EXCODE"))
+		return (exc);
 	if (exc != exmod && exmod <= 0 && exmod >= EX_CLASH)
 		exc = EX_CLASH;
 	return (exc);

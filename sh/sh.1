@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.213 17/09/06 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.215 17/09/14 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/09/06" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/09/14" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5251,12 +5251,22 @@ command was not supported in older versions of
 .TP
 \fB+ return\fR [ \fIn\fR ]
 .sp .6
-Causes a function to exit with the return value specified by
+Causes a function or
+.B '.'
+script to return to the invokint script
+with the return value specified by
 .IR n .
 If
 .I n
 is omitted, the return status is that of the last command
 executed.
+.sp
+The
+.B return
+command did not support to terminate
+.B '.'
+scripts in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -5546,17 +5556,23 @@ Equivalent to
 Set the behavior of the Bourne Shell to POSIX mode
 where its default differs from the POSIX standard.
 .br
-This currently disallows to use
+When in 
+.B POSIX
+mode, it is disallowed to use
 .RB `` ^ ''
-as the pipe symbol, switches off support for
+as the pipe symbol, support for
 .B test \-t
-without a parameter and sets the default for directory
-operations to
+without a parameter is switched off and the default for directory
+operations is set to
 .BR \-L .
-If this option is enabled at startup, all shell variables from the
+If this option is enabled at startup or later, all shell variables from the
 imported environment are given the
 .B export
 property.
+If this option is switched off, the
+.B export
+property is switched off
+for all imported variables that have not yet been modified.
 .br
 POSIX mode is enabled by default if the executable path of the
 shell equals a compiled in value, e.g.

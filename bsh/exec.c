@@ -1,8 +1,8 @@
-/* @(#)exec.c	1.64 17/08/06 Copyright 1985-2017 J. Schilling */
+/* @(#)exec.c	1.65 17/09/20 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.64 17/08/06 Copyright 1985-2017 J. Schilling";
+	"@(#)exec.c	1.65 17/09/20 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
@@ -499,8 +499,8 @@ execcmd(vp, std, flag)
 			if (child >= 0)
 				pset(child, flag);	/* vfork only ?? */
 			unblock_sigs();
-#endif
 		}
+#endif
 		if (child < 0)
 			return (-1);		/* Fork failed */
 		if (child == 0) {		/* The Child */

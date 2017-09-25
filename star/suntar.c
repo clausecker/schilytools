@@ -1,13 +1,13 @@
-/* @(#)suntar.c	1.35 11/04/16 Copyright 1989, 2003-2011 J. Schilling */
+/* @(#)suntar.c	1.36 17/09/20 Copyright 1989, 2003-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.35 11/04/16 Copyright 1989, 2003-2011 J. Schilling";
+	"@(#)suntar.c	1.36 17/09/20 Copyright 1989, 2003-2017 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2011 J. Schilling
+ *	Copyright (c) 1989, 2003-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	const char _s_sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -70,6 +72,7 @@ LOCAL	void	suntar_setopts	__PR((char *o));
 char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
+struct ga_props	gaprops;
 
 LOCAL	void	suntar_info	__PR((void));
 
@@ -104,6 +107,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 #ifdef	STAR_MAIN
 	suntar_setopts(opts);
 #endif
+	getarginit(&gaprops, GAF_DEFAULT);	/* Set default behavior	  */
 
 	iftype		= I_TAR;		/* command line interface */
 	ptype		= P_SUNTAR;		/* program interface type */
@@ -126,7 +130,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
-	if (getallargs(&ac, &av, opts,
+	if (getlallargs(&ac, &av, &gaprops, opts,
 				&dir_flags,
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 #ifndef	__old__lint

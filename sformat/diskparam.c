@@ -1,13 +1,13 @@
-/* @(#)diskparam.c	1.13 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)diskparam.c	1.14 17/09/21 Copyright 1988-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskparam.c	1.13 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)diskparam.c	1.14 17/09/21 Copyright 1988-2017 J. Schilling";
 #endif
 /*
  *	Query Disk parameters
  *
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -212,8 +214,8 @@ select_disk_geom(scgp, dp)
 		do {
 			getlong("Enter Sectorsize",
 					&dp->secsize, 256L, 1024L);
-		} while (!(dp->secsize != 256 ||
-			dp->secsize != 512 || dp->secsize != 1024));
+		} while (dp->secsize != 256 &&
+			dp->secsize != 512 && dp->secsize != 1024);
 	} else {
 		long	old_secsize = dp->secsize;
 

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.27 17/09/04 2017 J. Schilling
+ * @(#)main.cc	1.28 17/09/18 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.27 17/09/04 2017 J. Schilling";
+	"@(#)main.cc	1.28 17/09/18 2017 J. Schilling";
 #endif
 
 /*
@@ -1503,7 +1503,8 @@ read_command_options(register int argc, register char **argv)
 #endif
 				break;
 			case 8:	/* -j seen */
-				argv[i] = (char *)NOCATGETS("-j");
+				if (sunpro_compat)	/* Disallow -j5 */
+					argv[i] = (char *)NOCATGETS("-j");
 #if !defined(TEAMWARE_MAKE_CMN) && !defined(PMAKE)
 				warning(gettext("Ignoring DistributedMake -j option"));
 #endif
@@ -2912,6 +2913,8 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 			opt_separator = i;
 			continue;
 		} else if ((i < opt_separator) && (argv[i][0] == (int) hyphen_char)) {
+			char	*ap = argv[i+1];
+
 			switch (parse_command_option(argv[i][1])) {
 			case 1:	/* -f seen */
 				++i;
@@ -2931,7 +2934,9 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				name = GETNAME(wcs_buffer, FIND_LENGTH);
 				break;
 			case 8:	/* -j seen */
-				if (argv[i+1] == NULL) {
+				if (argv[i][2])		/* e.g. -j5 */
+					ap = &argv[i][2];
+				if (ap == NULL) {
 					fatal(gettext("No dmake max jobs argument after -j flag"));
 				}
 				MBSTOWCS(wcs_buffer, NOCATGETS("DMAKE_MAX_JOBS"));
@@ -3013,16 +3018,19 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 			if (i == (argc - 1)) {
 				break;
 			}
-			if ((length = strlen(argv[i+1])) >= MAXPATHLEN) {
+			if ((length = strlen(ap)) >= MAXPATHLEN) {
 				tmp_wcs_buffer = ALLOC_WC(length + 1);
-				(void) mbstowcs(tmp_wcs_buffer, argv[i+1], length + 1);
+				(void) mbstowcs(tmp_wcs_buffer, ap, length + 1);
 				value = GETNAME(tmp_wcs_buffer, FIND_LENGTH);
 				retmem(tmp_wcs_buffer);
 			} else {
-				MBSTOWCS(wcs_buffer, argv[i+1]);
+				MBSTOWCS(wcs_buffer, ap);
 				value = GETNAME(wcs_buffer, FIND_LENGTH);
 			}
-			argv[i+1] = NULL;
+			if (argv[i+1] == ap)	/* If optarg is separate */
+				argv[i+1] = NULL;
+			else
+				i--;
 		} else if ((cp = strchr(argv[i], (int) equal_char)) != NULL) {
 /* 
  * Combine all macro in dynamic array

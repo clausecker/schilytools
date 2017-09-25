@@ -1,8 +1,8 @@
-/* @(#)getargs.c	2.71 17/07/16 Copyright 1985, 1988, 1994-2017 J. Schilling */
+/* @(#)getargs.c	2.76 17/09/25 Copyright 1985, 1988, 1994-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.71 17/07/16 Copyright 1985, 1988, 1994-2017 J. Schilling";
+	"@(#)getargs.c	2.76 17/09/25 Copyright 1985, 1988, 1994-2017 J. Schilling";
 #endif
 #define	NEW
 /*
@@ -89,8 +89,10 @@ LOCAL char	*retnames[] =  {
 
 #define	SCANONLY	0	/* Do not try to set argument values	*/
 #define	SETARGS		1	/* Set argument values from cmdline	*/
-#define	ARGVECTOR	2	/* Use vector instead of list interface	*/
-#define	NOEQUAL		4	/* -opt=val not allowed for -opt val	*/
+#define	CHECKARGS	2	/* To not update argv and argc		*/
+#define	ARGVECTOR	4	/* Use vector instead of list interface	*/
+#define	NOEQUAL		8	/* -opt=val not allowed for -opt val	*/
+#define	SINGLEARG	16	/* Last singlechar opt may have arg	*/
 
 LOCAL	struct ga_props *_getprops __PR((struct ga_props *));
 
@@ -408,6 +410,8 @@ _getargs(pac, pav, vfmt, flags, props, args)
 
 	if (props->ga_flags & GAF_NO_EQUAL)
 		flags |= NOEQUAL;
+	if (props->ga_flags & GAF_SINGLEARG)
+		flags |= SINGLEARG;
 
 	for (; *pac > 0; (*pac)--, (*pav)++) {
 		argp = **pav;
@@ -727,7 +731,8 @@ again:
 			}
 			if (singlecharflag && !doubledash &&
 			    (val = dosflags(sargp, vfmt, pac, pav,
-							flags & ~SETARGS,
+							CHECKARGS |
+							(flags & ~SETARGS),
 							va_dummy)) == BADFLAG) {
 				return (val);
 			}
@@ -1115,14 +1120,18 @@ dosflags(argp, vfmt, pac, pav, flags, oargs)
 
 again:
 	while (*fmt) {
-		if (!isfmtspec(*fmt) &&
+		if ((((flags & SINGLEARG) &&
+		    ((fmt[1] == '*' || fmt[1] == '?' ||
+		    fmt[1] == '&' || fmt[1] == '#'))) ||
+		    (!isfmtspec(*fmt) &&
 		    (fmt[1] == ',' || fmt[1] == '+' ||
-		    fmt[1] == '~' || fmt[1] == '%' || fmt[1] == '\0') &&
+		    fmt[1] == '~' || fmt[1] == '%' || fmt[1] == '\0'))) &&
 		    strchr(argp, *fmt)) {
 			for (i = 0; i < nsf; i++) {
 				if (rsf[i].c == *fmt) {
-					if (fmt[1] == '+') {
-						rsf[i].fmt = '+';
+					if ((fmt[1] == '+') ||
+					    (fmt[1] == '#' && (flags & SINGLEARG))) {
+						rsf[i].fmt = fmt[1];
 						fmt++;
 						if (fmt[1] == ',' ||
 						    fmt[1] == '\0') {
@@ -1168,15 +1177,27 @@ again:
 							 */
 							rsf[i].type = fmt[1];
 						}
-					} else if (fmt[1] == '~') {
+					} else if ((fmt[1] == '*' ||
+						   fmt[1] == '?') &&
+						    (flags & SINGLEARG)) {
+						fmt++;
+						rsf[i].fmt = fmt[0];
+						rsf[i].type = fmt[0];
+						if (fmt[1] == ' ' || fmt[1] == '_')
+							rsf[i].type = fmt[1];
+					} else if ((fmt[1] == '~') ||
+						    (fmt[1] == '&' && (flags & SINGLEARG))) {
+						rsf[i].fmt = fmt[1];
+						rsf[i].type = fmt[1];
 						/*
 						 * Let fmt point to ',' to
 						 * prevent to fetch the
 						 * func arg twice.
 						 */
 						fmt += 2;
-						rsf[i].fmt = '~';
-						rsf[i].type = '~';
+						if ((rsf[i].fmt == '&') &&
+						    (fmt[0] == ' ' || fmt[0] == '_'))
+							rsf[i].type = fmt[0];
 						rsf[i].curfun = (void *)curfun;
 						if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)
 							curarg = va_arg(args, void *);
@@ -1237,36 +1258,99 @@ again:
 			return (BADFLAG);
 		}
 
+		if ((flags & SETARGS) == 0 &&
+		    (tfmt == '*' || tfmt == '?' || tfmt == '&' || tfmt == '#')) {
+			/*
+			 * POSIX 12.2 Guideline 5 requires that any number of
+			 * options without argument may be followed by a
+			 * single option with parameter. So all characters
+			 * past this one belong to the argument of this option.
+			 */
+			if (flags & CHECKARGS)
+				break;
+			if (*++p == '\0' && type != '_') {
+				if (*pac > 1) {
+					(*pac)--;
+					(*pav)++;
+					p = **pav;
+				} else {
+					return (BADFLAG);
+				}
+			}
+			break;
+		}
 		if ((flags & SETARGS) &&
 		    (rsf[i].curfun || rsf[i].curarg)) {
+			Llong	llval = 0;
+			long	val = 0;
+
+			if (tfmt == '*' || tfmt == '?' ||
+			    tfmt == '&' || tfmt == '#') {
+				/*
+				 * If type is '_', then -f ... results in an
+				 * empty argument. This is because we disallow
+				 * -f foo for f* in this case.
+				 */
+				if (*++p == '\0' && type != '_') {
+					if (*pac > 1) {
+						(*pac)--;
+						(*pav)++;
+						p = **pav;
+					} else {
+						return (BADFLAG);
+					}
+				}
+			}
+
+			if (tfmt == '#' && *astoll(p, &llval) != '\0') {
+				return (BADFLAG);
+			}
+			val = (long)llval;
+
 			if (type == ',' || type == '\0') {
 				*((int *)rsf[i].curarg) = TRUE;
 			} else if (type == 'i' || type == 'I') {
 				if (tfmt == '+')
 					*((int *)rsf[i].curarg) += 1;
+				else if (tfmt == '#')
+					*((int *)rsf[i].curarg) = (int)val;
 				else
 					*((int *)rsf[i].curarg) = rsf[i].val;
 			} else if (type == 'l' || type == 'L') {
 				if (tfmt == '+')
 					*((long *)rsf[i].curarg) += 1;
+				else if (tfmt == '#')
+					*((long *)rsf[i].curarg) = val;
 				else
 					*((long *)rsf[i].curarg) = rsf[i].val;
 			} else if (type == 'Q') {
 				if (tfmt == '+')
 					*((Llong *)rsf[i].curarg) += 1;
+				else if (tfmt == '#')
+					*((Llong *)rsf[i].curarg) = llval;
 				else
 					*((Llong *)rsf[i].curarg) = rsf[i].val;
 			} else if (type == 's' || type == 'S') {
 				if (tfmt == '+')
 					*((short *)rsf[i].curarg) += 1;
+				else if (tfmt == '#')
+					*((short *)rsf[i].curarg) = (short)val;
 				else
 					*((short *)rsf[i].curarg) = rsf[i].val;
 			} else if (type == 'c' || type == 'C') {
 				if (tfmt == '+')
 					*((char *)rsf[i].curarg) += 1;
+				else if (tfmt == '#')
+					*((char *)rsf[i].curarg) = (char)val;
 				else
 					*((char *)rsf[i].curarg) = rsf[i].val;
-			} else if (type == '~') {
+			} else if (tfmt == '*' || tfmt == '?') {
+				if (tfmt == '*')
+					*((const char **)rsf[i].curarg) = p;
+				else
+					*((char *)rsf[i].curarg) = *p;
+				break;
+			} else if (tfmt == '~' || tfmt == '&') {
 				int	ret;
 				char	cfmt[3];
 
@@ -1276,13 +1360,19 @@ again:
 
 				if (rsf[i].curfun == NULL)
 					return (BADFMT);
-				ret = ((*(getpargfun)rsf[i].curfun) ("",
+				ret = ((*(getpargfun)rsf[i].curfun) (tfmt == '&'
+								?p:"",
 								rsf[i].curarg,
 								pac, pav, cfmt));
+				if (ret != NOTAFLAG)
 					return (ret);
+				if (tfmt == '&')
+					break;
 			} else {
 				return (BADFLAG);
 			}
+			if (tfmt == '#')
+				break;
 		}
 	}
 	return (NOTAFLAG);

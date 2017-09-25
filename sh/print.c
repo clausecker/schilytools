@@ -34,16 +34,16 @@
 #endif
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)print.c	1.38 17/06/17 2008-2016 J. Schilling
+ * @(#)print.c	1.39 17/09/11 2008-2017 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.38 17/06/17 2008-2016 J. Schilling";
+	"@(#)print.c	1.39 17/09/11 2008-2017 J. Schilling";
 #endif
 
 /*

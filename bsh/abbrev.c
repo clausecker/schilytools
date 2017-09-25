@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.70 17/07/15 Copyright 1985-2017 J. Schilling */
+/* @(#)abbrev.c	1.71 17/09/14 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.70 17/07/15 Copyright 1985-2017 J. Schilling";
+	"@(#)abbrev.c	1.71 17/09/14 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -897,6 +897,7 @@ ab_push(tab, name, val, aflags)
 		np->ab_flags |= ABF_BEGIN;
 	else
 		np->ab_flags &= ~ABF_BEGIN;
+	np->ab_flags &= ~ABF_POP;
 	return (TRUE);
 }
 

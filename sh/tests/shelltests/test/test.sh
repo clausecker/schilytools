@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)test.sh	1.6 16/07/26 Copyright 2016 J. Schilling
+# @(#)test.sh	1.7 17/09/22 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -160,6 +160,10 @@ docommand test153 "$SHELL -c 'test ! 2 -lt 1 && echo OK'" 0 "OK\n" ""
 # POSIX hat test geändert: mit einem Argument ist immer strlen(a) > 0 gemeint
 #
 docommand test200 "$SHELL -c 'test -r; echo \$?'" 0 "0\n" ""
+
+docommand test250 "$SHELL -c 'test 123 -eq; echo \$?'" 0 "2\n" NONEMPTY
+docommand test251 "$SHELL -c '[ 123 -eq ]; echo \$?'" 0 "2\n" NONEMPTY
+docommand test252 "$SHELL -c 'test 123 -gt 1XX; echo \$?'" 0 "2\n" NONEMPTY
 
 remove a
 success

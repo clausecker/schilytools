@@ -1,8 +1,8 @@
-/* @(#)getargs.h	1.22 16/10/23 Copyright 1985-2016 J. Schilling */
+/* @(#)getargs.h	1.23 17/09/19 Copyright 1985-2017 J. Schilling */
 /*
  *	Definitions for getargs()/getallargs()/getfiles()
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -114,6 +114,7 @@ struct ga_props {
 #define	GAF_NEED_DASH		0x04	/* Need dash before (-name=val),    */
 					/*  name=val is not allowed	    */
 #define	GAF_DELIM_DASHDASH	0x08	/* "--" stops even get?allargs()    */
+#define	GAF_SINGLEARG		0x10	/* Last singlechar opt may have arg */
 #define	GAF_POSIX		0x1000	/* Will be expanded as shown below  */
 
 /*
@@ -129,7 +130,7 @@ struct ga_props {
  * Warning: future versions may need different flags for POSIX, better use the
  * GA_POSIX_PROPS "struct" or the GAF_POSIX flag.
  */
-#define	GAF_POSIX_DEFAULT	(GAF_NO_PLUS | GAF_NO_EQUAL)
+#define	GAF_POSIX_DEFAULT	(GAF_NO_PLUS | GAF_NO_EQUAL | GAF_SINGLEARG)
 
 /*
  * Keep in sync with schily.h

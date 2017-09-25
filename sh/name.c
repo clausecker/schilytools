@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)name.c	1.73 17/08/28 2008-2017 J. Schilling
+ * @(#)name.c	1.74 17/09/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.73 17/08/28 2008-2017 J. Schilling";
+	"@(#)name.c	1.74 17/09/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -997,6 +997,13 @@ exportenv(n)
 {
 	if (n->namflg & N_ENVNAM)
 		n->namflg |= N_EXPORT;
+}
+void
+deexportenv(n)
+	struct namnod	*n;
+{
+	if ((n->namflg & (N_ENVNAM|N_EXPORT|N_ENVCHG)) == (N_ENVNAM|N_EXPORT))
+		n->namflg &= ~N_EXPORT;
 }
 #endif
 

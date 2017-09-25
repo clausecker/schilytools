@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.153 17/07/11 Copyright 1996-2017 J. Schilling
+.\" @(#)cdrecord.1	1.154 17/09/21 Copyright 1996-2017 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -26,7 +26,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDRECORD 1 "Version 3.02 2017/07/11" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CDRECORD 1 "Version 3.02 2017/09/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cdrecord \- record audio or data CD, DVD or BluRay
 .SH SYNOPSIS
@@ -2304,6 +2304,11 @@ An unspecified error appeared during the process of talking to the drive.
 See SCSI error message for more informations. The section
 .B DIAGNOSTICS
 below contains an explanation on how to read SCSI error messages.
+.TP
+other
+The
+.B errno
+value from a failed system call.
 .LP
 Note that older operating systems and older shells may not support the full 32 bit
 range of the exit code

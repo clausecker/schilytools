@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)main.c	1.66 17/09/01 2008-2017 J. Schilling
+ * @(#)main.c	1.67 17/09/10 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.66 17/09/01 2008-2017 J. Schilling";
+	"@(#)main.c	1.67 17/09/10 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -712,7 +712,7 @@ exfile(prof)
 			if (t == NULL && flags & ttyflg) {
 				freejobs();
 			} else {
-				execbrk = 0;
+				execbrk = dotbrk = 0;
 				execute(t, 0, eflag, no_pipe, no_pipe);
 			}
 		}

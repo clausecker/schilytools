@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)alias.sh	1.7 17/09/06 2016 J. Schilling
+# @(#)alias.sh	1.8 17/09/14 2016 J. Schilling
 #
 
 # Read test core functions
@@ -215,6 +215,22 @@ eval foo
 eval foo b
 XEOF
 docommand al12 "$SHELL ./x" 0 "ok\nok a\nok\nok b\n" ""
+remove x
+
+#
+# Check whether a new alias of the same name may be defined after
+# unaliasing the old one.
+#
+cat > x <<"XEOF"
+LC_ALL=C
+for i in 1 2 3; do
+	alias "foo=bar$i" || echo OOPS
+	alias
+	unalias foo
+done
+
+XEOF
+docommand al13 "$SHELL ./x" 0 "foo='bar1'\nfoo='bar2'\nfoo='bar3'\n" ""
 remove x
 
 success

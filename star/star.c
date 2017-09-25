@@ -1,8 +1,8 @@
-/* @(#)star.c	1.356 17/01/29 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling */
+/* @(#)star.c	1.357 17/09/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.356 17/01/29 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling";
+	"@(#)star.c	1.357 17/09/20 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2017 J. Schilling
@@ -338,6 +338,7 @@ char	*opts = _opts;
 #else
 extern	char	*opts;
 #endif	/* NO_STAR_MAIN */
+struct ga_props	gaprops;
 
 EXPORT int
 main(ac, av)
@@ -480,7 +481,7 @@ main(ac, av)
 			 * Find last file type argument.
 			 */
 			for (; ; --cac, cav++) {
-				if (getfiles(&cac, &cav, opts) == 0)
+				if (getlfiles(&cac, &cav, &gaprops, opts) == 0)
 					break;
 				lac = cac;
 				lav = cav;
@@ -532,7 +533,7 @@ main(ac, av)
 			for (; ; --cac, cav++) {
 				if (dir_flags)
 					getdir(&cac, &cav, &currdir);
-				if (getfiles(&cac, &cav, opts) == 0)
+				if (getlfiles(&cac, &cav, &gaprops, opts) == 0)
 					break;
 				addarg(cav[0]);
 			}
@@ -706,7 +707,7 @@ star_create(ac, av)
 		 * We do not allow file type args together with list=
 		 * Note that Sun tar allows a mix.
 		 */
-		if (getfiles(&ac, &av, opts) > 0)
+		if (getlfiles(&ac, &av, &gaprops, opts) > 0)
 			comerrno(EX_BAD, "Too many args for list= option.\n");
 		createlist();
 	} else {
@@ -722,7 +723,7 @@ star_create(ac, av)
 				cdir = currdir;
 			}
 
-			if (getfiles(&ac, &av, opts) == 0)
+			if (getlfiles(&ac, &av, &gaprops, opts) == 0)
 				break;
 			if (dumplevel >= 0) {
 				dumpd_t	*dp;
@@ -884,7 +885,7 @@ copy_create(ac, av)
 		 * Cut off beginning at last file type arg.
 		 */
 		for (; ; --ac, av++) {
-			if (getfiles(&ac, &av, opts) == 0)
+			if (getlfiles(&ac, &av, &gaprops, opts) == 0)
 				break;
 			lac = ac;
 #ifdef	__needed__
@@ -910,7 +911,7 @@ getfilecount(ac, av, fmt)
 	int	files = 0;
 
 	for (; ; --ac, av++) {
-		if (getfiles(&ac, &av, fmt) == 0)
+		if (getlfiles(&ac, &av, &gaprops, fmt) == 0)
 			break;
 		files++;
 	}
@@ -936,7 +937,7 @@ getdir(acp, avp, dirp)
 	 */
 	if (opts[len-1] == '?' && opts[len-2] == ',')
 		opts[len-2] = '\0';
-	getfiles(acp, avp, &opts[3]);
+	getlfiles(acp, avp, &gaprops, &opts[3]);
 
 	if (debug) /* temporary */
 		errmsgno(EX_BAD, "Flag/File: '%s'.\n", (*avp)[0]);
@@ -945,12 +946,12 @@ again:
 	/*
 	 * Get next '-C dir' option
 	 */
-	if (getargs(acp, avp, "C*", &dir) < 0) {
+	if (getlargs(acp, avp, &gaprops, "C*", &dir) < 0) {
 		int	cac = *acp;
 		/*
 		 * Skip all other flags that are known to star.
 		 */
-		if (getfiles(acp, avp, &opts[3]) < 0) {
+		if (getlfiles(acp, avp, &gaprops, &opts[3]) < 0) {
 			/*
 			 * If we did find other legal flags, try again.
 			 */
@@ -1350,6 +1351,7 @@ BOOL	Ointeractive	 = FALSE;
 /*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
 /* END CSTYLED */
 
+	getarginit(&gaprops, GAF_DEFAULT);	/* Set default behavior	  */
 #ifdef	STAR_FAT
 	switch (ptype) {
 
@@ -1399,7 +1401,7 @@ BOOL	Ointeractive	 = FALSE;
 
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
-	if (getallargs(&ac, &av, opts,
+	if (getlallargs(&ac, &av, &gaprops, opts,
 				&dir_flags,
 				getfind, NULL,
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,

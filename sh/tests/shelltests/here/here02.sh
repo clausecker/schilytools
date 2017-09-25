@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)here02.sh	1.6 17/08/27 Copyright 2016 J. Schilling
+# @(#)here02.sh	1.7 17/09/11 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -728,6 +728,20 @@ Mary had 4
 little
 lambs
 " ""
+remove x
+
+cat > x <<"XEOF"
+eval 'f() {
+cat << EOF
+1
+2
+3
+EOF
+}'
+
+f
+XEOF
+docommand here40 "$SHELL ./x" 0 "1\n2\n3\n" ""
 remove x
 
 cat > x <<"XEOF"

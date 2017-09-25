@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.177 17/09/06 2008-2017 J. Schilling
+ * @(#)defs.h	1.180 17/09/22 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -69,6 +69,11 @@ extern "C" {
 /* error exits from various parts of shell */
 #define		ERROR		1	/* Standard shell error/exit code */
 #define		SYNBAD		2	/* Shell error/exit for bad syntax */
+#ifdef	DO_POSIX_TEST
+#define		ETEST		2	/* POSIX test(1) error exit code  */
+#else
+#define		ETEST		ERROR	/* historical test(1) error exit code  */
+#endif
 #define		SIGFAIL 	2000
 #define		SIGFLG		0200	/* $? == SIGFLG + signo */
 #define		C_NOEXEC	126	/* Shell error/exit for exec error */
@@ -658,6 +663,7 @@ extern	void	printexp	__PR((struct namnod *n));
 extern	void	printpexp	__PR((struct namnod *n));
 extern	void	printlocal	__PR((struct namnod *n));
 extern	void	exportenv	__PR((struct namnod *n));
+extern	void	deexportenv	__PR((struct namnod *n));
 extern	void	pushval		__PR((struct namnod *n, void *t));
 extern	void	popvars		__PR((void));
 extern	void	poplvars	__PR((void));
@@ -1205,6 +1211,7 @@ extern struct excode		retex;
 extern int			exitval;
 extern int			retval;
 extern BOOL			execbrk;
+extern BOOL			dotbrk;
 extern int			loopcnt;
 extern int			breakcnt;
 extern int			funcnt;

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.77 17/08/27 2008-2017 J. Schilling
+ * @(#)macro.c	1.78 17/09/11 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.77 17/08/27 2008-2017 J. Schilling";
+	"@(#)macro.c	1.78 17/09/11 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -789,7 +789,7 @@ comsubst(trimflag, type)
 		iosav->iofile |= IOBARRIER;
 	}
 	if (fiosav) {
-		oiof = fiosav->iofile;
+		ofiof = fiosav->iofile;
 		fiosav->iofile |= IOBARRIER;
 	}
 

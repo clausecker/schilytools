@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)args.c	1.82 17/07/26 2008-2017 J. Schilling
+ * @(#)args.c	1.83 17/09/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.82 17/07/26 2008-2017 J. Schilling";
+	"@(#)args.c	1.83 17/09/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -529,6 +529,10 @@ again:
 					    (oflags & promptcmdsubst) == 0)
 						ps_reset();
 #endif
+#ifdef	DO_POSIX_EXPORT_ENV
+					if (fv == (fl2 | posixflg))
+						namscan(exportenv);
+#endif
 				}
 			} else if (wc == 'c' && argc > 2 && comdiv == 0) {
 				comdiv = argp[2];
@@ -626,6 +630,10 @@ again:
 #ifdef	DO_HOSTPROMPT
 				if (fv == (fl2 | hostpromptflg))
 					hostprompt(FALSE);
+#endif
+#ifdef	DO_POSIX_EXPORT_ENV
+				if (fv == (fl2 | posixflg))
+					namscan(deexportenv);
 #endif
 			}
 		}

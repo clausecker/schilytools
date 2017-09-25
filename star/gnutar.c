@@ -1,13 +1,13 @@
-/* @(#)gnutar.c	1.27 10/08/23 Copyright 1989, 2003-2010 J. Schilling */
+/* @(#)gnutar.c	1.28 17/09/20 Copyright 1989, 2003-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _g_sccsid[] =
-	"@(#)gnutar.c	1.27 10/08/23 Copyright 1989, 2003-2010 J. Schilling";
+	"@(#)gnutar.c	1.28 17/09/20 Copyright 1989, 2003-2017 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2010 J. Schilling
+ *	Copyright (c) 1989, 2003-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	const char _g_sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -167,6 +169,7 @@ LOCAL	void	gnutar_setopts	__PR((char *o));
 char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,H&,format&,z,bz,create,c,append,r,list,t,update,u,extract,get,x,compare,d,catenate,concatenate,A,delete,verify,W,remove-files,keep-old-files,k,unlink-first,U,recursive-unlink,sparse,S,to-stdout,O,incremental,G,listed-incremental*,g*,ignore-failed-read,owner*,group*,mode*,atime-preserve,modification-time,m,same-owner,no-same-owner,numeric-owner,same-permissions,preserve-permissions,p,no-same-permissions,same-order,preserve,preserve-order,s,force-local,file&,f&,rsh-command*,multi-volume,M,tape-length&,L&,new-volume-script*,info-script*,F*,volno-file*,blocking-factor&,b&,record-size&,ignore-zeros,i,read-full-records,B,label*,V*,old-archive,portability,o,posix,bzip2,j,gzip,ungzip,compress,uncompress,Z,use-compress-program*,files-from*,T*,null,exclude&,exclude-from&,X&,anchored,no-anchored,ignore-case,no-ignore-case,wildcards,no-wildcards,wildcards-match-slash,no-wildcards-match-slash,absolute-names,P,dereference,h,no-recursion,one-file-system,l,starting-file*,K*,newer*,after-date*,N*,newer-mtime*,backup*,suffix*,v+,verbose+,checkpoint,totals,block-number,R,interactive,confirmation,w,?";
 /* END CSTYLED */
 char	*opts = _opts;
+struct ga_props	gaprops;
 
 LOCAL	void	gnutar_info	__PR((void));
 
@@ -224,6 +227,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 #ifdef	STAR_MAIN
 	gnutar_setopts(opts);			/* set up opts for getfiles */
 #endif
+	getarginit(&gaprops, GAF_DEFAULT);	/* Set default behavior	  */
 
 	iftype		= I_TAR;		/* command line interface */
 	ptype		= P_GNUTAR;		/* program interface type */
@@ -233,7 +237,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
-	if (getallargs(&ac, &av, opts,
+	if (getlallargs(&ac, &av, &gaprops, opts,
 				&dir_flags,
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 #ifndef	__old__lint

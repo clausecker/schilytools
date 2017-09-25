@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)error.c	1.26 17/09/06 2008-2017 J. Schilling
+ * @(#)error.c	1.27 17/09/10 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.26 17/09/06 2008-2017 J. Schilling";
+	"@(#)error.c	1.27 17/09/10 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -186,7 +186,7 @@ exitsh(xno)
 		clearup();
 		restore(0);
 		(void) setb(STDOUT_FILENO);
-		execbrk = breakcnt = funcnt = dotcnt = 0;
+		execbrk = dotbrk = breakcnt = funcnt = dotcnt = 0;
 		longjmp(errshell, 1);
 	}
 }

@@ -33,14 +33,14 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.c	1.19 17/09/06 2008-2017 J. Schilling
+ * @(#)defs.c	1.20 17/09/10 2008-2017 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.19 17/09/06 2008-2017 J. Schilling";
+	"@(#)defs.c	1.20 17/09/10 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -122,6 +122,7 @@ struct excode	retex;
 int		exitval;
 int		retval;
 BOOL		execbrk;
+BOOL		dotbrk;
 int		loopcnt;
 int		breakcnt;
 int		funcnt;

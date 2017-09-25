@@ -1,13 +1,13 @@
-/* @(#)cpio.c	1.27 11/04/16 Copyright 1989, 2005-2011 J. Schilling */
+/* @(#)cpio.c	1.28 17/09/20 Copyright 1989, 2005-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.27 11/04/16 Copyright 1989, 2005-2011 J. Schilling";
+	"@(#)cpio.c	1.28 17/09/20 Copyright 1989, 2005-2017 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
  *
- *	Copyright (c) 1989, 2005-2011 J. Schilling
+ *	Copyright (c) 1989, 2005-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	const char _c_sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -101,6 +103,7 @@ LOCAL	void	cpio_setopts	__PR((char *o));
 char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
 /* END CSTYLED */
 char	*opts = _opts;
+struct ga_props	gaprops;
 
 LOCAL	void	cpio_info	__PR((void));
 
@@ -151,6 +154,7 @@ gargs(ac, av)
 #ifdef	STAR_MAIN
 	cpio_setopts(opts);			/* set up opts for getfiles */
 #endif
+	getarginit(&gaprops, GAF_DEFAULT);	/* Set default behavior	  */
 
 	iftype		= I_CPIO;		/* command line interface */
 	ptype		= P_CPIO;		/* program interface type */
@@ -179,7 +183,7 @@ gargs(ac, av)
 
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
-	if (getallargs(&ac, &av, opts,
+	if (getlallargs(&ac, &av, &gaprops, opts,
 				&help, &xhelp, &prvers, &debug,
 				&xdebug, &xdebug,
 #ifndef	__old__lint

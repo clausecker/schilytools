@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)hashserv.c	1.32 17/09/05 2008-2017 J. Schilling
+ * @(#)hashserv.c	1.33 17/09/13 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.32 17/09/05 2008-2017 J. Schilling";
+	"@(#)hashserv.c	1.33 17/09/13 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -140,8 +140,15 @@ pathlook(com, flg, arg)
 			return (h->data);
 		}
 
-		h->data = 0;
-		h->cost = 0;
+		/*
+		 * If we are called from "command", do not modify the hashes
+		 * as we may retrieve different results from what we usually
+		 * expexct.
+		 */
+		if (!(flags & nofuncs)) {
+			h->data = 0;
+			h->cost = 0;
+		}
 	}
 
 	if ((sn = sysnlook(name, commands, no_commands)) != 0) {
@@ -149,7 +156,12 @@ pathlook(com, flg, arg)
 		if (sn->sysflg & BLT_SPC)
 			i |= SPC_BUILTIN;
 		hentry.data = (BUILTIN | i);
-		if ((flags & ppath))
+		/*
+		 * If we are called from "command", do not modify the hashes
+		 * as we may retrieve different results from what we usually
+		 * expexct.
+		 */
+		if ((flags & (ppath|nofuncs)))
 			return (hentry.data);
 		count = 1;
 	} else {
@@ -157,7 +169,12 @@ pathlook(com, flg, arg)
 			return (PATH_COMMAND);
 pathsrch:
 		count = findpath(name, oldpath);
-		if ((flags & ppath)) {
+		/*
+		 * If we are called from "command", do not modify the hashes
+		 * as we may retrieve different results from what we usually
+		 * expexct.
+		 */
+		if ((flags & (ppath|nofuncs))) {
 			if (count > 0)
 				return (COMMAND | count);
 			else

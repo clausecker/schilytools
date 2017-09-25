@@ -1,13 +1,13 @@
-/* @(#)pax.c	1.31 14/12/17 Copyright 1989, 2003-2014 J. Schilling */
+/* @(#)pax.c	1.32 17/09/20 Copyright 1989, 2003-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.31 14/12/17 Copyright 1989, 2003-2014 J. Schilling";
+	"@(#)pax.c	1.32 17/09/20 Copyright 1989, 2003-2017 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2014 J. Schilling
+ *	Copyright (c) 1989, 2003-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,6 +90,7 @@ LOCAL	void	pax_setopts	__PR((char *o));
 char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
 /* END CSTYLED */
 char	*opts = _opts;
+struct ga_props	gaprops;
 
 LOCAL	void	pax_info	__PR((void));
 
@@ -122,6 +123,7 @@ gargs(ac, av)
 #ifdef	STAR_MAIN
 	pax_setopts(opts);			/* set up opts for getfiles */
 #endif
+	getarginit(&gaprops, GAF_SINGLEARG);	/* POSIX combined args	  */
 
 	iftype		= I_PAX;		/* command line interface */
 	ptype		= P_PAX;		/* program interface type */
@@ -133,7 +135,7 @@ gargs(ac, av)
 
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
-	if (getallargs(&ac, &av, opts,
+	if (getlallargs(&ac, &av, &gaprops, opts,
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 #ifndef	__old__lint
 				&showtime, &no_stats, & do_stats, &do_fifostats,
@@ -170,6 +172,7 @@ gargs(ac, av)
 		errmsgno(EX_BAD, "Bad Option: %s.\n", av[0]);
 		susage(EX_BAD);
 	}
+error("flags verbose %d paxrflag %d paxwflag %d\n", verbose, paxrflag, paxwflag);
 	star_helpvers("spax", help, xhelp, prvers);
 
 	if (!paxrflag && !paxwflag) {
@@ -278,7 +281,7 @@ usage(ret)
 	error("\t-o\t\toptions (none specified with SUSv2 / UNIX-98)\n");
 	error("\t-p string\tset privileges\n");
 	error("\t-s replstr\tApply ed like pattern substitution -s /old/new/gp on filenames\n");
-	error("\t-t\t\tTIME\n");
+	error("\t-t\t\trestore atime after reading files\n");
 	error("\t-u\t\treplace/restore files only if they are newer\n");
 	error("\t-v\t\tincrement verbose level\n");
 	error("\t-x header\tgenerate 'header' type archive (see -x help)\n");

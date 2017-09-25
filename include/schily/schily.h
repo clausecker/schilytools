@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.123 17/08/03 Copyright 1985-2016 J. Schilling */
+/* @(#)schily.h	1.124 17/09/21 Copyright 1985-2017 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -367,9 +367,9 @@ extern	int	ferrmsg		__PR((FILE *, const char *, ...))
 extern	int	ferrmsgno	__PR((FILE *, int, const char *, ...))
 					__printflike__(3, 4);
 #ifdef	_SCHILY_VARARGS_H
-#define	COMERR_RETURN	0
-#define	COMERR_EXIT	1
-#define	COMERR_EXCODE	2
+#define	COMERR_RETURN	0	/* Do not exit, return only		*/
+#define	COMERR_EXIT	1	/* Exit program, map (X % 256) != X to -64 */
+#define	COMERR_EXCODE	2	/* Exit program, do not map exit codes	*/
 /*PRINTFLIKE5*/
 extern	int	_comerr		__PR((FILE *, int, int, int,
 						const char *, va_list));

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)func.c	1.32 17/05/28 2008-2017 J. Schilling
+ * @(#)func.c	1.33 17/09/25 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.32 17/05/28 2008-2017 J. Schilling";
+	"@(#)func.c	1.33 17/09/25 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -102,6 +102,8 @@ freetree(t)
 				break;
 
 			case TFORK:
+			case TNOFORK:
+			case TSETIO:
 				freeio(forkptr(t)->forkio);
 				freetree(forkptr(t)->forktre);
 				break;
@@ -125,6 +127,7 @@ freetree(t)
 				break;
 
 			case TFOR:
+			case TSELECT:
 			{
 				struct fornod *f = (struct fornod *)t;
 

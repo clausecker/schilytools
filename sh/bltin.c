@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)bltin.c	1.124 17/09/06 2008-2017 J. Schilling
+ * @(#)bltin.c	1.126 17/09/10 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.124 17/09/06 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.126 17/09/10 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -152,9 +152,16 @@ builtin(type, argc, argv, t, xflags)
 #ifdef	DO_POSIX_RETURN
 				jmps_t	dotjmp;
 				jmps_t	*odotjmp = dotshell;
+				struct fileblk	*ostandin = standin;
 
 				if (setjmp(dotjmp.jb)) {
-					pop();	/* pushed in execexp() */
+					/*
+					 * pushed in execexp()
+					 */
+					while (ostandin != standin) {
+						if (!pop())
+							break;
+					}
 					dotshell = odotjmp;
 					dotcnt--;
 					break;
@@ -835,7 +842,10 @@ builtin(type, argc, argv, t, xflags)
 		if (funcnt == 0 && dotcnt == 0)
 			error(badreturn);
 
-		execbrk = 1;
+		if (dotcnt > 0)
+			dotbrk = 1;
+		else
+			execbrk = 1;
 		exitval = (a1 ? stoi(a1) : retval);
 		break;
 

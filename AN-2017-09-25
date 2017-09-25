@@ -1,0 +1,227 @@
+New features with AN-2017-09-25:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily::getargs.c: Added a new flag that allows to implement POSIX
+	option rule #5:
+
+		One or more options without option-arguments, followed by
+		at most one option that takes an option-argument, should be
+		accepted when grouped behind one '-' delimiter.
+
+	This new mode is needed to implement spax with a POSIX compliant CLI.
+
+-	libschily: The environment "COMERR_EXCODE" now directs the comerr()
+	group of functions not to map exit codes to -64 in case they are
+	ambiguous to callers of the historic wait() call. 
+
+	If you like to get the unmodified exit code, use the "new" (since 1989)
+	POSIX waitid() call and add the "COMERR_EXCODE" before creating
+	the child process.
+
+-	libhsf: removed a superfluous "*/" in DEBUG code.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Bourne Shell: Fixed a bug in the new "return" feature for dot scripts:
+	The IO stack was not completely unwound when returning from a dot
+	script. This caused a related "struct fileblk" (an automatic variable)
+	to be reused and overwritten, resulting in SIGSEGV.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: Fixed a bug in the new "return" feature for dot scripts:
+	A return inside a function from a dot script did return from the entire
+	dot script and not only from the function.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a test for the above problem.
+
+-	Bourne Shell: Fixed a bug in the new "return" feature for dot scripts:
+	A continue in e.g. a while loop did not continue the while loop
+	but returned from the entire dot script.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a test for the above problem.
+
+-	Bourne Shell: Fixed a typo in the code introduced with
+	schilytools-2017-08-29 when adding an IO barrier that controls the removing
+	of shell tmp files from here documents.
+
+-	Bourne Shell: remove fewer shell tmp files for here documents to better
+	support function definitions with embedded here documents from within
+	an "eval" command.
+
+-	Bourne Shell: added a test for the above problem.
+
+-	Bourne Shell: Fixed a bug that caused the hashed values for commands
+	to be changed to wrong values in case the commands have been called
+	via the Built-in "command". This caused the a builtin command with the
+	name of a function to become unusable.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a test for the above problem.
+
+-	bsh and Bourne Shell: fixed a problem in alias/unalias:
+	if a non-persistent alias was removed, a new alias with the same
+	name was ignored.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: added a test for the above problem.
+
+-	Bourne Shell: set -o posix now is able to switch to POSIX
+	variable export definitions after startup
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: The exit code for the builtin test command is now
+	2 for a syntax error as required by POSIX.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: A compliance test was added for above change.
+
+-	Bourne Shell: When integers are compared by test and it turns out
+	that a related argument does not only contain digits, this is
+	flagged as error.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: A compliance test was added for above change.
+
+-	Bourne Shell: two isatty(1) -> isatty(STDOUT_FILENO)
+	changes for readability of code.
+
+-	Bourne Shell: added code in freetree() for the forgotten new
+	syntax tree node types: TNOFORK, TSETIO, and TSELECT.
+
+-	Bourne Shell: added a workaround for a complex bug in the shell
+	that causes fd#10 to be reamed to fd #1 twice with the result that
+	fd #1 (stdout) was no longer usable. This is not a fix but it 
+	prevents the unwanted result....
+
+-	bsh: a wrongly placed "}" has been corrected for the case that
+	a platform does not support vfork().
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	Star (pax): Option parsing is now done in a POSIX compliant way.
+	Before, pax did not permit calls like "pax -vffile".
+
+	This is the first step in making star's pax implementation
+	to pass the POSIX certification.
+
+-	Sformat: The terminating condition for a manual sector size
+	question for Adaptec controllers has been corrected.
+
+	Thanks to a report from Heiko Eiﬂfeldt
+
+-	SCCS: the test for "sccs help get_kywds" has been enhanced to
+	mention that the enhanced (lower case) get keywords are only
+	available if enabled via "admin -fx" or "admin -fy".
+
+-	cdrecord: the man page now comes with an enhanced section
+	"EXIT STATUS"
+
+	Thanks to a report from Mathias <dl2gmb@netscape.net>
+
+-	SunPro Make: make now supports to specify "make -j5" instead
+	of only "make -j 5". This feature is switched off by setting
+	the environment
+
+		SUN_MAKE_COMPAT_MODE= 
+
+	to an empty string.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

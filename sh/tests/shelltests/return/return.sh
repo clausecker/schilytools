@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)return.sh	1.3 17/09/06 Copyright 2016 J. Schilling
+# @(#)return.sh	1.5 17/09/10 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -28,5 +28,39 @@ XEOF
 docommand r51 "$SHELL ./test.dot" 0 "hi\none\ntwo\n" ""
 
 remove x test.dot
+
+#
+# Check whether return only returns from function and not from dot script
+# as well.
+#
+cat > x <<"XEOF"
+f() {
+echo "In f"
+return
+}
+echo "Start"
+f
+echo "End"
+XEOF
+docommand r51 "$SHELL ./x" 0 "Start\nIn f\nEnd\n" ""
+
+remove x
+
+#
+# Check whether continue in a dot script does not cause
+# a return from the dot script.
+#
+cat > x <<"XEOF"
+echo "begin dot"
+x=0
+while [ "$((x+=1))" -le 3 ]; do
+        echo "$x"
+        continue
+done
+echo "end dot"
+XEOF
+docommand r51 "$SHELL -c '. ./x'" 0 "begin dot\n1\n2\n3\nend dot\n" ""
+
+remove x
 
 success

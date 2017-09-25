@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.89 17/09/06 2008-2017 J. Schilling
+ * @(#)xec.c	1.93 17/09/11 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.89 17/09/06 2008-2017 J. Schilling";
+	"@(#)xec.c	1.93 17/09/11 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -102,7 +102,6 @@ execute(argt, xflags, errorflg, pf1, pf2)
 	struct trenod	*t;
 	unsigned char		*sav = savstak();
 	struct ionod		*iosav = iotemp;
-	struct ionod		*fiosav = fiotemp;
 
 	sigchk();
 	if (!errorflg)
@@ -384,9 +383,10 @@ execute(argt, xflags, errorflg, pf1, pf2)
 #endif
 						freejobs();
 #ifdef	DO_POSIX_RETURN
-						if (dotcnt > 0 && execbrk) {
-							execbrk = 0;
-							longjmp(dotshell->jb, 1);
+						if (dotcnt > 0 && dotbrk) {
+							dotbrk = 0;
+							longjmp(dotshell->jb,
+								    1);
 						}
 #endif
 						break;
@@ -400,6 +400,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						int olddolc = dolc;
 						void *olocalp = localp;
 						int olocalcnt = localcnt;
+						int odotcnt = dotcnt;
 
 						n = findnam(com[0]);
 						f = fndptr(n->funcval);
@@ -411,6 +412,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 								savargs(funcnt);
 						f->fndref++;
 						funcnt++;
+						dotcnt = 0;
 #ifdef	DO_POSIX_FAILURE
 						flags |= noexit;
 #endif
@@ -451,6 +453,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						dolv = olddolv;
 						dolc = olddolc;
 						funcnt--;
+						dotcnt = odotcnt;
 						/*
 						 * n->funcval may have been
 						 * pointing different func.
@@ -1141,7 +1144,6 @@ script:
 out:
 #endif
 	sigchk();
-	rmfunctmp(fiosav);
 	tdystak(sav, iosav);
 	if (flags & errflg && exitval)
 		done(0);
