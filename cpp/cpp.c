@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.37 15/04/01 2010-2015 J. Schilling */
+/* @(#)cpp.c	1.40 17/10/08 2010-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.37 15/04/01 2010-2015 J. Schilling";
+	"@(#)cpp.c	1.40 17/10/08 2010-2017 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2015 J. Schilling
+ * Copyright (c) 2010-2017 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
+#include <schily/ctype.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/varargs.h>
@@ -1012,13 +1013,85 @@ for (;;) {
 		while (*inptr != '\n')		/* pass text */
 			p = cotoken(p);
 #endif
-	} else if (np==lneloc) {/* line */
-		if (flslvl==0 && pflag==0) {
-			outptr=inptr=p; *--outptr='#'; while (*inptr!='\n') p=cotoken(p);
+	} else if (np == lneloc) {		/* line */
+		if (flslvl == 0 && pflag == 0) {
+			register char	*s;
+			register int	n;
+
+			outptr = inptr = p;
+
+		was_line:
+			/*
+			 * Enforce the rest of the line to be in the buffer
+			 */
+			s = p;
+			while (*s && *s != '\n')
+				s++;
+			if (eob(s))
+				p = refill(s);
+
+			s = inptr;
+			while ((toktyp+COFF)[(int)*s] == BLANK)
+				s++;
+			/*
+			 * Now read the new line number...
+			 */
+			n = 0;
+			while (isdigit(*s))
+				n = n * 10 + *s++ - '0';
+			if (n == 0)
+				pperror("bad number for #line");
+			else
+				lineno[ifno] = n - 1;
+
+			while ((toktyp+COFF)[(int)*s] == BLANK)
+				s++;
+
+			/*
+			 * In case there is an optional file name...
+			 */
+			if (*s != '\n') {
+				register char	*f;
+
+				f = s;
+				while (*f && *f != '\n')
+					f++;
+
+				if (savch >= sbf+SBSIZE-(f-s)) {
+					newsbf();
+				}
+				f = savch;
+				if (*s != '"')
+					*f++ = *s;
+				s++;
+				while (*s) {
+					if (*s == '"' || *s == '\n')
+						break;
+					*f++ = *s++;
+				}
+				*f++ = '\0';
+				if (strcmp(savch, fnames[ifno])) {
+					fnames[ifno] = savch;
+					savch = f;
+				}
+			}
+
+			/*
+			 * Finally outout the rest of the directive.
+			 */
+			*--outptr='#';
+			while (*inptr != '\n')
+				p = cotoken(p);
 			continue;
 		}
 	} else if (*++inptr=='\n') outptr=inptr;	/* allows blank line after # */
-	else pperror("undefined control",0);
+	else if (isdigit(*inptr)) {			/* allow cpp output "#4711" */
+		/*
+		 * Step back before this token in case it was a number.
+		 */
+		outptr = p = inptr;
+		goto was_line;
+	} else pperror("undefined control",0);
 	/* flush to lf */
 	++flslvl; while (*inptr!='\n') {outptr=inptr=p; p=cotoken(p);} --flslvl;
 }
@@ -1057,11 +1130,11 @@ pperror(fmt, va_alist)
 {
 	va_list	args;
 
-	if (fnames[ifno][0]) fprintf(stderr,
+	if (fnames[ifno] && fnames[ifno][0]) fprintf(stderr,
 # if gcos
 			"*%c*   \"%s\", line ", exfail >= 0 ? 'F' : 'W',
 # else
-			"%s: ",
+			"%s: line ",
 # endif
 				 fnames[ifno]);
 	fprintf(stderr, "%d: ",lineno[ifno]);
@@ -1213,7 +1286,16 @@ subst(p,sp) register char *p; struct symtab *sp; {
 		sprintf(vp,"%d",lineno[ifno]); while (*vp++);
 	} else if (sp==uflloc) {
 		vp=acttxt; *vp++='\0';
-		sprintf(vp,"\"%s\"",fnames[ifno]); while (*vp++);
+		ca = fnames[ifno];
+		*vp++ = '"';
+		while (*ca) {
+			if (*ca == '\\')
+				*vp++ = '\\';
+			*vp++ = *ca++;
+			
+		}
+		*vp++ = '"';
+		*vp++ = '\0';
 	}
 	if (0!=(params= *--vp&0xFF)) {/* definition calls for params */
 		register char **pa;

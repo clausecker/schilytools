@@ -1,13 +1,13 @@
-/* @(#)volhdr.c	1.36 13/10/05 Copyright 1994, 2003-2013 J. Schilling */
+/* @(#)volhdr.c	1.37 17/10/07 Copyright 1994, 2003-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.36 13/10/05 Copyright 1994, 2003-2013 J. Schilling";
+	"@(#)volhdr.c	1.37 17/10/07 Copyright 1994, 2003-2017 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
  *
- *	Copyright (c) 1994, 2003-2013 J. Schilling
+ *	Copyright (c) 1994, 2003-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,6 +33,8 @@ static	UConst char sccsid[] =
 #include "table.h"
 #include <schily/standard.h>
 #include <schily/string.h>
+#define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
+#include <schily/device.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include "starsubs.h"
@@ -570,6 +572,10 @@ put_gvolhdr(name)
 	 */
 	if (H_TYPE(chdrtype) == H_XUSTAR)
 		return;
+
+#ifndef	DEV_MINOR_NONCONTIG
+	gen_unumber("SCHILY.devminorbits", minorbits);	
+#endif
 
 	gip->label = name;
 	if (gip->dumplevel >= 0) {

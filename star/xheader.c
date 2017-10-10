@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.90 16/12/27 Copyright 2001-2016 J. Schilling */
+/* @(#)xheader.c	1.91 17/10/07 Copyright 2001-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.90 16/12/27 Copyright 2001-2016 J. Schilling";
+	"@(#)xheader.c	1.91 17/10/07 Copyright 2001-2017 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2016 J. Schilling
+ *	Copyright (c) 2001-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -109,6 +109,7 @@ LOCAL	void	get_realsize	__PR((FINFO *info, char *keyword, int klen, char *arg, i
 LOCAL	void	get_offset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_minorbits	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
@@ -222,6 +223,7 @@ LOCAL xtab_t xtab[] = {
 			{ "SCHILY.fflags",	13, get_dummy,	0	},
 #endif
 			{ "SCHILY.dev",		10, get_dev,	0	},
+			{ "SCHILY.devminorbits", 19, get_minorbits,	0	},
 			{ "SCHILY.ino",		10, get_ino,	0	},
 			{ "SCHILY.nlink",	12, get_nlink,	0	},
 			{ "SCHILY.filetype",	15, get_filetype, 0	},
@@ -266,6 +268,7 @@ xbinit()
 	ginfo.f_gname = ___malloc(MAX_UNAME+1, "global group name");
 	ginfo.f_uname[0] = '\0';
 	ginfo.f_gname[0] = '\0';
+	ginfo.f_devminorbits = 0;
 	ggname = ginfo.f_gname;
 	ginfo.f_xflags = 0;
 	guname = ginfo.f_uname;
@@ -1985,6 +1988,34 @@ get_minor(info, keyword, klen, arg, len)
 }
 
 /*
+ * get number of minor bits for this file (vendor unique)
+ * This is naturally unsigned.
+ */
+/* ARGSUSED */
+LOCAL void
+get_minorbits(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	Ullong	ull;
+
+	if (len == 0) {
+		info->f_devminorbits = 0;
+		return;
+	}
+	if (get_unumber(keyword, arg, &ull, INO_T_MAX)) {
+		info->f_devminorbits = ull;
+		if (info->f_devminorbits != ull) {
+			xh_rangeerr(keyword, arg, len);
+			info->f_devminorbits = 0;
+		}
+	}
+}
+
+/*
  * get device number of device containing FS (vendor unique)
  * The device number should be unsigned but POSIX does not say anything
  * about the content and defined dev_t to be a signed int.
@@ -2001,16 +2032,56 @@ get_dev(info, keyword, klen, arg, len)
 	Ullong	ull;
 	BOOL	neg = FALSE;
 
+	info->f_devmaj = 0;
+	info->f_devmin = 0;
 	if (len == 0) {
 		info->f_dev = 0;
 		return;
 	}
 	if (get_snumber(keyword, arg, &ull, &neg,
 					-(Ullong)DEV_T_MIN, DEV_T_MAX)) {
+		int	mbits;
+		Llong	ll;
+
 		if (neg)
-			info->f_dev = -ull;
+			info->f_dev = ll = -ull;
 		else
-			info->f_dev = ull;
+			info->f_dev = ll = ull;
+
+		mbits = info->f_devminorbits;
+		if (mbits == 0)
+			mbits = ginfo.f_devminorbits;
+		if (mbits) {
+			int	oerr = geterrno();
+
+			seterrno(0);
+			info->f_devmaj	= _dev_major(mbits, ll);
+			info->f_devmin	= _dev_minor(mbits, ll);
+			info->f_dev = makedev(info->f_devmaj, info->f_devmin);
+			ull = dev_make(info->f_devmaj, info->f_devmin);
+			/*
+			 * Check whether the device from the archive
+			 * can be represented on the local system.
+			 */
+			if (geterrno() ||
+			    info->f_devmaj != major(info->f_dev) ||
+			    info->f_devmin != minor (info->f_dev) ||
+			    (Ullong)info->f_dev != ull) {
+				xh_rangeerr(keyword, arg, len);
+				info->f_dev = 0;
+				info->f_devmaj = 0;
+				info->f_devmin = 0;
+			}
+			seterrno(oerr);
+			return;
+		}
+		/*
+		 * Let us hope that both, the archiving and the
+		 * extracting system use the same major()/minor()
+		 * mapping.
+		 */
+		info->f_devmaj	= major(ll);
+		info->f_devmin	= minor(ll);
 
 		if ((neg && -info->f_dev != ull) ||
 			(!neg && info->f_dev != ull)) {

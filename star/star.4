@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.25 17/02/23 Copyr 2003-2016 J. Schilling
+. \" @(#)star.4	1.26 17/10/07 Copyr 2003-2017 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2017/02/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2017/10/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -1216,6 +1216,16 @@ The value is a signed int.
 An implementation should be able to handle at least 64 bit values.
 Note that the value is signed because POSIX does not specify
 more than the type should be an int.
+.TP
+.B SCHILY.devminorbits
+The number of minorbits used in the device id from
+.B st_dev
+as decimal number.
+.sp
+The value is mainly needed for SunOS where the number of minor bits in st_dev
+depends on whether a program is run in 32 or 64 bit mode. There is no support
+for platforms that do not have the minor part of the device id in a contiguous
+set of bits (like e.g. FreeBSD).
 .TP
 .B SCHILY.dino
 The inode numbers for names used is the

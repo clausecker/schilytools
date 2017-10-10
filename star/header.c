@@ -1,8 +1,8 @@
-/* @(#)header.c	1.161 17/01/26 Copyright 1985, 1994-2017 J. Schilling */
+/* @(#)header.c	1.162 17/10/07 Copyright 1985, 1994-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.161 17/01/26 Copyright 1985, 1994-2017 J. Schilling";
+	"@(#)header.c	1.162 17/10/07 Copyright 1985, 1994-2017 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1569,6 +1569,7 @@ static	BOOL	modewarn = FALSE;
 	info->f_dirinos = NULL;
 	info->f_dirents = 0;
 	info->f_llsize = 0;
+	info->f_devminorbits = 0;
 
 	tcb_to_xhdr_reset();	/* Falsch wenn wir mehr als @ in list wollen */
 

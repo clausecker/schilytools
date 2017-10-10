@@ -1,13 +1,13 @@
-/* @(#)ctab.c	1.14 09/07/11 Copyright 1987-2009 J. Schilling */
+/* @(#)ctab.c	1.15 17/10/03 Copyright 1987-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ctab.c	1.14 09/07/11 Copyright 1987-2009 J. Schilling";
+	"@(#)ctab.c	1.15 17/10/03 Copyright 1987-2017 J. Schilling";
 #endif
 /*
  *	Character expansion table
  *
- *	Copyright (c) 1987-2009 J. Schilling
+ *	Copyright (c) 1987-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -49,7 +51,7 @@ unsigned char csize[256] = {
 	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3,
 };
 
-/*unsigned*/ char *ctab[256] = {
+/* unsigned */ char *ctab[256] = {
 	"^@",	"^A",	"^B",	"^C",	"^D",	"^E",	"^F",	"^G",
 	"^H",	"^I",	"^J",	"^K",	"^L",	"^M",	"^N",	"^O",
 	"^P",	"^Q",	"^R",	"^S",	"^T",	"^U",	"^V",	"^W",
@@ -86,7 +88,7 @@ unsigned char csize[256] = {
 };
 #else
 unsigned char csize[256];
-/*unsigned*/ char *ctab[256];
+/* unsigned */ char *ctab[256];
 #endif
 
 
@@ -137,13 +139,13 @@ init_csize()
 	register unsigned char *rcsize = csize;
 
 	for (c = 0; c <= 255; c++, rcsize++) {
-		if (c < SP || c == DEL)			  /*ctl*/ /*B0*/
+		if (c < SP || c == DEL)			  /* ctl char B0 */
 			*rcsize = 2;
-		else if ((c > DEL && c < SP8) || c == DEL8)  /*8bit ctl*/ /*B0*/
+		else if ((c > DEL && c < SP8) || c == DEL8)  /* 8bit ctl B0 */
 			*rcsize = 3;
-		else if (c >= SP8 && !raw8)		  /*8bit norm*/ /*B0*/
+		else if (c >= SP8 && !raw8)		  /* 8bit norm B0 */
 			*rcsize = 2;
-		else					  /*7bit norm*/ /*B0*/
+		else					  /* 7bit norm B0 */
 			*rcsize = 1;
 	}
 }
@@ -169,7 +171,7 @@ init_ctab()
 		} else if (c >= SP8 && !raw8) {			/* 8 bit char */
 			p = makestr(eight);
 			p[1] = c & 0177;
-		} else {					/* normal char */
+		} else {					/* 7 bit char */
 			p = makestr(ch);
 			p[0] = c;
 		}

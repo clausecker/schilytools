@@ -1,6 +1,14 @@
 #!/bin/sh
 
-. ${SRCROOT:=`../../../../conf/srcroot.sh`}/tests/bin/base
+#
+# Allow to test this script in it's source directory.
+#
+if [ -f ../../../../conf/srcroot.sh ]; then
+	. ${SRCROOT:=`../../../../conf/srcroot.sh`}/tests/bin/base
+elif [ -f ../../../conf/srcroot.sh ]; then
+	. ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
+fi
+
 export SRCROOT
 
 OARCH=`$SRCROOT/conf/oarch.sh`
@@ -11,14 +19,42 @@ powerpc-aix-*)
 		;;
 esac
 
-shell=${shell:=../../../OBJ/$OARCH/sh}
+if [ -f ../../../OBJ/$OARCH/sh ]; then
+	shell=${shell:=../../../OBJ/$OARCH/sh}
+elif [ -f ../../OBJ/$OARCH/sh ]; then
+	shell=${shell:=../../OBJ/$OARCH/sh}
+fi
 SHELL="$shell"
 export SHELL
 
+#
+# Important: bosh --version returns	Copyright (C) 1982-2017 Joerg Schilling
+# while osh --version returns		Copyright (C) 1985-2017 Joerg Schilling
+# because the history editor is missing in osh.
+#
 case `$SHELL --version < /dev/null 2>&1 > /dev/null` in
 
-*Schily\ Bourne\ Shell*)	is_bosh=true;;
+*Schily\ Bourne\ Shell*1982*)	is_bosh=true;;
 *)				is_bosh=false;;
+esac
+
+case `$SHELL --version < /dev/null 2>&1 > /dev/null` in
+
+*Schily\ Bourne\ Shell*1985*)	is_osh=true;;
+*)				is_osh=false;;
+esac
+
+if [ -f ../../common/whatshell.sh ]; then
+	whatshell=../../common/whatshell.sh
+elif [ -f ./whatshell.sh ]; then
+	whatshell=./whatshell.sh
+fi
+
+case `$SHELL $whatshell < /dev/null 2>/dev/null` in
+
+*Bourne\ shell*schily*)		is_bourne=false;;
+*Bourne\ shell*)		is_bourne=true;;
+*)				is_bourne=false;;
 esac
 
 #set

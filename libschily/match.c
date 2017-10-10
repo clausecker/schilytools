@@ -1,4 +1,4 @@
-/* @(#)match.c	1.27 17/08/13 Copyright 1985, 1995-2017 J. Schilling */
+/* @(#)match.c	1.28 17/10/03 Copyright 1985, 1995-2017 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #define	POSIX_CLASS		/* Support [[:alpha:]] by default */
@@ -271,7 +271,7 @@ for (; soff <= slen; soff++) {
 			c = 0;
 		} else {
 #ifdef	__MB_CHAR
-			mlen = mbtowc(&c, (char *)str, slen - s);
+			mlen = mbtowc(&c, (char *)&str[s], slen - s);
 			if (mlen < 0) {
 				mbtowc(NULL, NULL, 0);
 				c = str[s];

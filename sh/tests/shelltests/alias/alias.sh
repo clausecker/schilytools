@@ -1,10 +1,16 @@
 #! /bin/sh
 #
-# @(#)alias.sh	1.8 17/09/14 2016 J. Schilling
+# @(#)alias.sh	1.9 17/10/04 2016 J. Schilling
 #
 
 # Read test core functions
 . ../../common/test-common
+
+if $is_bourne || $is_osh; then
+	echo "Bourne Shell does not support aliases, skipping tests..."
+	success
+	exit
+fi
 
 #
 # Basic tests to check whether aliases work

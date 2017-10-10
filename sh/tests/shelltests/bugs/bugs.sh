@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)bugs.sh	1.2 17/08/31 2017 J. Schilling
+# @(#)bugs.sh	1.3 17/10/04 2017 J. Schilling
 #
 
 # Read test core functions
@@ -27,6 +27,15 @@ docommand -noremove bug01 "LC_ALL=C $SHELL -x ./x" 0 IGNORE NONEMPTY
 # Bash adds stray spaces in the output :-(
 # We need to check with diff -w
 #
+if $is_bourne || $is_osh; then
+cat > expected <<"XEOF"
++ : /usr/bin/does-not-exist 
++ /usr/bin/does-not-exist bla 
+ECHO=/bin/does-not-exist
++ /bin/does-not-exist bla 
+ECHO=echo
+XEOF
+else
 cat > expected <<"XEOF"
 + : /usr/bin/does-not-exist 
 + /usr/bin/does-not-exist bla 
@@ -34,6 +43,7 @@ cat > expected <<"XEOF"
 + /bin/does-not-exist bla 
 + ECHO=echo
 XEOF
+fi
 diff -w expected got.stderr
 if [ $? != 0 ]; then
 	fail "Test $cmd_label failed: wrong error message"
@@ -71,6 +81,7 @@ docommand bug04 "$SHELL -c 'command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n
 docommand bug05 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
 docommand bug06 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
 
+remove b
 
 docommand -noremove bug07 "$SHELL -c 'expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null

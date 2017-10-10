@@ -1,0 +1,158 @@
+New features with AN-2017-10-10:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	libschily::match.c: patmbmatch() fixes a typo in the parameters
+	of mbtowc() that was introduced in July 2017 and is now usable - and
+	used by the new version of "p".
+
+-	p: Searching works again. The conversion to support multi-byte chars
+	caused the buffer filling to be cometimes skipped.
+
+-	p: Searching (from more prompt) now supports multi byte chars.
+
+-	p: the "underlining removal" function is now only called if underlining
+	is in effect and a backspace is seen in the current buffer.
+
+-	p: the search code now supports finding text in bold or underlined words
+	in case that the characters in the words contain multi-byte characters.
+
+-	Bourne Shell: the test suite introduced new variables that are set to
+	"true" in case a specific shell implementation was identified.
+
+	Available are now: "is_osh" if the portable Solaris compatible
+	Bourne Shell was detected and "is_bourne" it true in case any Bourne
+	Shell compatible shell was detected.
+
+-	Bourne Shell: aliases are no longer tested by the test suite in case
+	that a Bourne Shell (not supporting aliases) was detected.
+
+-	Bourne Shell: the "bugs" tests are now able to switch to the "set -x"
+	output method from the historic Bourne Shell.
+
+-	K&R cpp: The output for the __FILE__ macro is now inserting the needed
+	backshlash quoting for backslashes in file names. This makes __FILE__
+	usable as a C-string.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	K&R cpp: The error message "#if-less #endif" may have caused a core
+	dump that happened because we are no longer on UNIX-V7 where a NULL
+	pointer may be dereferenced and points to a 0.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	K&R cpp: The "#line # filename" directive no longer ignores it's
+	arguments but rather sets the line number and the filename.
+	Note that the original Reiser cpp ignored the arguments to "#line".
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: Added a new extended header: SCHILY.devminorbits
+	This is needed because Solaris uses a different makedev() for 64 bit
+	commands and 32 bit commands.
+
+	The new SCHILY.devminorbits allows to convert struct stat.st_dev
+	as used by SCHILY.dev into a number that is compatible to the system
+	used by the local program. Note that SCHILY.dev is currently not
+	used in extract mode, but a value in the archive that does not fit
+	into the local dev_t type was flagged by star. This caused a warning
+	like this:
+	
+	star: WARNING: SCHILY.dev '124554051655' in extended header at 3 exceeds local range.
+
+	when the archive created by a 64 bit star on Solaris was fed into
+	a 32 bit star.
+
+	Ad a result, tar archives from 64 bit star binaries and 32 bit star
+	binaries are now compatible.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

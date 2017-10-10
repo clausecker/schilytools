@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.6 17/02/08 Copyright 2010-2017 J. Schilling
+.\" @(#)cpp.1	1.7 17/10/08 Copyright 2010-2017 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "17/02/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "17/10/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
@@ -47,6 +47,18 @@ cpp
 .B cpp
 is the C language preprocessor. This implementation does not implement the
 ANSI C standard but K&R.
+.LP
+.B cpp
+accepts up to two filenames as arguments.
+By default, 
+.B cpp
+reads from standard input and writes to standard output.
+.I input-file
+and
+.I output-file
+are used to specify a different input or output for the preprocessor.
+
+
 . \" .SH RETURNS
 . \" .SH ERRORS
 .SH OPTIONS

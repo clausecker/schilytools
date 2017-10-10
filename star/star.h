@@ -1,6 +1,6 @@
-/* @(#)star.h	1.127 13/11/05 Copyright 1985, 1995-2013 J. Schilling */
+/* @(#)star.h	1.128 17/10/07 Copyright 1985, 1995-2017 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2013 J. Schilling
+ *	Copyright (c) 1985, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -597,6 +597,9 @@ typedef	struct	{
 	int	f_dirlen;	/* Extended strlen(f_dir)+1		  */
 	int	f_dirents;	/* # der Directory Eintraege		  */
 	dev_t	f_dev;		/* Geraet auf dem sich d. Datei befindet  */
+	major_t	f_devmaj;	/* Major von f_dev			  */
+	minor_t	f_devmin;	/* Minor bei f_dev			  */
+	int	f_devminorbits;	/* Anzahl d. Minor Bits in f_dev	  */
 	ino_t	f_ino;		/* Dateinummer				  */
 	nlink_t	f_nlink;	/* Anzahl der Links			  */
 	mode_t	f_mode;		/* Zugriffsrechte			  */

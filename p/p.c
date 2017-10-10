@@ -1,8 +1,8 @@
-/* @(#)p.c	1.58 17/07/11 Copyright 1985-2017 J. Schilling */
+/* @(#)p.c	1.65 17/10/03 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.58 17/07/11 Copyright 1985-2017 J. Schilling";
+	"@(#)p.c	1.65 17/10/03 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -34,8 +34,6 @@ static	UConst char sccsid[] =
 #include <schily/sigset.h>
 #include <schily/termcap.h>
 #include <schily/libport.h>
-#include <schily/patmatch.h>
-#include <schily/schily.h>
 #include <schily/errno.h>
 #define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */
 #include <schily/termios.h>
@@ -45,8 +43,9 @@ static	UConst char sccsid[] =
 #include <schily/ctype.h>	/* For isprint()	*/
 #include <schily/wchar.h>	/* wchar_t		*/
 #include <schily/wctype.h>	/* For iswprint()	*/
+#include <schily/patmatch.h>
+#include <schily/schily.h>
 
-/*#define SEARCHSIZE	80*/
 #define	SEARCHSIZE	256
 #define	DEF_PSIZE	24;
 #define	DEF_LWIDTH	80;
@@ -66,8 +65,8 @@ static	UConst char sccsid[] =
 #define	peekc()	(len > 0 ? (int) *bp : \
 			(fill_buf() <= 0 ? (len == 0 ? EOF : -2) : \
 			((int) *bp)))
-#define	getnextch() (len--, bp++)
-/*#define	peekc() (ungetch(nextc()))*/
+#define	getnextch()	(len--, bp++)
+#define	__peekc()	(ungetch(nextc()))
 #endif
 
 #	ifdef	USE_V7_TTY
@@ -113,7 +112,11 @@ int	direction;	/* direction to step through file list */
 char	*editor;
 char	*shell;
 int	searchnext;
+#if	MB_LEN_MAX > 1
+wchar_t	searchbuf[SEARCHSIZE];
+#else
 char	searchbuf[SEARCHSIZE];
+#endif
 int 	alt;
 int 	*aux;
 int 	*state;
@@ -147,16 +150,18 @@ int	underl;
 unsigned char mybuf[P_BUFSIZE];	/* Fuer nextc */
 unsigned char *bp;		/* ditto */
 int len = 0;			/* ditto */
-int clen = 0;
-int pclen = 0;
+int clen = 0;			/* # of octects in nextwc() multi byte char */
+int pclen = 0;			/* # of octects in peekwc() multi byte char */
 unsigned char *cp;
 
 #ifdef	BUFSIZ
 char	buffer[BUFSIZ];		/* our buffer for stdout */
 #endif
 char	dcl[] = ":::::::::::::::";
+/* BEGIN CSTYLED */
 char	options[] =
 "help,version,debug,nobeep,length#,l#,width#,w#,blank,b,clear,c,dos,nodos%0,end,e,raw,r,raw8,silent,s,tab,t,unul,visible,v";
+/* END CSTYLED */
 
 BOOL nameprint = FALSE;
 
@@ -175,7 +180,12 @@ LOCAL	BOOL	more		__PR((void));
 LOCAL	int	get_action	__PR((void));
 LOCAL	void	onlinehelp	__PR((void));
 LOCAL	void	redraw		__PR((void));
-LOCAL	char	inchar		__PR((void));
+LOCAL	int	inchar		__PR((void));
+#if	MB_LEN_MAX > 1
+LOCAL	int	inwchar		__PR((void));
+#else
+#define	inwchar	inchar
+#endif
 #ifndef	nextc
 LOCAL	int	nextc		__PR((void));
 #endif
@@ -268,7 +278,9 @@ usage(exitcode)
 	error("\t-raw8\t\tdo not expand 8bit chars\n");
 	error("\t-silent,-s\tdo not prompt for more stuff\n");
 	error("\t-tab,-t\t\tdo not expand tabs to spaces but to ^I\n");
-/*	error("\t-unul\t\tremove underlining and bold sequences\n");*/
+#ifdef	__needed__
+	error("\t-unul\t\tremove underlining and bold sequences\n");
+#endif
 	error("\t-visible,-v\tunderlining/bold sequences become visible\n\n");
 	error("	When asked for more:  confirm=page, n=no more, h=half page\n");
 	error("		q=quarter page, l=single line, 1-9=# lines.\n");
@@ -314,10 +326,12 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
+		/* BEGIN CSTYLED */
 		printf("p %s (%s-%s-%s)\n\n", "2.2", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2017 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		/* END CSTYLED */
 		exit(0);
 	}
 
@@ -339,8 +353,10 @@ main(ac, av)
 		cac = ac;
 		cav = av;
 		fac = i;
-		for (i = 0; getfiles(&cac, &cav, options) > 0; i++, cac--, cav++)
+		for (i = 0; getfiles(&cac, &cav, options) > 0;
+		    i++, cac--, cav++) {
 			fav[i] = *cav;
+		}
 	} else {
 		cac = ac;
 		cav = av;
@@ -362,7 +378,7 @@ main(ac, av)
 	init_tty_size();
 
 	if (!silent) {
-		usleep(150000);	/* XXX Hack bis Jobcontrol im bsh geht !!!*/
+		usleep(150000);	/* XXX Hack bis Jobcontrol im bsh geht !!! */
 		set_modes();
 	}
 
@@ -377,9 +393,11 @@ main(ac, av)
 	lines = psize-2;
 
 	fac = cac;
-/*	printf("%d\n", cac);*/
-/*	for (i=0; i < cac; i++)*/
-/*		printf("%s\n", cav[i]);*/
+#ifdef	DEBUG
+	printf("%d\n", cac);
+	for (i = 0; i < cac; i++)
+		printf("%s\n", cav[i]);
+#endif
 
 	if (cac == 0) {
 		filename = "";
@@ -491,7 +509,10 @@ page()
 				continue;
 			ocolcnt = colcnt;
 			lineno++;
-			if (endline) if (outchar('$')) return;
+			if (endline) {
+				if (outchar('$'))
+					return;
+			}
 			if (outchar('\n'))
 				return;
 		} else if (c == '\t' && !tab) {
@@ -675,27 +696,24 @@ more()
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	Return:
-|		-1	error
-|		 0	continue this file
-|		 1	stop on this file
-|	EXIT:
-|		 on demand
-|
-+---------------------------------------------------------------------------*/
-
+/*
+ *	Return:
+ *		-1	error
+ *		 0	continue this file
+ *		 1	stop on this file
+ *	EXIT:
+ *		 on demand
+ */
 LOCAL int
 get_action()
 {
-	char	c;
+	int	c;
 	char	buf[128];
 
 	direction = FORWARD;
 	searchnext = 0;
 
-	switch (c = inchar()) {
+	switch (c = inwchar()) {
 
 	case 'p':
 	case 'P':
@@ -710,6 +728,7 @@ get_action()
 	case 004 :				/* ^D  */
 	case 034 :				/* ^\  */
 	case 0177:				/* DEL */
+	case EOF :
 		fixtty(0);
 		/* NOTREACHED */
 	case 'Y':
@@ -790,6 +809,7 @@ get_action()
 LOCAL void
 onlinehelp()
 {
+	/* BEGIN CSTYLED */
 	printf("\n---------------------------------------------------------------\n");
 	printf("N, n			Next File\n");
 	printf("P, p			Previous File\n");
@@ -806,6 +826,7 @@ onlinehelp()
 	printf("!			Execute command\n");
 	printf("V, v			Edit file\n");
 	printf("---------------------------------------------------------------\n");
+	/* END CSTYLED */
 }
 
 LOCAL void
@@ -815,13 +836,13 @@ redraw()
 		if (!nobeep)
 			putchar('\007');
 		clearline();
-/*		return (-1);*/
+		return;
 	}
 	len = 0;
 	clearscreen();
 }
 
-LOCAL char
+LOCAL int
 inchar()
 {
 	char	c;
@@ -835,8 +856,44 @@ inchar()
 		ret = read(tty, &c, 1);
 #	endif
 	} while (ret < 0 && geterrno() == EINTR);
+	if (ret == 0)
+		return (EOF);
 	return (c);
 }
+
+#if	MB_LEN_MAX > 1
+/*
+ * Get next wide character from tty
+ */
+LOCAL int
+inwchar()
+{
+	register int	cur_max = MB_CUR_MAX;
+	register int	i;
+	int		mlen;
+	wchar_t		c = -1;
+	char		cstr[MB_LEN_MAX];
+	char		*csp;
+	int		ic;
+
+	(void) mbtowc(NULL, NULL, 0);
+	for (i = 1, csp = cstr; i <= cur_max; i++) {
+		ic = inchar();
+		if (ic == EOF)
+			break;
+		*csp++ = (char)ic;
+		mlen = mbtowc(&c, cstr, i);
+		if (mlen >= 0)
+			break;
+		(void) mbtowc(NULL, NULL, 0);
+	}
+#ifdef	_NEXTWC_DEBUG
+	fprintf(stderr, "C %d %x\n", c, c);
+#endif
+	return ((int)c);
+}
+#endif
+
 
 #ifndef	nextc
 LOCAL int
@@ -1033,14 +1090,21 @@ LOCAL BOOL
 read_pattern()
 {
 		int	patlen;
-	register char	c;
+	register int	c;
 	register int	count = 0;
+#if	MB_LEN_MAX > 1
+	register wchar_t *s = searchbuf;
+	unsigned char	b[MB_LEN_MAX];
+#else
 	register char	*s = searchbuf;
+#endif
 	register unsigned char	*p;
 	register int	i;
 
-	while ((c = inchar()) != '\004' &&
-			count++ < (SEARCHSIZE - 1) && c != '\r' && c != '\n') {
+	while ((c = inwchar()) != EOF &&
+			count++ < (SEARCHSIZE - 1) &&
+			c != '\004' && c != '\r' && c != '\n') {
+
 		if (c == 0177) {		/* DEL */
 			if (s == searchbuf) {
 				if (!nobeep)
@@ -1048,13 +1112,37 @@ read_pattern()
 			} else {
 				--count;
 				--s;
-				for (i = csize[*s & 0xFF]; --i >= 0; )
+#if	MB_LEN_MAX > 1 && defined(HAVE_WCWIDTH)
+				if (iswprint(*s))
+					i = wcwidth(*s);
+				else
+					i = csize[*s & 0xFF];
+#else
+				i = csize[*s & 0xFF];
+#endif
+				for (; --i >= 0; )
 					printf("\b \b");
 			}
 			fflush(stdout);
 		} else {
-			*s++ = c;
+#if	MB_LEN_MAX > 1 && defined(HAVE_WCWIDTH)
+			int	l;
+
+			if (iswprint(c)) {
+				l = wctomb((char *)b, c);
+				if (l < 1) {
+					p = ctab[c & 0xFF];
+				} else {
+					p = b;
+					b[l] = '\0';
+				}
+			} else {
+				p = ctab[c & 0xFF];
+			}
+#else
 			p = ctab[c & 0xFF];
+#endif
+			*s++ = c;
 			while (*p)
 				putchar(*p++);
 			fflush(stdout);
@@ -1063,10 +1151,18 @@ read_pattern()
 	*s = '\0';
 	if (aux)
 		free((char *)aux);
+#if	MB_LEN_MAX > 1
+	patlen = wcslen(searchbuf);
+#else
 	patlen = strlen(searchbuf);
+#endif
 	aux = (int *) malloc(patlen * sizeof (int));
 	state = (int *) malloc((patlen+1) * sizeof (int));
+#if	MB_LEN_MAX > 1
+	alt = patwcompile(searchbuf, patlen, aux);
+#else
 	alt = patcompile((unsigned char *)searchbuf, patlen, aux);
+#endif
 	if (!alt) {
 		printf("Bad Pattern.\r");
 		fflush(stdout);
@@ -1093,16 +1189,27 @@ do_search()
 			putchar('\007');
 		printf("No previous search.\r");
 		fflush(stdout);
-/*		sleep(1);*/
+#ifdef	DEBUG
+		sleep(1);
+#endif
 		return (-1);
 	}
 	curpos = filepos(f)-len;
 
-/*fprintf(stderr, "Efilepos: %lld len: %d bp: 0x%X\n", (Llong)filepos(f), len, bp);*/
+#ifdef	DEBUG
+	fprintf(stderr,
+		"Efilepos: %lld len: %d bp: 0x%X\n",
+		(Llong)filepos(f), len, bp);
+#endif
 	for (;;) {
-		if (!rest) {
-			int	olen = len;
-
+		if (rest < MB_LEN_MAX) {
+			int	olen;
+			/*
+			 * We may be operating on a copy and thus
+			 * need to set "len" to the remaining characters to
+			 * tell fill_buf() that it needs to do a refill.
+			 */
+			olen = len = rest;
 			if (fill_buf() <= 0 || olen == len) {
 				if (!nobeep)
 					putchar('\007');
@@ -1116,13 +1223,23 @@ do_search()
 		}
 		rbp = lp = sp = bp;
 		rest = len;
-		if (findbytes(lp, rest, '\b') != NULL) {
+		if (underline &&
+		    findbytes(lp, rest, '\b') != NULL) {
 			rest = unul(sbuf, rbp, len);
 			rbp = lp = sp = sbuf;
 		}
 		for (; rest > 0; rest--) {
-			if (patmatch((unsigned char *)searchbuf, aux, rbp, 0, rest, alt, state)) {
-/*fprintf(stderr, "Afilepos: %lld rest: %d rbp: 0x%X lp: 0x%X\n", (Llong)filepos(f), rest, rbp, lp);*/
+#if	MB_LEN_MAX > 1
+			if (patmbmatch(searchbuf,
+#else
+			if (patmatch((unsigned char *)searchbuf,
+#endif
+					aux, rbp, 0, rest, alt, state)) {
+#ifdef	DEBUG
+			fprintf(stderr,
+				"Afilepos: %lld rest: %d rbp: 0x%X lp: 0x%X\n",
+				(Llong)filepos(f), rest, rbp, lp);
+#endif
 				if (skipping) {
 					printf("\n");
 					if (sp == bp) {
@@ -1133,8 +1250,11 @@ do_search()
 						rbp = &bp[len];
 						while (--newlines >= 0) {
 							unsigned char *olp = lp;
-							if ((lp =
-							    (Uchar *)findbytes(lp, rbp - lp, '\n')) == NULL) {
+							if ((lp = (Uchar *)
+								findbytes(lp,
+								    rbp - lp,
+								    '\n')) ==
+								    NULL) {
 								lp = olp;
 								break;
 							}
@@ -1144,7 +1264,11 @@ do_search()
 						len = rbp - lp;
 					}
 				}
-/*fprintf(stderr, "Afilepos: %lld len: %d bp: 0x%X\n", (Llong)filepos(f), len, bp);*/
+#ifdef	DEBUG
+				fprintf(stderr,
+					"Afilepos: %lld len: %d bp: 0x%X\n",
+					(Llong)filepos(f), len, bp);
+#endif
 				return (0);
 			}
 			if (*rbp++ == '\n') {
@@ -1158,7 +1282,9 @@ do_search()
 					printf("skipping...\r");
 					fflush(stdout);
 				}
-/*fprintf(stderr, ".");*/
+#ifdef	DEBUG
+				fprintf(stderr, ".");
+#endif
 			}
 		}
 	}
@@ -1171,43 +1297,67 @@ unul(ob, ib, amt)
 	register int	amt;
 {
 	register Uchar	*oob = ob;
-	register Uchar	c;
+		wchar_t	c;
+	register ssize_t wclen;
 
-	while (--amt >= 0) {
-		c = *ib++;
-		if (c == '_' && underline) {		/* underlining */
+	mbtowc(NULL, NULL, 0);
+	while (amt > 0) {
+		wclen = mbtowc(&c, (char *)ib, amt);
+		if (wclen < 1) {
+			*ob++ = *ib++;
+			amt--;
+			continue;
+		}
+		amt -= wclen;
+		ib += wclen;
+		if (c == '_') {				/* underlining */
 			if (ib[0] != '\b') {
-				*ob++ = c;
+				ib -= wclen;
+				while (--wclen >= 0)
+					*ob++ = *ib++;
 				continue;
 			}
-			ib++;
+			ib++;				/* eat ^H */
 			amt--;
-			if (ib[0] == '_') {
+			wclen = mbtowc(&c, (char *)ib, amt);
+			if (wclen > 0 && c == '_') {	/* _ ^H _ */
 				goto bold;
 			}
-		} else if (c == '+' && ib[0] == '\b' && underline) {	/* underlining */
+		} else if (c == '+' && ib[0] == '\b') {	/* overstriking */
 			/* + ^H o */
 
-			ib++;
+			ib++;				/* eat ^H */
 			amt--;
-		} else if (ib[0] == '\b' && underline) {
+		} else if (ib[0] == '\b') {
+			wchar_t	c2;
+			ssize_t	wclen2;
+			Uchar	*oib;
 
 			/* N ^H N ^H N ^H N */
 			ib++;				/* eat ^H */
 			amt--;
 		bold:
-			while (amt > 0 && ib[0] == c) {
-				ib++;			/* eat c */
-				amt--;
+			oib = ib - (wclen +1);
+			while (amt > 0) {
+				wclen2 = mbtowc(&c2, (char *)ib, amt);
+				if (wclen2 < 1)
+					break;
+				if (c2 != c)
+					break;
+				ib += wclen2;		/* eat c2 */
+				amt -= wclen2;
 				if (ib[0] == '\b') {	/* Check for ^H */
 					ib++;		/* eat ^H */
 					amt--;
 				} else
 					break;
 			}
-			*ob++ = c;
+			while (--wclen >= 0)
+				*ob++ = *oib++;
 		} else {
-			*ob++ = c;
+			ib -= wclen;
+			while (--wclen >= 0)
+				*ob++ = *ib++;
 		}
 	}
 	*ob = '\0';
@@ -1465,9 +1615,11 @@ set_modes()
 	movebytes(&old, &new, sizeof (old));
 	if (!(old.c_iflag & ISTRIP))
 		raw8 = TRUE;
-/*	new.c_iflag = ICRNL;*/
-/*	new.c_oflag = (OPOST|ONLCR);*/
-/*	new.c_lflag = ISIG;*/
+#ifdef	__never__
+	new.c_iflag = ICRNL;
+	new.c_oflag = (OPOST|ONLCR);
+	new.c_lflag = ISIG;
+#endif
 	new.c_lflag &= ~(ICANON|ECHO);
 	new.c_cc[VMIN] = 1;
 	new.c_cc[VTIME] = 0;
