@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.34 14/04/14 Copyright 1985-2014 J. Schilling */
+/* @(#)parse.c	1.36 17/10/22 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.34 14/04/14 Copyright 1985-214 J. Schilling";
+	"@(#)parse.c	1.36 17/10/22 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -436,6 +436,7 @@ pword()
 	register int	q = 0;
 	register char	*s;
 
+again:
 	skipwhite();
 	if (isdigit(delim)) {
 		if (peekch() == '>')
@@ -448,6 +449,23 @@ pword()
 		else if (q == '"')
 			dquote();
 		nextch();
+	}
+	/*
+	 * Check if it was "$@" with empty list.
+	 */
+	if (delim < -1) {
+		int	pc = peekch();
+
+		if (pc == q) {
+			nextch();	/* Eat quotechar */
+			if (pc == '\'')
+				unquote();
+			if (pc == '"')
+				undquote();
+		}
+		nextch();		/* Get next char for skipwhite() */
+		q = 0;
+		goto again;
 	}
 	s = pstring(special, q);
 	if (s == NULL)

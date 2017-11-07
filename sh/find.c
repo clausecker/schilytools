@@ -1,9 +1,9 @@
-/* @(#)find.c	1.2 16/06/10 Copyright 2014-2015 J. Schilling */
+/* @(#)find.c	1.3 17/11/02 Copyright 2014-2017 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	find builtin
  *
- *	Copyright (c) 2014-2016 J. Schilling
+ *	Copyright (c) 2014-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,7 +23,7 @@
 #ifdef DO_SYSFIND
 
 static	UConst char sccsid[] =
-	"@(#)find.c	1.2 16/06/10 Copyright 2014-2016 J. Schilling";
+	"@(#)find.c	1.3 17/11/02 Copyright 2014-2017 J. Schilling";
 
 #include	<schily/walk.h>
 #include	<schily/find.h>
@@ -62,6 +62,18 @@ sysfind(argc, argv)
 	fflush(stdin);
 	fflush(stdout);
 	fflush(stderr);
+}
+
+/*
+ * find_main() disables file raising for stdin/stdout/stderr, but libschily
+ * would still include references (not calls) to raisecond(). Provide a dummy
+ * to avoid linking against raisecond() from libschily.
+ */
+void
+raisecond(n, a)
+	const	char	*n;
+	long		a;
+{
 }
 
 #endif /* DO_SYSFIND */

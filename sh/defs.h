@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.180 17/09/22 2008-2017 J. Schilling
+ * @(#)defs.h	1.181 17/11/03 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -72,7 +72,7 @@ extern "C" {
 #ifdef	DO_POSIX_TEST
 #define		ETEST		2	/* POSIX test(1) error exit code  */
 #else
-#define		ETEST		ERROR	/* historical test(1) error exit code  */
+#define		ETEST		ERROR	/* historical test(1) error exit code */
 #endif
 #define		SIGFAIL 	2000
 #define		SIGFLG		0200	/* $? == SIGFLG + signo */

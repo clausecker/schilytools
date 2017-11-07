@@ -1,13 +1,13 @@
-/* @(#)strsubs.c	1.25 13/09/25 Copyright 1985-2013 J. Schilling */
+/* @(#)strsubs.c	1.27 17/11/05 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strsubs.c	1.25 13/09/25 Copyright 1985-2013 J. Schilling";
+	"@(#)strsubs.c	1.27 17/11/05 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Useful string functions
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/varargs.h>
+#include <schily/utypes.h>
 #include "bsh.h"
 #include "strsubs.h"
 #include <schily/string.h>
@@ -259,15 +260,26 @@ quote_string(s, spec)
 	register char	*s;
 	register char	*spec;
 {
-	static	char	*str = 0;
-	register	char	*s1;
+	static	 char	buf[16];
+	static	 char	*str = 0;
+	register char	*s1  = 0;
+	register int	len;
 
-	if (str)
+	if (str && str != buf)
 		free(str);
-	s1 = str = malloc(2 * (size_t)strlen(s) + 1);
-	while (*s) {
-		if (strchr(spec, *s))
+	len = 2 * strlen(s) + 1;
+	if (len > sizeof (buf))
+		s1 = str = malloc(len);
+
+	if (s1 == 0) {
+		len = sizeof (buf);
+		s1 = str = buf;
+	}
+	while (*s && --len > 0) {
+		if (strchr(spec, *s)) {
 			*s1++ = '\\';
+			len--;
+		}
 		*s1++ = *s++;
 	}
 	*s1 = '\0';
@@ -276,26 +288,39 @@ quote_string(s, spec)
 
 EXPORT char *
 pretty_string(s)
-	register unsigned char	*s;
+	register Uchar	*s;
 {
-	static	unsigned  char	*str = 0;
-	register unsigned char	*s1;
+	static	 Uchar	buf[16];
+	static	 Uchar	*str = 0;
+	register Uchar	*s1  = 0;
+	register int	len;
 
-	if (str)
+	if (str && str != buf)
 		free(str);
-	s1 = str = (unsigned char *)malloc(3 * (size_t)strlen((char *)s) + 1);
-	while (*s) {
+
+	len = 3 *(unsigned)strlen((char *)s) + 1;
+	if (len > sizeof (buf))
+		s1 = str = (Uchar *)malloc(len);
+
+	if (s1 == 0) {
+		len = sizeof (buf);
+		s1 = str = buf;
+	}
+	while (*s && --len > 0) {
 		if (isprint(*s)) {
 			*s1++ = *s++;
 			continue;
 		}
-		if (*s & 0x80)
+		if (*s & 0x80) {
 			*s1++ = '~';
+			len--;
+		}
 		if (*s != 127 && *s & 0x60) {
 			*s1++ = *s++ & 0x7F;
 		} else {
 			*s1++ = '^';
 			*s1++ = (*s++ & 0x7F) ^ 0100;
+			len--;
 		}
 	}
 	*s1 = '\0';

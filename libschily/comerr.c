@@ -1,4 +1,4 @@
-/* @(#)comerr.c	1.45 17/09/21 Copyright 1985-1989, 1995-2017 J. Schilling */
+/* @(#)comerr.c	1.46 17/11/03 Copyright 1985-1989, 1995-2017 J. Schilling */
 /*
  *	Routines for printing command errors
  *
@@ -260,7 +260,7 @@ _comerr(f, exflg, exc, err, msg, args)
 	FILE		*f;	/* FILE * to print to */
 	int		exflg;	/* COMERR_RETURN, COMERR_EXIT, COMERR_EXCODE */
 	int		exc;	/* Use for exit() if exflg & COMERR_EXCODE */
-	int		err;	/* Errno for text, exit(err) if !COMERR_EXIT*/
+	int		err;	/* Errno for text, exit(err) if !COMERR_EXIT */
 	const char	*msg;	/* printf() format */
 	va_list		args;	/* printf() args for format */
 {

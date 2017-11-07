@@ -1,8 +1,8 @@
-/* @(#)device.h	1.19 09/11/16 Copyright 1995-2007 J. Schilling */
+/* @(#)device.h	1.20 17/10/07 Copyright 1995-2017 J. Schilling */
 /*
  *	Generic header for users of major(), minor() and makedev()
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -35,6 +37,9 @@
  */
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
+#endif
+#ifndef	_SCHILY_STDINT_H
+#include <schily/stdint.h>
 #endif
 
 /*
@@ -116,7 +121,7 @@ extern "C" {
  * The following defines are currently only needed for 'star'.
  * We make it conditional code to avoid to pollute the namespace.
  */
-#define	XDEV_T	unsigned long
+#define	XDEV_T	Ullong
 
 extern	int	minorbits;
 extern	XDEV_T	minormask;
@@ -131,7 +136,7 @@ extern	XDEV_T	_dev_mask[];
 
 #define	dev_make(majo, mino)		((((XDEV_T)(majo)) << minorbits) | \
 							((XDEV_T)(mino)))
-#define	_dev_make(mbits, majo, mino)	((((XDEV_T)(majo)) << (mbits) | \
+#define	_dev_make(mbits, majo, mino)	((((XDEV_T)(majo)) << (mbits)) | \
 							((XDEV_T)(mino)))
 
 extern	void	dev_init	__PR((BOOL debug));

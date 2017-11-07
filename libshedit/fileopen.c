@@ -1,6 +1,6 @@
-/* @(#)fileopen.c	1.2 13/09/25 Copyright 1986, 1995-2013 J. Schilling */
+/* @(#)fileopen.c	1.3 17/11/02 Copyright 1986, 1995-2017 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2013 J. Schilling
+ *	Copyright (c) 1986, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,6 +36,7 @@ fileopen(name, mode)
 
 	if ((f = malloc(sizeof (FILE))) == NULL) {
 		close(ret);
+		return ((FILE *)NULL);
 	}
 	*f = ret;
 	return (f);

@@ -1,13 +1,13 @@
-/* @(#)expand.c	1.44 13/09/25 Copyright 1985-2013 J. Schilling */
+/* @(#)expand.c	1.48 17/11/05 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.44 13/09/25 Copyright 1985-2013 J. Schilling";
+	"@(#)expand.c	1.48 17/11/05 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,6 +75,8 @@ save_base(s, endptr)
 	register char	*r;
 
 	tmp = malloc((size_t)(endptr-s+1));
+	if (tmp == (char *)NULL)
+		return (tmp);
 	for (r = tmp; s < endptr; )
 		*r++ = *s++;
 	*r = '\0';
@@ -89,7 +91,7 @@ any_match(s)
 
 	while (*s && !strchr(rm, *s))
 		s++;
-	return ((BOOL) *s);
+	return ((BOOL)*s);
 }
 
 LOCAL Tnode *
@@ -106,6 +108,10 @@ mklist(l)
 
 	ac = listlen(l);
 	vp = allocvec(ac);
+	if (vp == (Argvec *)NULL) {
+		freetree(l);
+		return ((Tnode *)NULL);
+	}
 	vp->av_ac = ac;
 	for (l1 = l, p = &vp->av_av[0]; --ac >= 0; ) {
 		*p++ = l1->tn_left.tn_str;
@@ -276,7 +282,7 @@ exp(n, i, l)
 {
 	register char	*cp;
 	register char	*dp;		/* pointer past end of current dir */
-		char	*dir;
+		char	*dir	= NULL;
 		char	*tmp;
 	register char	*cname;		/* concatenated name dir+d_ent */
 		DIR	*dirp;
@@ -309,6 +315,8 @@ exp(n, i, l)
 
 	aux = malloc((size_t)patlen*(sizeof (int)));
 	state = malloc((size_t)(patlen+1)*(sizeof (int)));
+	if (aux == (int *)NULL || state == (int *)NULL)
+		goto cannot;
 	if ((alt = patcompile((unsigned char *)dp, patlen, aux)) == 0 &&
 	    patlen != 0) {
 		EDEBUG(("Bad pattern\n"));
@@ -318,7 +326,8 @@ exp(n, i, l)
 	}
 
 	dir = save_base(n, dp);		/* get dirname part */
-	if ((dirp = opendir(dp == n ? "." : dir)) == (DIR *) NULL)
+	if (dir == (char *)NULL ||
+	    (dirp = opendir(dp == n ? "." : dir)) == (DIR *)NULL)
 		goto cannot;
 
 	EDEBUG(("dir: '%s' match: '%.*s'\n", dp == n?".":dir, patlen, dp));
@@ -367,16 +376,26 @@ exp(n, i, l)
 				EDEBUG(("rescan: '%s'\n", cname));
 				rescan++;
 			}
-			l1 = allocnode(sxnlen(i+namlen), (Tnode *)cname, l1);
+			if (cname) {
+				l1 = allocnode(sxnlen(i+namlen),
+						(Tnode *)cname, l1);
+			} else {
+				EDEBUG(("cannot concat: '%s%s%s'\n",
+				/* EDEBUG */	dir, dent->d_name, cp));
+				break;
+			}
 		}
 	}
 	closedir(dirp);
 cannot:
-	free(dir);
-	free((char *)aux);
-	free((char *)state);
+	if (dir)
+		free(dir);
+	if (aux)
+		free((char *)aux);
+	if (state)
+		free((char *)state);
 
-	if (rescan > 0) {
+	if (rescan > 0 && l1 != (Tnode *)NULL) {
 		for (alt = rescan; --alt >= 0; ) {
 			register Tnode	*l2;
 
@@ -397,7 +416,7 @@ expand(s)
 	char	*s;
 {
 	if (!any_match(s))
-		return ((Tnode *) NULL);
+		return ((Tnode *)NULL);
 	else
 		return (mklist(exp(s, 0, (Tnode *)NULL)));
 }

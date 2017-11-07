@@ -1,13 +1,13 @@
-/* @(#)input.c	1.37 16/08/14 Copyright 1985-2016 J. Schilling */
+/* @(#)input.c	1.38 17/10/21 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.37 16/08/14 Copyright 1985-2016 J. Schilling";
+	"@(#)input.c	1.38 17/10/21 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -549,6 +549,14 @@ input_expand(os, is)
 				/*
 				 * "$@" -> "$1" "$2" ...
 				 */
+				if (dqlevel > 0 && vac <= 1) {
+					begina(FALSE);
+					/*
+					 * Signal our caller that this argument
+					 * needs to be copletely wiped out.
+					 */
+					return (-2);
+				}
 				for (c = vac; c > 1; ) {
 					fspushstr(os, vav[--c]);
 					if (c > 1)

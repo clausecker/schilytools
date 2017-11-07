@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.31 14/04/14 Copyright 1985-2014 J. Schilling */
+/* @(#)fstream.c	1.32 17/10/21 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.31 14/04/14 Copyright 1985-2014 J. Schilling";
+	"@(#)fstream.c	1.32 17/10/21 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -170,11 +170,13 @@ fsgetc(fsp)
 	 */
 	while (*fsp->fstr_bp == '\0') {			/* buffer is empty  */
 		if (fsp->fstr_func != (fstr_fun)0) {	/* call function    */
+			int	ret;
+
 			/*
 			 * We have a filter function, so call it.
 			 */
-			if ((*fsp->fstr_func)(fsp, fsp->fstr_file) == EOF)
-				return (EOF);
+			if ((ret = (*fsp->fstr_func)(fsp, fsp->fstr_file)) < 0)
+				return (ret);
 		} else if (fsp->fstr_file == (FILE *)NULL) { /* no file	    */
 			/*
 			 * If we have no input, return EOF.

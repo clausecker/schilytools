@@ -1,4 +1,4 @@
-/* @(#)mystdio.h	1.19 17/05/29 Copyright 2006-2017 J. Schilling */
+/* @(#)mystdio.h	1.20 17/11/02 Copyright 2006-2017 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
@@ -210,6 +210,7 @@ extern	int	putc	__PR((int c, FILE *f));
 #define	readhistory	shell_readhistory
 #define	save_history	shell_save_history
 #define	space		shell_space
+#define	raisecond(n, p)	
 
 /*
  * map.c

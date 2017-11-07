@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.28 17/05/28 Copyright 2006-2017 J. Schilling */
+/* @(#)edit.c	1.29 17/11/05 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.28 17/05/28 Copyright 2006-2017 J. Schilling";
+	"@(#)edit.c	1.29 17/11/05 Copyright 2006-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2017 J. Schilling
@@ -380,6 +380,8 @@ shell_getenv(name)
 {
 	extern	char	*(*__get_env)	__PR((char *__name));
 
+	if (name == NULL)
+		return ((char *)NULL);
 	if (__get_env != NULL)
 		return (__get_env(name));
 	return (getenv(name));
@@ -391,6 +393,8 @@ shell_putenv(name)
 {
 	extern	void	(*__put_env)	__PR((char *__name));
 
+	if (name == NULL)
+		return;
 	if (__put_env != NULL)
 		__put_env(name);
 	else

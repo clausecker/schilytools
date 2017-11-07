@@ -1,8 +1,8 @@
-/* @(#)p.c	1.65 17/10/03 Copyright 1985-2017 J. Schilling */
+/* @(#)p.c	1.66 17/10/13 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.65 17/10/03 Copyright 1985-2017 J. Schilling";
+	"@(#)p.c	1.66 17/10/13 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -153,6 +153,7 @@ int len = 0;			/* ditto */
 int clen = 0;			/* # of octects in nextwc() multi byte char */
 int pclen = 0;			/* # of octects in peekwc() multi byte char */
 unsigned char *cp;
+unsigned char *pcp;
 
 #ifdef	BUFSIZ
 char	buffer[BUFSIZ];		/* our buffer for stdout */
@@ -976,6 +977,7 @@ again:
 		if (mlen == 0)
 			mlen = 1;
 		pclen = mlen;
+		pcp = bp;
 		return (c);
 	} else {
 		mbtowc(NULL, NULL, 0);
@@ -984,9 +986,10 @@ again:
 			goto again;
 		}
 		pclen = 1;
+		pcp = bp;
 #ifdef	EILSEQ
 		if (geterrno() == EILSEQ) {
-			cp = (unsigned char *)"?";
+			pcp = (unsigned char *)"?";
 			return ('?');
 		}
 #endif
@@ -1047,6 +1050,7 @@ getnextwch()
 {
 	len -= pclen;
 	bp += pclen;
+	cp = pcp;
 	pclen = 0;
 }
 #endif

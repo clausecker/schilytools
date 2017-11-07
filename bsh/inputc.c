@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.90 17/01/20 Copyright 1982, 1984-2017 J. Schilling */
+/* @(#)inputc.c	1.99 17/11/06 Copyright 1982, 1984-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.90 17/01/20 Copyright 1982, 1984-2017 J. Schilling";
+	"@(#)inputc.c	1.99 17/11/06 Copyright 1982, 1984-2017 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1040,8 +1040,14 @@ mktmp()
 	register HISTPTR	tmp;
 
 	tmp = (HISTPTR)malloc(sizeof (_HISTPTR));
+	if (tmp == NULL)
+		return (tmp);
 	tmp->h_prev = tmp->h_next = NULL;
 	tmp->h_line = malloc(LINEQUANT * sizeof (*tmp->h_line));
+	if (tmp->h_line == NULL) {
+		free(tmp);
+		return ((HISTPTR) NULL);
+	}
 	tmp->h_len = LINEQUANT;
 	tmp->h_pos = 0;
 	tmp->h_number = 0;
@@ -1060,9 +1066,15 @@ hold_line(p)
 	register HISTPTR	tmp;
 
 	tmp = (HISTPTR)malloc(sizeof (_HISTPTR));
+	if (tmp == NULL)
+		return (tmp);
 	tmp->h_prev = p->h_prev;
 	tmp->h_next = p->h_next;
 	tmp->h_line = malloc(p->h_len * sizeof (*tmp->h_line));
+	if (tmp->h_line == NULL) {
+		free(tmp);
+		return ((HISTPTR) NULL);
+	}
 	tmp->h_len = p->h_len;
 	tmp->h_pos = p->h_pos;
 	tmp->h_number = 0;
@@ -1191,7 +1203,13 @@ append_wline(linep, len, pos)
 	if (no_lines == histlen)
 		remove_line(first_line);
 	p = (HISTPTR)malloc(sizeof (_HISTPTR));
+	if (p == NULL)
+		return;
 	lp = malloc(len * sizeof (*lp));
+	if (lp == NULL) {		/* Do nothing if malloc() fails */
+		free(p);
+		return;
+	}
 	wcscpy(lp, linep);
 	p->h_prev = last_line;
 	p->h_line = lp;
@@ -1230,6 +1248,8 @@ append_hline(linep, len)
 
 	len += p->h_len;
 	lp = malloc(len * sizeof (*lp));
+	if (lp == NULL)		/* Do nothing if malloc() fails */
+		return;
 #ifdef	USE_ANSI_NL_SEPARATOR
 	anl[0] = '\205';
 #else
@@ -1329,6 +1349,13 @@ match_input(cur_line, tmp_line, up)
 
 	if (!match_line)
 		match_line = mktmp();
+	if (!match_line) {
+		(void) fprintf(stderr, "\r\n");
+		(void) fflush(stderr);
+		beep();
+		hp = tmp_line;
+		goto fail;
+	}
 	oldprompt = iprompt;
 	iprompt = up ? "search up: " : "search down: ";
 	(void) fprintf(stderr, "\r\n%s", iprompt);
@@ -1342,6 +1369,7 @@ match_input(cur_line, tmp_line, up)
 	if ((hp = match(cur_line, pattern, up)) == (HISTPTR) NULL)
 		hp = tmp_line;
 	iprompt = oldprompt;
+fail:
 	(void) fprintf(stderr, "%s", iprompt);
 	(void) fflush(stderr);
 	return (hp);
@@ -1411,7 +1439,13 @@ match(cur_line, pattern, up)
 	if (pattern) {
 		patlen = wcslen(pattern);
 		aux = (int *)malloc((size_t)patlen * sizeof (int));
+		if (aux == NULL)
+			return ((HISTPTR) NULL);
 		state = (int *)malloc((size_t)(patlen+1) * sizeof (int));
+		if (state == NULL) {
+			free(aux);
+			return ((HISTPTR) NULL);
+		}
 		if ((alt = patwcompile(pattern, patlen, aux)) != 0) {
 			for (hp = cur_line; hp; ) {
 				lp = hp->h_line;
@@ -1504,6 +1538,8 @@ edit_line(cur_line)
 			}
 			lpp = lp;
 			cp = exp_files(&lpp, cp, &llen, &maxlen, &multi);
+			if (lpp == NULL)
+				return ('\0');
 			lp = lpp;
 			break;
 		case BACKSPACE:
@@ -1640,6 +1676,8 @@ edit_line(cur_line)
 				maxlen += LINEQUANT;
 				diff = cp - lp;
 				lp = new_line(lp, llen, maxlen);
+				if (lp == NULL)
+					return ('\0');
 				cp = lp + diff;
 			}
 			ins_char(cp, c);
@@ -2033,6 +2071,10 @@ exp_files(lpp, cp, lenp, maxlenp, multip)
 			*maxlenp += diff;
 			diff = cp - *lpp;
 			*lpp = new_line(*lpp, *lenp, *maxlenp);
+			if (*lpp == NULL) {
+				free(p);
+				return ((wchar_t *)NULL);
+			}
 			cp = *lpp + diff;
 		}
 		while (--del >= 0 && cp > *lpp) {
@@ -2177,6 +2219,8 @@ sget_line()
 	register HISTPTR	tmp_line;
 
 	tmp_line = mktmp();
+	if (tmp_line == NULL)
+		return (NULL);
 	while (edit) {
 		cmd = edit_line(tmp_line);
 		switch (cmd) {
@@ -2188,6 +2232,7 @@ sget_line()
 		case RESTORE:
 				beep();
 				break;
+		case '\0':
 		case EOF:
 				return (NULL);
 		case '\r':
@@ -2220,6 +2265,9 @@ iget_line()
 	register HISTPTR	orig_line = (HISTPTR) NULL;	/* tmp orig */
 
 	save_line = cur_line = tmp_line = mktmp();
+	if (cur_line == NULL)
+		return (NULL);
+
 	lp = cur_line->h_line;
 	cur_line->h_prev = last_line;
 	cur_line->h_next = first_line;
@@ -2264,6 +2312,8 @@ iget_line()
 			}
 			orig_line = cur_line;
 			etmp_line = cur_line = hold_line(cur_line);
+			if (etmp_line == NULL)
+				cur_line = orig_line;
 			break;
 		case RESTORE:
 			if (etmp_line) {
@@ -2274,6 +2324,7 @@ iget_line()
 			}
 			cur_line = save_line;
 			break;
+		case '\0':
 		case EOF:
 			return (NULL);
 		case '\r':
@@ -2333,6 +2384,8 @@ make_line(f, arg)
 	printf("        make_line\r\n");
 #endif
 	lp = p = malloc((maxl = LINEQUANT) * sizeof (*lp));
+	if (lp == NULL)
+		return (lp);
 	llen = 0;
 	for (;;) {
 		if ((c = (*f)(arg)) == EOF || c == '\n' || c == '\205') {
@@ -2347,6 +2400,8 @@ make_line(f, arg)
 		if (++llen == maxl) {
 			maxl += LINEQUANT;
 			lp = new_line(lp, llen, maxl);
+			if (lp == NULL)
+				return (lp);
 			p = lp + llen;
 		}
 	}
@@ -2665,6 +2720,8 @@ read_init_history()
 		 */
 		hfilename = concat(inithome, slash, historyname, (char *)NULL);
 	}
+	if (hfilename == NULL)
+		return;
 	f = fileopen(hfilename, for_read);
 	if (f) {
 		readhistory(f);
@@ -2710,7 +2767,6 @@ readhistory(f)
 		if (ep)				/* Current line ends in '\n' */
 			*ep = '\0';		/* so clear it		    */
 
-#ifdef	__skip__bash_timestamps__
 		/*
 		 * Skip bash timestamps
 		 */
@@ -2721,10 +2777,8 @@ readhistory(f)
 				if (!_isdigit((unsigned char)*p))
 					break;
 			if (*p == '\0')
-				continue;
-			s = p;
+				goto endline;
 		}
-#endif	/* __skip__bash_timestamps__ */
 
 #ifdef	USE_ANSI_NL_SEPARATOR
 		len = strlen(s);
@@ -2742,6 +2796,7 @@ readhistory(f)
 #endif
 		append_line(s, (unsigned)len+1, len);
 
+	endline:
 		if (ep) {			/* Found '\n', check rest */
 			s = &ep[1];
 			if ((s - rbuf) >= amt && amt < BUF_SIZE) /* EOF */

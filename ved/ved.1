@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.17 15/10/14 Copyright 1984-2015 J. Schilling
+.\" @(#)ved.1	1.18 17/10/12 Copyright 1984-2017 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2015/10/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2017/10/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -2722,13 +2722,17 @@ in your home directory.
 .PP
 The file
 .B "~/.vedmap
-contains a number of lines, each holds a map definition like this:
+contains a number of lines with the following structure:
+.LP
+.IB "  map_from" : map_to : comment
+.LP
+and holds a map definition like this:
 .PP
 .B "\\\\E[193z:^C:Quit Editor  (L2)"
 .PP
 Each map definition has three fields:
-.TP
-.B from
+.TP 10
+.I map-from
 The from string (left hand side) of the map. In our case, the name is the sequence
 .B "\\\\E[193z
 which is the output of the L2 function key on a Sun keyboard.
@@ -2738,15 +2742,62 @@ or hit a function key that emits this character sequence, it will replaced by th
 the replacement string before the input is read by
 .BR ved.
 .TP
-.B replacement
+.I map-to
 The replacement (right hand size or to string) of the macro. In our case the map expands to
 .B "^C"
 and will quit
 .BR ved .
 .TP
-.B comment
+.I comment
 A comment for better understanding of the map file. The comment is
 ignored.
+.LP
+If both
+.I map_from
+and
+.I map_to
+are empty, the related line is ignored by the mapper, so a line may contain:
+.LP
+.BI "  ::" comment
+.LP
+A
+.B nul character
+in either
+.I map_from
+or
+.I map_to
+is currently not supported, but an empty
+.I map_to
+is interpreted as a 
+.BR "nul character" .
+.LP
+If a line has an empty
+.I map_to
+and the comment field starts with a 
+.B *
+like this:
+.LP
+.IB "  map_from" :: *comment
+.LP
+an existing mapping is removed. This permits to avoid unwanted mappings
+that have been set up from the
+.B TERMCAP
+entry.
+A typical use case for this feature is to avoid the mapping:
+.LP
+.BR "  ^H" : "^?" : "Key Backspace -> Delete Char
+.LP
+that is caused by the
+.B TERMCAP
+capability
+.B kb
+for terminals that create a backspace with the delete key.
+.LP
+Since the file
+.B $HOME/.vedmap
+is read in a sequential way, a later line with the same
+.I map_from
+may establish a different mapping.
 .PP
 The fields are separated by a colon.
 The text in the macro file is fed through

@@ -1,13 +1,13 @@
-/* @(#)map.c	1.36 15/12/15 Copyright 1986-2015 J. Schilling */
+/* @(#)map.c	1.38 17/11/05 Copyright 1986-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.36 15/12/15 Copyright 1986-2015 J. Schilling";
+	"@(#)map.c	1.38 17/11/05 Copyright 1986-2017 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -295,10 +295,17 @@ map_init()
 
 		if (breakline(lp, ':', ap, 3) < 2)
 			continue;
-		if (!add_map(ap[0], ap[1], ap[2])) {
+		if (ap[1][0] == '\0' && ap[2][0] == '*') {
+			/*
+			 * If the to string is empty and the comment starts
+			 * with a '*', delete an unwanted mapping that may
+			 * have been introduced from termcap.
+			 */
+			del_map(ap[0]);
+		} else if (!add_map(ap[0], ap[1], ap[2])) {
 			/*EMPTY*/
 #ifdef	DEBUG_ALREADY
-error("'%s' already defined.", pretty_string(ap[0]))
+error("'%s' already defined.", pretty_string(UC ap[0]));
 #endif
 			;
 		}
@@ -798,24 +805,37 @@ LOCAL char *
 pretty_string(s)
 	register Uchar	*s;
 {
+	static	 Uchar	buf[16];
 	static	 Uchar	*str = 0;
-	register Uchar	*s1;
+	register Uchar	*s1  = 0;
+	register int	len;
 
-	if (str)
+	if (str && str != buf)
 		free(str);
-	s1 = str = (Uchar *)malloc(3 *(unsigned)strlen((char *)s) + 1);
-	while (*s) {
+
+	len = 3 *(unsigned)strlen((char *)s) + 1;
+	if (len > sizeof (buf))
+		s1 = str = (Uchar *)malloc(len);
+
+	if (s1 == 0) {
+		len = sizeof (buf);
+		s1 = str = buf;
+	}
+	while (*s && --len > 0) {
 		if (isprint(*s)) {
 			*s1++ = *s++;
 			continue;
 		}
-		if (*s & 0x80)
+		if (*s & 0x80) {
 			*s1++ = '~';
+			len--;
+		}
 		if (*s != 127 && *s & 0x60) {
 			*s1++ = *s++ & 0x7F;
 		} else {
 			*s1++ = '^';
 			*s1++ = (*s++ & 0x7F) ^ 0100;
+			len--;
 		}
 	}
 	*s1 = '\0';
