@@ -82,6 +82,7 @@
 ./osh/umask.c
 ./osh/word.c
 ./osh/xec.c
+./printf/printf.c
 ./psmake/archconf.c
 ./psmake/astoi.c
 ./psmake/astoll.c

@@ -1,0 +1,27 @@
+#
+# @(#)README	1.3 17/11/21 Copyright 2016-2017 J. Schilling
+#
+
+		This is the test suite for the Schily Bourne Shell
+		in compatibility mode for the OpenSolaris AT&T Bourne Shell
+
+The directory "common" contains the linkage to the test suite, that calls the
+test framework in "$SRCROOT/tests", the directory "shelltests" contains the
+shell test suite itself.
+
+To run the tests, simply call "make" to test the just compiled Schily Bourne
+Shell at "$SRCROOT/sh/OBJ/<arch-dir>/sh". If a single test fails and is not
+expected to fail, all further tests are stopped.
+
+Failed tests leave debugging files in the subdirectory where the test did
+take place, e.g. "$SRCROOT/sh/tests/shelltests/exit". If the output of the
+test suite contains the word "FAIL", an unexpected failure was seen. If the
+output of the test suite contains the word "XFAIL", an expected failure was
+seen.
+
+To run all tests even in case of a single unexpected failure, call
+"EXPECT_FAIL=true make".
+
+To run the tests with other shells, you need to specify the absolute path
+to the shell in question. Call e.g.: "shell=/usr/bin/ksh93 make" or
+"EXPECT_FAIL=true shell=/usr/bin/ksh93 make".

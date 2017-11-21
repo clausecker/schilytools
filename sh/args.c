@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)args.c	1.83 17/09/14 2008-2017 J. Schilling
+ * @(#)args.c	1.84 17/11/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.83 17/09/14 2008-2017 J. Schilling";
+	"@(#)args.c	1.84 17/11/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -635,6 +635,8 @@ again:
 				if (fv == (fl2 | posixflg))
 					namscan(deexportenv);
 #endif
+			} else {
+				failed(argv[1], badopt);
 			}
 		}
 		argp[1] = argp[0];

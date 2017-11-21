@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)print.c	1.39 17/09/11 2008-2017 J. Schilling
+ * @(#)print.c	1.40 17/11/14 2008-2017 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.39 17/09/11 2008-2017 J. Schilling";
+	"@(#)print.c	1.40 17/11/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -498,10 +498,11 @@ void
 prs_cntl(s)
 	unsigned char	*s;
 {
+	unsigned char cbuf[BUFLEN+1];
 	int n;
 	wchar_t wc;
 	unsigned char *olds = s;
-	unsigned char *ptr = bufp;
+	unsigned char *ptr = cbuf;
 	wchar_t c;
 
 	(void) mbtowc(NULL, NULL, 0);
@@ -545,10 +546,10 @@ prs_cntl(s)
 				}
 			}
 		}
-		if (buffd != -1 && ptr >= &bufp[BUFLEN-4]) {
+		if (ptr >= &cbuf[BUFLEN]) {
 			*ptr = '\0';
-			prs(bufp);
-			ptr = bufp;
+			prs(cbuf);
+			ptr = cbuf;
 		}
 		olds = s;
 		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) <= 0) {
@@ -559,7 +560,7 @@ prs_cntl(s)
 			n = 0;
 	}
 	*ptr = '\0';
-	prs(bufp);
+	prs(cbuf);
 }
 
 #ifdef	DO_POSIX_UNSET

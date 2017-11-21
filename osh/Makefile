@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.86 17/09/06  Copyright (c) 2006-2017 J. Schilling"
+#ident "@(#)Makefile	1.88 17/11/16  Copyright (c) 2006-2017 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -129,6 +129,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_SYSERRSTR		# Include the "errstr" builtin
 #CPPOPTS +=	-DDO_SYSFIND		# Include the "find" builtin
 #CPPOPTS +=	-DDO_SYSPRINTF		# Include the "printf" builtin
+#CPPOPTS +=	-DDO_SYSPRINTF_FLOAT	# Include float support in "printf" builtin
 #CPPOPTS +=	-DDO_SYSLOCAL		# Include the "local" builtin
 #CPPOPTS +=	-DDO_SYSFC		# Include the "fc" builtin
 #LIB_FIND +=	-lfind			# Add libfind
@@ -172,6 +173,7 @@ $(ALLTARGETS): signames.c args.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.tst
 ###########################################################################
 count: $(HFILES) $(CFILES) 
 	count $r1

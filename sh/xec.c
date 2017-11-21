@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.93 17/09/11 2008-2017 J. Schilling
+ * @(#)xec.c	1.94 17/11/07 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.93 17/09/11 2008-2017 J. Schilling";
+	"@(#)xec.c	1.94 17/11/07 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1191,7 +1191,19 @@ extern	int		macflag;
 	int		otrapnote = trapnote;
 	unsigned char	*res;
 
+	/*
+	 * Disable -x and -v to avoid recursion.
+	 */
 	flags &= ~(execpr|readpr);
+
+	/*
+	 * Disable exit() and longjmp() in case of errors,
+	 * needed to avoid endless longjmp() loops in case of
+	 * unsuported substitustions (e.g. a ksh93 .profile).
+	 */
+	flags &= ~errflg; 
+	flags |= noexit; 
+
 	if ((flags2 & promptcmdsubst) == 0)
 		macflag |= M_NOCOMSUBST;
 	trapnote = 0;

@@ -1,9 +1,10 @@
-/* @(#)printf.c	1.6 17/08/03 Copyright 2015-2017 J. Schilling */
+/* @(#)printf.c	1.14 17/11/21 Copyright 2015-2017 J. Schilling */
 #include <schily/mconfig.h>
 /*
- *	printf builtin
+ *	printf builtin or standalone
  *
- *	Note that this module needs libschily, but we can use -zlazyload
+ *	Note that in the Bourne Shell builtin variant, this module needs
+ *	libschily, but we can use -zlazyload
  *
  *	Libschily is needed because the Bourne Shell does not use stdio
  *	internally and we thus need a printf() like formatter that allows
@@ -30,30 +31,54 @@
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.6 17/08/03 Copyright 2015-2017 J. Schilling";
+	"@(#)printf.c	1.14 17/11/21 Copyright 2015-2017 J. Schilling";
 
 #include <schily/errno.h>
+#include <schily/alloca.h>
+
+#ifndef	HAVE_STRTOD
+#undef	DO_SYSPRINTF_FLOAT
+#endif
+#ifdef	NO_FLOATINGPOINT
+#undef	DO_SYSPRINTF_FLOAT
+#endif
 
 #define	LOCAL	static
+#if	!defined(HAVE_DYN_ARRAYS) && !defined(HAVE_ALLOCA)
+#define	exit(a)	flushb(); free(fm); return (a)
+#else
 #define	exit(a)	flushb(); return (a)
+#endif
 
-#define	DOTSEEN	1
-#define	FMINUS	2
-#define	IGNSEEN	4
+#define	DOTSEEN	1	/* Did encounter a '.' in format    */
+#define	FMINUS	2	/* Did encounter a '-' in format    */
+#define	IGNSEEN	4	/* Did encounter a '\c' in argument */
 
 const char printfuse[] = "printf format [string ...]";
+const char stardigit[]	= "*1234567890";
+const char *digit	= &stardigit[1];
 
 LOCAL	int	xprp	__PR((unsigned char *fmt, char *p, int *width));
 LOCAL	int	xprc	__PR((unsigned char *fmt, int c, int *width));
 LOCAL	int	xpri	__PR((unsigned char *fmt, Intmax_t i, int *width));
+LOCAL	Uchar	*intfmt	__PR((unsigned char *fmt, int c));
+#ifdef	DO_SYSPRINTF_FLOAT
+LOCAL	int	xprd	__PR((unsigned char *fmt, double d, int *width));
+#endif
 LOCAL	char	*gstr	__PR((unsigned char ***appp));
 LOCAL	char	gchar	__PR((unsigned char ***appp));
 LOCAL	void	grangechk __PR((unsigned char *p, unsigned char *ep));
 LOCAL	Intmax_t gintmax __PR((unsigned char ***appp));
 LOCAL	UIntmax_t guintmax __PR((unsigned char ***appp));
+#ifdef	DO_SYSPRINTF_FLOAT
+LOCAL	double	gdouble __PR((unsigned char ***appp));
+#endif
 
 EXPORT int	bprintf	__PR((const char *form, ...));
 
+/*
+ * Low level support for %s format.
+ */
 LOCAL int
 xprp(fmt, p, width)
 	unsigned char	*fmt;
@@ -67,6 +92,9 @@ xprp(fmt, p, width)
 	}
 }
 
+/*
+ * Low level support for %s format.
+ */
 LOCAL int
 xprc(fmt, c, width)
 	unsigned char	*fmt;
@@ -80,30 +108,67 @@ xprc(fmt, c, width)
 	}
 }
 
+/*
+ * Low level support for %[diouxX] format.
+ * We need to modify the format for Intmax_t.
+ */
 LOCAL int
 xpri(fmt, i, width)
 	unsigned char	*fmt;
 	Intmax_t	i;
 	int		*width;
 {
-	unsigned char	*ostaktop = staktop;
-	char	*p = C movstrstak(fmt, locstak());
-	char	c = *--p;
-
-	*p++ = 'j';	/* Add maxint_t length modifier */
-	*p++ = c;
-	staktop = UC p;
-	GROWSTAKTOP();
-	pushstak('\0');
-	staktop = ostaktop;
-
 	switch (*width) {
-	case 1: return (bprintf(C stakbot, i));
-	case 2: return (bprintf(C stakbot, width[1], i));
-	default: return (bprintf(C stakbot, width[1], width[2], i));
+	case 1: return (bprintf(C fmt, i));
+	case 2: return (bprintf(C fmt, width[1], i));
+	default: return (bprintf(C fmt, width[1], width[2], i));
 	}
 }
 
+/*
+ * Modify the integer format strings to include the 'j' length modifier
+ * as we deal with integers of type maxint_t.
+ */
+LOCAL unsigned char *
+intfmt(fmt, c)
+	unsigned char	*fmt;
+	int		c;
+{
+	UIntptr_t	ostakoff = relstak();	/* Current staktop offset */
+	char	*p = C movstrstak(fmt, locstak());
+
+	--p;		/* Backspace over format specifier */
+	*p++ = 'j';	/* Add maxint_t length modifier	*/
+	*p++ = c;	/* Add format specifier again	*/
+	staktop = UC p;
+	GROWSTAKTOP();
+	pushstak('\0');
+	staktop = absstak(ostakoff);
+
+	return (stakbot);			/* locstak() returns stakbot */
+}
+
+#ifdef	DO_SYSPRINTF_FLOAT
+/*
+ * Low level support for %[eEfFgG] format.
+ */
+LOCAL int
+xprd(fmt, d, width)
+	unsigned char	*fmt;
+	double		d;
+	int		*width;
+{
+	switch (*width) {
+	case 1: return (bprintf(C fmt, d));
+	case 2: return (bprintf(C fmt, width[1], d));
+	default: return (bprintf(C fmt, width[1], width[2], d));
+	}
+}
+#endif
+
+/*
+ * Fetch string argument
+ */
 LOCAL char *
 gstr(appp)
 	unsigned char	***appp;
@@ -113,6 +178,9 @@ gstr(appp)
 	return (C nullstr);
 }
 
+/*
+ * Fetch char argument
+ */
 LOCAL char
 gchar(appp)
 	unsigned char	***appp;
@@ -139,6 +207,9 @@ grangechk(p, ep)
 	}
 }
 
+/*
+ * Fetch Intmax_t argument
+ */
 LOCAL Intmax_t
 gintmax(appp)
 	unsigned char	***appp;
@@ -155,7 +226,11 @@ gintmax(appp)
 			if (val)
 				ep++;
 		} else {
+#ifdef	HAVE_STRTOLL
+			val = strtoll(C cp, CP &ep, 0);
+#else
 			ep = UC astoll(C cp, &val);
+#endif
 		}
 		grangechk(cp, ep);
 		return ((Intmax_t)val);
@@ -163,6 +238,9 @@ gintmax(appp)
 	return ((Intmax_t)0);
 }
 
+/*
+ * Fetch UIntmax_t argument
+ */
 LOCAL UIntmax_t
 guintmax(appp)
 	unsigned char	***appp;
@@ -179,13 +257,65 @@ guintmax(appp)
 			if (val)
 				ep++;
 		} else {
+#ifdef	HAVE_STRTOULL
+			val = strtoull(C cp, CP &ep, 0);
+#else
 			ep = UC astoull(C cp, &val);
+#endif
 		}
 		grangechk(cp, ep);
 		return ((UIntmax_t)val);
 	}
 	return ((UIntmax_t)0);
 }
+
+#ifdef	DO_SYSPRINTF_FLOAT
+/*
+ * Fetch double argument
+ */
+LOCAL double
+gdouble(appp)
+	unsigned char	***appp;
+{
+	if (**appp) {
+		unsigned char	*cp = *(*appp)++;
+		unsigned char	*ep;
+		double		val;
+
+		errno = 0;
+		if (*cp == '"' || *cp == '\'') {
+			ep = ++cp;
+			val = *ep;
+			if (val)
+				ep++;
+		} else {
+			val = strtod(C cp, CP &ep);
+		}
+		grangechk(cp, ep);
+		return ((double)val);
+	}
+	return ((double)0.0);
+}
+#endif
+
+#ifndef	BOURNE_SHELL
+int
+main(argc, argv)
+	int	argc;
+	char	**argv;
+{
+	/*
+	 * Need to set this in the standalone version
+	 */
+	(void) setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "SYS_TEST"	/* Use this only if it weren't */
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+
+	return (sysprintf(argc, UCP argv));
+}
+#endif	/* BOURNE_SHELL */
 
 int
 sysprintf(argc, argv)
@@ -196,18 +326,34 @@ sysprintf(argc, argv)
 	unsigned char	*fmt;
 	unsigned char	*per;
 	unsigned char	*cp;
-	unsigned char	**oargv;
+	unsigned char	**oargv;	/* old argv	*/
+	unsigned char	**dargv;	/* $ argv	*/
+	unsigned char	**eargv;	/* end argv	*/
+	unsigned char	**fargv;	/* format argv	*/
+	unsigned char	**maxargv;	/* maxused argv	*/
 	unsigned char	*av0 = *argv;
-	int		len;
+	int		len = strlen((ind < 0 || ind >= argc) ? \
+					C argv[0] : C argv[ind]) + 1;
 	wchar_t		wc;
+#ifdef	HAVE_DYN_ARRAYS
+	unsigned char	fm[len];
+#else
+#ifdef	HAVE_ALLOCA
+	unsigned char	*fm = alloca(len);
+#else
+	unsigned char	*fm = malloc(len);
+#endif
+#endif
+	unsigned char	*pfmt;
 
-	if (ind < 0)
+	if (ind < 0)		/* Test for missing fmt is below */
 		return (ERROR);
 
 	argc -= ind;
 	argv += ind;
 	fmt = *argv++;
 	oargv = argv;
+	eargv = &argv[argc-1];
 	if (!fmt) {
 		/*
 		 * No args: give usage.
@@ -216,6 +362,8 @@ sysprintf(argc, argv)
 		return (ERROR);
 	}
 	do {
+		maxargv = dargv = argv;
+
 		(void) mbtowc(NULL, NULL, 0);
 		for (cp = fmt; *cp; cp++) {
 			int		width[3];
@@ -224,8 +372,9 @@ sysprintf(argc, argv)
 			int		fldwidth;
 			int		signif;
 			Llong		val;
-			unsigned char	sc;
 			unsigned char	fc;
+			unsigned char	*p;
+
 
 			if ((len = mbtowc(&wc, (char *)cp,
 					MB_LEN_MAX)) <= 0) {
@@ -255,48 +404,141 @@ sysprintf(argc, argv)
 			}
 			fldwidth = signif = pflags = 0;
 			per = cp++;		/* Start of new printf format */
-			cp += strspn(C cp, "+- #0"); /* Skip flag characters  */
-			{
-				unsigned char	*p;
+			pfmt = fm;
+			*pfmt++ = '%';
 
-				for (p = &per[1]; p < cp; ) {
-					if (*p++ == '-')
-						pflags |= FMINUS;
+			len = strspn(C cp, digit);
+			if (len > 0 && cp[len] == '$') {
+				int	n = atoi(C cp);
+
+				if (--n < 0) {
+					bfailure(av0, "illegal n$ format: ",
+						--cp);
+					exit(ERROR);
 				}
-			}
-			if (*cp == '*') {
-				*widthp++ = fldwidth = gintmax(&argv);
+				if (argv + n > eargv)
+					dargv = eargv;
+				else
+					dargv = &argv[n];
+				fargv = dargv;
+				if (dargv > maxargv)
+					maxargv = dargv;
+				cp += len + 1;	/* skip n$ */
 			} else {
-				(void) astoll(C cp, &val);
+				fargv = NULL;
+			}
+
+			p = cp;
+			cp += strspn(C cp, "+- #0"); /* Skip flag characters  */
+			for (; p < cp; ) {
+				*pfmt++ = *p;
+				if (*p++ == '-')
+					pflags |= FMINUS;
+			}
+			p = NULL;
+			if (*cp == '*') {
+				len = strspn(C ++cp, digit);
+				if (len > 0 && cp[len] == '$') {
+					int	n = atoi(C cp);
+
+					if (--n < 0 || fargv == NULL) {
+						bfailure(av0,
+							"illegal n$ format: ",
+							per);
+						exit(ERROR);
+					}
+					if (argv + n > eargv)
+						dargv = eargv;
+					else
+						dargv = &argv[n];
+					cp += len + 1;	/* skip n$ */
+				} else if (fargv != NULL) {
+					bfailure(av0, "illegal n$ format: ",
+						per);
+					exit(ERROR);
+				}
+				*widthp++ = fldwidth = gintmax(&dargv);
+				*pfmt++ = '*';
+				if (dargv > maxargv)
+					maxargv = dargv;
+			} else {
+#ifdef	HAVE_STRTOLL
+				val = strtoll(C cp, NULL, 10);
+#else
+				(void) astollb(C cp, &val, 10);
+#endif
 				fldwidth = val;
+				p = cp;
 			}
 			if (fldwidth < 0) {
 				pflags |= FMINUS;
 				fldwidth = -fldwidth;
 			}
-			cp += strspn(C cp, "*1234567890"); /* Skip fldwitdh  */
+			cp += strspn(C cp, stardigit); /* Skip fldwitdh  */
+			if (p) {
+				while (p < cp)
+					*pfmt++ = *p++;
+			}
 			if (*cp == '.') {
 				pflags |= DOTSEEN;
 				cp++;
+				*pfmt++ = '.';
+				p = NULL;
 				if (*cp == '*') {
-					*widthp++ = signif = gintmax(&argv);
+					len = strspn(C ++cp, digit);
+					if (len > 0 && cp[len] == '$') {
+						int	n = atoi(C cp);
+
+						if (--n < 0 || fargv == NULL) {
+							bfailure(av0,
+							"illegal n$ format: ",
+							per);
+							exit(ERROR);
+						}
+						if (argv + n > eargv)
+							dargv = eargv;
+						else
+							dargv = &argv[n];
+						cp += len + 1;	/* skip n$ */
+					} else if (fargv != NULL) {
+						bfailure(av0,
+							"illegal n$ format: ",
+							per);
+						exit(ERROR);
+					}
+					*widthp++ = signif = gintmax(&dargv);
+					*pfmt++ = '*';
+					if (dargv > maxargv)
+						maxargv = dargv;
 				} else {
-					(void) astoll(C cp, &val);
+#ifdef	HAVE_STRTOLL
+					val = strtoll(C cp, NULL, 10);
+#else
+					(void) astollb(C cp, &val, 10);
+#endif
 					signif = val;
+					p = cp;
 				}
-				cp += strspn(C cp, "*1234567890"); /* Sk prec */
+				cp += strspn(C cp, stardigit); /* Sk prec */
+				if (p) {
+					while (p < cp)
+						*pfmt++ = *p++;
+				}
 			}
 			width[0] = widthp - width;
-			if ((fc = *cp++) == '\0') {
+			if ((fc = *cp) == '\0') {
+				len = cp - per;
 				cp = per;
 				goto outc;
 			}
-			sc = *cp;
-			*cp = '\0';
+			*pfmt++ = fc;
+			*pfmt = '\0';
+			if (fargv)
+				dargv = fargv;
+
 			switch (fc) {
 			case 'b': {
-				unsigned char *ostaktop = staktop;
-				unsigned char *p = UC gstr(&argv);
+				UIntptr_t	ostakoff = relstak();
 				int		pre = 0;
 				int		post = 0;
 
@@ -306,6 +548,7 @@ sysprintf(argc, argv)
 				 * does not handle nul bytes.
 				 */
 				staktop = locstak();
+				p = UC gstr(&dargv);
 				for (; *p; p++) {
 					if ((len = mbtowc(&wc, (char *)p,
 							MB_LEN_MAX)) <= 0) {
@@ -349,48 +592,61 @@ sysprintf(argc, argv)
 					prc_buff(*p++);
 				while (--post >= 0)
 					prc_buff(' ');
-				staktop = ostaktop;
+				staktop = absstak(ostakoff);
 				if (pflags & IGNSEEN) {
 					exit(0);
 				}
 				break;
 			}
 			case 'c': {
-				char c = gchar(&argv);
+				char c = gchar(&dargv);
 
-				xprc(per, c, width);
+				xprc(fm, c, width);
 				break;
 			}
 			case 's': {
-				char *p = gstr(&argv);
+				p = UC gstr(&dargv);
 
-				xprp(per, p, width);
+				xprp(fm, C p, width);
 				break;
 			}
 			case 'd':
 			case 'i': {
-				Intmax_t	i = gintmax(&argv);
+				Intmax_t	i = gintmax(&dargv);
+				unsigned char	*fp = intfmt(fm, fc);
 
-				xpri(per, i, width);
+				xpri(fp, i, width);
 				break;
 			}
 			case 'o':
 			case 'u':
 			case 'x':
 			case 'X': {
-				Intmax_t	i = guintmax(&argv);
+				Intmax_t	i = guintmax(&dargv);
+				unsigned char	*fp = intfmt(fm, fc);
 
-				xpri(per, i, width);
+				xpri(fp, i, width);
 				break;
 			}
+#ifdef	DO_SYSPRINTF_FLOAT
+			case 'e': case 'E':
+			case 'f': case 'F':
+			case 'g': case 'G': {
+				double	d = gdouble(&dargv);
+
+				xprd(fm, d, width);
+				break;
+			}
+#endif
 			default:
 				bfailure(av0,
-					"unknown format specifier: ", --cp);
-				*cp = sc;
+					"unknown format specifier: ", cp);
 				exit(ERROR);
 			}
-			*cp-- = sc;
+			if (dargv > maxargv)
+				maxargv = dargv;
 		}
+		argv = maxargv;
 	/*
 	 * If the format consumed any argument, loop over all arguments until
 	 * all of them have been useed.
@@ -399,6 +655,7 @@ sysprintf(argc, argv)
 	exit(exitval);
 }
 
+#ifndef	bprintf
 #include <schily/varargs.h>
 
 /* VARARGS1 */
@@ -430,5 +687,6 @@ bprintf(form, va_alist)
 	va_end(args);
 	return (cnt);
 }
+#endif	/* bprintf */
 
 #endif /* DO_SYSBUILTIN */

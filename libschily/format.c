@@ -1,4 +1,4 @@
-/* @(#)format.c	1.62 17/08/03 Copyright 1985-2017 J. Schilling */
+/* @(#)format.c	1.64 17/11/16 Copyright 1985-2017 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -527,9 +527,9 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 					 * Check long double "Le", "Lf" or "Lg"
 					 */
 					if (type == 'L' &&
-					    (mode == 'e' ||
-					    mode == 'f' ||
-					    mode == 'g'))
+					    (mode == 'e' || mode == 'E' ||
+					    mode == 'f' || mode == 'F' ||
+					    mode == 'g' || mode == 'G'))
 						goto checkfmt;
 					fmt--;
 					mode = 'D'; /* default mode */
@@ -680,14 +680,20 @@ error sizeof (ptrdiff_t) is unknown
 
 #ifndef	NO_FLOATINGPOINT
 		case 'e':
+		case 'E': {
+			int	signific;
+
 			if (fa.signific == -1)
 				fa.signific = 6;
+			signific = fa.signific;
+			if (*fmt == 'E')
+				signific = -signific;
 			if (type == 'L') {
 #ifdef	HAVE_LONGDOUBLE
 				long double ldval = va_arg(args, long double);
 
 #if	(defined(HAVE_QECVT) || defined(HAVE__LDECVT))
-				qftoes(buf, ldval, 0, fa.signific);
+				qftoes(buf, ldval, 0, signific);
 				count += prbuf(buf, &fa);
 				continue;
 #else
@@ -696,18 +702,25 @@ error sizeof (ptrdiff_t) is unknown
 #endif
 			}
 			dval = va_arg(args, double);
-			ftoes(buf, dval, 0, fa.signific);
+			ftoes(buf, dval, 0, signific);
 			count += prbuf(buf, &fa);
 			continue;
+			}
 		case 'f':
+		case 'F': {
+			int	signific;
+
 			if (fa.signific == -1)
 				fa.signific = 6;
+			signific = fa.signific;
+			if (*fmt == 'F')
+				signific = -signific;
 			if (type == 'L') {
 #ifdef	HAVE_LONGDOUBLE
 				long double ldval = va_arg(args, long double);
 
 #if	(defined(HAVE_QFCVT) || defined(HAVE__LDFCVT))
-				qftofs(buf, ldval, 0, fa.signific);
+				qftofs(buf, ldval, 0, signific);
 				count += prbuf(buf, &fa);
 				continue;
 #else
@@ -716,10 +729,12 @@ error sizeof (ptrdiff_t) is unknown
 #endif
 			}
 			dval = va_arg(args, double);
-			ftofs(buf, dval, 0, fa.signific);
+			ftofs(buf, dval, 0, signific);
 			count += prbuf(buf, &fa);
 			continue;
+			}
 		case 'g':
+		case 'G': {
 			if (fa.signific == -1)
 				fa.signific = 6;
 			if (fa.signific == 0)
@@ -734,6 +749,12 @@ error sizeof (ptrdiff_t) is unknown
 #define	qgcvt(ld, n, b)	_ldgcvt(*(long_double *)&ld, n, b)
 #endif
 				(void) qgcvt(ldval, fa.signific, buf);
+				if (*fmt == 'G') {
+					char	*p = strchr(buf, 'e');
+
+					if (p)
+						*p = 'E';
+				}
 				count += prbuf(buf, &fa);
 				continue;
 #else
@@ -743,13 +764,23 @@ error sizeof (ptrdiff_t) is unknown
 			}
 			dval = va_arg(args, double);
 			(void) gcvt(dval, fa.signific, buf);
+			if (*fmt == 'G') {
+				char	*p = strchr(buf, 'e');
+
+				if (p)
+					*p = 'E';
+			}
 			count += prbuf(buf, &fa);
 			continue;
+			}
 #else
 #	ifdef	USE_FLOATINGARGS
 		case 'e':
+		case 'E':
 		case 'f':
+		case 'F':
 		case 'g':
+		case 'G':
 			dval = va_arg(args, double);
 			continue;
 #	endif

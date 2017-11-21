@@ -1,9 +1,9 @@
-/* @(#)fconv.c	1.45 10/11/06 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)fconv.c	1.46 17/11/16 Copyright 1985, 1995-2017 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
  *
- *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1995-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -218,11 +220,16 @@ ftoes(s, val, fieldwidth, ndigits)
 	register	int	rdecpt;
 			int 	decpt;
 			int	sign;
+			int	Efmt = FALSE;
 
 #ifndef	__DO_LONG_DOUBLE__
 	if ((len = _ferr(s, val)) > 0)
 		return (len);
 #endif
+	if (ndigits < 0) {
+		ndigits = -ndigits;
+		Efmt = TRUE;
+	}
 	rs = s;
 #ifdef	V7_FLOATSTYLE
 	b = ecvt(val, ndigits, &decpt, &sign);
@@ -257,7 +264,10 @@ ftoes(s, val, fieldwidth, ndigits)
 #endif
 	while (*b && ndigits-- > 0)
 		*rs++ = *b++;
-	*rs++ = 'e';
+	if (Efmt)
+		*rs++ = 'E';
+	else
+		*rs++ = 'e';
 	*rs++ = rdecpt >= 0 ? '+' : '-';
 	rdecpt = abs(rdecpt);
 #ifdef	__DO_LONG_DOUBLE__
@@ -299,11 +309,16 @@ ftofs(s, val, fieldwidth, ndigits)
 	register	int	rdecpt;
 			int 	decpt;
 			int	sign;
+			int	Ffmt = FALSE;
 
 #ifndef	__DO_LONG_DOUBLE__
 	if ((len = _ferr(s, val)) > 0)
 		return (len);
 #endif
+	if (ndigits < 0) {
+		ndigits = -ndigits;
+		Ffmt = TRUE;
+	}
 	rs = s;
 #ifdef	USE_ECVT
 	/*

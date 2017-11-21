@@ -1,13 +1,13 @@
-/* @(#)list.c	1.76 16/07/08 Copyright 1985, 1995, 2000-2016 J. Schilling */
+/* @(#)list.c	1.77 17/11/08 Copyright 1985, 1995, 2000-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.76 16/07/08 Copyright 1985, 1995, 2000-2016 J. Schilling";
+	"@(#)list.c	1.77 17/11/08 Copyright 1985, 1995, 2000-2017 J. Schilling";
 #endif
 /*
  *	List the content of an archive
  *
- *	Copyright (c) 1985, 1995, 2000-2016 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -389,14 +389,18 @@ if (xft == 0 || xft == XT_BAD) {
 		fprintf(f, "\n");
 		return;
 	}
+	/*
+	 * In case of a hardlinked symlink, we currently do not have the symlink
+	 * target path and thus cannot check the synlink target. So first check
+	 * whether it is a hardlink.
+	 */
 	if (is_link(info)) {
 		if (is_dir(info))
 			fprintf(f, " directory");
 		fprintf(f, " %s %s",
 			paxls ? "==" : "link to",
 			info->f_lname);
-	}
-	if (is_symlink(info))
+	} else if (is_symlink(info))
 		fprintf(f, " -> %s", info->f_lname);
 	if (is_volhdr(info))
 		fprintf(f, " --Volume Header--");

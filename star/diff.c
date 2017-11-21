@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.89 15/05/01 Copyright 1993-2015 J. Schilling */
+/* @(#)diff.c	1.90 17/11/08 Copyright 1993-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.89 15/05/01 Copyright 1993-2015 J. Schilling";
+	"@(#)diff.c	1.90 17/11/08 Copyright 1993-2017 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2015 J. Schilling
+ *	Copyright (c) 1993-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -343,6 +343,11 @@ diff_tcb(info)
 		}
 	}
 #ifdef	S_IFLNK
+	/*
+	 * In case of a hardlinked symlink, we currently do not have the symlink
+	 * target path and thus cannot check the synlink target.
+	 */
+	if (!is_link(info))
 	if (((diffopts & (D_SLINK|D_SLPATH)) || verbose) && is_symlink(&finfo)) {
 		if (read_symlink(info->f_name, info->f_name, &finfo, &tb)) {
 			if ((diffopts & D_SLINK) && is_symlink(info) &&

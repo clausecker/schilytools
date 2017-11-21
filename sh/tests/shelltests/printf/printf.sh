@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)printf.sh	1.3 17/03/17 Copyright 2016-2017 J. Schilling
+# @(#)printf.sh	1.5 17/11/21 Copyright 2016-2017 J. Schilling
 #
 
 # Read printf core functions
@@ -74,6 +74,87 @@ cat > x <<"XEOF"
 printf '%b' 'abc\0def'
 XEOF
 docommand printf115 "$SHELL ./x" 0 "abc\000def" ""
+
+#
+# Tests for floating point enhancements.
+#
+expect_fail_save=$expect_fail
+expect_fail=true
+docommand -silent -esilent printf400 "$SHELL -c 'LC_ALL=C; printf \"%f\\\n\" 1.234567'" 0 "1.234567\n" ""
+expect_fail=$expect_fail_save
+if [ "$failed" = true ]; then
+	echo
+	echo "Test $cmd_label is a Solaris printf enhancement."
+	echo "Skipping printf400..printf406."
+	echo
+else
+docommand printf400 "$SHELL -c 'LC_ALL=C; printf \"%f\\\n\" 1.234567'" 0 "1.234567\n" ""
+docommand printf401 "$SHELL -c 'LC_ALL=C; printf \"%F\\\n\" 1.234567'" 0 "1.234567\n" ""
+docommand printf402 "$SHELL -c 'LC_ALL=C; printf \"%e\\\n\" 1.234567'" 0 "1.234567e+00\n" ""
+docommand printf403 "$SHELL -c 'LC_ALL=C; printf \"%E\\\n\" 1.234567'" 0 "1.234567E+00\n" ""
+docommand printf404 "$SHELL -c 'LC_ALL=C; printf \"%g\\\n\" 1.234567'" 0 "1.23457\n" ""
+docommand printf405 "$SHELL -c 'LC_ALL=C; printf \"%G\\\n\" 1.234567'" 0 "1.23457\n" ""
+
+docommand printf406 "$SHELL -c 'LC_ALL=C; printf \"%*.*f\\\n\" 6 3 1.234567'" 0 " 1.235\n" ""
+fi
+
+#
+# Tests for the Solaris enhancements %n$
+# First test %s only as the closed source Solaris /usr/bin/printf does
+# not support %n$i.
+#
+expect_fail_save=$expect_fail
+expect_fail=true
+docommand -silent -esilent printf500 "$SHELL -c 'printf \"%2\\\$s %1\\\$s\\\n\" 1 2'" 0 "2 1\n" ""
+expect_fail=$expect_fail_save
+if [ "$failed" = true ]; then
+	echo
+	echo "Test $cmd_label is a Solaris printf enhancement."
+	echo "Skipping printf500..printf501."
+	echo
+else
+docommand printf500 "$SHELL -c 'printf \"%2\\\$s %1\\\$s\\\n\" 1 2'" 0 "2 1\n" ""
+
+cat > x <<"XEOF"
+printf '%3$*2$.*1$s\n' 3 10 abcdefghijk
+XEOF
+docommand printf501 "$SHELL ./x" 0 "       abc\n" ""
+fi
+
+expect_fail_save=$expect_fail
+expect_fail=true
+docommand -silent -esilent printf600 "$SHELL -c 'printf \"%2\\\$i %1\\\$i\\\n\" 1 2'" 0 "2 1\n" ""
+expect_fail=$expect_fail_save
+if [ "$failed" = true ]; then
+	echo
+	echo "Test $cmd_label is a Schily/ksh93 printf enhancement."
+	echo "Skipping printf600..printf604."
+	echo
+else
+docommand printf600 "$SHELL -c 'printf \"%2\\\$i %1\\\$i\\\n\" 1 2'" 0 "2 1\n" ""
+
+cat > x <<"XEOF"
+printf '%3$*2$.*1$i\n' 3 10 1234567
+XEOF
+docommand printf601 "$SHELL ./x" 0 "   1234567\n" ""
+
+cat > x <<"XEOF"
+printf '%3$*2$.*1$i\n' 3 10 1
+XEOF
+docommand printf602 "$SHELL ./x" 0 "       001\n" ""
+
+cat > x <<"XEOF"
+printf '%3$*2$.*1$i\n' 3 10 123
+XEOF
+docommand printf603 "$SHELL ./x" 0 "       123\n" ""
+
+cat > x <<"XEOF"
+printf '%3$*2$.*1$i\n' 3 10 123 2 15 456
+XEOF
+docommand printf604 "$SHELL ./x" 0 "       123\n            456\n" ""
+fi
+
+#exit
 
 remove x
 success

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.78 17/09/11 2008-2017 J. Schilling
+ * @(#)macro.c	1.79 17/11/19 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.78 17/09/11 2008-2017 J. Schilling";
+	"@(#)macro.c	1.79 17/11/19 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -289,7 +289,7 @@ dolname(argpp, c, addc)
 	}
 	GROWSTAKTOP();
 	zerostak();
-	*argpp = argp;
+	*argpp = argp;		/* Return start offset against stakbot */
 	return (c);
 }
 
