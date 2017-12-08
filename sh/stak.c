@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.20 16/07/15	Copyright 2010-2016 J. Schilling
+ * @(#)stak.c	2.21 17/12/07	Copyright 2010-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.20 16/07/15 Copyright 2010-2016 J. Schilling";
+	"@(#)stak.c	2.21 17/12/07 Copyright 2010-2017 J. Schilling";
 #endif
 
 
@@ -429,7 +429,7 @@ endstak(argp)
 	UIntptr_t	argoff = argp - stakbot;
 
 	if (argp >= stakend) {			/* Space for null byte */
-		__growstak(argp - stakend);
+		__growstak(argp - stakend + 1);	/* stakend is off space */
 		argp = stakbot + argoff;
 	}
 	*argp++ = 0;				/* terminate the string */

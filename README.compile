@@ -1,4 +1,4 @@
-# @(#)README.compile	1.34 17/04/06 Copyright 1997-2017 J. Schilling
+# @(#)README.compile	1.35 17/11/28 Copyright 1997-2017 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -305,16 +305,20 @@ Setting different default directory permissions for install directories:
 
 Using a different C compiler:
 
-	The compiler family is configured via the CCOM= make macro. This selects
-	a whole set of related macros that are needed to support a specific
-	compiler family.
+	The *compiler family* is configured via the CCOM= make macro. This
+	selects a whole set of related macros that are needed to support a
+	specific compiler family.
 
-	If the configured default compiler is not present on the current machine,
-	the makefilesystem will try an automatic fallback to GCC. For this reason,
-	in most cases, you will not need to manually select a compiler.
+	The *compiler family* usually defines a C compiler and a related
+	C++ compiler.
 
-	The default C compiler can be modified in the files in the
-	DEFAULT directory. If you want to have a different compiler
+	If the configured default compiler family is not present on the current
+	machine, the makefilesystem will try an automatic fallback to GCC. For
+	this reason, in most cases, you will not need to manually select a
+	compiler.
+
+	The default compiler family can be modified in the files in the
+	DEFAULT directory. If you want to have a different compiler family
 	for one compilation, call:
 
 		make CCOM=gcc

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)rep.cc	1.4 17/04/24 2017 J. Schilling
+ * @(#)rep.cc	1.5 17/11/25 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rep.cc	1.4 17/04/24 2017 J. Schilling";
+	"@(#)rep.cc	1.5 17/11/25 2017 J. Schilling";
 #endif
 
 /*
@@ -55,6 +55,8 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/wchar.h>
 #include <schily/schily.h>
+
+using namespace std;		/* needed for wcsdup() */
 
 /*
  * Static variables

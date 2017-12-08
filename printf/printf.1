@@ -1,5 +1,5 @@
 '\" te
-.\"  @(#)printf.1	1.2 17/11/16 Copyright 2017 J. Schilling */
+.\"  @(#)printf.1	1.3 17/11/21 Copyright 2017 J. Schilling */
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -110,6 +110,22 @@ flag characters
 and
 .BR '0'
 are supported.
+.sp
+The format strings
+.BI % n $
+and
+.BI * m $\c
+, where
+.I n
+or
+.I m
+are decimal integers in the range 1 ..
+.IR maxargs ,
+allow to specify the
+position in the parameter list.
+See
+.BR printf (3)
+for more information.
 .sp
 The
 .I format

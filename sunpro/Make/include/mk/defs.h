@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.8 17/05/29 2017 J. Schilling
+ * @(#)defs.h	1.9 17/12/06 2017 J. Schilling
  */
 
 /*
@@ -283,6 +283,7 @@ extern	Percent		percent_list;
 extern	Dyntarget	dyntarget_list;
 extern	Name		plus;
 extern	Name		pmake_machinesfile;
+extern	Name		phony;
 extern	Name		precious;
 extern	Name		primary_makefile;
 extern	Boolean		quest;

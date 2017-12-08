@@ -1,6 +1,6 @@
 '\" t
 . \"  Manual Seite fuer format
-. \" @(#)format.3	1.3 17/08/03 Copyright 1985 J. Schilling
+. \" @(#)format.3	1.4 17/12/08 Copyright 1985-2017 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH FORMAT 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH FORMAT 3 "2017/12/08" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 format() \- generates formatted output as in printf
 .SH SYNOPSIS
@@ -284,7 +284,7 @@ characters used might change with different calls.
 .B %e
 Inserts a floating number in 'e format'.
 .br
-This is of the form "~.####E*&&":
+This is of the form "~.####e*&&":
 .RS
 .TP
 .B ~
@@ -299,8 +299,8 @@ either plus or minus
 .B &'s
 the digits of the exponent
 .PP
-Thus, 43.5 is formatted as .435E+02 and \-.00435 is
-formatted as \-.435E-02. There are always two digits of
+Thus, 43.5 is formatted as .435e+02 and \-.00435 is
+formatted as \-.435e-02. There are always two digits of
 exponent. The
 .I y
 field gives a minimum width for the entire number, and the
@@ -313,15 +313,27 @@ defaults to 6. Thus, formatting 43.5 results in the following:
 center;
 l l.
 .B
-"%10e"	"\ \ .435E+02"
+"%10e"	"\ \ .435e+02"
 .B
-"%-10e"	".435E+02\ \ "
+"%-10e"	".435e+02\ \ "
 .B
-"%5e"	".435E+02"
+"%5e"	".435e+02"
 .B
-"%10.1e"	"\ \ \ \ .4E+02"
+"%10.1e"	"\ \ \ \ .4e+02"
 .TE
 .RE
+.TP
+.B %E
+Inserts a floating number in 'E format'.
+.br
+This is of the form "~.####E*&&", and identical
+to the
+.B %e
+format except that
+.B E
+is used instead of
+.B e
+in the exponent.
 .TP
 .B %f
 Inserts a floating number in 'f format'.
@@ -363,6 +375,13 @@ l l.
 .TE
 .RE
 .TP
+.B %F
+Inserts a floating number in 'F format'.
+.br
+This is mainly the same as the
+.B %f
+format.
+.TP
 .B %g
 Inserts a floating number in optional format.
 .RS
@@ -387,11 +406,17 @@ l l.
 .B
 4.35	"\ \ \ \ \ \ 4.35"
 .B
-\&.0435	"\ \ .435E-01"
+\&.0435	"\ \ .435e-01"
 .B
-\&.000435	"\ \ .435E-03"
+\&.000435	"\ \ .435e-03"
 .TE
 .RE
+.TP
+.B %G
+Inserts a floating number in 'G format'.
+.br
+This outputs the form "~.####E*&&" in case that the exponent
+variant is used.
 .TP
 .B %r
 Recursive or remote format.

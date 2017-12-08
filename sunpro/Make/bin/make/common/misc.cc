@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)misc.cc	1.10 17/07/04 2017 J. Schilling
+ * @(#)misc.cc	1.11 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.10 17/07/04 2017 J. Schilling";
+	"@(#)misc.cc	1.11 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -269,6 +269,9 @@ time_to_string(const timestruc_t &time)
         if (time == file_doesnt_exist) {
                 return gettext("File does not exist");
         }
+        if (time == file_phony_time) {
+                return gettext("File is phony");
+        }
         if (time == file_max_time) {
                 return gettext("Younger than any file");
         }
@@ -343,6 +346,7 @@ get_current_path(void)
  *		ignore_name		The Name ".IGNORE", printed
  *		keep_state		Was ".KEEP_STATE" seen in makefile?
  *		percent_list		The list of % rules
+ *		phony			The Name ".PHONY", printed
  *		precious		The Name ".PRECIOUS", printed
  *		sccs_get_name		The Name ".SCCS_GET", printed
  *		sccs_get_posix_name	The Name ".SCCS_GET_POSIX", printed
@@ -391,6 +395,15 @@ dump_make_state(void)
 	if (keep_state) {
 		(void) printf("%s:\n\n", dot_keep_state->string_mb);
 	}
+
+	/* .PHONY */
+	(void) printf("%s:", phony->string_mb);
+	for (p = hashtab.begin(), e = hashtab.end(); p != e; p++) {
+			if (p->stat.is_phony) {
+				(void) printf(" %s", p->string_mb);
+			}
+	}
+	(void) printf("\n");
 
 	/* .PRECIOUS */
 	(void) printf("%s:", precious->string_mb);
@@ -670,6 +683,8 @@ load_cached_names(void)
 	path_name = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS("+"));
 	plus = GETNAME(wcs_buffer, FIND_LENGTH);
+	MBSTOWCS(wcs_buffer, NOCATGETS(".PHONY"));
+	phony = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".PRECIOUS"));
 	precious = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS("?"));
@@ -722,6 +737,7 @@ load_cached_names(void)
 	no_parallel_name->special_reader = no_parallel_special;
 	parallel_name->special_reader = parallel_special;
 	localhost_name->special_reader = localhost_special;
+	phony->special_reader = phony_special;
 	precious->special_reader = precious_special;
 	sccs_get_name->special_reader = sccs_get_special;
 	sccs_get_posix_name->special_reader = sccs_get_posix_special;

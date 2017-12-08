@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)files.cc	1.6 17/05/01 2017 J. Schilling
+ * @(#)files.cc	1.7 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)files.cc	1.6 17/05/01 2017 J. Schilling";
+	"@(#)files.cc	1.7 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -77,7 +77,7 @@ static	timestruc_t&	vpath_exists(register Name target);
 static	Name		enter_file_name(wchar_t *name_string, wchar_t *library);
 static	Boolean		star_match(register char *string, register char *pattern);
 static	Boolean		amatch(register wchar_t *string, register wchar_t *pattern);
-  
+
 /*
  *	exists(target)
  *
@@ -102,6 +102,11 @@ exists(register Name target)
 
 	/* We cache stat information. */
 	if (target->stat.time != file_no_time) {
+		return target->stat.time;
+	}
+
+	if (target->stat.is_phony && target->stat.time == file_no_time) {
+		target->stat.time = file_phony_time;
 		return target->stat.time;
 	}
 

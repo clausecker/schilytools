@@ -40,9 +40,9 @@
 #endif
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2017 J. Schilling
  *
- * @(#)hash.h	1.9 16/06/19 2008-2016 J. Schilling
+ * @(#)hash.h	1.10 17/11/22 2008-2017 J. Schilling
  */
 
 /*
@@ -52,7 +52,7 @@
 extern "C" {
 #endif
 
-#define		HASHZAP		0x03FF	/* Mask all but BUILTIN / FUNCTION */
+#define		HASHZAP		0x23FF	/* Mask all but BUILTIN / FUNCTION */
 #define		CDMARK		0x8000	/* Mark outdated "::" based entries */
 
 #define		NOTFOUND	0x0000	/* Cannot exec, reason in low 8 bits */

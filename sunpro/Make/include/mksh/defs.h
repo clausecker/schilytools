@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)defs.h	1.17 17/09/03 2017 J. Schilling
+ * @(#)defs.h	1.18 17/12/06 2017 J. Schilling
  */
 
 /*
@@ -404,6 +404,7 @@ typedef enum {
 	no_parallel_special,
 	parallel_special,
 	posix_special,
+	phony_special,
 	precious_special,
 	sccs_get_posix_special,
 	sccs_get_special,
@@ -436,6 +437,7 @@ typedef struct timespec timestruc_t;
 extern const timestruc_t file_no_time;
 extern const timestruc_t file_doesnt_exist;
 extern const timestruc_t file_is_dir;
+extern const timestruc_t file_phony_time;
 extern const timestruc_t file_min_time;
 extern const timestruc_t file_max_time;
 
@@ -530,12 +532,14 @@ struct _Name {
 		Boolean			is_file;
 		Boolean			is_dir;
 		Boolean			is_sym_link;
+		Boolean			is_phony;
 		Boolean			is_precious;
 		enum sccs_stat		has_sccs;
 #else
 		Boolean			is_file:1;
 		Boolean			is_dir:1;
 		Boolean			is_sym_link:1;
+		Boolean			is_phony:1;
 		Boolean			is_precious:1;
 #ifdef NSE
                 Boolean                 is_derived_src:1;

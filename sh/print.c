@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)print.c	1.40 17/11/14 2008-2017 J. Schilling
+ * @(#)print.c	1.41 17/11/25 2008-2017 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.40 17/11/14 2008-2017 J. Schilling";
+	"@(#)print.c	1.41 17/11/25 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -498,7 +498,7 @@ void
 prs_cntl(s)
 	unsigned char	*s;
 {
-	unsigned char cbuf[BUFLEN+1];
+	unsigned char cbuf[BUFLEN+5];	/* 4 bytes for octal number + nul */
 	int n;
 	wchar_t wc;
 	unsigned char *olds = s;

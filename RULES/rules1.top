@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.53 17/06/28 "
+#ident "@(#)rules1.top	1.54 17/12/06 "
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -365,9 +365,18 @@ PKGTARGETS=	tarpkg tarpkg1 tarpkg2
 .PHONY:	$(ALLTARGETS) .help tinfo shell
 
 ###########################################################################
-# SunPro Make does not understand .PHONY: - use FRC
+# Historic SunPro Make does not understand .PHONY: - use FRC
+# SunPro Make from Schilytools supports .PHONY: and sets MAKE_NAME=sunpro
+# $(MAKEPROG) is derived from $(SRCROOT)/$(RULESDIR)/mk-$(XMAKEPROG).id
+#
+# Make $(FRC) empty for all make programs (that usually support .PHONY)
+# except for the unfixed old SunPro Make from Sun.
 ###########################################################################
-$(ALLTARGETS) .help tinfo shell: FRC
+_FRC=	$(_UNIQ)$(MAKEPROG)
+__FRC=	$(_FRC:$(_UNIQ)make=FRC)
+FRC=	$(__FRC:$(_UNIQ)%=)
+
+$(ALLTARGETS) .help tinfo shell: $(FRC)
 
 FRC:
 

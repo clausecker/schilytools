@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)xec.c	1.94 17/11/07 2008-2017 J. Schilling
+ * @(#)xec.c	1.95 17/11/22 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.94 17/11/07 2008-2017 J. Schilling";
+	"@(#)xec.c	1.95 17/11/22 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -1201,8 +1201,8 @@ extern	int		macflag;
 	 * needed to avoid endless longjmp() loops in case of
 	 * unsuported substitustions (e.g. a ksh93 .profile).
 	 */
-	flags &= ~errflg; 
-	flags |= noexit; 
+	flags &= ~errflg;
+	flags |= noexit;
 
 	if ((flags2 & promptcmdsubst) == 0)
 		macflag |= M_NOCOMSUBST;

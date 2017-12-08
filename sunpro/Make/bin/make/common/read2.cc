@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)read2.cc	1.7 17/07/04 2017 J. Schilling
+ * @(#)read2.cc	1.9 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.7 17/07/04 2017 J. Schilling";
+	"@(#)read2.cc	1.9 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -57,6 +57,8 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/wchar.h>
 #include <schily/schily.h>
+
+using namespace std;		/* needed for wcsdup() */
 
 /*
  * Defined macros
@@ -1149,6 +1151,7 @@ enter_dyntarget(register Name target)
  *		no_parallel_name The Name ".NO_PARALLEL", used for tracing
  *		only_parallel	Set to indicate only some targets runs parallel
  *		parallel_name	The Name ".PARALLEL", used for tracing
+ *		phony		The Name ".PHONY", used for tracing
  *		precious	The Name ".PRECIOUS", used for tracing
  *		sccs_get_name	The Name ".SCCS_GET", used for tracing
  *		sccs_get_posix_name The Name ".SCCS_GET_POSIX", used for tracing
@@ -1390,6 +1393,31 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 				depes->names[n]->no_parallel = true;
 				depes->names[n]->parallel = false;
 				depes->names[n]->localhost = true;
+			}
+		}
+		break;
+
+	case phony_special:
+		/*
+		 * .PHONY is only supported in case we do not emulate the
+		 * old Sun or SVR4 mode.
+		 *
+		 * Otherwise it is ignored as it has been in the
+		 * old Sun version.
+		 */
+		if (sunpro_compat || svr4)
+			break;
+
+		/* Set the phony bit for all the targets on */
+		/* the dependency list */
+		for (; depes != NULL; depes = depes->next) {
+			for (n = 0; n < depes->used; n++) {
+				if (trace_reader) {
+					(void) printf("%s:\t%s\n",
+						      phony->string_mb,
+						      depes->names[n]->string_mb);
+				}
+				depes->names[n]->stat.is_phony = true;
 			}
 		}
 		break;

@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)nse_printdep.cc	1.4 17/04/30 2017 J. Schilling
+ * @(#)nse_printdep.cc	1.5 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)nse_printdep.cc	1.4 17/04/30 2017 J. Schilling";
+	"@(#)nse_printdep.cc	1.5 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -376,6 +376,13 @@ printdesc()
 	/* .KEEP_STATE: */
 	if (is_true(flag.keep_state))
 		(void)printf("%s:\n\n", cached_names.dot_keep_state->string_mb);
+
+	/* .PHONY */
+	(void)printf("%s: ", cached_names.phony->string_mb);
+ 	for (p = hashtab.begin(), e = hashtab.end(); p != e; p++)
+			if (is_true(p->stat.is_phony))
+				(void)printf("%s ", p->string_mb);
+	(void)printf("\n");
 
 	/* .PRECIOUS */
 	(void)printf("%s: ", cached_names.precious->string_mb);

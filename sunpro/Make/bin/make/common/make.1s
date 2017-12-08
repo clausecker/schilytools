@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.11 17/09/03 Copyr 2012-2017 J. Schilling
+. \" @(#)make.1s	1.12 17/12/06 Copyr 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2017/09/03" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2017/12/06" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1329,6 +1329,45 @@ Currently of no effect, but reserved for future use.
 .ne 2
 .mk
 .na
+\fB\&.PHONY:\fR
+.ad
+.RS 23n
+.rt
+List of targets that should not be checked against existing files.
+A target that is marked
+.B .PHONY
+will always considered to be out of date. 
+.B make
+does not remove any of the files
+listed as dependencies for this target when interrupted.
+.B make
+normally
+removes the current target when it receives an interrupt.
+If
+.B make
+is called with the
+.B \-t
+(touch) option, the targets marked as
+.B .PHONY
+are not touched.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores the
+.B .PHONY
+target in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\&.POSIX:\fR
 .ad
 .RS 23n
@@ -1655,7 +1694,12 @@ program. Use
 .B $(MAKE_NAME)
 instead.
 .LP
-The
+If not in
+.B SunPro make
+or in
+.B SysV
+compatibility mode,
+the
 .B MAKE_NAME
 macro is set up by
 .B make
@@ -3322,7 +3366,12 @@ This currently results in disabling to forward command line
 macro definitions to recursively
 called
 .B make
-programs.
+programs,
+disables the special macro
+.B MAKE_NAME
+and disables to evaluate the
+.B .PHONY
+special target.
 .RE
 
 .br

@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.26 17/08/21 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.27 17/12/06 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.26 17/08/21 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.27 17/12/06 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -53,9 +53,10 @@ struct expr {
 
 LOCAL	const char	nolvalue[] = "lvalue required";
 LOCAL	const char	badexpr[]  = "bad expression";
+LOCAL	jmp_buf		exprsyntax;
 
 
-	Intmax_t	strexpr		__PR((unsigned char *arg));
+	Intmax_t	strexpr		__PR((unsigned char *arg, int *errp));
 #ifdef	NEED_PEEKTOK
 LOCAL	int		peektok		__PR((struct expr *ep));
 #endif
@@ -68,6 +69,8 @@ LOCAL	int		getop		__PR((struct expr *ep));
 LOCAL	UIntmax_t	number		__PR((struct expr *ep,
 						unsigned char *str,
 						unsigned char **endptr));
+LOCAL	void		efailed		__PR((unsigned char *s1,
+						const char *s2));
 #ifdef	ARITH_DEBUG
 LOCAL	char		*tokname	__PR((int t));
 #endif
@@ -148,7 +151,7 @@ LOCAL	char		*tokname	__PR((int t));
 /*
  * Operators, longer strings need to be before shorter sub-strings.
  */
-struct ops {
+LOCAL struct ops {
 	char	name[4];
 	char	nlen;
 	char	val;
@@ -200,8 +203,9 @@ struct ops {
  * Returns the result.
  */
 Intmax_t
-strexpr(arg)
+strexpr(arg, errp)
 	unsigned char	*arg;
+	int		*errp;
 {
 	struct expr	exp;
 	Intmax_t	ret;
@@ -212,6 +216,11 @@ strexpr(arg)
 	memset(&exp, 0, sizeof (exp));
 	exp.expr = exp.subexpr = exp.tokenp = arg;
 
+	*errp = 0;
+	if (setjmp(exprsyntax)) {
+		*errp = ERROR;
+		return (0);		/* Does not matter */
+	}
 	exprtok(&exp);
 	ret = expreval(&exp, PR_MAXPREC);
 	return (ret);
@@ -258,8 +267,9 @@ exprtok(ep)
 		unsigned char	*np;
 
 		i = number(ep, ep->tokenp, &np);
-		if (alphanum(*np))
-			failed(ep->expr, badnum);
+		if (alphanum(*np)) {
+			efailed(ep->expr, badnum);
+		}
 		ep->val = unary(ep, i, ep->unop);
 		ep->var = NULL;
 		ep->tokenp = np;
@@ -306,10 +316,10 @@ exprtok(ep)
 		xtok = getop(ep);
 
 		if (xtok != TK_ASSIGN && np && *np)
-			failed(ep->expr, badnum);
+			efailed(ep->expr, badnum);
 
 		if ((flags & setflg) && xtok != TK_ASSIGN && n->namval == NULL)
-			failed(n->namid, unset);
+			efailed(n->namid, unset);
 		if (xtok == TK_PLUSPLUS || xtok == TK_MINUSMINUS) {
 			unary(ep, ep->val, xtok);
 			ep->token = otoken;
@@ -349,7 +359,7 @@ expreval(ep, precedence)
 	} else if (tok > TK_EOF &&
 		    tok < TK_NUM &&
 		    tok != TK_CLPAREN) {
-		failed(ep->expr, synmsg);
+		efailed(ep->expr, synmsg);
 	}
 	v = ep->val;
 	n = ep->var;
@@ -393,8 +403,9 @@ expreval(ep, precedence)
 		ep->flags = oflags;
 	}
 
-	if (ntok == TK_EOF)
-		failed(ep->expr, "missing token");
+	if (ntok == TK_EOF) {
+		efailed(ep->expr, "missing token");
+	}
 
 	do {
 		int	otok = tok;
@@ -444,7 +455,7 @@ expreval(ep, precedence)
 		}
 
 		if (n == NULL && TK_ISASSIGN(tok)) {
-			failed(ep->expr, nolvalue);
+			efailed(ep->expr, nolvalue);
 		}
 		if (ep->flags & EX_NOEVAL) {
 			if (tok == TK_QUEST)
@@ -457,7 +468,7 @@ expreval(ep, precedence)
 		case TK_MOD:
 		case TK_MODASN:
 			if (ep->val == 0) {
-				failed(ep->expr, divzero);
+				efailed(ep->expr, divzero);
 				ep->val = 1;
 			}
 		}
@@ -537,7 +548,7 @@ expreval(ep, precedence)
 				break;
 
 		case TK_COLON:
-				failed(ep->expr, synmsg);
+				efailed(ep->expr, synmsg);
 				break;
 
 		}
@@ -577,7 +588,7 @@ unary(ep, v, op)
 {
 	if (op == TK_PLUSPLUS || op == TK_MINUSMINUS) {
 		if (ep->var == NULL) {
-			failed(ep->expr, nolvalue);
+			efailed(ep->expr, nolvalue);
 			return (0);
 		}
 		if ((ep->flags & EX_NOEVAL) == 0) {
@@ -597,7 +608,7 @@ unary(ep, v, op)
 	case TK_BNOT:		return (~v);
 	case TK_LNOT:		return (!v);
 
-	default:		failed(ep->expr, badexpr);
+	default:		efailed(ep->expr, badexpr);
 				return (0);
 	}
 }
@@ -623,7 +634,7 @@ again:
 	--p;
 	if (digit(c)) {
 		if (val == TK_PLUSPLUS || val == TK_MINUSMINUS) {
-			failed(ep->expr, nolvalue);
+			efailed(ep->expr, nolvalue);
 			return (ep->token = val);
 		}
 
@@ -675,7 +686,7 @@ again:
 			}
 		}
 	}
-	failed(ep->expr, badexpr);
+	efailed(ep->expr, badexpr);
 	ep->flags &= ~EX_OP;
 	return (ep->token = TK_ERROR);
 }
@@ -694,6 +705,15 @@ number(ep, str, endptr)
 	*endptr = UC astoull(C str, &i);
 #endif
 	return (i);
+}
+
+static void
+efailed(s1, s2)
+	unsigned char	*s1;
+	const char	*s2;
+{
+	failed_real(ERROR, s1, s2, NULL);
+	longjmp(exprsyntax, 1);
 }
 
 #ifdef	ARITH_DEBUG

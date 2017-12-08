@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)globals.cc	1.8 17/05/07 2017 J. Schilling
+ * @(#)globals.cc	1.9 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.8 17/05/07 2017 J. Schilling";
+	"@(#)globals.cc	1.9 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -163,6 +163,7 @@ static	UConst char sccsid[] =
 	Dyntarget	dyntarget_list;
 	Name		plus;
 	Name		pmake_machinesfile;
+	Name		phony;
 	Name		precious;
         Name		primary_makefile;
 	Boolean		quest;				/* `-q' */

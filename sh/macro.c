@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.79 17/11/19 2008-2017 J. Schilling
+ * @(#)macro.c	1.82 17/12/08 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.79 17/11/19 2008-2017 J. Schilling";
+	"@(#)macro.c	1.82 17/12/08 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -119,27 +119,20 @@ copyto(endch, trimflag)
 					pushstak('\\');
 					GROWSTAKTOP();
 					pushstak('\\');
-					pc = readw(d);
-					/* push entire multibyte char */
+				}
+				pc = readw(d);
+				/*
+				 * d might be NULL
+				 * Even if d is NULL, we have to save it
+				 */
+				if (*pc) {
 					while (*pc) {
 						GROWSTAKTOP();
 						pushstak(*pc++);
 					}
 				} else {
-					pc = readw(d);
-					/*
-					 * d might be NULL
-					 * Even if d is NULL, we have to save it
-					 */
-					if (*pc) {
-						while (*pc) {
-							GROWSTAKTOP();
-							pushstak(*pc++);
-						}
-					} else {
-						GROWSTAKTOP();
-						pushstak(*pc);
-					}
+					GROWSTAKTOP();
+					pushstak(*pc);
 				}
 			} else { /* push escapes onto stack to quote chars */
 				pc = readw(c);
@@ -349,8 +342,10 @@ getname:
 				n = lookup(absstak(argp));
 				setstak(argp);
 #ifndef	DO_POSIX_UNSET
-				if (n->namflg & N_FUNCTN)
+				if (n->namflg & N_FUNCTN) {
 					error(badsub);
+					return (EOF);
+				}
 #endif
 #ifdef	DO_LINENO
 				if (n == &linenonod) {
@@ -474,6 +469,7 @@ getname:
 #endif
 			} else if (bra) {
 				error(badsub);
+				return (EOF);
 			} else {
 				goto retry;
 			}
@@ -489,6 +485,7 @@ docolon:
 			}
 			if (!defchar(c) && bra) {	/* check "}=-+?#%" */
 				error(badsub);
+				return (EOF);
 			}
 			argp = 0;
 			if (bra) {		/* ${...} */
@@ -538,6 +535,7 @@ docolon:
 
 				if (c != '}' || argp) {
 					error(badsub);
+					return (EOF);
 				}
 				if (v)
 					l = mbschars(v);
@@ -549,8 +547,10 @@ docolon:
 					UIntptr_t	a;
 					UIntptr_t	b = relstakp(argp);
 
-					if (dolg)
+					if (dolg) {
 						error(badsub);
+						return (EOF);
+					}
 					if (quote) {
 						/*
 						 * This is a copy that we may
@@ -650,6 +650,7 @@ docolon:
 						trim(argp);
 					failed(id, *argp ? (const char *)argp :
 					    badparam);
+					return (EOF);
 				} else if (c == '=') {
 					if (n) {
 						int slength = staktop - stakbot;
@@ -680,6 +681,7 @@ docolon:
 						staktop = stakbot + slength;
 					} else {
 						error(badsub);
+						return (EOF);
 					}
 				}
 #ifdef	DO_U_DOLAT_NOFAIL
@@ -688,6 +690,7 @@ docolon:
 			} else if (flags & setflg) {
 #endif
 				failed(id, unset);
+				return (EOF);
 			}
 			goto retry;
 #ifdef		DO_DOL_PAREN
@@ -838,6 +841,7 @@ comsubst(trimflag, type)
 			unsigned char	*argc;
 			struct argnod	*arg = (struct argnod *)locstak();
 			unsigned char	*argp = arg->argval;
+			int		err;
 
 			/*
 			 * savptr holds strlngth bytes in a saved area
@@ -864,9 +868,13 @@ comsubst(trimflag, type)
 			/*
 			 * First implementation: just return the expanded string
 			 */
-			i = strexpr(argc);
-			staktop = movstrstak(&numbuf[slltos(i)], staktop);
-
+			i = strexpr(argc, &err);
+			if (err == 0) {
+				staktop = movstrstak(&numbuf[slltos(i)],
+								staktop);
+			} else {
+				exitval = err;
+			}
 			macflag = omacflag | M_ARITH;
 			if (iosav)
 				iosav->iofile = oiof;

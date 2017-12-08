@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)cmd.c	1.48 17/08/01 2008-2017 J. Schilling
+ * @(#)cmd.c	1.49 17/12/01 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.48 17/08/01 2008-2017 J. Schilling";
+	"@(#)cmd.c	1.49 17/12/01 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -319,11 +319,18 @@ syncase(esym)
 #endif
 		for (;;) {
 			if (fndef) {
+				unsigned char	*p;
+
 				argp = wdarg;
 				wdarg = (struct argnod *)
 						alloc(length(argp->argval) +
-								BYTESPERWORD);
-				movstr(argp->argval, wdarg->argval);
+							1 + BYTESPERWORD);
+				p = movstr(argp->argval, wdarg->argval);
+				/*
+				 * Hack: A second Nul byte is needed if the
+				 * word ends in "\\\0".
+				 */
+				*++p = '\0';
 			}
 
 			wdarg->argnxt = r->regptr;
@@ -586,12 +593,20 @@ item(flag)
 
 				while (wdval == 0) {
 					if (fndef) {
+						unsigned char	*p;
+
 						argp = wdarg;
 						wdarg = (struct argnod *)
 						    alloc(length(argp->argval) +
-								BYTESPERWORD);
-						movstr(argp->argval,
+							1 + BYTESPERWORD);
+						p = movstr(argp->argval,
 								wdarg->argval);
+						/*
+						 * Hack: A second Nul byte is
+						 * needed if the word ends in
+						 * "\\\0".
+						 */
+						*++p = '\0';
 					}
 
 					argp = wdarg;

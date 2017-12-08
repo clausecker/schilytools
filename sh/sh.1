@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.217 17/11/16 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.218 17/11/21 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/11/16" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/11/21" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4950,6 +4950,22 @@ flag characters
 and
 .BR '0'
 are supported.
+.sp
+The format strings
+.BI % n $
+and
+.BI * m $\c
+, where
+.I n
+or
+.I m
+are decimal integers in the range 1 ..
+.IR maxargs ,
+allow to specify the
+position in the parameter list.
+See
+.BR printf (3)
+for more information.
 .sp
 The
 .I format

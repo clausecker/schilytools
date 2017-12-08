@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)service.c	1.53 17/09/06 2008-2017 J. Schilling
+ * @(#)service.c	1.55 17/12/06 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.53 17/09/06 2008-2017 J. Schilling";
+	"@(#)service.c	1.55 17/12/06 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -264,6 +264,7 @@ catpath(path, name)
 	 */
 	unsigned char	*scanp = path;
 	unsigned char	*argp = locstak();
+	unsigned char	*oargp = argp;
 
 	while (*scanp && *scanp != COLON) {
 		GROWSTAK(argp);
@@ -280,6 +281,13 @@ catpath(path, name)
 	do {
 		GROWSTAK(argp);
 	} while ((*argp++ = *scanp++) != '\0');
+	/*
+	 * "\\\0" is skipped in trims(), so add another Nul byte in that case.
+	 */
+	if ((argp - oargp) > 1 && argp[-2] == '\\') {
+		GROWSTAK(argp);
+		*argp = '\0';
+	}
 	return (path);
 }
 
@@ -522,8 +530,9 @@ trim(at)
 				}
 				while (--len >= 0)
 					*last++ = *current++;
-			} else
+			} else {
 				current++;
+			}
 		}
 
 		*last = 0;
@@ -730,7 +739,7 @@ extern	int		macflag;
 			if (c == '\\') { /* skip over quoted characters */
 				GROWSTAK(argp);
 				*argp++ = (char)c;
-				s++;
+				s++;	/* First skip '\\' */
 				/* get rest of multibyte character */
 				if ((clength = mbtowc(&wc, (char *)s,
 						MB_LEN_MAX)) <= 0) {
@@ -794,6 +803,9 @@ extern	int		macflag;
 #ifdef	DO_POSIX_FIELD_SPLIT
 	newname:
 #endif
+		/*
+		 * endstak() terminates string as side effect
+		 */
 		argp = endstak(argp);
 		trims(((struct argnod *)argp)->argval);
 		if ((flags & nofngflg) == 0 &&

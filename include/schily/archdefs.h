@@ -1,9 +1,9 @@
-/* @(#)archdefs.h	1.14 13/07/23 Copyright 2006-2013 J. Schilling */
+/* @(#)archdefs.h	1.15 17/11/25 Copyright 2006-2017 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
  *
- *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2006-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -103,13 +103,13 @@
 #define	__sun
 #endif
 #ifndef	__GNUC__
-#ifndef	__SUNPRO_C
+#ifndef	__IS_SUNPRO_C
 #ifdef	__SVR4
-#define	__SUNPRO_C
+#define	__IS_SUNPRO_C
 #else
-#define	__SUN_C
+#define	__IS_SUN_C
 #endif	/* __SVR4	*/
-#endif	/* !__SUNPRO_C	*/
+#endif	/* !__IS_SUNPRO_C */
 #endif	/* !__GNUC__	*/
 #endif	/* __sun	*/
 
@@ -127,7 +127,7 @@
 #define	__SUNOS4_MC68000_GCC32
 #define	__JS_ARCH_DEFINED
 #endif
-#ifdef	__SUN_C
+#ifdef	__IS_SUN_C
 #define	__SUNOS4_MC68000_CC32
 #define	__JS_ARCH_DEFINED
 #endif
@@ -139,7 +139,7 @@
 #define	__SUNOS4_SPARC_GCC32
 #define	__JS_ARCH_DEFINED
 #endif
-#if	defined(__SUN_C) || defined(__SUNPRO_C)
+#if	defined(__IS_SUN_C) || defined(__SUNPRO_C) || defined(__IS_SUNPRO_C)
 #define	__SUNOS4_SPARC_CC32
 #define	__JS_ARCH_DEFINED
 #endif
@@ -164,7 +164,7 @@
 #endif
 #define	__JS_ARCH_DEFINED
 #endif
-#if	defined(__SUNPRO_C)
+#if	defined(__SUNPRO_C) || defined(__IS_SUNPRO_C)
 #ifdef	__sparcv9
 #define	__SUNOS5_SPARC_CC64
 #else
@@ -183,7 +183,7 @@
 #endif
 #define	__JS_ARCH_DEFINED
 #endif
-#if	defined(__SUNPRO_C)
+#if	defined(__SUNPRO_C) || defined(__IS_SUNPRO_C)
 #ifdef	__amd64
 #define	__SUNOS5_X86_CC64
 #else

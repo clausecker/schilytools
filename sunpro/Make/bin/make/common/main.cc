@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)main.cc	1.28 17/09/18 2017 J. Schilling
+ * @(#)main.cc	1.30 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.28 17/09/18 2017 J. Schilling";
+	"@(#)main.cc	1.30 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -120,7 +120,17 @@ extern void job_adjust_fini();
  * Defined macros
  */
 #define	LD_SUPPORT_ENV_VAR	NOCATGETS("SGS_SUPPORT")
+#define	LD_SUPPORT_ENV_VAR_32	NOCATGETS("SGS_SUPPORT_32")
+#define	LD_SUPPORT_ENV_VAR_64	NOCATGETS("SGS_SUPPORT_64")
 #define	LD_SUPPORT_MAKE_LIB	NOCATGETS("libmakestate.so.1")
+#ifdef	sun
+#ifdef	__i386
+#define	LD_SUPPORT_MAKE_ARCH	"i386/"
+#endif
+#ifdef	__sparc
+#define	LD_SUPPORT_MAKE_ARCH	"sparc/"
+#endif
+#endif	/* sun */
 
 /*
  * typedefs & structs
@@ -1167,7 +1177,7 @@ handle_interrupt(int)
 #else
 	while (wait((union wait*) NULL) != -1);
 #endif
-	/* Delete the current targets unless they are precious */
+	/* Delete the current targets unless they are precious or phony */
 	if ((current_target != NULL) &&
 	    current_target->is_member &&
 	    ((member = get_prop(current_target->prop, member_prop)) != NULL)) {
@@ -1177,7 +1187,8 @@ handle_interrupt(int)
 	    !touch &&
 	    !quest &&
 	    (current_target != NULL) &&
-	    !(current_target->stat.is_precious || all_precious)) {
+	    !(current_target->stat.is_precious || all_precious ||
+	    current_target->stat.is_phony)) {
 
 /* BID_1030811 */
 /* azv 16 Oct 95 */
@@ -1215,7 +1226,8 @@ handle_interrupt(int)
 		if (!do_not_exec_rule &&
 		    !touch &&
 		    !quest &&
-		    !(rp->target->stat.is_precious || all_precious)) {
+		    !(rp->target->stat.is_precious || all_precious ||
+		    rp->target->stat.is_phony)) {
 
 			rp->target->stat.time = file_no_time; 
 			if (exists(rp->target) != file_doesnt_exist) {
@@ -2106,33 +2118,26 @@ int   done=0;
 	}
 }
 
-/*
- *	set_sgs_support()
- *
- *	Add the libmakestate.so.1 lib to the env var SGS_SUPPORT
- *	  if it's not already in there.
- *	The SGS_SUPPORT env var and libmakestate.so.1 is used by
- *	  the linker ld to report .make.state info back to make.
- */
-static void
-set_sgs_support()
+static char *
+append_to_env(const char *env, const char *value, const char *deflt)
 {
-	int		len;
-	char		*newpath;
-	char		*oldpath;
-	static char	*prev_path;
+	size_t	len;
+	char	*oldpath = getenv(env);
+	char	*newpath;
 
-	oldpath = getenv(LD_SUPPORT_ENV_VAR);
+	if (value == NULL)
+		value = deflt;
+
 	if (oldpath == NULL) {
-		len = strlen(LD_SUPPORT_ENV_VAR) + 1 +
-			strlen(LD_SUPPORT_MAKE_LIB) + 1;
+		len = strlen(env) + 1 +
+			strlen(value) + 1;
 		newpath = (char *) malloc(len);
-		sprintf(newpath, "%s=", LD_SUPPORT_ENV_VAR);
+		sprintf(newpath, "%s=", env);
 	} else {
-		len = strlen(LD_SUPPORT_ENV_VAR) + 1 + strlen(oldpath) + 1 +
-			strlen(LD_SUPPORT_MAKE_LIB) + 1;
+		len = strlen(env) + 1 + strlen(oldpath) + 1 +
+			strlen(value) + 1;
 		newpath = (char *) malloc(len);
-		sprintf(newpath, "%s=%s", LD_SUPPORT_ENV_VAR, oldpath);
+		sprintf(newpath, "%s=%s", env, oldpath);
 	}
 
 #if defined(TEAMWARE_MAKE_CMN)
@@ -2140,20 +2145,133 @@ set_sgs_support()
 	/* function maybe_append_str_to_env_var() is defined in avo_util library
 	 * Serial make should not use this library !!!
 	 */
-	maybe_append_str_to_env_var(newpath, LD_SUPPORT_MAKE_LIB);
+	maybe_append_str_to_env_var(newpath, value);
 #else
 	if (oldpath == NULL) {
-		strcat(newpath, LD_SUPPORT_MAKE_LIB);
+		strcat(newpath, value);
 	} else {
 		strcat(newpath, ":");
-		strcat(newpath, LD_SUPPORT_MAKE_LIB);
+		strcat(newpath, value);
 	}
 #endif
+
+	return (newpath);
+}
+
+static char *
+get_run_lib(const char *run_dir, const char *subdir)
+{
+	size_t		len;
+	char		*lib;
+	struct stat	stb;
+
+	if (run_dir == NULL)
+		return (NULL);
+
+	len = strlen(run_dir) + 1 + 5	/* Nul + strlen("/lib/") */
+		+ (subdir ? strlen(subdir) : 0)
+		+ strlen(LD_SUPPORT_MAKE_LIB);
+	lib = (char *) malloc(len);
+	if (lib) {
+		strcpy(lib, run_dir);
+		strcat(lib, "/lib/");
+		if (subdir)
+			strcat(lib, subdir);
+		strcat(lib, LD_SUPPORT_MAKE_LIB);
+		if (stat(lib, &stb) < 0) {
+			free(lib);
+			lib = NULL;
+		}
+	}
+#ifdef	LD_SUPPORT_MAKE_ARCH
+	if (lib == NULL) {		/* Try tools path */
+		len += 3 + strlen(LD_SUPPORT_MAKE_ARCH);
+
+		lib = (char *) malloc(len);
+		if (lib) {
+			/*
+			 * tools/..../bin/i386/make
+			 * tools/..../lib/i386/libmakestate.so.1
+			 * or
+			 * tools/..../lib/i386/64/libmakestate.so.1
+			 */
+			strcpy(lib, run_dir);
+			strcat(lib, "/../lib/");
+			strcat(lib, LD_SUPPORT_MAKE_ARCH);
+			if (subdir)
+				strcat(lib, subdir);
+			strcat(lib, LD_SUPPORT_MAKE_LIB);
+			if (stat(lib, &stb) < 0) {
+				free(lib);
+				lib = NULL;
+			}
+		}
+	}
+#endif
+	return (lib);
+}
+
+/*
+ *	set_sgs_support()
+ *
+ *	Add the libmakestate.so.1 lib to the env var SGS_SUPPORT
+ *	  if it's not already in there.
+ *	The SGS_SUPPORT env var and libmakestate.so.1 is used by
+ *	  the linker ld to report .make.state info back to make.
+ *
+ *	If SGS_SUPPORT_32 or SGS_SUPPORT_64 is present, we manage these
+ *	variables as well.
+ */
+static void
+set_sgs_support()
+{
+	char		*newpath;
+	char		*lib;
+	static char	*prev_path;
+	static char	*prev_path_32;
+	static char	*prev_path_64;
+	char		*run_dir = strdup(make_run_dir);
+
+	if (run_dir && strstr(run_dir, "xpg4/bin"))
+		run_dir = dirname(run_dir);	/* Strip last dir component */
+	run_dir = dirname(run_dir);		/* Strip last dir component */
+
+	lib = get_run_lib(run_dir, NULL);
+	newpath = append_to_env(LD_SUPPORT_ENV_VAR, lib, LD_SUPPORT_MAKE_LIB);
+
 	putenv(newpath);
 	if (prev_path) {
 		free(prev_path);
 	}
 	prev_path = newpath;
+	if (lib)
+		free(lib);
+
+	if (getenv(LD_SUPPORT_ENV_VAR_32) == NULL &&
+	    getenv(LD_SUPPORT_ENV_VAR_64) == NULL)
+		return;
+
+	lib = get_run_lib(run_dir, NULL);
+	newpath = append_to_env(LD_SUPPORT_ENV_VAR_32, lib, LD_SUPPORT_MAKE_LIB);
+
+	putenv(newpath);
+	if (prev_path_32) {
+		free(prev_path_32);
+	}
+	prev_path_32 = newpath;
+	if (lib)
+		free(lib);
+
+	lib = get_run_lib(run_dir, "64/");
+	newpath = append_to_env(LD_SUPPORT_ENV_VAR_64, lib, LD_SUPPORT_MAKE_LIB);
+
+	putenv(newpath);
+	if (prev_path_64) {
+		free(prev_path_64);
+	}
+	prev_path_64 = newpath;
+	if (lib)
+		free(lib);
 }
 
 /*
@@ -2313,10 +2431,12 @@ read_files_and_state(int argc, char **argv)
 	}
 
 #ifdef	DO_MAKE_NAME
-	MBSTOWCS(wcs_buffer, NOCATGETS("sunpro"));
-	SETVAR(sunpro_make_name,
+	if (!sunpro_compat && !svr4) {
+		MBSTOWCS(wcs_buffer, NOCATGETS("sunpro"));
+		SETVAR(sunpro_make_name,
 			GETNAME(wcs_buffer, FIND_LENGTH),
 			false);
+	}
 #endif
 
 	default_target_to_build = NULL;

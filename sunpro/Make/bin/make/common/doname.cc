@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)doname.cc	1.13 17/05/14 2017 J. Schilling
+ * @(#)doname.cc	1.14 17/12/06 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.13 17/05/14 2017 J. Schilling";
+	"@(#)doname.cc	1.14 17/12/06 2017 J. Schilling";
 #endif
 
 /*
@@ -1021,6 +1021,7 @@ check_dependencies(Doname *result, Property line, Boolean do_get, Name target, N
 	register Dependency	dependency;
 	Doname			dep_result;
 	Boolean			dependency_changed = false;
+	Boolean			printed = false;
 
 	line->body.line.dependency_time = file_doesnt_exist;
 	if (line->body.line.query != NULL) {
@@ -1222,8 +1223,14 @@ check_dependencies(Doname *result, Property line, Boolean do_get, Name target, N
 				}
 				(*out_of_date_tail)->next = NULL;
 				out_of_date_tail = &(*out_of_date_tail)->next;
-				if (debug_level > 0) {
-					if (dependency->name->stat.time == file_max_time) {
+				if (debug_level > 0 && !printed) {
+					if (true_target->stat.time == file_phony_time) {
+						(void) printf(gettext("%*sBuilding %s because it is PHONY\n"),
+							      recursion_level,
+							      "",
+							      true_target->string_mb);
+						printed = true;
+					} else if (dependency->name->stat.time == file_max_time) {
 						(void) printf(gettext("%*sBuilding %s because %s does not exist\n"),
 							      recursion_level,
 							      "",
@@ -2868,7 +2875,7 @@ touch_command(register Property line, register Name target, Doname result)
 		job_result_msg = new Avo_MToolJobResultMsg();
 	);
 	for (name = target, target_group = NULL; name != NULL;) {
-		if (!name->is_member) {
+		if (!name->is_member && !name->stat.is_phony) {
 			/*
 			 * Build a touch command that can be passed
 			 * to dosys(). If KEEP_STATE is on, "make -t"

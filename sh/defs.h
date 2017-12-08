@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.181 17/11/03 2008-2017 J. Schilling
+ * @(#)defs.h	1.182 17/12/06 2008-2017 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -795,7 +795,7 @@ extern	unsigned char *memcpystak	__PR((unsigned char *s1,
 /*
  * strexpr.c
  */
-extern	Intmax_t	strexpr	__PR((unsigned char *arg));
+extern	Intmax_t	strexpr	__PR((unsigned char *arg, int *errp));
 
 /*
  * string.c
