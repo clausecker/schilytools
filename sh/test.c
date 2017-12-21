@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)test.c	1.38 17/09/25 2008-2017 J. Schilling
+ * @(#)test.c	1.40 17/12/09 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.38 17/09/25 2008-2017 J. Schilling";
+	"@(#)test.c	1.40 17/12/09 2008-2017 J. Schilling";
 #endif
 
 
@@ -229,7 +229,8 @@ test(argn, com)
 		if (not)
 			return (inv ^ (com[1][0] != 0));
 
-		if (com[0][0] == '-' && com[0][2] == '\0' &&
+		if (com[0][0] == '-' &&
+		    com[0][1] != '\0' && com[0][2] == '\0' &&
 		    strchr(test_unops, com[0][1]))
 			return (inv ^ !test_unary(com[0][1], com[1]));
 
@@ -433,7 +434,7 @@ e3()
 			if (eq(na, "-a") || eq(na, "-o"))
 				return (isatty(STDOUT_FILENO));
 		}
-		if (a[0] == '-' && a[2] == '\0' &&
+		if (a[0] == '-' && a[1] != '\0' && a[2] == '\0' &&
 		    strchr(test_unops, a[1]))
 			return (test_unary(a[1], nxtarg(0)));
 	}

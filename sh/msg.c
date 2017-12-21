@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)msg.c	1.72 17/09/11 2008-2017 J. Schilling
+ * @(#)msg.c	1.75 17/12/20 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.72 17/09/11 2008-2017 J. Schilling";
+	"@(#)msg.c	1.75 17/12/20 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -157,7 +157,11 @@ const char	stopuse[]	= "stop id ...";
 const char	trapuse[]	= "trap [action condition ...]";
 #endif
 const char	ulimuse[]	=
-		"ulimit [ -HSacdefilmnqrstuvLMPRS ] [ limit ]";
+		"ulimit [ -HSakcdefiklmnoqrstuvwLMPR ] [ limit ]";
+#ifdef	DO_SYSLIMIT
+const char	limuse[]	=
+		"limit [ -HS ] [ resource [ limit ]]";
+#endif
 const char	killuse[]	=
 		"kill [ [ -sig | -s sig ] id ... | -l [ signo ... ] ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
@@ -394,6 +398,9 @@ const struct sysnod commands[] =
 	{ "kill",	SYSKILL,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSKILLPG
 	{ "killpg",	SYSKILL,	0 },
+#endif
+#ifdef	DO_SYSLIMIT
+	{ "limit",	SYSULIMIT,	0 },
 #endif
 #ifdef	DO_SYSLOCAL
 	{ "local",	SYSLOCAL,	0 },

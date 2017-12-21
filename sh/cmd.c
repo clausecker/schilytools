@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)cmd.c	1.49 17/12/01 2008-2017 J. Schilling
+ * @(#)cmd.c	1.50 17/12/18 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.49 17/12/01 2008-2017 J. Schilling";
+	"@(#)cmd.c	1.50 17/12/18 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -523,6 +523,8 @@ item(flag)
 
 			if (word() == ';')
 				synbad();
+			else if (wdval != 0)
+				return (item(flag));
 		}
 		/* FALLTHROUGH */
 #endif

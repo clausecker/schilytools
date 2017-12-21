@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)service.c	1.55 17/12/06 2008-2017 J. Schilling
+ * @(#)service.c	1.56 17/12/19 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.55 17/12/06 2008-2017 J. Schilling";
+	"@(#)service.c	1.56 17/12/19 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -264,7 +264,6 @@ catpath(path, name)
 	 */
 	unsigned char	*scanp = path;
 	unsigned char	*argp = locstak();
-	unsigned char	*oargp = argp;
 
 	while (*scanp && *scanp != COLON) {
 		GROWSTAK(argp);
@@ -284,7 +283,7 @@ catpath(path, name)
 	/*
 	 * "\\\0" is skipped in trims(), so add another Nul byte in that case.
 	 */
-	if ((argp - oargp) > 1 && argp[-2] == '\\') {
+	if ((argp - stakbot) > 1 && argp[-2] == '\\') {
 		GROWSTAK(argp);
 		*argp = '\0';
 	}

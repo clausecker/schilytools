@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.18 17/10/12 Copyright 1984-2017 J. Schilling
+.\" @(#)ved.1	1.19 17/12/13 Copyright 1984-2017 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2017/10/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2017/12/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -67,14 +67,17 @@ will assume that you want to edit the last file you edited in your current
 directory. The cursor position in this case again will be the same as with the
 last editing session for this file.
 .PP
-Calling
-.B ved\-e
+.TP 20
+.RB "calling " ved\-e
 is the same as calling
+.sp
+    \&
 .B ved \-e
-and
-calling
-.B ved\-w
+.TP
+.RB "calling " ved\-w
 is the same as calling
+.sp
+    \&
 .B ved maxlinelen=78\fR.
 
 .SH OPTIONS

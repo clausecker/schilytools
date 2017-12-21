@@ -24,12 +24,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2017 J. Schilling
  *
- * @(#)getopt.c	1.16 16/04/26 J. Schilling
+ * @(#)getopt.c	1.17 17/12/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.16 16/04/26 J. Schilling"
+#pragma ident "@(#)getopt.c 1.17 17/12/08 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -220,6 +220,8 @@ parselong(optstring, opt, longoptarg)
 
 	cp = ip = (char *)optstring;
 	do {
+		if (*ip == '\0')
+			break;
 		if (*ip != '(' && *++ip == '\0')
 			break;
 		if (*ip == ':' && *++ip == '\0')

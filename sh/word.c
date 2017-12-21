@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.86 17/09/06 2008-2017 J. Schilling
+ * @(#)word.c	1.87 17/12/09 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.86 17/09/06 2008-2017 J. Schilling";
+	"@(#)word.c	1.87 17/12/09 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -346,6 +346,7 @@ extern	int		abegin;
 				if (c == '/' || c == ':' || eofmeta(c)) {
 					unsigned char	*val;
 
+					GROWSTAK(argp);
 					*argp = '\0';
 					val = do_tilde(stakbot+tilde);
 					if (val)
@@ -494,6 +495,7 @@ match_arith(argp)
 			continue;
 		}
 	}
+	GROWSTAK(argp);
 	*argp = 0;
 	if (nest != 0)		/* Need a generalized syntax error function */
 		failed(absstak(p), synmsg); /* instead if calling failed()  */
@@ -551,6 +553,7 @@ match_literal(argp)
 		GROWSTAK(argp);
 		*argp++ = '"';
 	}
+	GROWSTAK(argp);
 	*argp = '\0';
 	return (argp);
 }
@@ -611,6 +614,7 @@ match_block(argp, c, d)
 		}
 #endif
 	}
+	GROWSTAK(argp);
 	*argp = '\0';
 #ifdef	MATCH_BLOCK_DEBUG
 	fprintf(stderr, "match_block(%c) '%s'\n", d, absstak(p));

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)macro.c	1.82 17/12/08 2008-2017 J. Schilling
+ * @(#)macro.c	1.86 17/12/14 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.82 17/12/08 2008-2017 J. Schilling";
+	"@(#)macro.c	1.86 17/12/14 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -544,7 +544,6 @@ docolon:
 			}
 			if ((c == '#' || c == '%')) {
 				if (v) {
-					UIntptr_t	a;
 					UIntptr_t	b = relstakp(argp);
 
 					if (dolg) {
@@ -559,10 +558,21 @@ docolon:
 						trim(argp);
 					}
 
-					staktop++;
-					a = relstak();
-					_macro(argp);
-					argp = absstak(a);
+					if (*argp == '"') {
+						int	len;
+
+						/*
+						 * "foo" -> foo
+						 * This is a hack until we find
+						 * a better solution.
+						 */
+						len = strlen(C &argp[1]);
+						if (len > 0 &&
+						    argp[len] == '"') {
+							argp[len] = '\0';
+							argp++;
+						}
+					}
 					if (c == '#') {
 						v = prefsubstr(v, argp,
 								largest);
@@ -921,7 +931,19 @@ comsubst(trimflag, type)
 		close(pv[OTPIPE]);
 		savpipe = -1;
 	}
+#if 0
+	/*
+	 * Do we really need to call this here?
+	 * execute() calls it already and if we leave this call here, we may
+	 * end up with accessing already free()d memory later.
+	 *
+	 * Calling tdystak() would free only the space that was allocated by
+	 * the parser (cmd()) and this seems to be of limited size. Given that
+	 * comsubst() is called as part of another command execution, it seems
+	 * that the lifetime of that space is not significantly enhanced.
+	 */
 	tdystak(savptr, iosav);
+#endif
 	(void) memcpystak(stakbot, savptr, strlngth);
 	oldstaktop = staktop = stakbot + strlngth;
 	while ((d = readwc()) != '\0') {
@@ -1093,11 +1115,16 @@ mbschars(v)
 	return (chars);
 }
 
+/*
+ * Prefix substring matcher for ${var#pat} and ${var##pat}
+ *
+ * Returns pointer to first non-matching character in the string.
+ */
 static unsigned char *
 prefsubstr(v, pat, largest)
-	unsigned char	*v;
-	unsigned char	*pat;
-	int		largest;
+	unsigned char	*v;		/* The data value to check	*/
+	unsigned char	*pat;		/* The pattern to match against */
+	int		largest;	/* Whether to match larges str.	*/
 {
 	register unsigned char	*s = v;
 	register unsigned char	*r = v;
@@ -1150,11 +1177,16 @@ mbdecr(s, sp)
 	return (sp-1);
 }
 
+/*
+ * Suffix substring matcher for ${var%pat} and ${var%%pat}
+ *
+ * Returns size of non-matching initial part in the string.
+ */
 static int
 suffsubstr(v, pat, largest)
-	unsigned char	*v;
-	unsigned char	*pat;
-	int		largest;
+	unsigned char	*v;		/* The data value to check	*/
+	unsigned char	*pat;		/* The pattern to match against */
+	int		largest;	/* Whether to match larges str.	*/
 {
 	register unsigned char	*s = v;
 	register int		size = strlen(C v);

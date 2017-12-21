@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.218 17/11/21 Copyright 2012-2017 J. Schilling
+.\" @(#)sh.1	1.221 17/12/20 Copyright 2012-2017 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2017/11/21" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2017/12/20" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4635,6 +4635,28 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
+\fBlimit\fR [\fB\-HS\fR] [\fBresource\fR [\fIlimit\fR]]
+.sp .6
+.B limit
+is a
+.B csh
+compatibility variant of the
+.B ulimit
+command.
+.sp
+If no option is supplied, the soft limits are modified and both,
+hard and soft limits are displayed.
+.sp
+If no argument is supplied, all limits are displayed.
+.sp
+The
+.B limit
+command was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 \fBlocal\fR [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
 .sp .6
 The given
@@ -6613,7 +6635,7 @@ and hashing.
 .br
 .ne 3
 .TP
-\fBulimit\fR [ [\fB\-HS\fR] [\fB\-a\fR | \fB\-McdefilLmnPqrRsStuv\fR] ]
+\fBulimit\fR [ [\fB\-HS\fR] [\fB\-a\fR | \fB\-bcdefiklLmMnoPqrRstuvw\fR] ]
 .PD 0
 .TP
 \fBulimit\fR [ [\fB\-HS\fR] [\fIresource-option\fR] ] \fBlimit\fR
@@ -6661,14 +6683,12 @@ or set. If no option is specified, the file size limit is printed or set.
 .RS
 .br
 .ne 3
+.PD 0
 .TP
-.B \-M
-address space limit (in kbytes), usually 
-.B \-v
-alias
+.B \-b
+maximum size of socket buffer usage in bytes
 .br
 .ne 3
-.PD 0
 .TP
 .B \-c
 maximum core file size (in 512-byte blocks)
@@ -6695,6 +6715,11 @@ maximum number of pending signals
 .br
 .ne 3
 .TP
+.B \-k
+maximal number of kqueues for this user ID
+.br
+.ne 3
+.TP
 .B \-l
 maximum size of locked memory (in kbytes)
 .br
@@ -6710,8 +6735,19 @@ maximum resident set size (in kbytes)
 .br
 .ne 3
 .TP
+.B \-M
+address space limit (in kbytes), usually an alias for
+.B \-v
+.br
+.ne 3
+.TP
 .B \-n
 maximum file descriptor plus 1
+.br
+.ne 3
+.TP
+.B \-o
+maximal number of process-shared locks for this user ID
 .br
 .ne 3
 .TP
@@ -6740,11 +6776,6 @@ maximum size of stack segment (in kbytes)
 .br
 .ne 3
 .TP
-.B \-S
-maximum size of swap (in kbytes)
-.br
-.ne 3
-.TP
 .B \-t
 maximum CPU time (in seconds)
 .br
@@ -6757,9 +6788,16 @@ maximum number of child processes
 .TP
 .B \-v
 maximum size of virtual memory (in kbytes)
+.ne 3
+.TP
+.B \-w
+maximum size of swap (in kbytes)
+.br
 .PD
 .LP
 Not all resources are supported on all platforms.
+To get a list of all resources available on the current platform, call
+.RB `` "ulimit \-a" ''.
 .LP
 Run the
 .BR sysdef (1M)

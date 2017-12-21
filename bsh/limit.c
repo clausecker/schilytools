@@ -1,13 +1,13 @@
-/* @(#)limit.c	1.41 15/08/17 Copyright 1987-2015 J. Schilling */
+/* @(#)limit.c	1.44 17/12/20 Copyright 1987-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.41 15/08/17 Copyright 1987-2015 J. Schilling";
+	"@(#)limit.c	1.44 17/12/20 Copyright 1987-2017 J. Schilling";
 #endif
 /*
  *	Resource usage routines
  *
- *	Copyright (c) 1987-2015 J. Schilling
+ *	Copyright (c) 1987-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -79,7 +79,7 @@ LIMIT	limits[] = {
 #ifdef	RLIMIT_RSS
 	{	"memoryuse",	RLIMIT_RSS,	1024,	"kBytes"	},
 #endif
-#if	defined(RLIMIT_UMEM) && !!defined(RLIMIT_RSS)
+#if	defined(RLIMIT_UMEM) && !!defined(RLIMIT_RSS)	/* SUPER UX */
 	{	"memoryuse",	RLIMIT_UMEM,	1024,	"kBytes"	},
 #endif
 #ifdef	RLIMIT_NOFILE
@@ -97,7 +97,7 @@ LIMIT	limits[] = {
 #ifdef	RLIMIT_HEAP	/* BS2000/OSD */
 	{	"heapsize",	RLIMIT_HEAP,	1024,	"kBytes"	},
 #endif
-#ifdef	RLIMIT_CONCUR
+#ifdef	RLIMIT_CONCUR	/* CONVEX max. # of processors per process */
 	{	"concurrency",	RLIMIT_CONCUR,	1,	"thread(s)"	},
 #endif
 #ifdef	RLIMIT_NPROC
@@ -133,6 +133,12 @@ LIMIT	limits[] = {
 #endif
 #ifdef	RLIMIT_SWAP	/* FreeBSD swap used */
 	{	"swap",		RLIMIT_SWAP,	1024,	"kBytes"	},
+#endif
+#ifdef	RLIMIT_KQUEUES	/* FreeBSD kqueues allocated */
+	{	"kqueues",	RLIMIT_KQUEUES,	1,	""	},
+#endif
+#ifdef	RLIMIT_UMTXP	/* FreeBSD process-shared umtx */
+	{	"umtx shared locks", RLIMIT_UMTXP, 1,	""	},
 #endif
 };
 

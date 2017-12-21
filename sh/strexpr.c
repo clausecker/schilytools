@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.27 17/12/06 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.29 17/12/12 Copyright 2016-2017 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.27 17/12/06 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.29 17/12/12 Copyright 2016-2017 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -291,6 +291,7 @@ exprtok(ep)
 			GROWSTAKTOP();
 			pushstak(c);
 		}
+		GROWSTAKTOP();
 		zerostak();
 		staktop = absstak(b);
 		ep->tokenp = --np;
@@ -308,6 +309,12 @@ exprtok(ep)
 				nv++;
 			}
 			i = number(ep, nv, &np);
+			/*
+			 * Avoid the need to check *np later as it is
+			 * invalidated by unary().
+			 */
+			if (*np == '\0')
+				np = NULL;
 		}
 		ep->var = n;
 		ep->val = unary(ep, neg?-i:i, ep->unop);
@@ -315,7 +322,7 @@ exprtok(ep)
 		otoken = ep->token;
 		xtok = getop(ep);
 
-		if (xtok != TK_ASSIGN && np && *np)
+		if (xtok != TK_ASSIGN && np)
 			efailed(ep->expr, badnum);
 
 		if ((flags & setflg) && xtok != TK_ASSIGN && n->namval == NULL)

@@ -1,21 +1,8 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.159 16/12/13 Copyright 1997-2015 J. Schilling
-.\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License version 2
-.\" as published by the Free Software Foundation.
-.\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
-.\"
-.\" You should have received a copy of the GNU General Public License along with
-.\" this program; see the file COPYING.  If not, write to the Free Software
-.\" Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-.\"
+.\" @(#)mkisofs.8	1.160 17/12/10 Copyright 1997-2015 J. Schilling
+.\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -29,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2016/12/13" "Version 3.02"
+.TH MKISOFS 8 "2017/12/10" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -884,9 +871,23 @@ Use with caution.
 .B \-D
 .TP
 .B \-disable\-deep\-relocation
-Do not use deep directory relocation, and instead just pack them in the
-way we see them.
-.br
+Do not use
+.B Rock Ridge
+deep directory relocation, and instead just pack directories in the
+way they are in the master directory tree.
+.sp
+This option was needed with old
+.B mkisofs
+versions to avoid a visible directory
+.BR rr_moved .
+Since August 2006,
+.B mkisofs
+correctly hides the
+.B rr_moved
+directory from the
+.B Rock Ridge
+filesystem.
+.sp
 If ISO-9660:1999 has not been selected,
 this violates the ISO-9660 standard, but it happens to work on many systems.
 Use with caution.

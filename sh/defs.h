@@ -39,8 +39,17 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)defs.h	1.182 17/12/06 2008-2017 J. Schilling
+ * @(#)defs.h	1.186 17/12/21 2008-2017 J. Schilling
  */
+
+/*
+ * Some compilers may not support enough command line arguments.
+ * This include file permits to put the configuration inti conf.h
+ * instead of having it in the Makefile.
+ */
+#ifdef	DO_CONF_H
+#include	"conf.h"
+#endif
 
 #ifdef	__cplusplus
 extern "C" {
@@ -762,17 +771,27 @@ extern	unsigned char *setbrk	__PR((int));
 
 #define	GROWSTAK(a)	if ((a) >= brkend) \
 				(a) = growstak(a);
-#define	GROWSTAKL(a, l)	if (((a) + (l)) >= brkend) \
-				(a) = growstak(a);
-#define	GROWSTAK2(a, o)	if ((a) >= brkend) {\
-				char *oa = (char *)(a); \
-				(a) = growstak(a); \
-				(o) += (char *)(a) - oa; \
-			}
-#define	GROWSTAKTOP()	if (staktop >= brkend) \
-				(void) growstak(staktop);
-#define	GROWSTAKTOPL(l)	if ((staktop + (l)) >= brkend) \
-				(void) growstak(staktop);
+/*
+ * "a" needs to be a char * object
+ */
+#define	GROWSTAKL(a, l)	do { if (((a) + (l)) >= brkend) {	\
+				(a) += (l);			\
+				(a) = growstak(a);		\
+				(a) -= (l);			\
+			} } while (0);
+#define	GROWSTAK2(a, o)	do { if ((a) >= brkend) {		\
+				char *oa = (char *)(a);		\
+				(a) = growstak(a);		\
+				(o) += (char *)(a) - oa;	\
+			} } while (0);
+#define	GROWSTAKTOP()	do { if (staktop >= brkend)		\
+				(void) growstak(staktop);	\
+			} while (0);
+#define	GROWSTAKTOPL(l)	do { if ((staktop + (l)) >= brkend) {	\
+				staktop += (l);			\
+				(void) growstak(staktop);	\
+				staktop -= (l);			\
+			} } while (0);
 
 extern	void		*alloc		__PR((size_t));
 extern	void		free		__PR((void *ap));
@@ -1294,6 +1313,7 @@ extern const char		builtinuse[];
 extern const char		stopuse[];
 extern const char		trapuse[];
 extern const char		ulimuse[];
+extern const char		limuse[];
 extern const char		nocurjob[];
 extern const char		loginsh[];
 extern const char		jobsstopped[];

@@ -1,0 +1,198 @@
+New features with AN-2017-12-21:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libgetopt::getopt.c: a read buffer overflow is now prevented in case that
+	optstring is "" and the option parameter similar to "--something". This is
+	a bug that is also present in Oracle Solaris and will be fixed soon in 
+	SchilliX-ON
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: word.c did have several places with *argp = 0 where a
+	previous call to GROWSTAK(argp) was missing.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: defs.h The GROW*() macros have been wrapped with
+	do { ... } while(0) statements to avoid problems with wrong nesting
+	of if ... else statements.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: test.c had two places where an access past the end of an
+	argument could happen.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: service.c::split() had two copy loops that could access
+	the string stack after it's end because the macro GROWSTAKL() worked
+	incorrectly.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: macro expansion with ${var#pat} and ${var##pat} and
+	${var%pat} and ${var%%pat} could destroy the string stak because of
+	an invalid nested call to _macro().
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: added a workaround for the test foo=${foo%"${foo#a}"}
+	that should skip the '"' chars.
+
+	Thanks to Martijn Dekker for reporting
+
+-	Bourne Shell: command substitution ( $(cmd) and `cmd` ) could
+	free memory too early. We now avoid a tdystak() call. The related
+	space is now free()d from the command that uses $(cmd) or `cmd`.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: Arithmetic expansion could try to access free()d memory
+	in case of unary operators. The parameter error checking has been
+	rewritten to avoid the attempt to access the no longer valid old
+	content of a shell macro.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: The Makefile was modified to no longer link against
+	$(LIB_GEN) which typically contains "-lgen". We no longer need libgen
+	as we decided on August 2017 that our private gmatch() implementation
+	is better than the one in libgen as our gmatch() supports e.g. [:alpha:]
+
+-	Bourne Shell: Since March 2016, we support shell input like ";ls" but
+	our parser extension caused the shell to receive a SIGSEGV with ";<()"
+	as input. This bug has now been fixed.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: The condition in catpath() to add another Nul Byte has
+	been modified as "stakbot" could be relocated from realloc(), causing
+	the presious condition for a string ending in "...\\" not to hit.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	Bourne Shell: The builtin command "ulimit" defined a useless option -S
+	for the FreeBSD resource RLIMIT_SWAP. -S did not work for RLIMIT_SWAP
+	because -S is already in use for "soft limit". RLIMIT_SWAP is now
+	associated with -w as in "ash" on FreeBSD.
+
+-	Bourne Shell: The builtin command "ulimit" added support for new
+	FreeBSD resources:
+
+	RLIMIT_SBSIZE	-b
+
+	RLIMIT_KQUEUES	-k
+
+	RLIMIT_UMTXP	-o
+
+-	Bourne Shell: The builtin command "ulimit" added support for various
+	new resources:
+
+	RLIMIT_UMEM	Alias for RLIMIT_RSS
+	RLIMIT_OFILE	Alias for RLIMIT_NOFILE
+	RLIMIT_HEAP	No option, usable only with the new BSD interface
+	RLIMIT_CONCUR	No option, usable only with the new BSD interface
+
+-	Bourne Shell: A new builtin command "limit" has been added.
+
+	This command is a variant of the "ulimit" builtin, but offers an
+	interface that is close to the BSD "csh" "limit" interface and thus
+	more intuitive than the Bourne Shell / ksh "ulimit" interface.
+
+-	bsh: added support for RLIMIT_KQUEUES RLIMIT_UMTXP to the
+	builtin "limit" command.
+
+-	ved: The man page was rewritten to better mention the ved aliases
+	"ved-e" and "ved-w"
+
+-	mkisofs: A better documentation for -D was added to the man page.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.
