@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)mode.h	1.25 17/09/06 2008-2017 J. Schilling
+ * @(#)mode.h	1.26 18/01/08 2008-2018 J. Schilling
  */
 
 /*
@@ -49,6 +49,8 @@
 #else
 #include <unistd.h>
 #endif
+
+#include "bosh.h"
 
 #ifdef pdp11
 typedef char BOOL;
@@ -169,7 +171,7 @@ struct sysnod
 	UInt16_t sysflg;	/* Flag for builtins		*/
 };
 
-typedef  void    (*bftype) __PR((int argc, char *argv[]));
+typedef  int    (*bftype) __PR((int argc, Uchar *argv[], bosh_t *__bp));
 
 struct sysnod2
 {
@@ -177,6 +179,7 @@ struct sysnod2
 	UInt16_t sysval;	/* Value to identify above	*/
 	UInt16_t sysflg;	/* Flag for builtins		*/
 	bftype	sysptr;		/* Ptr to function		*/
+	struct sysnod2 *snext;	/* Allow a chain of entries	*/
 };
 
 /*

@@ -1,12 +1,12 @@
-/* @(#)strexpr.c	1.29 17/12/12 Copyright 2016-2017 J. Schilling */
+/* @(#)strexpr.c	1.30 18/01/01 Copyright 2016-2018 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.29 17/12/12 Copyright 2016-2017 J. Schilling";
+	"@(#)strexpr.c	1.30 18/01/01 Copyright 2016-2018 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
  *
- *	Copyright (c) 2016-2017 J. Schilling
+ *	Copyright (c) 2016-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -410,13 +410,12 @@ expreval(ep, precedence)
 		ep->flags = oflags;
 	}
 
-	if (ntok == TK_EOF) {
-		efailed(ep->expr, "missing token");
-	}
-
 	do {
 		int	otok = tok;
 
+		if (ntok == TK_EOF) {
+			efailed(ep->expr, "missing token");
+		}
 		if (ntok == TK_OPAREN || tok == TK_QUEST) {
 			int	oflags = ep->flags;
 

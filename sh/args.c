@@ -39,13 +39,13 @@
 #include "version.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)args.c	1.84 17/11/14 2008-2017 J. Schilling
+ * @(#)args.c	1.85 18/01/01 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.84 17/11/14 2008-2017 J. Schilling";
+	"@(#)args.c	1.85 18/01/01 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -323,9 +323,9 @@ prversion()
 		prs(UC "Copyright (C) 1984-1989 AT&T\n");
 		prs(UC "Copyright (C) 1989-2009 Sun Microsystems\n");
 #ifdef	INTERACTIVE
-		prs(UC "Copyright (C) 1982-2017 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1982-2018 Joerg Schilling\n");
 #else
-		prs(UC "Copyright (C) 1985-2017 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1985-2018 Joerg Schilling\n");
 #endif
 		exitsh(0);
 	}

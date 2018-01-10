@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.71 17/09/14 Copyright 1985-2017 J. Schilling */
+/* @(#)abbrev.c	1.72 18/01/05 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.71 17/09/14 Copyright 1985-2017 J. Schilling";
+	"@(#)abbrev.c	1.72 18/01/05 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -116,7 +116,7 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 #define	raisecond(n, v)	error(n)
 #define	malloc		alloc
 
-#define	ctlc		intrcnt
+#define	ctlc		bosh.intrcnt
 
 #ifdef	HAVE_SNPRINTF
 	/*

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)main.c	1.67 17/09/10 2008-2017 J. Schilling
+ * @(#)main.c	1.70 18/01/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.67 17/09/10 2008-2017 J. Schilling";
+	"@(#)main.c	1.70 18/01/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -121,6 +121,7 @@ static void	Ldup		__PR((int, int));
 	void	setmail		__PR((unsigned char *));
 	void	setmode		__PR((int prof));
 	void	secpolicy_print	__PR((int level, const char *msg));
+static	void	bosh_init	__PR((void));
 
 int
 main(c, v, e)
@@ -149,6 +150,11 @@ main(c, v, e)
 	if (stakbot == 0) {
 		addblok((unsigned)0);
 	}
+
+	/*
+	 * Initialize global data structure.
+	 */
+	bosh_init();
 
 	/*
 	 * If the first character of the last path element of v[0] is "-"
@@ -366,6 +372,8 @@ main(c, v, e)
 #endif
 		flags |= subsh;
 		flags2 |= posix;	/* restore "auto-posix" value */
+
+		mypgid = getpgid(0);	/* get process group of script */
 	}
 
 	/*
@@ -630,13 +638,17 @@ exfile(prof)
 	nohash = 0;
 	iopend = 0;
 
+	/*
+	 * initf() initializes the input filehdr or flushes the content of the
+	 * buffer. Flushing is needed when we come from the errshell longjmp().
+	 */
 	if (input >= 0)
 		initf(input);
 	/*
 	 * command loop
 	 */
 	for (;;) {
-		intrcnt = 0;	/* Reset interrupt counter */
+		bosh.intrcnt = 0; /* Reset interrupt counter */
 		tdystak(0, 0);
 		stakchk();	/* may reduce sbrk */
 		exitset();
@@ -956,4 +968,11 @@ secpolicy_print(level, msg)
 		error(msg);
 		break;
 	}
+}
+
+static void
+bosh_init()
+{
+	bosh.intrcnt	= 0;
+	bosh.get_envptr	= get_envptr;
 }

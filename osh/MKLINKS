@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.7 15/12/23 "
+#ident "@(#)MKLINKS	1.8 18/01/05 "
 ###########################################################################
-# Written 2008-2011 by J. Schilling
+# Written 2008-2018 by J. Schilling
 ###########################################################################
-# Copyright (c) 2008-2014 J. Schilling
+# Copyright (c) 2008-2018 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -35,6 +35,7 @@ fi
 
 $symlink ../bsh/signames.c		.
 
+$symlink ../sh/bosh.h			.
 $symlink ../sh/ctype.h			.
 $symlink ../sh/defs.h			.
 $symlink ../sh/dup.h			.

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)word.c	1.87 17/12/09 2008-2017 J. Schilling
+ * @(#)word.c	1.88 17/12/30 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.87 17/12/09 2008-2017 J. Schilling";
+	"@(#)word.c	1.88 17/12/30 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -895,6 +895,7 @@ xread(f, buf, n)
 	    (flags2 & vedflg)) {
 		static	int	init = 0;
 			int	c;
+			int	amt = 0;
 
 		if (!init) {
 			init = 1;
@@ -902,17 +903,38 @@ xread(f, buf, n)
 			shedit_putenv(ev_insert);
 			shedit_igneof(chk_igneof);
 		}
-		c = shedit_egetc();
-		*buf = c;
-		if (c == -1 && shedit_getdelim() == -1) {	/* EOF */
-			shedit_treset();
-			return (0);
+		/*
+		 * In order to be able to flush the last line data from the
+		 * input when synbad() and others cause a longjmp() to the next
+		 * prompt, we need to get the whole line from the editor here.
+		 *
+		 * Note: calling shedit_egetc() with an empty libshedit buffer
+		 * triggers the history editor, so we need to be careful not
+		 * to buffer too much.
+		 */
+		while (--n >= 0) {
+			c = shedit_egetc();
+			if (c == -1 && shedit_getdelim() == -1) { /* EOF */
+				shedit_treset();
+				return (0);
+			}
+			if (c == CTLC && shedit_getdelim() == CTLC) {
+				trapnote |= SIGSET;
+				return (-1);
+			}
+			*buf++ = c;
+			if (amt++ == 0) {
+				size_t	l = shedit_getlen();
+
+				/*
+				 * Copy no more than what's currently in the
+				 * "line" returned from the history editor.
+				 */
+				if (l < n)
+					n = l;
+			}
 		}
-		if (c == CTLC && shedit_getdelim() == CTLC) {
-			trapnote |= SIGSET;
-			return (-1);
-		}
-		return (1);
+		return (amt);
 	}
 	return (read(f, buf, n));
 }

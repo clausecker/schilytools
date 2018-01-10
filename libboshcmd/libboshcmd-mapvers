@@ -1,0 +1,10 @@
+# /* @(#)libboshcmd-mapvers	1.1 18/01/10 Copyright 2018 J. Schilling */
+
+
+SCHILY_1.0 {
+global:
+	sysfind;
+
+local:
+	*;
+};

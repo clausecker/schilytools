@@ -1,5 +1,10 @@
-# /* @(#)libschily-mapvers	1.52 17/07/02 Copyright 2005-2015 J. Schilling */
+# /* @(#)libschily-mapvers	1.53 17/12/30 Copyright 2005-2017 J. Schilling */
 #include <schily/mconfig.h>
+
+SCHILY_1.9 {
+global:
+	fsgetlen;
+} SCHILY_1.8;
 
 SCHILY_1.8 {
 global:

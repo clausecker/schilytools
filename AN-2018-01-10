@@ -1,0 +1,178 @@
+New features with AN-2018-01-10:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily: fstream.c new function fsgetlen() returns number of characters
+	in the stream buffer.
+
+-	libshedit: New function shedit_getlen() returns number of characters in
+	libshedit left over from last command line.
+
+-	Bourne Shell: When we added the history editor in 2006, the characters
+	from the input in the history editor have been read character by
+	character.
+
+	The result of this method was that the rest of a line could not be
+	flushed in case of a syntax error in the command when in interactive
+	mode. This frequently caused more than on error message when the rest
+	of the command line was read, because it has not been flushed. In rare
+	cases, it could even cause the shell to read more input lines until a
+	^C or the right string end is typed.
+
+	The new code now copies the whole line from the editor (in case it is
+	shorter than the buffer in Bourne Shells struct fileblk) and thus is
+	able to flush the rest of the line in case of errors.
+
+-	Bourne Shell: Fixed a bug introduced in August 2016 that caused simple
+	shell scripts (without "#!") to incorrectly set the tty process group
+	after the first command in the script finished. This caused such
+	scripts to be stopped if they try to read input from tty.
+
+-	Bourne Shell: echo $(( 1 + 3 +  )) did print "8" instead of complaining
+	about a missing token. We now check for the EOF token at a better
+	location.
+
+-	Bourne Shell: Added a conformance test for above syntax error.
+
+-	Bourne Shell: func_unhash() which is called when deleting a function, 
+	now correctly adds the SPC_BUILTIN bit for special builtins. This
+	fixes a bug that could cause a special builtin to be treated as
+	non-special after a function of the same name was deleted.
+
+-	Bourne Shell: The interface for builtin commands no longer needs access
+	to global variables from the shell. This helps to implement dynamically
+	loadable builtins. Note that Apple's linker is too dumb to support 
+	dynamic linking against variables.
+
+-	Bourne Shell: New include file "bosh.h" is used to access the global
+	shell data via a pointer to the new structure "bosh_t".
+
+-	Bourne Shell: the "find" builtin now uses this new "struct bosh *"
+	interface in order to be moved from a Bourne Shell internal builtin
+	into a Bourne Shell dynamic lodable builtin.
+
+-	libboshcmd: added a new shared library that allows to test the "find"
+	command as a loadable Bourne Shell builtin. In order to compile and
+	install a shared libboshcmd, do the following:
+
+		first chdir to the top level schilytools directory
+
+		make LINKMODE=dynamic install	# install other shared libs
+		cd libboshcmd
+		make LINKMODE=dynamic install	# install shared libboshcmd
+
+-	Bourne Shell: The command "builtin" is now able to load a shared
+	library using "builtin -f libname", where "libname" is the name of
+	the shared library. Call after installing a shared libboshcmd:
+
+		builtin -f libboshcmd.so.1
+
+	to load the included test library.
+
+-	Bourne Shell: The command "builtin" is now able to add a new builtin
+	from a loaded shared library. Call:
+
+		builtin sysfind
+
+	after calling "builtin -f libboshcmd.so.1" to enable the "find"
+	builtin from the named test library. To call the loadale version
+	of the "find" builtin, call:
+
+		sysfind ...
+
+-	Bourne Shell: The command "builtin" is now able to remove a builtin
+	that was previously enabled. Call:
+
+		buildin -d sysfind
+
+	to disable the test builtin command from the test library.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

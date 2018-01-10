@@ -31,16 +31,16 @@
 #endif
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.c	1.20 17/09/10 2008-2017 J. Schilling
+ * @(#)defs.c	1.21 18/01/05 2008-2018 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.20 17/09/10 2008-2017 J. Schilling";
+	"@(#)defs.c	1.21 18/01/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -63,6 +63,8 @@ static	UConst char sccsid[] =
 #ifndef NOFILE
 #define	NOFILE 20
 #endif
+
+bosh_t		bosh;
 
 /* temp files and io */
 int		output = STDERR_FILENO;

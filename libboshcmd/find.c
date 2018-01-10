@@ -1,4 +1,4 @@
-/* @(#)find.c	1.6 18/01/05 Copyright 2014-2018 J. Schilling */
+/* @(#)find.c	1.6 18/01/10 Copyright 2014-2018 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	find builtin
@@ -19,11 +19,12 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include "defs.h"
+#include "bosh.h"
+#define	DO_SYSFIND
 #ifdef DO_SYSFIND
 
 static	UConst char sccsid[] =
-	"@(#)find.c	1.6 18/01/05 Copyright 2014-2018 J. Schilling";
+	"@(#)find.c	1.6 18/01/10 Copyright 2014-2018 J. Schilling";
 
 #include	<schily/walk.h>
 #include	<schily/find.h>

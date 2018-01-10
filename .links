@@ -38,6 +38,7 @@
 ./libshedit/ttymodes.c
 ./mkisofs/diag/scsi.c
 ./osh/signames.c
+./osh/bosh.h
 ./osh/ctype.h
 ./osh/defs.h
 ./osh/dup.h

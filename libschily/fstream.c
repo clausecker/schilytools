@@ -1,8 +1,8 @@
-/* @(#)fstream.c	1.32 17/10/21 Copyright 1985-2017 J. Schilling */
+/* @(#)fstream.c	1.33 17/12/30 Copyright 1985-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.32 17/10/21 Copyright 1985-2017 J. Schilling";
+	"@(#)fstream.c	1.33 17/12/30 Copyright 1985-2017 J. Schilling";
 #endif
 /*
  *	Stream filter module
@@ -154,7 +154,7 @@ fssetfile(fsp, f)
 }
 
 /*
- * get nect character from stream
+ * get next character from stream
  */
 EXPORT int
 fsgetc(fsp)
@@ -175,6 +175,9 @@ fsgetc(fsp)
 			/*
 			 * We have a filter function, so call it.
 			 */
+#ifdef DEBUG
+			printf("filter via function %p\n", fsp->fstr_func);
+#endif
 			if ((ret = (*fsp->fstr_func)(fsp, fsp->fstr_file)) < 0)
 				return (ret);
 		} else if (fsp->fstr_file == (FILE *)NULL) { /* no file	    */
@@ -195,6 +198,27 @@ fsgetc(fsp)
 	printf("character '%c' from buffer\n", *fsp->fstr_bp);
 #endif
 	return (*fsp->fstr_bp++);			/* char from buffer  */
+}
+
+/*
+ * get # of characters in stream
+ */
+EXPORT size_t
+fsgetlen(fsp)
+	register fstream	*fsp;
+{
+	CHAR	*bp;
+
+	/*
+	 * If there are pushed streams, refer to the top of pushed streams.
+	 */
+	if (fsp->fstr_pushed != NULL)
+		fsp = fsp->fstr_pushed;
+
+	bp = fsp->fstr_bp;
+	while (*bp++ != '\0')
+		;
+	return (--bp - fsp->fstr_bp);
 }
 
 /*

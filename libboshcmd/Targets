@@ -1,0 +1,5 @@
+#ident "@(#)Targets	1.1 18/01/10 "
+
+CFILES=		find.c
+
+HFILES=

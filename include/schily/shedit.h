@@ -1,4 +1,4 @@
-/* @(#)shedit.h	1.14 17/01/18 Copyright 2006-2017 J. Schilling */
+/* @(#)shedit.h	1.15 17/12/30 Copyright 2006-2017 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
@@ -53,6 +53,7 @@ extern "C" {
  * shedit_igneof():	set up pointer to local ignoreeof() from the shell
  */
 extern	int	shedit_egetc	__PR((void));
+extern	size_t	shedit_getlen	__PR((void));
 extern	int	shedit_getdelim	__PR((void));
 extern	void	shedit_treset	__PR((void));
 extern	void	shedit_bhist	__PR((int **intrcpp));

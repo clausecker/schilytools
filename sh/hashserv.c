@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)hashserv.c	1.33 17/09/13 2008-2017 J. Schilling
+ * @(#)hashserv.c	1.36 18/01/10 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.33 17/09/13 2008-2017 J. Schilling";
+	"@(#)hashserv.c	1.36 18/01/10 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -92,6 +92,9 @@ pathlook(com, flg, arg)
 
 	ENTRY		hentry;
 	const struct sysnod	*sn;
+#ifdef	HAVE_LOADABLE_LIBS
+	const struct sysnod2	*sn2;
+#endif
 	int		count = 0;
 	int		i;
 	int		pathset = 0;
@@ -151,7 +154,16 @@ pathlook(com, flg, arg)
 		}
 	}
 
-	if ((sn = sysnlook(name, commands, no_commands)) != 0) {
+#ifdef	HAVE_LOADABLE_LIBS
+	if ((sn2 = sh_findbuiltin(name)) != NULL) {
+		i = SYSLOADABLE;
+		hentry.data = (BUILTIN | i);
+		if ((flags & (ppath|nofuncs)))
+			return (hentry.data);
+		count = 1;
+	} else
+#endif
+	if ((sn = sysnlook(name, commands, no_commands)) != NULL) {
 		i = sn->sysval;
 		if (sn->sysflg & BLT_SPC)
 			i |= SPC_BUILTIN;
@@ -340,16 +352,34 @@ void
 func_unhash(name)
 	unsigned char	*name;
 {
-	ENTRY	*h;
-	int i;
+	const struct sysnod	*sn;
+#ifdef	HAVE_LOADABLE_LIBS
+	const struct sysnod2	*sn2;
+#endif
+	ENTRY			*h;
 
 	h = hfind(name);
 
 	if (h && (h->data & FUNCTION)) {
-		if ((i = syslook(name, commands, no_commands)) != 0)
-			h->data = (BUILTIN|i);
-		else
+
+#ifdef	HAVE_LOADABLE_LIBS
+		if ((sn2 = sh_findbuiltin(name)) != NULL) {
+			int	i;
+
+			i = SYSLOADABLE;
+			h->data = (BUILTIN | i);
+		} else
+#endif
+		if ((sn = sysnlook(name, commands, no_commands)) != NULL) {
+			int	i;
+
+			i = sn->sysval;
+			if (sn->sysflg & BLT_SPC)
+				i |= SPC_BUILTIN;
+			h->data = (BUILTIN | i);
+		} else {
 			h->data = NOTFOUND;
+		}
 	}
 }
 
@@ -400,6 +430,10 @@ what_is_path(name, verbose)
 	int	amt;
 	short	hashval;
 	const struct sysnod	*sp;
+#ifdef	HAVE_LOADABLE_LIBS
+	const struct sysnod2	*sp2;
+	struct sysnod		sn;
+#endif
 
 	h = hfind(name);
 	if (h && (flags & ppath)) {
@@ -497,7 +531,17 @@ what_is_path(name, verbose)
 checkbuiltin:
 #endif
 
+#ifdef	HAVE_LOADABLE_LIBS
+	if ((sp2 = sh_findbuiltin(name)) != NULL) {
+		sn.sysflg = 0;
+		sp = &sn;
+		goto isbltin;
+	} else
+#endif
 	if ((sp = sysnlook(name, commands, no_commands)) != NULL) {
+#ifdef	HAVE_LOADABLE_LIBS
+	isbltin:
+#endif
 		if (!verbose) {
 			prc_buff(NL);
 			return (0);

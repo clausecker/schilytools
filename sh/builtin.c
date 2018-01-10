@@ -1,12 +1,12 @@
-/* @(#)builtin.c	1.10 17/09/01 Copyright 2015-2017 J. Schilling */
+/* @(#)builtin.c	1.11 18/01/10 Copyright 2015-2018 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.10 17/09/01 Copyright 2015-2017 J. Schilling";
+	"@(#)builtin.c	1.11 18/01/10 Copyright 2015-2018 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
  *
- *	Copyright (c) 2015-2017 J. Schilling
+ *	Copyright (c) 2015-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,8 +27,17 @@ static	UConst char sccsid[] =
 
 #define	LOCAL	static
 
-struct sysnod2 *sh_findbuiltin	__PR((char *name));
-int		sh_addbuiltin	__PR((char *name, bftype func));
+struct libs {
+	void		*lib;
+	struct libs	*next;
+};
+
+	struct sysnod2 *sh_findbuiltin	__PR((Uchar *name));
+LOCAL	int		sh_addbuiltin	__PR((Uchar *name, bftype func));
+LOCAL	void		sh_rmbuiltin	__PR((Uchar *name));
+
+LOCAL	struct sysnod2	*bltins;	/* List of active builtins */
+LOCAL	void		*libs;		/* List of active libraries */
 
 void
 sysbuiltin(argc, argv)
@@ -91,38 +100,118 @@ sysbuiltin(argc, argv)
 		 */
 		failed(argv[0], restricted);
 	} else if (farg) {		/* Add shared library */
-		void	*lh;
 #ifdef	HAVE_LOADABLE_LIBS
+		void		*lh;
+		struct libs	*lp;
+
 		lh = dlopen(farg, RTLD_LAZY);
-		printf("lh %p\n", lh);		/* XXX avoid printf */
+		if (lh == NULL) {
+			failure(argv[0], dlerror());
+			return;
+		}
+		lp = alloc(sizeof (*lp));
+		if (lp == NULL)
+			return;
+		lp->lib = lh;
+		lp->next = libs;
+		libs = lp;
 #else
 		failure(argv[0], "-f not supported on this platform");
+		return;
 #endif
 	}
 	/*
 	 * Add or delete builtin
 	 */
-#ifdef	BUILTIN_DEBUG				/* Optional until ready */
+#ifdef	HAVE_LOADABLE_LIBS
+	if (libs == NULL && optv.optind < argc) {
+		failure(argv[0], "no libraries");
+		return;
+	}
 	for (; optv.optind < argc; optv.optind++) {
+		struct libs	*lp = libs;
+		void		*func;
+		unsigned char	*name = argv[optv.optind];
+
+#ifdef	BUILTIN_DEBUG				/* Optional until ready */
 		/* XXX avoid printf */
 		printf("arg[%d] '%s'\n", optv.optind, argv[optv.optind]);
+#endif
+		do {
+			func = dlsym(lp->lib, C name);
+			lp = lp->next;
+		} while (func == NULL && lp);
+		if (func == NULL) {
+			failure(name, notfound);
+			continue;
+		}
+		if (del)
+			sh_rmbuiltin(name);
+		else
+			sh_addbuiltin(name, (bftype) func);
 	}
 #endif
 }
 
+/*
+ * Return sysnod2 ptr for active loadable builtin.
+ */
 struct sysnod2 *
 sh_findbuiltin(name)
-	char	*name;
+	unsigned char	*name;
 {
+	struct sysnod2	*bp;
+
+	for (bp = bltins; bp; bp = bp->snext) {
+		if (eq(name, bp->sysnam))
+			return (bp);
+	}
 	return (0);
 }
 
-int
+/*
+ * Add new loadable builtin function with command name to active list.
+ */
+LOCAL int
 sh_addbuiltin(name, func)
-	char	*name;
-	bftype	func;
+	unsigned char	*name;
+	bftype		func;
 {
+	struct sysnod2  *bp = alloc(sizeof (struct sysnod2));
+
+	if (bp == NULL)
+		return (1);
+
+	bp->sysnam = C make(name);
+	bp->sysval = 0;
+	bp->sysflg = 0;
+	bp->sysptr = func;
+	bp->snext = bltins;
+	bltins = bp;
 	return (0);
+}
+
+/*
+ * Remove loadable builtin function from active list.
+ */
+LOCAL void
+sh_rmbuiltin(name)
+	unsigned char	*name;
+{
+	struct sysnod2  *bp;
+	struct sysnod2  *obp;
+
+	for (bp = bltins; bp; obp = bp, bp = bp->snext) {
+		if (!eq(name, bp->sysnam))
+			continue;
+
+		if (bp == bltins)
+			bltins = bp->snext;
+		else
+			obp = bp->snext;
+		free(bp->sysnam);
+		free(bp);
+	}
 }
 
 #endif /* DO_SYSBUILTIN */

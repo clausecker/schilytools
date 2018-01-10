@@ -37,9 +37,9 @@
 #endif
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.186 17/12/21 2008-2017 J. Schilling
+ * @(#)defs.h	1.188 18/01/10 2008-2018 J. Schilling
  */
 
 /*
@@ -200,6 +200,7 @@ extern "C" {
 #define		SYSLOCAL	56
 #define		SYSFC		57
 
+#define		SYSLOADABLE	255	/* For all dynamically loaded cmds   */
 #define		SYSMAX		255	/* Must fit in low 8 ENTRY.data bits */
 
 /*
@@ -279,9 +280,18 @@ extern "C" {
 #include	<schily/setjmp.h>
 #include	<schily/jmpdefs.h>
 
+#ifdef DO_SYSBUILTIN
+/*
+ * Note that if we do not #define DO_SYSBUILTIN, we will never have
+ * a HAVE_LOADABLE_LIBS #define
+ */
+#include	<schily/dlfcn.h>	/* to #define HAVE_LOADABLE_LIBS */
+#endif
+
 #include 	"mac.h"
 #include	"mode.h"
 #include	"name.h"
+#include	"bosh.h"
 
 #ifndef	HAVE_SYS_ACCT_H
 #undef	ACCT
@@ -293,6 +303,7 @@ extern "C" {
 #include 	"mac.h"
 #include	"mode.h"
 #include	"name.h"
+#include	"bosh.h"
 #include	<signal.h>
 #include	<sys/types.h>
 #include	<inttypes.h>
@@ -379,6 +390,11 @@ typedef	int	(*sigtype) __PR((int));
 typedef	int	sigret;
 #endif	/* VOID_SIGS */
 #endif	/* RETSIGTYPE */
+
+/*
+ * Global data structure
+ */
+extern bosh_t	bosh;
 
 /* id's */
 extern pid_t	mypid;
@@ -679,6 +695,7 @@ extern	void	poplvars	__PR((void));
 extern	void	popval		__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((int flg));
+extern	unsigned char **get_envptr __PR((void));
 extern	struct namnod *findnam	__PR((unsigned char *nam));
 
 #define	UNSET_FUNC	1
@@ -872,13 +889,14 @@ extern	void	sysunalias	__PR((int argc, unsigned char **argv));
  */
 #ifdef	DO_SYSBUILTIN
 extern	void	sysbuiltin	__PR((int argc, unsigned char **argv));
+extern	struct sysnod2 *sh_findbuiltin	__PR((unsigned char *name));
 #endif
 
 /*
  * find.c
  */
 #ifdef	DO_SYSFIND
-extern	void	sysfind		__PR((int argc, unsigned char **argv));
+extern	int	sysfind		__PR((int argc, Uchar **argv, bosh_t *));
 #endif
 
 /*
@@ -1241,7 +1259,6 @@ extern int			tried_to_exit;
 
 /* fault */
 extern int			*intrptr;
-extern int			intrcnt;
 
 /* messages */
 extern const char		mailmsg[];

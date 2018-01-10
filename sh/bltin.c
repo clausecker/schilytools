@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.126 17/09/10 2008-2017 J. Schilling
+ * @(#)bltin.c	1.128 18/01/10 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.126 17/09/10 2008-2017 J. Schilling";
+	"@(#)bltin.c	1.128 18/01/10 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -1078,9 +1078,30 @@ builtin(type, argc, argv, t, xflags)
 		break;
 #endif
 
+#ifdef	HAVE_LOADABLE_LIBS
+	case SYSLOADABLE: {
+		int		exval;
+		struct sysnod2	*s2;
+
+		s2 = sh_findbuiltin(*argv);
+		if (s2 == NULL) {
+			failure(*argv, notfound);
+			break;
+		}
+		exval = (*s2->sysptr)(argc, argv, &bosh);
+		if (exval)
+			exitval = exval;
+	}
+		break;
+#endif
+
 #ifdef	DO_SYSFIND
-	case SYSFIND:
-		sysfind(argc, argv);
+	case SYSFIND: {
+		int	exval = sysfind(argc, argv, &bosh);
+
+		if (exval)
+			exitval = exval;
+	}
 		break;
 #endif
 

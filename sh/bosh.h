@@ -1,7 +1,15 @@
-/* @(#)version.h	1.62 18/01/01 Copyright 2012-2018 J. Schilling */
+#ifndef _BOSH_H
+#define	_BOSH_H
 
 /*
- * The version for the Bourne Shell
+ * Copyright 2018 J. Schilling
+ *
+ * @(#)bosh.h	1.1 18/01/05 Copyright 2018 J. Schilling
+ *
+ * Global variables structure for UNIX Shell
+ *
+ * WARNING: Add new members at the end or you will risk
+ * incompatibilities with older loadable builtin commands.
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,5 +25,11 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2018/01/01"
-#define	VERSION_STR	"a+"
+#include <schily/utypes.h>
+
+typedef struct bosh {
+	int	intrcnt;			/* Intr ctr for builtin cmds */
+	Uchar **(*get_envptr) __PR((void));	/* Get tmp. env array	    */
+} bosh_t;
+
+#endif /* _BOSH_H */

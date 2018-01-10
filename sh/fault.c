@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)fault.c	1.37 17/08/21 2008-2017 J. Schilling
+ * @(#)fault.c	1.38 18/01/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.37 17/08/21 2008-2017 J. Schilling";
+	"@(#)fault.c	1.38 18/01/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -92,7 +92,6 @@ static	UConst char sccsid[] =
  * Comand History Editor.
  */
 	int	*intrptr;
-	int	intrcnt;
 
 /*
  * Whether to use _exit() because we did call vfork()
@@ -337,7 +336,7 @@ fault(sig)
 		case SIGINT:
 			if (intrptr)
 				(*intrptr)++;
-			intrcnt++;
+			bosh.intrcnt++;
 			break;
 #endif
 #ifdef	SIGALRM

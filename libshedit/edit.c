@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.29 17/11/05 Copyright 2006-2017 J. Schilling */
+/* @(#)edit.c	1.30 17/12/30 Copyright 2006-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.29 17/11/05 Copyright 2006-2017 J. Schilling";
+	"@(#)edit.c	1.30 17/12/30 Copyright 2006-2017 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2017 J. Schilling
@@ -128,6 +128,14 @@ shedit_egetc()
 	if (!__init)
 		einit();
 	return (fsgetc(rawstrm));
+}
+
+EXPORT size_t
+shedit_getlen()
+{
+	if (!__init)
+		einit();
+	return (fsgetlen(rawstrm));
 }
 
 EXPORT int

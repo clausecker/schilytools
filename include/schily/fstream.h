@@ -1,8 +1,8 @@
-/* @(#)fstream.h	1.17 14/04/14 Copyright 1985-2014 J. Schilling */
+/* @(#)fstream.h	1.18 17/12/30 Copyright 1985-2017 J. Schilling */
 /*
  *	Definitions for the file stream package
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2017 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -88,6 +88,7 @@ extern	fstream *fspushed	__PR((fstream *fsp));
 extern	void	fsclose		__PR((fstream *fsp));
 extern	FILE	*fssetfile	__PR((fstream *fsp, FILE *f));
 extern	int	fsgetc		__PR((fstream *fsp));
+extern	size_t	fsgetlen	__PR((fstream *fsp));
 extern	void	fspushstr	__PR((fstream *fsp, char *ss));
 extern	void	fspushcha	__PR((fstream *fsp, int c));
 

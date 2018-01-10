@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)name.c	1.74 17/09/14 2008-2017 J. Schilling
+ * @(#)name.c	1.75 18/01/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.74 17/09/14 2008-2017 J. Schilling";
+	"@(#)name.c	1.75 18/01/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -105,6 +105,7 @@ static void	_popvars	__PR((struct namnod *n));
 static void	countnam	__PR((struct namnod *n));
 static void	pushnam		__PR((struct namnod *n));
 	unsigned char **local_setenv __PR((int flg));
+	unsigned char **get_envptr __PR((void));
 	struct namnod *findnam	__PR((unsigned char *nam));
 	void	unset_name	__PR((unsigned char *name, int uflg));
 static void	dolocale	__PR((char *nm));
@@ -1211,6 +1212,7 @@ pushnam(n)
 
 /*
  * Prepare the environ for a new external command.
+ * The allocated memory is free()d before starting the mext command.
  */
 unsigned char **
 local_setenv(flg)
@@ -1228,6 +1230,15 @@ local_setenv(flg)
 	namflg = 0;
 	*argnam++ = 0;
 	return (er);
+}
+
+/*
+ * Get a temporary environ, e.g. for a builtin command.
+ */
+unsigned char **
+get_envptr()
+{
+	return (local_setenv(ENV_NOFREE));
 }
 
 struct namnod *

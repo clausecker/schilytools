@@ -1,4 +1,9 @@
-# /* @(#)libshedit-mapvers	1.10 17/01/19 Copyright 2006-2017 J. Schilling */
+# /* @(#)libshedit-mapvers	1.11 17/12/30 Copyright 2006-2017 J. Schilling */
+
+SCHILY_1.2 {			# Added support to know ow many chars to read with shedit_egetc()
+global:
+	shedit_getlen;		# get length of data in buffer
+} SCHILY_1.1;
 
 SCHILY_1.1 {			# Added interface for POSIX shell "fc"
 global:
