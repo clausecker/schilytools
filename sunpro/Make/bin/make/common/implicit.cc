@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)implicit.cc	1.64	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)implicit.cc	1.5 17/04/30 2017 J. Schilling
+ * @(#)implicit.cc	1.6 18/01/16 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)implicit.cc	1.5 17/04/30 2017 J. Schilling";
+	"@(#)implicit.cc	1.6 18/01/16 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -366,6 +366,17 @@ posix_attempts:
 					retmem(sourcename);
 				}
 				return build_failed;
+
+			default:
+				/*
+				 * The following enum values are not handled:
+				 *	build_in_progress
+				 *	build_pending
+				 *	build_serial
+				 *	build_subtree
+				 * We need to check whether they may be needed.
+				 */
+				break;
 			}
 			
 			if (debug_level > 1) {
@@ -575,6 +586,19 @@ find_ar_suffix_rule(register Name target, Name true_target, Property *command, B
 			return build_ok;
 		case build_running:
 			return build_running;
+
+		default:
+			/*
+			 * The following enum values are not handled:
+			 *	build_dont_know
+			 *	build_failed
+			 *	build_in_progress
+			 *	build_pending
+			 *	build_serial
+			 *	build_subtree
+			 * We need to check whether they may be needed.
+			 */
+			break;
 		}
 		/*
 		 * If no rule was found, we try the next suffix to see
@@ -679,6 +703,19 @@ find_double_suffix_rule(register Name target, Property *command, Boolean recheck
 			return build_ok;
 		case build_running:
 			return build_running;
+
+		default:
+			/*
+			 * The following enum values are not handled:
+			 *	build_dont_know
+			 *	build_failed
+			 *	build_in_progress
+			 *	build_pending
+			 *	build_serial
+			 *	build_subtree
+			 * We need to check whether they may be needed.
+			 */
+			break;
 		}
 		if (true_target->suffix_scan_done == true) {
 			scanned_once = true;

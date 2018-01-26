@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)read.cc	1.64	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read.cc	1.13 17/11/25 2017 J. Schilling
+ * @(#)read.cc	1.17 18/01/17 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.13 17/11/25 2017 J. Schilling";
+	"@(#)read.cc	1.17 18/01/17 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -66,6 +66,10 @@ extern "C" Avo_err *avo_find_run_dir(char **dirp);
 #include <schily/wchar.h>
 #include <schily/schily.h>
 
+/*
+ * We cannot use "using std::wcsdup" as wcsdup() is not always
+ * in the std namespace.
+ */
 using namespace std;		/* needed for wcsdup() */
 
 /*
@@ -85,6 +89,10 @@ static	void		parse_makefile(register Name true_makefile_name, register Source so
 static	Source		push_macro_value(register Source bp, register wchar_t *buffer, int size, register Source source);
 extern  void 		enter_target_groups_and_dependencies(Name_vector target, Name_vector depes, Cmd_line command, Separator separator, Boolean target_group_seen);
 extern	Name		normalize_name(register wchar_t *name_string, register int length);
+extern	void		doexport(Name name);
+extern	void		dounexport(Name name);
+extern	void		doreadonly(Name name);
+
 
 /*
  *	read_simple_file(makefile_name, chase_path, doname_it,
@@ -595,10 +603,24 @@ parse_makefile(register Name true_makefile_name, register Source source)
 
 	static wchar_t		include_space[10];
 	static wchar_t		include_tab[10];
+	static wchar_t		iinclude_space[10];
+	static wchar_t		iinclude_tab[10];
+	static wchar_t		export_space[8];
+	static wchar_t		export_tab[8];
+	static wchar_t		unexport_space[10];
+	static wchar_t		unexport_tab[10];
+	static wchar_t		readonly_space[10];
+	static wchar_t		readonly_tab[10];
 	int			tmp_bytes_left_in_string;
-	Boolean			tmp_maybe_include = false;
+	Boolean			tmp_maybe_directive = false;
 	int    			emptycount = 0;
 	Boolean			first_target;
+	Boolean			do_include;
+	Boolean			do_iinclude;
+	Boolean			do_export;
+	Boolean			do_unexport;
+	Boolean			do_readonly;
+	int			directive_len;
 
 	String_rec		include_name;
 	wchar_t			include_buffer[STRING_BUFFER_LENGTH];
@@ -829,9 +851,53 @@ start_new_line_no_skip:
 		MBSTOWCS(include_space, NOCATGETS("include "));
 		MBSTOWCS(include_tab, NOCATGETS("include\t"));
 	    }
+	    if (iinclude_space[0] == (int) nul_char) {
+		MBSTOWCS(iinclude_space, NOCATGETS("-include "));
+		MBSTOWCS(iinclude_tab, NOCATGETS("-include\t"));
+	    }
+	    if (export_space[0] == (int) nul_char) {
+		MBSTOWCS(export_space, NOCATGETS("export "));
+		MBSTOWCS(export_tab, NOCATGETS("export\t"));
+	    }
+	    if (unexport_space[0] == (int) nul_char) {
+		MBSTOWCS(unexport_space, NOCATGETS("unexport "));
+		MBSTOWCS(unexport_tab, NOCATGETS("unexport\t"));
+	    }
+	    if (readonly_space[0] == (int) nul_char) {
+		MBSTOWCS(readonly_space, NOCATGETS("readonly "));
+		MBSTOWCS(readonly_tab, NOCATGETS("readonly\t"));
+	    }
+	    do_include = false;
+	    do_iinclude = false;
+	    do_export = false;
+	    do_unexport = false;
+	    do_readonly = false;
 	    if ((IS_WEQUALN(source_p, include_space, 8)) ||
 		(IS_WEQUALN(source_p, include_tab, 8))) {
-		source_p += 7;
+		directive_len = 7;
+		do_include = true;
+	    } else if (!sunpro_compat) {
+		if ((IS_WEQUALN(source_p, iinclude_space, 9)) ||
+		    (IS_WEQUALN(source_p, iinclude_tab, 9))) {
+			directive_len = 8;
+			do_include = true;
+			do_iinclude = true;
+		} else if ((IS_WEQUALN(source_p, export_space, 7)) ||
+		    (IS_WEQUALN(source_p, export_tab, 7))) {
+			directive_len = 6;
+			do_export = true;
+		} else if ((IS_WEQUALN(source_p, unexport_space, 9)) ||
+		    (IS_WEQUALN(source_p, unexport_tab, 9))) {
+			directive_len = 8;
+			do_unexport = true;
+		} else if ((IS_WEQUALN(source_p, readonly_space, 9)) ||
+		    (IS_WEQUALN(source_p, readonly_tab, 9))) {
+			directive_len = 8;
+			do_readonly = true;
+		}
+	    }
+	    if (do_include || do_export || do_unexport || do_readonly) {
+		source_p += directive_len;
 	try_next_include:	/* More than one include name on the line? */
 
 		if (iswspace(*source_p)) {
@@ -976,32 +1042,44 @@ start_new_line_no_skip:
 			} else {
 				makefile_name = makefile_name_raw;
 			}
-			UNCACHE_SOURCE();
-			/* Read the file */
-			save_makefile_type = makefile_type;
-			/*
-			 * The original make program from Sun did complain with:
-			 * FOO=
-			 * include $(FOO)
-			 * but this is in conflict with the behavior of smake
-			 * and gmake and it would cause prolems if we allow
-			 * $(FOO) to expand to more than one incude file name.
-			 * So let us be quiet with empty includes.
-			 */
-			if (*makefile_name->string_mb != nul_char &&
-			    read_simple_file(makefile_name,
+			if (do_include) {
+				UNCACHE_SOURCE();
+				/* Read the file */
+				save_makefile_type = makefile_type;
+				/*
+				 * The original make program from Sun did complain with:
+				 * FOO=
+				 * include $(FOO)
+				 * but this is in conflict with the behavior of smake
+				 * and gmake and it would cause prolems if we allow
+				 * $(FOO) to expand to more than one incude file name.
+				 * So let us be quiet with empty includes.
+				 */
+				if (*makefile_name->string_mb != nul_char &&
+				    read_simple_file(makefile_name,
 					     true,
 					     true,
-					     true,
+					     do_iinclude ? false:true,
 					     false,
 					     true,
-					     false) == failed) {
-				fatal_reader(gettext("Read of include file `%s' failed"),
+					     false) == failed && !do_iinclude) {
+					fatal_reader(gettext("Read of include file `%s' failed"),
 					     makefile_name->string_mb);
+				}
+				makefile_type = save_makefile_type;
+				do_not_exec_rule = save_do_not_exec_rule;
+				CACHE_SOURCE(0);
+			} else if (do_export) {
+				doexport(makefile_name);
+			} else if (do_unexport) {
+				dounexport(makefile_name);
+			} else if (do_readonly) {
+				doreadonly(makefile_name);
 			}
-			makefile_type = save_makefile_type;
-			do_not_exec_rule = save_do_not_exec_rule;
-			CACHE_SOURCE(0);
+			if (sunpro_compat) {
+				source_p++;
+				goto start_new_line;
+			}
 			if (makefile_name != makefile_name_raw) {
 				/*
 				 * The "makefile_name" is not from a line in
@@ -1023,22 +1101,47 @@ start_new_line_no_skip:
 			source_p++;
 			goto start_new_line;
 		} else {
-			source_p -= 7;
+			source_p -= directive_len;
 		}
 	    } else {
 		/* Check if the word include was split across 8K boundary. */
 		
 		tmp_bytes_left_in_string = source->string.text.end - source_p;
-		if (tmp_bytes_left_in_string < 8) {
-			tmp_maybe_include = false;
-			if (IS_WEQUALN(source_p,
-				       include_space,
-				       tmp_bytes_left_in_string)) {
-				tmp_maybe_include = true;
+		if (tmp_bytes_left_in_string < 9) {
+			int		dlen[6];
+			wchar_t		*directives[6];
+			wchar_t		*dp;
+
+			directives[0] = include_space;
+			directives[1] = iinclude_space;
+			directives[2] = export_space;
+			directives[3] = unexport_space;
+			directives[4] = readonly_space;
+			directives[5] = NULL;
+
+			dlen[0] = 8;
+			dlen[1] = 9;
+			dlen[2] = 7;
+			dlen[3] = 9;
+			dlen[4] = 9;
+
+			tmp_maybe_directive = false;
+
+			for (i = 0; (dp = directives[i]) != NULL; i++) {
+				if (i && sunpro_compat)
+					break;
+				if (dlen[i] <= tmp_bytes_left_in_string)
+					continue;
+				if (IS_WEQUALN(source_p,
+				    dp,
+				    tmp_bytes_left_in_string)) {
+					tmp_maybe_directive = true;
+					break;
+				}
 			}
-			if (tmp_maybe_include) {
+			if (tmp_maybe_directive) {
 				GET_NEXT_BLOCK(source);
-				tmp_maybe_include = false;
+				tmp_maybe_directive = false;
 				goto line_evald;
 			}
 		}
@@ -2283,4 +2386,46 @@ enter_target_groups_and_dependencies(Name_vector target, Name_vector depes, Cmd_
 			}
 		}
 	}
+}
+
+void
+doexport(Name name)
+{
+	Name		val;
+	char		*eval;
+	size_t		len;
+
+	if (strcmp(name->string_mb, NOCATGETS("SHELL")) == 0)
+		return;
+
+	val = getvar(name);
+	len = strlen(name->string_mb) + 1 + strlen(val->string_mb) + 1;
+	eval = (char *)malloc(len);
+	strcpy(eval, name->string_mb);
+	strcat(eval, "=");
+	strcat(eval, val->string_mb);
+
+	putenv(eval);
+}
+
+void
+dounexport(Name name)
+{
+	Name		val;
+	char		*eval;
+	size_t		len;
+
+	if (strcmp(name->string_mb, NOCATGETS("SHELL")) == 0)
+		return;
+
+	unsetenv(name->string_mb);
+}
+
+void
+doreadonly(Name name)
+{
+	Property	macro;
+
+	if ((macro = get_prop(name->prop, macro_prop)) != NULL)
+		macro->body.macro.read_only = true;
 }

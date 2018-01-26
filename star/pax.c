@@ -1,13 +1,13 @@
-/* @(#)pax.c	1.32 17/09/20 Copyright 1989, 2003-2017 J. Schilling */
+/* @(#)pax.c	1.34 18/01/14 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.32 17/09/20 Copyright 1989, 2003-2017 J. Schilling";
+	"@(#)pax.c	1.34 18/01/14 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2017 J. Schilling
+ *	Copyright (c) 1989, 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,7 +90,9 @@ LOCAL	void	pax_setopts	__PR((char *o));
 char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
 /* END CSTYLED */
 char	*opts = _opts;
+#ifdef	NO_STAR_MAIN
 struct ga_props	gaprops;
+#endif
 
 LOCAL	void	pax_info	__PR((void));
 
@@ -172,7 +174,6 @@ gargs(ac, av)
 		errmsgno(EX_BAD, "Bad Option: %s.\n", av[0]);
 		susage(EX_BAD);
 	}
-error("flags verbose %d paxrflag %d paxwflag %d\n", verbose, paxrflag, paxwflag);
 	star_helpvers("spax", help, xhelp, prvers);
 
 	if (!paxrflag && !paxwflag) {

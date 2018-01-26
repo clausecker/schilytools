@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.47 13/02/01 Copyright 2000-2013 J. Schilling */
+/* @(#)cap.c	1.48 18/01/14 Copyright 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.47 13/02/01 Copyright 2000-2013 J. Schilling";
+	"@(#)cap.c	1.48 18/01/14 Copyright 2000-2018 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2013 J. Schilling
+ *	Copyright (c) 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -359,8 +361,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.47", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2013 Jörg Schilling\n");
+		printf("termcap %s (%s-%s-%s)\n\n", "1.48", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -553,7 +555,7 @@ checkentries(tname, slenp)
 			printf("		%s", caplist[i].tc_comment);
 
 			if ((caplist[i].tc_flags & C_STRING) == 0)
-				printf(" -> WARNING: TYPE missmatch");
+				printf(" -> WARNING: TYPE mismatch");
 			printf("\n");
 			if (i == ncaps -1)
 				i--;
@@ -575,7 +577,7 @@ checkentries(tname, slenp)
 			printf("'%s' -> %d", caplist[i].tc_name, b);
 			printf("		%s", caplist[i].tc_comment);
 			if ((caplist[i].tc_flags & C_INT) == 0)
-				printf(" -> WARNING: TYPE missmatch");
+				printf(" -> WARNING: TYPE mismatch");
 			printf("\n");
 			continue;
 		}
@@ -584,7 +586,7 @@ checkentries(tname, slenp)
 		printf("'%s' -> %s", caplist[i].tc_name, b?"TRUE":"FALSE");
 		printf("		%s", caplist[i].tc_comment);
 		if ((caplist[i].tc_flags & C_BOOL) == 0)
-			printf(" -> WARNING: TYPE missmatch");
+			printf(" -> WARNING: TYPE mismatch");
 		printf("\n");
 		continue;
 

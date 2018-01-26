@@ -1,9 +1,9 @@
 '\" te
-. \" @(#)make.1s	1.12 17/12/06 Copyr 2012-2017 J. Schilling
+. \" @(#)make.1s	1.16 18/01/17 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
-.\" Copyright (c) 2012-2017, J. Schilling
+.\" Copyright (c) 2012-2018, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2017/12/06" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2018/01/17" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -625,9 +625,11 @@ uses the file
 in the current directory;
 otherwise it reads the file
 .BR /usr/share/lib/make/make.rules ,
+.ne 6
 which
 contains the standard definitions and rules. Use the directive:
 .sp
+.ne 3
 .in +2
 .nf
 \fBinclude /usr/share/lib/make/make.rules\fR
@@ -792,7 +794,48 @@ in a command line, that line is passed to the shell
 as the start of a comment).
 
 .br
-.ne 2
+.ne 3
+.TP
+.BI "export " "macro .\|.\|."
+If the word
+.B export
+appears as the first six letters of a line and
+is followed by a
+.B SPACE
+or
+.BR TAB ,
+the strings that follows are taken
+as a list of macros that should be
+exported in the list of environment variables.
+.sp
+If an environment variable with the same name already exists,
+it's value is replaced by the current value of the related make macro.
+An empty list of macro names is not considered an error.
+If the 
+.B PATH
+macro is in the list of parameters, the path search of the current
+.B make
+process is also affected.
+If the
+.B SHELL
+macro is in the list of parameters, it is ignored and the
+previous
+.B SHELL
+environment is kept.
+.sp
+Previous versions of
+.B make
+did not support the
+.B export
+directive.
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment,
+.B make
+does not support this feature.
+
+.br
+.ne 3
 .TP
 .BI "include " "filename .\|.\|."
 If the word
@@ -811,12 +854,119 @@ to a depth of no more than 38 nested makefiles. If
 is a
 macro reference, it is expanded.
 .sp
-Previous versions os
+Previous versions of
 .B make
 did only supoport one filename after the
 .B include
 directive, this version supports any number of filenames
 and macros that expand to more than one name.
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment,
+.B make
+only supports one filename after the
+.B include
+directive.
+
+.br
+.ne 3
+.TP
+.BI "-include " "filename .\|.\|."
+If the word
+.B -include
+appears as the first nine letters of a line and
+is followed by a
+.B SPACE
+or
+.BR TAB ,
+the string that follows is taken
+as a filename to interpolate at that line.
+.sp
+The
+.B -include
+directive is implemented similar to the
+.B include
+directive, except that a nonexistent file is
+not considered to be an error.
+.sp
+Previous versions of
+.B make
+did not support the
+.B -include
+directive.
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment,
+.B make
+does not support this feature.
+
+.br
+.ne 3
+.TP
+.BI "readonly " "macro .\|.\|."
+If the word
+.B readonly
+appears as the first eight letters of a line and
+is followed by a
+.B SPACE
+or
+.BR TAB ,
+the strings that follows are taken
+as a list of macros that should be
+marked as
+.BR readonly .
+This prevents further modification of the
+content of the related macros.
+An empty list of macro names is not considered an error.
+.sp
+Previous versions of
+.B make
+did not support the
+.B readonly
+directive.
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment,
+.B make
+does not support this feature.
+
+.br
+.ne 3
+.TP
+.BI "unexport " "macro .\|.\|."
+If the word
+.B unexport
+appears as the first eight letters of a line and
+is followed by a
+.B SPACE
+or
+.BR TAB ,
+the strings that follows are taken
+as a list of macros that should be
+removed from the list of environment variables.
+An empty list of macro names is not considered an error.
+If the 
+.B PATH
+macro is in the list of parameters, the path search of the current
+.B make
+process is also affected.
+If the
+.B SHELL
+macro is in the list of parameters, it is ignored and the
+previous
+.B SHELL
+environment is kept.
+.sp
+Previous versions of
+.B make
+did not support the
+.B unexport
+directive.
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment,
+.B make
+does not support this feature.
 
 .SS "\fITargets and Dependencies\fR"
 .sp
@@ -3360,18 +3510,31 @@ called
 .B make
 programs.
 .TP
+.B POSIX
+Switch
+.B make
+into
+.B POSIX
+mode.
+.TP
 other
-Implement 100% compatibility to the SunPro make program.
-This currently results in disabling to forward command line
-macro definitions to recursively
+Implement 100% compatibility to the version of the SunPro make program
+as published by Sun/Oracle.
+This results in disabling to forward command line
+macro definitions specified to the current
+.B make
+program to recursively
 called
 .B make
-programs,
-disables the special macro
+programs.
+It disables the special macro
 .B MAKE_NAME
 and disables to evaluate the
 .B .PHONY
 special target.
+Multiple includes with a single
+.B include
+statement are disabled.
 .RE
 
 .br

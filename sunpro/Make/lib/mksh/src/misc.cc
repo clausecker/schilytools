@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)misc.cc	1.31	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)misc.cc	1.10 17/05/13 2017 J. Schilling
+ * @(#)misc.cc	1.11 18/01/13 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.10 17/05/13 2017 J. Schilling";
+	"@(#)misc.cc	1.11 18/01/13 2017 J. Schilling";
 #endif
 
 /*
@@ -348,7 +348,7 @@ setup_char_semantics(void)
 	} else {
 		s = "=@-?!+";
 	}
-	for (s; MBTOWC(wc_buffer, s); s++) {
+	for (; MBTOWC(wc_buffer, s); s++) {
 		entry = get_char_semantics_entry(*wc_buffer);
 		char_semantics[entry] |= (int) command_prefix_sem;
 	}
@@ -392,7 +392,7 @@ errmsg(int errnum)
 	char			*emsg;
 #else
 	extern int		sys_nerr;
-	extern char		*sys_errlist[];	
+	extern char		*sys_errlist[];
 #endif
 	char			*errbuf;
 

@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.11 18/01/10 Copyright 2015-2018 J. Schilling */
+/* @(#)builtin.c	1.12 18/01/13 Copyright 2015-2018 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.11 18/01/10 Copyright 2015-2018 J. Schilling";
+	"@(#)builtin.c	1.12 18/01/13 Copyright 2015-2018 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
@@ -201,14 +201,14 @@ sh_rmbuiltin(name)
 	struct sysnod2  *bp;
 	struct sysnod2  *obp;
 
-	for (bp = bltins; bp; obp = bp, bp = bp->snext) {
+	for (obp = bp = bltins; bp; obp = bp, bp = bp->snext) {
 		if (!eq(name, bp->sysnam))
 			continue;
 
 		if (bp == bltins)
 			bltins = bp->snext;
 		else
-			obp = bp->snext;
+			obp->snext = bp->snext;
 		free(bp->sysnam);
 		free(bp);
 	}

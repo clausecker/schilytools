@@ -1,0 +1,312 @@
+New features with AN-2018-01-26:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-99 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	Schily Makefile System: The configuration for the Schily SunPro Make
+	program now includes "DMAKE_OUTPUT_MODE=TXT2" to disable to print
+	job headers for parallel make jobs. If you like to see these headers,
+	call:
+
+		dmake DMAKE_OUTPUT_MODE=TXT1
+
+-	Schily Makefile System: Speed up the compilation with the
+	Schily SunPro Make program by avoiding the need to call "uname" and
+	similar in every sub-make program in order to fill in several
+	architecture specific macros. This is done by exporting them into the
+	environment via the make file directive "export". It allows to use the
+	values in sub-makes without again being forced to call external
+	programs.
+
+-	Schily Makefile System: The locale settings are now automatically set
+	to "C" for the Schily SunPro Make program. This was previously only
+	supported and done for smake and gmake.
+
+	It helps to avoid "strange behavior" of some of the support programs
+	used by the schily makefile system.
+
+-	README.compile now mentions how to use Schily SunPro Make and how to
+	do parallel makes using "gmake" or "SunPro Make". Call e.g.:
+
+		dmake -f SMakefile -j8
+
+	to compile the whole set of schilytools (from the project root
+	directory) in prarallel mode with a useful cuncurrency for a 4-CPU
+	computer. Note that "-f SMakefile" is only in the top level directory
+	level.
+
+	Warning: SunPro Make (dmake) cannot be used with the schily makefile
+	system on HP-UX-10.x. This is a result of a bug in "sed" that
+	incorrectly handles:
+
+		sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+
+	on HP-UX-10.x, the '\\' is treated incorrectly as _two_ backslashes
+	and the defective "sed" believes that the length of the from string
+	and the length of the to string are not identical.
+
+-	libschily: A fallback implementation for putenv() and unsetenv() has
+	been included (taken from the smake program). unsetenv() is definitely
+	needed on HP-UX-10.x, where it is missing from libc.
+
+-	libschily: The snprintf() fallback implementation now uses void * as
+	the second argument to format(). This has been forgotten when format()
+	was modified to suport compilation on Win-DOS using "cl.exe" in
+	August 2017.
+
+-	mkisofs: The UDF filename encoding translation did not work correctly
+	with japanese or chinese characters. Characters that did need more than
+	2 octets in the UTF-8 source encoding have not been converted correctly
+	into the UDF destination encoding and chinese characters occupy
+	3 octets in the UTF-8 encoding.
+
+	Mkisofs now correctly computes the length of the string with the source
+	encoding instead of assuming max. 2 bytes for a UTF-8 encoding.
+
+-	SunPro Make: Some .PHONY targets did not trigger an uncontitional
+	rebuild of the target in some cases. This was fixed.
+
+-	SunPro Make: The message: The "... is up to date" message is no longer
+	printed in case that the related target is a .PHONY target.
+
+-	SunPro Make: The text "dmake: defaulting to parallel mode.\n" is now only
+	printed by the top level make program and no longer printed by nested
+	calls to dmake.
+
+-	SunPro Make: The environment SUN_MAKE_COMPAT_MODE=POSIX is now an
+	alternate method to switch dmake into POSIX mode. Before, the path to
+	SunPro Make needed to end in "/xpg2/bin/make".
+
+-	SunPro Make: Added a workaround for some Linux versions that come with
+	an incompatible prototype for bsd_signal() in /usr/include.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SunPro Make: avoid a "useless statement" warning from clang.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SunPro Make: Changed a mktemp() call to mkstemp()
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SunPro Make did not use the -j argument in case it was not in a separate
+	argv and in case no other argument followed -j. This caused "dmake -j 8"
+	to create up to 8 jobs, but "dmake -j8" to create only up to 2 jobs, as
+	the number of jobs was set to the default value.
+
+-	SunPro Make: added some "default:" statements to make clang quiet.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SunPro Make: Setting SUN_MAKE_COMPAT_MODE to an empty value now disables
+	support for multiple include files with a single include statement.
+
+-	SunPro Make: The program now supports the directives "export" and
+	"unexport". This allows to avoid repeated calling of shell commands
+	to fill macros in sub-make programs.
+
+-	SunPro Make: The program now supports the "readonly" directive.
+	This allows to prevent macros from being modified later.
+
+-	SunPro Make: The program now supports the "-include" directive.
+	This allows to continue after a failing include statement.
+
+-	SunPro Make: "dmake -version" now returns Copyright information for the
+	authors (Sun Microsystems and Jörg Schilling) together with the other
+	information.
+
+-	smake: the error "Recursion in dependencies..." is no longer printed when
+	a Makefile e.g. contains a line like:
+
+		o=o
+
+	This bug has been introduced in March 2015.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	smake: psmake/Makefile has been updated to match current source state
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	smake: The fallback implementation for putenv() and unsetenv() has been
+	moved into libschily.
+
+-	Bourne Shell: "builtin -d name" did only work for the first element
+	in the linked list of active loaded builtins.
+
+-	Bourne Shell: The new optimized pipe handling method introduced in
+	November 2015 did still have problems with job control. The left side
+	of a pipe was typically not put into jobcontrol. A command line like:
+
+		md5sum | more
+
+	did result in a "md5sum" program that was stopped by a SIGTTIN and a 
+	command line like:
+
+		sccs diffs `cat filenames ` | more
+
+	did not print anything in many cases because "more" dies from a
+	SIGTTOU.
+
+	The shell now correctly decides to do jobcontrol for the left side of
+	a pipe as well.
+
+-	Bourne Shell: man page: Fixed a typo
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	star: When star is in interactive extract mode, it now asks for file
+	removal in case that the attempt to create a new file returns ELOOP.
+	This helps to extract archives that change the current symlink
+	structure and that may result in an intermediate endless symlink loop.
+
+-	star: Avoiding a warning from the HP-UX K&R compiler
+
+-	star: A problem in btrfs on Linux may cause stat.st_blocks == 0 for
+	huge files that start with a big hole and end with data. While this
+	seems to be a bug in btrfs (stat.st_blocks has been reported to
+	become != 0 later), there is the theoretical case where a huge hole
+	is followed by data that may fit in compressed form into the "inode"
+	and legally result in stat.st_blocks == 0.
+
+	We thus disabled the F_ALL_HOLE test. A modern filesystem should
+	implement support for SEEK_HOLE, for performance reasons. Note that
+	SEEK_HOLE exists since 13 years already. An operating system or
+	filesystem that today does not support SEEK_HOLE must be seen as
+	outdated.
+
+-	star/pax.c: Removed a leftover debug print statement that was added in
+	September 2017 while adding support for the POSIX option parser
+	requirement that the last character in a combined option string may
+	have an argument.
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	star: Fixed some typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	sfind: man page: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	sdd: man page: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	ved: man page: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	termcap: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	SCCS: man pages: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	SCCS: val.c: Fixed typos
+
+	Thanks to Leah Neukirchen for reporting.
+
+-	SCCS: sccslog.c: removed the debug print "Einträge"
+
+	Thanks to Leah Neukirchen for reporting.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

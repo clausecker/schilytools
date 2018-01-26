@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)read2.cc	1.53	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read2.cc	1.9 17/12/06 2017 J. Schilling
+ * @(#)read2.cc	1.10 18/01/12 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.9 17/12/06 2017 J. Schilling";
+	"@(#)read2.cc	1.10 18/01/12 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -58,6 +58,10 @@ static	UConst char sccsid[] =
 #include <schily/wchar.h>
 #include <schily/schily.h>
 
+/*
+ * We cannot use "using std::wcsdup" as wcsdup() is not always
+ * in the std namespace.
+ */
 using namespace std;		/* needed for wcsdup() */
 
 /*

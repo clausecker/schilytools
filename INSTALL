@@ -1,4 +1,4 @@
-# @(#)README.compile	1.35 17/11/28 Copyright 1997-2017 J. Schilling
+# @(#)README.compile	1.36 18/01/16 Copyright 1997-2018 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -15,7 +15,9 @@ Short overview for those who don't read manuals:
 	All results in general will be placed into a directory named 
 	OBJ/<arch-name>/ in the current projects leaf directory.
 
-	You **need** either the Schily "smake" program, the SunPRO make 
+	You **need** either the Schily "smake" program, the SunPRO make
+	that is included in "schilytools" and typically installed in
+	/opt/schily/bin/make and /opt/schily/bin/dmake, the SunPRO make
 	from /usr/bin/make (SunOS 4.x) or /usr/ccs/bin/make (SunOS 5.x)
 	or GNU make to compile this program. Read READMEs/README.gmake for 
 	more information on gmake and a list of the most annoying bugs in gmake.
@@ -33,9 +35,10 @@ Short overview for those who don't read manuals:
 	If you have the choice between all three make programs, the
 	preference would be 
 
-		1)	smake		(preferred)
-		2)	SunPRO make
-		3)	GNU make	(this is the last resort)
+		1)	smake			(preferred)
+		2)	Schily SunPRO make	(preferred over (3))
+		3)	SunPRO make
+		4)	GNU make		(this is the last resort)
 
 	Important notice: "smake" that comes with SGI/IRIX will not work!!!
 	This is not the Schily "smake" but a dumb make program from SGI.
@@ -126,12 +129,50 @@ Finding Compilation Results:
 
 How to compile:
 
-	To compile a system or sub-system, simply enter 'smake', 'make' or 
-	'Gmake'. Compilation may be initialized at any point of the source
+	To compile a system or sub-system, simply enter 'smake', 'dmake', 'make'
+	or 'Gmake'. Compilation may be initialized at any point of the source
 	tree of a system.
 
 	WARNING: If compilation is started in a sub tree, only all objects
 	in that sub tree will be made. This usually excludes needed libraries.
+	NOTE: Compilation may not be started in a subdirectory unless a make
+	call from inside the directory "inc" has been run before.
+
+	NOTE: The "schilytools" source tree and the "smake" source tree come
+	with a "smake" bootstrap environment that uses Makefile as a trampoline
+	and SMakefile as the major makefile in the project root directory.
+	If you like to use a make program other than smake from the project
+	root directory without the bootstrap trampoline, use
+	"$MAKE -f SMakefile", e.g.
+
+		dmake -f SMakefile
+
+	On sub directories, "-f SMakefile" is neither needed nor useful.
+
+	Add other command line options or command line parameter if needed.
+
+
+How to compile in parallel mode:
+
+	The smake program does not yet support parallel compilation.
+
+	The dmake program supports parallel compilation. If you like the
+	default number of parallel jobs, just call 'dmake'. If you like
+	a different number, call 'dmake -j #', where # is the number of
+	parallel jobs.
+
+	Note that dmake collects the output from different jobs and prints
+	them in a way that does not interleave. For the Schily variant of
+	the dmake program, the Schily Makefilesystem by default disables the
+	job headers in the output. If you like to see them, call:
+
+		dmake DMAKE_OUTPUT_MODE=TXT1
+
+	The gmake program supports parallel mode, but does not separate the
+	output. If you get error or warning messages, you usually will be
+	confused by the mixture of the output. Recent gmake versions added
+	an option to separate the output from various jobs. Have a look
+	at the man page.
 
 
 How to install results:

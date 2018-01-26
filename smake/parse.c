@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.118 17/06/22 Copyright 1985-2017 J. Schilling */
+/* @(#)parse.c	1.119 18/01/15 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.118 17/06/22 Copyright 1985-2017 J. Schilling";
+	"@(#)parse.c	1.119 18/01/15 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2017 by J. Schilling
+ *	Copyright (c) 1985-2018 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -266,7 +266,7 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	 * First check for possible direct recursions to avoid to blow
 	 * up memory immediately.
 	 */
-	if (obj_in_list(obj, dep))
+	if (type != '=' && obj_in_list(obj, dep))
 		exerror("Recursion in dependencies for '%s'", obj->o_name);
 
 	/*

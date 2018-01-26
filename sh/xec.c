@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.95 17/11/22 2008-2017 J. Schilling
+ * @(#)xec.c	1.96 18/01/25 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.95 17/11/22 2008-2017 J. Schilling";
+	"@(#)xec.c	1.96 18/01/25 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -525,6 +525,11 @@ execute(argt, xflags, errorflg, pf1, pf2)
 					xflags |= XEC_ALLOCJOB;
 #endif
 				}
+#ifdef	DO_PIPE_PARENT
+				else {
+					monitor = ismonitor(xflags);
+				}
+#endif
 
 #ifdef	HAVE_VFORK
 				if (type == TCOM) {
@@ -589,6 +594,7 @@ script:
 				}
 
 				if (parent) {	/* Parent != 0 -> Child pid */
+						/* but we are in the parent */
 #ifdef	DO_PIPE_PARENT
 					pid_t pgid = curpgid();
 
@@ -747,8 +753,12 @@ script:
 			/*
 			 * Job control: pgrp / TTY-signal handling
 			 */
-			if (!(treeflgs & FPOU))
+			if (!(treeflgs & FPOU)) {
+				/*
+				 * Call setpgid() if in monitor mode.
+				 */
 				makejob(monitor, !(treeflgs & FAMP));
+			}
 
 			/*
 			 * pipe in or out

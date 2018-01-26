@@ -1,13 +1,13 @@
-/* @(#)hole.c	1.63 14/01/16 Copyright 1993-2014 J. Schilling */
+/* @(#)hole.c	1.64 18/01/24 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.63 14/01/16 Copyright 1993-2014 J. Schilling";
+	"@(#)hole.c	1.64 18/01/24 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2014 J. Schilling
+ *	Copyright (c) 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -797,6 +797,13 @@ mk_sp_list(fp, info, spp)
 	 * past the check for a working SEEK_HOLE in hope that noone will
 	 * implement a filesystem that hides more than DEV_BSIZE without
 	 * supporting SEEK_HOLE.
+	 *
+	 * Update: There seems to be a major problem in btrfs:
+	 * There was a report that btrfs reports sp->st_blocks == 0 for a file
+	 * with an 8 GB hole followed by 512 bytes of 'A'. While this is most
+	 * likely a btrfs bug, in theory a filesystem could compress the data
+	 * past the hole and hold the compressed data inside the inode. As a
+	 * result, we needed to disable the F_ALL_HOLE check.
 	 */
 	if (info->f_flags & F_ALL_HOLE) {
 		pos = info->f_size;

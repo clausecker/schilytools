@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)val.c	1.44 17/06/21 J. Schilling
+ * @(#)val.c	1.45 18/01/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.44 17/06/21 J. Schilling"
+#pragma ident "@(#)val.c 1.45 18/01/14 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -566,7 +566,7 @@ char	*c_name;
 				if (!goodt && HADY) {
 					if (debug)
 						printf(gettext(
-						"%s%s: missmatch between %cY%c and '%s'\n"),
+						"%s%s: mismatch between %cY%c and '%s'\n"),
 							"    ", c_path,
 							'%', '%', c_type);
 					infile_err |= TYPE_ERR;
@@ -586,7 +586,7 @@ char	*c_name;
 				else if (HADM && hadmflag && !goodn) {
 						if (debug)
 							printf(gettext(
-							"%s%s: missmatch between %cM%c and '%s'\n"),
+							"%s%s: mismatch between %cM%c and '%s'\n"),
 							"    ", c_path,
 							'%', '%', c_name);
 						infile_err |= NAME_ERR;

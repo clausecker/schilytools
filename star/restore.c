@@ -1,15 +1,15 @@
-/* @(#)restore.c	1.66 13/10/05 Copyright 2003-2013 J. Schilling */
+/* @(#)restore.c	1.67 18/01/14 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.66 13/10/05 Copyright 2003-2013 J. Schilling";
+	"@(#)restore.c	1.67 18/01/14 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2013 J. Schilling
+ *	Copyright (c) 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1308,7 +1308,7 @@ static	char	td[] = "star-tmpdir/.";
 
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
 	if (!streql(buf, vers)) {
-		errmsgno(EX_BAD, "Restore version missmatch '%s' '%s'.\n",
+		errmsgno(EX_BAD, "Restore version mismatch '%s' '%s'.\n",
 			buf, vers);
 		if (is_star) {
 			comerrno(EX_BAD,

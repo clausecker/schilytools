@@ -1,9 +1,9 @@
-/* @(#)libport.h	1.45 17/05/02 Copyright 1995-2017 J. Schilling */
+/* @(#)libport.h	1.46 18/01/17 Copyright 1995-2018 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
  *
- *	Copyright (c) 1995-2017 J. Schilling
+ *	Copyright (c) 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -399,6 +399,13 @@ extern	int		utimensat __PR((int fd, const char *name,
 					int flag));
 #endif
 #endif	/* _SCHILY_TIME_H */
+
+#ifndef	HAVE_PUTENV
+extern	int		putenv		__PR((char *new));
+#endif
+#ifndef	HAVE_UNSETENV
+extern	int		unsetenv	__PR((const char *name));
+#endif
 
 #ifdef	__SUNOS4
 /*

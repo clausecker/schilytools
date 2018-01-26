@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)main.cc	1.158	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)main.cc	1.30 17/12/06 2017 J. Schilling
+ * @(#)main.cc	1.36 18/01/18 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.30 17/12/06 2017 J. Schilling";
+	"@(#)main.cc	1.36 18/01/18 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -457,6 +457,12 @@ main(int argc, char *argv[])
 		if (0 == strcasecmp(dmake_compat_mode_var, NOCATGETS("GNU"))) {
 			sunpro_compat = false;
 			gnu_style = true;
+		} else if (0 == strcasecmp(dmake_compat_mode_var,
+							NOCATGETS("POSIX"))) {
+			sunpro_compat = false;
+			gnu_style = false;
+			svr4 = false;
+			posix = true;		
 		}
 		//svr4 = false;
 		//posix = false;
@@ -587,7 +593,10 @@ main(int argc, char *argv[])
 		 * .dmakerc, we need to move the printout down after the check
 		 * for the .dmakerc file.
 		 */
-		(void) fprintf(stdout, gettext("dmake: defaulting to parallel mode.\n"));
+		if (getenv(NOCATGETS("DMAKE_DEF_PRINTED")) == NULL) {
+			putenv((char *)NOCATGETS("DMAKE_DEF_PRINTED=TRUE"));
+			(void) fprintf(stdout, gettext("dmake: defaulting to parallel mode.\n"));
+		}
 		dmake_mode_type = parallel_mode;
 		no_parallel = false;		
 #endif
@@ -2026,6 +2035,9 @@ parse_command_option(register char ch)
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 			fprintf(stdout, NOCATGETS("%s: %s\n"),
 				argv_zero_base, verstring);
+			fprintf(stdout, "\n");
+			fprintf(stdout, "Copyright (C) 1987-2006 Sun Microsystems\n");
+			fprintf(stdout, "Copyright (C) 2017-2018 Joerg Schilling\n");
 			exit_status = 0;
 			exit(0);
 #else
@@ -3135,6 +3147,10 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				continue;
 			}
 			argv[i] = NULL;
+			if (argv[i+1] == ap)	/* If optarg is separate */
+				argv[i+1] = NULL;
+			else
+				i--;
 			if (i == (argc - 1)) {
 				break;
 			}
@@ -3147,10 +3163,6 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				MBSTOWCS(wcs_buffer, ap);
 				value = GETNAME(wcs_buffer, FIND_LENGTH);
 			}
-			if (argv[i+1] == ap)	/* If optarg is separate */
-				argv[i+1] = NULL;
-			else
-				i--;
 		} else if ((cp = strchr(argv[i], (int) equal_char)) != NULL) {
 /* 
  * Combine all macro in dynamic array
@@ -3496,6 +3508,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 					} else {
 						default_target_to_build->stat.time = file_no_time;
 						if (!commands_done &&
+						    !default_target_to_build->stat.is_phony &&
 						    (exists(default_target_to_build) > file_doesnt_exist)) {
 							(void) printf(gettext("`%s' is up to date.\n"),
 								      default_target_to_build->string_mb);
@@ -3573,6 +3586,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 					}
 				} else {
 					if (!commands_done &&
+					    !default_target_to_build->stat.is_phony &&
 					    (exists(default_target_to_build) > file_doesnt_exist)) {
 						(void) printf(gettext("`%s' is up to date.\n"),
 							      default_target_to_build->string_mb);
@@ -3641,6 +3655,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 				}
 			} else {
 				if (!commands_done &&
+				    !default_target_to_build->stat.is_phony &&
 				    (exists(default_target_to_build) > file_doesnt_exist)) {
 					(void) printf(gettext("`%s' is up to date.\n"),
 						      default_target_to_build->string_mb);

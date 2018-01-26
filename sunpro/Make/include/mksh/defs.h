@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.35	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)defs.h	1.18 17/12/06 2017 J. Schilling
+ * @(#)defs.h	1.19 18/01/13 2017-2018 J. Schilling
  */
 
 /*
@@ -59,7 +59,12 @@
 #include <schily/stat.h>	/* stat_ansecs() */
 #include <schily/maxpath.h>	/* MAXNAMELEN */
 #include <schily/getcwd.h>
+/*
+ * Some Linux versions come with an incompatible prototype for bsd_signal()
+ */
+#define	bsd_signal	no_bsd_signal
 #include <schily/signal.h>
+#undef	bsd_signal
 #include <schily/dirent.h>	/* opendir() */
 #else
 #include <limits.h>		/* MB_LEN_MAX */

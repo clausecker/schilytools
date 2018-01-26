@@ -27,14 +27,14 @@
  */
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)lock.c	1.6 17/05/18 2017 J. Schilling
+ * @(#)lock.c	1.7 18/01/14 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.c	1.6 17/05/18 2017 J. Schilling";
+	"@(#)lock.c	1.7 18/01/14 2017-2018 J. Schilling";
 #endif
 
 #include <stdio.h>
@@ -136,8 +136,12 @@ file_lock(name, lockname, timeout)
 			 * expired.
 			 */
 			(void) sprintf(tmpname, "%s.XXXXXX", lockname);
+#ifdef	HAVE_MKSTEMP
+			fd = mkstemp(tmpname);
+#else
 			(void) mktemp(tmpname);
 			fd = creat(tmpname, 0666);
+#endif
 			if (fd != -1) {
 				(void) close(fd);
 			} else {

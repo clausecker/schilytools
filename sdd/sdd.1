@@ -1,4 +1,4 @@
-. \" @(#)sdd.1	1.6 09/06/22 Copyr 1982-1995 J. Schilling
+. \" @(#)sdd.1	1.8 18/01/14 Copyr 1982-1995,2018 J. Schilling
 . \"  Manual page for sdd
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SDD 1E "09/06/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SDD 1E "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .SH SYNOPSIS
@@ -151,7 +151,7 @@ to a tape having a size of 60 MBytes you should use the option
 .BI ovsize= 60M.
 If the capacity of the tape is exceeded,
 .I sdd
-wil ask for a second volume. In case
+will ask for a second volume. In case
 .I ivsize
 is exceeded, if 
 .I "N<cr>"
@@ -207,7 +207,7 @@ Report the total time and the transfer rate.
 Do not stop transfer on I/O errors. Error messages will appear on the screen.
 .TP
 .B \-noerrwrite
-Do not write blocks that are not read corretly. Seek on the output to skip
+Do not write blocks that are not read correctly. Seek on the output to skip
 the bad block.
 The output file must be seekable or 
 .B \-noerrwrite

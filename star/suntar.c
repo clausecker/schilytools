@@ -1,13 +1,13 @@
-/* @(#)suntar.c	1.36 17/09/20 Copyright 1989, 2003-2017 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.36 17/09/20 Copyright 1989, 2003-2017 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2017 J. Schilling
+ *	Copyright (c) 1989, 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,7 +72,9 @@ LOCAL	void	suntar_setopts	__PR((char *o));
 char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
+#ifdef	NO_STAR_MAIN
 struct ga_props	gaprops;
+#endif
 
 LOCAL	void	suntar_info	__PR((void));
 

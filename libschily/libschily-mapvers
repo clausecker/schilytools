@@ -1,9 +1,15 @@
-# /* @(#)libschily-mapvers	1.53 17/12/30 Copyright 2005-2017 J. Schilling */
+# /* @(#)libschily-mapvers	1.54 18/01/17 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.9 {
 global:
 	fsgetlen;
+#ifndef	HAVE_PUTENV
+	putenv;
+#endif
+#ifndef	HAVE_UNSETENV
+	unsetenv;
+#endif
 } SCHILY_1.8;
 
 SCHILY_1.8 {

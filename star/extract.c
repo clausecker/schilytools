@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.144 13/10/07 Copyright 1985-2013 J. Schilling */
+/* @(#)extract.c	1.145 18/01/18 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.144 13/10/07 Copyright 1985-2013 J. Schilling";
+	"@(#)extract.c	1.145 18/01/18 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,6 +59,11 @@ static	UConst char sccsid[] =
 #define	is_enoent(err)	((err) == ENOENT || (err) == EMISSDIR)
 #else
 #define	is_enoent(err)	((err) == ENOENT)
+#endif
+#if defined(ELOOP)
+#define	is_eloop(err)	((err) == ELOOP)
+#else
+#define	is_eloop(err)	(FALSE)
 #endif
 
 /*
@@ -786,7 +791,7 @@ create_dirs(name)
 			return (TRUE);
 		}
 		err = geterrno();
-		if ((err == EACCES || is_eexist(err))) {
+		if ((err == EACCES || is_eexist(err) || is_eloop(err))) {
 			olderr = err;
 			goto exists;
 		}
@@ -864,7 +869,7 @@ make_dir(info)
 		if (mkdir(info->f_name, mode) >= 0)
 			return (TRUE);
 		err = geterrno();
-		if ((err == EACCES || is_eexist(err)) &&
+		if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 				remove_file(info->f_name, FALSE)) {
 			if (mkdir(info->f_name, mode) >= 0)
 				return (TRUE);
@@ -961,7 +966,7 @@ make_link(info)
 			goto restore_flags;
 		err = geterrno();
 	}
-	if ((err == EACCES || is_eexist(err)) &&
+	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
 		if (link(info->f_lname, name) >= 0)
 			goto restore_flags;
@@ -1036,7 +1041,7 @@ make_symlink(info)
 	/*
 	 * XXX at least with same symlinks we should return success
 	 */
-	if ((err == EACCES || is_eexist(err)) &&
+	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
 		if (sxsymlink(name, info) >= 0)
 			goto ok;
@@ -1186,7 +1191,7 @@ _make_copy(info, do_symlink, eflags)
 			return (TRUE);
 		err = geterrno();
 	}
-	if ((err == EACCES || is_eexist(err) || err == EISDIR) &&
+	if ((err == EACCES || is_eexist(err) || err == EISDIR || is_eloop(err)) &&
 			remove_file(info->f_name, FALSE)) {
 		if (copy_file(info->f_lname, info->f_name, do_symlink, eflags) >= 0)
 			return (TRUE);
@@ -1484,7 +1489,7 @@ make_fifo(info)
 			goto ok;
 		err = geterrno();
 	}
-	if ((err == EACCES || is_eexist(err)) &&
+	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
 		if (mkfifo(name, mode) >= 0)
 			goto ok;
@@ -1550,7 +1555,7 @@ make_special(info)
 			goto ok;
 		err = geterrno();
 	}
-	if ((err == EACCES || is_eexist(err)) &&
+	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
 		if (mknod(name, mode, dev) >= 0)
 			goto ok;
@@ -1660,7 +1665,7 @@ install_rename(info, xname)
 	 */
 	if (err == EISDIR)
 		force_remove = TRUE;
-	if ((err == EACCES || is_eexist(err) || err == EISDIR) &&
+	if ((err == EACCES || is_eexist(err) || err == EISDIR || is_eloop(err)) &&
 					remove_file(info->f_name, FALSE)) {
 		if (rename(xname, info->f_name) >= 0) {
 			force_remove = oforce_remove;
@@ -1754,8 +1759,9 @@ get_file(info)
 			}
 			err = geterrno();
 		}
-		if ((err == EACCES || is_eexist(err) || err == EISDIR) &&
-					remove_file(name, FALSE)) {
+		if ((err == EACCES || is_eexist(err) || err == EISDIR ||
+		    is_eloop(err)) &&
+		    remove_file(name, FALSE)) {
 			if ((f = file_open(info, name)) != (FILE *)NULL) {
 				goto ofile;
 			}

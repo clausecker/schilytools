@@ -29,9 +29,9 @@
 #pragma	ident	"@(#)bsd.h	1.6	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)bsd.h	1.4 17/05/01 2017 J. Schilling
+ * @(#)bsd.h	1.5 18/01/13 2017-2018 J. Schilling
  */
 
 /*
@@ -41,11 +41,16 @@
 #ifndef _BSD_BSD_H
 #define _BSD_BSD_H
 
+/*
+ * Some Linux versions come with an incompatible prototype for bsd_signal()
+ */
+#define	bsd_signal	no_bsd_signal
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/signal.h>
 #else
 #include <signal.h>
 #endif
+#undef	bsd_signal
 
 #if !defined(SIG_PF)
 typedef void SIG_FUNC_TYP(int);

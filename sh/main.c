@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)main.c	1.70 18/01/05 2008-2018 J. Schilling
+ * @(#)main.c	1.71 18/01/25 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.70 18/01/05 2008-2018 J. Schilling";
+	"@(#)main.c	1.71 18/01/25 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -135,8 +135,8 @@ main(c, v, e)
 
 	init_sigval();
 	mypid = getpid();
-	mypgid = getpgid(mypid);
-	mysid = getsid(mypid);
+	mypgid = getpgid(mypid);	/* get process group for this shell */
+	mysid = getsid(mypid);		/* get process group id of leader */
 
 	/*
 	 * Do locale processing only if /usr is mounted.
@@ -625,6 +625,9 @@ exfile(prof)
 #endif
 		if (prof) {
 			close(input);
+			/*
+			 * Reset process group to saved value.
+			 */
 			(void) endjobs(0);
 			return;
 		}
@@ -700,6 +703,9 @@ exfile(prof)
 		trapnote = 0;
 		peekc = readwc();
 		if (eof) {
+			/*
+			 * Reset process group to saved value.
+			 */
 			if (endjobs(JOB_STOPPED))
 				return;
 			eof = 0;
@@ -941,6 +947,9 @@ setmode(prof)
 			setmail(mailpnod.namval);
 		else
 			setmail(mailnod.namval);
+		/*
+		 * Set job control and make me a process group leader
+		 */
 		startjobs();
 	} else {
 		flags |= prof;

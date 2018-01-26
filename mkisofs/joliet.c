@@ -1,15 +1,15 @@
-/* @(#)joliet.c	1.68 15/12/30 joerg */
+/* @(#)joliet.c	1.70 18/01/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.68 15/12/30 joerg";
+	"@(#)joliet.c	1.70 18/01/25 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
  *
  * Copyright 1997 Eric Youngdale.
  * APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
- * Copyright (c) 1999-2015 J. Schilling
+ * Copyright (c) 1999-2018 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -255,7 +255,14 @@ convert_to_unicode(buffer, size, source, inls)
 	int		j;
 	UInt16_t	unichar;
 	unsigned char	uc;
-	int		jsize = size;
+	int		jsize;
+
+	/*
+	 * joliet_strlen() behaves the same way: Stop at the first nul byte.
+	 * Note: we cannot have 16 bit character representations in the source
+	 * encoding, if we like strlen() to work correctly.
+	 */
+	jsize = strlen(source);
 
 	/*
 	 * If we get a NULL pointer for the source, it means we have an
@@ -299,6 +306,11 @@ convert_to_unicode(buffer, size, source, inls)
 				 * may try to access more than a single multi
 				 * byte character from the input and read from
 				 * non-existent memory.
+				 *
+				 * Note that iconv() returns -1 and sets errno
+				 * to E2BIG if there is not enough room in the
+				 * target location, but correctly converts the
+				 * characters before.
 				 */
 				if (iconv(inls->sic_cd2uni, &inbuf, &isize,
 							&obuf, &osize) == -1) {
@@ -344,6 +356,8 @@ convert_to_unicode(buffer, size, source, inls)
 				unichar = '_';
 			}
 		all_chars:
+				if (unichar == 0)
+					unichar = '_';
 			;
 		}
 		buffer[i] = unichar >> 8 & 0xFF; /* final UNICODE */
@@ -395,6 +409,11 @@ joliet_strlen(string, maxlen, inls)
 			 * may try to access more than a single multi
 			 * byte character from the input and read from
 			 * non-existent memory.
+			 *
+			 * Note that iconv() returns -1 and sets errno
+			 * to E2BIG if there is not enough room in the
+			 * target location, but correctly converts the
+			 * characters before.
 			 */
 			if (iconv(inls->sic_cd2uni, &inbuf, &isize,
 						&obuf, &osize) == -1) {

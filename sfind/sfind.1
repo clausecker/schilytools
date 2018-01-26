@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.22 16/10/27 Copyr 2004-2016 J. Schilling
+.\" @(#)sfind.1	1.23 18/01/14 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfimd
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2016/10/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -68,7 +68,7 @@ The
 utility conforms to the Base Definitions volume of
 IEEE Std 1003.1-2001, Section 12.2, Utility Syntax Guidelines.
 .PP
-The IEEE Std 1003.1-2001 standard requirers the options
+The IEEE Std 1003.1-2001 standard requires the options
 .BR \-H " and " \-L
 to be supported. All other 
 .B sfind 
@@ -211,7 +211,7 @@ If
 .I n
 is a number like
 .B 3h10m
-then it is representing an absolut number in seconds that is evaluated
+then it is representing an absolute number in seconds that is evaluated
 against the start time of
 .BR sfind .
 The letters that are recognised in the time spec are taken from
@@ -248,7 +248,7 @@ If
 .I n
 is a number like
 .B 3h10m
-then it is representing an absolut number in seconds that is evaluated
+then it is representing an absolute number in seconds that is evaluated
 against the start time of
 .BR sfind .
 The letters that are recognised in the time spec are taken from
@@ -290,7 +290,7 @@ and the file system is known to behave like
 classical UNIX filesystems. 
 .BI Stat (2)
 optimization is done
-by asuming that the number of subdirectories is st_nlink - 2
+by assuming that the number of subdirectories is st_nlink - 2
 and gives a significant increase in search speed in case that only
 filename related expressions are used.
 .sp
@@ -691,7 +691,7 @@ If
 .I n
 is a number like
 .B 3h10m
-then it is representing an absolut number in seconds that is evaluated
+then it is representing an absolute number in seconds that is evaluated
 against the start time of
 .BR sfind .
 The letters that are recognised in the time spec are taken from
@@ -714,9 +714,9 @@ of the file named by the pathname
 .IR file .
 .TP
 .BI \-newer "XY file
-The primary evaluates as true if the time refered to by
+The primary evaluates as true if the time referred to by
 .I X
-of the current file is more recent than the time refered to by
+of the current file is more recent than the time referred to by
 .I Y
 of the file named by the pathname
 .IR file .
@@ -1619,7 +1619,7 @@ is fast but gives completely unpredictable results if a
 implementation depends on this assumption.
 The 
 .B sfind 
-implementation has been made by prefering correct behavior before
+implementation has been made by preferring correct behavior before
 introducing dubious speed optimizations.
 
 .PP

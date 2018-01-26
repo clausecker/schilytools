@@ -1,13 +1,13 @@
-/* @(#)cpio.c	1.28 17/09/20 Copyright 1989, 2005-2017 J. Schilling */
+/* @(#)cpio.c	1.29 18/01/14 Copyright 1989, 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.28 17/09/20 Copyright 1989, 2005-2017 J. Schilling";
+	"@(#)cpio.c	1.29 18/01/14 Copyright 1989, 2005-2018 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
  *
- *	Copyright (c) 1989, 2005-2017 J. Schilling
+ *	Copyright (c) 1989, 2005-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -103,7 +103,9 @@ LOCAL	void	cpio_setopts	__PR((char *o));
 char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
 /* END CSTYLED */
 char	*opts = _opts;
+#ifdef	NO_STAR_MAIN
 struct ga_props	gaprops;
+#endif
 
 LOCAL	void	cpio_info	__PR((void));
 

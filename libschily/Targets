@@ -1,4 +1,4 @@
-# @(#)Targets	1.56 17/08/05 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.57 18/01/17 Copyright 1995-2018 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -56,7 +56,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		mem.c jmem.c fjmem.c \
 		openat.c \
 		permtostr.c \
-		procnameat.c \
+		procnameat.c putenv.c \
 		raisecond.c readlinkat.c rename.c renameat.c resolvepath.c \
 		saveargs.c savewd.c \
 		searchinpath.c serrmsg.c seterrno.c setfp.c \
@@ -71,7 +71,8 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		swabbytes.c \
 		symlinkat.c \
 		timegm.c \
-		uid.c unlinkat.c uname.c usleep.c utimens.c utimensat.c \
+		uid.c unlinkat.c uname.c unsetenv.c \
+		usleep.c utimens.c utimensat.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c wcscspn.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcatl.c wcslcpy.c wcsncat.c wcsncmp.c \
 		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsspn.c wcsstr.c \
