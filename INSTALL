@@ -1,4 +1,4 @@
-# @(#)README.compile	1.36 18/01/16 Copyright 1997-2018 J. Schilling
+# @(#)README.compile	1.37 18/02/19 Copyright 1997-2018 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -7,6 +7,17 @@ Short overview for those who don't read manuals:
 
 	There is no 'configure', simply call 'make' on the top level
 	directory.
+
+	*****
+	If you do not have a recent "smake" on your machine, you may first
+	need to compile and install a recent "smake".
+
+	In order to get a recent "smake" source, it is recommended to fetch
+	the "schilytools" tarball. If your local make program is not able to
+	automatically compile a bootstrap smake program in the "psmake"
+	directory from "schilytools", please read the file "BOOTSTRAP".
+	*****
+
 
 	***** If this does not work for you, read the rest if this file   *****
 	***** If you have any problem, also first read the topic specific *****

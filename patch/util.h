@@ -1,7 +1,7 @@
-/* @(#)util.h	1.13 16/12/18 2011-2016 J. Schilling */
+/* @(#)util.h	1.15 18/02/28 2011-2018 J. Schilling */
 /*
  *	Copyright (c) 1986 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -21,6 +21,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
+/*
+ * Definitions for date+time
+ */
+typedef struct dtime {
+	Llong	dt_sec;		/* Seconds since Jan 1 1970 GMT		*/
+	int	dt_nsec;	/* Nanoseconds (must be positive)	*/
+	int	dt_zone;	/* Timezone (seconds east to GMT)	*/
+} dtime_t;
+
+#define	DT_NO_ZONE	1	/* Impossible timezone - no zone found	*/
+#define	DT_MIN_ZONE	(-89940) /* Minimum zone (-24:59)		*/
+#define	DT_MAX_ZONE	93540	/* Minimum zone (+25:59)		*/
+
+EXT dtime_t	file_times[2];
 
 extern	int	move_file __PR((char *from, char *to));
 extern	void	removedirs __PR((char *path));
@@ -42,5 +57,6 @@ extern	int	makedirs __PR((register char *filename, mode_t mode,
 #endif
 extern	char	*fetchname __PR((char *at, int strip_leading,
 						int assume_exists,
-						bool *isnulldate));
+						dtime_t *dtp));
+extern	int	settime	__PR((char *name, int idx, int failed));
 extern	int	pspawn	__PR((char *av[]));

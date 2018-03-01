@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.222 18/01/14 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.223 18/02/15 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/01/14" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/02/15" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5284,6 +5284,12 @@ waits
 seconds before
 .I command
 is executed again, otherwise there is no delay between executions.
+.sp
+If the command
+.I command
+is terminated by a signal, the whole
+.B repeat
+command is terminated.
 .sp
 The
 .B repeat

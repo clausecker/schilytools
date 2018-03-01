@@ -1,0 +1,198 @@
+New features with AN-2018-03-01:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	Schily makefilesystem: fixed the script "conf/cc-config.sh"
+	"make CCOM=gcc32" now correctly remembers "DEFCCOM=gcc32" in the
+	file "incs/Dcc*".
+
+	This is needed in order to make "make tests" able to find the just
+	compiled Bourne Shell and to use this binary for testing.
+
+-	README.compile: A hint to the file "BOOTSTRAP" has been added.
+
+-	BOOTSTRAP: A hint to the new file "dos_make.bat" has been added.
+
+-	libschily: searchinpath.c now frees the right pointer on DJGPP.
+	Thanks to a patch from Juan M. Guerrero.
+
+-	libschily: USE_WCTYPE is now auto-detected in a different way:
+	It is now enabled for HP-UX-10.x and disabled for DJGPP.
+	This is done in schily/wctype.h
+
+-	libschily: wctype() and iswctype() now have fallback prototypes
+	for the libschily fallback implementation.
+	This is done in schily/wchar.h
+
+-	libscg: the linker map file did not contain an entry for scg_opts()
+	that has been introduced in January 2016. As a result, it was not
+	possible to link SCG users dynamically against "libscg".
+
+-	smake: A new fallback SHELL path for DJGPP has been added to
+	smake/job.c and is: "/dev/env/DJDIR/bin/sh.exe"
+
+-	smake: (psmake) the script "dos_make.bat" from the separate smake
+	tar archive has been added to schilytools in order to allow to
+	bootstrap schilytools in a DJGPP environment.
+
+-	Bourne Shell: The builtin "repeat" command is now terminated in
+	case that a called (repeated) command is terminated by a signal.
+
+-	patch: An access behind a buffer in the date string parsing routine
+	has been identified by "AddressSanitizer" and fixed in the code.
+
+-	SunPro Make: A new function skip_comment() has been created in order
+	to avoid copy/paste code.
+
+-	SunPro Make: Never versions of the OpenSolaris linker may switch
+	to the 64 bit Binary and in thich case, the env variable SGS_SUPPORT
+	may not hav a slash character in it's value.
+
+	SunPro Make now creates SGS_SUPPORT_32 and SGS_SUPPORT_64 entries in
+	such a case.
+
+-	SunPro Make: The man page now mentions the SGS_SUPPORT, SGS_SUPPORT_32,
+	SGS_SUPPORT_64, and SUNPRO_DEPENDENCIES environment variables.
+
+-	SCCS log command: Avoid a coredump with "sccs -R log" from a
+	directory that does not include a SCCS directory.
+
+-	sformat: A new option -randv has been added. This option behaves
+	similar to -randrw but does not write to the disk and thus is less
+	harmful to already impaired disks.
+
+-	sformat: The random tests now use drand48(). This is needed in order
+	to get a sufficient coverage for modern large disks.
+
+-	patch: /dev/null is no longer subject to path name stripping with
+	the -p option. This is needed in order to be able to support
+	mercurial patch files.
+
+-	patch: If /dev/null is seen as filename in the diff headers, there
+	is no longer a memory leak.
+
+-	patch: A typo was fixed that prevented patch in (extended mode) to
+	automatically remove zero sized result files that are marked with
+	Jan 1 1970 00:00:00 UTC without the need for the option -E.
+	This is only done in the "Wall+" mode of patch.
+
+-	patch: The name "spatch" now defaults to POSIX behavior plus all
+	extensions (POSIX + Wall+). Before, it was strict POSIX mode.
+
+-	patch: New function fetchtz() allows to support the old "ctime()"
+	based time format from "diff -c" to use a timezone as e.g. with
+	patchfiles created by "hg export".
+
+-	patch: The nanosecond field from the "diff -u" output is now parsed.
+
+-	patch: The time parsing code has been rewritten to use the struct
+	dtime concept from SCCS.
+
+-	patch: The original patch from Larry Wall contained broken code
+	to work around when -p # could not strip off # directories but
+	the full name in the diff header existed. This code works now
+	as intended.
+
+-	patch: New options -T and -Z allow to tell patch to restore the
+	timestamps from the patched files from the related comment field
+	in the patch data. This gives more compatibility to GNU patch.
+
+-	patch conformance tests: The -T / -Z option has been added to the
+	usage test.
+
+-	patch: Is now using release 3.2.
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.16 18/01/17 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.17 18/03/01 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2018/01/17" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2018/03/01" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -3487,6 +3487,56 @@ setting of
 .B PROJECTDIR
 affects all files listed in the remainder of
 this utility description for files  with a component named SCCS.
+
+.br
+.ne 5
+.PD 0
+.TP
+.B SGS_SUPPORT
+.TP
+.B SGS_SUPPORT_32
+.TP
+.B SGS_SUPPORT_64
+.PD
+These variables contain a path to
+.B libmakestate.so.1
+that is used by the linker to load the
+.B make
+provided
+library in order to maintain linker dependencies by
+.BR make .
+.B SGS_SUPPORT
+is used for all binaries unless
+.B SGS_SUPPORT_32
+or
+.B SGS_SUPPORT_64
+are set.
+.B SGS_SUPPORT_32
+and
+.B SGS_SUPPORT_64
+are
+.B isa specific
+versions.
+.sp
+These environment variables may be set by the user, but they are also
+automatically maintained by
+.B make
+in case it is neither in
+.B POSIX
+nor in
+.B SysV
+mode.
+
+.br
+.ne 2
+.TP
+.B SUNPRO_DEPENDENCIES
+If
+.B make
+is in
+.B KEEP_STATE
+mode, this environment variable is used to tell the compiler that
+it should create include dependencies as a side effect of compiling.
 
 .br
 .ne 2

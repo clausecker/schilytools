@@ -33,7 +33,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	psmake/smake
 	psmake/smake install
 
-	*** Due to the fact that schily-tools 2014-01-99 introduced
+	*** Due to the fact that schily-tools 2014-01-26 introduced
 	*** optimizations for the Schily version of SunPro Make, you
 	*** need at least the dmake version from 2018/01/11 with support
 	*** for the "export" directive to compile with this makefile system.

@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.97 16/01/24 Copyright 1986-1991, 93-97, 2000-2016 J. Schilling */
+/* @(#)fmt.c	1.99 18/02/21 Copyright 1986-1991, 93-97, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.97 16/01/24 Copyright 1986-1991, 93-97, 2000-2016 J. Schilling";
+	"@(#)fmt.c	1.99 18/02/21 Copyright 1986-1991, 93-97, 2000-2018 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2016 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +45,7 @@ static	UConst char sccsid[] =
 
 #define	strindex(s1, s2)	strstr((s2), (s1))
 
-char	fmt_version[] = "3.6";
+char	fmt_version[] = "3.7";
 
 long		thistime = 0;
 struct timeval	starttime;
@@ -109,6 +109,7 @@ int	help;
 int	xhelp;
 int	format_confirmed;
 int	format_done;
+int	randv;
 int	randrw;
 long	RW = -1L;
 char	*datafile;
@@ -180,6 +181,7 @@ usage(ret)
 	error("\t-modes\t\tintercative modesense/modeselect\n");
 	error("\t-setmodes\tdo only a modeselect instead of formatting the disk\n");
 	error("\t-wrveri\t\tdo write verify instead of verify\n");
+	error("\t-randv\t\trandom verify-Test\n");
 	error("\t-randrw\t\trandom R/W-Test\n");
 	error("\t-seek\t\tdo seek tests\n");
 	error("\t-inq\t\tget and print Inquiry Data\n");
@@ -241,7 +243,7 @@ xusage(ret)
 	exit(ret);
 }	
 
-char opts[] = "version,dev*,scgopts*,kdebug#,kd#,xdebug#,xd#,debug#,d+,silent,s,verbose+,v+,Verbose+,V+,nomap,nowait,force,ask,noformat,smp,defmodes,no_defaults,scsi_compliant,ign_not_found,data*,Proto,Prpart,P,label,l,lname*,lproto*,tr,t,auto,a,dmdl,r,reassign,greassign,verify,repair,refresh_only,modes,setmodes,timeout#,noparity,wrveri,VL#,Cveri#,C#,Vstart#L,Vend#L,CWveri#,CW#,maxbad#L,randrw,RW#L,S,ESDI#,inq,prgeom,prcurgeom,clearnull,readnull,damage,prdefect,seek,start,stop,nhead#l,lhead#l,pcyl#l,atrk#l,lacyl#l,lncyl#l,tpz#l,spt#l,lspt#l,aspz#l,secsize#l,rpm#l,trskew#l,cylskew#l,interlv#l,fmtpat#l,help,h,xhelp";
+char opts[] = "version,dev*,scgopts*,kdebug#,kd#,xdebug#,xd#,debug#,d+,silent,s,verbose+,v+,Verbose+,V+,nomap,nowait,force,ask,noformat,smp,defmodes,no_defaults,scsi_compliant,ign_not_found,data*,Proto,Prpart,P,label,l,lname*,lproto*,tr,t,auto,a,dmdl,r,reassign,greassign,verify,repair,refresh_only,modes,setmodes,timeout#,noparity,wrveri,VL#,Cveri#,C#,Vstart#L,Vend#L,CWveri#,CW#,maxbad#L,randv,randrw,RW#L,S,ESDI#,inq,prgeom,prcurgeom,clearnull,readnull,damage,prdefect,seek,start,stop,nhead#l,lhead#l,pcyl#l,atrk#l,lacyl#l,lncyl#l,tpz#l,spt#l,lspt#l,aspz#l,secsize#l,rpm#l,trskew#l,cylskew#l,interlv#l,fmtpat#l,help,h,xhelp";
 
 #define	MAXVERI	100
 
@@ -307,6 +309,7 @@ main(ac, av)
 			&Vstart, &Vend,
 			&CWveri, &CWveri,
 			&MAXbad,
+			&randv,
 			&randrw, &RW,
 			&S,
 			&ESDI,
@@ -340,7 +343,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2016 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -811,6 +814,8 @@ format_one(scgp)
 	} else if (modesel) {
 		do_modes(scgp);
 		/* NOTREACHED */
+	} else if (randv) {
+			return (random_v_test(scgp, Vstart, Vend));
 	} else if (randrw) {
 		printf("WARNING: Random read/write-test may destroy data.\n");
 		if (yes("Do you want to continue? "))
@@ -872,7 +877,13 @@ format_one(scgp)
 			if (i == 0)
 				getstarttime();
 			i++;
-			if (read_scsi(scgp, Sbuf, start + rand()%amount, 1) < 0) {
+#ifdef	HAVE_DRAND48
+			if (read_scsi(scgp, Sbuf,
+					start + drand48() * amount, 1) < 0) {
+#else
+			if (read_scsi(scgp, Sbuf,
+					start + rand() % amount, 1) < 0) {
+#endif
 				err++;
 				printf("Gesamt: %d errs: %d\n", i, err);
 			}

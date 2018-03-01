@@ -1,14 +1,14 @@
-/* @(#)searchinpath.c	1.5 16/08/01 Copyright 1999-2016 J. Schilling */
+/* @(#)searchinpath.c	1.6 18/02/04 Copyright 1999-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)searchinpath.c	1.5 16/08/01 Copyright 1999-2016 J. Schilling";
+	"@(#)searchinpath.c	1.6 18/02/04 Copyright 1999-2018 J. Schilling";
 #endif
 /*
  *	Search a file name in the PATH of the current exeecutable.
  *	Return the path to the file name in allocated space.
  *
- *	Copyright (c) 1999-2016 J. Schilling
+ *	Copyright (c) 1999-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -137,6 +137,7 @@ searchfileinpath(name, mode, file_mode, path)
 	if (path == NULL)
 		return (NULL);
 	strbs2s(path);	/* PATH under DJGPP can contain both slashes */
+	pn = path;	/* Remember PATH to be able to free() it */
 #endif
 
 	/*
@@ -158,7 +159,7 @@ searchfileinpath(name, mode, file_mode, path)
 				xn,
 				nbuf, np, ep)) != NULL) {
 #ifdef __DJGPP__
-			free(path);
+			free(pn);
 #endif
 			seterrno(oerrno);
 			return (np);
@@ -173,7 +174,7 @@ searchfileinpath(name, mode, file_mode, path)
 		path++;
 	}
 #ifdef __DJGPP__
-	free(path);
+	free(pn);
 #endif
 	if (err)
 		seterrno(err);

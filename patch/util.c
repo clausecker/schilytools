@@ -1,12 +1,12 @@
-/* @(#)util.c	1.33 16/12/18 2011-2016 J. Schilling */
+/* @(#)util.c	1.38 18/02/28 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.33 16/12/18 2011-2016 J. Schilling";
+	"@(#)util.c	1.38 18/02/28 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -42,11 +42,12 @@ static	UConst char sccsid[] =
 #define	strerror	errmsgstr
 #endif
 
-static	Llong	fetchtime	__PR((char *t));
+static	int	fetchtime	__PR((char *t, dtime_t *));
 static	void	sig_exit	__PR((int signo));
 static	int	wday		__PR((char *d));
 static	int	month		__PR((char *m));
-static	Llong	fetchctime	__PR((char *t));
+static	int	fetchtz		__PR((char *t));
+static	int	fetchctime	__PR((char *t, dtime_t *));
 
 /* Rename a file, copying it if necessary. */
 
@@ -522,19 +523,24 @@ makedirs(filename, mode, striplast)
 /* Make filenames more reasonable. */
 
 char *
-fetchname(at, strip_leading, assume_exists, isnulldate)
+fetchname(at, strip_leading, assume_exists, dtp)
 	char *at;
 	int strip_leading;
 	int assume_exists;
-	bool *isnulldate;
+	dtime_t	*dtp;
 {
 	char *s;
+	char *sn;
 	char *name;
 	char *t;
 	char tmpbuf[512];
+	dtime_t	dt;
 
-	if (isnulldate)
-		*isnulldate = FALSE;
+	if (dtp == NULL)
+		dtp = &dt;
+	dtp->dt_sec = -1;		/* Mark as illegal time */
+	dtp->dt_nsec = 0;		/* Default to no nsecs  */
+	dtp->dt_zone = DT_NO_ZONE;	/* No timezone seen yet */
 
 	if (!at)
 		return (Nullch);
@@ -543,7 +549,7 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 		;
 		/* LINTED */
 	}
-	name = t;
+	sn = name = t;
 #ifdef DEBUGGING
 	if (debug & 128)
 		say(_("fetchname %s %d %d\n"),
@@ -554,16 +560,21 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 			if (--strip_leading >= 0)
 				name = t+1;
 	*t = '\0';
-	if (strEQ(name, "/dev/null")) {	/* files can be created by diffing */
-		if (isnulldate)		/* against /dev/null. */
-			*isnulldate = TRUE;
+	if (strEQ(sn, "/dev/null")) {	/* files can be created by diffing */
+		dtp->dt_sec = 0;	/* against /dev/null. */
+		free(s);
 		return (Nullch);
 	}
-	if (isnulldate)
-		*isnulldate = fetchtime(t) == 0;
-	if (name != s && *s != '/') {
+	fetchtime(t, dtp);
+
+	/*
+	 * If we could not strip the full number of directories and
+	 * if we stripped off existing leading directories from a relative path
+	 * use the unstipped full name.
+	 */
+	if (strip_leading > 0 && name != s && *s != '/') {
 		name[-1] = '\0';
-		if (stat(s, &file_stat) && file_stat.st_mode & S_IFDIR) {
+		if (stat(s, &file_stat) == 0 && S_ISDIR(file_stat.st_mode)) {
 			name[-1] = '/';
 			name = s;
 		}
@@ -617,35 +628,74 @@ month(m)
 	return ((p - months) / 3);
 }
 
-static Llong
-fetchctime(t)
+static int
+fetchtz(t)
 	char	*t;
 {
+	int	n;
+	int	h;
+	int	m;
+
+	/*
+	 * Skip until until the timezone offset field
+	 */
+	for (; *t != '\0' && isspace(UCH *t); t++)
+		;
+	/*
+	 * Scan timezone hours and minutes
+	 */
+	n = sscanf(t, "%3d%2d", &h, &m);
+	if (n != 2)
+		return (-1);
+	if (h < -24 || h > 25)
+		return (-1);
+	if (m < 0 || m > 59)
+		return (-1);
+	m += 60 * h;
+	m *= 60;
+	return (m);
+}
+
+/*
+ * Fetch a time that is in ctime() syntax.
+ * This is a format like: LC_ALL=C date "+%a %b %e %T %Y"
+ */
+static int
+fetchctime(t, dtp)
+	char	*t;
+	dtime_t	*dtp;
+{
+	char	y[10];
 	Llong	d = -1;
 	struct tm tm;
 	int	n;
+	char	*ep = t + strlen(t);
 
 	for (; *t != '\0' && isspace(UCH *t); t++)
 		;
 	n = wday(t);
 	if (n < 0)
-		return (d);
+		return (-1);
 	tm.tm_wday = n;
 	t += 3;
+	if (t >= ep)
+		return (-1);
 	for (; *t != '\0' && isspace(UCH *t); t++)
 		;
 	n = month(t);
 	if (n < 0)
-		return (d);
+		return (-1);
 	tm.tm_mon = n;
 	t += 3;
+	if (t >= ep)
+		return (-1);
 	for (; *t != '\0' && isspace(UCH *t); t++)
 		;
 	if (!isdigit(UCH *t))
-		return (d);
+		return (-1);
 	n = atoi(t);
 	if (n < 1 || n > 31)
-		return (d);
+		return (-1);
 	tm.tm_mday = n;
 	for (; *t != '\0' && isdigit(UCH *t); t++)
 		;
@@ -654,31 +704,62 @@ fetchctime(t)
 	n = sscanf(t, "%2d:%2d:%2d %4d",
 			&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
 			&tm.tm_year);
-	tm.tm_year -= 1900;
 	if (n != 4)
-		return (d);
-	d = mktime(&tm);
-	return (d);
+		return (-1);
+
+	/*
+	 * Now check whether there is a timezone field.
+	 * This may be present in case the diff has been created by
+	 * a "hg export" call.
+	 */
+	sprintf(y, " %d", tm.tm_year);
+	ep = strstr(t, y);
+	if (ep) {
+		ep += strlen(y);
+		n = fetchtz(ep);
+	} else {
+		n = -1;
+	}
+	tm.tm_year -= 1900;
+
+	tm.tm_isdst = -1;
+	if (n != -1) {		/* Timezone string seen */
+		d = mklgmtime(&tm);
+		d -= n;		/* Add timezone offset */
+		dtp->dt_zone = n;
+	} else if (touch_gmt) {
+		d = mklgmtime(&tm);
+	} else {
+		d = mktime(&tm);
+	}
+	dtp->dt_sec = d;
+	return (0);
 }
 
 
-static Llong
-fetchtime(t)
+static int mul[10] = {	0, 100000000, 10000000,
+			1000000, 100000, 10000,
+			1000, 100, 10,
+			1
+};
+
+static int
+fetchtime(t, dtp)
 	char	*t;
+	dtime_t	*dtp;
 {
 	Llong	d = -1;
 	struct tm tm;
 	int	n;
-	int	h;
 	int	m;
 
 	for (++t; *t != '\0' && isspace(UCH *t); t++)
 		;
 	/*
-	 * Check format from: date "+%a %b %e %T %Y"
+	 * Check format from: LC_ALL=C date "+%a %b %e %T %Y"
 	 */
 	if (wday(t) >= 0) {
-		return (fetchctime(t));
+		return (fetchctime(t, dtp));
 	}
 	/*
 	 * Parse format from: date '+%Y-%m-%d %H:%M:%S'
@@ -690,38 +771,88 @@ fetchtime(t)
 	tm.tm_mon -= 1;
 
 	if (n != 6)
-		return (d);
+		return (-1);
 
 	if (strlen(t) <= 19)	/* Assume time >= y1000 */
-		return (d);
+		return (-1);
 
 	t += 19;		/* Skip minimum length */
 
+	if (*t == '.') {
+		Llong	frac = 0;
+		int	dig = -1;
+
+		/*
+		 * Convert fractions of a second.
+		 */
+		for (++t; ++dig < 9 && *t != '\0' && isdigit(UCH *t); t++) {
+			frac *= 10;
+			frac += *t - '0';
+		}
+		frac *= mul[dig];
+		if (frac < 0 || frac > 999999999)
+			frac = 0;
+		dtp->dt_nsec = frac;
+	}
 	/*
-	 * Skip fraction of a second
+	 * Skip rest of fractions of a second
 	 */
 	for (; *t != '\0' && !isspace(UCH *t); t++)
 		;
-	/*
-	 * Skip until until the timezone offset field
-	 */
-	for (; *t != '\0' && isspace(UCH *t); t++)
-		;
-	/*
-	 * Scan timezone hours and minutes
-	 */
-	n = sscanf(t, "%3d%2d", &h, &m);
-	if (n != 2)
-		return (d);
-	if (h < -24 || h > 25)
-		return (d);
-	if (m < 0 || m > 59)
-		return (d);
+
+	m = fetchtz(t);
+	if (m == -1)		/* The diff -u time format requires a TZ */
+		return (m);	/* Without, the whole format is invalid	 */
 	d = mklgmtime(&tm);
-	m += 60 * h;
-	m *= 60;
 	d -= m;			/* Add timezone offset */
-	return (d);
+	dtp->dt_sec = d;
+	dtp->dt_zone = m;
+	return (0);
+}
+
+int
+settime(name, idx, failed)
+	char	*name;
+	int	idx;
+	int	failed;
+{
+	int		ret;
+	time_t		t;
+	struct timespec	tp[2];
+
+	/*
+	 * Silently return if we have no "new" time.
+	 */
+	if (file_times[idx].dt_sec == -1)
+		return (0);
+
+	/*
+	 * If there is no old time stamp in the patch file, we do not verify
+	 * the old time stamp.
+	 */
+	t = file_times[!idx].dt_sec;
+	if (!force && t != -1 && filetime.tv_sec != t) {
+		say("Not setting time of file %s (time mismatch)\n", name);
+		return (-1);
+	}
+
+	/*
+	 * We always verify the content.
+	 */
+	if (!force && failed) {
+		say("Not setting time of file %s (contents mismatch)\n", name);
+		return (-1);
+	}
+
+	tp[0].tv_sec = file_times[idx].dt_sec;
+	tp[0].tv_nsec = file_times[idx].dt_nsec;
+	tp[1].tv_sec = file_times[idx].dt_sec;
+	tp[1].tv_nsec = file_times[idx].dt_nsec;
+
+	ret = utimensat(AT_FDCWD, name, tp, AT_SYMLINK_NOFOLLOW);
+	if (ret)
+		pfatal("Can't set timestamp on file %s", name);
+	return (ret);
 }
 
 typedef	RETSIGTYPE	(*sigtype) __PR((int));

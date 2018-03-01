@@ -1,4 +1,4 @@
-. \" @(#)sformat.1	1.6 07/06/29 Copyright 1986-2007 J. Schilling
+. \" @(#)sformat.1	1.8 18/02/19 Copyright 1986-2018 J. Schilling
 . \" Manual page for sformat
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH "SFORMAT draft" 1L "07/06/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH "SFORMAT draft" 1L "2018/02/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sformat \- SCSI disk formatting/partitioning/analysis/repair utility
 .SH SYNOPSIS
@@ -84,19 +84,27 @@ below.
 .BR  \-help ", " \-h
 Print a summary of the most important options for 
 .BR sformat .
+.br
+.ne 3
 .TP
 .B \-xhelp
 Print a summary of less frequently used options for 
 .BR sformat .
+.br
+.ne 3
 .TP
 .B \-version
 Prints the 
 .B sformat
 version number string and exists.
+.br
+.ne 3
 .TP
 .B \-ask
 Ask again at certain critical sections. This will currently prompt
 before modifying the disk when in repair mode.
+.br
+.ne 3
 .TP
 .BR \-auto ", " \-a
 autoformat mode (for production systems).
@@ -116,6 +124,8 @@ is bad.
 This option has not been verified during the last three years.
 If you need this mode ask the author for additional verification
 of the code.
+.br
+.ne 3
 .TP
 .BI Cveri= "#, " C= #
 Number of blocks/verify.
@@ -124,12 +134,16 @@ normally will try to verify 1000 sectors with one
 SCSI command. Some old disk firmware may not able to deal
 with a number that will imply to read a number of sectors
 that will not fit in the local memory of the disk.
+.br
+.ne 3
 .TP
 .BI CWveri= "#, " CW= #
 Number of blocks/write-verify.
 The limitation noted with the 
 .B Cveri
 option applies here again and even on newer disks.
+.br
+.ne 3
 .TP
 .BI data= name
 Name of disk database file (default: 'sformat.dat').
@@ -144,6 +158,8 @@ If no file of the appropriate name was found in the current directory,
 looks in the following path:
 .br
 .I /opt schily/etc,  /etc,  /usr/etc.
+.br
+.ne 3
 .TP
 .BI debug= "#, " -d
 Set the misc debug value to # (with debug=#) or increment
@@ -151,14 +167,20 @@ the misc debug level by one (with -d). If you specify
 .I -dd,
 this equals to 
 .BR debug=2.
+.br
+.ne 3
 .TP
 .BI kdebug= "#, " kd= "#
 Tell the 
 .BR scg -driver
 to modify the kernel debug value while SCSI commands are running.
+.br
+.ne 3
 .TP
 .BI xdebug= "#, " xd= "#
 Set the debug level for the parser of the external disk database.
+.br
+.ne 3
 .TP
 .B \-defmodes
 Get default mode parameters from disk. Normally 
@@ -169,6 +191,8 @@ current mode parameter if the disk has a valid sun label.
 This option tells 
 .B sformat
 retrieve the default mode parameters in any case.
+.br
+.ne 3
 .TP
 .B \-dmdl
 Do not use manufacturer defect list when formatting a disk.
@@ -176,15 +200,21 @@ This implies that a disk that is formatted with this
 option will have bad blocks. However some disks that
 may not be formatted because the manufacturer defect list
 is broken may become usable again when this option is in effect.
+.br
+.ne 3
 .TP
 .BI ESDI= #
 Pass ESDI command # to the drive and print the result.
 This will only work if an EMULEX MD21 SCSI/ESDI bridge controller is
 present.
+.br
+.ne 3
 .TP
 .B \-force
 Force to continue at certain errors. This will currently
 prompt after the format command fails.
+.br
+.ne 3
 .TP
 .B \-greassign
 Reassign blocks.
@@ -201,6 +231,8 @@ On other disk the old data will be lost. These problems
 will not arise if you use the 
 .I \-reassign 
 option instead.
+.br
+.ne 3
 .TP
 .B \-ign_not_found
 Ignore record not found errors while verifying the disk.
@@ -214,10 +246,14 @@ is
 You should first try to repair as many blocks as possible
 with this option in effect and then repair the remaining 
 blocks without this option.
+.br
+.ne 3
 .TP
 .B \-inq
 Retrieve and print SCSI inquiry data for any type
 of device. This is useful even on tape drives and scanners.
+.br
+.ne 3
 .TP
 .BI maxbad= #
 When
@@ -234,6 +270,8 @@ This case may be triggered if a defective block directly follows the index.
 In this case the whole track seems to be bad.
 If you tell sformat to reformat the disk after repairing
 one bad block (maxbad=1), this problem will go away.
+.br
+.ne 3
 .TP
 .B \-modes
 Intercative modesense/modeselect. 
@@ -243,12 +281,16 @@ default (PROM), current (RAM), saved (DISK) and changeable (BITMASK).
 .br
 You may currently view any page if you specify the page number.
 .B "This is currently under construction.
+.br
+.ne 3
 .TP
 .B \-noformat
 Force not to format disk even when formatting of the 
 disk has been confirmed. 
 This option may be used to 
 modify mode parameters without formatting the disk.
+.br
+.ne 3
 .TP
 .B \-nomap
 Do not map SCSI address to logical disk name. WARNING:
@@ -256,6 +298,8 @@ If you use this option,
 .B sformat
 is not able to check whether the disk has mounted
 partitions. This may damage mounted file systems.
+.br
+.ne 3
 .TP
 .B \-noparity
 Try to disable parity checking on all SCSI commands that are
@@ -263,6 +307,8 @@ sent by
 .B sformat.
 This may not be possible in all implementations of the 
 .IR scg -driver.
+.br
+.ne 3
 .TP
 .B \-nowait
 Do not wait after formatting the disk. Normally,
@@ -272,27 +318,37 @@ partition table before starting to verify the disk.
 If this option is in effect, 
 .B sformat
 will immediately start to verify the disk after formatting.
+.br
+.ne 3
 .TP
 .B \-no_defaults
 Do not set heuristic defaults. If this option is in effect,
 all disk parameters must be either retrievable from disk
 or, if not available, provided by the user.
+.br
+.ne 3
 .TP
 .B \-prdefect
 Get and print defect data. This may be used to print the
 manufacturer and grown defect list that is stored on the
 disk.
+.br
+.ne 3
 .TP
 .B \-prgeom
 Get and print geometry data. This is an old option but it 
 is useful to get all mode pages that are supported 
 by this disk.
+.br
+.ne 3
 .TP
 .B \-prcurgeom
 Get and print geometry data. This is basically the same as
 .I \-prgeom
 except that \-prgeom will obtain the default mode pages, 
 \-prcurgeom will report the current values.
+.br
+.ne 3
 .TP
 .B \-Proto
 This option will cause
@@ -306,10 +362,29 @@ but newer disks seem to need more time than computed.
 If the format time is too short, the formatting may be
 aborted and the disk will not be accessible until formatted 
 again completely.
+.br
+.ne 3
 .TP
 .B \-r
 reformat only mode (gives less messages on label menu)
+.br
+.ne 3
 .TP
+.B \-randv
+The random verify test is a method to find problems that
+may be a result of first seeking to a new place on disk 
+as it is frequently done by the unix file system.
+This is usually caused by an inode or super block update.
+The above problems may be a result of bad bearings in the disk.
+This is a test that is less harmfull to the disk than the
+.B \-randrw
+test that writes to the disk.
+.sp
+The test may be interrupted via
+.BR ^C .
+.TP
+.br
+.ne 3
 .B \-randrw
 The random read/write test is a method to find problems that
 may be a result of first seeking to a new place on disk 
@@ -324,7 +399,14 @@ the disk label (partition) and the last block containing the
 sinfo data (a 
 .B sformat 
 specific area) will never be written to.
+.sp
+The test may be interrupted via
+.BR ^C .
+.br
+.ne 3
 .TP
+.br
+.ne 3
 .B \-reassign
 Reassign a list of blocks 
 .B sformat 
@@ -350,6 +432,8 @@ If for any reason, the disk will be powered off during writing or if
 there is electro magnetic noise the CRC for a block may get corrupted
 without any physical harm to the magnetic media. These cases can be 
 repaired by writing again to the block.
+.br
+.ne 3
 .TP
 .B \-refresh_only
 .B Sformat
@@ -360,6 +444,8 @@ This option is useful in conjunction with the
 and the
 .I \-repair
 option.
+.br
+.ne 3
 .TP
 .B \-repair
 This is a combination of the
@@ -370,6 +456,8 @@ option.
 .B Sformat
 will first verify the disk and then use the list of
 bad sectors found to repair the disk.
+.br
+.ne 3
 .TP
 .BI RW= #
 Number of random R/W loops that is used with the
@@ -378,11 +466,15 @@ option.
 The default is the number of physical sectors / 100.
 This will not last too long and is enough to cover every
 cylinder of the disk.
+.br
+.ne 3
 .TP
 .B \-scsi_compliant
 Be as SCSI-compliant as possible. This will some old
 disk cause to fail in reporting mode pages correctly and may be used to
 see if a disk has these problems.
+.br
+.ne 3
 .TP
 .B \-seek
 Do 
@@ -393,6 +485,8 @@ seek tests on the disk. This is done by reading data; trying to
 do
 .I "full stroke
 seek tests my be impossible because of the cache of the disk.
+.br
+.ne 3
 .TP
 .B \-setmodes
 Do a SCSI modeselect with all parameters, that would have been
@@ -405,9 +499,13 @@ option is used in conjunction with
 the mode parameters will not be saved. In this case,
 the mode parameters of the disk will return to their old values if a reset
 or a power cycle occurs.
+.br
+.ne 3
 .TP
 .BR \-silent ", " \-s
 Do not print out the status of failed commands.
+.br
+.ne 3
 .TP
 .B \-smp
 Do not try to save mode parameters when setting them.
@@ -415,14 +513,20 @@ This option is useful if a nearly totally damaged disk
 must be reformatted. Some disk controllers, in this case will
 reject to format the disk if the area on disk where this data 
 will be stored is not accessible before formatting the disk.
+.br
+.ne 3
 .TP
 .B \-start
 Send a SCSI START UNIT command to the device. This will normally spin up
 the spindle motor of a disk.
+.br
+.ne 3
 .TP
 .B \-stop
 Send a SCSI STOP UNIT command to the device. This will normally spin down
 the spindle motor of a disk.
+.br
+.ne 3
 .TP
 .BI timeout= #
 This option will set the default kernel timeout
@@ -430,6 +534,8 @@ for all SCSI commands that are send by sformat
 to # seconds. The default value is 20 seconds.
 This option does not affect the timeout for the format
 command.
+.br
+.ne 3
 .TP
 .BR \-tr ", " \-t
 This is an option that is only useful with old 
@@ -442,6 +548,8 @@ these numbers have to be translated to the
 form before.
 This is done by seeking to the named block and reading the
 sector header. It may fail if the block has a bad sector header.
+.br
+.ne 3
 .TP
 .BI VL= #
 Set the number of verify passes that are done 
@@ -450,9 +558,13 @@ In write verify mode, this number is doubled because
 .B sformat
 will alternate write verify and read verify passes
 in this case.
+.br
+.ne 3
 .TP
 .BR \-verbose ", " \-v
 outdated verbose option for SCSI commands.
+.br
+.ne 3
 .TP
 .B \-V
 Increment the verbose level in respect of SCSI command transport by one.
@@ -467,6 +579,8 @@ Using
 or
 .B \-VV
 slows down the process and may be the reason for a buffer underrun.
+.br
+.ne 3
 .TP
 .B \-verify
 This options starts 
@@ -477,6 +591,8 @@ defects without modifying data on the disk.
 In this mode, the controller will read the disks without 
 transferring data to the computer while all error recovery is
 disabled.
+.br
+.ne 3
 .TP
 .BI Vstart= #
 Set the first block for the 
@@ -489,6 +605,8 @@ option to #.
 This is recommended when doing a surface analysis
 on large disks where is is known that the bad sector
 is near the end of the disk.
+.br
+.ne 3
 .TP
 .BI Vend= #
 Set the last block for the 
@@ -501,6 +619,8 @@ option to #.
 This is recommended when doing a surface analysis
 on large disks where is is known that the bad sectors
 are not at the end of the disk.
+.br
+.ne 3
 .TP
 .B \-wrveri
 If this option is used in while formatting a disk,

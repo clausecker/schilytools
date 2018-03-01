@@ -1,4 +1,4 @@
-# @(#)BOOTSTRAP	1.4 14/11/25 Copyright 1999 J. Schilling
+# @(#)BOOTSTRAP	1.5 18/02/19 Copyright 1999-2018 J. Schilling
 
 To bootstrap smake:
 
@@ -30,6 +30,8 @@ You should first try to use the semi automated method:
 
 	If this did work, then you need to chdir back to '..' and then
 	call psmake/smake to create the final smake binary.
+
+If you are trying to compile on DJGPP, please use the DOS script "dos_make.bat"
 
 
 **** If the above methods did not work......

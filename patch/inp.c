@@ -1,12 +1,12 @@
-/* @(#)inp.c	1.19 16/12/18 2011-2016 J. Schilling */
+/* @(#)inp.c	1.20 18/02/28 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inp.c	1.19 16/12/18 2011-2016 J. Schilling";
+	"@(#)inp.c	1.20 18/02/28 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -153,6 +153,8 @@ _("Can't find %s--attempting to get it from SCCS.\n"),
 	filemode = file_stat.st_mode;
 	if ((filemode & S_IFMT) & ~S_IFREG)
 		fatal(_("%s is not a normal file--can't patch.\n"), filename);
+	filetime.tv_sec = file_stat.st_mtime;
+	filetime.tv_nsec = stat_mnsecs(&file_stat);
 	i_size = file_stat.st_size;
 	if (out_of_mem) {
 		set_hunkmax();		/* allocate dynamic arrays */

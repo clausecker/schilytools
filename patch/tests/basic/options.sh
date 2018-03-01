@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)options.sh	1.3 16/09/18 2015-2016 J. Schilling
+# @(#)options.sh	1.4 18/02/28 2015-2016 J. Schilling
 #
 
 # options.sh:  Testing good and bad options
@@ -29,7 +29,7 @@ docommand OP3 "${patch} -q < /dev/null" 2 "" IGNORE
 # Illegal option -q - check usage in Wall-plus mode
 #
 docommand OP4 "${patch} -W+ -q < /dev/null" 2 "" "patch: unrecognized option \`-q'
-Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]
+Usage: patch [-bEflNRsSTvZ] [-c|-e|-n|-u]
 	[-z backup-ext] [-B backup-prefix] [-d directory]
 	[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]
 	[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]

@@ -1,8 +1,8 @@
-/* @(#)wctype.h	1.9 17/08/05 Copyright 2009-2017 J. Schilling */
+/* @(#)wctype.h	1.10 18/02/17 Copyright 2009-2018 J. Schilling */
 /*
  *	Abstraction from wctype.h
  *
- *	Copyright (c) 2009-2017 J. Schilling
+ *	Copyright (c) 2009-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -46,11 +46,16 @@
 
 #if	defined(HAVE_ISWPRINT) && defined(USE_WCHAR)
 #ifndef	USE_WCTYPE
-#undef	USE_WCTYPE
+#define	USE_WCTYPE
 #endif
 #endif
 
-#if	!defined(HAVE_WCTYPE_H) && !defined(HAVE_ISWPRINT)
+/*
+ * DJGPP has wctype.h but no iswprint()...
+ * HP-UX-10.x has iswprint()... in wchar.h
+ */
+#if	(!defined(HAVE_WCTYPE_H) && !defined(HAVE_WCHAR_H)) || \
+	!defined(HAVE_ISWPRINT)
 #undef	USE_WCTYPE
 #endif
 

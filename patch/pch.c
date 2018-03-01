@@ -1,13 +1,13 @@
-/* @(#)pch.c	1.32 16/12/18 2011-2016 J. Schilling */
+/* @(#)pch.c	1.34 18/02/28 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.32 16/12/18 2011-2016 J. Schilling";
+	"@(#)pch.c	1.34 18/02/28 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
  *	Copyright (c) 1990 Wayne Davison
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -392,17 +392,22 @@ intuit_diff_type()
 	scan_exit:
 
 	if (no_filearg) {
-		if (indtmp != Nullch)
+		if (indtmp != Nullch) {
 			indname = fetchname(indtmp, strippath,
 						ok_to_create_file, NULL);
-		if (oldtmp != Nullch)
+		}
+		if (oldtmp != Nullch) {
 			oldname = fetchname(oldtmp, strippath,
 						ok_to_create_file,
-						&is_null_time[0]);
-		if (newtmp != Nullch)
+						&file_times[0]);
+			is_null_time[0] = file_times[0].dt_sec == 0;
+		}
+		if (newtmp != Nullch) {
 			newname = fetchname(newtmp, strippath,
 						ok_to_create_file,
-						&is_null_time[1]);
+						&file_times[1]);
+			is_null_time[1] = file_times[1].dt_sec == 0;
+		}
 
 		if (do_wall && oldname && newname) {
 			/*

@@ -2,7 +2,7 @@
 .rn '' }`
 ''' $Header: patch.man,v 2.0.1.2 88/06/22 20:47:18 lwall Locked $
 . \"
-. \" @(#)patch.1	1.22 16/09/16 Copyr 2011-2016 J. Schilling
+. \" @(#)patch.1	1.26 18/03/01 Copyr 2011-2018 J. Schilling
 . \"  Manual page for patch
 . \"
 ''' 
@@ -84,7 +84,7 @@
 .ds L' `
 .ds R' '
 'br\}
-.TH PATCH 1 "2016/09/16"
+.TH PATCH 1 "2018/03/01"
 .SH NAME
 patch - a program for applying a diff file to an original
 .SH SYNOPSIS
@@ -185,12 +185,10 @@ it behaves like the original
 utility from Larry Wall (except for 
 .BR "filename determination" )
 but with new additional features enabled.
-The name
-.B spatch
-may be used as an alternate name for the strict
-.BR "POSIX patch" .
-The name
+The names
 .B sccspatch
+and 
+.B spatch
 may be used to select
 .B "POSIX patch"
 behavior with extensions from Larry Wall and extensions from recent development.
@@ -441,6 +439,24 @@ will ignore the first and second of three patches.
 .sp
 This option is not available in strict POSIX mode.
 .TP
+.B \-T
+Set the modification and access times of patched files
+from the time stamps read from the context diff headers.
+.sp
+If these timestamps do not include a timezone, the time
+is assumed to be in local time format.
+Since this assumption may be wrong, it is recommended
+to create patches with
+.B diff \-u
+in order to enforce a timezone in the header.
+.sp
+If there is a content mismatch or a mismatch with the old time stamp,
+the new time stamp is not set. Use 
+.B \-f
+to enforce to set the time stamp in such a case.
+.sp
+This option is not available in strict POSIX mode.
+.TP
 .B \-u
 forces
 .B patch
@@ -531,6 +547,24 @@ This option is not available in strict POSIX mode.
 .B \-z
 causes the next argument to be interpreted as the backup extension, to be
 used in place of \*(L".orig\*(R" or \*(L"~\*(R".
+.sp
+This option is not available in strict POSIX mode.
+.TP
+.B \-Z
+Set the modification and access times of patched files
+from the time stamps read from the context diff headers.
+.sp
+If these timestamps do not include a timezone, the time
+is assumed to be in UTC format.
+Since this assumption may be wrong, it is recommended
+to create patches with
+.B diff \-u
+in order to enforce a timezone in the header.
+.sp
+If there is a content mismatch or a mismatch with the old time stamp,
+the new time stamp is not set. Use 
+.B \-f
+to enforce to set the time stamp in such a case.
 .sp
 This option is not available in strict POSIX mode.
 
@@ -837,23 +871,29 @@ Interface StabilityStandard
 .SH NOTES FOR PATCH SENDERS
 There are several things you should bear in mind if you are going to
 be sending out patches.
+.LP
 First, you can save people a lot of grief by keeping a patchlevel.h file
 which is patched to increment the patch level as the first diff in the
 patch file you send out.
+.LP
 If you put a Prereq: line in with the patch, it won't let them apply
 patches out of order without some warning.
+.LP
 Second, make sure you've specified the filenames right, either in a
 context diff header, or with an Index: line.
 If you are patching something in a subdirectory, be sure to tell the patch
 user to specify a 
 .B \-p
 switch as needed.
+.LP
 Third, you can create a file by sending out a diff that compares a
 null file to the file you want to create.
 This will only work if the file you want to create doesn't exist already in
 the target directory.
+.LP
 Fourth, take care not to send out reversed patches, since it makes people wonder
 whether they already applied the patch.
+.LP
 Fifth, while you may be able to get away with putting 582 diff listings into
 one file, it is probably wiser to group related patches into separate files in
 case something goes haywire.
@@ -997,6 +1037,27 @@ use the POSIX method for
 and only permit to use the the special
 .B Index:
 line.
+.sp
+Since
+.B gpatch
+by default ignores the
+.B POSIX Filename Determination
+rules,
+.B gpatch
+by default will use wrong filenames from patches that have been
+created with POSIX rules.
+.sp
+The only way to make sure that a patch file is interpreted correctly by all
+.B patch
+implementations is to use the original filename for the first
+.B diff
+argument and to make the first
+.B diff
+argument shorter than the second argument.
+Alternatively use the same filenames for both arguments but have a 
+different directory prefix that is stripped off by the
+.B \-p
+option.
 .TP
 .B \(bu
 .B Gpatch
@@ -1059,8 +1120,11 @@ For maximum portability, limit yourself to the following options:
 .RE
 .PP
 Never use long options.
+.B
 Use a shorter name for the original filename in the diff header
+.B
 of the patchfile.
+
 
 .SH BUGS
 Could be smarter about partial matches, excessively \&deviant offsets and

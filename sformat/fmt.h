@@ -1,8 +1,8 @@
-/* @(#)fmt.h	1.33 06/09/13 Copyright 1991 J. Schilling */
+/* @(#)fmt.h	1.34 18/02/19 Copyright 1991-2018 J. Schilling */
 /*
  *	Definitions for the format utility
  *
- *	Copyright (c) 1991 J. Schilling
+ *	Copyright (c) 1991-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -401,6 +403,7 @@ extern	void	do_modes	__PR((SCSI *scgp));
  * rand_rw.c:
  */
 extern	int	random_rw_test	__PR((SCSI *scgp, long first, long last));
+extern	int	random_v_test	__PR((SCSI *scgp, long first, long last));
 
 /*
  * repair.c:

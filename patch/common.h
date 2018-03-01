@@ -1,7 +1,7 @@
-/* @(#)common.h	1.27 16/12/18 2011-2016 J. Schilling */
+/* @(#)common.h	1.28 18/02/28 2011-2018 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -122,6 +122,7 @@ EXT char **Argv_last;
 
 EXT struct stat file_stat;		/* file statistics area */
 EXT int filemode;
+EXT struct timespec filetime;
 
 EXT char *buf;				/* general purpose buffer */
 EXT size_t bufsize;			/* current size of buf */
@@ -161,6 +162,8 @@ EXT bool verbose;			/* ! -s			*/
 EXT bool reverse;			/*   -R			*/
 EXT bool noreverse;			/*   -N			*/
 EXT bool skip_rest_of_patch;		/*   -S			*/
+EXT bool touch_local;			/*   -T			*/
+EXT bool touch_gmt;			/*   -Z			*/
 EXT int strippath;			/*   -p#		*/
 EXT bool canonicalize;			/*   -l			*/
 

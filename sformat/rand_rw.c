@@ -1,11 +1,11 @@
-/* @(#)rand_rw.c	1.26 11/08/13 Copyright 1993-2011 J. Schilling */
+/* @(#)rand_rw.c	1.27 18/02/19 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rand_rw.c	1.26 11/08/13 Copyright 1993-2011 J. Schilling";
+	"@(#)rand_rw.c	1.27 18/02/19 Copyright 1993-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1993-2011 J. Schilling
+ *	Copyright (c) 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -49,8 +51,11 @@ int	rwbad		= 0;
 int	rand_rw_intr	= 0;
 
 EXPORT	int	random_rw_test	__PR((SCSI *scgp, long first, long last));
+EXPORT	int	random_v_test	__PR((SCSI *scgp, long first, long last));
+LOCAL	int	random_rwv_test	__PR((SCSI *scgp, long first, long last, BOOL isrw));
 LOCAL	void	sighandler	__PR((int));
 LOCAL	int	rand_rw		__PR((SCSI *scgp, long first, long last));
+LOCAL	int	rand_v		__PR((SCSI *scgp, long first, long last));
 LOCAL	void	pr_percent	__PR((long));
 LOCAL	int	check_fault	__PR((SCSI *scgp,
 					int (*) (SCSI *scgp, caddr_t bp, long addr, int cnt),
@@ -67,6 +72,25 @@ random_rw_test(scgp, first, last)
 	long	first;
 	long	last;
 {
+	return (random_rwv_test(scgp, first, last, TRUE));
+}
+
+EXPORT int
+random_v_test(scgp, first, last)
+	SCSI	*scgp;
+	long	first;
+	long	last;
+{
+	return (random_rwv_test(scgp, first, last, FALSE));
+}
+
+LOCAL int
+random_rwv_test(scgp, first, last, isrw)
+	SCSI	*scgp;
+	long	first;
+	long	last;
+	BOOL	isrw;
+{
 	int	ret = 0;
 
 	if ((bad_blocks = (struct bb_list *) malloc((unsigned)((MAXBAD+1) *
@@ -78,7 +102,11 @@ random_rw_test(scgp, first, last)
 				((MAXBAD+1) * sizeof (struct bb_list)), '\0');
 
 	getstarttime();
-	ret = rand_rw(scgp, first, last);
+	if (isrw)
+		ret = rand_rw(scgp, first, last);
+	else
+		ret = rand_v(scgp, first, last);
+
 	if (!is_ccs(scgp->dev)) {
 		bad_to_def(scgp);
 	}
@@ -130,7 +158,7 @@ rand_rw(scgp, first, last)
 	if (start == 0)
 		start++;
 	if (start + amount <= scgp->cap->c_baddr)
-		amount++;
+		amount++;	/* If not full disk, include last block */
 	if (debug)
 		printf("start: %ld end: %ld amount: %ld last baddr: %ld\n",
 				start, end, amount, (long)scgp->cap->c_baddr);
@@ -140,20 +168,36 @@ rand_rw(scgp, first, last)
 	printf("RAND R/W - %ld loops\n", RW);
 	i = RW;
 
+#ifdef	HAVE_DRAND48
+	pos[i%2] = drand48() * amount + start;
+#else
 	pos[i%2] = rand() % amount + start;
+#endif
 	while (read_scsi(scgp, buf[i%2], pos[i%2], 1) < 0) {
 		ret = check_fault(scgp, read_scsi, buf[i%2],
 						pos[i%2], pos[(i+1)%2]);
 		add_bad(pos[i%2], ret | READ_FAULT);
+#ifdef	HAVE_DRAND48
+		pos[i%2] = drand48() * amount + start;
+#else
 		pos[i%2] = rand() % amount + start;
+#endif
 	}
 	while (--i >= 0) {
+#ifdef	HAVE_DRAND48
+		pos[i%2] = drand48() * amount + start;
+#else
 		pos[i%2] = rand() % amount + start;
+#endif
 		while (read_scsi(scgp, buf[i%2], pos[i%2], 1) < 0) {
 			ret = check_fault(scgp, read_scsi, buf[i%2],
 						pos[i%2], pos[(i+1)%2]);
 			add_bad(pos[i%2], ret | READ_FAULT);
+#ifdef	HAVE_DRAND48
+			pos[i%2] = drand48() * amount + start;
+#else
 			pos[i%2] = rand() % amount + start;
+#endif
 		}
 
 		if (write_scsi(scgp, buf[(i+1)%2], pos[(i+1)%2], 1) < 0) {
@@ -175,6 +219,68 @@ rand_rw(scgp, first, last)
 						pos[(i+1)%2], pos[i%2]);
 				add_bad(pos[(i+1)%2], ret | VERIFY_FAULT);
 			}
+		}
+		pr_percent(i);
+		if (rand_rw_intr > 0) {
+			printf("\n%lu loops done ( %ld%% ).\n",
+					RW - i, (((RW - i) * 100) / RW));
+			break;
+		}
+	}
+	signal(SIGINT, osig);
+	printf("\n");
+	return (ret);
+}
+
+LOCAL int
+rand_v(scgp, first, last)
+	SCSI	*scgp;
+	long	first;
+	long	last;
+{
+	void	(*osig) __PR((int));
+	long	i;
+	long	start = 0;
+	long	end = scgp->cap->c_baddr;
+	long	amount;
+	long	bad_block = -1;
+	long	pos;
+	int	ret = 0;
+
+	osig = signal(SIGINT, sighandler);
+
+	start = first;
+	end = scgp->cap->c_baddr;
+	if (start < 0 || start > end)
+		start = 0L;
+	if (last > 0 && last < end)
+		end = last;
+	amount = end - start;
+
+	/*
+	 * Include "last" block
+	 */
+	amount++;
+	if (debug)
+		printf("start: %ld end: %ld amount: %ld last baddr: %ld\n",
+				start, end, amount, (long)scgp->cap->c_baddr);
+
+	if (RW == -1)
+		RW = amount / 50;
+	printf("RAND V - %ld loops\n", RW);
+	i = RW;
+
+	while (--i >= 0) {
+#ifdef	HAVE_DRAND48
+		pos = drand48() * amount + start;
+#else
+		pos = rand() % amount + start;
+#endif
+
+		if (verify(scgp, pos, 1, &bad_block) < 0) {
+			ret = check_fault(scgp, rw_verify, (char *)0,
+					pos, pos);
+			add_bad(pos, ret | VERIFY_FAULT);
 		}
 		pr_percent(i);
 		if (rand_rw_intr > 0) {

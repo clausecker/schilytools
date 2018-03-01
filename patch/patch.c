@@ -1,12 +1,12 @@
-/* @(#)patch.c	1.43 16/12/18 2011-2016 J. Schilling */
+/* @(#)patch.c	1.47 18/02/28 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.43 16/12/18 2011-2016 J. Schilling";
+	"@(#)patch.c	1.47 18/02/28 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -35,7 +35,7 @@ static	UConst char sccsid[] =
 #include "pch.h"
 #include "inp.h"
 
-#define	PATCHVERSION	"3.1"
+#define	PATCHVERSION	"3.2"
 
 /* procedures */
 
@@ -344,7 +344,7 @@ _("\n\nRan out of memory using Plan A--trying again...\n\n"));
 		if (!skip_rest_of_patch) {
 			if (!failed && wall_plus && !strEQ(outname, "-") &&
 			    (file_stat.st_size == (size_t)0) &&
-			    (remove_empty || is_null_time[reverse])) {
+			    (remove_empty || is_null_time[!reverse])) {
 				say(_(
 "Removing file %s and any empty ancestor directories.\n"), outname);
 				move_file(NULL, outname);
@@ -354,6 +354,8 @@ _("\n\nRan out of memory using Plan A--trying again...\n\n"));
 				chmod(TMPOUTNAME, filemode);
 			} else {
 				chmod(outname, filemode);
+				if (touch_local || touch_gmt)
+					settime(outname, !reverse, failed);
 			}
 		}
 		Fclose(rejfp);
@@ -454,6 +456,11 @@ reinitialize_almost_everything()
 		fatal(_("You may not change to a different patch file.\n"));
 }
 
+/*
+ * If called "patch" we implement strict POSIX.
+ * If called "spatch" or "sccspatch", we implement POSIX + extensions.
+ * If called "opatch" we implement "Larry Wall" + extensions.
+ */
 static void
 init_defaults()
 {
@@ -466,7 +473,7 @@ init_defaults()
 			s = Argv[0];
 		else
 			s++;
-		if (strEQ(s, "sccspatch")) {
+		if (strEQ(s, "spatch") || strEQ(s, "sccspatch")) {
 			do_posix = TRUE;
 			wall_plus = TRUE; /* POSIX + old patch options	*/
 		} else if (!strEQ(s, "opatch")) {
@@ -645,6 +652,11 @@ _("Argument to -D not an identifier.\n"));
 					goto unknown;
 				skip_rest_of_patch = TRUE;
 				break;
+			case 'T':			/* GNU		*/
+				if (!wall_plus)
+					goto unknown;
+				touch_local = TRUE;
+				break;
 			case 'u':			/* POSIX: OK	*/
 				/*
 				 * Added with patch-2.0.12u5
@@ -660,6 +672,11 @@ _("Argument to -D not an identifier.\n"));
 					verbose = TRUE + 1;
 					break;
 				}
+			case 'Z':			/* GNU		*/
+				if (!wall_plus)
+					goto unknown;
+				touch_gmt = TRUE;
+				break;
 
 			printvers:
 				printf(
@@ -673,7 +690,7 @@ _("Argument to -D not an identifier.\n"));
 					wall_plus ? "Wall+":"");
 				printf(
 				_("Copyright (C) 1984 - 1988 Larry Wall\n"));
-				printf(_("Copyright (C) 2011 - 2016 %s\n"),
+				printf(_("Copyright (C) 2011 - 2018 %s\n"),
 					_("Joerg Schilling"));
 				printf(_(
 "This is free software; see the source for copying conditions.  There is NO\n"
@@ -730,7 +747,7 @@ Usage: patch [-blNR] [-c|-e|-n|-u] [-d dir] [-D define] [-i patchfile]\n\
 "));
 				} else {
 					fprintf(stderr, _("\
-Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]\n\
+Usage: patch [-bEflNRsSTvZ] [-c|-e|-n|-u]\n\
 \t[-z backup-ext] [-B backup-prefix] [-d directory]\n\
 \t[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
 \t[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\

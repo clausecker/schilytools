@@ -1,11 +1,11 @@
-/* @(#)job.c	1.10 17/06/22 Copyright 1985, 87, 88, 91, 1995-2017 J. Schilling */
+/* @(#)job.c	1.11 18/02/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.10 17/06/22 Copyright 1985, 87, 88, 91, 1995-2017 J. Schilling";
+	"@(#)job.c	1.11 18/02/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 87, 88, 91, 1995-2017 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2018 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -167,6 +167,8 @@ setup_SHELL()
 		shellname = searchfileinpath("sh.exe", X_OK, TRUE, NULL);	/* alloc() */
 	if (shellname != NULL)
 		shell = shellname;
+	if (shell == NULL)
+		shell = "/dev/env/DJDIR/bin/sh.exe"; /* DJGPP in Feb. 2018 */
 #endif	/* !__DJGPP__ */
 #endif	/* !SHELL_CE_IS_BROKEN */
 

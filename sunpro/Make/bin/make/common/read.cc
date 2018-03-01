@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read.cc	1.17 18/01/17 2017-2018 J. Schilling
+ * @(#)read.cc	1.18 18/01/29 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.17 18/01/17 2017-2018 J. Schilling";
+	"@(#)read.cc	1.18 18/01/29 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -93,6 +93,7 @@ extern	void		doexport(Name name);
 extern	void		dounexport(Name name);
 extern	void		doreadonly(Name name);
 
+static Boolean		skip_comment(wchar_t * &source_p, wchar_t * &source_end, Source &source);
 
 /*
  *	read_simple_file(makefile_name, chase_path, doname_it,
@@ -687,48 +688,15 @@ parse_makefile(register Name true_makefile_name, register Source source)
 		break;
 	case numbersign_char:
 		/* Comment. Skip over it */
-		for (; 1; source_p++) {
-			switch (GET_CHAR()) {
-			case nul_char:
-				GET_NEXT_BLOCK_NOCHK(source);
-				if (source == NULL) {
-					GOTO_STATE(on_eoln_state);
-				}
-				if (source->error_converting) {
-				// Illegal byte sequence - skip its first byte
-					source->inp_buf_ptr++;
-				}
-				source_p--;
-				break;
-			case backslash_char:
-				/* Comments can be continued */
-				if (*++source_p == (int) nul_char) {
-					GET_NEXT_BLOCK_NOCHK(source);
-					if (source == NULL) {
-						GOTO_STATE(on_eoln_state);
-					}
-					if (source->error_converting) {
-					// Illegal byte sequence - skip its first byte
-						source->inp_buf_ptr++;
-						source_p--;
-						break;
-					}
-				}
-				if(*source_p == (int) newline_char) {
-					if (source->fd >= 0) {
-						line_number++;
-					}
-				}
-				break;
-			case newline_char:
-				/*
-				 * After we skip the comment we go to
-				 * the end of line handler since end of
-				 * line terminates comments.
-				 */
-				goto end_of_line;
-			}
+		if (skip_comment(source_p, source_end, source) == false) {
+			GOTO_STATE(on_eoln_state);
 		}
+		/*
+		 * After we skip the comment we go to
+		 * the end of line handler since end of
+		 * line terminates comments.
+		 */
+		goto end_of_line;
 	case dollar_char:
 		/* Macro reference */
 		if (source->already_expanded) {
@@ -1212,46 +1180,13 @@ case scan_name_state:
 		break;
 	case numbersign_char:
 		/* Comment. Skip over it */
-		for (; 1; source_p++) {
-			switch (GET_CHAR()) {
-			case nul_char:
-				GET_NEXT_BLOCK_NOCHK(source);
-				if (source == NULL) {
-					GOTO_STATE(on_eoln_state);
-				}
-				if (source->error_converting) {
-				// Illegal byte sequence - skip its first byte
-					source->inp_buf_ptr++;
-				}
-				source_p--;
-				break;
-			case backslash_char:
-				if (*++source_p == (int) nul_char) {
-					GET_NEXT_BLOCK_NOCHK(source);
-					if (source == NULL) {
-						GOTO_STATE(on_eoln_state);
-					}
-					if (source->error_converting) {
-					// Illegal byte sequence - skip its first byte
-						source->inp_buf_ptr++;
-						source_p--;
-						break;
-					}
-				}
-				if(*source_p == (int) newline_char) {
-					if (source->fd >= 0) {
-						line_number++;
-					}
-				}
-				break;
-			case newline_char:
-				source_p++;
-				if (source->fd >= 0) {
-					line_number++;
-				}
-				GOTO_STATE(on_eoln_state);
+		if (skip_comment(source_p, source_end, source) == true) {
+			source_p++;
+			if (source->fd >= 0) {
+				line_number++;
 			}
 		}
+		GOTO_STATE(on_eoln_state);
 	case dollar_char:
 		/* Macro reference. Expand and push value */
 		if (source->already_expanded) {
@@ -2428,4 +2363,47 @@ doreadonly(Name name)
 
 	if ((macro = get_prop(name->prop, macro_prop)) != NULL)
 		macro->body.macro.read_only = true;
+}
+
+static Boolean
+skip_comment(wchar_t * &source_p, wchar_t * &source_end, Source &source)
+{
+	/* Comment. Skip over it */
+	for (; 1; source_p++) {
+		switch (GET_CHAR()) {
+		case nul_char:
+			GET_NEXT_BLOCK_NOCHK(source);
+			if (source == NULL) {
+				return (false);
+			}
+			if (source->error_converting) {
+			// Illegal byte sequence - skip its first byte
+				source->inp_buf_ptr++;
+			}
+			source_p--;
+			break;
+		case backslash_char:
+			/* Comments can be continued */
+			if (*++source_p == (int) nul_char) {
+				GET_NEXT_BLOCK_NOCHK(source);
+				if (source == NULL) {
+					return (false);
+				}
+				if (source->error_converting) {
+				// Illegal byte sequence - skip its first byte
+					source->inp_buf_ptr++;
+					source_p--;
+					break;
+				}
+			}
+			if(*source_p == (int) newline_char) {
+				if (source->fd >= 0) {
+					line_number++;
+				}
+			}
+			break;
+		case newline_char:
+			return (true);
+		}
+	}
 }

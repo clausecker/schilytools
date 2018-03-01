@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)main.cc	1.36 18/01/18 2017-2018 J. Schilling
+ * @(#)main.cc	1.37 18/03/01 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.36 18/01/18 2017-2018 J. Schilling";
+	"@(#)main.cc	1.37 18/03/01 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -2144,13 +2144,17 @@ append_to_env(const char *env, const char *value, const char *deflt)
 		len = strlen(env) + 1 +
 			strlen(value) + 1;
 		newpath = (char *) malloc(len);
-		sprintf(newpath, "%s=", env);
+		if (newpath)
+			sprintf(newpath, "%s=", env);
 	} else {
 		len = strlen(env) + 1 + strlen(oldpath) + 1 +
 			strlen(value) + 1;
 		newpath = (char *) malloc(len);
-		sprintf(newpath, "%s=%s", env, oldpath);
+		if (newpath)
+			sprintf(newpath, "%s=%s", env, oldpath);
 	}
+	if (newpath == NULL)
+		return (newpath);
 
 #if defined(TEAMWARE_MAKE_CMN)
 
@@ -2202,6 +2206,7 @@ get_run_lib(const char *run_dir, const char *subdir)
 		lib = (char *) malloc(len);
 		if (lib) {
 			/*
+			 * OpenSolaris ON tools path:
 			 * tools/..../bin/i386/make
 			 * tools/..../lib/i386/libmakestate.so.1
 			 * or
@@ -2231,6 +2236,9 @@ get_run_lib(const char *run_dir, const char *subdir)
  *	The SGS_SUPPORT env var and libmakestate.so.1 is used by
  *	  the linker ld to report .make.state info back to make.
  *
+ *	In case there is a slash in the path for libmakestate.so.1,
+ *	we cannot use SGS_SUPPORT, but need SGS_SUPPORT_32 and SGS_SUPPORT_64.
+ *
  *	If SGS_SUPPORT_32 or SGS_SUPPORT_64 is present, we manage these
  *	variables as well.
  */
@@ -2251,7 +2259,21 @@ set_sgs_support()
 	lib = get_run_lib(run_dir, NULL);
 	newpath = append_to_env(LD_SUPPORT_ENV_VAR, lib, LD_SUPPORT_MAKE_LIB);
 
-	putenv(newpath);
+	/*
+	 * Newer Solaris linker versions may switch to 64 bit binaries.
+	 * A simple SGS_SUPPORT entry would not work in case it contains
+	 * a slash. So do not create a SGS_SUPPORT entry in this case but
+	 * rather directly create SGS_SUPPORT_32 and SGS_SUPPORT_64.
+	 */
+	if (newpath && strchr(newpath, (int) slash_char)) {
+		free(newpath);
+		if (lib)
+			free(lib);
+		goto need_specific;
+	}
+
+	if (newpath)
+		putenv(newpath);
 	if (prev_path) {
 		free(prev_path);
 	}
@@ -2263,10 +2285,13 @@ set_sgs_support()
 	    getenv(LD_SUPPORT_ENV_VAR_64) == NULL)
 		return;
 
+need_specific:
+
 	lib = get_run_lib(run_dir, NULL);
 	newpath = append_to_env(LD_SUPPORT_ENV_VAR_32, lib, LD_SUPPORT_MAKE_LIB);
 
-	putenv(newpath);
+	if (newpath)
+		putenv(newpath);
 	if (prev_path_32) {
 		free(prev_path_32);
 	}
@@ -2277,7 +2302,8 @@ set_sgs_support()
 	lib = get_run_lib(run_dir, "64/");
 	newpath = append_to_env(LD_SUPPORT_ENV_VAR_64, lib, LD_SUPPORT_MAKE_LIB);
 
-	putenv(newpath);
+	if (newpath)
+		putenv(newpath);
 	if (prev_path_64) {
 		free(prev_path_64);
 	}

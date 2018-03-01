@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.38 18/01/14 Copyright 1997-2018 J. Schilling */
+/* @(#)sccslog.c	1.39 18/02/19 Copyright 1997-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.38 18/01/14 Copyright 1997-2018 J. Schilling";
+	"@(#)sccslog.c	1.39 18/02/19 Copyright 1997-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2018 J. Schilling
@@ -290,6 +290,7 @@ dodir(name)
 
 	if (dp == NULL) {
 		errmsg("Cannot open directory '%s'\n", name);
+		return;
 	}
 	strlcpy(fname, name, sizeof (fname));
 	base = &fname[strlen(fname)-1];
