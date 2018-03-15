@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)set.sh	1.3 16/11/16 Copyright 2016 J. Schilling
+# @(#)set.sh	1.5 18/03/11 Copyright 2016-2018 J. Schilling
 #
 
 # Read test core functions
@@ -26,5 +26,10 @@ do_remove
 
 docommand se05 "$SHELL -c 'echo bla'" 0 "bla\n" ""
 docommand se06 "$SHELL -c -- 'echo bla'" 0 "bla\n" ""
+
+#
+# set with illegal long option and args must not set the arg vector
+#
+docommand se10 "$SHELL -c -- 'set 1 2 3;command set -o nonexistent a b 2>/dev/null; echo \$@'" 0 "1 2 3\n" ""
 
 success

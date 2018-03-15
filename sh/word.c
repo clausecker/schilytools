@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)word.c	1.88 17/12/30 2008-2017 J. Schilling
+ * @(#)word.c	1.89 18/03/14 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.88 17/12/30 2008-2017 J. Schilling";
+	"@(#)word.c	1.89 18/03/14 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -637,7 +637,7 @@ skipwc()
 unsigned int
 nextwc()
 {
-	unsigned int	c, d;
+	register unsigned int	c, d;
 
 retry:
 	if ((d = readwc()) == ESCAPE) {
@@ -675,9 +675,9 @@ readw(d)
 unsigned int
 readwc()
 {
-	wchar_t	c;
+	register wchar_t	c;
 	int	len;
-	struct fileblk	*f;
+	register struct fileblk	*f;
 	int	mbmax;
 	int	i, mlen;
 
@@ -731,6 +731,8 @@ retry:
 		mlen = 0;
 		for (i = 1; i <= mbmax; i++) {
 			int	rest;
+			wchar_t	cc;
+
 			if ((rest = f->fend - f->fnxt) < i) {
 				/*
 				 * not enough bytes available
@@ -744,7 +746,8 @@ retry:
 				if (len == 0)
 					break;
 			}
-			mlen = mbtowc(&c, (char *)f->fnxt, i);
+			mlen = mbtowc(&cc, (char *)f->fnxt, i);
+			c = cc;
 			if (mlen > 0)
 				break;
 			(void) mbtowc(NULL, NULL, 0);

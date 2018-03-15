@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.1 07/05/19 "
+#ident "@(#)Makefile	1.2 18/03/15 "
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -7,7 +7,7 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		lib/siconv
+INSDIR=		share/lib/siconv
 TARGET=		iso8859-1
 XMK_FILE=	\
 		cp10000.mk cp10006.mk cp10007.mk cp10029.mk cp10079.mk \

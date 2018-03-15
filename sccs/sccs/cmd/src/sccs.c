@@ -3,7 +3,7 @@
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License ("CDDL"), version 1.0.
- * You may only use this file in accordance with the terms of version
+ * You may use this file only in accordance with the terms of version
  * 1.0 of the CDDL.
  *
  * A full copy of the text of the CDDL should have accompanied this
@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)sccs.c	1.85 17/08/28 J. Schilling
+ * @(#)sccs.c	1.86 18/03/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.85 17/08/28 J. Schilling"
+#pragma ident "@(#)sccs.c 1.86 18/03/15 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12

@@ -1,12 +1,14 @@
 /*
  * CDDL HEADER START
  *
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * This file and its contents are supplied under the terms of the
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -31,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read.cc	1.18 18/01/29 2017-2018 J. Schilling
+ * @(#)read.cc	1.20 18/03/15 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.18 18/01/29 2017-2018 J. Schilling";
+	"@(#)read.cc	1.20 18/03/15 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -76,11 +78,39 @@ using namespace std;		/* needed for wcsdup() */
  * typedefs & structs
  */
 
+enum directive {
+	D_NONE = 0,		/* No valid directive found	*/
+	D_INCLUDE,		/* "include" directive found	*/
+	D_IINCLUDE,		/* "-include" directive found	*/
+	D_EXPORT,		/* "export" directive found	*/
+	D_UNEXPORT,		/* "unexport" directive found	*/
+	D_READONLY		/* "readonly" directive found	*/
+};
+
 /*
  * Static variables
  */
 
 static int line_started_with_space=0; // Used to diagnose spaces instead of tabs
+
+static wchar_t		include_d[8];
+static wchar_t		iinclude_d[9];
+static wchar_t		export_d[7];
+static wchar_t		unexport_d[9];
+static wchar_t		readonly_d[9];
+
+static struct dent {
+	wchar_t		*directive;
+	int		dlen;
+	enum directive	dir;
+} directives[] = {
+	{ include_d,	7, D_INCLUDE },
+	{ iinclude_d,	8, D_IINCLUDE },
+	{ export_d,	6, D_EXPORT },
+	{ unexport_d,	8, D_UNEXPORT },
+	{ readonly_d,	8, D_READONLY },
+	{ NULL,		0, D_NONE }
+};
 
 /*
  * File table of contents
@@ -94,6 +124,7 @@ extern	void		dounexport(Name name);
 extern	void		doreadonly(Name name);
 
 static Boolean		skip_comment(wchar_t * &source_p, wchar_t * &source_end, Source &source);
+static void		init_directives(void);
 
 /*
  *	read_simple_file(makefile_name, chase_path, doname_it,
@@ -602,26 +633,14 @@ parse_makefile(register Name true_makefile_name, register Source source)
 	static Name		shell_name;
 	int			i;
 
-	static wchar_t		include_space[10];
-	static wchar_t		include_tab[10];
-	static wchar_t		iinclude_space[10];
-	static wchar_t		iinclude_tab[10];
-	static wchar_t		export_space[8];
-	static wchar_t		export_tab[8];
-	static wchar_t		unexport_space[10];
-	static wchar_t		unexport_tab[10];
-	static wchar_t		readonly_space[10];
-	static wchar_t		readonly_tab[10];
 	int			tmp_bytes_left_in_string;
 	Boolean			tmp_maybe_directive = false;
 	int    			emptycount = 0;
 	Boolean			first_target;
-	Boolean			do_include;
-	Boolean			do_iinclude;
-	Boolean			do_export;
-	Boolean			do_unexport;
-	Boolean			do_readonly;
+
+	enum directive		directive_type; 
 	int			directive_len;
+	struct dent		*dp;
 
 	String_rec		include_name;
 	wchar_t			include_buffer[STRING_BUFFER_LENGTH];
@@ -812,59 +831,29 @@ start_new_line_no_skip:
 	if (source == NULL) {
 		GOTO_STATE(exit_state);
 	}
-	/* Check if this is an include command */
+	/* Check if this is a directive command */
 	if ((makefile_type == reading_makefile) &&
 	    !source->already_expanded) {
-	    if (include_space[0] == (int) nul_char) {
-		MBSTOWCS(include_space, NOCATGETS("include "));
-		MBSTOWCS(include_tab, NOCATGETS("include\t"));
-	    }
-	    if (iinclude_space[0] == (int) nul_char) {
-		MBSTOWCS(iinclude_space, NOCATGETS("-include "));
-		MBSTOWCS(iinclude_tab, NOCATGETS("-include\t"));
-	    }
-	    if (export_space[0] == (int) nul_char) {
-		MBSTOWCS(export_space, NOCATGETS("export "));
-		MBSTOWCS(export_tab, NOCATGETS("export\t"));
-	    }
-	    if (unexport_space[0] == (int) nul_char) {
-		MBSTOWCS(unexport_space, NOCATGETS("unexport "));
-		MBSTOWCS(unexport_tab, NOCATGETS("unexport\t"));
-	    }
-	    if (readonly_space[0] == (int) nul_char) {
-		MBSTOWCS(readonly_space, NOCATGETS("readonly "));
-		MBSTOWCS(readonly_tab, NOCATGETS("readonly\t"));
-	    }
-	    do_include = false;
-	    do_iinclude = false;
-	    do_export = false;
-	    do_unexport = false;
-	    do_readonly = false;
-	    if ((IS_WEQUALN(source_p, include_space, 8)) ||
-		(IS_WEQUALN(source_p, include_tab, 8))) {
-		directive_len = 7;
-		do_include = true;
-	    } else if (!sunpro_compat) {
-		if ((IS_WEQUALN(source_p, iinclude_space, 9)) ||
-		    (IS_WEQUALN(source_p, iinclude_tab, 9))) {
-			directive_len = 8;
-			do_include = true;
-			do_iinclude = true;
-		} else if ((IS_WEQUALN(source_p, export_space, 7)) ||
-		    (IS_WEQUALN(source_p, export_tab, 7))) {
-			directive_len = 6;
-			do_export = true;
-		} else if ((IS_WEQUALN(source_p, unexport_space, 9)) ||
-		    (IS_WEQUALN(source_p, unexport_tab, 9))) {
-			directive_len = 8;
-			do_unexport = true;
-		} else if ((IS_WEQUALN(source_p, readonly_space, 9)) ||
-		    (IS_WEQUALN(source_p, readonly_tab, 9))) {
-			directive_len = 8;
-			do_readonly = true;
+
+	    if (include_d[0] == (int) nul_char)
+		init_directives();
+
+	    directive_len = 0;
+	    directive_type = D_NONE;
+	    for (dp = directives; dp->directive; dp++) {
+		if (IS_WEQUALN(source_p, dp->directive, dp->dlen)) {
+			if (source_p[dp->dlen] == (int)space_char ||
+			    source_p[dp->dlen] == (int)tab_char) {
+				directive_len = dp->dlen;
+				directive_type = dp->dir;
+				break;
+			}
 		}
+		if (sunpro_compat)
+			break;
 	    }
-	    if (do_include || do_export || do_unexport || do_readonly) {
+
+	    if (directive_type) {
 		source_p += directive_len;
 	try_next_include:	/* More than one include name on the line? */
 
@@ -1010,7 +999,10 @@ start_new_line_no_skip:
 			} else {
 				makefile_name = makefile_name_raw;
 			}
-			if (do_include) {
+			switch (directive_type) {
+
+			case D_INCLUDE:
+			case D_IINCLUDE:
 				UNCACHE_SOURCE();
 				/* Read the file */
 				save_makefile_type = makefile_type;
@@ -1027,22 +1019,27 @@ start_new_line_no_skip:
 				    read_simple_file(makefile_name,
 					     true,
 					     true,
-					     do_iinclude ? false:true,
+					     directive_type == D_IINCLUDE ? false:true,
 					     false,
 					     true,
-					     false) == failed && !do_iinclude) {
+					     false) == failed && directive_type != D_IINCLUDE) {
 					fatal_reader(gettext("Read of include file `%s' failed"),
 					     makefile_name->string_mb);
 				}
 				makefile_type = save_makefile_type;
 				do_not_exec_rule = save_do_not_exec_rule;
 				CACHE_SOURCE(0);
-			} else if (do_export) {
+				break;
+
+			case D_EXPORT:
 				doexport(makefile_name);
-			} else if (do_unexport) {
+				break;
+			case D_UNEXPORT:
 				dounexport(makefile_name);
-			} else if (do_readonly) {
+				break;
+			case D_READONLY:
 				doreadonly(makefile_name);
+				break;
 			}
 			if (sunpro_compat) {
 				source_p++;
@@ -1072,37 +1069,20 @@ start_new_line_no_skip:
 			source_p -= directive_len;
 		}
 	    } else {
-		/* Check if the word include was split across 8K boundary. */
+		/* Check if the directive text was split across 8K boundary. */
 		
 		tmp_bytes_left_in_string = source->string.text.end - source_p;
 		if (tmp_bytes_left_in_string < 9) {
-			int		dlen[6];
-			wchar_t		*directives[6];
-			wchar_t		*dp;
-
-			directives[0] = include_space;
-			directives[1] = iinclude_space;
-			directives[2] = export_space;
-			directives[3] = unexport_space;
-			directives[4] = readonly_space;
-			directives[5] = NULL;
-
-			dlen[0] = 8;
-			dlen[1] = 9;
-			dlen[2] = 7;
-			dlen[3] = 9;
-			dlen[4] = 9;
+			struct dent	*dp;
 
 			tmp_maybe_directive = false;
-
-			for (i = 0; (dp = directives[i]) != NULL; i++) {
-				if (i && sunpro_compat)
+			for (dp = directives; dp->directive; dp++) {
+				if (dp != directives && sunpro_compat)
 					break;
-				if (dlen[i] <= tmp_bytes_left_in_string)
+				if (dp->dlen < tmp_bytes_left_in_string)
 					continue;
-				if (IS_WEQUALN(source_p,
-				    dp,
-				    tmp_bytes_left_in_string)) {
+				if (IS_WEQUALN(source_p, dp->directive,
+				    dp->dlen)) {
 					tmp_maybe_directive = true;
 					break;
 				}
@@ -2406,4 +2386,14 @@ skip_comment(wchar_t * &source_p, wchar_t * &source_end, Source &source)
 			return (true);
 		}
 	}
+}
+
+static void
+init_directives(void)
+{
+	MBSTOWCS(include_d,  NOCATGETS("include "));
+	MBSTOWCS(iinclude_d, NOCATGETS("-include "));
+	MBSTOWCS(export_d,   NOCATGETS("export "));
+	MBSTOWCS(unexport_d, NOCATGETS("unexport "));
+	MBSTOWCS(readonly_d, NOCATGETS("readonly "));
 }

@@ -1,14 +1,14 @@
-/* @(#)header.c	1.162 17/10/07 Copyright 1985, 1994-2017 J. Schilling */
+/* @(#)header.c	1.164 18/03/07 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.162 17/10/07 Copyright 1985, 1994-2017 J. Schilling";
+	"@(#)header.c	1.164 18/03/07 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2017 J. Schilling
+ *	Copyright (c) 1985, 1994-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -509,7 +509,15 @@ get_hdrtype(ptb, isrecurse)
 	Ulong	ocheck;
 	int	ret = H_UNDEF;
 
+	/*
+	 * We don't like to get "WARNING: Unterminated octal number at..."
+	 * when we may have e.g. a CPIO archive to check.
+	 * So enforce to null-terminate the TAR checksum field.
+	 */
+	check = ptb->dbuf.t_linkflag;
+	ptb->dbuf.t_linkflag = 0;
 	stoli(ptb->dbuf.t_chksum, &ocheck);
+	ptb->dbuf.t_linkflag = check;		/* Restore old value */
 	if (ocheck == 0)
 		goto nottar;
 	check = checksum(ptb);
@@ -646,6 +654,13 @@ nottar:
 		 * cpio default
 		 * 0161 0307 -> 0x71 0xC7 -> 070707
 		 * 0307 0161 -> 0xC7 0x71 -> 0143561
+		 *
+		 * Binary cpio archives may use any byte order for the numbers
+		 * in the header so we cannot use the byte order in the header
+		 * to detect swapped archives.
+		 * Filenames with odd length result in a null byte inside the
+		 * filename and this allows us to auto-detect byte swapped
+		 * archives.
 		 *
 		 * If strlen(info->f_name) is odd, we may autodetect
 		 * whether this archive has been swapped as whole.

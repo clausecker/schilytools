@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.289 17/08/05 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.291 18/03/12 Copyright 1998-2018 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.289)dnl
+AC_REVISION(1.291)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -114,6 +114,7 @@ dnl Check for Linux kernel definitions
 AC_CHECK_HEADERS(scsi/scsi.h scsi/sg.h linux/scsi.h linux.sg.h)
 AC_CHECK_HEADERS(linux/types.h linux/gfp.h asm/types.h)
 AC_CHECK_HEADERS(sys/capability.h)
+AC_CHECK_HEADERS(selinux/selinux.h)
 dnl Check for BeOS kernel definitions (e.g. B_PAGE_SIZE)
 AC_CHECK_HEADERS(OS.h)
 dnl needed for newer OS/2 versions of EMX
@@ -1011,6 +1012,17 @@ LIBS="$LIBS $lib_cap"
 AC_CHECK_FUNCS(cap_get_proc cap_set_proc cap_set_flag cap_clear_flag)
 LIBS="$ac_save_LIBS"
 
+if test "$ac_cv_header_selinux_selinux_h" = yes; then
+	AC_CHECKING(for SELinux support)
+	ac_save_LIBS="$LIBS"
+	LIBS="$LIBS $lib_attr"
+	AC_CHECK_LIB(selinux, is_selinux_enabled, lib_selinux="-lselinux")
+	LIBS="$ac_save_LIBS"
+	LIBS="$LIBS $lib_selinux $lib_attr"
+	AC_CHECK_FUNCS(is_selinux_enabled)
+	LIBS="$ac_save_LIBS"
+fi
+
 dnl Misc OS checks.
 dnl
 dnl WARNING: AC_CHECK_FILES uses "test -r file" and bash on Haiku returns wrong results
@@ -1076,6 +1088,8 @@ if test .$ac_cv_usable_linux_ext2_fs_h = .no; then
 	echo "Warning: *** This makes it impossible to support Linux file flags ***"
 	echo "You may try to compile using 'make COPTX=-DTRY_EXT2_FS'"
 	echo
+	echo "Better install the ext2 developer package"
+	echo
 	sleep 10
 fi
 fi	# <ext2fs/ext2_fs.h> was missing
@@ -1111,5 +1125,6 @@ AC_SUBST(lib_rt)
 AC_SUBST(lib_dl)
 AC_SUBST(lib_dir)
 AC_SUBST(lib_cap)
+AC_SUBST(lib_selinux)
 
 AC_OUTPUT(rules.cnf)

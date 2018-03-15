@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)io.c	1.36 17/09/25 2008-2017 J. Schilling
+ * @(#)io.c	1.37 18/03/12 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.36 17/09/25 2008-2017 J. Schilling";
+	"@(#)io.c	1.37 18/03/12 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -145,6 +145,9 @@ pop()
 
 struct tempblk *tmpfptr;
 
+/*
+ * We only call pushtemp() with fd >= 0
+ */
 static void
 pushtemp(fd, tb)
 	int		fd;
@@ -158,12 +161,29 @@ pushtemp(fd, tb)
 int
 poptemp()
 {
-	if (tmpfptr) {
-		close(tmpfptr->fdes);
-		tmpfptr = tmpfptr->fstak;
+	int	fd = gpoptemp();
+
+	if (fd >= 0) {
+		close(fd);
 		return (TRUE);
-	} else
-		return (FALSE);
+	}
+	return (FALSE);
+}
+
+/*
+ * Get the fd from the fd stack for later use.
+ */
+int
+gpoptemp()
+{
+	if (tmpfptr) {
+		int	fd = tmpfptr->fdes;
+
+		tmpfptr = tmpfptr->fstak;
+		return (fd);
+	} else {
+		return (-1);
+	}
 }
 
 void
@@ -348,6 +368,13 @@ tmpfil(tb)
 		}
 	} while ((fd == -1) && (errno == EEXIST));
 	if (fd != -1) {
+		/*
+		 * Users may call "umask 0400" and as a result, the open()
+		 * above my have created a write only file. Since this is
+		 * a shell internal temp file, we decide to always grant
+		 * read/write for the owner.
+		 */
+		fchmod(fd, 0600);
 		pushtemp(fd, tb);
 		return (fd);
 	} else {

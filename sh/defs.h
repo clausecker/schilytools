@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.188 18/01/10 2008-2018 J. Schilling
+ * @(#)defs.h	1.189 18/03/12 2008-2018 J. Schilling
  */
 
 /*
@@ -582,6 +582,7 @@ extern	int	estabf		__PR((unsigned char *s));
 extern	void	push		__PR((struct fileblk *af));
 extern	int	pop		__PR((void));
 extern	int	poptemp		__PR((void));
+extern	int	gpoptemp	__PR((void));
 extern	void	chkpipe		__PR((int *pv));
 extern	int	chkopen		__PR((unsigned char *idf, int mode));
 extern	void	renamef		__PR((int f1, int f2));

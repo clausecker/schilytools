@@ -1,21 +1,11 @@
 #!/bin/sh
-# @(#)setup.sh  1.18 14/12/09 Copyright 2005 J. Schilling
+# @(#)setup.sh  1.20 18/03/14 Copyright 2005-2018 J. Schilling
 ###########################################################################
-# Written 2005 by J. Schilling
+# Written 2005-2018 by J. Schilling
 ###########################################################################
 # Set up bins/<archdir>/{bzip2}!{gzip}!{patch}!{smake}!{star}!{wget}
 ###########################################################################
-# The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only
-# (the "License").  You may not use this file except in compliance
-# with the License.
-#
-# See the file CDDL.Schily.txt in this distribution for details.
-# A copy of the CDDL is also available via the Internet at
-# http://www.opensource.org/licenses/cddl1.txt
-#
-# When distributing Covered Code, include this CDDL HEADER in each
-# file and include the License file CDDL.Schily.txt from this distribution.
+#@@C@@
 ###########################################################################
 
 # Benoetigte Kommandos:
@@ -140,9 +130,9 @@ cd ..
 strip /tmp/i.$$/opt/schily/bin/smake
 rm -f "$BINS"/smake
 cp -p /tmp/i.$$/opt/schily/bin/smake "$BINS"
-mkdir -p "$BINS"/lib
-rm -f "$BINS"/lib/defaults.smk
-cp -p /tmp/i.$$/opt/schily/lib/defaults.smk "$BINS"/lib
+mkdir -p "$BINS"/share/lib/smake
+rm -f "$BINS"/share/lib/smake/defaults.smk
+cp -p /tmp/i.$$/opt/schily/share/lib/smake/defaults.smk "$BINS"/share/lib/smake
 rm -rf smake-* smake.tar*
 MAKE="${PWD}/${BINS}/smake"
 

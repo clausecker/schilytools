@@ -1,4 +1,4 @@
-# @(#)rules.cnf.in	1.32 17/04/27 Copyright 1998-2014 J. Schilling
+# @(#)rules.cnf.in	1.33 18/03/12 Copyright 1998-2014 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
@@ -32,12 +32,13 @@ LIB_SSL= @lib_ssl@
 LIB_NSL= @lib_nsl@		# For gethostbyname() users
 LIB_ACL= @lib_acl@		# Full (test/set) ACL users like star
 LIB_ACL_TEST= @lib_acl_test@	# Test only ACL users like libfind
-LIB_ATTR = @lib_attr@
-LIB_SECDB = @lib_secdb@
-LIB_GEN = @lib_gen@
+LIB_ATTR= @lib_attr@
+LIB_SECDB= @lib_secdb@
+LIB_GEN= @lib_gen@
 LIB_ELF= @lib_elf@
-LIB_PTHREAD = @lib_pthread@
-LIB_RT = @lib_rt@
+LIB_PTHREAD= @lib_pthread@
+LIB_RT= @lib_rt@
 LIB_DL= @lib_dl@
 LIB_DIR= @lib_dir@
 LIB_CAP= @lib_cap@
+LIB_SELINUX= @lib_selinux@

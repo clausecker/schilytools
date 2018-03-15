@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter.sh	1.12 17/06/18 Copyright 2016-2017 J. Schilling
+# @(#)parameter.sh	1.13 18/03/11 Copyright 2016-2019 J. Schilling
 #
 
 # Read test core functions
@@ -176,5 +176,13 @@ docommand param150 "$SHELL -c 'X=BAD; X=OK Z=\$X; echo \$Z'" 0 "OK\n" ""
 docommand param151 "$SHELL -c 'X=OLD Y=\${X=OK} Z=\$X; echo \$X \$Z'" 0 "OLD OLD\n" ""
 docommand param152 "$SHELL -c 'Y=\${X=OK} Z=\$X; echo \$X \$Z'" 0 "OK OK\n" ""
 docommand param153 "$SHELL -c 'Y=\${X:=OK} Z=\$X; echo \$X \$Z'" 0 "OK OK\n" ""
+
+#
+# Test Prefix- and Suffix- parameter expansion with double quotes in the pattern
+#
+docommand param180 "$SHELL -c 'foo=abcdefghij; bar=efg ; echo \${foo%\"\$bar\"*}'" 0 "abcd\n" ""
+docommand param181 "$SHELL -c 'foo=abcdefghij; bar=efg ; echo \${foo%\"\$bar*\"}'" 0 "abcdefghij\n" ""
+docommand param182 "$SHELL -c 'foo=abcdefghij"\\\\\\"e; bar=efg ; echo \${foo%\"\e\"}'" 0 "abcdefghij\n" ""
+docommand param183 "$SHELL -c 'foo=abcdefghij"\\\\\\"e; bar=efg ; echo \${foo%\e}'" 0 "abcdefghij\\\\\n" ""
 
 success

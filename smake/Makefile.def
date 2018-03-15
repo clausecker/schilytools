@@ -1,4 +1,4 @@
-#ident @(#)Makefile.def	1.2 00/11/19 
+#ident @(#)Makefile.def	1.3 18/03/14 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -7,7 +7,7 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		lib/
+INSDIR=		share/lib/smake/
 TARGET=		defaults.smk
 XMK_FILE=	
 

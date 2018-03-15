@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.129 18/02/15 2008-2018 J. Schilling
+ * @(#)bltin.c	1.130 18/03/12 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.129 18/02/15 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.130 18/03/12 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -753,9 +753,11 @@ builtin(type, argc, argv, t, xflags)
 				/*
 				 * Exit if child received a signal
 				 */
-				if (ex.ex_code != 0 &&
-				    ex.ex_code != CLD_EXITED)
+				if ((ex.ex_code != 0 &&
+				    ex.ex_code != CLD_EXITED) ||
+				    ex.ex_status != 0) {
 					exitsh(exitval ? exitval : SIGFAIL);
+				}
 			}
 		} else {
 			gfailure(UC usage, repuse);

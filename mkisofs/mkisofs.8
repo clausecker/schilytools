@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.160 17/12/10 Copyright 1997-2015 J. Schilling
+.\" @(#)mkisofs.8	1.162 18/03/12 Copyright 1997-2018 J. Schilling
 .\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2017/12/10" "Version 3.02"
+.TH MKISOFS 8 "2018/03/12" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -2333,7 +2333,7 @@ root folder of an HFS volume. See README.rootinfo for more information.
 .BI \-prep\-boot " FILE
 PReP boot image file. Up to 4 are allowed. See README.prep_boot (Alpha)
 .TP
-.B \-chrp-\boot
+.B \-chrp\-boot
 Create a CHRP boot in boot partition 1.
 See
 .B \-prep\-boot
@@ -2517,7 +2517,8 @@ necessary to specify which character set your file names use in and which
 character set the file names should appear on the CD.
 .PP
 There are four options to specify the character sets you want to use:
-.IP \-input\-charset
+.TP
+.B \-input\-charset
 Defines the local character set you are using on your host machine.
 Any character set conversions that take place will use this character
 set as the staring point. The default input character sets are
@@ -2536,7 +2537,8 @@ option is the same as using the
 and
 .I \-J
 options.
-.IP \-output\-charset
+.TP
+.B \-output\-charset
 Defines the character set that will be used with for the Rock Ridge names
 on the CD. Defaults to the input character set. Only likely to be useful
 if used on a non-Unix platform. e.g. using
@@ -2545,7 +2547,8 @@ on a Microsoft Win32 machine to create Rock Ridge CDs. If you are using
 .B mkisofs
 on a Unix machine, it is likely that the output character set
 will be the same as the input character set.
-.IP \-input\-hfs\-charset
+.TP
+.B \-input\-hfs\-charset
 Defines the HFS character set used for HFS file names decoded from
 any of the various Apple/Unix file formats. Only useful when used with
 .I \-mac\-name
@@ -2554,7 +2557,8 @@ option. See the
 for more information. Defaults to
 .I cp10000
 (Mac Roman).
-.IP \-output\-hfs\-charset
+.TP
+.B \-output\-hfs\-charset
 Defines the HFS character set used to create HFS file names from the input
 character set in use. In most cases this will be from the character set
 given with the
@@ -2845,28 +2849,35 @@ files on Unix has chosen a completely different storage method.
 The Apple/Unix formats that
 .I mkisofs
 (partially) supports are:
-.IP "CAP AUFS format"
+.TP
+.B "CAP AUFS format"
 Data fork stored in a file. Resource fork in subdirectory .resource
 with same filename as data fork. Finder info
 in .finderinfo subdirectory with same filename.
-.IP "AppleDouble/Netatalk"
+.TP
+.B "AppleDouble/Netatalk"
 Data fork stored in a file. Resource fork stored in a file with
 same name prefixed with "%". Finder info also stored in same
 "%" file. Netatalk uses the same format, but the resource
 fork/finderinfo stored in subdirectory .AppleDouble with same
 name as data fork.
-.IP AppleSingle
+.TP
+.B AppleSingle
 Data structures similar to above, except both forks and finder
 info are stored in one file.
-.IP "Helios EtherShare"
+.TP
+.B "Helios EtherShare"
 Data fork stored in a file. Resource fork and finder info together in
 subdirectory .rsrc with same filename as data fork.
-.IP "IPT UShare"
+.TP
+.B "IPT UShare"
 Very similar to the EtherShare format, but the finder info
 is stored slightly differently.
-.IP MacBinary
+.TP
+.B MacBinary
 Both forks and finder info stored in one file.
-.IP "Apple PC Exchange"
+.TP
+.B "Apple PC Exchange"
 Used by Macintoshes to store Apple files on DOS (FAT) disks.
 Data fork stored in a file. Resource fork in subdirectory
 resource.frk (or RESOURCE.FRK). Finder info as one record
@@ -2888,16 +2899,19 @@ DOS media containing PC Exchange files should be mounted as type
 (not
 .BR vfat )
 when using Linux.
-.IP "SGI/XINET"
+.TP
+.B "SGI/XINET"
 Used by SGI machines when they mount HFS disks. Data fork stored
 in a file. Resource fork in subdirectory .HSResource with same
 name. Finder info as one record in file .HSancillary. Separate .HSancillary
 for each data fork directory.
-.IP "Thursby Software Systems DAVE"
+.TP
+.B "Thursby Software Systems DAVE"
 Allows Macintoshes to store Apple files on SMB servers.
 Data fork stored in a file. Resource fork in subdirectory
 resource.frk. Uses the AppleDouble format to store resource fork.
-.IP "Services for Macintosh"
+.TP
+.B "Services for Macintosh"
 Format of files stored by NT Servers on NTFS filesystems. Data fork is
 stored as "filename". Resource fork stored as a NTFS
 .I stream
@@ -2919,12 +2933,14 @@ Unfortunately, these private Unicode characters are not
 readable by the mkisofs NT executable. Therefore any file or directory
 name containing these characters will be ignored - including the contents of
 any such directory.
-.IP "MacOS X AppleDouble"
+.TP
+.B "MacOS X AppleDouble"
 When HFS/HFS+ files are copied or saved by MacOS X on to a non-HFS file
 system (e.g. UFS, NFS etc.), the files are stored in AppleDouble format.
 Data fork stored in a file. Resource fork stored in a file with
 same name prefixed with "._". Finder info also stored in same "._" file.
-.IP "MacOS X HFS (Alpha)"
+.TP
+.B "MacOS X HFS (Alpha)"
 Not really an Apple/Unix encoding, but actual HFS/HFS+ files on a MacOS X
 system. Data fork stored in a file. Resource fork stored in a pseudo file
 with the same name with the suffix '/rsrc'. The finderinfo is only
@@ -3176,7 +3192,8 @@ also extracts the boot block from the
 first HFS partition it finds on the given CD-ROM and this is used for the
 HFS partition created by
 .BR mkisofs .
-.IP "PLEASE NOTE"
+.TP
+.B "PLEASE NOTE"
 By using a driver from an Apple CD and copying Apple software to your CD,
 you become liable to obey Apple Computer, Inc. Software License Agreements.
 .SH "EL TORITO BOOT INFORMATION TABLE

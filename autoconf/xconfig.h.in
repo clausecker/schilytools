@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.271 17/08/05 Copyright 1998-2017 J. Schilling */
+/* @(#)xconfig.h.in	1.273 18/03/12 Copyright 1998-2018 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2017 J. Schilling
+ *	Copyright (c) 1998-2018 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -155,6 +155,7 @@
 #undef HAVE_LINUX_GFP_H		/* if we may include linux/gfp.h */
 #undef HAVE_ASM_TYPES_H		/* if we may include asm/types.h */
 #undef HAVE_SYS_CAPABILITY_H	/* if we may include sys/capability.h */
+#undef HAVE_SELINUX_SELINUX_H	/* if we may include selinux/selinux.h */
 #undef HAVE_SYS_BSDTTY_H	/* if we have sys/bsdtty.h on HP-UX for TIOCGPGRP */
 #undef HAVE_OS_H		/* if we have the BeOS kernel definitions in OS.h */
 #undef HAVE_OS2_H		/* if we have the OS/2 definitions in os2.h */
@@ -667,6 +668,10 @@
 #undef HAVE_CAP_SET_FLAG	/* cap_set_flag() is present in libcap */
 #undef HAVE_CAP_CLEAR_FLAG	/* cap_clear_flag() is present in libcap */
 
+/*
+ * SELinux support
+ */
+#undef HAVE_IS_SELINUX_ENABLED	/* is_selinux_enabled() is present in libselinux */
 
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
 #undef HAVE_ISWPRINT		/* iswprint() is present in libc */

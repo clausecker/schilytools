@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)sccsdiff.sh	1.6 15/01/30 Copyright 2011-2015 J. Schilling
+# @(#)sccsdiff.sh	1.7 18/03/06 Copyright 2011-2018 J. Schilling
 #
 # CDDL HEADER START
 #
@@ -129,7 +129,7 @@ do
 			;;
 		esac
 		;;
-	*s.*)
+	s.*|*/s.*)
 		files="$files $i"
 		;;
 	[1-9]*)

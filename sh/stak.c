@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.21 17/12/07	Copyright 2010-2017 J. Schilling
+ * @(#)stak.c	2.22 18/03/14	Copyright 2010-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.21 17/12/07 Copyright 2010-2017 J. Schilling";
+	"@(#)stak.c	2.22 18/03/14 Copyright 2010-2018 J. Schilling";
 #endif
 
 
@@ -197,16 +197,14 @@ static	unsigned char *__growstak __PR((int incr));
  */
 static void *
 xmalloc(size)
-	size_t	size;
+	register size_t	size;
 {
-	char	*ret = malloc(size);
+	register char	*ret = malloc(size);
 
 	if (ret == NULL)
 		return ((void *)ret);
 
-	if (stklow == NULL)
-		stklow = ret;
-	else if (ret < stklow)
+	if (ret < stklow)
 		stklow = ret;
 
 	if ((ret + size) > stkhigh)
@@ -235,17 +233,17 @@ xmalloc(size)
 		Stackblk *nextitem;					\
 									\
 		tosscheck(stk);						\
+									\
+		TPRS("tossgrowing freeing ");				\
+		TPRN((long)stk.topitem);				\
+		TPRS("\n");						\
+									\
 		stk.topitem->h.magic = 0;	/* erase magic */	\
 									\
 		/*							\
 		 * about to free the ptr to next, so copy it first	\
 		 */							\
 		nextitem = stk.topitem->h.word;				\
-									\
-		TPRS("tossgrowing freeing ");				\
-		TPRN((long)stk.topitem);				\
-		TPRS("\n");						\
-									\
 		free(stk.topitem);					\
 		stk.topitem = nextitem;					\
 	}
@@ -269,17 +267,17 @@ tossgrowing()				/* free the growing stack */
 			error("tossgrowing: bad magic on stack");
 		}
 #endif	/* TOSSCHECK */
+
+		TPRS("tossgrowing freeing ");
+		TPRN((long)stk.topitem);
+		TPRS("\n");
+
 		stk.topitem->h.magic = 0;	/* erase magic */
 
 		/*
 		 * about to free the ptr to next, so copy it first
 		 */
 		nextitem = stk.topitem->h.word;
-
-		TPRS("tossgrowing freeing ");
-		TPRN((long)stk.topitem);
-		TPRS("\n");
-
 		free(stk.topitem);
 		stk.topitem = nextitem;
 	}
@@ -456,22 +454,23 @@ tdystak(sav, iosav)
 
 	rmtemp(iosav);			/* pop temp files */
 
-	if (sav != 0)
-		blk = (Stackblk *)(sav - sizeof (Stackblkhdr));
 	if (sav == 0) {
 		/* EMPTY */
 		STPRS("tdystak(0)\n");
-	} else if (blk->h.magic == STMAGICNUM ||
-		    blk->h.magic == STNMAGICNUM) {
-		/* EMPTY */
-		STPRS("tdystak(data ptr: ");
-		STPRN((long)sav);
-		STPRS(")\n");
 	} else {
-		STPRS("tdystak(garbage: ");
-		STPRN((long)sav);
-		STPRS(")\n");
-		error("tdystak: bad magic in argument");
+		blk = (Stackblk *)(sav - sizeof (Stackblkhdr));
+		if (blk->h.magic == STMAGICNUM ||
+		    blk->h.magic == STNMAGICNUM) {
+			/* EMPTY */
+			STPRS("tdystak(data ptr: ");
+			STPRN((long)sav);
+			STPRS(")\n");
+		} else {
+			STPRS("tdystak(garbage: ");
+			STPRN((long)sav);
+			STPRS(")\n");
+			error("tdystak: bad magic in argument");
+		}
 	}
 
 	/*
@@ -680,8 +679,10 @@ addblok(reqd)				/* called from main at start only */
 	unsigned	reqd;
 {
 	USED(reqd);
-	if (stakbot == 0)
+	if (stakbot == 0) {
 		grostalloc();		/* allocate initial arena */
+		stklow = (char *)stk.topitem;
+	}
 }
 
 /*

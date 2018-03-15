@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.44 17/07/12 Copyright 1985-2014 J. Schilling
+. \" @(#)smake.1	1.45 18/03/14 Copyright 1985-2014 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "17/07/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "18/03/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -139,7 +139,7 @@ Turn off internal rules.
 Do not use the built in rules and do not read the files 
 .B \&./defaults.smk
 and
-.B /opt/schily/lib/defaults.smk
+.B /opt/schily/share/lib/smake/defaults.smk
 .TP
 .B \-S
 Undo the effect of the \-k option and terminate 
@@ -410,7 +410,7 @@ A limited set of built in rules is compiled into
 A more complete set is read from the file
 .B \&./defaults.smk
 or
-.BR /opt/schily/lib/defaults.smk .
+.BR /opt/schily/share/lib/smake/defaults.smk .
 
 .SH "Makefile Format
 .PP
@@ -2182,7 +2182,7 @@ If
 finds this file in the current directory, then the implicit rules
 are read in from this file.
 .TP
-.B /opt/schily/lib/defaults.smk
+.B /opt/schily/share/lib/smake/defaults.smk
 If the file
 .B defaults.smk
 could not be found, then 

@@ -1,14 +1,14 @@
-/* @(#)update.c	1.138 15/09/20 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
+/* @(#)update.c	1.139 18/03/14 Copyright 1985, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.138 15/09/20 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
+	"@(#)update.c	1.139 18/03/14 Copyright 1985, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2015 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2018 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2634,6 +2634,17 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 			return (BADTIME);	/* move failed */
 		} else if (m == TRUE) {		/* OK, but did not move */
 			obj->o_level -= a;	/* Restore original level */
+		} else if (m == (TRUE+1) &&
+			obj->o_date == newtime) {
+			/*
+			 * The target may have been created as $(ARCHDIR)/$@
+			 * and we thus could not find the target at WDLEVEL.
+			 * Search for it in the list of search directories.
+			 * Use the correct o_level if we could find it via
+			 * searchobj().
+			 */
+			searchobj(obj, deplevel, SALL);
+			obj->o_date = newtime;
 		}
 /*		obj->o_level = OBJLEVEL;*/
 	}

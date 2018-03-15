@@ -1,6 +1,6 @@
 '\" te
 .\" Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.\" Copyright (c) 2012-2016, J. Schilling
+.\" Copyright (c) 2012-2018, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 2001, the Institute of Electrical and Electronics Engineers, Inc. and The Open Group. All Rights Reserved.
@@ -34,7 +34,7 @@
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License ("CDDL"), version 1.0.
-.\" You may only use this file in accordance with the terms of version
+.\" You may use this file only in accordance with the terms of version
 .\" 1.0 of the CDDL.
 .\"
 .\" A full copy of the text of the CDDL should have accompanied this
@@ -48,7 +48,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH getopt 3C "26 Apr 2016" "SunOS 5.11" "Standard C Library Functions"
+.TH getopt 3C "15 Mar 2018" "SunOS 5.11" "Standard C Library Functions"
 .SH NAME
 getopt \- command option parsing
 .SH SYNOPSIS

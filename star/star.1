@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.179 18/01/14 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.180 18/03/12 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/03/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -924,8 +924,10 @@ archive format because of its limited portability.
 .B crc
 This format is similar to the
 .B asc
-cpio format but in addition uses a simple byte based checksum called
-.BR CRC .
+cpio format but in addition uses a simple byte based 32-bit checksum.
+Hence the archive type name
+.B CRC
+as used by AT&T is misleading.
 Try to avoid the
 .B crc
 archive format because of its limited portability.

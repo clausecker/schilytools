@@ -4,7 +4,7 @@
 #
 # This file and its contents are supplied under the terms of the
 # Common Development and Distribution License ("CDDL"), version 1.0.
-# You may only use this file in accordance with the terms of version
+# You may use this file only in accordance with the terms of version
 # 1.0 of the CDDL.
 #
 # A full copy of the text of the CDDL should have accompanied this
@@ -23,9 +23,9 @@
 # Copyright 2008 Sun Microsystems, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-# Copyright 2004-2016 J. Schilling. All rights reserved.
+# Copyright 2004-2018 J. Schilling. All rights reserved.
 #
-# @(#)cstyle	1.18 16/09/14 J. Schilling
+# @(#)cstyle.pl	1.19 18/03/15 J. Schilling
 #
 #
 # @(#)cstyle 1.58 98/09/09 (from shannon)

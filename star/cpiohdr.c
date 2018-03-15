@@ -1,14 +1,14 @@
-/* @(#)cpiohdr.c	1.31 16/07/08 Copyright 1994-2016 J. Schilling */
+/* @(#)cpiohdr.c	1.32 18/03/12 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.31 16/07/08 Copyright 1994-2016 J. Schilling";
+	"@(#)cpiohdr.c	1.32 18/03/12 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	cpio archive headers
  *
- *	Copyright (c) 1994-2016 J. Schilling
+ *	Copyright (c) 1994-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -574,7 +574,8 @@ cpio_checkswab(ptb)
 }
 
 /*
- * This simple sum is used for the SYSvr4 file content CRC
+ * This simple sum is used for the SYSvr4 file content checksum.
+ * It is a simple 32 bit sum even though the related CPIO format is called CRC.
  * Use Int32_t to implement the same behavior as the AT&T cpio command.
  */
 LOCAL Int32_t

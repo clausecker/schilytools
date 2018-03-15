@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)macro.c	1.86 17/12/14 2008-2017 J. Schilling
+ * @(#)macro.c	1.87 18/03/08 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.86 17/12/14 2008-2017 J. Schilling";
+	"@(#)macro.c	1.87 18/03/08 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -84,6 +84,7 @@ static unsigned char	*prefsubstr __PR((unsigned char *v, unsigned char *pat,
 static unsigned char	*mbdecr	__PR((unsigned char *s, unsigned char *sp));
 static int		suffsubstr __PR((unsigned char *v, unsigned char *pat,
 					int largest));
+static Uchar	*globesc	__PR((Uchar *argp));
 #endif
 static void	sizecpy		__PR((int vsize, Uchar *v, int trimflag));
 static Uchar	*trimcpy	__PR((Uchar *argp, int trimflag));
@@ -558,21 +559,10 @@ docolon:
 						trim(argp);
 					}
 
-					if (*argp == '"') {
-						int	len;
-
-						/*
-						 * "foo" -> foo
-						 * This is a hack until we find
-						 * a better solution.
-						 */
-						len = strlen(C &argp[1]);
-						if (len > 0 &&
-						    argp[len] == '"') {
-							argp[len] = '\0';
-							argp++;
-						}
-					}
+					/*
+					 * Treat double quotes in glob pattern.
+					 */
+					argp = globesc(argp);
 					if (c == '#') {
 						v = prefsubstr(v, argp,
 								largest);
@@ -1201,6 +1191,56 @@ suffsubstr(v, pat, largest)
 		s = mbdecr(v, s);
 	}
 	return (size);
+}
+
+/*
+ * Convert prefix and suffix pattern into something that is
+ * accepted by glob().
+ */
+static Uchar *
+globesc(argp)
+	Uchar	*argp;
+{
+	int		c;
+	int		escflag = FALSE;
+	UIntptr_t	b = relstak();
+
+	pushstak('\0');			/* Terminate current argp */
+	(void) mbtowc(NULL, NULL, 0);
+	while ((c = *argp) != '\0') {
+		wchar_t		wc;
+		int		len;
+
+		if ((len = mbtowc(&wc, C argp, MB_LEN_MAX)) <= 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			len = 1;
+		}
+		if (c == '"') {
+			escflag = !escflag;
+			argp += len;
+			continue;
+		}
+		if (escflag) {
+			switch (c) {
+
+			case '\\':
+			case '*':
+			case '?':
+			case '[':
+				GROWSTAKTOP();
+				pushstak('\\');
+				break;
+			default: ;
+			}
+		}
+		while (len-- > 0) {
+			GROWSTAKTOP();
+			pushstak(*argp++);
+		}
+	}
+	zerostak();
+	staktop = (absstak(b));
+	return (&staktop[1]);	/* Point past first added null byte */
 }
 #endif
 

@@ -1,4 +1,4 @@
-#ident @(#)cp1257.mk	1.1 07/05/19 
+#ident @(#)cp1257.mk	1.2 18/03/15 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -7,7 +7,7 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		lib/siconv
+INSDIR=		share/lib/siconv
 TARGET=		cp1257
 #XMK_FILE=	Makefile.man
 

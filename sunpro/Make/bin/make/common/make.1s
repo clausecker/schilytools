@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.17 18/03/01 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.18 18/03/15 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -35,7 +35,7 @@
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License ("CDDL"), version 1.0.
-.\" You may only use this file in accordance with the terms of version
+.\" You may use this file only in accordance with the terms of version
 .\" 1.0 of the CDDL.
 .\"
 .\" A full copy of the text of the CDDL should have accompanied this
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2018/03/01" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2018/03/15" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS

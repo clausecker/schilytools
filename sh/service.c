@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)service.c	1.56 17/12/19 2008-2017 J. Schilling
+ * @(#)service.c	1.57 18/03/12 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.56 17/12/19 2008-2017 J. Schilling";
+	"@(#)service.c	1.57 18/03/12 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -125,9 +125,8 @@ initio(iop, save)
 				 * bug fix for problem with
 				 * in-line scripts
 				 */
-				poptemp();
-
-				fd = chkopen(tmpout, O_RDONLY);
+				fd = gpoptemp();
+				lseek(fd, (off_t)0, SEEK_SET);
 				unlink((const char *)tmpout);
 			} else if (iof & IOMOV) {
 				if (eq(minus, ion)) {

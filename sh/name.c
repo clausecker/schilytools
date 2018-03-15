@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)name.c	1.75 18/01/05 2008-2018 J. Schilling
+ * @(#)name.c	1.76 18/03/14 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.75 18/01/05 2008-2018 J. Schilling";
+	"@(#)name.c	1.76 18/03/14 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -748,9 +748,9 @@ make(v)
  */
 struct namnod *
 lookup(nam)
-	unsigned char	*nam;
+	register unsigned char	*nam;
 {
-	struct namnod *nscan = namep;
+	register struct namnod *nscan = namep;
 	struct namnod **prev = NULL;	/* Make stupid GCC happy */
 	int		LR;
 
@@ -761,8 +761,8 @@ lookup(nam)
 #define	INLINE_CMP
 #ifdef	INLINE_CMP
 		{
-			unsigned char	*s1 = nam;
-			unsigned char	*s2 = nscan->namid;
+			register unsigned char	*s1 = nam;
+			register unsigned char	*s2 = nscan->namid;
 
 			while (*s1++ == *s2)
 				if (*s2++ == 0)

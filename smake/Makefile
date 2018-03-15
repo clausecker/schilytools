@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.19 15/01/05 
+#ident @(#)Makefile	1.20 18/03/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,7 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		smake
 CPPOPTS +=	-DUSE_LARGEFILES
-CPPOPTS +=	-DNO_COMPAT '-DDEFAULTS_PATH="$(INS_BASE)/lib/defaults.smk"'
+CPPOPTS +=	-DNO_COMPAT '-DDEFAULTS_PATH="$(INS_BASE)/share/lib/smake/defaults.smk"'
 CPPOPTS +=	-DSCHILY_PRINT
 
 #CPPOPTS +=	-DNO_MYECHO		# Disable built in echo command

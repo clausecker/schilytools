@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.290 18/01/25 joerg */
+/* @(#)mkisofs.c	1.293 18/03/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.290 18/01/25 joerg";
+	"@(#)mkisofs.c	1.293 18/03/15 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -561,6 +561,7 @@ get_prep_boot(opt_arg)
 	return (1);
 }
 
+/* ARGSUSED */
 LOCAL int
 get_chrp_boot(opt_arg)
 	char	*opt_arg;
@@ -1426,7 +1427,7 @@ LOCAL const struct mki_option mki_options[] =
 #ifdef PREP_BOOT
 	{{"prep-boot&", NULL, (getpargfun)get_prep_boot },
 	__("\1FILE\1PReP boot image file -- up to 4 are allowed")},
-	{{"chrp-boot&", NULL, (getpargfun)get_chrp_boot },
+	{{"chrp-boot~", NULL, (getpargfun)get_chrp_boot },
 	__("Add CHRP boot header")},
 #endif	/* PREP_BOOT */
 	{{"cap~", NULL, (getpargfun)hfs_cap },
@@ -3618,7 +3619,7 @@ list_locales()
 		const char	*ins_base = sic_base();
 
 		if (ins_base == NULL)
-			ins_base = "$INS_BASE/lib/siconv/";
+			ins_base = "$INS_BASE/share/lib/siconv/";
 		errmsgno(EX_BAD, _("Installation problem: '%s' %s.\n"),
 			ins_base, n < 0 ? _("missing"):_("incomplete"));
 		if (n == 0) {

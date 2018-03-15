@@ -3,7 +3,7 @@
  *
  * The contents of this file are subject to the terms of the
  * Common Development and Distribution License ("CDDL"), version 1.0.
- * You may only use this file in accordance with the terms of version
+ * You may use this file only in accordance with the terms of version
  * 1.0 of the CDDL.
  *
  * A full copy of the text of the CDDL should have accompanied this
@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008-2017 J. Schilling
+ * This file contains modifications Copyright 2008-2018 J. Schilling
  *
- * @(#)date_bal.c	1.12 17/06/21 J. Schilling
+ * @(#)date_bal.c	1.13 18/03/15 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.12 17/06/21 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.13 18/03/15 J. Schilling"
 #endif
 # include	<defines.h>
 

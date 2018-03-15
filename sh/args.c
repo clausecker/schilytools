@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)args.c	1.85 18/01/01 2008-2018 J. Schilling
+ * @(#)args.c	1.86 18/03/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.85 18/01/01 2008-2018 J. Schilling";
+	"@(#)args.c	1.86 18/03/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -384,6 +384,7 @@ again:
 				 */
 				if ((comdiv = argp[2]) == NULL) {
 					failed(argv[1], mssgargn);
+					return (-1);
 				} else {
 					argp[2] = argp[3]?argp[3]:argp[0];
 					argc--;
@@ -418,6 +419,7 @@ again:
 				len = 1;
 				wc = (unsigned char)*cp;
 				failed(argv[1], badopt);
+				return (-1);
 			}
 			cp += len;
 
@@ -461,8 +463,10 @@ again:
 				if (argarg != NULL)
 					*argarg = '=';
 				if (flagc == NULL || wc != *flagc) {
-					if (argc > 2)
+					if (argc > 2) {
 						failed(argp[2], badopt);
+						return (-1);
+					}
 					continue;
 				}
 			} else {		/* Not set -o, but: set -c */
@@ -475,6 +479,7 @@ again:
 				if (eq(argv[0], "set") &&
 				    wc && any(wc, UC "sicrp")) {
 					failed(argv[1], badopt);
+					return (-1);
 				} else {
 					unsigned long *fp = &flags;
 #ifdef	DO_PS34
@@ -546,6 +551,7 @@ again:
 #endif
 			} else {
 				failed(argv[1], badopt);
+				return (-1);
 			}
 		}
 		argp[1] = argp[0];
@@ -588,8 +594,10 @@ again:
 						wc = *flagc;
 				}
 				if (flagc == NULL || wc != *flagc) {
-					if (argc > 2)
+					if (argc > 2) {
 						failed(argp[2], badopt);
+						return (-1);
+					}
 					continue;
 				}
 			} else {		/* Not set +o, but: set +c */
@@ -637,6 +645,7 @@ again:
 #endif
 			} else {
 				failed(argv[1], badopt);
+				return (-1);
 			}
 		}
 		argp[1] = argp[0];
@@ -659,6 +668,7 @@ again:
 			argc--;
 		} else {
 			failed(argv[1], mssgargn);
+			return (-1);
 		}
 	}
 #endif

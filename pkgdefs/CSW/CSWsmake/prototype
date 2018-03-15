@@ -3,9 +3,10 @@ i depend
 i copyright
 d none bin ? ? ?
 f none bin/smake 0755 root bin
-d none lib ? ? ?
-f none lib/defaults.smk 0444 root bin
 d none share ? ? ?
+d none share/lib ? ? ?
+d none share/lib/smake ? ? ?
+f none share/lib/smake/defaults.smk 0444 root bin
 d none share/man ? ? ?
 d none share/man/man1 ? ? ?
 f none share/man/man1/smake.1 0444 root bin

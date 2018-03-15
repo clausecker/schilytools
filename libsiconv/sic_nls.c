@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.18 14/01/15 Copyright 2007-2014 J. Schilling */
+/* @(#)sic_nls.c	1.19 18/03/15 Copyright 2007-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.18 14/01/15 Copyright 2007-2014 J. Schilling";
+	"@(#)sic_nls.c	1.19 18/03/15 Copyright 2007-2018 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  * from single byte character sets to unicode.
  * We use this code on systems that do not provide the iconv() function.
  *
- * Copyright 2007-2014 J. Schilling
+ * Copyright 2007-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -186,7 +186,7 @@ EXPORT const char *
 sic_base()
 {
 	if (ins_base == NULL) {
-		ins_base = searchfileinpath("lib/siconv/iso8859-1", R_OK,
+		ins_base = searchfileinpath("share/lib/siconv/iso8859-1", R_OK,
 					SIP_PLAIN_FILE, NULL);
 		if (ins_base != NULL) {
 			int	len = strlen(ins_base);
@@ -244,7 +244,7 @@ sic_list(f)
 	if (ins_base != NULL)
 		snprintf(path, sizeof (path), "%s", ins_base);
 	else
-		snprintf(path, sizeof (path), "%s/lib/siconv/", INS_BASE);
+		snprintf(path, sizeof (path), "%s/share/lib/siconv/", INS_BASE);
 	if ((d = opendir(path)) == NULL)
 		return (-1);
 
@@ -300,7 +300,7 @@ pfopen(name)
 		snprintf(path, sizeof (path), "%s%s", p, name);
 		return (fopen(path, "r"));
 	}
-	snprintf(path, sizeof (path), "%s/lib/siconv/%s", INS_BASE, name);
+	snprintf(path, sizeof (path), "%s/share/lib/siconv/%s", INS_BASE, name);
 	return (fopen(path, "r"));
 }
 

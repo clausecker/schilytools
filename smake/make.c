@@ -1,8 +1,8 @@
-/* @(#)make.c	1.202 18/01/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)make.c	1.206 18/03/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.202 18/01/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)make.c	1.206 18/03/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Make program
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 #include "make.h"
 #include "job.h"
 
-char	make_version[] = "1.2.5";
+char	make_version[] = "1.2.6";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -124,9 +124,9 @@ char	Envdefs[]	= "Environment defs";
 char	Makedefs[]	= "Internal Makefile";
 char	Ldefaults[]	= "defaults.smk";
 #ifdef	SVR4
-char	Defaults[]	= "/opt/schily/lib/defaults.smk";
+char	Defaults[]	= "/opt/schily/share/lib/smake/defaults.smk";
 #else
-char	Defaults[]	= "/usr/bert/lib/defaults.smk";
+char	Defaults[]	= "/usr/bert/share/lib/smake/defaults.smk";
 #endif
 #define	MAKEFILECOUNT	32		/* Max number of Makefiles	*/
 char	SMakefile[]	= "SMakefile";	/* smake's default Makefile	*/
@@ -1458,7 +1458,8 @@ setmakeenv(envbase, envp)
  * Returns:
  *	FALSE		Failure
  *	TRUE		OK, but no file was moved
- *	TRUE + 1	OK and file actually moved
+ *	TRUE + 1	OK, but file was not found
+ *	TRUE + 2	OK and file actually moved
  */
 EXPORT int
 move_tgt(from)
@@ -1479,12 +1480,12 @@ move_tgt(from)
 						from->o_level < OBJLEVEL)
 		return (TRUE);
 
-	fromtime = gftime(from->o_name);
-	if (fromtime == 0)		/* Nothing to move found */
-		return (TRUE);
-
 	if (strchr(from->o_name, SLASH)) /* Only move from current directory */
 		return (TRUE);
+
+	fromtime = gftime(from->o_name);
+	if (fromtime == 0)		/* Nothing to move found */
+		return (TRUE+1);
 
 	if (Debug > 3) error("move: from->o_level: %d\n", from->o_level);
 	if ((objname = build_path(from->o_level, from->o_name, from->o_namelen,
@@ -1492,11 +1493,10 @@ move_tgt(from)
 		return (FALSE);
 	if (!Sflag || Nflag)
 		printf("%smove %s %s\n", posixmode?"\t":"...", from->o_name, objname);
+	ret = TRUE + 2;
 	if (Nflag) {
-		ret = TRUE + 1;
 		goto out;
 	}
-	ret = TRUE + 1;
 
 	if ((from->o_name == objname) ||
 	    (gfileid(from->o_name) == gfileid(objname))) {
@@ -2057,12 +2057,13 @@ curwdir()
 
 /*
  * Search for the defaults.smk file in the PATH of the user.
- * Assume that the file is ... bin/../lib/defaults.smk
+ * Assume that the file is ... bin/../share/lib/smake/defaults.smk
  */
 LOCAL char *
 getdefaultsfile()
 {
-	return (searchfileinpath("lib/defaults.smk", R_OK, TRUE, NULL));
+	return (searchfileinpath("share/lib/smake/defaults.smk",
+							R_OK, TRUE, NULL));
 }
 
 LOCAL int
