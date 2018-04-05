@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.180 18/03/12 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.186 18/03/19 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/03/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -269,15 +269,20 @@ and
 to start with a single dash (\-). In this case, commands
 and options may be specified separately, all boolean or increment type
 options may be specified either separately or combined.
+.LP
 For compatibility with GNU programs, long options may alternatively
 start with a double dash.
+.LP
 In compatibility mode to POSIX
 .BR tar ,
 .B star
 expects commands and options to appear as one single string that does not start
 with a dash.
 In POSIX tar compatibility mode,
-additional non POSIX options may be specified but must appear after the
+.B additional non POSIX options
+may be specified but must appear
+.B after
+the
 POSIX options and their args and need to start with a dash.
 .TP
 .B \-c
@@ -288,6 +293,17 @@ Writing starts at the beginning of
 .I tarfile.
 See \-v option for information on how to increase verbosity while the 
 archive is written.
+.sp
+The Option
+.B \-c
+may be used together with
+.B \-diff
+and
+.BR \-t .
+In this case, the whole command line has to be similar to the
+command line for the
+.B \-copy
+mode.
 .TP
 .B \-copy
 Copy named files to the target directory which is the last file type argument.
@@ -1019,6 +1035,12 @@ behaves as if it has been called with the
 option.
 For this reason, the option \-B in practice is rarely needed.
 .TP
+.BI b= "#"
+Set the block size for tape operations.
+See option
+.BI blocks= #\c
+\&.
+.TP
 .B \-block\-number
 Print the archive block number (archive offset / 512) at the beginning of
 each line when in verbose mode. This allows to write backup scripts
@@ -1029,7 +1051,7 @@ that archive the offsets for files and that use
 to skip to the tape block number of interest in a fast way
 if a single file needs to be restored.
 .TP
-.BR blocks= "#, " b= "#"
+.BI blocks= "#\fR, " b= "#"
 Set the blocking factor of the 
 .I tarfile
 to #\ times 512\ bytes (unless a different multiplication factor has 
@@ -1092,9 +1114,13 @@ option is preferred by people who like to use an option that behaves
 similar to the interface of the historic
 .BR tar (1)
 implementations.
+.sp
+The best method to set the blocksize is to use the
+.BI bs= #
+option.
 .RE
 .TP
-.BR bs= #
+.BI bs= #
 Set output block size to #.
 You may use the same method as in 
 .BR dd (1)
@@ -2087,6 +2113,16 @@ in addition again excludes
 all directories called
 .IR SCCS " and " RCS.
 .TP
+.BI f= "tarfilename"
+Use
+.I tarfilename
+as the name for the
+.B tar
+archive.
+See option
+.BI file= tarfilename\c
+\&.
+.TP
 .B \-fifo
 Use a 
 .I fifo
@@ -2105,9 +2141,15 @@ option. A rule of dumb for the fifo size is to use more than the buffer size
 of the tape drive and less then half of the real memory of the machine.
 A good choice would be to use a fifo size between 8 and 256 MB.
 This may increase backup speed up to 5% compared to the speed achieved
-with the default fifo size. Note that with a DLT drive that gives 12MB/s
+with the default fifo size. Note that with a DLT drive from y2000 that gives 12MB/s
 transfer rate, a fifo of 256 MB size will keep the tape at least streaming
 in units of 20 seconds.
+.sp
+Future LTO tape drives are expected to implement transfer rates of aprox. 3GB/s
+and need a much larger
+.B fifo
+size to keep the tape streaming.
+.sp
 All options that start with the 
 .B \-f
 sequence are sensitive to typo problems, see BUGS section for more information.
@@ -2120,7 +2162,7 @@ All options that start with the
 .B \-f
 sequence are sensitive to typo problems, see BUGS section for more information.
 .TP
-.BR file= "tarfilename, " f= "tarfilename"
+.BI file= "tarfilename\fR, " f= "tarfilename"
 Use 
 .I tarfilename 
 as the name for the
@@ -2362,11 +2404,12 @@ and section
 .B "INCREMENTAL BACKUPS
 for more information.
 .TP
-.BR fs= #
+.BI fs= #
 Set fifo size to #.
 See 
 .I bs=
 for the possible syntax.
+.sp
 The default size of the fifo is 1 Mbyte on Sun mc68000 systems,
 4 Mbytes on non mmap() aware Linux systems and 8 Mbytes on all other systems.
 See
@@ -2536,7 +2579,7 @@ and
 .B \-l
 will enable warning messages when not all links could be archived.
 .TP
-.BR level= dumplevel
+.BI level= dumplevel
 Set level for incremental dumps.
 This option is used to switch 
 .B star
@@ -2544,7 +2587,7 @@ into
 .I "true incremental dump"
 mode.
 The 
-.B dumplevel
+.I dumplevel
 may be in the range between 0..99.
 .sp
 In 
@@ -2634,7 +2677,7 @@ will print
 .I "Linkcount below zero
 warnings for non directory hard links inside the sub-tree.
 .TP
-.BR list= filename
+.BI list= filename
 Read filenames for store/create/list/diff command from
 .I filename.
 The file
@@ -2730,7 +2773,7 @@ allows to efficiently exclude whole trees from scanning. This helps to
 avoid scannings directory trees that are on remote file systems or contain
 excessive bad blocks.
 .TP
-.BR maxsize= #
+.BI maxsize= #
 Do not store files in
 .I tarfile
 if they are bigger than #.
@@ -2869,7 +2912,7 @@ specify
 .BI new\-volume\-script= script
 in addition in order to automate the media change procedure.
 .TP
-.BR newer= filename
+.BI newer= filename
 Do not store files to 
 .I tarfile
 if their modification time is not newer than the modification time of
@@ -3105,7 +3148,7 @@ will restore the access control lists from the archive for files
 if the \-acl option is specified.
 If the option \-acl has not been specified, ACLs are not restored at all.
 .TP
-.BR pattern= "pattern, " pat= pattern
+.BI pattern= "pattern\fR, " pat= pattern
 Set matching pattern to
 .I pattern.
 A maximum of 100 pattern=pat options may be specified. 
@@ -3654,7 +3697,7 @@ option. Patterns specified as file type arguments will not be affected.
 .B \-version
 Print version information and exit.
 .TP
-.BR VOLHDR= name
+.BI VOLHDR= name
 Use
 .I name
 to generate a volume header.

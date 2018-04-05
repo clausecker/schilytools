@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * This file contains modifications Copyright 2006-2018 J. Schilling
  *
- * @(#)comb.c	1.25 15/02/06 J. Schilling
+ * @(#)comb.c	1.26 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.25 15/02/06 J. Schilling"
+#pragma ident "@(#)comb.c 1.26 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -90,7 +90,7 @@ register char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
@@ -292,7 +292,11 @@ char *file;
 	rdp = gpkt.p_idel;
 	Do_prs = 0;
 #if defined(INS_BASE)
+#ifdef	PROTOTYPES
+	fprintf(iop,"PATH=%s/" SCCS_BIN_PRE "bin:$PATH\n", INS_BASE);
+#else
 	fprintf(iop,"PATH=%s/ccs/bin:$PATH\n", INS_BASE);
+#endif
 	fprintf(iop,"export PATH\n");
 #endif
 	fprintf(iop,"trap \"rm -f COMB$$ comb$$ s.COMB$$; exit 2\" 1 2 3 15\n");

@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)implicit.cc	1.7 18/03/15 2017-2018 J. Schilling
+ * @(#)implicit.cc	1.8 18/03/25 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)implicit.cc	1.7 18/03/15 2017-2018 J. Schilling";
+	"@(#)implicit.cc	1.8 18/03/25 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -1179,7 +1179,7 @@ find_percent_rule(register Name target, Property *command, Boolean rechecking)
 				line->body.line.is_out_of_date = true;
 			}
 			if (debug_level > 0) {
-				(void) printf(gettext("%*sBuilding %s using pattern rule %s: "),
+				(void) printf(gettext("%*sBuilding %s using pattern rule %s: %s"),
 					      recursion_level,
 					      "",
 					      true_target->string_mb,

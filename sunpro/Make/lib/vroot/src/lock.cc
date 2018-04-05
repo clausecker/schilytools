@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)lock.cc	1.17	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)lock.cc	1.6 17/05/18 2017 J. Schilling
+ * @(#)lock.cc	1.7 18/03/25 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.cc	1.6 17/05/18 2017 J. Schilling";
+	"@(#)lock.cc	1.7 18/03/25 2017-2018 J. Schilling";
 #endif
 
 #include <avo/intl.h>	/* for NOCATGETS */
@@ -146,7 +146,8 @@ file_lock(char *name, char *lockname, int *file_locked, int timeout)
 
 			if ((counter > 5) && (!printed_warning)) {
 				/* Print waiting message after 5 secs */
-				(void) getcwd(msg, MAXPATHLEN);
+				if (getcwd(msg, MAXPATHLEN) == NULL)
+					msg[0] = nul_char;
 				fprintf(stderr,
 					gettext("file_lock: file %s is already locked.\n"),
 					name);

@@ -1,0 +1,239 @@
+New features with AN-2018-04-05:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Schily Makefilesystem: $(PREINSDIR) was added to the install target
+	path for more flexibility.
+
+-	Schily.Copyright: Updated Copyright dates.
+	Added information for the programs "cstyle", "isaexec", "libboshcmd",
+	"libdbgmalloc", "osh", "tests".
+
+-	conf/cc-config.sh The version from Ferbruary 1 2018 has issues:
+	clang has not been correctly discovered on FreeBSD
+	gcc on Ubunto has no longer been correctly discovered
+
+-	include/schily/mconfig.h: As part of the schily portability
+	framework now includes code to auto-detect GCC and Clang with
+	enabled Address Sanitizer.
+
+-	libschily: handlecond()/raisecond() now use the fallback implementation
+	when the code is compiled with Address Sanitizer support enabled. This
+	is needed as handlecond() marks the saved framepointer on the stack
+	in order to install a software signal handler.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	libschily: getfp() is automatically disabled when the code is compiled
+	with Address Sanitizer support enabled.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	libschily: dlerror() emulation: the POSIX standard defies it as:
+
+		char *dlerror()
+
+	but we had const char *dlerror()
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	libschily: match.c could access data past the end of a string in case
+	that the pattern was illegal (e.g. "[0-]"). We now no longer treat
+	'-' special in case that it appears at the end of a set	pattern.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	ved/bsh/libshedit: map.c did dereference a NULL pointer in case that
+	someone tried to delete a mapping when no mapping exists.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	bsh: A file with the content "if 0" did cause the shell to try to access
+	lp[-1] in cond.c
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	bsh: A file with the content "#!" did cause the shell to try to
+	dereference a NULL pointer.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	bsh: the own malloc() implementation is now automatically disabled when
+	compiling with Address Sanitizer support enabled. This is needed as the
+	address sanitizer replaces malloc() with an own implementation that is
+	in conflict with out malloc() implementation.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	smake: The inline "echo" implementation did not correctly parse the
+	command line.
+
+	Thanks to Steffen Nurpmeso for reporting.
+
+-	star: A new message "Badly formed number '%s'.\n" has been introduced to
+	help to identify illegal arguments to complex options like fs=.
+
+-	star: The man page has been enhanced in order to reduce the chance
+	to missunderstand descriptions.
+
+-	hdump: The od(1) man page from OpenSolaris has been integrated since our
+	hdump implementation has been enhanced in 2010 in order to replace the
+	closed source od implementation from OpenSolaris.
+
+-	hdump: The hdump(1) man page now mentions the options -C, -O, -s, -S,
+	-x, -X and better deals with the object size.
+
+-	hdump: "od file1 123 file2" no longer believes file2 is the hdump
+	"count", but rather tries to display three files: "file1", "123", "file2"
+	as required by "od.
+
+-	hdump: When in hdump mode, a simple "starting offset" number no longer
+	switches the radix to octal, but leaves the address radix hexadecimal
+	and interprets the "starting offset" as decimal.
+
+-	smake: The builtin optimization for "echo" in smake needs to understand
+	where a echo command ends in a semicolon, but this detection did
+	incorrectly hit inside a "" or '' string and send the parts to the
+	right of the semocolon to the shell.
+
+	Thanks to Steffen Nurpmeso for reporting.
+
+-	cdrecord: The version date was added to the cdrecord -version output
+
+-	cdda2wav: The version date was added to the cdda2wav -version output
+
+-	mkisofs: The version date was added to the mkisofs -version output
+
+-	mkisofs: a possible core dump with code conversion for Joliet has
+	been fixed. The bug has been introduced with schilytools--2018-01-26
+
+	Thanks to Jan Engelhardt <jengelh@inai.de> (SuSE) for reporting.
+
+-	SunPro Make: Some printf() arguments have been removed that have been
+	left over by Sun Microsystems from a former code restructuring.
+
+-	SunPro Make: The return code from getcwd() is now evaluated.
+
+-	SunPro Make: The man page now mentions that the current version
+	of make forwards command line macros to sub-makes.
+
+-	SunPro Make: Added an unneeded D_NONE case label to make clang quiet.
+
+-	SCCS: The SCCS help file installation now makes use of the new
+	makefile feature $(PREINSDIR).
+
+-	SCCS: The SCCS binaries installation now makes use of the new
+	makefile feature $(PREINSDIR).
+
+-	SCCS: The help program now also auto expands help messages for own
+	malfunctions.
+
+-	SCCS: The sccs-help.1 man page now explains the algorithm, the
+	way localization works and how the file /usr/ccs/lib/help/helploc
+	works.
+
+-	SCCS: The sccs-get.1 man page now includes the fallback PATH for the
+	&sccs.include.filename% keyword directive.
+
+-	SCCS: all commands: SCCS_HELP_PRE and SCCS_BIN_PRE are now used for
+	external files and for searching the locale definition files.
+
+-	SCCS: README.SCCS now mentions the new make command line macro options
+	SCCS_HELP_PRE and SCCS_BIN_PRE. See $(PREINSDIR) above.
+
+-	SCCS: unit tests now honor SCCS_BIN_PRE.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

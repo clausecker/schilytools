@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)rmchg.c	1.43 18/03/15 J. Schilling
+ * @(#)rmchg.c	1.44 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.43 18/03/15 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.44 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -131,7 +131,7 @@ char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

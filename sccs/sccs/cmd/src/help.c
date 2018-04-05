@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)help.c	1.8 17/05/22 J. Schilling
+ * @(#)help.c	1.10 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.8 17/05/22 J. Schilling"
+#pragma ident "@(#)help.c 1.10 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -115,7 +115,7 @@ main(argc, argv)
 #else
 	char *default_locale = NOGETTEXT("C"); /* Default English. */
 #endif
-	char *helpdir = NOGETTEXT("/ccs/lib/help/locale/");
+	char *helpdir = NOGETTEXT("/" SCCS_BIN_PRE "lib/help/locale/");
 	char help_dir[200]; /* Directory to search for help text. */
 	char *locale = NULL; /* User's locale. */
 
@@ -146,14 +146,18 @@ main(argc, argv)
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	    NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	    NOGETTEXT("/usr/ccs/lib/locale/"));
+	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	Fflags = FTLMSG;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	/*
 	 * Set directory to search for SCCS help text, not general

@@ -28,12 +28,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)bdiff.c	1.22 17/06/13 J. Schilling
+ * @(#)bdiff.c	1.23 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.22 17/06/13 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.23 18/04/04 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -118,7 +118,7 @@ static char Error[128];
 static int seglim;	/* limit of size of file segment to be generated */
 
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-static char diffp[]  =  INS_BASE "/ccs/bin/" "diff";
+static char diffp[]  =  INS_BASE  "/" SCCS_BIN_PRE "bin/" "diff";
 #else
 #define	diffp		diff
 #define	INS_BASE	""

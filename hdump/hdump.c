@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.38 16/10/27 Copyright 1986-2016 J. Schilling */
+/* @(#)hdump.c	1.41 18/03/26 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.38 16/10/27 Copyright 1986-2016 J. Schilling";
+	"@(#)hdump.c	1.41 18/03/26 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	traditional Solaris interface, /usr/bin/od and /usr/xpg4/bin/od must be
  *	hard linked. Symlinks would be followed by getexecname().
  *
- *	Copyright (c) 1986-2016 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -353,7 +353,7 @@ main(ac, av)
 	char	Aflag = '\0';
 	Llong	skip = 0;
 	Llong	nbytes = 0;
-	int	lradix = 16;
+	int	lradix = 16;		/* hdump defaults to hex. radix */
 	int	cac;
 	char	* const * cav;
 #if	defined(USE_NLS)
@@ -383,11 +383,23 @@ main(ac, av)
 	(void) textdomain(TEXT_DOMAIN);
 #endif
 
+	/*
+	 * First set defaults related to the current CLI variant.
+	 */
 	if (streql(filename(av[0]), "od")) {		/* "od" interface? */
-		is_od = TRUE;
-		lradix = 8;
+		is_od = TRUE;				/* "od" behavior   */
+		lradix = 8;				/* "od" def is octal */
 #ifdef	HAVE_GETEXECNAME
 		if (strstr(getexecname(), "/xpg4")) {	/* X-Open interface? */
+			/*
+			 * This makes the behavior for the -c option depend
+			 * on the current locale instead of using single byte
+			 * characters as with the AT&T "od".
+			 *
+			 * It also disables to use "-" as a synonym for stdin
+			 * and it modifies the way the "offset" argument past
+			 * a single file argument is parsed.
+			 */
 			is_xpg4 = TRUE;
 		}
 #endif
@@ -427,19 +439,19 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2016 %s\n"),
+		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2018 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.38",
+				"1.41",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
 	}
-	is_pipe = out_ispipe();
+	is_pipe = out_ispipe();		/* Flush output if we write to a pipe */
 
 	if (skip < 0)
 		comerrno(EX_BAD, _("Invalid offset %lld.\n"), skip);
 	if (skip > 0) {
-		is_posix = TRUE;
+		is_posix = TRUE;	/* Using -j skip switches to POSIX */
 		pos = skip;
 		if (pos != skip) {
 			comerrno(EX_BAD,
@@ -450,7 +462,7 @@ main(ac, av)
 	if (nbytes < 0)
 		comerrno(EX_BAD, _("Invalid number of bytes.\n"));
 	if (nbytes > 0) {
-		is_posix = TRUE;
+		is_posix = TRUE;	/* Using -N bytes switches to POSIX */
 		lenflag = TRUE;
 		len = nbytes;
 		if (len != nbytes) {
@@ -460,7 +472,7 @@ main(ac, av)
 		}
 	}
 	if (Aflag || tflag)
-		is_posix = TRUE;
+		is_posix = TRUE;	/* Using -A/-t switches to POSIX */
 
 	cac = ac;
 	cav = av;
@@ -487,6 +499,12 @@ main(ac, av)
 	if (!(cac == 1 && cav[0][0] == '+')) {
 		cac--, cav++;
 	}
+	/*
+	 * Only when not in POSIX CLI mode, use the historical offset arg.
+	 * POSIX CLI mode is not related to the POSIX binary path, but used
+	 * when the POSIX options -A/-j/-N/-t are part of the current
+	 * command line.
+	 */
 	if (!is_posix && ((is_od && cac == 1) || (!is_od && cac > 0))) {
 		char	*arg = cav[0];
 
@@ -508,16 +526,21 @@ main(ac, av)
 			dst.argc--;
 		}
 	}
-	if (didoffset && cac > 0) {
+	if (!is_od && didoffset && cac > 0) {
+		/*
+		 * Hdump supports an additional "count" argument when
+		 * only a single file has been specified.
+		 */
 		len = (off_t)myatoll(cav[0]);
 		lenflag = TRUE;
 		cac--; cav++;
 		dst.argc--;
-	}
 
-	if (didoffset && cac > 0) {
-		errmsgno(EX_BAD, _("Unexpected argument '%s'.\n"), cav[0]);
-		usage(1);
+		if (cac > 0) {
+			errmsgno(EX_BAD,
+				_("Unexpected argument '%s'.\n"), cav[0]);
+			usage(1);
+		}
 	}
 
 	setaddrfmt(Aflag, lradix);	/* Set format for address labels */
@@ -1192,7 +1215,7 @@ myatoll(s)
 	char	*p;
 	Llong	val = 0;
 
-	if (s[0] == 'x' && s[1] == '\0') {
+	if (s[0] == 'x' && s[1] == '\0') {	/* "x" -> "0x0" */
 		curradix = 16;
 		return (val);
 	} else if (s[0] == 'x' &&
@@ -1207,8 +1230,12 @@ myatoll(s)
 		    (p[1] == '\0' ||
 		    ((p[1] == 'b' || p[1] == 'B') && p[2] == '\0'))) {
 		curradix = 10;
-	} else {
-		curradix = 8;
+	} else {				/* No prefix -> default */
+		if (is_od)
+			curradix = 8;
+		/*
+		 * In hdump mode, leave curradix at 0.
+		 */
 	}
 
 	p = astollb(s, &val, curradix);

@@ -1,4 +1,4 @@
-#ident @(#)admin.mk	1.6 14/08/13 
+#ident @(#)admin.mk	1.8 18/04/04 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -7,8 +7,11 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-#INSDIR=	sccs
-INSDIR=		ccs/bin
+PREINSDIR=	$(SCCS_BIN_PRE)
+#SCCS_BIN_PRE=	sccs/
+SCCS_HELP_PRE=	ccs/
+SCCS_BIN_PRE=	ccs/
+INSDIR=		bin
 TARGET=		admin
 CPPOPTS +=	-DSUN5_0
 CPPOPTS +=	-DUSE_LARGEFILES
@@ -16,6 +19,8 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
+CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 CPPOPTS +=	-DSCCS_V6_ENV			# Assume -V6 if SCCS_V6= is present
 

@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)idsubst.c	1.72 18/03/15 J. Schilling
+ * @(#)idsubst.c	1.73 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)idsubst.c 1.72 18/03/15 J. Schilling"
+#pragma ident "@(#)idsubst.c 1.73 18/04/04 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -530,7 +530,8 @@ readcopy(name, tp)
 
 		if (p == NULL) {
 			strlcpy(ipath, sccs_insbase, sizeof (ipath));
-			strlcat(ipath, "/ccs/include", sizeof (ipath));
+			strlcat(ipath, "/" SCCS_HELP_PRE "include",
+				sizeof (ipath));
 			p = ipath;
 		}
 		do {

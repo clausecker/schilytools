@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)sccsdiff.sh	1.7 18/03/06 Copyright 2011-2018 J. Schilling
+# @(#)sccsdiff.sh	1.8 18/04/04 Copyright 2011-2018 J. Schilling
 #
 # CDDL HEADER START
 #
@@ -36,7 +36,7 @@
 # if running under control of the NSE (-q option given), will look for
 # get in the directtory from which it was run (if -q, $0 will be full pathname)
 #
-PATH=INS_BASE/ccs/bin:$PATH:/usr/ccs/bin
+PATH=INS_BASE/SCCS_BIN_PREbin:$PATH:/usr/ccs/bin
 
 trap "rm -f /tmp/get[abc]$$;exit 1" 1 2 3 15
 umask 077

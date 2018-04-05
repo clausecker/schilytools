@@ -1,4 +1,4 @@
-#ident "@(#)README.SCCS	1.8 17/05/25 "
+#ident "@(#)README.SCCS	1.9 18/04/04 "
 
 This is a portable and reworked version of the original UNIX SCCS source.
 
@@ -66,6 +66,50 @@ rm cmd/sccs/cmd/*/OBJ/*/*.o
 smake INS_BASE=/usr/sccs
 smake INS_BASE=/usr/sccs install
 
+The normal install tree looks this way:
+
+/opt/schily/bin/		contains symlink to the "sccs" program
+/opt/schily/ccs/bin/		contains sccs binaries
+/opt/schily/ccs/include/	fallback search dir for %sccs.include.filename%
+/opt/schily/ccs/lib/		contains internal libs
+/opt/schily/ccs/lib/help/	contains help files
+/opt/schily/share/man/		contains man pages
+/opt/schily/xpg4/bin/		contains POSIX variants of the binaries
+
+With:
+
+smake clean
+smake INS_BASE=/usr SCCS_BIN_PRE= SCCS_HELP_PRE=share/
+smake INS_BASE=/usr SCCS_BIN_PRE= SCCS_HELP_PRE=share/ install
+
+the install tree looks this way:
+
+/usr/bin/		contains sccs binaries
+/usr/lib/		contains internal libs
+/usr/share/include/	fallback search dir for %sccs.include.filename%
+/usr/share/lib/help/	contains help files
+/usr/share/man/		contains man pages
+/usr/xpg4/bin/		contains POSIX variants of the binaries
+
+Note that in this case, the binary of the UNIX "diff" program may overwrite
+a local "diff" variant. If you plan to create binary packages that do not
+include the UNIX diff program, be careful to check whether the local diff
+program supports all needed features for SCCS and allows SCCS to work
+correctly in all cases. If you like to verify that you local "diff"
+implementation works correctly, run the following:
+
+smake clean
+smake INS_BASE=/tmp/SCCSTEST SCCS_BIN_PRE= SCCS_HELP_PRE=share/ tests
+cp /usr/bin/diff /tmp/SCCSTEST/bin
+smake INS_BASE=/tmp/SCCSTEST SCCS_BIN_PRE= SCCS_HELP_PRE=share/ tests
+
+and verify that both runs of the test work correctly.
+
+Also note that this kind of parameters work with smake, gnu make and the
+schilytools variant of SunPro Make, but not with the Sun/Oracle provided
+version of SunPro Make because the latter does not propagate command line
+macro definitions to sub make programs.
+
 NOTE: If you are compiling using a K&R C-compiler and like to install
 to a different dir than /usr/ccs, you need to edit all *.c files in
 the directory cmd/sccs/cmd/src. Look for the comments tagged XXX for further
@@ -77,9 +121,13 @@ If you like to "install" to a different intermediate directory, call e.g.:
 
 smake install DESTDIR=/tmp
 
+Note that you need to add all other make parameters as well on the command line
+when you use DESTDIR=<dir>.
+
 If you like to use sccs, you need to add /opt/schily/ccs/bin to your PATH.
 
-If your PATH includes: ${INS_BASE}/xpg4/bin:${INS_BASE}/ccs/bin
+If your PATH has ${INS_BASE}/xpg4/bin before ${INS_BASE}/ccs/bin
+line in: ${INS_BASE}/xpg4/bin:${INS_BASE}/ccs/bin
 you will use the POSIX compliant variants of the SCCS tools.
 
 Further compile time options:

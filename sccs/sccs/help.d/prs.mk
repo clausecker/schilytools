@@ -1,4 +1,4 @@
-#ident @(#)prs.mk	1.2 07/12/02 
+#ident @(#)prs.mk	1.3 18/03/28 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -7,7 +7,9 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		ccs/lib/help/locale/C
+PREINSDIR=	$(SCCS_HELP_PRE)
+SCCS_HELP_PRE=	ccs/
+INSDIR=		lib/help/locale/C
 TARGET=		prs
 #XMK_FILE=	Makefile.man
 

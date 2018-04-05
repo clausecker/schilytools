@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.104 18/03/15 J. Schilling
+ * @(#)admin.c	1.105 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.104 18/03/15 J. Schilling"
+#pragma ident "@(#)admin.c 1.105 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -111,7 +111,7 @@ static char	*z;			/* for validation program name	*/
 static char	had_flag[NFLAGS];	/* -f seen list			*/
 static char	rm_flag[NFLAGS];	/* -d seen list			*/
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-static char	Valpgmp[]	=	NOGETTEXT(INS_BASE "/ccs/bin/" "val");
+static char	Valpgmp[]	=	NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "bin/" "val");
 #endif
 static char	Valpgm[]	=	NOGETTEXT("val");
 static int	fexists;		/* Current file exists		*/
@@ -179,7 +179,7 @@ char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

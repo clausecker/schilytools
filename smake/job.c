@@ -1,8 +1,8 @@
-/* @(#)job.c	1.11 18/02/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)job.c	1.12 18/03/29 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.11 18/02/18 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)job.c	1.12 18/03/29 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 87, 88, 91, 1995-2018 by J. Schilling
@@ -636,6 +636,8 @@ doecho(s, print)
 		ndone:
 			break;
 		case ';':
+			if (singleq || doubleq)
+				goto normal;
 			/*
 			 * Point past the ';' after the echo command
 			 * and skip the following white space.

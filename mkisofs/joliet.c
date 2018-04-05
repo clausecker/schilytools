@@ -1,8 +1,8 @@
-/* @(#)joliet.c	1.70 18/01/25 joerg */
+/* @(#)joliet.c	1.71 18/04/04 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.70 18/01/25 joerg";
+	"@(#)joliet.c	1.71 18/04/04 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -258,13 +258,6 @@ convert_to_unicode(buffer, size, source, inls)
 	int		jsize;
 
 	/*
-	 * joliet_strlen() behaves the same way: Stop at the first nul byte.
-	 * Note: we cannot have 16 bit character representations in the source
-	 * encoding, if we like strlen() to work correctly.
-	 */
-	jsize = strlen(source);
-
-	/*
 	 * If we get a NULL pointer for the source, it means we have an
 	 * inplace copy, and we need to make a temporary working copy first.
 	 */
@@ -274,6 +267,13 @@ convert_to_unicode(buffer, size, source, inls)
 	} else {
 		tmpbuf = (Uchar *) source;
 	}
+
+	/*
+	 * joliet_strlen() behaves the same way: Stop at the first nul byte.
+	 * Note: we cannot have 16 bit character representations in the source
+	 * encoding, if we like strlen() to work correctly.
+	 */
+	jsize = strlen((char *)tmpbuf);
 
 	/*
 	 * Now start copying characters.  If the size was specified to be 0,

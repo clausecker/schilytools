@@ -1,8 +1,8 @@
-/* @(#)cond.c	1.27 17/08/06 Copyright 1985-2017 J. Schilling */
+/* @(#)cond.c	1.28 18/03/20 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cond.c	1.27 17/08/06 Copyright 1985-2017 J. Schilling";
+	"@(#)cond.c	1.28 18/03/20 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  *		switch .. case .. end
  *		read
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -211,7 +211,7 @@ gnextline()
 			lp = growline(lp, nextline());
 		else
 			lp = nextline();
-	} while (lp[strlen(lp)-1] == '\\');
+	} while (lp && *lp && lp[strlen(lp)-1] == '\\');
 	return (lp);
 }
 

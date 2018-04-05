@@ -1,8 +1,8 @@
-/* @(#)dlfcn.c	1.1 14/05/15 Copyright 2014 J. Schilling */
+/* @(#)dlfcn.c	1.3 18/03/21 Copyright 2014-2018 J. Schilling */
 /*
  *	Functions to support POSIX shared library handling
  *
- *	Copyright (c) 2014 J. Schilling
+ *	Copyright (c) 2014-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -80,11 +80,11 @@ dlsym(handle, name)
 }
 
 #define	ERROR_BUFFER_SIZE	1024
-EXPORT const char *
+EXPORT char *
 dlerror()
 {
-	const char	*ret = NULL;
-	DWORD		dwMsgLen;
+	char	*ret = NULL;
+	DWORD	dwMsgLen;
 static	char	buff[ERROR_BUFFER_SIZE + 1];
 
 	if (_dl_lasterror == 0)
@@ -101,7 +101,7 @@ static	char	buff[ERROR_BUFFER_SIZE + 1];
 				ERROR_BUFFER_SIZE,
 				NULL);
 	_dl_lasterror = 0;
-	ret = (const char *)buff;
+	ret = buff;
 
 	return (ret);
 }
@@ -153,10 +153,10 @@ dlsym(handle, name)
 	return (ret);
 }
 
-EXPORT const char *
+EXPORT char *
 dlerror()
 {
-	const char	*ret = NULL;
+	char	*ret = NULL;
 
 	if (_dl_lasterror == 0)
 		return (ret);
@@ -205,10 +205,10 @@ dlsym(handle, name)
 	return (ret);
 }
 
-EXPORT const char *
+EXPORT char *
 dlerror()
 {
-	const char	*ret = NULL;
+	char	*ret = NULL;
 
 	return (ret);
 }

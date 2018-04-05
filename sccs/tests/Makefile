@@ -1,9 +1,11 @@
-#ident "@(#)Makefile	1.7 17/08/17 "
+#ident "@(#)Makefile	1.8 18/04/03 "
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
+
+SCCS_BIN_PRE=	ccs/
 
 all tests: /tmp/SCCSTEST all-tests all-v6-tests
 	@echo "Don't forget to remove /tmp/SCCSTEST in case you don't like to repeat the test"
@@ -18,23 +20,23 @@ all-v6-tests: /tmp/SCCSTEST all-tests cssc-v6-tests sccs-v6-tests
 #
 cssc-tests:
 	SCCS_V6=a unset SCCS_V6 && \
-	cd cssctests && dir=$${dir-/tmp/SCCSTEST/ccs/bin} "$(MAKE)"
+	cd cssctests && dir=$${dir-/tmp/SCCSTEST/$(SCCS_BIN_PRE)bin} "$(MAKE)"
 	@echo "Watch for FAIL and XFAIL in the output"
 
 sccs-tests:
 	SCCS_V6=a unset SCCS_V6 && \
-	cd sccstests && dir=$${dir-/tmp/SCCSTEST/ccs/bin} "$(MAKE)"
+	cd sccstests && dir=$${dir-/tmp/SCCSTEST/$(SCCS_BIN_PRE)bin} "$(MAKE)"
 	@echo "Watch for FAIL and XFAIL in the output"
 
 cssc-v6-tests:
 	cd cssctests && \
-		(dir=$${dir-/tmp/SCCSTEST/ccs/bin}; SCCS_V6=; export dir SCCS_V6; \
+		(dir=$${dir-/tmp/SCCSTEST/$(SCCS_BIN_PRE)bin}; SCCS_V6=; export dir SCCS_V6; \
 		(cd ../common; . ./real-thing; eval $$TESTING_SCCS_V6) && "$(MAKE)" )
 	@echo "Watch for FAIL and XFAIL in the output"
 
 sccs-v6-tests:
 	cd sccstests && \
-		(dir=$${dir-/tmp/SCCSTEST/ccs/bin}; SCCS_V6=; export dir SCCS_V6; \
+		(dir=$${dir-/tmp/SCCSTEST/$(SCCS_BIN_PRE)bin}; SCCS_V6=; export dir SCCS_V6; \
 		(cd ../common; . ./real-thing; eval $$TESTING_SCCS_V6) && "$(MAKE)" )
 	@echo "Watch for FAIL and XFAIL in the output"
 

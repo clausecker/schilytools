@@ -1,2 +1,801 @@
-.so man1/hdump.1
-.\" "@(#)od.1	1.1 15/06/08 "
+'\" te
+.\" Copyright 1989 AT&T
+.\" Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
+.\" Portions Copyright (c) 2005, Sun Microsystems, Inc.  All Rights Reserved
+.\" Copyright (c) 2012-2018, J. Schilling
+.\" Copyright (c) 2013, Andreas Roehler
+.\"
+.\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
+.\" permission to reproduce portions of its copyrighted documentation.
+.\" Original documentation from The Open Group can be obtained online
+.\" at http://www.opengroup.org/bookstore/.
+.\"
+.\" The Institute of Electrical and Electronics Engineers and The Open Group,
+.\" have given us permission to reprint portions of their documentation.
+.\"
+.\" In the following statement, the phrase "this text" refers to portions
+.\" of the system documentation.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form in
+.\" the Sun OS Reference Manual, from IEEE Std 1003.1, 2004 Edition, Standard
+.\" for Information Technology -- Portable Operating System Interface (POSIX),
+.\" The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004 by the
+.\" Institute of Electrical and Electronics Engineers, Inc and The Open Group.
+.\" In the event of any discrepancy between these versions and the original
+.\" IEEE and The Open Group Standard, the original IEEE and The Open Group
+.\" Standard is the referee document.
+.\"
+.\" The original Standard can be obtained online at
+.\" http://www.opengroup.org/unix/online.html.
+.\"
+.\" This notice shall appear on any product containing this material.
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH od 1 "2018/03/23" "SunOS 5.11" "User Commands"
+.SH NAME
+od \- octal dump
+.SH SYNOPSIS
+.LP
+.nf
+\fB/usr/bin/od\fR [\fB-bcCDdFfOoSsvXx\fR] [\fB-\fR] [\fIfile\fR] [\fIoffset_string\fR]
+.fi
+
+.LP
+.nf
+\fB/usr/bin/od\fR [\fB-bcCDdFfOoSsvXx\fR] [\fB-A\fR \fIaddress_base\fR] [\fB-j\fR \fIskip\fR]
+     [\fB-N\fR \fIcount\fR] [\fB-t\fR \fItype_string\fR].\|.\|. [\fB-\fR] [\fIfile\fR].\|.\|.
+.fi
+
+.LP
+.nf
+\fB/usr/xpg4/bin/od\fR [\fB-bcCDdFfOoSsvXx\fR] [\fIfile\fR] [\fIoffset_string\fR]
+.fi
+
+.LP
+.nf
+\fB/usr/xpg4/bin/od\fR [\fB-bcCDdFfOoSsvXx\fR] [\fB-A\fR \fIaddress_base\fR]
+     [\fB-j\fR \fIskip\fR] [\fB-N\fR \fIcount\fR] [\fB-t\fR \fItype_string\fR].\|.\|. [\fIfile\fR].\|.\|.
+.fi
+
+.SH DESCRIPTION
+.sp
+.LP
+The
+.B od
+command copies sequentially each input file to standard output and
+transforms the input data according to the output types specified by the
+.B -t
+or
+.B -bcCDdFfOoSsvXx
+options. If no output type is specified, the
+default output is as if
+.B "-t o2"
+had been specified.  Multiple types
+can be specified by using multiple
+.B -bcCDdFfOoSstvXx
+options. Output lines
+are written for each type specified in the order in which the types are
+specified. If no
+.I file
+is specified, the standard input is used.  The
+.RI [ offset_string ]
+operand is mutually exclusive from the
+.BR -A ,
+.BR -j ,
+.BR -N ,
+and
+.B -t
+options. For the purposes of this description, the
+following terms are used:
+.br
+.ne 2
+.TP 18n
+.B word
+Refers to a 16-bit unit, independent of the word size of the machine.
+
+.br
+.ne 2
+.TP
+.B long word
+Refers to a 32-bit unit.
+
+.br
+.ne 2
+.TP
+.B double long word
+Refers to a 64-bit unit.
+
+.SH OPTIONS
+.sp
+.LP
+The following options are supported:
+.br
+.ne 2
+.TP 17n
+.BI -A " address_base
+Specifies the input offset base. The
+.I address_base
+option-argument must be
+a character.  The characters
+.BR d ,
+.B o
+and
+.B x
+specify that the
+offset base will be written in decimal, octal or hexadecimal, respectively. The
+character
+.B n
+specifies that the offset will not be written. Unless
+.B -A
+.B n
+is specified, the output line will be preceded by the input offset,
+cumulative across input files, of the next byte to be written. In addition, the
+offset of the byte following the last byte written will be displayed after all
+the input data has been processed. Without the
+.B -A
+.I address_base
+option and the
+.RI [ offset_string ]
+operand, the input offset base is displayed
+in octal.
+
+.br
+.ne 2
+.TP
+.B -b
+Interprets bytes in octal.  This is equivalent to
+.BR "-t o1" .
+
+.SS "/usr/bin/od"
+.sp
+.ne 2
+.TP 17n
+.B -c
+Displays single-byte characters. Certain non-graphic characters appear as
+C-language escapes:
+.sp
+.in +2
+.nf
+null	        \fB\e0\fR
+backspace	   \fB\eb\fR
+form-feed	   \fB\ef\fR
+new-line	   \fB\en\fR
+return	   \fB\er\fR
+tab	        \fB\et\fR
+.fi
+.in -2
+.sp
+
+Others appear as 3-digit octal numbers. For example:
+.sp
+.in +2
+.nf
+\fBecho "hello world" | od \(mic\fR
+0000000   h   e   l   l   o       w   o   r   l   d  \en
+0000014
+.fi
+.in -2
+.sp
+
+.SS "/usr/xpg4/bin/od"
+.sp
+.ne 2
+.TP 18n
+.B -c
+Interprets bytes as single-byte or multibyte characters according to the
+current setting of the
+.B LC_CTYPE
+locale category. Printable multibyte
+characters are written in the area corresponding to the first byte of the
+character. The two-character sequence
+.B **
+is written in the area
+corresponding to each remaining byte in the character, as an indication that
+the
+character is continued. Non-graphic characters appear the same as they would
+using the
+.B -C
+option.
+
+.br
+.ne 3
+.TP
+.B -C
+Interprets bytes as single-byte or multibyte characters according to the
+current setting of the
+.B LC_CTYPE
+locale category. Printable multibyte
+characters are written in the area corresponding to the first byte of the
+character. The two-character sequence ** is written in the area corresponding
+to
+each remaining byte in the character, as an indication that the character is
+continued. Certain non-graphic characters appear as C escapes:
+.sp
+.in +2
+.nf
+null	        \fB\e0\fR
+backspace	   \fB\eb\fR
+form-feed	   \fB\ef\fR
+new-line	   \fB\en\fR
+return	   \fB\er\fR
+tab	        \fB\et\fR
+.fi
+.in -2
+.sp
+
+Other non-printable characters appear as one three-digit octal number for each
+byte in the character.
+
+.br
+.ne 2
+.TP
+.B -d
+.RB "Interprets words in unsigned decimal.  This is equivalent to" " -t"
+.BR u2 .
+
+.br
+.ne 2
+.TP
+.B -D
+.RB "Interprets long words in unsigned decimal. This is equivalent to" " -t"
+.BR u4 .
+
+.br
+.ne 2
+.TP
+.B -f
+Interprets long words in floating point.  This is equivalent to
+.B -t
+.BR f4 .
+
+.br
+.ne 2
+.TP
+.B -F
+Interprets double long words in extended precision. This is equivalent to
+.BR "-t f8" .
+
+.br
+.ne 2
+.TP
+.BI -j " skip
+Jumps over
+.I skip
+bytes from the beginning of the input. The
+.B od
+command will read or seek past the first
+.I skip
+bytes in the concatenated
+input files.  If the combined input is not at least
+.I skip
+bytes long, the
+.B od
+command will write a diagnostic message to standard error and exit with
+a non-zero exit status.
+.sp
+By default, the
+.I skip
+option-argument is interpreted as a decimal number.
+With a leading
+.B 0x
+or
+.BR 0X ,
+the offset is interpreted as a hexadecimal
+number; otherwise, with a leading
+.BR 0 ,
+the offset will be interpreted as an
+octal number.  Appending the character
+.BR b ,
+.BR k ,
+or
+.B m
+to offset
+will cause it to be interpreted as a multiple of
+.BR 512 ,
+.B 1024
+or
+\fB1\|048\|576\fR bytes, respectively. If the
+.I skip
+number is hexadecimal,
+any appended
+.B b
+is considered to be the final hexadecimal digit. The
+address is displayed starting at
+.BR 0000000 ,
+and its base is not implied by
+the base of the
+.I skip
+option-argument.
+
+.br
+.ne 2
+.TP
+.BI -N " count
+Formats no more than
+.I count
+bytes of input. By default,
+.I count
+is
+interpreted as a decimal number.  With a leading
+.B 0x
+or
+.BR 0X ,
+.I count
+is interpreted as a hexadecimal number; otherwise, with a leading
+.BR 0 ,
+it is interpreted as an octal number. If
+.I count
+bytes of input
+(after successfully skipping, if
+.BI -j skip
+is specified) are not
+available, it will not be considered an error. The
+.B od
+command will format
+the input that is available.  The base of the address displayed is not implied
+by the base of the
+.I count
+option-argument.
+
+.br
+.ne 2
+.TP
+.B -o
+Interprets words in octal. This is equivalent to
+.BR "-t o2" .
+
+.br
+.ne 2
+.TP
+.B -O
+.RB "Interprets long words in unsigned octal.  This is equivalent to" " -t"
+.BR o4 .
+
+.br
+.ne 2
+.TP
+.B -s
+Interprets words in signed decimal. This is equivalent to
+.BR "-t d2" .
+
+.br
+.ne 2
+.TP
+.B -S
+Interprets long words in signed decimal. This is equivalent to
+.B -t
+.BR d4 .
+
+.br
+.ne 2
+.TP
+.BI -t " type_string
+Specifies one or more output types. The
+.I type_string
+option-argument must
+be a string specifying the types to be used when writing the input data. The
+string must consist of the type specification characters:
+.sp
+.ne 2
+.RS
+.TP
+.B a
+.IR "Named character" .
+Interprets bytes as named characters. Only the least
+significant seven bits of each byte will be used for this type specification.
+Bytes with the values listed in the following table will be written using the
+corresponding names for those characters.
+.sp
+The following are named characters in
+.BR od :
+.sp
+.in +2
+.nf
+Value   Name
+
+\000    nul
+\001    soh
+\002    stx
+\003    etx
+\004    eot
+\005    enq
+\006    ack
+\007    bel
+\010    bs
+\011    ht
+\012    lf
+\013    vt
+\014    ff
+\015    cr
+\016    so
+\017    si
+\020    dle
+\021    dc1
+\022    dc2
+\023    dc3
+\024    dc4
+\025    nak
+\026    syn
+\027    etb
+\030    can
+\031    em
+\032    sub
+\033    esc
+\034    fs
+\035    gs
+\036    rs
+\037    us
+\040    sp
+\177    del
+.fi
+.in -2
+.sp
+
+.br
+.ne 3
+.TP
+.B c
+.IR Character .
+Interprets bytes as single-byte or multibyte characters
+specified by the current setting of the
+.B LC_CTYPE
+locale category.
+Printable multibyte characters are written in the area corresponding to the
+first byte of the character. The two-character sequence
+.B **
+is written in
+the area corresponding to each remaining byte in the character, as an
+indication
+that the character is continued. Certain non-graphic characters appear as C
+escapes: \fB\e0\fR, \fB\ea\fR, \fB\eb\fR, \fB\ef\fR, \fB\en\fR, \fB\er\fR,
+\fB\et\fR, \fB\ev\fR\&. Other non-printable characters appear as one
+three-digit
+octal number for each byte in the character.
+
+.LP
+The type specification characters
+.BR d ,
+.BR f ,
+.BR o ,
+.BR u ,
+and
+.B x
+can be followed by an optional unsigned decimal integer that specifies
+the number of bytes to be transformed by each instance of the output type.
+
+.br
+.ne 2
+.TP 16n
+.B f
+.IR "Floating point" .
+Can be followed by an optional
+.BR F ,
+.BR D ,
+or
+.B L
+indicating that the conversion should be applied to an item of type
+.BR float ,
+.BR double ,
+or
+.BR "long double" ,
+respectively.
+
+.br
+.ne 2
+.TP
+\fBd\fR, \fBo\fR, \fBu\fR, and \fBx
+.IR "Signed decimal" ,
+.IR octal ,
+.IR "unsigned decimal" ,
+and
+.IR hexadecimal ,
+respectively. Can be followed by an optional
+.BR C ,
+.BR S ,
+.BR I ,
+or
+.B L
+indicating that the conversion should be applied to
+an item of type
+.BR char ,
+.BR short ,
+.BR int ,
+or
+.BR long ,
+respectively.
+.LP
+Multiple types can be concatenated within the same
+.I type_string
+and
+multiple
+.B -t
+options can be specified. Output lines are written for each
+type specified in the order in which the type specification characters are
+specified.
+.RE
+
+.br
+.ne 2
+.TP
+.B -v
+Shows all input data (verbose). Without the
+.B -v
+option, all groups of
+output lines that would be identical to the immediately preceding output line
+(except for byte offsets), will be replaced with a line containing only an
+asterisk (*).
+
+.br
+.ne 2
+.TP
+.B -x
+Interprets words in hex. This is equivalent to
+.BR "-t x2" .
+
+.br
+.ne 2
+.TP
+.B -X
+Interprets long words in hex. This is equivalent to
+.BR "-t x4" .
+
+.SH OPERANDS
+.SS "/usr/bin/od"
+.sp
+.LP
+The following operands are supported for
+.B /usr/bin/od
+only:
+.br
+.ne 2
+.TP 22n
+\fB\(mi\fR
+Uses the standard input in addition to any files specified.  When this operand
+is not given, the standard input is used only if no
+.I file
+operands are
+specified.
+
+.br
+.ne 2
+.TP
+.I file
+A path name of a file to be read. If no
+.I file
+operands are specified, the
+standard input will be used. If there are no more than two operands, none of
+the
+.BR -A ,
+.BR -j ,
+.BR -N ,
+or
+.B -t
+options is specified, and
+.I any
+of
+the following are true:
+.RS
+.TP
+1.
+the first character of the last operand is a plus sign (+)
+.TP
+2.
+the first character of the second operand is numeric
+.TP
+3.
+the first character of the second operand is
+.B x
+and the second character
+of the second operand is a lower-case hexadecimal character or digit
+.TP
+4.
+the second operand is named "\fBx\fR"
+.TP
+5.
+the second operand is named "\fB\&.\fR"
+.LP
+then the corresponding operand is assumed to be an offset operand rather than a
+file operand.
+.sp
+Without the
+.B -N
+count option, the display continues until an end-of-file
+is reached.
+.RE
+
+.br
+.ne 5
+.TP
+.PD 0
+.BI "[+][0]" offset "[.][b|B]
+.TP
+\fB[+][0][\fIoffset\fR]\fB[.]\fR
+.TP
+\fB[+][0x|x]\fR[\fIoffset\fR]\fR
+.TP
+\fB[+][0x|x]\fR\fIoffset\fB[B]\fR
+.PD
+The
+.I offset_string
+operand specifies the byte offset in the file where
+dumping is to commence.  The offset is interpreted in octal bytes by default.
+If
+\fIoffset\fR begins with "\fB0\fR", it is interpreted in octal. If \fIoffset\fR
+begins with "\fBx\fR" or "\fB0x\fR", it is interpreted in hexadecimal and any
+appended "\fBb\fR" is considered to be the final hexadecimal digit. If "." is
+appended, the offset is interpreted in decimal. If "\fBb\fR" or "\fBB\fR" is
+appended, the offset is interpreted in units of
+.B 512
+bytes. If the
+.B file
+argument is omitted, the
+.I offset
+argument must be preceded by a
+plus sign
+.RB ( + ).
+The address is displayed starting at the given offset.
+The radix of the address will be the same as the radix of the offset, if
+specified, otherwise it will be octal.  Decimal overrides octal, and it is an
+error to specify both hexadecimal and decimal conversions in the same offset
+operand.
+
+.SS "/usr/xpg4/bin/od"
+.sp
+.LP
+The following operands are supported for
+.B /usr/xpg4/bin/od
+only:
+.br
+.ne 2
+.TP 22n
+.I file
+Same as
+.BR /usr/bin/od ,
+except only one of the first two conditions must be
+true.
+.br
+.ne 7
+.TP
+.PD 0
+[\fB+\fR][\fB0\fR]\fIoffset\fR[\fB.\fR]\|[\fBb\fR|\fBB\fR]
+.TP
+\fB+\fR[\fIoffset\fR][\fB.\fR]
+.TP
+[\fB+\fR][\fB0x\fR][\fIoffset\fR]
+.TP
+[\fB+\fR][\fB0x\fR]\fR\fIoffset\fR\|[\fBB\fR]
+.TP
+\fB+x\fR[\fIoffset\fR]
+.TP
+\fB+x\fIoffset\fR[\fBB\fR]
+.PD
+Description of
+.I offset_string
+is the same as for
+.BR /usr/bin/od .
+
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables
+that affect the execution of
+.BR od :
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+.BR LC_NUMERIC ,
+and
+.BR NLSPATH .
+.SH EXIT STATUS
+.sp
+.LP
+The following exit values are returned:
+.br
+.ne 2
+.TP
+.B 0
+Successful completion.
+
+.be
+.ne 2
+.TP
+.B >0
+An error occurred.
+
+.SH ATTRIBUTES
+.sp
+.LP
+See
+.BR attributes (5)
+for descriptions of the following attributes:
+.SS "/usr/bin/od"
+.sp
+
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i)
+lw(2.75i) |lw(2.75i)
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySUNWtoo
+_
+CSIenabled
+.TE
+
+.SS "/usr/xpg4/bin/od"
+.sp
+
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i)
+lw(2.75i) |lw(2.75i)
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySUNWxcu4
+_
+CSIenabled
+_
+Interface StabilityStandard
+.TE
+
+.SH SEE ALSO
+.sp
+.LP
+.BR hdump (1),
+.BR sed (1),
+.BR attributes (5),
+.BR environ (5),
+.BR standards (5)
+
+.br
+.ne 5
+.SH AUTHORS
+This
+.B od
+implementation was written as
+.BR hdump (1)
+in 1986 by J\*org Schilling.
+In 2010, it has been enhanced by J\*org Schilling to include support
+for the features of the AT&T and POSIX versions of
+.B od
+in order to replace the formerly closed source
+.B od
+implementation from OpenSolaris.
+.B od
+is maintained by J\*org Schilling.

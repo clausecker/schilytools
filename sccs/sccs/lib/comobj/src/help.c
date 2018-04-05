@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)help.c	1.19 15/02/07 J. Schilling
+ * @(#)help.c	1.20 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.19 15/02/07 J. Schilling"
+#pragma ident "@(#)help.c 1.20 18/04/04 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -91,8 +91,13 @@
  *	the following text lines are printed.
  *	Comments are ignored.
  */
-
+#ifdef	PROTOTYPES
+#define	HELPLOC		"/" SCCS_HELP_PRE "lib/help/helploc"
+#define	HELPDIR		"/" SCCS_HELP_PRE "lib/help/locale/"
+#else
 #define	HELPLOC		"/ccs/lib/help/helploc"
+#define	HELPDIR		"/ccs/lib/help/locale/"
+#endif
 #define	DEFAULT_LOCALE	"C"			/* Default English. */
 
 static int	findprt __PR((FILE *f, char *p, char *locale));
@@ -179,7 +184,7 @@ findprt(f, p, locale)
 	char	hfile[max(8192, PATH_MAX+1)];
 	FILE	*iop;
 	char	*dftfile = NOGETTEXT("/default");
-	char	*helpdir = NOGETTEXT("/ccs/lib/help/locale/");
+	char	*helpdir = NOGETTEXT(HELPDIR);
 	char	help_dir[max(8192, PATH_MAX+1)]; /* Directory to search for. */
 
 	if ((int) size(p) > 50)
@@ -269,7 +274,7 @@ findprt(f, p, locale)
 
 	if (q == NULL) {	/* endfile? */
 		fclose(iop);
-		if ((Fflags & FTLFUNC) == 0) {
+		if ((Fflags & FTLRECURSE) == 0) {
 			/*
 			 * We have not been called via a callback from fatal().
 			 * We thus may fall fatal() again without causing an
@@ -277,7 +282,9 @@ findprt(f, p, locale)
 			 */
 			snprintf(SccsError, sizeof (SccsError),
 				gettext("Key '%s' not found (he1)"), p);
+			Fflags |= FTLRECURSE;
 			fatal(SccsError);
+			Fflags &= ~FTLRECURSE;
 		}
 		return (1);
 	}

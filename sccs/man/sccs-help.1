@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-help.1	1.15 18/03/15 Copyright (c) 2011-2018 J. Schilling
+.\" @(#)sccs-help.1	1.16 18/04/02 Copyright (c) 2011-2018 J. Schilling
 .\"  Copyright (c) 1998, Sun Microsystems, Inc.  All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-help 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-help 1 "2018/04/02" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-help, help \- ask for help regarding SCCS error or warning messages
 .SH SYNOPSIS
@@ -65,6 +65,32 @@ error or warning message), or an
 command name.
 .B help
 responds with an explanation of the message or a usage line for the command.
+
+.LP
+When the argument is all non-numeric, the text is searched in the file
+.BR cmds .
+See the section
+.B FILES
+below for the related base directory.
+.LP
+When the argument starts with alpha characters and ends in numbers, the
+alpha prefix is used as a
+.B key
+to locate a file.
+If the
+.I key
+is seen in the
+.B helploc
+file, a new directory prefix is taken from that file, else
+it is used as a file name with the standard prefix to search for messages.
+The remainder of the argument is used to search a label in the
+message file and to print the message text.
+.LP
+When the argument starts with numbers, or a file related to
+.I key
+could not be found,
+the text is searched in the file
+.BR default .
 
 .LP
 When all else fails, try
@@ -104,9 +130,47 @@ No help could be printed.
 .sp
 .ne 2
 .TP 15n
-.B /usr/lib/help
+.BI /usr/ccs/lib/help/locale/ locale_name
 directory containing files of message text
-
+.sp
+.ne 2
+.TP
+.B /usr/ccs/lib/help/locale/C
+directory containing default files of message text in case that there
+is no text for the current locale
+.sp
+.ne 2
+.TP
+.B /usr/ccs/lib/help/helploc
+A file to map search keys to alternate directories to look for help
+messages. Each line in the file contains a search
+.BR key ,
+a TAB character and a
+.BR "directory name" .
+If a matching key is found, the file searched for messages is named:
+.IB directory_name / locale_name / key
+.SH "FILE FORMAT
+.LP
+The message files use the following format:
+.br
+.ne 2
+.TP 15n
+.B *
+Lines that start with a star are ignored and used as comments.
+.br
+.ne 2
+.TP
+.BI \- label
+Lines that start with a minus sign and that end in a
+.I label
+mark the beginning of message text related to
+.IR label .
+.br
+.ne 2
+.TP
+other
+Other text is the message block that is printed until the next
+label ot the end of the file is seen.
 .br
 .ne 7
 .SH ATTRIBUTES

@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.18 18/03/15 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.19 18/04/03 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2018/03/15" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2018/04/03" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -3970,6 +3970,20 @@ is built differently for each by virtue of conditional macros. Since the
 target cannot simultaneously satisfy both dependency relationships, it is
 conflicted.
 .RE
+
+.SH NOTES
+.sp
+.LP
+Unlike older versions of
+.BR make ,
+this version of 
+.B make
+forwards command line macros to sub-make programs as required by
+.BR POSIX .
+If you like to get the previous behavior, set the environment
+.B SUN_MAKE_COMPAT_MODE
+to an empty value before you start
+.BR make .
 
 .SH BUGS
 .sp

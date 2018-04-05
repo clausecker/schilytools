@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.293 18/03/15 joerg */
+/* @(#)mkisofs.c	1.294 18/04/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.293 18/03/15 joerg";
+	"@(#)mkisofs.c	1.294 18/04/02 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -2109,10 +2109,11 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("mkisofs %s (%s-%s-%s)\n\n\
+		printf(_("mkisofs %s %s (%s-%s-%s)\n\n\
 Copyright (C) 1993-1997 %s\n\
 Copyright (C) 1997-2018 %s\n"),
 			version_string,
+			VERSION_DATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS,
 			_("Eric Youngdale"),
 			_("Joerg Schilling"));

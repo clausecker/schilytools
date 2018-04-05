@@ -1,13 +1,13 @@
-/* @(#)map.c	1.39 17/11/05 Copyright 1986-2017 J. Schilling */
+/* @(#)map.c	1.40 18/03/20 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.39 17/11/05 Copyright 1986-2017 J. Schilling";
+	"@(#)map.c	1.40 18/03/20 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2017 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -529,6 +529,8 @@ _del_map(mn)
 	register	smap_t	*np = first_map;
 	register	smap_t	*tn;
 
+	if (np == NULL)
+		return (FALSE);
 	if (streql(mn, np->m_from)) {
 		first_map = np->m_next;
 		if (np->m_comment)

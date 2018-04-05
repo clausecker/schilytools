@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.17 15/02/06 Copyright 2011-2015 J. Schilling */
+/* @(#)sccscvt.c	1.18 18/04/04 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.17 15/02/06 Copyright 2011-2015 J. Schilling";
+	"@(#)sccscvt.c	1.18 18/04/04 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *	is kept in special degenerated comment at the beginning of the comment
  *	block.
  *
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -88,7 +88,7 @@ main(ac, av)
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	    NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	    NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	    NOGETTEXT("/usr/ccs/lib/locale/"));

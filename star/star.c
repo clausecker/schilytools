@@ -1,8 +1,8 @@
-/* @(#)star.c	1.359 18/01/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.360 18/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.359 18/01/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.360 18/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -82,6 +82,8 @@ LOCAL	int	getpriv		__PR((char *arg, long *valp));
 LOCAL	int	getlldefault	__PR((char *arg, Llong *valp, int mult));
 EXPORT	int	getbnum		__PR((char *arg, Llong *valp));
 EXPORT	int	getknum		__PR((char *arg, Llong *valp));
+EXPORT	int	getknum		__PR((char *arg, Llong *valp));
+LOCAL	int	getenum		__PR((char *arg, long *valp));
 LOCAL	int	addtarfile	__PR((const char *tarfile));
 LOCAL	int	add_diffopt	__PR((char *optstr, long *flagp));
 LOCAL	int	gethdr		__PR((char *optstr, long *typep));
@@ -1429,7 +1431,7 @@ BOOL	Ointeractive	 = FALSE;
 				&keep_nonempty_dirs, &do_install,
 				&nullout, &nullout,
 				&use_fifo, &no_fifo, &no_fifo, &shmflag,
-				getnum, &fs,
+				getenum, &fs,
 				&volhdr,
 				&listfile, &pkglistfile,
 				&multivol, &newvol_script,
@@ -1445,7 +1447,7 @@ BOOL	Ointeractive	 = FALSE;
 				&Zflag, &zflag, &bzflag, &bzflag, &lzoflag,
 				&p7zflag, &xzflag, &lzipflag,
 				&compress_prg,
-				getnum, &bs,
+				getenum, &bs,
 				getbnum, &llbs,
 				getbnum, &llbs,
 				&multblk,
@@ -2193,6 +2195,8 @@ getlldefault(arg, valp, mult)
 	ret = getllnum(arg, valp);
 	if (ret == 1)
 		*valp *= mult;
+	else
+		errmsgno(EX_BAD, "Badly formed number '%s'.\n", arg);
 	return (ret);
 }
 
@@ -2210,6 +2214,18 @@ getknum(arg, valp)
 	Llong	*valp;
 {
 	return (getlldefault(arg, valp, 1024));
+}
+
+LOCAL int
+getenum(arg, valp)
+	char	*arg;
+	long	*valp;
+{
+	int ret = getnum(arg, valp);
+
+	if (ret != 1)
+		errmsgno(EX_BAD, "Badly formed number '%s'.\n", arg);
+	return (ret);
 }
 
 LOCAL int

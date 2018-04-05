@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)misc.cc	1.12 18/03/15 2017-2018 J. Schilling
+ * @(#)misc.cc	1.13 18/03/25 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.12 18/03/15 2017-2018 J. Schilling";
+	"@(#)misc.cc	1.13 18/03/25 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -299,8 +299,10 @@ get_current_path(void)
 	static char		*current_path;
 
 	if (current_path == NULL) {
-		(void)getcwd(pwd, sizeof(pwd));
-		if (pwd[0] == (int) nul_char) {
+		pwd[0] = (int) nul_char;
+
+		if (getcwd(pwd, sizeof(pwd)) == NULL ||
+		    pwd[0] == (int) nul_char) {
 			pwd[0] = (int) slash_char;
 			pwd[1] = (int) nul_char;
 #ifdef DISTRIBUTED
@@ -1029,4 +1031,3 @@ find_run_directory (char	*cmd,
 
     return rv;
 }
-

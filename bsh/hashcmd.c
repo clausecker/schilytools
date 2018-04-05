@@ -1,13 +1,13 @@
-/* @(#)hashcmd.c	1.31 15/08/08 Copyright 1986-2015 J. Schilling */
+/* @(#)hashcmd.c	1.32 18/03/19 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.31 15/08/08 Copyright 1986-2015 J. Schilling";
+	"@(#)hashcmd.c	1.32 18/03/19 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
  *
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -236,7 +236,9 @@ hashcmd(std)
 			abbusage(std, cmd);
 			break;
 		}
-		if (name != NULL && streql(fbasename(name), fbasename(initav0))) {
+		if (name == NULL)
+			break;
+		if (streql(fbasename(name), fbasename(initav0))) {
 			break;
 		}
 		if (cmdfname != NULL)	/* Can do this only on commandfiles */

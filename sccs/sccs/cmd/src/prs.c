@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)prs.c	1.48 15/10/14 J. Schilling
+ * @(#)prs.c	1.49 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.48 15/10/14 J. Schilling"
+#pragma ident "@(#)prs.c 1.49 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -76,7 +76,7 @@
 # include	<schily/sysexits.h>
 
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/ccs/bin/" "get");
+static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "bin/" "get");
 #endif
 static char	Getpgm[]   =   NOGETTEXT("get");
 static char defline[] = NOGETTEXT(":Dt:\t:DL:\nMRs:\n:MR:COMMENTS:\n:C:");
@@ -167,7 +167,7 @@ char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

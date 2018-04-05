@@ -1,11 +1,14 @@
-#ident @(#)diff.mk	1.8 16/10/05 
+#ident @(#)diff.mk	1.10 18/04/04 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		ccs/bin
+PREINSDIR=	$(SCCS_BIN_PRE)
+SCCS_HELP_PRE=	ccs/
+SCCS_BIN_PRE=	ccs/
+INSDIR=		bin
 TARGET=		diff
 #SYMLINKS=	../../bin/sccs
 
@@ -19,6 +22,8 @@ CPPOPTS +=	-DUSE_WCHAR
 CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_OST_OSCMD\"
 CPPOPTS +=	-D_TS_ERRNO
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
+CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 
 CFILES=		diff.c
 

@@ -1,4 +1,4 @@
-#ident @(#)delta.mk	1.5 14/08/09 
+#ident @(#)delta.mk	1.7 18/04/04 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -7,8 +7,11 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-#INSDIR=	sccs
-INSDIR=		ccs/bin
+PREINSDIR=	$(SCCS_BIN_PRE)
+#SCCS_BIN_PRE=	sccs/
+SCCS_HELP_PRE=	ccs/
+SCCS_BIN_PRE=	ccs/
+INSDIR=		bin
 TARGET=		delta
 
 CPPOPTS +=	-DSUN5_0
@@ -17,6 +20,8 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
+CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		delta.c

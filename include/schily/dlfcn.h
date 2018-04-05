@@ -1,8 +1,8 @@
-/* @(#)dlfcn.h	1.4 15/07/13 Copyright 2015 J. Schilling */
+/* @(#)dlfcn.h	1.5 18/03/21 Copyright 2015-2018 J. Schilling */
 /*
  *	Abstraction from dlfcn.h
  *
- *	Copyright (c) 2015 J. Schilling
+ *	Copyright (c) 2015-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -98,7 +98,7 @@ extern	int	dlclose	__PR((void *__handle));
 extern	void	*dlsym	__PR((void  *__handle, const char *name));
 #endif
 #ifndef	HAVE_DLERROR
-extern	const char *dlerror __PR((void));
+extern	char	*dlerror __PR((void));
 #endif
 
 #ifdef	__cplusplus

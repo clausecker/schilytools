@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2014 J. Schilling
+ * This file contains modifications Copyright 2006-2018 J. Schilling
  *
- * @(#)what.c	1.15 14/08/09 J. Schilling
+ * @(#)what.c	1.16 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.15 14/08/09 J. Schilling"
+#pragma ident "@(#)what.c 1.16 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -82,7 +82,7 @@ register char **argv;
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

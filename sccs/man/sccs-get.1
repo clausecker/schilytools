@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.39 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-get.1	1.41 18/04/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2018/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -1084,6 +1084,10 @@ A colon separated list of directories where to look for include
 files for a
 .BI %\&sccs.include. filename \&%
 replacement.
+If the environment
+.B SCCS_INCLUDEPATH
+does not exist, the include files are looked for in
+.BR /usr/ccs/include/ .
 
 .br
 .ne 4
@@ -1228,6 +1232,16 @@ If the file
 exists in the current directory and a fatal signal is received, a coredump
 is initiated via
 .BR abort (3).
+
+.br
+.ne 3
+.TP
+.B /usr/ccs/include/
+If the environment
+.B SCCS_INCLUDEPATH
+does not exist, include files for the
+.BI %\&sccs.include. filename \&%
+keyword directive are searched in this directory.
 
 .SH ATTRIBUTES
 

@@ -1,4 +1,4 @@
-. \" @(#)hdump.1	1.6 15/06/08 Copyright 1985-2015 J. Schilling
+. \" %Z%%M%	%I% %E% Copyright 1985-2018 J. Schilling
 . \"  Manual page for hdump
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH HDUMP 1 "15/06/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH HDUMP 1 "%E%" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 hdump, od \- displays (dumps) binary contents of a file
 .SH SYNOPSIS
@@ -79,18 +79,18 @@ hexadecimal unless otherwise specified (see options below).
 .PP
 .B Hdump 
 assumes the 
-.I "starting address
+.I "starting_address
 and the 
 .I count 
-are in decimal unless  there is a leading 0--interpreted as octal, or a leading
+are in decimal unless there is a leading 0--interpreted as octal, or a leading
 0x--interpreted as hexadecimal (as in C).
 If the 
-.I "starting address
+.I "starting_address
 is followed by a
 .IR 'b' ,
 the number is multiplied by 512,
 if the 
-.I "starting address
+.I "starting_address
 is followed by a
 .IR 'B' ,
 the number is multiplied by 512.
@@ -110,6 +110,21 @@ the label will be displayed in octal.
 A decimal radix of the label will be displayed if the
 .I starting_address
 is followed by a dot.
+.LP
+If the
+.I "starting address
+is odd, it is rounded down
+to the next even value.
+.LP
+The default size of displayed objects is
+.B short
+unless otherwise mentioned.
+.LP
+For the
+.BR od (1)
+features see the
+.BR od (1)
+man page.
 
 .SH OPTIONS
 .TP 10
@@ -131,13 +146,29 @@ Use a hexadecimal radix for address labels.
 .RE
 .TP
 .B \-a
-Display content also in characters
+Display content also as printable characters,
+set the object size to
+.BR bytes .
 .TP
 .B \-b
-Display content in bytes
+Display content in
+.BR bytes .
 .TP
 .B \-c
-Display content in quoted characters
+Display content in quoted characters,
+set the object size to
+.BR bytes .
+.TP
+.B \-C
+Display bytes as single-byte or multi-byte characters
+according to the current setting of the
+.B LC_CTYPE
+locale category.
+Printable multibyte characters are written in the area
+corresponding to the first byte of the character.
+The two-character sequence ** is written in the area
+corresponding to each remaining byte in the character,
+as an indication that the character is continued.
 .TP
 .B \-d
 Display content in decimal
@@ -157,7 +188,10 @@ The same syntax as with
 is supported.
 .TP
 .B \-l
-Display content as longs
+Display content as
+.B longs
+instead of using the default size
+.BR short .
 .TP
 .BI \-N " count
 Stop after dumping
@@ -168,7 +202,23 @@ The same syntax as with
 is supported.
 .TP
 .B \-o
-Display content in octal
+Display content in
+.B octal
+instead of using the default
+.B hexadecimal
+radix.
+.TP
+.B \-O
+Interprets long words in unsigned octal.
+This is equivalent to -t o4.
+.TP
+.B \-s
+Interprets words in signed decimal.
+This is equivalent to -t d2.
+.TP
+.B \-S
+Interprets long words in signed decimal.
+This is equivalent to -t d4.
 .TP
 .BI \-t " format
 .RS
@@ -239,6 +289,14 @@ Display content as unsigned numbers.
 .B \-v
 Show all data even if it is identical.
 .TP
+.B \-x
+Interprets words in hex.
+This is equivalent to -t x2.
+.TP
+.B \-X
+Interprets long words in hex.
+This is equivalent to -t x4.
+.TP
 .B \-help
 Prints a short summary of the 
 .B hdump
@@ -251,7 +309,10 @@ version number string and exists.
 
 .PP
 Address label radix depends on starting address radix (decimal if ends with .)
-\&'b' after starting address multiplies with 512 'B' with 1024
+\&'b' or 'B' after starting address multiplies with 512.
+
+.SH "SEE ALSO
+.BR od (1).
 
 .SH NOTES
 none

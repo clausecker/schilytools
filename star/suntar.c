@@ -1,8 +1,8 @@
-/* @(#)suntar.c	1.37 18/01/14 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)suntar.c	1.38 18/03/19 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.37 18/01/14 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)suntar.c	1.38 18/03/19 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
@@ -139,8 +139,8 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&showtime, &no_stats, &do_stats, &do_fifostats,
 				&numeric,  &no_fifo, &no_fsync, &no_fsync,
 				&do_sattr,		/* --sattr */
-				getnum, &bs,
-				getnum, &fs,
+				getenum, &bs,
+				getenum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
 				&doacl, &dofflags,
 				&copyflag, &diff_flag,
@@ -155,7 +155,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&uflag,
 				&xflag,
 
-				getnum, &bs,		/* -b blocks */
+				getenum, &bs,		/* -b blocks */
 				&multblk,		/* -B */
 				&sunDflag,		/* -D */
 				&errflag,		/* -e */

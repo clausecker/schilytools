@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read.cc	1.20 18/03/15 2017-2018 J. Schilling
+ * @(#)read.cc	1.21 18/04/04 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.20 18/03/15 2017-2018 J. Schilling";
+	"@(#)read.cc	1.21 18/04/04 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -1039,6 +1039,13 @@ start_new_line_no_skip:
 				break;
 			case D_READONLY:
 				doreadonly(makefile_name);
+				break;
+			case D_NONE:
+				/*
+				 * Since we checked for directive_type != 0
+				 * before, this cannot happen, but it makes
+				 * clang quiet.
+				 */
 				break;
 			}
 			if (sunpro_compat) {

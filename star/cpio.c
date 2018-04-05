@@ -1,8 +1,8 @@
-/* @(#)cpio.c	1.29 18/01/14 Copyright 1989, 2005-2018 J. Schilling */
+/* @(#)cpio.c	1.30 18/03/19 Copyright 1989, 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.29 18/01/14 Copyright 1989, 2005-2018 J. Schilling";
+	"@(#)cpio.c	1.30 18/03/19 Copyright 1989, 2005-2018 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
@@ -191,8 +191,8 @@ gargs(ac, av)
 #ifndef	__old__lint
 				&showtime, &no_stats, &do_fifostats,
 				&numeric,  &no_fifo, &no_fsync, &no_fsync,
-				getnum, &bs,
-				getnum, &fs,
+				getenum, &bs,
+				getenum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
 				&doacl, &dofflags,
 				&zflag, &bzflag, &lzoflag,

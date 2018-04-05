@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)main.cc	1.39 18/03/15 2017-2018 J. Schilling
+ * @(#)main.cc	1.40 18/03/25 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.39 18/03/15 2017-2018 J. Schilling";
+	"@(#)main.cc	1.40 18/03/25 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -1211,16 +1211,13 @@ handle_interrupt(int)
 				       current_target->string_mb);
 			if (current_target->stat.is_dir) {
 				(void) fprintf(stderr,
-					       gettext("not removed.\n"),
-					       current_target->string_mb);
+					       gettext("not removed.\n"));
 			} else if (unlink(current_target->string_mb) == 0) {
 				(void) fprintf(stderr,
-					       gettext("removed.\n"),
-					       current_target->string_mb);
+					       gettext("removed.\n"));
 			} else {
 				(void) fprintf(stderr,
 					       gettext("could not be removed: %s.\n"),
-					       current_target->string_mb,
 					       errmsg(errno));
 			}
 		}
@@ -1247,16 +1244,13 @@ handle_interrupt(int)
 					       rp->target->string_mb);
 				if (rp->target->stat.is_dir) {
 					(void) fprintf(stderr,
-						       gettext("not removed.\n"),
-						       rp->target->string_mb);
+						       gettext("not removed.\n"));
 				} else if (unlink(rp->target->string_mb) == 0) {
 					(void) fprintf(stderr,
-						       gettext("removed.\n"),
-						       rp->target->string_mb);
+						       gettext("removed.\n"));
 				} else {
 					(void) fprintf(stderr,
 						       gettext("could not be removed: %s.\n"),
-						       rp->target->string_mb,
 						       errmsg(errno));
 				}
 			}

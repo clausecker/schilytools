@@ -1,4 +1,4 @@
-/* @(#)match.c	1.28 17/10/03 Copyright 1985, 1995-2017 J. Schilling */
+/* @(#)match.c	1.30 18/03/20 Copyright 1985, 1995-2018 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #define	POSIX_CLASS		/* Support [[:alpha:]] by default */
@@ -12,7 +12,7 @@
 /*
  *	Pattern matching functions
  *
- *	Copyright (c) 1985, 1995-2017 J. Schilling
+ *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -130,7 +130,7 @@ typedef	unsigned char	Uchar;
  */
 #ifdef	POSIX_CLASS
 #define	CHK_POSIX_CLASS						\
-	else if (*lpat == LCLASS) {				\
+	if (*lpat == LCLASS) {					\
 		if (lpat[1] == ':') {				\
 			char	class[CL_SIZE+1];		\
 			char	*pc = class;			\
@@ -161,7 +161,7 @@ typedef	unsigned char	Uchar;
 			}					\
 			continue;				\
 		}						\
-	}
+	} else
 #else
 #define	CHK_POSIX_CLASS
 #endif
@@ -177,11 +177,15 @@ typedef	unsigned char	Uchar;
 		ok = TRUE;				\
 	}						\
 	while (*lpat != RCLASS) {			\
+		if (*lpat == '\0') {			\
+			ok = FALSE;			\
+			goto out;			\
+		}					\
+		CHK_POSIX_CLASS				\
 		if (*lpat == QUOTE)			\
 			lpat++;				\
-		CHK_POSIX_CLASS				\
 		lo_bound = *lpat++;			\
-		if (*lpat == RANGE) {			\
+		if (*lpat == RANGE && lpat[1] != RCLASS) { \
 			lpat++;				\
 			if (*lpat == QUOTE)		\
 				lpat++;			\
@@ -452,6 +456,11 @@ prim(ap)
 	case RBRACK:
 		return (ENDSTATE);
 	case LCLASS:
+		if (ap->Ch == NOT)
+			nextitem(ap);	/* Eat '^' at first position */
+		if (ap->Ch != LCLASS)
+			nextitem(ap);	/* Eat char at first position */
+
 		while (ap->Ch != RCLASS && ap->Ch != '\0') {
 #ifdef	POSIX_CLASS
 			if (ap->Ch == LCLASS) {
@@ -483,6 +492,13 @@ prim(ap)
 					return (ENDSTATE);
 			}
 #endif
+			/*
+			 * A '-' before the ending ']' does not have the
+			 * special range meaning.
+			 */
+			if (ap->Ch == RANGE &&
+			    pch(ap) != RCLASS)	/* One more char required */
+				nextitem(ap);	/* so get char past '-'	  */
 			nextitem(ap);
 		}
 		if (ap->Ch == '\0')

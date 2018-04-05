@@ -25,15 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * This file contains modifications Copyright 2006-2018 J. Schilling
  *
- * @(#)fatal.h	1.9 15/02/16 J. Schilling
+ * @(#)fatal.h	1.10 18/04/02 J. Schilling
  */
 #ifndef	_COMMON_FATAL_H
 #define	_COMMON_FATAL_H
 
 #if defined(sun)
-#pragma ident "@(#)fatal.h 1.9 15/02/16 J. Schilling"
+#pragma ident "@(#)fatal.h 1.10 18/04/02 J. Schilling"
 #endif
 /*
  * @(#)fatal.h 1.3 06/12/12
@@ -56,6 +56,7 @@ extern  char    *nsedelim;
 /*
  * Definitions for Fflags:
  */
+# define FTLRECURSE	0200000	/* We have been called recursively	  */
 # define FTLMSG		0100000	/* Print "ERROR [filename]: " first	  */
 # define FTLCLN		 040000	/* Call clean up function		  */
 # define FTLFUNC	 020000	/* Call (*Ffunc)(msg)			  */

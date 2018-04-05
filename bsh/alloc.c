@@ -1,11 +1,11 @@
-/* @(#)alloc.c	1.57 16/08/10 Copyright 1985,1988,1991,1995-2016 J. Schilling */
+/* @(#)alloc.c	1.58 18/03/21 Copyright 1985,1988,1991,1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.57 16/08/10 Copyright 1985,1988,1991,1995-2016 J. Schilling";
+	"@(#)alloc.c	1.58 18/03/21 Copyright 1985,1988,1991,1995-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2016 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,16 @@ static	UConst char sccsid[] =
 #include <schily/mconfig.h>
 
 /*#define	NO_USER_MALLOC*/
+
+/*
+ * The address sanitizer does not implement a clean malloc() replacement
+ * that may be replaced by our implementaion.
+ */
+#ifdef	IS_ASAN
+#ifndef	NO_USER_MALLOC
+#define	NO_USER_MALLOC
+#endif
+#endif
 
 #ifndef	HAVE_SBRK
 #ifndef	NO_USER_MALLOC

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cc-config.sh	1.13 18/02/01 Copyright 2002-2018 J. Schilling
+# @(#)cc-config.sh	1.14 18/04/04 Copyright 2002-2018 J. Schilling
 ###########################################################################
 # Written 2002-2018 by J. Schilling
 ###########################################################################
@@ -35,11 +35,11 @@ fi
 LC_ALL=C
 LANG=C
 
-CC=$1
-CCOM=$1
-ARG_CC=$1
-DEF_CC=$2
-PLATFORM_FILE=$3
+CC=$1			# Working copy of discovered C-compiler
+CCOM=$1			# Remembered value of $CC
+ARG_CC=$1		# Name of preferred C-compiler
+DEF_CC=$2		# Name of default C-compiler
+PLATFORM_FILE=$3	# Where to write the output to
 CC_FOUND=FALSE
 
 #
@@ -133,7 +133,7 @@ if [ "$CC_FOUND" = TRUE ]; then
 	# Call $CC and try to find out whether it might be "gcc" or "clang".
 	#
 	CC_V=`eval "$CC -v > /dev/null" 2>&1`
-	GCC_V=`echo "$CC_V" | grep -i gcc-version `
+	GCC_V=`echo "$CC_V" | grep -i 'gcc.*version' `
 	CLANG_V=`echo "$CC_V" | grep -i clang `
 
 	if [ ".$GCC_V" != . ]; then
@@ -162,10 +162,10 @@ if [ "$CC_FOUND" = TRUE ]; then
 			echo "$DEF_CC"
 		fi
 	else
-		${echo} "Making $CCOM the default compiler in '$PLATFORM_FILE'"
+		${echo} "Making $CC the default compiler in '$PLATFORM_FILE'"
 		if [ "${echo}" = echo ]; then
 			:> $PLATFORM_FILE
-			echo DEFCCOM=$CCOM > $PLATFORM_FILE
+			echo DEFCCOM=$CC > $PLATFORM_FILE
 		else
 			echo "$CCOM"
 		fi

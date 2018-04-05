@@ -1,11 +1,14 @@
-#ident @(#)sccs.mk	1.7 14/08/09 
+#ident @(#)sccs.mk	1.9 18/04/04 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		ccs/bin
+PREINSDIR=	$(SCCS_BIN_PRE)
+SCCS_HELP_PRE=	ccs/
+SCCS_BIN_PRE=	ccs/
+INSDIR=		bin
 TARGET=		sccs
 #SYMLINKS=	../../bin/sccs
 
@@ -16,6 +19,8 @@ CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_RECURSIVE
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
+CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		sccs.c

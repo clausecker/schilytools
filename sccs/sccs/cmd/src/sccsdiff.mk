@@ -1,4 +1,4 @@
-#ident @(#)sccsdiff.mk	1.4 11/05/18 
+#ident @(#)sccsdiff.mk	1.6 18/04/04 
 ###########################################################################
 # Sample makefile for installing localized shell scripts
 ###########################################################################
@@ -7,8 +7,11 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-#INSDIR=	sccs
-INSDIR=		ccs/bin
+PREINSDIR=	$(SCCS_BIN_PRE)
+#SCCS_BIN_PRE=	sccs/
+SCCS_HELP_PRE=	ccs/
+SCCS_BIN_PRE=	ccs/
+INSDIR=		bin
 INSMODE=	0755
 TARGET=		sccsdiff
 SCRFILE=	sccsdiff.sh
@@ -27,4 +30,4 @@ LOCALIZE=	@echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; \
 	SPROV=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^provider' | awk '{ print $$2 }' | sed 's/"//g'`\
 	SHOST=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^host_sub' | awk '{ print $$2 }' | sed 's/"//g'`\
 	export SVERS SPROV;\
-	sed "s/VERSION/$$SVERS/;s,VDATE,$$VDATE,;s/PROVIDER/$$SPROV/;s/HOST_SUB/$$SHOST/;s,INS_BASE,$(INS_BASE)," $(SRCFILE) > $@ ; :
+	sed "s/VERSION/$$SVERS/;s,VDATE,$$VDATE,;s/PROVIDER/$$SPROV/;s/HOST_SUB/$$SHOST/;s,INS_BASE,$(INS_BASE),;s,SCCS_BIN_PRE,$(SCCS_BIN_PRE)," $(SRCFILE) > $@ ; :

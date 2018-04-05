@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)delta.c	1.73 18/03/15 J. Schilling
+ * @(#)delta.c	1.74 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.73 18/03/15 J. Schilling"
+#pragma ident "@(#)delta.c 1.74 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -69,7 +69,7 @@ static off_t	size_of_file;
 static off_t	Szqfile;
 static off_t	Checksum_offset;
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-static char	BDiffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
+static char	BDiffpgmp[]  =   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "bin/" "bdiff");
 #else
 /*
  * XXX If you are using a K&R compiler and like to install to a path
@@ -80,7 +80,7 @@ static char	BDiffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/bdiff");
 static char	BDiffpgm[]  =   NOGETTEXT("/usr/bin/bdiff");
 static char	BDiffpgm2[]  =   NOGETTEXT("/bin/bdiff");
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-static char	Diffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "diff");
+static char	Diffpgmp[]  =   NOGETTEXT(INS_BASE  "/" SCCS_BIN_PRE "bin/" "diff");
 #else
 static char	Diffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/diff");
 #endif
@@ -148,7 +148,7 @@ register char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

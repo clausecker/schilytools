@@ -40,12 +40,12 @@
 #ifndef	_DIFF_H
 #define	_DIFF_H
 /*
- * Copyright 2006-2016 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)diff.h	1.17 16/10/22 J. Schilling
+ * @(#)diff.h	1.18 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.h 1.17 16/10/22 J. Schilling"
+#pragma ident "@(#)diff.h 1.18 18/04/04 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -200,10 +200,10 @@ char pr[] = "/usr/bin/pr";
 
 #if	defined(INS_BASE)
 #ifdef __STDC__
-char diff[] = INS_BASE "/ccs/bin/diff";
-char diffh[] = INS_BASE "/ccs/lib/diffh";
+char diff[] = INS_BASE  "/" SCCS_BIN_PRE "bin/diff";
+char diffh[] = INS_BASE  "/" SCCS_BIN_PRE "lib/diffh";
 #else
-char diff[] = "/usr/ccs//bin/diff";
+char diff[] = "/usr/ccs/bin/diff";
 char diffh[] = "/usr/ccs/lib/diffh";
 #endif
 #else

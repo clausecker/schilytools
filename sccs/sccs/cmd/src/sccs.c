@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)sccs.c	1.86 18/03/15 J. Schilling
+ * @(#)sccs.c	1.87 18/04/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.86 18/03/15 J. Schilling"
+#pragma ident "@(#)sccs.c 1.87 18/04/04 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -212,7 +212,7 @@ static	int	didvfork;
 #undef	PROGPATH
 
 #if defined(__STDC__) || defined(PROTOTYPES)
-#define	PROGPATH(name)	INS_BASE "/ccs/bin/" #name /* place to find binaries */
+#define	PROGPATH(name)	INS_BASE "/" SCCS_BIN_PRE "bin/" #name /* place to find binaries */
 #else
 /*
  * XXX With a K&R compiler, you need to edit the following string in case
@@ -499,7 +499,7 @@ main(argc, argv)
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
+	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));

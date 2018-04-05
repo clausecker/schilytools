@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.71 15/08/14 Copyright 1995-2015 J. Schilling */
+/* @(#)mconfig.h	1.72 18/03/21 Copyright 1995-2018 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2015 J. Schilling
+ *	Copyright (c) 1995-2018 J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -111,6 +111,19 @@ extern "C" {
 #endif
 #endif
 
+/*
+ * GCC & Clang address sanitizer detection:
+ */
+#if	defined(__SANITIZE_ADDRESS__)		/* GCC */
+#define	IS_ASAN
+#endif
+#if	defined(__has_feature)			/* Clang */
+#if	__has_feature(address_sanitizer)
+#define	IS_ASAN
+#endif
+#endif
+
+
 /* ------------------------------------------------------------------------- */
 /*
  * Some magic that cannot (yet) be figured out with autoconf.
@@ -151,6 +164,14 @@ extern "C" {
 #ifndef	HAVE_SCANSTACK
 #	define	HAVE_SCANSTACK
 #endif
+#endif
+
+/*
+ * The address sanitizer does not like our frame pointer modifications
+ * and would otherwise warn against a stack corruption.
+ */
+#ifdef	IS_ASAN
+#	undef	HAVE_SCANSTACK
 #endif
 
 /*
