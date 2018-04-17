@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)read.cc	1.11	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)read.cc	1.3 17/05/01 2017 J. Schilling
+ * @(#)read.cc	1.4 18/04/06 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.3 17/05/01 2017 J. Schilling";
+	"@(#)read.cc	1.4 18/04/06 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -170,7 +170,6 @@ get_next_block_fn(register Source source)
 					     mbs_buffer);
 			*source->string.text.end++ = (int) newline_char;
 			*source->string.text.end = (int) nul_char;
-			*source->string.buffer.end++;
 		}
 		if (source->inp_buf != NULL) {
 			retmem_mb(source->inp_buf);

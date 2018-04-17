@@ -1,8 +1,8 @@
-/* @(#)star.c	1.360 18/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.361 18/04/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.360 18/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.361 18/04/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -99,6 +99,7 @@ LOCAL	void	sigquit		__PR((int sig));
 LOCAL	void	getstamp	__PR((void));
 LOCAL	void	set_ptype	__PR((int *pac, char *const **pav));
 LOCAL	void	docompat	__PR((int *pac, char *const **pav));
+EXPORT	BOOL	ttyerr		__PR((FILE *f));
 
 #if	defined(SIGDEFER) || defined(SVR4)
 #define	signal	sigset
@@ -2815,4 +2816,22 @@ const	char	*p;
 			printf("%i: '%s'\n", i, nav[i]);
 	}
 #endif
+}
+
+EXPORT BOOL
+ttyerr(f)
+	FILE	*f;
+{
+	/*
+	 * We may get EIO in case that we received an ignored SIGTTIN.
+	 */
+	if (ferror(f)) {
+		errmsgno(EX_BAD, "No access to tty.\n");
+		return (TRUE);
+	}
+	if (feof(f)) {
+		errmsgno(EX_BAD, "EOF on tty.\n");
+		return (TRUE);
+	}
+	return (FALSE);
 }

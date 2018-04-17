@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.19 18/04/03 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.21 18/04/16 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -49,7 +49,19 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH make 1S "2018/04/03" "SunOS 5.11" "SunOS Specific Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH make 1S "2018/04/16" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1175,8 +1187,26 @@ processing only those targets, and their dependencies.
 .ad
 .RS 9n
 .rt
-Define the value of a macro to be the output of a command (see Command
-Substitutions below).
+Define the value of a macro to be the output of a command (see
+.B Command Substitutions
+below).
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B :shell =
+.ad
+.RS 9n
+.rt
+Define the value of a macro to be the output of a command with
+.B make macros
+in the output of the command expanded by
+.B make
+before assigning the result to the macro (see
+.B Command Substitutions
+below).
 .RE
 
 .sp
@@ -1188,7 +1218,9 @@ Substitutions below).
 .RS 9n
 .rt
 In a macro reference, execute the command stored in the macro, and replace
-the reference with the output of that command (see \fBCommand Substitutions\fR below).
+the reference with the output of that command (see
+.B Command Substitutions
+below).
 .RE
 
 .SS "\fIRules\fR"
@@ -3971,6 +4003,28 @@ target cannot simultaneously satisfy both dependency relationships, it is
 conflicted.
 .RE
 
+.sp
+.ne 2
+.mk
+.na
+.B "The string `\fIstring\fB' is not valid in current locale"
+.ad
+.sp .6
+.RS 4n
+A
+.I string
+or
+.I path-name
+was discovered that cannot be translated into the current locale.
+Run
+.B make
+in the
+.BR C \-locale
+(e.g. by using
+.BR LC_CTYPE=C )
+to avoid this problem.
+.RE
+
 .SH NOTES
 .sp
 .LP
@@ -4114,6 +4168,15 @@ strips a leading
 dynamic macro.
 .sp
 .LP
+Since all internal strings are handled as wide character strings,
+there may be problems caused from character conversion while
+using an inappropriate locale for the current project.
+In such a case, it helps to run
+.B make
+in the
+.BR C \-locale.
+.sp
+.LP
 With automatic
 .B SCCS
 retrieval, this version of
@@ -4134,3 +4197,9 @@ invokes the shell with the
 .B -e
 argument. This cannot be
 inferred from the syntax of the rule alone.
+
+.SH AUTHORS
+This version of
+.BR make (1)
+was originally written by Sun Microsystems in 1986.
+Since 2016, it is maintained by J\*org Schilling.

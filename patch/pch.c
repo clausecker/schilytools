@@ -1,8 +1,8 @@
-/* @(#)pch.c	1.34 18/02/28 2011-2018 J. Schilling */
+/* @(#)pch.c	1.35 18/04/10 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.34 18/02/28 2011-2018 J. Schilling";
+	"@(#)pch.c	1.35 18/04/10 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
@@ -1417,11 +1417,31 @@ do_ed_script()
 	if (!skip_rest_of_patch) {
 		Unlink(TMPOUTNAME);
 		copy_file(filearg[0], TMPOUTNAME);
-		if (verbose)
-			Snprintf(buf, bufsize, "/bin/ed %s", TMPOUTNAME);
-		else
-			Snprintf(buf, bufsize, "/bin/ed - %s", TMPOUTNAME);
+		/*
+		 * Warning: "ed" stays in command mode in case there is e.g.
+		 * a wrong line number before an "append" command.
+		 * Using this "feature" could allow to hide a shell command
+		 * from the command filter. To avoid related problems, we
+		 * use the "red" command instead and start "red" from /tmp
+		 * as it does not accept filenames with a '/' inside.
+		 */
+		if (verbose) {
+			Snprintf(buf, bufsize, "cd %s && /bin/red %s",
+						TMPDIR, TMPOUTNAME + TMPDLEN);
+		} else {
+			Snprintf(buf, bufsize, "cd %s && /bin/red - %s",
+						TMPDIR, TMPOUTNAME + TMPDLEN);
+		}
 		pipefp = popen(buf, "w");
+#ifdef	__unsafe__
+		if (pipef == NULL {
+			if (verbose)
+				Snprintf(buf, bufsize, "/bin/ed %s", TMPOUTNAME);
+			else
+				Snprintf(buf, bufsize, "/bin/ed - %s", TMPOUTNAME);
+			pipefp = popen(buf, "w");
+		}
+#endif
 	}
 	for (;;) {
 		beginning_of_this_line = ftell(pfp);

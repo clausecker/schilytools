@@ -1,4 +1,4 @@
-#ident @(#)avoffset.mk	1.2 06/10/31 
+#ident @(#)avoffset.mk	1.3 18/04/09 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,7 +10,7 @@ TARGET=		avoffset.h
 TARGETC=	avoffset
 CPPOPTS +=	-DUSE_SCANSTACK
 CPPOPTS +=	-D__OPRINTF__
-CFILES=		avoffset.c
+CFILES=		avoffset.c fpoff.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.inc

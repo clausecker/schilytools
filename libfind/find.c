@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.102 15/10/27 Copyright 2004-2015 J. Schilling */
+/* @(#)find.c	1.103 18/04/10 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.102 15/10/27 Copyright 2004-2015 J. Schilling";
+	"@(#)find.c	1.103 18/04/10 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2015 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -186,7 +186,7 @@ EXPORT	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs, struct WALK *sta
 LOCAL	BOOL	doexec		__PR((char *f, findn_t *t, int ac, char **av, struct WALK *state));
 #endif
 LOCAL	int	countenv	__PR((void));
-LOCAL	int	argsize		__PR((int xtype));
+LOCAL	int	argsize		__PR((finda_t *fap, int xtype));
 LOCAL	int	extype		__PR((char *name));
 #ifdef	MULTI_ARG_MAX
 LOCAL	int	xargsize	__PR((int xtype, int maxarg));
@@ -212,6 +212,8 @@ find_argsinit(fap)
 	fap->std[0] = stdin;
 	fap->std[1] = stdout;
 	fap->std[2] = stderr;
+	fap->primarg = NULL;
+	fap->primname = NULL;
 	fap->primtype = 0;
 	fap->found_action = FALSE;
 	fap->patlen = 0;
@@ -221,6 +223,7 @@ find_argsinit(fap)
 	fap->plusp = (struct plusargs *)NULL;
 	fap->jmp = NULL;
 	fap->error = 0;
+	fap->argsize = 0;
 }
 
 EXPORT void
@@ -358,15 +361,19 @@ _nexttoken(fap)
 		fap->primtype = FIND_ENDARGS;
 		return (TRUE);
 	}
-	word = *fap->Argv;
+	if (fap->primarg)
+		fap->primname = word = fap->primarg;
+	else
+		fap->primname = word = *fap->Argv;
 	if ((tail = strchr(word, '=')) != NULL) {
 #ifdef	XXX
 		if (*tail == '\0') {
 			fap->Argv++; fap->Argc--;
 		} else
 #endif
-			*fap->Argv = ++tail;
+			fap->primarg = ++tail;
 	} else {
+		fap->primarg = NULL;
 		fap->Argv++; fap->Argc--;
 	}
 	if ((fap->primtype = find_token(word)) >= 0)
@@ -460,6 +467,13 @@ nextarg(fap, t)
 		/* NOTREACHED */
 		return ((char *)0);
 	} else {
+		if (fap->primarg) {
+			char	*arg = fap->primarg;
+
+			fap->primarg = NULL;
+			fap->Argv++;
+			return (arg);
+		}
 		return (*fap->Argv++);
 	}
 }
@@ -1053,7 +1067,18 @@ parseprim(fap)
 	case EXEC:
 	case EXECDIR: {
 		int	i = 1;
+		char	**Cargv = NULL;
+		char	*arg0 = NULL;
 
+		if (fap->primarg) {
+			/*
+			 * Create a contiguous arg vector
+			 */
+			Cargv = fap->Argv;
+			arg0 = *Cargv;
+			*Cargv = fap->primarg;
+		}
+		fap->argsize = 0;
 		n->this = (char *)fap->Argv;	/* Cheat: Pointer is pointer */
 		nextarg(fap, n);		/* Eat up cmd name	    */
 		while ((p = nextarg(fap, n)) != NULL) {
@@ -1064,11 +1089,15 @@ parseprim(fap)
 					ferrmsgno(fap->std[2], EX_BAD,
 					_("'-%s' does not yet work with '+'.\n"),
 						tokennames[n->op]);
+					if (Cargv)
+						*Cargv = arg0;
 					errjmp(fap, EX_BAD);
 					/* NOTREACHED */
 				}
 				n->op = fap->primtype = EXECPLUS;
 				if (!pluscreate(fap->std[2], --i, (char **)n->this, fap)) {
+					if (Cargv)
+						*Cargv = arg0;
 					errjmp(fap, EX_BAD);
 					/* NOTREACHED */
 				}
@@ -1078,6 +1107,8 @@ parseprim(fap)
 			i++;
 		}
 		n->val.i = i;
+		if (Cargv)
+			*Cargv = arg0;
 #ifdef	PLUS_DEBUG
 		if (0) {
 			char **pp = (char **)n->this;
@@ -2017,14 +2048,14 @@ countenv()
  * program to do own exec(2) calls with slightly increased arg size.
  */
 LOCAL int
-argsize(xtype)
+argsize(fap, xtype)
+	finda_t	*fap;
 	int	xtype;
 {
-	static int	ret = 0;
-
-	if (ret == 0) {
+	if (fap->argsize == 0) {
 		register int	evs = 0;
 		register char	**ep;
+			int	ret = 0;
 
 		for (ep = environ; *ep; ep++) {
 			evs += strlen(*ep) + 1 + sizeof (ep);
@@ -2071,8 +2102,9 @@ argsize(xtype)
 			ret -= LINE_MAX;
 		else
 			ret -= 100;
+		fap->argsize = ret;
 	}
-	return (ret);
+	return (fap->argsize);
 }
 
 /*
@@ -2173,7 +2205,7 @@ pluscreate(f, ac, av, fap)
 		int	nenv;
 
 	xtype  = extype(av[0]);		/* Get -exec executable type	*/
-	maxarg = argsize(xtype);	/* Get ARG_MAX for executable	*/
+	maxarg = argsize(fap, xtype);	/* Get ARG_MAX for executable	*/
 	nenv   = countenv();		/* # of ents in current env	*/
 
 	mxtype = sizeof (char *) * CHAR_BIT;

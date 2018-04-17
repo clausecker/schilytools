@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.96 18/01/25 2008-2018 J. Schilling
+ * @(#)xec.c	1.97 18/04/17 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.96 18/01/25 2008-2018 J. Schilling";
+	"@(#)xec.c	1.97 18/04/17 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -80,6 +80,11 @@ static jmp_buf	forkjmp;	/* To go back to TNOFORK in case of builtins */
 	void	execexp		__PR((unsigned char *s, Intptr_t f,
 					int xflags));
 static	void	execprint	__PR((unsigned char **));
+#ifdef	CASE_XPRINT
+static	void	cprint		__PR((unsigned char *a1,
+					unsigned char	*a2,
+					unsigned char	*a3));
+#endif
 static	int	ismonitor	__PR((int xflags));
 static	int	exallocjob	__PR((struct trenod *t, int xflags));
 
@@ -1121,6 +1126,10 @@ script:
 				exitval = 0;
 				exval_clear();
 #endif
+#ifdef	CASE_XPRINT
+				if (flags & execpr)
+					cprint(UC "case", r, UC "in");
+#endif
 				regp = swptr(t)->swlst;
 				while (regp) {
 					struct argnod *rex = regp->regptr;
@@ -1128,8 +1137,12 @@ script:
 					while (rex) {
 						unsigned char	*s;
 
-						if (gmatch((char *)r, (char *)
-						    (s = macro(rex->argval))) ||
+						s = macro(rex->argval);
+#ifdef	CASE_XPRINT
+						if (flags & execpr)
+							cprint(s, UC ")", UC "...");
+#endif
+						if (gmatch((char *)r, (char *)s) ||
 						    (trim(s), eq(r, s))) {
 							execute(regp->regcom,
 								XEC_NOSTOP,
@@ -1250,6 +1263,24 @@ execprint(com)
 
 	newline();
 }
+
+#ifdef	CASE_XPRINT
+static void
+cprint(a1, a2, a3)
+	unsigned char	*a1;
+	unsigned char	*a2;
+	unsigned char	*a3;
+{
+	unsigned char	*com[4];
+
+	com[0] = a1;
+	com[1] = a2;
+	com[2] = a3;
+	com[3] = ENDARGS;
+
+	execprint(com);	
+}
+#endif
 
 static int
 ismonitor(xflags)

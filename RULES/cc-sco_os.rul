@@ -1,6 +1,6 @@
-#ident "@(#)cc-sco_os.rul	1.19 17/05/28 "
+#ident "@(#)cc-sco_os.rul	1.21 18/04/11 "
 ###########################################################################
-# Written 1999-2017 by J. Schilling/Santa Cruz Operation
+# Written 1999-2018 by J. Schilling/Santa Cruz Operation
 ###########################################################################
 #
 # Platform dependent MACROS for SCO OpenServer 5 cc
@@ -39,7 +39,7 @@ C++WOPTS=
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_C=		-lc
 

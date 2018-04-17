@@ -1,6 +1,6 @@
-#ident "@(#)i386-openserver-gcc.rul	1.9 15/03/26 "
+#ident "@(#)i386-openserver-gcc.rul	1.10 18/04/11 "
 ###########################################################################
-# Written 1999-2015 by J. Schilling/Santa Cruz Operation
+# Written 1999-2018 by J. Schilling/Santa Cruz Operation
 ###########################################################################
 #
 # Platform dependent MACROS for SCO OpenServer 5 using gcc
@@ -31,7 +31,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=	-lsocket -lnsl -ldl
 LIB_MATH=	-lm

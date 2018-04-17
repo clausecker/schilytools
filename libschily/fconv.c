@@ -1,9 +1,9 @@
-/* @(#)fconv.c	1.46 17/11/16 Copyright 1985, 1995-2017 J. Schilling */
+/* @(#)fconv.c	1.47 18/04/09 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
  *
- *	Copyright (c) 1985, 1995-2017 J. Schilling
+ *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,7 @@
 #include <schily/schily.h>
 #include <schily/math.h>	/* The default place for isinf()/isnan() */
 #include <schily/nlsdefs.h>
+#include <schily/ctype.h>
 
 #if	!defined(HAVE_STDLIB_H) || defined(HAVE_DTOA)
 extern	char	*ecvt __PR((double, int, int *, int *));
@@ -191,7 +192,7 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 static	char	_js_nan[] = "(NaN)";
 static	char	_js_inf[] = "(Infinity)";
 
-static	int	_ferr __PR((char *, double));
+static	int	_ferr __PR((char *, double, int));
 #endif	/* __DO_LONG_DOUBLE__ */
 
 #ifdef	__DO_LONG_DOUBLE__
@@ -222,14 +223,14 @@ ftoes(s, val, fieldwidth, ndigits)
 			int	sign;
 			int	Efmt = FALSE;
 
-#ifndef	__DO_LONG_DOUBLE__
-	if ((len = _ferr(s, val)) > 0)
-		return (len);
-#endif
 	if (ndigits < 0) {
 		ndigits = -ndigits;
 		Efmt = TRUE;
 	}
+#ifndef	__DO_LONG_DOUBLE__
+	if ((len = _ferr(s, val, Efmt)) > 0)
+		return (len);
+#endif
 	rs = s;
 #ifdef	V7_FLOATSTYLE
 	b = ecvt(val, ndigits, &decpt, &sign);
@@ -242,6 +243,10 @@ ftoes(s, val, fieldwidth, ndigits)
 	len = *b;
 	if (len < '0' || len > '9') {		/* Inf/NaN */
 		strcpy(s, b);
+		if (Efmt) {
+			while (*s)
+				*s++ = toupper(*s);
+		}
 		return (strlen(b));
 	}
 #endif
@@ -311,14 +316,14 @@ ftofs(s, val, fieldwidth, ndigits)
 			int	sign;
 			int	Ffmt = FALSE;
 
-#ifndef	__DO_LONG_DOUBLE__
-	if ((len = _ferr(s, val)) > 0)
-		return (len);
-#endif
 	if (ndigits < 0) {
 		ndigits = -ndigits;
 		Ffmt = TRUE;
 	}
+#ifndef	__DO_LONG_DOUBLE__
+	if ((len = _ferr(s, val, Ffmt)) > 0)
+		return (len);
+#endif
 	rs = s;
 #ifdef	USE_ECVT
 	/*
@@ -338,6 +343,10 @@ ftofs(s, val, fieldwidth, ndigits)
 	len = *b;
 	if (len < '0' || len > '9') {		/* Inf/NaN */
 		strcpy(s, b);
+		if (Ffmt) {
+			while (*s)
+				*s++ = toupper(*s);
+		}
 		return (strlen(b));
 	}
 #endif
@@ -409,12 +418,17 @@ ftofs(s, val, fieldwidth, ndigits)
 #endif	/* HAVE_LONGDOUBLE */
 
 LOCAL int
-_ferr(s, val)
+_ferr(s, val, upper)
 	char	*s;
 	double	val;
+	int	upper;
 {
 	if (isnan(val)) {
 		strcpy(s, _js_nan);
+		if (upper) {
+			while (*s)
+				*s++ = toupper(*s);
+		}
 		return (sizeof (_js_nan) - 1);
 	}
 
@@ -423,6 +437,10 @@ _ferr(s, val)
 	 */
 	if (isinf(val)) {
 		strcpy(s, _js_inf);
+		if (upper) {
+			while (*s)
+				*s++ = toupper(*s);
+		}
 		return (sizeof (_js_inf) - 1);
 	}
 	return (0);

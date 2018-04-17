@@ -1,4 +1,4 @@
-#ident "@(#)9000-725-hp-ux-gcc.rul	1.11 17/05/03 "
+#ident "@(#)9000-725-hp-ux-gcc.rul	1.12 18/04/12 "
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -30,7 +30,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.sl
+SHL_SUFFIX=	.sl.$(DYNMAJOR)
 
 LIB_SOCKET=	
 LIB_MATH=	-lm
@@ -40,7 +40,7 @@ LIB_KVM=
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=	-b
 DYNLD=		@echo " ==> LINKING dynamic library \"$@\""; ld
-LNDYNLIB=	@
+LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).sl; $(SYMLINK) $(TARGET) $(PTARGET_BASE).sl
 
 LORDER=		echo
 TSORT=		cat

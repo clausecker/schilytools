@@ -1,8 +1,8 @@
-/* @(#)getfp.c	1.19 15/12/23 Copyright 1988-2015 J. Schilling */
+/* @(#)getfp.c	1.20 18/04/09 Copyright 1988-2018 J. Schilling */
 /*
  *	Get frame pointer
  *
- *	Copyright (c) 1988-2015 J. Schilling
+ *	Copyright (c) 1988-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,23 +72,6 @@ getfp()
 	flush_reg_windows(MAXWINDOWS-2);
 #endif
 	return ((void **)((struct frame *)___fpoff((char *)&dummy[0]))->fr_savfp);
-}
-
-/*
- * Don't make it static to avoid inline optimization.
- *
- * We need this function to fool GCCs check for returning addresses
- * from outside the functions local address space.
- */
-EXPORT void **
-___fpoff(cp)
-	char	*cp;
-{
-	long ***lp;
-
-	lp = (long ***)(cp + FP_OFF);
-	lp++;
-	return ((void **)lp);
 }
 
 #ifdef	sparc

@@ -1,10 +1,10 @@
-#ident "@(#)i686-mingw32_nt-gcc.rul	1.12 15/03/26 "
+#ident "@(#)i686-mingw32_nt-gcc.rul	1.13 18/04/11 "
 ###########################################################################
 #
 # Platform dependent MACROS for Win32/Mingw32
 #
 ###########################################################################
-# Copyright (c) J. Schilling
+# Copyright (c) 2004-2018 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -29,7 +29,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=	
 LIB_MATH=	-lm

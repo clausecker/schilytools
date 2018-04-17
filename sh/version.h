@@ -1,4 +1,4 @@
-/* @(#)version.h	1.65 18/03/12 Copyright 2012-2018 J. Schilling */
+/* @(#)version.h	1.66 18/04/10 Copyright 2012-2018 J. Schilling */
 
 /*
  * The version for the Bourne Shell
@@ -17,5 +17,5 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2018/03/12"
+#define	VERSION_DATE	"2018/04/10"
 #define	VERSION_STR	"a+"

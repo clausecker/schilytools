@@ -1,6 +1,6 @@
-#ident "@(#)i586-linux-clang.rul	1.1 14/04/02 "
+#ident "@(#)i586-linux-clang.rul	1.2 18/04/11 "
 ###########################################################################
-# Written 1996-2014 by J. Schilling
+# Written 1996-2018 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Linux using Clang
@@ -34,7 +34,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=	
 LIB_MATH=	-lm

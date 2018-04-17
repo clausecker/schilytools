@@ -1,8 +1,8 @@
-/* @(#)gmatch.c	1.19 17/08/18 2008-2017 J. Schilling */
+/* @(#)gmatch.c	1.21 18/04/17 2008-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.19 17/08/18 2008-2017 J. Schilling";
+	"@(#)gmatch.c	1.21 18/04/17 2008-2018 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
@@ -79,6 +79,9 @@ cclass(p, sub, ret)
 			return (0);
 
 		nextwc(p, c);
+		if (c == '\\') {
+			nextwc(p, c);
+		}
 		if ((n = mbtowc(&lc, p, MB_LEN_MAX)) < 0) {
 			(void) mbtowc(NULL, NULL, 0);
 			return (0);
@@ -122,13 +125,6 @@ cclass(p, sub, ret)
 				return (0);
 			}
 		} else {
-			if (c == '\\') {
-				nextwc(p, c);
-				if (mbtowc(&lc, p, MB_LEN_MAX) < 0) {
-					(void) mbtowc(NULL, NULL, 0);
-					return (0);
-				}
-			}
 			d = c;
 		}
 		if (c == sub || (c <= sub && sub <= d))

@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.114 12/01/01 Copyright 1996-2012 J. Schilling */
+/* @(#)starsubs.h	1.115 18/04/11 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2012 J. Schilling
+ *	Copyright (c) 1996-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -35,6 +37,9 @@ extern	int	getbnum		__PR((char *arg, Llong *valp));
 extern	int	getknum		__PR((char *arg, Llong *valp));
 extern	void	copy_create	__PR((int ac, char *const *av));
 extern	void	star_verifyopts	__PR((void));
+#ifdef	EOF
+extern	BOOL	ttyerr		__PR((FILE *f));
+#endif
 
 /*
  * chdir.c

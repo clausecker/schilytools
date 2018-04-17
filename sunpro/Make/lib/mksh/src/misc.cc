@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)misc.cc	1.12 18/03/24 2017-2018 J. Schilling
+ * @(#)misc.cc	1.13 18/04/16 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.12 18/03/24 2017 J. Schilling";
+	"@(#)misc.cc	1.13 18/04/16 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -921,6 +921,28 @@ void
 mbstowcs_with_check(wchar_t *pwcs, const char *s, size_t n)
 {
 	if(mbstowcs(pwcs, s, n) == -1) {
+		const unsigned char *p;
+
+		p = (unsigned char *)setlocale(LC_CTYPE, NULL);
+
+		/*
+		 * Work around a Linux bug:
+		 * POSIX requires: In the POSIX locale an [EILSEQ] error cannot
+		 * occur since all byte values are valid characters.
+		 * But Linux ignores this ant this is why we did come here.
+		 */
+		if (p[0] == 'C' && p[1] == '\0') {
+			wchar_t	*wp = pwcs;
+
+			p = (const unsigned char *)s;
+			if (n == 0)
+				return;
+			do {
+				if ((*wp++ = *p++) == '\0')
+					break;
+			} while (--n > 0);
+			return;
+		}
 		fatal_mksh(gettext("The string `%s' is not valid in current locale"), s);
 	}
 }

@@ -1,6 +1,6 @@
-#ident "@(#)amd64-bitrig-clang.rul	1.2 15/11/18 "
+#ident "@(#)amd64-bitrig-clang.rul	1.3 18/04/11 "
 ###########################################################################
-# Written 2015 by J. Schilling
+# Written 2015-2018 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Bitrig using Clang
@@ -30,7 +30,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=	
 LIB_MATH=	-lm

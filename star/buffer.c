@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.169 17/01/26 Copyright 1985, 1995, 2001-2017 J. Schilling */
+/* @(#)buffer.c	1.171 18/04/11 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.169 17/01/26 Copyright 1985, 1995, 2001-2017 J. Schilling";
+	"@(#)buffer.c	1.171 18/04/11 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2017 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -521,7 +521,7 @@ changetape(donext)
 		errmsgno(EX_BAD, "Mount volume #%d on '%s' and hit <RETURN>",
 			stats->volno, tarfiles[nextindex]);
 		fgetline(tty, ans, sizeof (ans));
-		if (feof(tty))
+		if (ttyerr(tty))
 			exit(1);
 	}
 	tarfindex = nextindex;

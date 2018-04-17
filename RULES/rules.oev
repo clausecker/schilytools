@@ -1,9 +1,9 @@
-#ident "@(#)i586-pyro-cc.rul	1.2 18/04/11 "
+#ident "@(#)rules.oev	1.1 18/04/15 "
 ###########################################################################
-# Written 1996-2018 by J. Schilling
+# Written 2009-2018 by J. Schilling
 ###########################################################################
 #
-# Platform dependent MACROS for Pyro
+# Rules for getting the original locale environment for smake and gmake
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -20,36 +20,30 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/rules.prg
+#
+# acgeneral.m4 claims that SCO Unix may have problems with setting LANG=C
+# so we are careful not to set LANG unless it was already set by someone else
+#
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
 
-OSDEFS +=
+_LANG=		$(_UNIQ)$(LANG)
+__LANG=		$(_LANG:$(_UNIQ)=NO_LANG)
+___LANG=	$(__LANG:$(_UNIQ)%=LANG)
 
-KDEFINES=	-DKERNEL -D_KERNEL
+OLD_$(___LANG) :=$(LANG)
+OLD_LC_ALL := $(LC_ALL)
+OLD_LC_COLLATE := $(LC_COLLATE)
+OLD_LC_CTYPE := $(LC_CTYPE)
+OLD_LC_MESSAGES := $(LC_MESSAGES)
+OLD_LC_MONETARY := $(LC_MONETARY)
+OLD_LC_NUMERIC := $(LC_NUMERIC)
+OLD_LC_TIME := $(LC_TIME)
 
-LIB_PREFIX=	lib
-LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
-
-LIB_SOCKET=	
-LIB_MATH=	-lm
-LIB_KVM=	
-
-#LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-#
-# Uncomment the next line in case you are on an old Linker version that
-# does not support the -R linker flag.
-#
-#LDOPTS=		$(LIBS_PATH) $(LDPATH)
-
-LORDER=		echo
-TSORT=		cat
-
-#
-# The current developement system has these files in /boot/NIX/coreutils/bin
-#
-LN=			/boot/NIX/coreutils/bin/ln
-SYMLINK=	/boot/NIX/coreutils/bin/ln -s
-RM=			/boot/NIX/coreutils/bin/rm
-MV=			/boot/NIX/coreutils/bin/mv
+export OLD_$(___LANG)
+export OLD_LC_ALL
+export OLD_LC_COLLATE
+export OLD_LC_CTYPE
+export OLD_LC_MESSAGES
+export OLD_LC_MONETARY
+export OLD_LC_NUMERIC
+export OLD_LC_TIME

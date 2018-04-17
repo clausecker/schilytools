@@ -1,4 +1,4 @@
-#ident "@(#)mk-sunpro.id	1.21 18/01/16 "
+#ident "@(#)mk-sunpro.id	1.22 18/04/15 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -20,6 +20,13 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
+
+_GETENV=	$(_UNIQ)$(ARCH_DONE)
+__GETENV=	$(_GETENV:$(_UNIQ)=rules.oes)
+___GETENV=	$(__GETENV:$(_UNIQ)TRUE=rules.nul)
+GET_ENV=	$(___GETENV:$(_UNIQ)%=%)
+
+include		$(SRCROOT)/$(RULESDIR)/$(GET_ENV)
 
 _SETENV=	$(_UNIQ)$(SETENV)
 __SETENV=	$(_SETENV:$(_UNIQ)=rules.env)

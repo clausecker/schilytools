@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.72 18/01/05 Copyright 1985-2017 J. Schilling */
+/* @(#)abbrev.c	1.73 18/04/05 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.72 18/01/05 Copyright 1985-2017 J. Schilling";
+	"@(#)abbrev.c	1.73 18/04/05 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *

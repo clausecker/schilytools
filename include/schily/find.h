@@ -1,8 +1,8 @@
-/* @(#)find.h	1.24 15/07/10 Copyright 2005-2015 J. Schilling */
+/* @(#)find.h	1.25 18/04/10 Copyright 2005-2018 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
- *	Copyright (c) 2004-2015 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,6 +44,8 @@ typedef struct find_args {
 	int	Argc;		/* A copy of argc		*/
 	char	**Argv;		/* A copy of argv		*/
 	FILE	*std[3];	/* To redirect stdin/stdout/err	*/
+	char	*primarg;	/* If != 0 arg for last primary	*/
+	char	*primname;	/* The name of the last primary	*/
 	int	primtype;	/* The type of the last primary	*/
 	BOOL	found_action;	/* -print/-ls/-exec found	*/
 	int	patlen;		/* strlen() for longest pattern	*/
@@ -53,6 +55,8 @@ typedef struct find_args {
 	struct plusargs *plusp;	/* List of -exec {} + commands	*/
 	void	*jmp;		/* Used internally by parser	*/
 	int	error;		/* Error code from find_parse()	*/
+	int	argsize;	/* Argument size for this cmd	*/
+	void	*__reserved[16]; /* For future extensions	*/
 } finda_t;
 
 /*

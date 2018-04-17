@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)dosys.cc	1.38	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)dosys.cc	1.11 17/05/18 2017 J. Schilling
+ * @(#)dosys.cc	1.12 18/04/06 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.11 17/05/18 2017 J. Schilling";
+	"@(#)dosys.cc	1.12 18/04/06 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -818,7 +818,15 @@ sh_command2string(register String command, register String destination)
 	int			status;
 	Boolean			command_generated_output = false;
 
+#ifdef	__needed__
 	command->text.p = (int) nul_char;
+	/*
+	 * The correct (if ever) statement would be most likely:
+	 *	*command->text.p = nul_char;
+	 * but currently, it seems that there is no case with a
+	 * forgotten nul char at the end of the string.
+	 */
+#endif
 	WCSTOMBS(mbs_buffer, command->buffer.start);
 	if ((fd = popen(mbs_buffer, "r")) == NULL) {
 		WCSTOMBS(mbs_buffer, command->buffer.start);

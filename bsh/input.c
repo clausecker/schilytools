@@ -1,13 +1,13 @@
-/* @(#)input.c	1.38 17/10/21 Copyright 1985-2017 J. Schilling */
+/* @(#)input.c	1.39 18/04/08 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.38 17/10/21 Copyright 1985-2017 J. Schilling";
+	"@(#)input.c	1.39 18/04/08 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -575,9 +575,22 @@ input_expand(os, is)
 				}
 			}
 			itmp = 0;
-			while (isdigit(c)) {
-				itmp = itmp*10+c-'0';
-				c = fsgetc(is);
+			{
+				BOOL	overflow = FALSE;
+				int	maxmult = INT_MAX / 10;
+
+				while (isdigit(c)) {
+					c -= '0';
+					if (itmp > maxmult)
+						overflow = TRUE;
+					itmp *= 10;
+					if (INT_MAX - itmp < c)
+						overflow = TRUE;
+					itmp += c;
+					c = fsgetc(is);
+				}
+				if (overflow)
+					itmp = INT_MAX;
 			}
 			fspushcha(is, c);
 			if (vectype == 'r') {

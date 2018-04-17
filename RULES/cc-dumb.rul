@@ -1,6 +1,6 @@
-#ident "@(#)cc-dumb.rul	1.16 17/05/28 "
+#ident "@(#)cc-dumb.rul	1.18 18/04/11 "
 ###########################################################################
-# Written 1997-2017 by J. Schilling
+# Written 1997-2018 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for unknown systems systems with dumb cc
@@ -42,7 +42,7 @@ C++WOPTS=
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_C=		-lc
 

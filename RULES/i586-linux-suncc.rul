@@ -1,6 +1,6 @@
-#ident "@(#)i586-linux-suncc.rul	1.6 14/04/01 "
+#ident "@(#)i586-linux-suncc.rul	1.7 18/04/11 "
 ###########################################################################
-# Written 2007-2014 by J. Schilling
+# Written 2007-2018 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Linux using Sun Studio
@@ -36,7 +36,7 @@ KDEFINES=	-DKERNEL -D_KERNEL
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=	
 LIB_MATH=	-lm

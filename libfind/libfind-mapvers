@@ -1,4 +1,12 @@
-# /* @(#)libfind-mapvers	1.11 15/05/19 Copyright 2005-2015 J. Schilling */
+
+# /* @(#)libfind-mapvers	1.12 18/04/12 Copyright 2005-2015 J. Schilling */
+
+SCHILY_0.9 {		# Not yet a stable interface!
+global:
+	find_argsinit;	#
+	find_free;	#
+	find_parse;	#
+} SCHILY_0.2;
 
 SCHILY_0.2 {		# Not yet a stable interface!
 global:
@@ -14,13 +22,15 @@ global:
 	sortdir;	# cmpdir.c
 	fdircomp;	# cmpdir.c
 	find_addprint;	# find.c
+#ifdef	__old_compat__
 	find_argsinit;	# find.c
+	find_free;	# find.c
+	find_parse;	# find.c
+#endif
 	find_expr;	# find.c
 	find_firstprim;	# find.c
-	find_free;	# find.c
 	find_list;	# find_list.c
 	find_main;	# find_main.c
-	find_parse;	# find.c
 	find_plusflush;	# find.c
 	find_pname;	# find.c
 	find_primary;	# find.c

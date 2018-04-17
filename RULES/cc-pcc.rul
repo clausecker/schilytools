@@ -1,6 +1,6 @@
-#ident "@(#)cc-pcc.rul	1.8 17/05/28 "
+#ident "@(#)cc-pcc.rul	1.10 18/04/11 "
 ###########################################################################
-# Written 2010-2013 by J. Schilling
+# Written 2010-2018 by J. Schilling
 ###########################################################################
 #
 # Platform independent MACROS for PCC
@@ -42,7 +42,7 @@ C++OPTGPROF=	-pg
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1
+SHL_SUFFIX=	.so.$(DYNMAJOR)
 
 LIB_C=		-lc
 

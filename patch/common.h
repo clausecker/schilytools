@@ -1,4 +1,4 @@
-/* @(#)common.h	1.28 18/02/28 2011-2018 J. Schilling */
+/* @(#)common.h	1.29 18/04/10 2011-2018 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011-2018 J. Schilling
@@ -146,6 +146,8 @@ EXT char rejname[128];			/*   -r rejname		*/
 EXT char *origext;			/*   -b ext		*/
 EXT char *origprae;
 
+EXT int	TMPDLEN;
+EXT char *TMPDIR;
 EXT char *TMPOUTNAME;
 EXT char *TMPINNAME;
 EXT char *TMPREJNAME;

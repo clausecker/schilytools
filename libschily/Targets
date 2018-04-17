@@ -1,4 +1,4 @@
-# @(#)Targets	1.57 18/01/17 Copyright 1995-2018 J. Schilling
+# @(#)Targets	1.58 18/04/09 Copyright 1995-2018 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -30,7 +30,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		fchmodat.c fchownat.c fconv.c fdopendir.c fexec.c fillbytes.c \
 		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
-		fprformat.c \
+		fpoff.c fprformat.c \
 		fstatat.c fstream.c \
 		futimens.c futimesat.c \
 		getargs.c getav0.c geterrno.c getexecpath.c getfp.c \

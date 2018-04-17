@@ -1,8 +1,8 @@
-/* @(#)patch.c	1.47 18/02/28 2011-2018 J. Schilling */
+/* @(#)patch.c	1.48 18/04/10 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.47 18/02/28 2011-2018 J. Schilling";
+	"@(#)patch.c	1.48 18/04/10 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -132,6 +132,8 @@ main(argc, argv)
 	if (tmpdir == NULL) {
 		tmpdir = "/tmp";
 	}
+	TMPDIR = tmpdir;
+	TMPDLEN = strlen(tmpdir) + 1;
 	tmpname_len = strlen(tmpdir) + 20;
 
 	TMPOUTNAME = (char *) malloc(tmpname_len);

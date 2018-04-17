@@ -1,6 +1,6 @@
-#ident "@(#)rs6000-aix-gcc.rul	1.11 15/11/29 "
+#ident "@(#)rs6000-aix-gcc.rul	1.12 18/04/11 "
 ###########################################################################
-# Written 1997 by J. Schilling
+# Written 1997-2018 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for AIX on RS6000
@@ -35,7 +35,7 @@ COPTDYN=	-pic
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
 LIB_SOCKET=
 LIB_MATH=	-lm
