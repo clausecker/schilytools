@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.76 17/09/25 Copyright 1985, 1988, 1994-2017 J. Schilling */
+/* @(#)getargs.c	2.78 18/04/21 Copyright 1985, 1988, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.76 17/09/25 Copyright 1985, 1988, 1994-2017 J. Schilling";
+	"@(#)getargs.c	2.78 18/04/21 Copyright 1985, 1988, 1994-2018 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2017 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2018 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -686,6 +686,8 @@ again:
 				 */
 				break;
 			} else if (*fmt == *argp) {
+				char	c;
+
 				if (argp[1] == '\0' &&
 				    (fmt[1] == '\0' || fmt[1] == ',')) {
 
@@ -695,6 +697,14 @@ again:
 
 					return (checkfmt(fmt)); /* XXX */
 				}
+				/*
+				 * Check whether the current program argument
+				 * contains characters that are not allowd in
+				 * option names. Check current character.
+				 */
+				c = *fmt;
+				if (c == ',' || (!isalnum(c) && isfmtspec(c)))
+					goto nextarg;
 			} else {
 				/*
 				 * skip over to next format identifier

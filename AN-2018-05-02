@@ -1,0 +1,171 @@
+New features with AN-2018-05-02:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily::getargs.c: Fixed a 38 year old bug bug with option parsing
+	that did cause a core dump in case that something like "-l,all" - an
+	option name that contains a comma - was used. This bug was detected
+	with "bsh" but it has a potential to affect all tools that use
+	getargs() to parse options - so all schilytools that are not derived
+	from UNIX soures are affected.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	libxtermcap: Fixed a bug that could cause tdecode() to run past the
+	end of a non-conforming string that could e.g. appear when tdecode()
+	is called from the "map" builtin in bsh or bosh (Bourne Shell).
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	bsh: wordeql() could access a string beyond the end in case that the
+	word in that string was shorter than the reference.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	bsh: "$@$@" could cause an illegal call to iswhite(-2) as the check for
+	"$@" with ac <= 1 that needs to remove the argument completely was
+	imperfect.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	bsh & libshedit: '"' and '\'' are now in the list of characters that
+	need quoting during a TAB filename expansion. This affects bsh and the
+	Bourne Shell.
+
+-	Bourne Shell: added an #ifdef EXPAND_DEBUG to expand.c to help debugging
+	hard to debug pattern matching cases.
+
+-	Bourne Shell: When in strict POSIX mode (set -o posix), "case" pattern 
+	matching no longer implements a fallback to a vanilla string compare in
+	case that gmatch() fails. This differs from what Bourne Shell and ksh
+	implement, but it is aligned with opinion of the majority of the people
+	in the POSIX commitee.
+
+-	Bourne Shell: try to avoid an ugly line break in the man page.
+
+-	Bourne Shell: the conformance tests have been modified to deal with
+	spaces in PATH - needed on Cygwin.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: star -diff is now able to compare nanoseconds in timestamps.
+	This requires a tar archive with full POSIX.1-2001 extended tar
+	header extensions. If the archive does not include sub-second
+	resolution, star -diff implements a silent fallback to what previously
+	has been done: just compare the seconds.
+
+-	smake: man page now uses a 4-digit year.
+
+-	SCCS: The logname() function in libcomobj now substitutes " " by
+	"_". This is needed as Cygwin permits to have spaces in the user name
+	but this would be in conflict with our history file format that uses
+	" " as a field separator.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	SCCS: The username arguments for "admin" and "sccs" are now modified
+	in case that they contain space characters (" "). This is needed to
+	match the modifications for the history file format - see above.
+
+-	SCCS: The sccsfile(4) man page has been enhanced to mention the fact
+	that spaces in usernames are impossible in the history file.
+
+-	SCCS: The conformance tests have been rewritten to deal with user names
+	and working directories that include spaces.
+
+-	SCCS: Some sources have been converted to better follow the Cstyle
+	conventions.
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

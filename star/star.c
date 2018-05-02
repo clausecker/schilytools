@@ -1,8 +1,8 @@
-/* @(#)star.c	1.361 18/04/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.362 18/04/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.361 18/04/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.362 18/04/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -1294,6 +1294,7 @@ dusage(ret)
 	error("\ttimes\t\tcompare all times of file\n");
 	error("\tlmtime\t\tcompare modification time of symlinks\n");
 	error("\txtimes\t\tcompare all times and lmtime\n");
+	error("\tnsecs\t\tcompare nanoseconds in times\n");
 	error("\tdir\t\tcompare directory content (star dump mode only)\n");
 #ifdef USE_ACL
 	error("\tacl\t\tcompare access control lists (specify -acl also)\n");
@@ -2330,6 +2331,8 @@ add_diffopt(optstr, flagp)
 			optflags |= D_TIMES;
 		} else if (strncmp(optstr, "xtimes", optlen) == 0) {
 			optflags |= D_XTIMES;
+		} else if (strncmp(optstr, "nsecs", optlen) == 0) {
+			optflags |= D_ANTIME|D_MNTIME|D_CNTIME;
 		} else if (strncmp(optstr, "dir", optlen) == 0) {
 			optflags |= D_DIR;
 #ifdef USE_ACL

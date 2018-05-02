@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)what.c	1.16 18/04/04 J. Schilling
+ * @(#)what.c	1.17 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.16 18/04/04 J. Schilling"
+#pragma ident "@(#)what.c 1.17 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -40,15 +42,15 @@
 #pragma ident	"@(#)what.c"
 #pragma ident	"@(#)sccs:cmd/what.c"
 #endif
-# include	<defines.h>
-# include	<version.h>
-# include	<i18n.h>
-# include	<schily/sysexits.h>
+#include	<defines.h>
+#include	<version.h>
+#include	<i18n.h>
+#include	<schily/sysexits.h>
 
-#define MINUS '-'
-#define MINUS_S "-s"
-#define TRUE  1
-#define FALSE 0
+#define	MINUS	'-'
+#define	MINUS_S	"-s"
+#define	TRUE	1
+#define	FALSE	0
 
 
 static int found = FALSE;
@@ -62,9 +64,9 @@ static int	trypat	__PR((FILE *iop, char *pat));
 
 
 int
-main(argc,argv)
-int argc;
-register char **argv;
+main(argc, argv)
+	int		argc;
+	register char	**argv;
 {
 	register int i;
 	register FILE *iop;
@@ -74,7 +76,7 @@ register char **argv;
 	 * Set locale for all categories.
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
-	
+
 	sccs_setinsbase(INS_BASE);
 
 	/*
@@ -82,12 +84,12 @@ register char **argv;
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
+	    NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT("/usr/ccs/lib/locale/"));
+	    NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
-	
+
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	tzset();	/* Set up timezome related vars */
@@ -102,33 +104,34 @@ register char **argv;
 		i = 1;
 		/*CONSTCOND*/
 		while (1) {
-			if(current_optind < optind) {
-			   current_optind = optind;
-			   argv[i] = 0;
-			   if (optind > i+1 ) {
-			      argv[i+1] = NULL;
-			   }
+			if (current_optind < optind) {
+			    current_optind = optind;
+			    argv[i] = 0;
+			    if (optind > i+1) {
+				argv[i+1] = NULL;
+			    }
 			}
 			i = current_optind;
-		        c = getopt(argc, argv, "-sV(version)");
+			c = getopt(argc, argv, "-sV(version)");
 
-				/* this takes care of options given after
-				** file names.
-				*/
+				/*
+				 * This takes care of options given after
+				 * file names.
+				 */
 			if (c == EOF) {
-			   if (optind < argc) {
+			    if (optind < argc) {
 				/* if it's due to -- then break; */
-			       if(argv[i][0] == '-' &&
-				      argv[i][1] == '-') {
-			          argv[i] = 0;
-			          break;
-			       }
-			       optind++;
-			       current_optind = optind;
-			       continue;
-			   } else {
-			       break;
-			   }
+				if (argv[i][0] == '-' &&
+				    argv[i][1] == '-') {
+					argv[i] = 0;
+					break;
+				}
+				optind++;
+				current_optind = optind;
+				continue;
+			    } else {
+				break;
+			    }
 			}
 			switch (c) {
 			case 's' :
@@ -136,7 +139,8 @@ register char **argv;
 				break;
 
 			case 'V':		/* version */
-				printf("what %s-SCCS version %s %s (%s-%s-%s)\n",
+				printf(
+				"what %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
 					VDATE,
@@ -144,18 +148,19 @@ register char **argv;
 				exit(EX_OK);
 
 			default  :
-				fatal(gettext("Usage: what [ -s ] filename..."));
+				fatal(gettext(
+					"Usage: what [ -s ] filename..."));
 			}
 		}
-		for(i=1;(i<argc );i++) {
-			if(!argv[i]) {
-			   continue;
+		for (i = 1; (i < argc); i++) {
+			if (!argv[i]) {
+				continue;
 			}
 			if ((iop = fopen(argv[i], NOGETTEXT("rb"))) == NULL)
-				fprintf(stderr,gettext("can't open %s (26)\n"),
+				fprintf(stderr, gettext("can't open %s (26)\n"),
 					argv[i]);
 			else {
-				printf("%s:\n",argv[i]);
+				printf("%s:\n", argv[i]);
 				dowhat(iop);
 			}
 		}
@@ -172,14 +177,14 @@ register FILE *iop;
 
 	while ((c = getc(iop)) != EOF) {
 		if (c == pattern[0])
-			if(trypat(iop, &pattern[1]) && silent) break;
+			if (trypat(iop, &pattern[1]) && silent) break;
 	}
 	fclose(iop);
 }
 
 
 static int
-trypat(iop,pat)
+trypat(iop, pat)
 register FILE *iop;
 register char *pat;
 {
@@ -191,13 +196,13 @@ register char *pat;
 	if (!*pat) {
 		found = TRUE;
 		putchar('\t');
-		while ((c = getc(iop)) != EOF && c && !any(c,NOGETTEXT("\"\\>\n")))
+		while ((c = getc(iop)) != EOF && c &&
+		    !any(c, NOGETTEXT("\"\\>\n")))
 			putchar(c);
 		putchar('\n');
-		if(silent)
-			return(TRUE);
-	}
-	else if (c != EOF)
+		if (silent)
+			return (TRUE);
+	} else if (c != EOF)
 		ungetc(c, iop);
-	return(FALSE);
+	return (FALSE);
 }

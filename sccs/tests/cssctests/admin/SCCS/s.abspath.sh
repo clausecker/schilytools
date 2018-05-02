@@ -1,4 +1,8 @@
-h56317
+h02457
+s 00001/00001/00015
+d D 1.4 18/04/30 13:07:11 joerg 4 3
+c Pfadnamen quoten, damit SPACE darin sein kann
+e
 s 00001/00001/00015
 d D 1.3 15/06/03 00:06:43 joerg 3 2
 c ../common/test-common -> ../../common/test-common
@@ -40,7 +44,12 @@ d=`${SRCROOT}/tests/testutils/realpwd`
 E 2
 s=${d}/s.bar
 
+D 4
 docommand P1 "${vg_admin} -n ${s}" 0 "" IGNORE
+E 4
+I 4
+docommand P1 "${vg_admin} -n '${s}'" 0 "" IGNORE
+E 4
 
 remove s.bar 
 success

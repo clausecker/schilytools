@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)expand.c	1.18 16/08/28 2008-2016 J. Schilling
+ * @(#)expand.c	1.19 18/04/27 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.18 16/08/28 2008-2016 J. Schilling";
+	"@(#)expand.c	1.19 18/04/27 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -85,6 +85,9 @@ expand(as, rcnt)
 	int	len;
 	wchar_t	wc;
 
+#ifdef	EXPAND_DEBUG
+	fprintf(stderr, "expand(%s, %d)\n", as, rcnt);
+#endif
 	if (trapnote & SIGSET)
 		return (0);
 	s = cs = as;

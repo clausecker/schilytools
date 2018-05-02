@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.69 17/01/18 Copyright 1985-2017 J. Schilling */
+/* @(#)bsh.h	1.70 18/04/23 Copyright 1985-2018 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -279,6 +279,8 @@ extern	int	quoting		__PR((void));
 extern	void	dquote		__PR((void));
 extern	void	undquote	__PR((void));
 extern	int	dquoting	__PR((void));
+extern	void	xquote		__PR((void));
+extern	void	unxquote	__PR((void));
 extern	int	begina		__PR((int flg));
 extern	int	getbegina	__PR((void));
 extern	int	setbegina	__PR((void));

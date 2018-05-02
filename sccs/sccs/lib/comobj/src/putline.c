@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)putline.c	1.15 11/10/13 J. Schilling
+ * @(#)putline.c	1.16 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.15 11/10/13 J. Schilling"
+#pragma ident "@(#)putline.c 1.16 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -40,20 +42,20 @@
 #pragma ident	"@(#)putline.c"
 #pragma ident	"@(#)sccs:lib/comobj/putline.c"
 #endif
-# include	<defines.h>
-# include       <i18n.h>
+#include	<defines.h>
+#include	<i18n.h>
 
 /*
-	Routine to write out either the current line in the packet
-	(if newline is zero) or the line specified by newline.
-	A line is actually written (and the x-file is only
-	opened) if pkt->p_upd is non-zero.  When the current line from 
-	the packet is written, pkt->p_wrttn is set non-zero, and
-	further attempts to write it are ignored.  When a line is
-	read into the packet, pkt->p_wrttn must be turned off.
-*/
+ *	Routine to write out either the current line in the packet
+ *	(if newline is zero) or the line specified by newline.
+ *	A line is actually written (and the x-file is only
+ *	opened) if pkt->p_upd is non-zero.  When the current line from
+ *	the packet is written, pkt->p_wrttn is set non-zero, and
+ *	further attempts to write it are ignored.  When a line is
+ *	read into the packet, pkt->p_wrttn must be turned off.
+ */
 
-#define MAX_LINES	99999	/* Max # of lines that can fit in the */
+#define	MAX_LINES	99999	/* Max # of lines that can fit in the */
 				/* stats field.  Larger #s will overflow */
 				/* and corrupt the file */
 
@@ -88,7 +90,7 @@ register struct packet *pkt;
 }
 
 void
-putline(pkt,newline)
+putline(pkt, newline)
 register struct packet *pkt;
 char *newline;
 {
@@ -98,9 +100,9 @@ char *newline;
 	char *xf = (char *) NULL;
 	register signed char *p;
 	register unsigned char *u_p;
-	
 
-	if(pkt->p_upd == 0) return;
+	if (pkt->p_upd == 0)
+		return;
 
 	if (!pkt->p_xcreate) {
 		/*
@@ -108,52 +110,51 @@ char *newline;
 		 * as Xfcreat will trash Statbuf.
 		 */
 		/*
-		int	gid, uid;
-		*/
+		 * int	gid, uid;
+		 */
 
-		(void) stat(pkt->p_file,&Statbuf);
+		(void) stat(pkt->p_file, &Statbuf);
 		/*
-		gid = Statbuf.st_gid;
-		uid = Statbuf.st_uid;
-		*/
-		xf = auxf(pkt->p_file,'x');
+		 * gid = Statbuf.st_gid;
+		 * uid = Statbuf.st_uid;
+		 */
+		xf = auxf(pkt->p_file, 'x');
 		pkt->p_xiop = xfcreat(xf, Statbuf.st_mode);
 #ifdef	USE_SETVBUF
 		setvbuf(pkt->p_xiop, NULL, _IOFBF, VBUF_SIZE);
 #else
 		setbuf(pkt->p_xiop, obf);
 #endif
-     /* commenting it out as it doesn't do anything useful and creates problems
-	 in networked environment where some platforms allow chown for non root
-	 users.
-      */
-#if 0 
+	/*
+	 * commenting it out as it doesn't do anything useful and creates problems
+	 * in networked environment where some platforms allow chown for non root
+	 * users.
+	 */
+#if 0
 		chown(xf, uid, gid);
 #endif
 	}
 	if (newline) {
 		p = (signed char *)newline;
 		u_p = (unsigned char *)newline;
-	}
-	else {
+	} else {
 		if (pkt->p_wrttn == 0) {
 			pkt->p_wrttn++;
 			p = (signed char *)pkt->p_line;
 			u_p = (unsigned char *)pkt->p_line;
-		}
-		else {
+		} else {
 			p =  0;
 			u_p = 0;
 		}
 	}
 	if (p) {
-		if(fputs((const char *)p, pkt->p_xiop)==EOF)
+		if (fputs((const char *)p, pkt->p_xiop) == EOF)
 			FAILPUT;
 		if (pkt->p_xcreate) {
 			if (newline) {
 				register int	hash = 0;
-	
-				if(signed_chksum) {
+
+				if (signed_chksum) {
 					while (*p)
 						hash += *p++;
 				} else {
@@ -163,7 +164,7 @@ char *newline;
 				pkt->p_nhash += hash;
 			} else {
 #ifdef	ALLOW_MODIFIED_LINE
-				if(signed_chksum)
+				if (signed_chksum)
 					pkt->p_nhash += ssum((char *)p,
 							    pkt->p_line_length);
 				else
@@ -173,7 +174,7 @@ char *newline;
 				/*
 				 * Use hash from getline()
 				 */
-				if(signed_chksum)
+				if (signed_chksum)
 					pkt->p_nhash += pkt->p_clhash;
 				else
 					pkt->p_nhash += pkt->p_uclhash;
@@ -188,7 +189,7 @@ int org_chash;
 int org_uchash;
 
 void
-flushline(pkt,stats)
+flushline(pkt, stats)
 register struct packet *pkt;
 register struct stats *stats;
 {
@@ -200,7 +201,7 @@ register struct stats *stats;
 
 	if (pkt->p_upd == 0)
 		return;
-	putline(pkt,(char *) 0);
+	putline(pkt, (char *) 0);
 	rewind(pkt->p_xiop);
 	if (stats) {
 		if (stats->s_ins > MAX_LINES) {
@@ -212,44 +213,44 @@ register struct stats *stats;
 		if (stats->s_unc > MAX_LINES) {
 			stats->s_unc = MAX_LINES;
 		}
-		sprintf(ins,"%.05d",stats->s_ins);
-		sprintf(del,"%.05d",stats->s_del);
-		sprintf(unc,"%.05d",stats->s_unc);
-		for (p = (signed char*)ins, u_p = (unsigned char *)ins; *p; p++,u_p++){
-		    if(signed_chksum)
+		sprintf(ins, "%.05d", stats->s_ins);
+		sprintf(del, "%.05d", stats->s_del);
+		sprintf(unc, "%.05d", stats->s_unc);
+		for (p = (signed char *)ins, u_p = (unsigned char *)ins; *p; p++, u_p++) {
+		    if (signed_chksum)
 			pkt->p_nhash += (*p - '0');
 		    else
 			pkt->p_nhash += (*u_p - '0');
 		}
-		for (p = (signed char*)del, u_p = (unsigned char*)del; *p; p++,u_p++) {
-		    if(signed_chksum)
+		for (p = (signed char *)del, u_p = (unsigned char *)del; *p; p++, u_p++) {
+		    if (signed_chksum)
 			pkt->p_nhash += (*p - '0');
 		    else
 			pkt->p_nhash += (*u_p - '0');
 		}
-		for (p = (signed char*)unc, u_p = (unsigned char*)unc; *p; p++, u_p++){
-		    if(signed_chksum)
+		for (p = (signed char *)unc, u_p = (unsigned char *)unc; *p; p++, u_p++) {
+		    if (signed_chksum)
 			pkt->p_nhash += (*p - '0');
 		    else
 			pkt->p_nhash += (*u_p - '0');
 		}
 	}
 
-	sprintf(hash,"%5d",pkt->p_nhash&0xFFFF);
-	for (p=(signed char*)hash; *p == ' '; p++)	/* replace initial blanks with '0's */
+	sprintf(hash, "%5d", pkt->p_nhash&0xFFFF);
+	for (p = (signed char *)hash; *p == ' '; p++)	/* replace initial blanks with '0's */
 		*p = '0';
 	putmagic(pkt, hash);
 	if (stats)
-		fprintf(pkt->p_xiop, "%c%c %s/%s/%s\n",CTLCHAR,STATS,ins,del,unc);
+		fprintf(pkt->p_xiop, "%c%c %s/%s/%s\n", CTLCHAR, STATS, ins, del, unc);
 	if (fflush(pkt->p_xiop) == EOF)
-		xmsg(xf, NOGETTEXT("flushline")); 
+		xmsg(xf, NOGETTEXT("flushline"));
 
 	/*
 	 * Lots of paranoia here, to try to catch
 	 * delayed failure information from NFS.
 	 */
 #ifdef	HAVE_FSYNC
-	 if (fsync(fileno(pkt->p_xiop)) < 0)
+	if (fsync(fileno(pkt->p_xiop)) < 0)
 		xmsg(xf, NOGETTEXT("flushline"));
 #endif
 	if (fclose(pkt->p_xiop) == EOF)
@@ -273,7 +274,7 @@ register struct packet	*pkt;
 
 	if (pkt->p_xiop) {
 		rewind(pkt->p_xiop);
-		if(fputs(line, pkt->p_xiop) == EOF)
+		if (fputs(line, pkt->p_xiop) == EOF)
 			FAILPUT;
 		return;
 	}

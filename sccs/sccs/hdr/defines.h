@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)defines.h	1.97 18/03/15 J. Schilling
+ * @(#)defines.h	1.98 18/04/30 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.97 18/03/15 J. Schilling"
+#pragma ident "@(#)defines.h 1.98 18/04/30 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -668,6 +668,7 @@ extern	void	putctlnnl __PR((struct packet *));
 extern	void	putmagic __PR((struct packet *, char *));
 extern	void	putmeta	__PR((struct packet *));
 extern	char	*logname	__PR((void));
+extern	char	*sccs_user	__PR((char *));
 extern	int	mystrptime __PR((char *, struct tm *, int));
 extern	char	*savecmt	__PR((char *));
 extern	void	mrfixup	__PR((void));

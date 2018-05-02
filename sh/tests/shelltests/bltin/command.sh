@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)command.sh	1.5 17/09/14 2017 J. Schilling
+# @(#)command.sh	1.6 18/04/29 2017 J. Schilling
 #
 
 # Read test core functions
@@ -28,8 +28,8 @@ docommand command20 "$SHELL -c 'command expr 1 \< 2'" 0 "1\n" ""
 #
 if [ "$is_bosh" = true ]; then
 docommand command50 "$SHELL -c 'command echo -n bla'" 0 "-n bla\n" ""
-docommand command51 "$SHELL -c 'PATH=/usr/ucb:$PATH; command echo -n bla'" 0 "bla" ""
-docommand command52 "$SHELL -c 'PATH=/usr/ucb:$PATH; command -p echo -n bla'" 0 "-n bla\n" ""
+docommand command51 "$SHELL -c 'PATH=\"/usr/ucb:\$PATH\"; command echo -n bla'" 0 "bla" ""
+docommand command52 "$SHELL -c 'PATH=\"/usr/ucb:\$PATH\"; command -p echo -n bla'" 0 "-n bla\n" ""
 docommand command53 "$SHELL -c 'SYSV3=true; export SYSV3; command echo -n \"bla\\\\t\"'" 0 "bla\t" ""
 docommand command54 "$SHELL -c 'SYSV3=true; export SYSV3; command -p echo -n \"bla\\\\t\"'" 0 "-n bla\t\n" ""
 else

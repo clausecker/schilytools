@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.225 18/03/15 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.227 18/04/25 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/03/15" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/04/25" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -505,6 +505,15 @@ as that used for file-name generation (see
 .B File Name Generation
 section), except that a slash, a leading dot, or a dot immediately following
 a slash need not be matched explicitly.
+.sp
+When not in 
+.B POSIX
+mode,
+.B sh
+implements a fallback to a simple string compare,
+in case that an attempt to match the pattern similar to
+.BR fnmatch (3)
+fails.
 .sp
 The optional opening parenthesis was not supported by older versions of
 .BR sh .
@@ -5825,7 +5834,7 @@ Stops the execution of the current shell (but not if it is the login
 shell).
 
 .br
-.ne 3
+.ne 4
 .TP
 .BI test " [expr]
 .sp .6
@@ -5846,7 +5855,7 @@ The following primaries are used to evaluate a
 .IR condition:
 .RS
 .br
-.ne 3
+.ne 4
 .TP 10
 .BI \-b " file
 .B True
@@ -5855,7 +5864,7 @@ if
 exists and is a block special file.
 .PD 0
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-c " file
 .B True
@@ -5863,7 +5872,7 @@ if
 .I file
 exists and is a character special file.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-C " file
 .B True
@@ -5875,7 +5884,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-d " file
 .B True
@@ -5883,7 +5892,7 @@ if
 .I file
 exists and is a directory.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-D " file
 .B True
@@ -5895,7 +5904,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-e " file
 .B True
@@ -5907,7 +5916,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-f " file
 .B True
@@ -5929,7 +5938,7 @@ returns
 if file exists and is
 .RB ( not-a-directory ).
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-g " file
 .B True
@@ -5939,7 +5948,7 @@ exists and its
 .B set group ID
 flag is set.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-G " file
 .B True
@@ -5953,7 +5962,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-h " file
 .B True
@@ -5961,7 +5970,7 @@ if
 .I file
 exists and is a symbolic link.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-k " file
 .B True
@@ -5971,7 +5980,7 @@ exists and has its
 .B set sticky bit
 set.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-L " file
 .B True
@@ -5979,7 +5988,7 @@ if
 .I file
 exists and is a symbolic link.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-n " string
 .B True
@@ -5987,7 +5996,7 @@ if the length of
 .I string
 is non-zero.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-N " file
 .B True
@@ -6010,7 +6019,7 @@ if the option named
 .I option
 is on.
 .br
-.ne 3
+.ne 4
 .TP
 .BI "\-o ?" option
 .B True
@@ -6022,7 +6031,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-O " file
 .B True
@@ -6036,7 +6045,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-p " file
 .B True
@@ -6045,7 +6054,7 @@ if
 exists and is a named pipe
 .RB ( FIFO ).
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-P " file
 .B True
@@ -6057,7 +6066,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-r " file
 .B True
@@ -6065,7 +6074,7 @@ if
 .I file
 exists and is readable.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-s " file
 .B True
@@ -6073,7 +6082,7 @@ if
 .I file
 exists and has a size greater then zero.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-S " file
 .B True
@@ -6085,7 +6094,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-t " [file-descriptor]
 .B True
@@ -6102,7 +6111,7 @@ When is POSIX mode
 .I file-descriptor
 must always be specified.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-u " file
 .B True
@@ -6112,7 +6121,7 @@ exists and its
 .B set user ID
 flag is set.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-w " file
 .B True
@@ -6120,7 +6129,7 @@ if
 .I file
 exists and is writable.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-x " file
 .B True
@@ -6130,7 +6139,7 @@ exists and is executable.
 True indicates only that the execute flag is on.
 If file is a directory, true indicates that file can be searched.
 .br
-.ne 3
+.ne 4
 .TP
 .BI \-z " string
 .B True
@@ -6138,7 +6147,7 @@ if the length of
 .I string
 is zero.
 .sp
-.ne 3
+.ne 4
 .TP
 .IB file1 " \-ef " file2
 .B True
@@ -6152,7 +6161,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .IB file1 " \-nt " file2
 .B True
@@ -6169,7 +6178,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .br
-.ne 3
+.ne 4
 .TP
 .IB file1 " \-ot " file2
 .B True
@@ -6186,7 +6195,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .sp
-.ne 3
+.ne 4
 .TP
 .I string
 .B True
@@ -6194,7 +6203,7 @@ if
 .I string
 is not the null string.
 .br
-.ne 3
+.ne 4
 .TP
 .IB s1 " = " s2
 .B True
@@ -6204,7 +6213,7 @@ and
 .I s2
 are identical.
 .br
-.ne 3
+.ne 4
 .TP
 .IB s1 " != " s2
 .B True
@@ -6214,7 +6223,7 @@ and
 .I s2
 are not identical.
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-eq " n2
 .B True
@@ -6224,7 +6233,7 @@ and
 .I n2
 are algebraically equal.
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-ne " n2
 .B True
@@ -6234,7 +6243,7 @@ and
 .I n2
 are not algebraically equal.
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-gt " n2
 .B True
@@ -6243,7 +6252,7 @@ if the integer
 is algebraically greater than the integer
 .IR n2 .
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-ge " n2
 .B True
@@ -6252,7 +6261,7 @@ if the integer
 is algebraically greater or equal to the integer
 .IR n2 .
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-lt " n2
 .B True
@@ -6261,7 +6270,7 @@ if the integer
 is algebraically less than the integer
 .IR n2 .
 .br
-.ne 3
+.ne 4
 .TP
 .IB n1 " \-le " n2
 .B True
@@ -6273,18 +6282,18 @@ is algebraically less or equal to the integer
 .LP
 The primaries above may be combined with the following operators:
 .br
-.ne 3
+.ne 4
 .TP 10
 .BI ( " expr " )
 Bracketing to group precedence.
 .br
-.ne 3
+.ne 4
 .PD 0
 .TP
 .B !
 unary negation operator.
 .br
-.ne 3
+.ne 4
 .TP
 .B \-a
 binary
@@ -6296,7 +6305,7 @@ binary primary is left associative and has higher precedence than the
 .B \-o
 binary primary.
 .br
-.ne 3
+.ne 4
 .TP
 .B \-o
 binary
@@ -8206,6 +8215,26 @@ prints
 as done by the historical Bourne Shell,
 instead of the expected
 .RB `` "Hi you" ''.
+.br
+.ne 4
+.TP
+.B case
+When in 
+.B POSIX
+mode,
+.B sh
+no longer implements a fallback to a simple string compare,
+in case that an attempt to match the pattern similar to
+.BR fnmatch (3)
+fails.
+.sp
+This makes it behave different than the
+.B Korn Shell
+reference implementation but the undocumented behavior kept from old
+.B Bourne Shell
+versions may cause unexpected matches, like a match to the string
+.B [0-9]
+even though a match to decimal digits only was intended.
 .br
 .ne 4
 .TP

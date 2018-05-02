@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)date_ab.c	1.19 17/07/16 J. Schilling
+ * @(#)date_ab.c	1.21 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ab.c 1.19 17/07/16 J. Schilling"
+#pragma ident "@(#)date_ab.c 1.21 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)date_ab.c 1.8 06/12/12
@@ -40,7 +42,7 @@
 #pragma ident	"@(#)date_ab.c"
 #pragma ident	"@(#)sccs:lib/comobj/date_ab.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 
 #define	dysize(A) (((A)%4)? 365 : (((A)%100) == 0 && ((A)%400)) ? 365 : 366)
@@ -87,7 +89,8 @@ int	flags;			/* Flags from packet		*/
 	NONBLANK(Datep);
 
 	tm.tm_year = gNp(Datep, &Datep, 4, &dn, &cn);
-	if (tm.tm_year < 0) return (-1);
+	if (tm.tm_year < 0)
+		return (-1);
 	if ((dn != 2 && dn != 4) || cn != dn || *Datep != '/') warn = 1;
 	if (dn <= 2) {
 		if (tm.tm_year < 69) {
@@ -104,25 +107,30 @@ int	flags;			/* Flags from packet		*/
 	y = tm.tm_year + 1900;			/* For Gregorian leap year */
 
 	tm.tm_mon = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_mon < 1 || tm.tm_mon > 12) return (-1);
+	if (tm.tm_mon < 1 || tm.tm_mon > 12)
+		return (-1);
 	if (dn != 2 || cn != dn+1 || *Datep != '/') warn = 1;
 
 	tm.tm_mday = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon)) return (-1);
+	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon))
+		return (-1);
 	if (dn != 2 || cn != dn+1) warn = 1;
 
 	NONBLANK(Datep);
 
 	tm.tm_hour = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_hour < 0 || tm.tm_hour > 23) return (-1);
+	if (tm.tm_hour < 0 || tm.tm_hour > 23)
+		return (-1);
 	if (dn != 2 || cn != dn || *Datep != ':') warn = 1;
 
 	tm.tm_min = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_min < 0 || tm.tm_min > 59) return (-1);
+	if (tm.tm_min < 0 || tm.tm_min > 59)
+		return (-1);
 	if (dn != 2 || cn != dn+1 || *Datep != ':') warn = 1;
 
 	tm.tm_sec = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_sec < 0 || tm.tm_sec > 59) return (-1);
+	if (tm.tm_sec < 0 || tm.tm_sec > 59)
+		return (-1);
 	if (dn != 2 || cn != dn+1) warn = 1;
 
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
@@ -183,30 +191,42 @@ int	flags;
 		adt++;				/* Skip '/'		*/
 #if SIZEOF_TIME_T == 4
 		if (tm.tm_year < 1933) {	/* Unsupported in 32bit mode */
-			return(-1);		/* see xlocaltime.c	*/
+			return (-1);		/* see xlocaltime.c	*/
 		}
 #endif
 		tm.tm_year -= 1900;
 	} else {
-		if ((tm.tm_year = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_year = 99;
-		if (tm.tm_year < 69) tm.tm_year += 100;
+		if ((tm.tm_year = gN(adt, &adt, 2, NULL, NULL)) == -2)
+			tm.tm_year = 99;
+		if (tm.tm_year < 69)
+			tm.tm_year += 100;
 	}
 	y = tm.tm_year + 1900;			/* For Gregorian leap year */
 
-	if ((tm.tm_mon = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_mon = 12;
-	if (tm.tm_mon < 1 || tm.tm_mon > 12) return (-1);
+	if ((tm.tm_mon = gN(adt, &adt, 2, NULL, NULL)) == -2)
+		tm.tm_mon = 12;
+	if (tm.tm_mon < 1 || tm.tm_mon > 12)
+		return (-1);
 
-	if ((tm.tm_mday = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_mday = mosize(y, tm.tm_mon);
-	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon)) return (-1);
+	if ((tm.tm_mday = gN(adt, &adt, 2, NULL, NULL)) == -2)
+		tm.tm_mday = mosize(y, tm.tm_mon);
+	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon))
+		return (-1);
 
-	if ((tm.tm_hour = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_hour = 23;
-	if (tm.tm_hour < 0 || tm.tm_hour > 23) return (-1);
+	if ((tm.tm_hour = gN(adt, &adt, 2, NULL, NULL)) == -2)
+		tm.tm_hour = 23;
+	if (tm.tm_hour < 0 || tm.tm_hour > 23)
+		return (-1);
 
-	if ((tm.tm_min = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_min = 59;
-	if (tm.tm_min < 0 || tm.tm_min > 59) return (-1);
+	if ((tm.tm_min = gN(adt, &adt, 2, NULL, NULL)) == -2)
+		tm.tm_min = 59;
+	if (tm.tm_min < 0 || tm.tm_min > 59)
+		return (-1);
 
-	if ((tm.tm_sec = gN(adt, &adt, 2, NULL, NULL)) == -2) tm.tm_sec = 59;
-	if (tm.tm_sec < 0 || tm.tm_sec > 59) return (-1);
+	if ((tm.tm_sec = gN(adt, &adt, 2, NULL, NULL)) == -2)
+		tm.tm_sec = 59;
+	if (tm.tm_sec < 0 || tm.tm_sec > 59)
+		return (-1);
 
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
 	tm.tm_isdst = -1;	/* let mktime() find out */
@@ -225,7 +245,8 @@ mosize(y, t)
 int y, t;
 {
 
-	if (t == 2 && dysize(y) == 366) return (29);
+	if (t == 2 && dysize(y) == 366)
+		return (29);
 	return (dmsize[t-1]);
 }
 
@@ -306,7 +327,8 @@ gN(str, next, num, digits, chars)
  * Multiplicator to get nanoseconds from 9 - "number of digits read".
  * The 11th entry is for the theoretical case when *str == '\0'.
  */
-static int	nsmult[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0, 0 };
+static int	nsmult[] =
+	{ 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 0, 0 };
 
 /*
  * Get nanoseconds of a time stamp.
@@ -343,9 +365,9 @@ gtz(str, next)
 	char	*str;
 	char	**next;
 {
-	register int c;
-	register int tz;
-		 int sign = 1;
+	register int	c;
+	register int	tz;
+		int	sign = 1;
 
 	c = *str++;
 	if (c == '-')

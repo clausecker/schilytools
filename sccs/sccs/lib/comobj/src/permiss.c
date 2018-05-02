@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)permiss.c	1.19 15/03/02 J. Schilling
+ * @(#)permiss.c	1.20 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)permiss.c 1.19 15/03/02 J. Schilling"
+#pragma ident "@(#)permiss.c 1.20 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -40,11 +42,11 @@
 #pragma ident	"@(#)permiss.c"
 #pragma ident	"@(#)sccs:lib/comobj/permiss.c"
 #endif
-# define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
-# include	<defines.h>
-# include	<i18n.h>
+#define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
+#include	<defines.h>
+#include	<i18n.h>
 
-# define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
+#define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
 
 static void ck_lock __PR((char *p, struct packet *pkt));
 
@@ -74,7 +76,7 @@ register struct packet *pkt;
 			ok_user = 0;
 			}
 		if (!pkt->p_user)
-			if (equal(user,p) || equal(groupid,p))
+			if (equal(user, p) || equal(groupid, p))
 				pkt->p_user = ok_user;
 		*(strend(p)) = '\n';	/* repl \0 end of line w/ \n again */
 	}
@@ -179,32 +181,33 @@ register struct packet *pkt;
 	}
 	if ((p = sflags[CEILFLAG - 'a']) != NULL) {
 		if (((unsigned)pkt->p_reqsid.s_rel) > (n = patoi(p))) {
-			sprintf(SccsError,gettext("release %d > %d ceiling (co16)"),
+			sprintf(SccsError,
+				gettext("release %d > %d ceiling (co16)"),
 				pkt->p_reqsid.s_rel,
 				n);
 			fatal(SccsError);
 		}
 	}
 	/*
-	check to see if the file or any particular release is
-	locked against editing. (Only if the `l' flag is set)
-	*/
+	 * check to see if the file or any particular release is
+	 * locked against editing. (Only if the `l' flag is set)
+	 */
 	if ((p = sflags[LOCKFLAG - 'a']) != NULL)
-		ck_lock(p,pkt);
+		ck_lock(p, pkt);
 }
 
 
 
-/* 
+/*
  * Multiply  space needed for C locale by 3.  This should be adequate
  * for the longest localized strings.  The length is
  * strlen("SCCS file locked against editing (co23)") * 3 + 1)
  * or strlen("release `%d' locked against editing (co23)") with %d max = 9999
  */
-static char l_str[131];	
+static char l_str[131];
 
 static void
-ck_lock(p,pkt)
+ck_lock(p, pkt)
 register char *p;
 register struct packet *pkt;
 {
@@ -213,17 +216,20 @@ register struct packet *pkt;
 
 	strcpy(l_str, (const char *) NOGETTEXT("SCCS file locked against editing (co23)"));
 	locked = 0;
-	if (*p == 'a')
+	if (*p == 'a') {
 		locked++;
-	else while(*p) {
-		p = satoi(p,&l_rel);
-		++p;
-		if (l_rel == pkt->p_gotsid.s_rel || l_rel == pkt->p_reqsid.s_rel) {
-			locked++;
-			snprintf(l_str, sizeof (l_str),
+	} else {
+		while (*p) {
+			p = satoi(p, &l_rel);
+			++p;
+			if (l_rel == pkt->p_gotsid.s_rel ||
+			    l_rel == pkt->p_reqsid.s_rel) {
+				locked++;
+				snprintf(l_str, sizeof (l_str),
 				gettext("release `%d' locked against editing (co23)"),
 				l_rel);
-			break;
+				break;
+			}
 		}
 	}
 	if (locked)

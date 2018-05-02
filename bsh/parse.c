@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.36 17/10/22 Copyright 1985-2017 J. Schilling */
+/* @(#)parse.c	1.37 18/04/23 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.36 17/10/22 Copyright 1985-2017 J. Schilling";
+	"@(#)parse.c	1.37 18/04/23 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -444,11 +444,14 @@ again:
 	}
 	if (delim == '\'' || delim == '"' || delim == '`') {
 		q = delim;
-		if (q == '\'')
+		if (q == '\'') {
 			quote();
-		else if (q == '"')
+		} else if (q == '"') {
 			dquote();
+			xquote();
+		}
 		nextch();
+		unxquote();
 	}
 	/*
 	 * Check if it was "$@" with empty list.

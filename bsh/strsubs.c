@@ -1,13 +1,13 @@
-/* @(#)strsubs.c	1.27 17/11/05 Copyright 1985-2017 J. Schilling */
+/* @(#)strsubs.c	1.28 18/04/20 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strsubs.c	1.27 17/11/05 Copyright 1985-2017 J. Schilling";
+	"@(#)strsubs.c	1.28 18/04/20 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Useful string functions
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -248,6 +248,8 @@ wordeql(s1, s2)
 {
 	register int len = strlen(s2);
 
+	if (strlen(s1) < len)
+		return (FALSE);
 	if (s1[len] && !strchr(" \t\n\377", s1[len]))
 		return (FALSE);
 

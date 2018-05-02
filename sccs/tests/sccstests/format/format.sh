@@ -34,6 +34,7 @@ if test -z "$logname"
 then
 	logname=`logname`
 fi
+logname=`echo $logname | sed -e 's/ /_/g'`
 
 echo test | tail +2 > /dev/null 2>/dev/null
 if [ "$?" -eq 0 ]; then

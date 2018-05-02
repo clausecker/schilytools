@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.97 18/04/17 2008-2018 J. Schilling
+ * @(#)xec.c	1.98 18/04/21 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.97 18/04/17 2008-2018 J. Schilling";
+	"@(#)xec.c	1.98 18/04/21 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -1143,7 +1143,8 @@ script:
 							cprint(s, UC ")", UC "...");
 #endif
 						if (gmatch((char *)r, (char *)s) ||
-						    (trim(s), eq(r, s))) {
+						    ((flags2 & posixflg) == 0 &&
+						    (trim(s), eq(r, s)))) {
 							execute(regp->regcom,
 								XEC_NOSTOP,
 								errorflg,
@@ -1257,7 +1258,7 @@ execprint(com)
 #endif
 	while (com[argn] != ENDARGS) {
 		s = com[argn++];
-		write(output, s, length(s) - 1);
+		(void) write(output, s, length(s) - 1);
 		blank();
 	}
 

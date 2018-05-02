@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)sccs.c	1.87 18/04/04 J. Schilling
+ * @(#)sccs.c	1.88 18/04/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.87 18/04/04 J. Schilling"
+#pragma ident "@(#)sccs.c 1.88 18/04/30 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -2146,8 +2146,8 @@ fix(nfiles, argv)
 **	exists in the current directory is purged.
 **
 **	Parameters:
-**		mode -- tells whether this came from a "clean", "info", or
-**			"check" command.
+**		mode -- tells whether this came from a "clean", "info",
+**			"tell" or "check" command.
 **		argv -- the rest of the argument vector.
 **
 **	Returns:
@@ -2202,11 +2202,11 @@ clean(mode, argv)
 
 			  case 'u':
 				if ((*ap)[2] != '\0')
-					usernm = &(*ap)[2];
+					usernm = sccs_user(&(*ap)[2]);
 				else if (Rflag && (ap[1] == NULL || ap[2] == NULL))
 					usernm = logname();
 				else if (ap[1] != NULL && ap[1][0] != '-')
-					usernm = *++ap;
+					usernm = sccs_user(*++ap);
 				else
 					usernm = logname();
 				break;

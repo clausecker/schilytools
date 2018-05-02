@@ -1,8 +1,8 @@
-/* @(#)input.c	1.39 18/04/08 Copyright 1985-2018 J. Schilling */
+/* @(#)input.c	1.40 18/04/23 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.39 18/04/08 Copyright 1985-2018 J. Schilling";
+	"@(#)input.c	1.40 18/04/23 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
@@ -89,6 +89,7 @@ LOCAL fstream	*instrm = (fstream *) NULL;	/* Alias expanded input fstream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input fstream */
 LOCAL int	qlevel = 0;			/* Current quoting level */
 LOCAL int	dqlevel = 0;			/* Current double quoting level */
+LOCAL int	xqlevel = 0;			/* At the begin of "" quoting */
 LOCAL int	begalias = 0;			/* Begin aliases allowed? */
 LOCAL int	nextbegin = 0;			/* Begin aliases on next word */
 LOCAL void	*seen;				/* List of seen aliases */
@@ -108,6 +109,8 @@ EXPORT	int	quoting		__PR((void));
 EXPORT	void	dquote		__PR((void));
 EXPORT	void	undquote	__PR((void));
 EXPORT	int	dquoting	__PR((void));
+EXPORT	void	xquote		__PR((void));
+EXPORT	void	unxquote	__PR((void));
 EXPORT	int	begina		__PR((BOOL beg));
 LOCAL	int	input_expand	__PR((fstream * os, fstream * is));
 
@@ -324,6 +327,25 @@ dquoting()
 {
 	return (dqlevel);
 }
+
+/*
+ * Increase X-double quoting level by one
+ */
+EXPORT void
+xquote()
+{
+	xqlevel++;
+}
+
+/*
+ * Decrease X-double quoting level by one
+ */
+EXPORT void
+unxquote()
+{
+	xqlevel--;
+}
+
 
 /*
  * Set Begin Alias expansion flag based on parameter
@@ -549,7 +571,8 @@ input_expand(os, is)
 				/*
 				 * "$@" -> "$1" "$2" ...
 				 */
-				if (dqlevel > 0 && vac <= 1) {
+				if (xqlevel > 0 && vac <= 1 &&
+				    *is->fstr_bp == '"') {
 					begina(FALSE);
 					/*
 					 * Signal our caller that this argument

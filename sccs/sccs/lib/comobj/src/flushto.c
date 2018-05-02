@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)flushto.c	1.7 15/02/08 J. Schilling
+ * @(#)flushto.c	1.8 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)flushto.c 1.7 15/02/08 J. Schilling"
+#pragma ident "@(#)flushto.c 1.8 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)flushto.c 1.3 06/12/12

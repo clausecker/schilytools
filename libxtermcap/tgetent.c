@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.42 15/12/26 Copyright 1986-2015 J. Schilling */
+/* @(#)tgetent.c	1.43 18/04/22 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.42 15/12/26 Copyright 1986-2015 J. Schilling";
+	"@(#)tgetent.c	1.43 18/04/22 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -674,11 +674,16 @@ tdecode(pp, array)
 		 * Handle the \xxx and \C escape sequences here:
 		 */
 		c = *ep++;
+		if (c == '\0')
+			break;
 		if (isoctal(c)) {
-			for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
+			for (c -= '0', i = 3; --i > 0 &&
+			    *ep && isoctal(*ep); ) {
 				c <<= 3;
 				c |= *ep++ - '0';
 			}
+			if (*ep == '\0')
+				break;
 			/*
 			 * Terminfo maps NULL chars to 0200
 			 */

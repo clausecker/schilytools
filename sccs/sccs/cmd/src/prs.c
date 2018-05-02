@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -27,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prs.c	1.49 18/04/04 J. Schilling
+ * @(#)prs.c	1.50 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.49 18/04/04 J. Schilling"
+#pragma ident "@(#)prs.c 1.50 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -66,14 +68,14 @@
 	Non-SCCS files are ignored.
 */
 
-# include 	<defines.h>
-# include	<version.h>
-# include	<had.h>
-# include	<i18n.h>
-# include	<schily/wait.h>
-# define	VMS_VFORK_OK
-# include	<schily/vfork.h>
-# include	<schily/sysexits.h>
+#include 	<defines.h>
+#include	<version.h>
+#include	<had.h>
+#include	<i18n.h>
+#include	<schily/wait.h>
+#define		VMS_VFORK_OK
+#include	<schily/vfork.h>
+#include	<schily/sysexits.h>
 
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "bin/" "get");
@@ -90,9 +92,8 @@ static char	*Qsect;
 static char	Deltadate[DT_ZSTRSIZE];
 static char	Deltadatel[DT_ZSTRSIZE];
 static char	*Deltatime;
-static char	tempskel[]   =   NOGETTEXT("/tmp/prXXXXXX");	/* used to generate temp
-						   file names
-						*/
+static char	tempskel[] = NOGETTEXT("/tmp/prXXXXXX"); /* used to generate */
+							/* temp file names */
 static struct	sid	sid;
 
 static char	untmp[32], uttmp[32], cmtmp[32];
@@ -144,7 +145,7 @@ static void	printflags __PR((void));
 static void	ck_spec __PR((char *p));
 
 int
-main(argc,argv)
+main(argc, argv)
 int argc;
 char *argv[];
 {
@@ -167,10 +168,10 @@ char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
+	    NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT("/usr/ccs/lib/locale/"));
+	    NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
@@ -201,89 +202,89 @@ char *argv[];
 	j = 1;
 	/*CONSTCOND*/
 	while (1) {
-			if(current_optind < optind) {
-			   current_optind = optind;
-			   argv[j] = 0;
-			   if (optind > j+1 ) {
-			      if ( (argv[j+1][0]!='-')&&(no_arg==0) ){
-			        argv[j+1] = NULL;
-			      } else {
-				optind = j+1;
-			        current_optind = optind;
-			      }
-			   }
+			if (current_optind < optind) {
+			    current_optind = optind;
+			    argv[j] = 0;
+			    if (optind > j+1) {
+				if ((argv[j+1][0] != '-') && (no_arg == 0)) {
+					argv[j+1] = NULL;
+				} else {
+					optind = j+1;
+					current_optind = optind;
+				}
+			    }
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-d:r:c:ealV(version)");
+			c = getopt(argc, argv, "-d:r:c:ealV(version)");
 
 				/* this takes care of options given after
 				** file names.
 				*/
 			if (c == EOF) {
-			   if (optind < argc) {
+			    if (optind < argc) {
 				/* if it's due to -- then break; */
-			       if(argv[j][0] == '-' &&
-				      argv[j][1] == '-') {
-			          argv[j] = 0;
-			          break;
-			       }
-			       optind++;
-			       current_optind = optind;
-			       continue;
-			   } else {
-			       break;
-			   }
+				if (argv[j][0] == '-' &&
+				    argv[j][1] == '-') {
+					argv[j] = 0;
+					break;
+				}
+				optind++;
+				current_optind = optind;
+				continue;
+			    } else {
+				break;
+			    }
 			}
 			p = optarg;
 			switch (c) {
 			case 'r':	/* specified SID */
 				if (argv[j][2] == '\0') {
-				   no_arg = 1;
-				   break;
+					no_arg = 1;
+					break;
 				}
 				if (*p) {
 					if (invalid(p))
-					        fatal(gettext("invalid sid (co8)"));
-					sid_ab(p,&sid);
+						fatal(gettext("invalid sid (co8)"));
+					sid_ab(p, &sid);
 				}
 				break;
 			case 'c':	/* cutoff date[time] */
-				if((*p) && (mystrptime(p, &Date_time, 0) != -1)) {
+				if ((*p) && (mystrptime(p, &Date_time, 0) != -1)) {
 					break;
 				} else {
-				        fatal(gettext("invalid cutoff date (prs4)"));
+					fatal(gettext("invalid cutoff date (prs4)"));
 				}
 			/*FALLTHRU*/
 			case 'l':	/* later than specified SID */
 			case 'e':	/* earlier than specified SID */
 			case 'a':	/* print all delta types (R or D) */
 				if (p) {
-				   if (*p) {
+				    if (*p) {
 					sprintf(SccsError,
-					   gettext("value after %c arg (cm7)"),
+					    gettext("value after %c arg (cm7)"),
 						c);
 					fatal(SccsError);
-				   }
+				    }
 				}
 				break;
 			case 'd':	/* dataspec line */
 				if (*p)
-				   strlength = strlen(p);
-				   if ( (p[strlength-2] == '\\') && 
-				        (p[strlength-1] == 'n') ) 
-				      p[strlength-2] = '\0';
-				   dataspec = p;
+				    strlength = strlen(p);
+				    if ((p[strlength-2] == '\\') &&
+					(p[strlength-1] == 'n'))
+						p[strlength-2] = '\0';
+				    dataspec = p;
 				break;
-                        case 'q': /* enable NSE mode */
-                                if (p) {
-                                   if (*p) {
-                                        nsedelim = p;
-				   }
-                                } else {
-                                        nsedelim = (char *) 0;
-                                }
-                                break;
+			case 'q': /* enable NSE mode */
+				if (p) {
+					if (*p) {
+						nsedelim = p;
+					}
+				} else {
+					nsedelim = (char *) 0;
+				}
+				break;
 
 			case 'V':		/* version */
 				printf("prs %s-SCCS version %s %s (%s-%s-%s)\n",
@@ -306,23 +307,23 @@ char *argv[];
 				fatal(gettext("key letter twice (cm2)"));
 	}
 
-	for(j=1; j<argc; j++){
-		if(argv[j]) {
-		       num_files++;
+	for (j = 1; j < argc; j++) {
+		if (argv[j]) {
+			num_files++;
 		}
 	}
 
 	if (num_files == 0)
 		fatal(gettext("missing file arg (cm3)"));
 
-	if(HADR && HADC)
+	if (HADR && HADC)
 		fatal(gettext("can't specify cutoff date and SID (prs5)"));
-	if(HADC && (!HADL) && (!HADE))
+	if (HADC && (!HADL) && (!HADE))
 		fatal(gettext("must specify -e or -l with -c (prs6)"));
-	/*	
-	if(!HADD)
-		HADD = 1;	
-	*/	
+	/*
+	if (!HADD)
+		HADD = 1;
+	*/
 
 	/*
 	check the dataspec line and determine if any tmp files
@@ -386,8 +387,8 @@ register	char	*file;
 	*/
 
 	if (HAD_UN)
-		aux_create(UNiop,untmp,EUSERNAM);
-	else read_to(EUSERNAM,&gpkt);
+		aux_create(UNiop, untmp, EUSERNAM);
+	else read_to(EUSERNAM, &gpkt);
 
 	/*
 	store flags (if any) into array called 'gpkt.p_sflags'
@@ -401,15 +402,15 @@ register	char	*file;
 	 */
 	if (gpkt.p_line != NULL &&
 	    gpkt.p_line[0] == CTLCHAR && gpkt.p_line[1] != BUSERTXT)
-		read_to(BUSERTXT,&gpkt);
+		read_to(BUSERTXT, &gpkt);
 
 	/*
 	create auxiliary file for the User Text section
 	*/
 
 	if (HAD_FD)
-		aux_create(UTiop,uttmp,EUSERTXT);
-	else read_to(EUSERTXT,&gpkt);
+		aux_create(UTiop, uttmp, EUSERTXT);
+	else read_to(EUSERTXT, &gpkt);
 
 	/*
 	indicate to 'getline' that EOF is okay
@@ -421,7 +422,7 @@ register	char	*file;
 	read body of SCCS file and create temp file for it
 	*/
 
-	while(read_mod(&gpkt))
+	while (read_mod(&gpkt))
 		;
 
 	/*
@@ -434,7 +435,7 @@ register	char	*file;
 	if (!HADD && !HADR && !HADE && !HADL)
 		HADE = 1;
 	if (!HADD)
-		printf("%s:\n\n",file);
+		printf("%s:\n\n", file);
 
 	/*
 	call 'dodeltbl' to read delta table entries
@@ -451,7 +452,7 @@ register	char	*file;
 
 	clean_up();
 
-	return;		/* return to caller of 'process' */
+	/* return to caller of 'process' */
 }
 
 
@@ -482,8 +483,8 @@ register struct packet *pkt;
 	/*
 	Read entire delta table.
 	*/
-	while (getstats(pkt,&stats) && !stopdel) {
-		if (getadel(pkt,&dt) != BDELTAB)
+	while (getstats(pkt, &stats) && !stopdel) {
+		if (getadel(pkt, &dt) != BDELTAB)
 			fmterr(pkt);
 
 		/*
@@ -491,7 +492,7 @@ register struct packet *pkt;
 		*/
 
 		if (!HADA && dt.d_type != 'D') {
-			read_to(EDELTAB,pkt);
+			read_to(EDELTAB, pkt);
 			continue;
 		}
 
@@ -499,30 +500,28 @@ register struct packet *pkt;
 		determine whether or not to consider current delta
 		*/
 
-		if(HADC) {
+		if (HADC) {
 			get_Del_Date_time(pkt->p_line, &dt, pkt, &Del_Date_time);
 			dcomp = cmpdate(&Date_time, &Del_Date_time);
-			if(HADE && !HADL && (dcomp < 0)) {
-				read_to(EDELTAB,pkt);
+			if (HADE && !HADL && (dcomp < 0)) {
+				read_to(EDELTAB, pkt);
 				continue;
-			}
-			else if(HADL && !HADE && (dcomp > 0)) {
+			} else if (HADL && !HADE && (dcomp > 0)) {
 				stopdel = 1;
 				continue;
 			}
-		}
-		else if (HADE && HADL) stopdel=0;
+		} else if (HADE && HADL)
+			stopdel = 0;
 
 		else if (!(eqsid(&gpkt.p_reqsid, &dt.d_sid)) && !found) {
 			/*
 			if !HADL keyletter skip delta entry
 			*/
-			if (!HADL ) {
-				read_to(EDELTAB,pkt);
+			if (!HADL) {
+				read_to(EDELTAB, pkt);
 				continue;
 			}
-		}
-		else {
+		} else {
 			found = 1;
 			stopdel = 1;
 		}
@@ -541,7 +540,7 @@ register struct packet *pkt;
 		if (HAD_SX)
 			SXiop = maket(sxtmp);
 		/*
-		Read rest of delta entry. 
+		Read rest of delta entry.
 		*/
 		while ((n = getline(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
@@ -549,13 +548,13 @@ register struct packet *pkt;
 			else {
 				switch (pkt->p_line[1]) {
 				case INCLUDE:
-					getit(iline,n);
+					getit(iline, n);
 					continue;
 				case EXCLUDE:
-					getit(xline,n);
+					getit(xline, n);
 					continue;
 				case IGNORE:
-					getit(gline,n);
+					getit(gline, n);
 					continue;
 				case MRNUM:
 					if (HAD_MR)
@@ -588,7 +587,7 @@ register struct packet *pkt;
 							fclose(SXiop);
 						SXiop = NULL;
 					}
-					scanspec(dataspec,&dt,&stats);
+					scanspec(dataspec, &dt, &stats);
 					/*
 					remove temp files for MRs and comments
 					*/
@@ -617,7 +616,7 @@ register struct packet *pkt;
 static	char	Zkywd[5]   =   "@(#)";
 
 static void
-scanspec(spec,dtp,statp)
+scanspec(spec, dtp, statp)
 char spec[];
 struct	deltab	*dtp;
 struct	stats	*statp;
@@ -644,48 +643,48 @@ struct	stats	*statp;
 	/*
 	scan 'dataspec' line
 	*/
-	for(lp = spec; *lp != 0; lp++) {
-		if(lp[0] == ':' && lp[1] != 0 && lp[2] == ':') {
+	for (lp = spec; *lp != 0; lp++) {
+		if (lp[0] == ':' && lp[1] != 0 && lp[2] == ':') {
 			c = *++lp;
 			switch (c) {
 			case 'I':	/* SID */
-				printf("%s",Sid);
+				printf("%s", Sid);
 				break;
 			case 'R':	/* Release number */
-				printf("%d",dtp->d_sid.s_rel);
+				printf("%d", dtp->d_sid.s_rel);
 				break;
 			case 'L':	/* Level number */
-				printf("%d",dtp->d_sid.s_lev);
+				printf("%d", dtp->d_sid.s_lev);
 				break;
 			case 'B':	/* Branch number */
 				if (dtp->d_sid.s_br != 0)
-					printf("%d",dtp->d_sid.s_br);
+					printf("%d", dtp->d_sid.s_br);
 				break;
 			case 'S':	/* Sequence number */
 				if (dtp->d_sid.s_seq != 0)
-					printf("%d",dtp->d_sid.s_seq);
+					printf("%d", dtp->d_sid.s_seq);
 				break;
 			case 'D':	/* Date delta created */
-				printf("%s",Deltadate);
+				printf("%s", Deltadate);
 				break;
 			case 'd':	/* Date delta created (4 digit year) */
-				printf("%s",Deltadatel);
+				printf("%s", Deltadatel);
 				break;
 			case 'T':	/* Time delta created */
-				printf("%s",Deltatime);
+				printf("%s", Deltatime);
 				break;
 			case 'P':	/* Programmer who created delta */
-				printf("%s",dtp->d_pgmr);
+				printf("%s", dtp->d_pgmr);
 				break;
 			case 'C':	/* Comments */
 				if (exists(cmtmp))
 					printfile(cmtmp);
 				break;
 			case 'Y':	/* Type flag */
-				printf("%s",Type);
+				printf("%s", Type);
 				break;
 			case 'Q':	/* csect flag */
-				printf("%s",Qsect);
+				printf("%s", Qsect);
 				break;
 			case 'J':	/* joint edit flag */
 				if (gpkt.p_sflags[JOINTFLAG - 'a'])
@@ -693,22 +692,22 @@ struct	stats	*statp;
 				else printf(gettext("no"));
 				break;
 			case 'M':	/* Module name */
-				printf("%s",Mod);
+				printf("%s", Mod);
 				break;
 			case 'W':	/* Form of what string */
-				printf("%s%s\t%s",Zkywd,Mod,Sid);
+				printf("%s%s\t%s", Zkywd, Mod, Sid);
 				break;
 			case 'A':	/* Form of what string */
-				printf("%s%s %s %s%s",Zkywd,Type,Mod,Sid,Zkywd);
+				printf("%s%s %s %s%s", Zkywd, Type, Mod, Sid, Zkywd);
 				break;
 			case 'Z':	/* what string constructor */
-				printf("%s",Zkywd);
+				printf("%s", Zkywd);
 				break;
 			case 'F':	/* File name */
-				printf("%s",sname(gpkt.p_file));
+				printf("%s", sname(gpkt.p_file));
 				break;
 			case 'G':	/* Basename of g-file */
-				printf("%s", auxf(gpkt.p_file,'g'));
+				printf("%s", auxf(gpkt.p_file, 'g'));
 				break;
 			default:
 				putchar(':');
@@ -716,8 +715,7 @@ struct	stats	*statp;
 				continue;
 			}
 			lp++;
-		}
-		else if(lp[0] == ':' && lp[1] != 0 && lp[2] !=0 && lp[3] == ':') {
+		} else if (lp[0] == ':' && lp[1] != 0 && lp[2] != 0 && lp[3] == ':') {
 			if (lp[1] == ':') {
 				putchar(':');
 				continue;
@@ -727,93 +725,93 @@ struct	stats	*statp;
 
 			switch (istr) {
 			case 256*'L'+'D':	/* :DL: Delta line statistics */
-				printf("%.05d",statp->s_ins);
+				printf("%.05d", statp->s_ins);
 				putchar('/');
-				printf("%.05d",statp->s_del);
+				printf("%.05d", statp->s_del);
 				putchar('/');
-				printf("%.05d",statp->s_unc);
+				printf("%.05d", statp->s_unc);
 				break;
 			case 256*'i'+'L':	/* :Li: Lines inserted by delta */
-				printf("%.05d",statp->s_ins);
+				printf("%.05d", statp->s_ins);
 				break;
 			case 256*'d'+'L':	/* :Ld: Lines deleted by delta */
-				printf("%.05d",statp->s_del);
+				printf("%.05d", statp->s_del);
 				break;
 			case 256*'u'+'L':	/* :Lu: Lines unchanged by delta */
-				printf("%.05d",statp->s_unc);
+				printf("%.05d", statp->s_unc);
 				break;
 			case 256*'T'+'D':	/* :DT: Delta type */
-				printf("%c",dtp->d_type);
+				printf("%c", dtp->d_type);
 				break;
 			case 256*'y'+'D':	/* :Dy: Year delta created */
 				if (Dtime->tm_year >= 100) {
-				   Dtime->tm_year %= 100;
+				    Dtime->tm_year %= 100;
 				}
-				printf("%02d",Dtime->tm_year);
+				printf("%02d", Dtime->tm_year);
 				break;
 			case 256*'Y'+'D':	/* :DY: Year delta created */
 				Dtime->tm_year += 1900;
-				printf("%4d",Dtime->tm_year); /* 4 digits */
+				printf("%4d", Dtime->tm_year); /* 4 digits */
 				break;
 			case 256*'_'+'D':	/* :D_: Date delta created y-m-d */
 				Deltadatel[4] = '-';
 				Deltadatel[7] = '-';
-				printf("%s",Deltadatel);
+				printf("%s", Deltadatel);
 				Deltadatel[4] = '/';
 				Deltadatel[7] = '/';
 				break;
 			case 256*'m'+'D':	/* :Dm: Month delta created */
-				printf("%02d",(Dtime->tm_mon + 1));
+				printf("%02d", (Dtime->tm_mon + 1));
 				break;
 			case 256*'d'+'D':	/* :Dd: Day delta created */
-				printf("%02d",Dtime->tm_mday);
+				printf("%02d", Dtime->tm_mday);
 				break;
 			case 256*'h'+'T':	/* :Th: Hour delta created */
-				printf("%02d",Dtime->tm_hour);
+				printf("%02d", Dtime->tm_hour);
 				break;
 			case 256*'m'+'T':	/* :Tm: Minutes delta created */
-				printf("%02d",Dtime->tm_min);
+				printf("%02d", Dtime->tm_min);
 				break;
 			case 256*'s'+'T':	/* :Ts: Seconds delta created */
-				printf("%02d",Dtime->tm_sec);
+				printf("%02d", Dtime->tm_sec);
 				break;
 			case 256*'S'+'D':	/* :DS: Delta sequence number */
-				printf("%d",dtp->d_serial);
+				printf("%d", dtp->d_serial);
 				break;
 			case 256*'P'+'D':	/* :DP: Predecessor delta sequence number */
-				printf("%d",dtp->d_pred);
+				printf("%d", dtp->d_pred);
 				break;
 			case 256*'I'+'D':	/* :DI: Deltas included,excluded,ignored */
 #ifdef	ATT_BUG
 				/*
 				 * This has been introduced around 1984.
 				 */
-				printf("%s",iline);
+				printf("%s", iline);
 				if (length(xline))
-					printf("/%s",xline);
+					printf("/%s", xline);
 				if (length(gline))
-					printf("/%s",gline);
+					printf("/%s", gline);
 #else
 				/*
 				 * This is the POSIX compliant behavior.
 				 */
-				printf("%s",iline);
-				printf("/%s",xline);
-				printf("/%s",gline);
+				printf("%s", iline);
+				printf("/%s", xline);
+				printf("/%s", gline);
 #endif
 				break;
 			case 256*'n'+'D':	/* :Dn: Deltas included */
-				printf("%s",iline);
+				printf("%s", iline);
 				break;
 			case 256*'x'+'D':	/* :Dx: Deltas excluded */
-				printf("%s",xline);
+				printf("%s", xline);
 				break;
 			case 256*'g'+'D':	/* :Dg: Deltas ignored */
-				printf("%s",gline);
+				printf("%s", gline);
 				break;
 			case 256*'K'+'L':	/* :LK: locked releases */
 				if ((k = gpkt.p_sflags[LOCKFLAG - 'a']) != NULL)
-					printf("%s",k);
+					printf("%s", k);
 				else printf(gettext("none"));
 				break;
 			case 256*'R'+'M':	/* :MR: MR numbers */
@@ -834,7 +832,7 @@ struct	stats	*statp;
 				if ((k = gpkt.p_sflags[CMFFLAG - 'a']) == NULL)
 					printf(gettext("none"));
 				else
-					printf("%s",k);
+					printf("%s", k);
 				break;
 			case 256*'N'+'U':	/* :UN: User names */
 				if (exists(untmp))
@@ -848,7 +846,7 @@ struct	stats	*statp;
 			case 256*'P'+'M':	/* :MP: MR validation program */
 				if ((k = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 					printf(gettext("none"));
-				else printf("%s",k);
+				else printf("%s", k);
 				break;
 			case 256*'F'+'K':	/* :KF: Keyword err/warn flag */
 				if (gpkt.p_sflags[IDFLAG - 'a'])
@@ -861,18 +859,18 @@ struct	stats	*statp;
 				else printf(gettext("no"));
 				break;
 			case 256*'B'+'F':	/* :FB: Floor Boundry */
-				if ((k =gpkt.p_sflags[FLORFLAG - 'a']) != NULL)
-					printf("%s",k);
+				if ((k = gpkt.p_sflags[FLORFLAG - 'a']) != NULL)
+					printf("%s", k);
 				else printf(gettext("none"));
 				break;
 			case 256*'B'+'C':	/* :CB: Ceiling Boundry */
 				if ((k = gpkt.p_sflags[CEILFLAG - 'a']) != NULL)
-					printf("%s",k);
+					printf("%s", k);
 				else printf(gettext("none"));
 				break;
 			case 256*'s'+'D':	/* :Ds: Default SID */
 				if ((k = gpkt.p_sflags[DEFTFLAG - 'a']) != NULL)
-					printf("%s",k);
+					printf("%s", k);
 				else printf(gettext("none"));
 				break;
 			case 256*'D'+'N':	/* :ND: Null delta */
@@ -889,21 +887,21 @@ struct	stats	*statp;
 					printfile(bdtmp);
 				break;
 			case 256*'B'+'G':	/* :GB: Gotten body from 'get' */
-				getbody(&dtp->d_sid,&gpkt);
+				getbody(&dtp->d_sid, &gpkt);
 				break;
 			case 256*'N'+'P':	/* :PN: Full pathname of File */
-				copy(gpkt.p_file,Dir);
+				copy(gpkt.p_file, Dir);
 				dname(Dir);
-				if(getcwd(Olddir,sizeof(Olddir)) == NULL)
+				if (getcwd(Olddir, sizeof (Olddir)) == NULL)
 					efatal(gettext("getcwd() failed (prs2)"));
-				if(chdir(Dir) != 0)
+				if (chdir(Dir) != 0)
 					efatal(gettext("cannot change directory (prs3)"));
-				if( getcwd(Pname,sizeof(Pname)) == NULL )
+				if (getcwd(Pname, sizeof (Pname)) == NULL)
 					efatal(gettext("getcwd() failed (prs2)"));
-				if(chdir(Olddir) != 0)
+				if (chdir(Olddir) != 0)
 					efatal(gettext("cannot change directory (prs3)"));
-				printf("%s/",Pname);
-				printf("%s",sname(gpkt.p_file));
+				printf("%s/", Pname);
+				printf("%s", sname(gpkt.p_file));
 				break;
 			case 256*'L'+'F':	/* :FL: Flag descriptions (as in 'prt') */
 				printflags();
@@ -913,13 +911,13 @@ struct	stats	*statp;
 				replace newline with null char to make
 				data keyword simple format
 				*/
-				repl(dt_line,'\n','\0');
+				repl(dt_line, '\n', '\0');
 				k = dt_line;
 				/*
 				skip control char, line flag, and blank
 				*/
 				k += 3;
-				printf("%s",k);
+				printf("%s", k);
 				break;
 			default:
 				putchar(':');
@@ -927,11 +925,10 @@ struct	stats	*statp;
 				continue;
 			}
 			lp++;
-		}
-		else {
+		} else {
 			c = *lp;
 			if (c == '\\') {
-				switch(*++lp) {
+				switch (*++lp) {
 				case 'n':	/* for newline */
 					putchar('\n');
 					break;
@@ -961,8 +958,8 @@ struct	stats	*statp;
 					putchar(*lp);
 					break;
 				}
-			}
-			else putchar(*lp);
+			} else
+				putchar(*lp);
 		}
 	}
 	/*
@@ -971,7 +968,6 @@ struct	stats	*statp;
 	*/
 	iline[0] = xline[0] = gline[0] = 0;
 	putchar('\n');
-	return;
 }
 
 
@@ -987,20 +983,21 @@ clean_up()
 		fclose(gpkt.p_iop);
 		gpkt.p_iop = NULL;
 	}
-	xrm(&gpkt);	      /* remove the 'packet' used for this SCCS file */
-	unlink(mrtmp);		/* remove all temporary files from /tmp */
-	unlink(cmtmp);		/*			"		*/
-	unlink(sxtmp);		/*			"		*/
-	unlink(untmp);		/*			"		*/
-	unlink(uttmp);		/*			"		*/
-	unlink(bdtmp);		/*			"		*/
+	xrm(&gpkt);	/* remove the 'packet' used for this SCCS file */
+	unlink(mrtmp);	/* remove all temporary files from /tmp */
+	unlink(cmtmp);	/*			"		*/
+	unlink(sxtmp);	/*			"		*/
+	unlink(untmp);	/*			"		*/
+	unlink(uttmp);	/*			"		*/
+	unlink(bdtmp);	/*			"		*/
 	ffreeall();
 }
 
 
-/* This function takes as it's argument the SID inputed and determines
+/*
+ * This function takes as it's argument the SID inputed and determines
  * whether or not it is valid (e. g. not ambiguous or illegal).
-*/
+ */
 
 static int
 invalid(i_sid)
@@ -1021,7 +1018,7 @@ register char	*i_sid;
 		if (digits > 5)
 			return (1);
 	}
-	if (*(--i_sid) == '.' )
+	if (*(--i_sid) == '.')
 		return (1);
 	return (0);
 }
@@ -1052,54 +1049,49 @@ register struct packet *pkt;
 	/*
 	Read entire delta table.
 	*/
-	while (getstats(pkt,&stats)) {
-		if (getadel(pkt,&dt) != BDELTAB)
+	while (getstats(pkt, &stats)) {
+		if (getadel(pkt, &dt) != BDELTAB)
 			fmterr(pkt);
 
 		/*
-		ignore if "removed" delta 
+		ignore if "removed" delta
 		*/
 		if (!HADA && dt.d_type != 'D') {
-			read_to(EDELTAB,pkt);
+			read_to(EDELTAB, pkt);
 			continue;
 		}
 
 		if (!HADR && (pkt->p_reqsid.s_rel == 0)) {
-			if(!found)
+			if (!found)
 				odt.d_sid = dt.d_sid;
 			found = 1;
-		}
-		else if (pkt->p_reqsid.s_rel == 0) {
-			if(sidcmp(&odt.d_sid,&dt.d_sid) < 0)
+		} else if (pkt->p_reqsid.s_rel == 0) {
+			if (sidcmp(&odt.d_sid, &dt.d_sid) < 0)
 				odt.d_sid = dt.d_sid;
-		}
-		else if (pkt->p_reqsid.s_lev == 0) {
+		} else if (pkt->p_reqsid.s_lev == 0) {
 			if ((pkt->p_reqsid.s_rel >= dt.d_sid.s_rel) &&
-				(sidcmp(&odt.d_sid,&dt.d_sid) < 0))
+				(sidcmp(&odt.d_sid, &dt.d_sid) < 0))
 					odt.d_sid = dt.d_sid;
-		}
-		else if ((pkt->p_reqsid.s_br == 0) && !found) {
-			if (!(sidcmp(&pkt->p_reqsid,&dt.d_sid))) {
+		} else if ((pkt->p_reqsid.s_br == 0) && !found) {
+			if (!(sidcmp(&pkt->p_reqsid, &dt.d_sid))) {
 				found = 1;
 				odt.d_sid = dt.d_sid;
 			}
-		}
-		else if (pkt->p_reqsid.s_seq == 0) {
+		} else if (pkt->p_reqsid.s_seq == 0) {
 			if ((pkt->p_reqsid.s_rel == dt.d_sid.s_rel) &&
 				(pkt->p_reqsid.s_lev == dt.d_sid.s_lev) &&
-				(pkt->p_reqsid.s_br  == dt.d_sid.s_br ) &&
-				(sidcmp(&odt.d_sid,&dt.d_sid) < 0))
+				(pkt->p_reqsid.s_br  == dt.d_sid.s_br) &&
+				(sidcmp(&odt.d_sid, &dt.d_sid) < 0))
 					odt.d_sid = dt.d_sid;
-		}
-		else if (!found) {
-			if (!(sidcmp(&pkt->p_reqsid,&dt.d_sid))) {
+		} else if (!found) {
+			if (!(sidcmp(&pkt->p_reqsid, &dt.d_sid))) {
 				found = 1;
 				odt.d_sid = dt.d_sid;
 			}
 		}
 
 		/*
-		Read rest of delta entry. 
+		Read rest of delta entry.
 		*/
 		while ((n = getline(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
@@ -1146,19 +1138,19 @@ register struct packet *pkt;
 */
 
 static int
-getstats(pkt,statp)
+getstats(pkt, statp)
 register struct packet *pkt;
 register struct stats *statp;
 {
 	register char *p = getline(pkt);
 
-	if ( p == NULL || *p++ != CTLCHAR || *p++ != STATS)
-		return(0);
+	if (p == NULL || *p++ != CTLCHAR || *p++ != STATS)
+		return (0);
 	NONBLANK(p);
-	p = satoi(p,&statp->s_ins);
-	p = satoi(++p,&statp->s_del);
-	satoi(++p,&statp->s_unc);
-	return(1);
+	p = satoi(p, &statp->s_ins);
+	p = satoi(++p, &statp->s_del);
+	satoi(++p, &statp->s_unc);
+	return (1);
 }
 
 /*
@@ -1166,20 +1158,20 @@ register struct stats *statp;
 */
 
 static int
-sidcmp(sid1,sid2)
-struct sid *sid1,*sid2;
+sidcmp(sid1, sid2)
+struct sid *sid1, *sid2;
 
 {
 int diff = 0;
 
 	if ((diff = (sid1->s_rel - sid2->s_rel)) != 0)
-		return(diff);
+		return (diff);
 	if ((diff = (sid1->s_lev - sid2->s_lev)) != 0)
-		return(diff);
-	if ((diff = (sid1->s_br  - sid2->s_br )) != 0)
-		return(diff);
+		return (diff);
+	if ((diff = (sid1->s_br  - sid2->s_br)) != 0)
+		return (diff);
 
-	return(sid1->s_seq - sid2->s_seq);
+	return (sid1->s_seq - sid2->s_seq);
 }
 /*
  * This procedure reads a delta table entry line from the delta
@@ -1188,16 +1180,16 @@ int diff = 0;
 */
 
 static int
-getadel(pkt,dt)
+getadel(pkt, dt)
 register struct packet *pkt;
 register struct deltab *dt;
 {
 	if (getline(pkt) == NULL)
 		fmterr(pkt);
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
-	copy(pkt->p_line,dt_line);  /* copy delta table line for :Dt: keywd */
+	copy(pkt->p_line, dt_line);  /* copy delta table line for :Dt: keywd */
 #endif
-	return(del_ab(pkt->p_line,dt,pkt));
+	return (del_ab(pkt->p_line, dt, pkt));
 }
 
 
@@ -1213,7 +1205,7 @@ char	*file;
 	FILE *iop;
 	mode_t cur_umask;
 
-	copy(tempskel,file);	/* copy file name into the skeleton */
+	copy(tempskel, file);	/* copy file name into the skeleton */
 				/* umask 0133 -> create mode 0644 */
 	cur_umask = umask((mode_t)((S_IRWXU|S_IRWXG|S_IRWXO)&~(S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)));
 #ifdef	HAVE_MKSTEMP
@@ -1225,9 +1217,9 @@ char	*file;
 	if (iop != NULL)
 		setmode(fileno(iop), O_BINARY);
 #endif
-	(void)umask(cur_umask);
+	(void) umask(cur_umask);
 
-	return(iop);
+	return (iop);
 }
 
 
@@ -1244,8 +1236,8 @@ register	char	*file;
 	FILE	*iop;
 
 	iop = xfopen(file, O_RDONLY|O_BINARY);
-	while ((p = fgets(line,sizeof(line),iop)) != NULL)
-		printf("%s",p);
+	while ((p = fgets(line, sizeof (line), iop)) != NULL)
+		printf("%s", p);
 	fclose(iop);
 }
 
@@ -1269,7 +1261,7 @@ register struct packet *pkt;
 	while (getline(pkt) != NULL) {
 		p = pkt->p_line;
 		if (HAD_BD) {
-			if (fputs(p,BDiop) == EOF) {
+			if (fputs(p, BDiop) == EOF) {
 				xmsg(bdtmp, NOGETTEXT("read_mod"));
 			}
 		}
@@ -1284,11 +1276,11 @@ register struct packet *pkt;
 				fmterr(pkt);
 			}
 			NONBLANK(p);
-			satoi(p,&ser);
+			satoi(p, &ser);
 			if (iod == END)
-				remq(pkt,ser);
+				remq(pkt, ser);
 			else
-				addq(pkt,ser,iod == INS ? NO : 0, iod, USER);
+				addq(pkt, ser, iod == INS ? NO : 0, iod, USER);
 		}
 	}
 	if (HAD_BD) {
@@ -1298,7 +1290,7 @@ register struct packet *pkt;
 	}
 	if (pkt->p_q)
 		fatal(gettext("premature eof (co5)"));
-	return(0);
+	return (0);
 }
 
 
@@ -1310,7 +1302,7 @@ register struct packet *pkt;
 */
 
 static void
-getbody(gsid,pkt)
+getbody(gsid, pkt)
 struct	sid	*gsid;
 struct packet *pkt;
 {
@@ -1320,9 +1312,9 @@ struct packet *pkt;
 	char	rarg[SID_STRSIZE+2];
 	char	filearg[80];
 
-	sid_ba(gsid,str);
-	sprintf(rarg,"-r%s",str);
-	sprintf(filearg,"%s",pkt->p_file);
+	sid_ba(gsid, str);
+	sprintf(rarg, "-r%s", str);
+	sprintf(filearg, "%s", pkt->p_file);
 	/*
 	fork here so 'getbody' can execute 'get' to
 	print out gotten body :GB:
@@ -1335,17 +1327,16 @@ struct packet *pkt;
 		to standard output
 		*/
 #if	defined(PROTOTYPES) && defined(INS_BASE)
-		execlp(Getpgmp,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
+		execlp(Getpgmp, Getpgm, NOGETTEXT("-s"), NOGETTEXT("-p"), rarg, filearg, (char *)0);
 #endif
-		execlp(Getpgm,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
-		sprintf(SccsError,gettext("cannot execute '%s'"),
+		execlp(Getpgm, Getpgm, NOGETTEXT("-s"), NOGETTEXT("-p"), rarg, filearg, (char *)0);
+		sprintf(SccsError, gettext("cannot execute '%s'"),
 			Getpgm);
 #ifdef	HAVE_VFORK
 		Fflags |= FTLVFORK;
 #endif
 		efatal(SccsError);
-	}
-	else {
+	} else {
 		wait(&status);
 		return;
 	}
@@ -1359,13 +1350,13 @@ struct packet *pkt;
 */
 
 static void
-getit(str,cp)
+getit(str, cp)
 register	char	*str, *cp;
 {
 	cp += 2;
 	NONBLANK(cp);
 	cp[length(cp) - 1] = '\0';
-	sprintf(str,"%s",cp);
+	sprintf(str, "%s", cp);
 }
 
 
@@ -1376,7 +1367,7 @@ register	char	*str, *cp;
 */
 
 static void
-aux_create(iop,file,delchar)
+aux_create(iop, file, delchar)
 FILE	*iop;
 char	*file;
 char	delchar;
@@ -1392,7 +1383,7 @@ char	delchar;
 	iop = maket(file);
 	while ((n = getline(&gpkt)) != NULL && gpkt.p_line[0] != CTLCHAR) {
 		text = 1;
-		if (fputs(n,iop) == EOF) {
+		if (fputs(n, iop) == EOF) {
 			xmsg(file, NOGETTEXT("aux_create"));
 		}
 	}
@@ -1402,7 +1393,7 @@ char	delchar;
 	if (n == NULL || gpkt.p_line[0] != CTLCHAR || gpkt.p_line[1] != delchar)
 		fmterr(&gpkt);
 	if (!text)
-		fprintf(iop,gettext("none\n"));
+		fprintf(iop, gettext("none\n"));
 	fclose(iop);
 }
 
@@ -1441,22 +1432,22 @@ time_t	*bdate;
 	dt->d_dtime.dt_sec = mklgmtime(Dtime);
 
 	del_ba(dt, dt_line, pkt->p_flags|PF_GMT);	/* create delta table line for :Dt: keywd */
-	date_ba(&dt->d_dtime.dt_sec,Deltadate, 0);
-	date_bal(&dt->d_dtime.dt_sec,Deltadatel, 0);
+	date_ba(&dt->d_dtime.dt_sec, Deltadate, 0);
+	date_bal(&dt->d_dtime.dt_sec, Deltadatel, 0);
 #else
-	date_ba(bdate,Deltadate, 0);
-	date_bal(bdate,Deltadatel, 0);
+	date_ba(bdate, Deltadate, 0);
+	date_bal(bdate, Deltadatel, 0);
 #endif
 	Deltatime = &Deltadate[9];
 	Deltadate[8] = 0;
 	Deltadatel[10] = 0;
-	sid_ba(gsid,Sid);
+	sid_ba(gsid, Sid);
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
 	Dtime = localtime(bdate);
 #endif
 	if ((p = pkt->p_sflags[MODFLAG - 'a']) != NULL)
-		copy(p,Mod);
-	else sprintf(Mod,"%s",auxf(pkt->p_file,'g'));
+		copy(p, Mod);
+	else sprintf(Mod, "%s", auxf(pkt->p_file, 'g'));
 	if ((Type = pkt->p_sflags[TYPEFLAG - 'a']) == NULL)
 		Type = Null;
 	if ((Qsect = pkt->p_sflags[QSECTFLAG - 'a']) == NULL)
@@ -1483,7 +1474,7 @@ register char	*cp;
 		return;
 	}
 
-	if (fputs(cp,MRiop) == EOF) {
+	if (fputs(cp, MRiop) == EOF) {
 		xmsg(mrtmp, NOGETTEXT("putmr"));
 	}
 }
@@ -1526,7 +1517,7 @@ register char	*cp;
 
 	cp += 3;
 
-	if (fputs(cp,CMiop) == EOF) {
+	if (fputs(cp, CMiop) == EOF) {
 		xmsg(cmtmp, NOGETTEXT("putcom"));
 	}
 }
@@ -1539,7 +1530,7 @@ register char	*cp;
 */
 
 static void
-read_to(ch,pkt)
+read_to(ch, pkt)
 register char	ch;
 register struct packet *pkt;
 {
@@ -1547,7 +1538,6 @@ register struct packet *pkt;
 	while (((p = getline(pkt)) != NULL) &&
 			!(*p++ == CTLCHAR && *p == ch))
 		;
-	return;
 }
 
 
@@ -1605,7 +1595,7 @@ printflags()
 		(optional)
 		*/
 		if ((k = (sflags[VALFLAG - 'a'])) != NULL)
-			printf("%s\n",k);
+			printf("%s\n", k);
 		else putchar('\n');
 	}
 	if ((k = (sflags[SCANFLAG - 'a'])) != NULL)	/* check for 'keywd scan lines' flag */
@@ -1614,7 +1604,6 @@ printflags()
 		printf(gettext("extensions\t%s\n"), k);
 	if ((k = (sflags[EXPANDFLAG - 'a'])) != NULL)	/* check for 'expand keywds' flag */
 		printf(gettext("expand keywds\t%s\n"), k);
-	return;
 }
 
 
@@ -1627,16 +1616,16 @@ static void
 ck_spec(p)
 register char *p;
 {
-	if (sccs_index(p,NOGETTEXT(":C:")) != -1)	/* check for Comment keyword */
+	if (sccs_index(p, NOGETTEXT(":C:")) != -1)	/* check for Comment keyword */
 		HAD_CM = 1;
-	if (sccs_index(p,NOGETTEXT(":MR:")) != -1)	/* check for MR keyword */
+	if (sccs_index(p, NOGETTEXT(":MR:")) != -1)	/* check for MR keyword */
 		HAD_MR = 1;
-	if (sccs_index(p,NOGETTEXT(":SX:")) != -1)	/* check for SX keyword */
+	if (sccs_index(p, NOGETTEXT(":SX:")) != -1)	/* check for SX keyword */
 		HAD_SX = 1;
-	if (sccs_index(p,NOGETTEXT(":UN:")) != -1)	/* check for User name keyword */
+	if (sccs_index(p, NOGETTEXT(":UN:")) != -1)	/* check for User name keyword */
 		HAD_UN = 1;
-	if (sccs_index(p,NOGETTEXT(":FD:")) != -1)	/* check for descriptive text kyword */
+	if (sccs_index(p, NOGETTEXT(":FD:")) != -1)	/* check for descriptive text kyword */
 		HAD_FD = 1;
-	if (sccs_index(p,NOGETTEXT(":BD:")) != -1)	/* check for body keyword */
+	if (sccs_index(p, NOGETTEXT(":BD:")) != -1)	/* check for body keyword */
 		HAD_BD = 1;
 }

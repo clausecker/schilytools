@@ -1,4 +1,8 @@
-h16277
+h29074
+s 00001/00001/00209
+d D 1.6 18/04/30 13:06:44 joerg 6 5
+c Quoten, demit Username mit SPACE funktioniert
+e
 s 00002/00002/00208
 d D 1.5 15/06/03 00:06:44 joerg 5 4
 c ../common/test-common -> ../../common/test-common
@@ -154,7 +158,12 @@ fi
 # nor must we.
 docommand E12 "${admin} -n $s"              0 IGNORE IGNORE 
 docommand E13 "${admin} -a${mygroup} $s"    0 IGNORE IGNORE
+D 6
 docommand E14 "${admin} -a\!${myname} $s"   0 IGNORE IGNORE
+E 6
+I 6
+docommand E14 "${admin} -a\!'${myname}' $s"   0 IGNORE IGNORE
+E 6
 docommand E15 "${get} -e $s"                0 IGNORE IGNORE
 # this means that the above tests should succeed.
 

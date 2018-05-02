@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2009-2015 J. Schilling
+ * Copyright 2009-2018 J. Schilling
  *
- * @(#)auxf.c	1.5 15/02/28 J. Schilling
+ * @(#)auxf.c	1.6 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)auxf.c 1.5 15/02/28 J. Schilling"
+#pragma ident "@(#)auxf.c 1.6 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)auxf.c 1.5 06/12/12
@@ -40,21 +42,21 @@
 #pragma ident	"@(#)auxf.c"
 #pragma ident	"@(#)sccs:lib/comobj/auxf.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 
 /*
-	Figures out names for g-file, l-file, x-file, etc.
-
-	File	Module	g-file	l-file	x-file & rest
-
-	a/s.m	m	m	l.m	a/x.m
-
-	Second argument is letter; 0 means module name is wanted.
-*/
+ *	Figures out names for g-file, l-file, x-file, etc.
+ *
+ *	File	Module	g-file	l-file	x-file & rest
+ *
+ *	a/s.m	m	m	l.m	a/x.m
+ *
+ *	Second argument is letter; 0 means module name is wanted.
+ */
 
 char *
-auxf(sfile,ch)
+auxf(sfile, ch)
 register char *sfile;
 register char ch;
 {
@@ -62,12 +64,12 @@ register char ch;
 	register char *snp;
 
 	auxfile[0] = '\0';
-	if(sfile[0] == '\0')
-		return(auxfile);
-	
+	if (sfile[0] == '\0')
+		return (auxfile);
+
 	snp = sname(sfile);
 
-	switch(ch) {
+	switch (ch) {
 
 	case 0:
 	case 'g':	/* Basename from g-file derived from sfile */
@@ -84,7 +86,8 @@ register char ch;
 			auxfile[0] = 'l';
 			break;
 
-	case 'G':	/*
+	case 'G':
+			/*
 			 * Note: called with gfile. not with sfile.
 			 * Pathname from gfile with "g." inserted after last '/'
 			 */
@@ -97,7 +100,8 @@ register char ch;
 			strlcat(auxfile, snp, sizeof (auxfile));
 			break;
 
-	case 'I':	/*
+	case 'I':
+			/*
 			 * Note: called with sfile.
 			 * Pathname from sfile with "s." removed after last '/'
 			 */
@@ -116,5 +120,5 @@ register char ch;
 			else
 				auxfile[snp-sfile] = ch;
 	}
-	return(auxfile);
+	return (auxfile);
 }

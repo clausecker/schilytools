@@ -1,4 +1,4 @@
-# @(#)COPYING	1.14 12/02/26 Copyright 2007-2012 J. Schilling
+# @(#)COPYING	1.15 18/04/24 Copyright 2007-2018 J. Schilling
 
 
 The software in this directory tree is free software and uses
@@ -44,6 +44,10 @@ count/
 	A program to count items in file(s) (CDDL)
 cpp/
 	C language preprocessor (BSD)
+cstyle/
+	A C language style checker (CDDL)
+cut/
+	Another "cut" implementation (CDDL)
 DEFAULTS/
 	Default files for the Schily Makefile system (CDDL)
 DEFAULTS_ENG/
@@ -54,10 +58,16 @@ inc/
 	Support C-Files for the Schily Makefile system (CDDL)
 include/
 	Support H-Files for the Schily Makefile system (CDDL)
+isaexec/
+	A wrapper to execute ISA specific binaries (CDDL)
 label/
 	A program to manage Sun disk labels (CDDL)
+libboshcmd/
+	A library with loadable builtin commands for the Bourne Shell (CDDL)
 libcdrdeflt/
-	A lib for accessing the file /etc/default/cdrecord (CDDL)
+	A library for accessing the file /etc/default/cdrecord (CDDL)
+libdbgmalloc/
+	A library with debug versions of malloc()/free() (CDDL) 
 libdeflt/
 	A lib for accessing files under /etc/default/ (CDDL)
 libedc/
@@ -96,6 +106,8 @@ libshedit/
 	This Library is a non-stdio variant usable by the Bourne Shell
 libsiconv/
 	A simple iconv replacement/wrapper (CDDL)
+libstreamar/
+	A library for a new archive format based on POSIX 2001 ext. tar (CDDL)
 libvms/
 	Supportcode for the VMS port (License: to fit any code in cdrtools)
 	Copyright (C) 2004-2006 Steven M. Schweda
@@ -105,24 +117,32 @@ lndir/
 	Create symlinked directory trees (Similar to BSD 2 clause)
 man/
 	Various man pages for the makefile system (CDDL)
+man2html/
+	A man page to html converter (GPL)
 match/
 	A program to searche for patterns in file(s) (CDDL)
+mdigest/
+	Message digest hash program (CDDL)
 mkisofs/
 	A ISO-9660/Rock-Ridge/Joliet/HFS/UDF filesystem formatter (GPL)
 	Note: uses libscg
 	See special GPL compatibility notes below
-mdigest/
-	Message digest hash program (CDDL)
 mountcd/
 	mount root CD image for SchilliX life CD (CDDL)
 mt/
 	magnetic tape control (CDDL)
+osh/
+	A Burne Shell version that is compatible to Solaris 10 (CDDL)
 p/
 	paginates text and filters non-printing characters (CDDL)
+paste/
+	Another "paste" implementation (CDDL)
 patch/
 	a program for applying a diff file to an original
 pkgdefs/
 	Package definitions for CSW (CDDL)
+printf/
+	A POSIX printf command implementation (CDDL)
 psmake/
 	A boostrap version of the smake program (CDDL)
 pxupgrade/
@@ -162,6 +182,10 @@ star/
 star_sym/
 	Read in the star inode data base "star-symtable" (CDDL)
 	...writes a human readable version
+strar/
+	A program for a new archive format based on POSIX 2001 ext. tar (CDDL)
+sunpro/
+	A portable version of the SunPro Make program (CDDL)
 tartest/
 	test tar archive for POSIX.1-1990 compliance (CDDL)
 TARGETS/
@@ -170,6 +194,8 @@ TEMPLATES/
 	Template support for the Schily Makefile system (CDDL)
 termcap/
 	A TERMCAP compiler (CDDL)
+tests/
+	Common code for the unit test system (CDDL)
 translit/
 	translit - translate characters (CDDL)
 udiff/

@@ -27,21 +27,25 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)date_bal.c	1.13 18/03/15 J. Schilling
+ * @(#)date_bal.c	1.14 18/04/29 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.13 18/03/15 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.14 18/04/29 J. Schilling"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
-# define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
-# define DO2_(p,n)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0');
-# define DO4(p,n,c)	*p++ = ((char) ((n)/1000) + '0'); *p++ = ( (char) ((n)%1000/100) + '0'); \
-			*p++ = ((char) ((n)%100/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
+#define	DO2(p, n, c)	*p++ = ((char) ((n)/10) + '0');			\
+			*p++ = ((char) ((n)%10) + '0'); *p++ = c;
+#define	DO2_(p, n)	*p++ = ((char) ((n)/10) + '0');			\
+			*p++ = ((char) ((n)%10) + '0');
+#define	DO4(p, n, c)	*p++ = ((char) ((n)/1000) + '0');		\
+			*p++ = ((char) ((n)%1000/100) + '0');		\
+			*p++ = ((char) ((n)%100/10) + '0');		\
+			*p++ = ((char) ((n)%10) + '0'); *p++ = c;
 
 
 char *
@@ -93,12 +97,12 @@ int	flags;
 	p = adt;
 	lcltm->tm_year += 1900;
 
-	DO4(p,lcltm->tm_year,'/');
-	DO2(p,lcltm->tm_mon + 1,'/');
-	DO2(p,lcltm->tm_mday,' ');
-	DO2(p,lcltm->tm_hour,':');
-	DO2(p,lcltm->tm_min,':');
-	DO2(p,lcltm->tm_sec,0);
+	DO4(p, lcltm->tm_year, '/');
+	DO2(p, lcltm->tm_mon + 1, '/');
+	DO2(p, lcltm->tm_mday, ' ');
+	DO2(p, lcltm->tm_hour, ':');
+	DO2(p, lcltm->tm_min, ':');
+	DO2(p, lcltm->tm_sec, 0);
 	if (nsec > 0 && nsec < 1000000000) {
 		char	*psave;
 		int	n = 10;
@@ -132,5 +136,5 @@ int	flags;
 		n = z % 60;
 		DO2(p, n, 0);
 	}
-	return(adt);
+	return (adt);
 }

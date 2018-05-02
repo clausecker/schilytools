@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)bugs.sh	1.3 17/10/04 2017 J. Schilling
+# @(#)bugs.sh	1.4 18/04/29 2017 J. Schilling
 #
 
 # Read test core functions
@@ -78,8 +78,8 @@ remove x
 docommand bug03 "$SHELL -c 'expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
 docommand bug04 "$SHELL -c 'command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
 
-docommand bug05 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
-docommand bug06 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+docommand bug05 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+docommand bug06 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
 
 remove b
 
@@ -94,12 +94,12 @@ if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
 fi
 
-docommand -noremove bug09 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
+docommand -noremove bug09 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
 fi
-docommand -noremove bug10 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin command expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
+docommand -noremove bug10 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" command expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"

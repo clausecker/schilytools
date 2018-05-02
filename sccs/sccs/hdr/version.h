@@ -1,4 +1,4 @@
-/* @(#)version.h	1.28 18/04/04 Copyright 2007-2018 J. Schilling */
+/* @(#)version.h	1.29 18/05/01 Copyright 2007-2018 J. Schilling */
 
 /*
  * The version for sccs programs
@@ -13,7 +13,7 @@
 #endif
 
 #ifndef	VDATE
-#define	VDATE	"2018/04/04"
+#define	VDATE	"2018/05/01"
 #endif
 
 #ifdef	SCHILY_BUILD

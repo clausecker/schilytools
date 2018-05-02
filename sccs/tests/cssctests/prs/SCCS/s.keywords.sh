@@ -1,4 +1,8 @@
-h36097
+h49899
+s 00001/00001/00129
+d D 1.5 18/04/30 13:07:11 joerg 5 4
+c Pfadnamen quoten, damit SPACE darin sein kann
+e
 s 00001/00001/00129
 d D 1.4 15/06/03 00:06:44 joerg 4 3
 c ../common/test-common -> ../../common/test-common
@@ -62,7 +66,12 @@ docommand P4 "${delta} -y s.1" 0 "1.2\n1 inserted\n0 deleted\n0 unchanged\n" ""
 expands_to z1 :PN:      `../../testutils/realpwd`"/s.1\n"
 E 3
 I 3
+D 5
 expands_to z1 :PN:      `${SRCROOT}/tests/testutils/realpwd`"/s.1\n"
+E 5
+I 5
+expands_to z1 :PN:      "`${SRCROOT}/tests/testutils/realpwd`/s.1\n"
+E 5
 E 3
 
 

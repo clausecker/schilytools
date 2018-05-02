@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.105 18/04/04 J. Schilling
+ * @(#)admin.c	1.106 18/04/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.105 18/04/04 J. Schilling"
+#pragma ident "@(#)admin.c 1.106 18/04/30 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -509,7 +509,7 @@ char *argv[];
 					fatal(gettext("bad a argument (ad8)"));
 				if (asub > MAXNAMES)
 					fatal(gettext("too many 'a' keyletters (ad9)"));
-				anames[asub++] = p;
+				anames[asub++] = sccs_user(p);
 				break;
 
 			case 'e':	/* user-name to be removed */
@@ -518,7 +518,7 @@ char *argv[];
 					fatal(gettext("bad e argument (ad10)"));
 				if (esub > MAXNAMES)
 					fatal(gettext("too many 'e' keyletters (ad11)"));
-				enames[esub++] = p;
+				enames[esub++] = sccs_user(p);
 				break;
 
 			case 'V':		/* version */

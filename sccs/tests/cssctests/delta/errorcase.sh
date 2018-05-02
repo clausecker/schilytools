@@ -105,7 +105,7 @@ fi
 # nor must we.
 docommand E12 "${admin} -n $s"              0 IGNORE IGNORE 
 docommand E13 "${admin} -a${mygroup} $s"    0 IGNORE IGNORE
-docommand E14 "${admin} -a\!${myname} $s"   0 IGNORE IGNORE
+docommand E14 "${admin} -a\!'${myname}' $s"   0 IGNORE IGNORE
 docommand E15 "${get} -e $s"                0 IGNORE IGNORE
 # this means that the above tests should succeed.
 

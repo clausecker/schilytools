@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -27,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prt.c	1.34 18/04/04 J. Schilling
+ * @(#)prt.c	1.35 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.34 18/04/04 J. Schilling"
+#pragma ident "@(#)prt.c 1.35 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -60,14 +62,14 @@
 	Non-SCCS files are ignored.
 */
 
-# include	<defines.h>
-# include	<version.h>
-# include	<had.h>
-# include	<i18n.h>
-# include	<schily/sysexits.h>
+#include	<defines.h>
+#include	<version.h>
+#include	<had.h>
+#include	<i18n.h>
+#include	<schily/sysexits.h>
 
-# define NOEOF	0
-# define BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
+#define	NOEOF	0
+#define	BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
 
 static FILE *iptr;
 static char *line = NULL;
@@ -125,7 +127,7 @@ static void	printdel __PR((register char *file, register struct delent *delp));
 static void	printit __PR((register char *file, register char *str, register char *cp));
 
 int
-main(argc,argv)
+main(argc, argv)
 int argc;
 char *argv[];
 {
@@ -140,7 +142,7 @@ char *argv[];
 	 * Set locale for all categories.
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
-	
+
 	sccs_setinsbase(INS_BASE);
 
 	/*
@@ -148,12 +150,12 @@ char *argv[];
 	 */
 #ifdef	PROTOTYPES
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
+	    NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
 #else
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
-	   NOGETTEXT("/usr/ccs/lib/locale/"));
+	    NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
-	
+
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	tzset();	/* Set up timezome related vars */
@@ -182,44 +184,43 @@ char *argv[];
 	j = 1;
 	/*CONSTCOND*/
 	while (1) {
-			if(current_optind < optind) {
-			   if (optind > j+1 ) {
-			      if((argv[j+1][0] != '-') &&
-				 ((argv[j][0] == 'c' && argv[j+1][0] <= '9') || 
-				  (argv[j][0] == 'r' && argv[j+1][0] <= '9') ||
-				  (argv[j][0] == 'y' && argv[j+1][0] <= '9'))) {
-			        argv[j+1] = NULL;
-			      } else {
-				optind = j+1;
-				current_optind = optind;
-			      }
-			      
-			   }
-			   if(argv[j][0] == '-') {
-			     argv[j] = 0;
-			   }
-			   current_optind = optind;
+			if (current_optind < optind) {
+			    if (optind > j+1) {
+				if ((argv[j+1][0] != '-') &&
+				    ((argv[j][0] == 'c' && argv[j+1][0] <= '9') ||
+				    (argv[j][0] == 'r' && argv[j+1][0] <= '9') ||
+				    (argv[j][0] == 'y' && argv[j+1][0] <= '9'))) {
+					argv[j+1] = NULL;
+				} else {
+					optind = j+1;
+					current_optind = optind;
+				}
+			    }
+			    if (argv[j][0] == '-') {
+				argv[j] = 0;
+			    }
+			    current_optind = optind;
 			}
 			j = current_optind;
-		        c = getopt(argc, argv, "-r:c:y:esdaiuftbtV(version)");
+			c = getopt(argc, argv, "-r:c:y:esdaiuftbtV(version)");
 
 				/* this takes care of options given after
 				** file names.
 				*/
 			if (c == EOF) {
-			   if (optind < argc) {
+			    if (optind < argc) {
 				/* if it's due to -- then break; */
-			       if(argv[j][0] == '-' &&
-				      argv[j][1] == '-') {
-			          argv[j] = 0;
-			          break;
-			       }
-			       optind++;
-			       current_optind = optind;
-			       continue;
-			   } else {
-			       break;
-			   }
+				if (argv[j][0] == '-' &&
+				    argv[j][1] == '-') {
+					argv[j] = 0;
+					break;
+				}
+				optind++;
+				current_optind = optind;
+				continue;
+			    } else {
+				break;
+			    }
 			}
 			p = optarg;
 			switch (c) {
@@ -235,45 +236,45 @@ char *argv[];
 				break;
 			case 'y':	/* delta cutoff */
 				ysid = p;
-				if(p[0] < '0'  || p[0] > '9') {
-				  ysid = "";
+				if (p[0] < '0' || p[0] > '9') {
+					ysid = "";
 				}
 				prefix++;
 				break;
 
 			case 'c':	/* time cutoff */
 				if (HADR) {
-				   fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
+				    fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
 				}
-				if(p[0] ==  '-') {
-				  /* no cutoff date given */
-				  prefix++;
-				  break;
+				if (p[0] ==  '-') {
+				    /* no cutoff date given */
+				    prefix++;
+				    break;
 				}
-				if(p[0] > '9') {
-				  prefix++;
-				  break;
+				if (p[0] > '9') {
+				    prefix++;
+				    break;
 				}
-				if (*p && parse_date(p,&cutoff, 0))
+				if (*p && parse_date(p, &cutoff, 0))
 					fatal(gettext("bad date/time (cm5)"));
 				prefix++;
 				break;
 
 			case 'r':	/* reverse time cutoff */
 				if (HADC) {
-				   fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
+				    fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
 				}
-				if(p[0] ==  '-') {
-				  /* no cutoff date given */
-				  prefix++;
-				  break;
+				if (p[0] ==  '-') {
+				    /* no cutoff date given */
+				    prefix++;
+				    break;
 				}
-				if(p[0] > '9') {
-				  prefix++;
-				  break;
+				if (p[0] > '9') {
+				    prefix++;
+				    break;
 				}
-				if (*p && parse_date(p,&revcut, 0))
-					fatal (gettext("bad date/time (cm5)"));
+				if (*p && parse_date(p, &revcut, 0))
+					fatal(gettext("bad date/time (cm5)"));
 				prefix++;
 				break;
 
@@ -297,16 +298,16 @@ char *argv[];
 			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++))
 				fatal(gettext("key letter twice (cm2)"));
 #if 0
-			if(((c == 'c') || (c == 'r')||(c == 'y')) && (p[0] > '9')) {
-			   argv[j] = NULL;
-			   break;
+			if (((c == 'c') || (c == 'r')||(c == 'y')) && (p[0] > '9')) {
+			    argv[j] = NULL;
+			    break;
 			}
 #endif
 	}
 
-	for(j=1; j<argc; j++){
-		if(argv[j]) {
-		       num_files++;
+	for (j = 1; j < argc; j++) {
+		if (argv[j]) {
+			num_files++;
 		}
 	}
 
@@ -378,16 +379,16 @@ char *file;
 	stopdel = 0;
 
 	if (!prefix) {
-		printf("\n%s:\n",file);
+		printf("\n%s:\n", file);
 	}
 	if (HADD) {
 		while (((p = lineread(NOEOF)) != NULL) && *p++ == CTLCHAR &&
 				*p++ == STATS && !stopdel) {
 			NONBLANK(p);
-			copy(p,statistics);
+			copy(p, statistics);
 
 			p = lineread(NOEOF);
-			getdel(&del,p);
+			getdel(&del, p);
 #if defined(BUG_1205145) || defined(GMT_TIME)
 			date_ab(del.datetime, &bindate, 0);
 			/*
@@ -405,9 +406,9 @@ char *file;
 			if ((tim < Y1969) ||
 			    (tim >= Y2069))
 #endif
-				date_bal(&tim,del.datetime, 0);	/* 4 digit year */
+				date_bal(&tim, del.datetime, 0); /* 4 digit year */
 			else
-				date_ba(&tim,del.datetime, 0);	/* 2 digit year */
+				date_ba(&tim, del.datetime, 0);	/* 2 digit year */
 #endif
 
 			if (!HADA && del.type != 'D') {
@@ -432,10 +433,10 @@ char *file;
 					continue;
 				}
 			}
-			if (HADY && (equal(del.osid,ysid) || !(*ysid)))
+			if (HADY && (equal(del.osid, ysid) || !(*ysid)))
 				stopdel = 1;
 
-			printdel(file,&del);
+			printdel(file, &del);
 
 			while (((p = lineread(NOEOF)) != NULL) && *p++ == CTLCHAR) {
 				if (*p == EDELTAB)
@@ -443,22 +444,22 @@ char *file;
 				switch (*p) {
 				case INCLUDE:
 					if (HADI)
-						printit(file,gettext("Included:\t"),p);
+						printit(file, gettext("Included:\t"), p);
 					break;
 
 				case EXCLUDE:
 					if (HADI)
-						printit(file,gettext("Excluded:\t"),p);
+						printit(file, gettext("Excluded:\t"), p);
 					break;
 
 				case IGNORE:
 					if (HADI)
-						printit(file,gettext("Ignored:\t"),p);
+						printit(file, gettext("Ignored:\t"), p);
 					break;
 
 				case MRNUM:
 					if (!HADS)
-						printit(file,gettext("MRs:\t"),p);
+						printit(file, gettext("MRs:\t"), p);
 					break;
 
 				case SIDEXTENS:
@@ -468,7 +469,7 @@ char *file;
 
 				case COMMENTS:
 					if (!HADS)
-						printit(file,"",p);
+						printit(file, "", p);
 					break;
 
 				default:
@@ -491,7 +492,7 @@ char *file;
 		printf(gettext("\n Users allowed to make deltas -- \n"));
 		while (((p = lineread(NOEOF)) != NULL) && *p != CTLCHAR) {
 			user = 1;
-			printf("\t%s",p);
+			printf("\t%s", p);
 		}
 		if (!user)
 			printf(gettext("\teveryone\n"));
@@ -560,7 +561,7 @@ char *file;
 		printf(gettext("\nDescription --\n"));
 		while (((p = lineread(NOEOF)) != NULL) && *p != CTLCHAR) {
 			text = 1;
-			printf("\t%s",p);
+			printf("\t%s", p);
 		}
 		if (!text)
 			printf(gettext("\tnone\n"));
@@ -582,7 +583,7 @@ char *file;
 
 
 static void
-getdel(delp,lp)
+getdel(delp, lp)
 register struct delent *delp;
 register char *lp;
 {
@@ -609,7 +610,7 @@ register char *lp;
 	*lp++ = '\0';
 	NONBLANK(lp);
 	delp->pred = lp;
-	repl(lp,'\n','\0');
+	repl(lp, '\n', '\0');
 }
 
 
@@ -623,7 +624,7 @@ register char ch;
 			!(*n++ == CTLCHAR && *n == ch))
 		continue;
 
-	return(n);
+	return (n);
 }
 
 
@@ -635,18 +636,18 @@ register int eof;
 	size_t	nread, used = 0;
 
 	do {
-		if (fgets(buf, sizeof(buf), iptr) == NULL) {
+		if (fgets(buf, sizeof (buf), iptr) == NULL) {
 			if (!eof) {
 				fatal(gettext("premature eof (co5)"));
 			}
-			return (used) ? line : NULL;
+			return ((used) ? line : NULL);
 		}
 
 		nread = strlen(buf);
 
 		if ((used + nread) >= line_size) {
-			line_size += sizeof(buf);
-			line = (char*) realloc(line, line_size);
+			line_size += sizeof (buf);
+			line = (char *) realloc(line, line_size);
 			if (line == NULL) {
 				efatal(gettext("OUT OF SPACE (ut9)"));
 			}
@@ -658,12 +659,12 @@ register int eof;
 
 	linenum++;
 
-	return line;
+	return (line);
 }
 
 
 static void
-printdel(file,delp)
+printdel(file, delp)
 register char *file;
 register struct delent *delp;
 {
@@ -671,17 +672,17 @@ register struct delent *delp;
 
 	if (prefix) {
 		statistics[length(statistics) - 1] = '\0';
-		printf("%s:\t",file);
+		printf("%s:\t", file);
 	}
 
-	printf("%c %s\t%s %s\t%s %s\t%s",delp->type,delp->osid,
-		delp->datetime,delp->pgmr,delp->serial,delp->pred,statistics);
+	printf("%c %s\t%s %s\t%s %s\t%s", delp->type, delp->osid,
+		delp->datetime, delp->pgmr, delp->serial, delp->pred, statistics);
 }
 
 
 /*ARGSUSED*/
 static void
-printit(file,str,cp)
+printit(file, str, cp)
 register char *file;
 register char *str, *cp;
 {
@@ -693,5 +694,5 @@ register char *str, *cp;
 		printf(" ");
 	}
 
-	printf("%s%s",str,cp);
+	printf("%s%s", str, cp);
 }

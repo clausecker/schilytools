@@ -1,6 +1,6 @@
-/* @(#)star.h	1.128 17/10/07 Copyright 1985, 1995-2017 J. Schilling */
+/* @(#)star.h	1.129 18/04/24 Copyright 1985, 1995-2018 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2017 J. Schilling
+ *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -631,6 +631,7 @@ typedef	struct	{
 	long	f_mnsec;	/* nsec Teil "				  */
 	time_t	f_ctime;	/* Zeit d. letzten Statusaend.		  */
 	long	f_cnsec;	/* nsec Teil "				  */
+	long	f_timeres;	/* Time stamp resolution		  */
 	Ulong	f_fflags;	/* File flags				  */
 #ifdef	USE_ACL
 #ifdef	HAVE_ST_ACLCNT

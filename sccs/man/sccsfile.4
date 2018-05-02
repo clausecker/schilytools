@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.41 18/03/15 Copyright 2007-2018 J. Schilling */
+.\" @(#)sccsfile.4	1.42 18/04/30 Copyright 2007-2018 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2015 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2018/03/15" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2018/04/30" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -239,7 +239,7 @@ The delta table consists of a variable number of entries of the form:
 .LP
 .in +2
 .nf
-.RI "^As " inserted \|/ deleted / unchanged
+.RI "^As " inserted \|/ deleted \|/ unchanged
 .RI "^Ad " "type  sid  yr"  / mo / "da \c
 .IR hr : mi : "se  \c
 .I "username  serial-number \e
@@ -265,8 +265,12 @@ are mandatory.
 .LP
 The first line
 .RB ( ^As )
-contains the number of lines inserted/deleted/unchanged respectively.
-The actual values for inserted/deleted/unchanged are five digit numbers.
+contains the number of lines
+.IR inserted \|/ deleted \|/ unchanged
+respectively.
+The actual values for
+.IR inserted \|/ deleted \|/ unchanged
+are five digit numbers.
 If an actual value is greater than 99999, then it is replaced by 99999.
 .LP
 The second line
@@ -286,16 +290,37 @@ for a removed delta
 followed by
 the SCCS ID
 .RB ( SID )
-of the delta, the date and
-time of creation of the delta as local time, the user-name corresponding to
-the real user ID at the time the delta was created, and the serial numbers
+of the delta, the
+.I date
+and
+.I time
+of creation of the delta as local time, the
+.I user-name
+corresponding to
+the real user ID at the time the delta was created, and the
+.I serial numbers
 of the delta and its predecessor, respectively.
 .sp
-The year is either represented
+The
+.I year
+is either represented
 by a two digit year in the range 69..99 for 1969..1999 or 00..68 for
 2000..2068 or by a four digit year number. Year numbers before 1969 are
 currently not supported.
 Older SCCS versions may not be able to understand four digit year numbers.
+.sp
+The
+.I user-name
+must not contain a
+.B space
+character, as
+.B space
+is the field separator in this file format.
+Since some non-POSIX platforms permit a space in the username, it is converted
+into a
+.RB ` _ '
+by the SCCS software before storing it in the history file.
+
 .LP
 The
 .BR ^Ai ,

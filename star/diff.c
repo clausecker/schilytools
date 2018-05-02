@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.90 17/11/08 Copyright 1993-2017 J. Schilling */
+/* @(#)diff.c	1.91 18/04/24 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.90 17/11/08 Copyright 1993-2017 J. Schilling";
+	"@(#)diff.c	1.91 18/04/24 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2017 J. Schilling
+ *	Copyright (c) 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -287,34 +287,54 @@ diff_tcb(info)
 	 * XXX nsec beachten wenn im Archiv!
 	 */
 	if ((diffopts & D_ATIME) != 0) {
-		if (info->f_atime != finfo.f_atime)
+		if (info->f_atime != finfo.f_atime) {
 			diffs |= D_ATIME;
-
-#ifdef	should_we
-		if ((info->f_xflags & XF_ATIME) && (finfo.f_flags & F_NSECS) &&
-		    info->f_ansec != finfo.f_ansec)
-			diffs |= D_ATIME;
-#endif
+		} else if ((diffopts & D_ANTIME) != 0) {
+			if ((info->f_xflags & XF_ATIME) &&
+			    (finfo.f_flags & F_NSECS) &&
+			    info->f_ansec != finfo.f_ansec) {
+				diffs |= D_ANTIME;
+				if ((info->f_ansec % 1000 == 0 ||
+				    finfo.f_ansec % 1000 == 0) &&
+				    (info->f_ansec / 1000 ==
+				    finfo.f_ansec / 1000))
+					diffs &= ~D_ANTIME;
+			}
+		}
 	}
 	if ((diffopts & D_MTIME) != 0) {
 		if ((diffopts & D_LMTIME) != 0 || !is_symlink(&finfo)) {
-			if (info->f_mtime != finfo.f_mtime)
+			if (info->f_mtime != finfo.f_mtime) {
 				diffs |= D_MTIME;
-#ifdef	should_we
-			if ((info->f_xflags & XF_MTIME) && (finfo.f_flags & F_NSECS) &&
-			    info->f_mnsec != finfo.f_mnsec)
-				diffs |= D_MTIME;
-#endif
+			} else if ((diffopts & D_MNTIME) != 0) {
+				if ((info->f_xflags & XF_MTIME) &&
+				    (finfo.f_flags & F_NSECS) &&
+				    info->f_mnsec != finfo.f_mnsec) {
+					diffs |= D_MNTIME;
+					if ((info->f_mnsec % 1000 == 0 ||
+					    finfo.f_mnsec % 1000 == 0) &&
+					    (info->f_mnsec / 1000 ==
+					    finfo.f_mnsec / 1000))
+					diffs &= ~D_MNTIME;
+				}
+			}
 		}
 	}
 	if ((diffopts & D_CTIME) != 0) {
-		if (info->f_ctime != finfo.f_ctime)
+		if (info->f_ctime != finfo.f_ctime) {
 			diffs |= D_CTIME;
-#ifdef	should_we
-		if ((info->f_xflags & XF_CTIME) && (finfo.f_flags & F_NSECS) &&
-		    info->f_cnsec != finfo.f_cnsec)
-			diffs |= D_CTIME;
-#endif
+		} else if ((diffopts & D_CNTIME) != 0) {
+			if ((info->f_xflags & XF_CTIME) &&
+			    (finfo.f_flags & F_NSECS) &&
+			    info->f_cnsec != finfo.f_cnsec) {
+				diffs |= D_CNTIME;
+				if ((info->f_cnsec % 1000 == 0 ||
+				    finfo.f_cnsec % 1000 == 0) &&
+				    (info->f_cnsec / 1000 ==
+				    finfo.f_cnsec / 1000))
+				diffs &= ~D_CNTIME;
+			}
+		}
 	}
 
 	if ((diffopts & D_DIR) && is_dir(info) && info->f_dir &&
@@ -792,6 +812,12 @@ prdiffopts(f, label, flags)
 		prdopt(f, "ctime", printed++);
 	if (flags & D_LMTIME)
 		prdopt(f, "lmtime", printed++);
+	if (flags & D_ANTIME)
+		prdopt(f, "ansecs", printed++);
+	if (flags & D_MNTIME)
+		prdopt(f, "mnsecs", printed++);
+	if (flags & D_CNTIME)
+		prdopt(f, "cnsecs", printed++);
 	if (flags & D_DIR)
 		prdopt(f, "dir", printed++);
 #ifdef USE_ACL

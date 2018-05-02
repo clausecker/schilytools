@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)echo.sh	1.2 16/06/04 Copyright 2016 J. Schilling
+# @(#)echo.sh	1.3 18/04/29 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -19,8 +19,8 @@ docommand echo01 "$SHELL -c 'unset PATH; echo -n 1 2 3'" 0 "-n 1 2 3\n" ""
 #
 # Switch to UCB behavior: honor -n but not escape sequences
 #
-docommand echo02 "$SHELL -c 'PATH=/usr/ucb:$PATH; echo -n 1 2 3'" 0 "1 2 3" ""
-docommand echo03 "$SHELL -c 'PATH=/usr/ucb:$PATH; echo 1 2 3\\\\t'" 0 "1 2 3\\\\t\n" ""
+docommand echo02 "$SHELL -c 'PATH=\"/usr/ucb:\$PATH\"; echo -n 1 2 3'" 0 "1 2 3" ""
+docommand echo03 "$SHELL -c 'PATH=\"/usr/ucb:\$PATH\"; echo 1 2 3\\\\t'" 0 "1 2 3\\\\t\n" ""
 
 #
 # Switch to SVR3 behavior: honor -n and escape sequences

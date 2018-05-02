@@ -1,8 +1,8 @@
-/* @(#)header.c	1.164 18/03/07 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.165 18/04/24 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.164 18/03/07 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.165 18/04/24 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1578,6 +1578,7 @@ static	BOOL	modewarn = FALSE;
 	info->f_xflags = 0;
 	info->f_contoffset = (off_t)0;
 	info->f_flags &= F_HAS_NAME;
+	info->f_timeres = 1L;
 	info->f_fflags = 0L;
 	info->f_nlink = 0;
 	info->f_dir = NULL;

@@ -10,7 +10,7 @@ remove s.bar
 d=`${SRCROOT}/tests/testutils/realpwd`
 s=${d}/s.bar
 
-docommand P1 "${vg_admin} -n ${s}" 0 "" IGNORE
+docommand P1 "${vg_admin} -n '${s}'" 0 "" IGNORE
 
 remove s.bar 
 success

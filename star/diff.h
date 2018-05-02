@@ -1,8 +1,8 @@
-/* @(#)diff.h	1.15 10/08/24 Copyright 1993-2010 J. Schilling */
+/* @(#)diff.h	1.16 18/04/24 Copyright 1993-2018 J. Schilling */
 /*
  *	Definitions for the taylorable diff command
  *
- *	Copyright (c) 1993-2010 J. Schilling
+ *	Copyright (c) 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -35,6 +37,9 @@ extern "C" {
 #define	D_SIZE		0x000100
 #define	D_DATA		0x000200
 #define	D_RDEV		0x000400
+
+#define	D_UNUSED1	0x000800
+
 #define	D_HLINK		0x001000
 #define	D_SLINK		0x002000
 #define	D_SLPATH	0x004000
@@ -49,6 +54,10 @@ extern "C" {
 #define	D_ACL		0x200000
 #define	D_XATTR		0x400000
 #define	D_FFLAGS	0x800000
+#define	D_ANTIME	0x1000000
+#define	D_MNTIME	0x2000000
+#define	D_CNTIME	0x4000000
+#define	D_MAX		0x80000000
 
 /*
  * Atime frequently changes, it makes no sense to check it by default.

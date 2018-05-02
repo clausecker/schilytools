@@ -1,4 +1,8 @@
-h29058
+h41854
+s 00001/00000/00072
+d D 1.6 18/04/30 13:06:08 joerg 6 5
+c Username mit SPACE wird in Underline im History File gewandelt
+e
 s 00009/00002/00063
 d D 1.5 16/08/14 23:16:32 joerg 5 4
 c tail +2 -> tail $plustwo und $plustwo wird automatish angepasst
@@ -65,6 +69,9 @@ if test -z "$logname"
 then
 	logname=`logname`
 fi
+I 6
+logname=`echo $logname | sed -e 's/ /_/g'`
+E 6
 E 4
 
 I 5

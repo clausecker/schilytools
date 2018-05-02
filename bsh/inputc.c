@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.99 17/11/06 Copyright 1982, 1984-2017 J. Schilling */
+/* @(#)inputc.c	1.101 18/04/26 Copyright 1982, 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.99 17/11/06 Copyright 1982, 1984-2017 J. Schilling";
+	"@(#)inputc.c	1.101 18/04/26 Copyright 1982, 1984-2018 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2017 J. Schilling
+ *	Copyright (c) 1982, 1984-2018 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -1760,8 +1760,9 @@ strwchr(s, c)
  * the characters '!' ... '$' are pattern matcher meta characters.
  * The complete pattern matcher meta characters are "!#%*?\\{}[]^$", but
  * the '%' has been checked before in the shell parser charracter set.
+ * The string quoting charcters '"' and '\''.
  */
-LOCAL char xchars[] = " \t<>%|;()&!#*?\\{}[]^$"; /* Chars that need quoting */
+LOCAL char xchars[] = " \t\"'<>%|;()&!#*?\\{}[]^$"; /* Chars that need quoting */
 
 /*
  * Expand a wide char string and return a malloc()ed copy.

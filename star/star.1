@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.186 18/03/19 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.187 18/04/24 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/04/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -1616,6 +1616,27 @@ is compared also.
 .B times
 Shorthand for:
 .IR "atime,mtime,ctime" .
+.TP
+.B nsecs
+Check nanoseconds in all selected timestamps as well.
+.sp
+Note that the time resolution of various filesystem differs.
+While modern filesystems like
+.B ZFS
+and filesystems that introduced a sub-second resolution recently,
+tend to support a nanosecond granularity, filesystems like
+.B UFS
+that support a sub-second resolution since the early 1990s tend to
+support only a microsecond granularity. Since even in in 2018,
+the POSIX.1-2008 feature
+.B pathconf(_PC_TIMESTAMP_RESOLUTION)
+has not yet been implemented on any platform, you may need to disable
+to compare nanoseconds in some cases.
+.sp
+.B Star
+currently first tries to compare the timestamps based on a nanosecond
+resolution and if that fails and one timestamp seems to have a microsecond
+resolution, the comparison is repeated with microsecond resolution only.
 .TP 10
 .B dir
 Compare the content of directories.

@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)dofile.c	1.12 15/02/08 J. Schilling
+ * @(#)dofile.c	1.13 18/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.12 15/02/08 J. Schilling"
+#pragma ident "@(#)dofile.c 1.13 18/04/29 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -40,8 +42,8 @@
 #pragma ident	"@(#)dofile.c"
 #pragma ident	"@(#)sccs:lib/comobj/dofile.c"
 #endif
-# include	<defines.h>
-# include	<schily/dirent.h>
+#include	<defines.h>
+#include	<schily/dirent.h>
 
 char	had_dir;
 char	had_standinp;
@@ -68,12 +70,13 @@ int need_sdot;		/* Skip non s. files */
 	had_standinp = 0;
 	had_dir = 0;
 
-	if ((p[0] == '-' ) && (!p[1])) {
-		/* this is make sure that the arguements starting with
-		** a hyphen are handled as regular files and stdin
-		** is used for accepting file names when a hyphen is
-		** not followed by any characters.
-		*/
+	if ((p[0] == '-') && (!p[1])) {
+		/*
+		 * this is make sure that the arguements starting with
+		 * a hyphen are handled as regular files and stdin
+		 * is used for accepting file names when a hyphen is
+		 * not followed by any characters.
+		 */
 		had_standinp = 1;
 		while (fgets(ibuf, sizeof (ibuf), stdin) != NULL) {
 			size_t	l;
@@ -86,27 +89,29 @@ int need_sdot;		/* Skip non s. files */
 			if (exists(ibuf) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				had_dir = 1;
 				Ffile = ibuf;
-				if((dirf = opendir(ibuf)) == NULL)
+				if ((dirf = opendir(ibuf)) == NULL)
 					return;
 				while ((dir[0] = readdir(dirf)) != NULL) {
 					if (dot_dotdot(dir[0]->d_name))
 						continue;
 #ifdef	HAVE_DIRENT_D_INO
-					if(dir[0]->d_ino == 0) continue;
+					if (dir[0]->d_ino == 0)
+						continue;
 #endif
 					snprintf(str, sizeof (str),
 						"%s/%s", ibuf, dir[0]->d_name);
 					if (!need_sdot) {
 						Ffile = str;
 						(*func)(str);
-					} else if(sccsfile(str)) {
-					   if (check_file && (fd=open(str, O_RDONLY|O_BINARY)) < 0) {
-					      errno = 0;
-					   } else {
-					        if (check_file) close(fd);
+					} else if (sccsfile(str)) {
+					    if (check_file && (fd = open(str, O_RDONLY|O_BINARY)) < 0) {
+						errno = 0;
+					    } else {
+						if (check_file)
+							close(fd);
 						Ffile = str;
 						(*func)(str);
-					   } 
+					    }
 					}
 				}
 				closedir(dirf);
@@ -114,49 +119,50 @@ int need_sdot;		/* Skip non s. files */
 				Ffile = ibuf;
 				(*func)(ibuf);
 			} else if (sccsfile(ibuf)) {
-				if (check_file && (fd=open(ibuf, O_RDONLY|O_BINARY)) < 0) {
-				   errno = 0;
+				if (check_file && (fd = open(ibuf, O_RDONLY|O_BINARY)) < 0) {
+				    errno = 0;
 				} else {
-				   if (check_file) close(fd);
-				   Ffile = ibuf;
-				   (*func)(ibuf);
-				}   
+				    if (check_file)
+					close(fd);
+				    Ffile = ibuf;
+				    (*func)(ibuf);
+				}
 			}
 		}
-	}
-	else if (exists(p) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
+	} else if (exists(p) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 		had_dir = 1;
 		Ffile = p;
 		if (!check_permission_SccsDir(p)) {
 			return;
 		}
-		if((dirf = opendir(p)) == NULL)
+		if ((dirf = opendir(p)) == NULL)
 			return;
 		while ((dir[0] = readdir(dirf)) != NULL) {
 			if (dot_dotdot(dir[0]->d_name))
 				continue;
 #ifdef	HAVE_DIRENT_D_INO
-			if(dir[0]->d_ino == 0) continue;
+			if (dir[0]->d_ino == 0)
+				continue;
 #endif
 			snprintf(str, sizeof (str),
 				"%s/%s", p, dir[0]->d_name);
 			if (!need_sdot) {
 				Ffile = str;
 				(*func)(str);
-			} else if(sccsfile(str)) {
-			   if (check_file && (fd=open(str, O_RDONLY|O_BINARY)) < 0) {
-			      errno = 0;
-			   } else {
-			      if (check_file) close(fd);
-			      Ffile = str;
-			      (*func)(str);
-			   }	
+			} else if (sccsfile(str)) {
+			    if (check_file && (fd = open(str, O_RDONLY|O_BINARY)) < 0) {
+				errno = 0;
+			    } else {
+				if (check_file)
+					close(fd);
+				Ffile = str;
+				(*func)(str);
+			    }
 			}
 		}
 		closedir(dirf);
-	}
-	else {
-		strlcpy(str, p, sizeof(str));
+	} else {
+		strlcpy(str, p, sizeof (str));
 		if (!check_permission_SccsDir(dname(str))) {
 			return;
 		}

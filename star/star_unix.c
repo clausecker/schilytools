@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.107 18/01/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.108 18/04/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.107 18/01/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.108 18/04/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -238,6 +238,20 @@ again:
 	info->f_ansec	= stat_ansecs(sp);
 	info->f_mnsec	= stat_mnsecs(sp);
 	info->f_cnsec	= stat_cnsecs(sp);
+
+	info->f_timeres	= 1;
+
+#if	defined(_FOUND_STAT_NSECS_)
+	info->f_flags	|= F_NSECS;
+#ifdef	HAVE_ST_FSTYPE
+	if (sp->st_fstype[0] == 'p' && streql(sp->st_fstype, "pcfs"))
+		info->f_flags &= ~F_NSECS;
+	if (sp->st_fstype[0] == 'u' &&
+	    sp->st_fstype[1] == 'f' &&
+	    sp->st_fstype[2] == 's')
+		info->f_timeres = 1000;
+#endif
+#endif
 
 	if (info->f_ansec < 0 || info->f_ansec >= 1000000000L) {
 		print_badnsec(info, "atime", info->f_ansec);

@@ -29,7 +29,7 @@ docommand P3 "${get} -e s.1" 0 "1.1\nnew delta 1.2\n0 lines\n" IGNORE
 echo "hello from %M%" >> 1
 docommand P4 "${delta} -y s.1" 0 "1.2\n1 inserted\n0 deleted\n0 unchanged\n" ""
 
-expands_to z1 :PN:      `${SRCROOT}/tests/testutils/realpwd`"/s.1\n"
+expands_to z1 :PN:      "`${SRCROOT}/tests/testutils/realpwd`/s.1\n"
 
 
 expands_to X1  :I:      "1.1\n"
