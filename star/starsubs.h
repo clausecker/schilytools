@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.115 18/04/11 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.116 18/05/17 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -100,8 +100,8 @@ extern	Llong	tblocks		__PR((void));
 extern	void	prstats		__PR((void));
 extern	BOOL	checkerrs	__PR((void));
 extern	void	exprstats	__PR((int ret));
-extern	void	excomerrno	__PR((int err, char *fmt, ...))
-						__printflike__(2, 3);
+extern	void	excomerrno	__PR((int err,
+					char *fmt, ...)) __printflike__(2, 3);
 extern	void	excomerr	__PR((char *fmt, ...)) __printflike__(1, 2);
 extern	void	die		__PR((int err));
 
@@ -415,10 +415,12 @@ extern	void	set_acls	__PR((FINFO *info));
 /*
  * unicode.c
  */
-extern	int	to_utf8		__PR((Uchar *to, Uchar *from));
-extern	int	to_utf8l	__PR((Uchar *to, Uchar *from, int len));
-extern	BOOL	from_utf8	__PR((Uchar *to, Uchar *from));
-extern	BOOL	from_utf8l	__PR((Uchar *to, Uchar *from, int *len));
+extern	void	utf8_init	__PR((int type));
+extern	void	utf8_fini	__PR((void));
+extern	int	to_utf8		__PR((Uchar *to, int tolen,
+					Uchar *from, int len));
+extern	BOOL	from_utf8	__PR((Uchar *to, int tolen,
+					Uchar *from, int *len));
 
 /*
  * fflags.c

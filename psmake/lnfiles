@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.27 13/10/24 Copyright 1999-2013 J. Schilling
+# @(#)lnfiles	1.28 18/05/16 Copyright 1999-2013 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -110,6 +110,7 @@ $cp ${incsrc}/${lib}/eaccess.c		eaccess.c
 $cp ${incsrc}/${lib}/error.c		error.c
 $cp ${incsrc}/${lib}/format.c		format.c
 $cp ${incsrc}/${lib}/getexecpath.c	getexecpath.c
+$cp ${incsrc}/${lib}/getnstimeofday.c	getnstimeofday.c
 #$cp ${incsrc}/${lib}/printf.c		printf.c
 #$cp ${incsrc}/${lib}/sprintf.c		sprintf.c
 #$cp ${incsrc}/${lib}/snprintf.c	snprintf.c

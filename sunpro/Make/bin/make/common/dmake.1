@@ -1,4 +1,4 @@
-. \" @(#)dmake.1	1.5 18/04/16 Copyr 2017 J. Schilling
+. \" @(#)dmake.1	1.6 18/05/02 Copyr 2017 J. Schilling
 . \"  Manual Seite fuer dmake
 .\"
 .\" CDDL HEADER START
@@ -35,7 +35,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH DMAKE 1 "2018/04/16" "SunOS 5.11" "SunOS Specific Commands"
+.TH DMAKE 1 "2018/05/02" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 dmake \- parallel make from Distributed Make
 .SH SYNOPSIS
@@ -156,7 +156,7 @@ which targets are to be processed in parallel.
 .TP
 .SM \fB.LOCAL\fP:
 Add targets to the dependency list of this target to control
-which targets are to be processed serially.
+which targets are to be processed serially on the local host.
 This version of
 .B dmake
 does not support distributed builds.

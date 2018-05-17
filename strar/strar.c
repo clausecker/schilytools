@@ -1,13 +1,13 @@
-/* @(#)strar.c	1.3 17/02/15 Copyright 2017 J. Schilling */
+/* @(#)strar.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strar.c	1.3 17/02/15 Copyright 2017 J. Schilling";
+	"@(#)strar.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Manage a StreamArchive
  *
- *	Copyright (c) 2017 J. Schilling
+ *	Copyright (c) 2017-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/stdlib.h>
 #include <schily/strar.h>
+#include <schily/nlsdefs.h>
 
 LOCAL	BOOL	debug;
 	BOOL	cflag;
@@ -71,9 +72,9 @@ usage(exitcode)
 LOCAL void
 pvers()
 {
-	printf("strar %s (%s-%s-%s)\n\n", "1.3",
+	printf("strar %s (%s-%s-%s)\n\n", "1.5",
 		HOST_CPU, HOST_VENDOR, HOST_OS);
-	printf("Copyright (C) 2017 Jörg Schilling\n");
+	printf("Copyright (C) 2017-2018 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	exit(0);
@@ -96,8 +97,37 @@ main(ac, av)
 	FINFO	finfo;
 	char	*archive = NULL;
 	char	*listfile = NULL;
+	char	*codeset = NULL;
 
 	save_args(ac, av);
+
+#ifdef	USE_NLS
+	setlocale(LC_ALL, "");
+	if (setlocale(LC_ALL, "") != NULL) {
+#ifdef	CODESET
+		codeset = nl_langinfo(CODESET);
+#endif
+	}
+
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "strar"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
+
 	cac = --ac;
 	cav = ++av;
 
@@ -105,7 +135,7 @@ main(ac, av)
 			&cflag, &xflag, &tflag, &verbose, &archive,
 			&listfile,
 			&nometa, &basemeta) < 0) {
-		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
@@ -114,7 +144,7 @@ main(ac, av)
 		pvers();
 
 	if ((cflag + xflag + tflag) > 1)
-		comerrno(EX_BAD, "Only one of -c -x -l.\n");
+		comerrno(EX_BAD, _("Only one of -c -x -l.\n"));
 
 	fac = ac;
 	fav = av;
@@ -122,10 +152,12 @@ main(ac, av)
 
 	if (cflag && i == 0 && listfile == NULL) {
 		comerrno(EX_BAD,
-		"Too few arguments; will not create an empty archive..\n");
+		_("Too few arguments; will not create an empty archive..\n"));
 	}
-	if (strar_open(&finfo, archive, 0, cflag ? OM_WRITE : OM_READ) < 0)
-		comerr("Cannot open archive.\n");
+	if (strar_open(&finfo, archive, 0, cflag ? OM_WRITE : OM_READ,
+	    codeset) < 0) {
+		comerr(_("Cannot open archive.\n"));
+	}
 	if (finfo.f_fp == stdout) {
 		finfo.f_list = stderr;
 		finfo.f_listname = "stderr";
@@ -149,6 +181,9 @@ main(ac, av)
 			finfo.f_xflags = XF_BASE_FILEMETA;
 		else
 			finfo.f_xflags = XF_ALL_FILEMETA;
+#ifdef	__future__
+		finfo.f_xflags |= XF_BINARY;
+#endif
 		return (create(&finfo, ac, av, f));
 	} else if (xflag) {
 		finfo.f_cmdflags |= CMD_XTRACT;
@@ -157,7 +192,7 @@ main(ac, av)
 		finfo.f_cmdflags |= CMD_LIST;
 		strar_receive(&finfo, list);
 	} else {
-		errmsgno(EX_BAD, "No function specified.\n");
+		errmsgno(EX_BAD, _("No function specified.\n"));
 		usage(EX_BAD);
 	}
 	strar_close(&finfo);
@@ -182,12 +217,12 @@ create(info, ac, av, f)
 			if (buf[amt-1] == '\n')
 				buf[amt-1] = '\0';
 			if (strar_send(info, buf) != 0)
-				errmsg("Cannot archive '%s'.\n", buf);
+				errmsg(_("Cannot archive '%s'.\n"), buf);
 		}
 	} else {
 		for (; getfiles(&ac, &av, options) > 0; ac--, av++) {
 			if (strar_send(info, av[0]) != 0)
-				errmsg("Cannot archive '%s'.\n", av[0]);
+				errmsg(_("Cannot archive '%s'.\n"), av[0]);
 		}
 	}
 	strar_eof(info);
@@ -222,7 +257,7 @@ openlist(listfile)
 	if (streql(listfile, "-")) {
 		listf = stdin;
 	} else if ((listf = fileopen(listfile, "r")) == (FILE *)NULL)
-		comerr("Cannot open '%s'.\n", listfile);
+		comerr(_("Cannot open '%s'.\n"), listfile);
 
 	return (listf);
 }

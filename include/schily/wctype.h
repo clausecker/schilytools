@@ -1,4 +1,4 @@
-/* @(#)wctype.h	1.10 18/02/17 Copyright 2009-2018 J. Schilling */
+/* @(#)wctype.h	1.11 18/05/17 Copyright 2009-2018 J. Schilling */
 /*
  *	Abstraction from wctype.h
  *
@@ -104,5 +104,12 @@
 #define	towupper(c)	toupper(c)
 
 #endif	/* !USE_WCTYPE */
+
+#ifndef	HAVE_WCTYPE
+extern	wctype_t	wctype		__PR((const char *));
+#endif
+#ifndef	HAVE_ISWCTYPE
+extern	int		iswctype	__PR((wint_t , wctype_t));
+#endif
 
 #endif	/* _SCHILY_WCTYPE_H */

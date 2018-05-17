@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.91 17/10/07 Copyright 2001-2017 J. Schilling */
+/* @(#)xheader.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.91 17/10/07 Copyright 2001-2017 J. Schilling";
+	"@(#)xheader.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2017 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,6 +45,7 @@ static	UConst char sccsid[] =
 
 extern	BOOL	no_xheader;
 extern	BOOL	nowarn;
+extern	BOOL	copyflag;
 
 extern	GINFO	*grip;				/* Global read info pointer	*/
 
@@ -130,7 +131,9 @@ LOCAL	void	get_dir		__PR((FINFO *info, char *keyword, int klen, char *arg, int l
 LOCAL	void	get_iarray	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_release	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	unsup_arg	__PR((char *keyword, char *arg));
 LOCAL	void	bad_utf8	__PR((char *keyword, char *arg));
 
 /*
@@ -186,7 +189,7 @@ LOCAL xtab_t xtab[] = {
 
 			{ "charset",		7, get_dummy,	0	},
 			{ "comment",		7, get_dummy,	0	},
-			{ "hdrcharset",		10, get_dummy,	0	},
+			{ "hdrcharset",		10, get_hdrcharset,	0	},
 /* "BINARY" */
 
 			{ "SCHILY.devmajor",	15, get_major,	0	},
@@ -983,7 +986,7 @@ gen_text(keyword, arg, alen, flags)
 
 	i = len;
 	if (flags & T_UTF8)
-		i *= 2;			/* UTF-8 Factor may be up to 6!	    */
+		i *= 6;			/* UTF-8 Factor may be up to 6!	    */
 	if ((xbidx + i) > xblen)
 		xbgrow(i);
 
@@ -994,8 +997,8 @@ gen_text(keyword, arg, alen, flags)
 	--p,			/* Overshoot compensation		    */
 	*p++ = '=';		/* Fill in '=' after keyword field	    */
 
-	if (flags & T_UTF8) {
-		i = to_utf8l((Uchar *)p, (Uchar *)arg, alen);
+	if (flags & T_UTF8 && !copyflag) {
+		i = to_utf8((Uchar *)p, i, (Uchar *)arg, alen);
 		p += i + 1;
 	} else {
 		p = movebytes(arg, p, alen);
@@ -1687,8 +1690,8 @@ get_gid(info, keyword, klen, arg, len)
  * Space for returning user/group names.
  * XXX If we ever change to use allocated space, we need to change info_xcopy()
  */
-LOCAL	Uchar	_uname[MAX_UNAME+1];
-LOCAL	Uchar	_gname[MAX_UNAME+1];
+LOCAL	Uchar	_uname[MAX_UNAME+2];
+LOCAL	Uchar	_gname[MAX_UNAME+2];
 
 /*
  * get user name (if name length is > 32 chars or if contains non ASCII chars)
@@ -1706,14 +1709,19 @@ get_uname(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_UNAME;
 		return;
 	}
-	if (strlen(arg) > MAX_UNAME) {
+	if (len > MAX_UNAME) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
-	if (from_utf8(_uname, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy((char *)_uname, arg);
 		info->f_xflags |= XF_UNAME;
 		info->f_uname = (char *)_uname;
-		info->f_umaxlen = strlen((char *)_uname);
+		info->f_umaxlen = len;
+	} else if (from_utf8(_uname, sizeof (_uname), (Uchar *)arg, &len)) {
+		info->f_xflags |= XF_UNAME;
+		info->f_uname = (char *)_uname;
+		info->f_umaxlen = len;
 	} else {
 		bad_utf8(keyword, arg);
 	}
@@ -1735,14 +1743,19 @@ get_gname(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_GNAME;
 		return;
 	}
-	if (strlen(arg) > MAX_UNAME) {
+	if (len > MAX_UNAME) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
-	if (from_utf8(_gname, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy((char *)_gname, arg);
 		info->f_xflags |= XF_GNAME;
 		info->f_gname = (char *)_gname;
-		info->f_gmaxlen = strlen((char *)_gname);
+		info->f_gmaxlen = len;
+	} else if (from_utf8(_gname, sizeof (_gname), (Uchar *)arg, &len)) {
+		info->f_xflags |= XF_GNAME;
+		info->f_gname = (char *)_gname;
+		info->f_gmaxlen = len;
 	} else {
 		bad_utf8(keyword, arg);
 	}
@@ -1764,7 +1777,7 @@ get_path(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_PATH;
 		return;
 	}
-	if (strlen(arg) > PATH_MAX) {
+	if (len > PATH_MAX) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
@@ -1773,7 +1786,10 @@ get_path(info, keyword, klen, arg, len)
 	 */
 	if (info->f_name == NULL)
 		return;
-	if (from_utf8((Uchar *)info->f_name, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy(info->f_name, arg);
+		info->f_xflags |= XF_PATH;
+	} else if (from_utf8((Uchar *)info->f_name, PATH_MAX+1, (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_PATH;
 	} else {
 		bad_utf8(keyword, arg);
@@ -1796,7 +1812,7 @@ get_lpath(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_LINKPATH;
 		return;
 	}
-	if (strlen(arg) > PATH_MAX) {
+	if (len > PATH_MAX) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
@@ -1805,7 +1821,10 @@ get_lpath(info, keyword, klen, arg, len)
 	 */
 	if (info->f_lname == NULL)
 		return;
-	if (from_utf8((Uchar *)info->f_lname, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy(info->f_lname, arg);
+		info->f_xflags |= XF_LINKPATH;
+	} else if (from_utf8((Uchar *)info->f_lname, PATH_MAX+1, (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_LINKPATH;
 	} else {
 		bad_utf8(keyword, arg);
@@ -2065,7 +2084,7 @@ get_dev(info, keyword, klen, arg, len)
 			 */
 			if (geterrno() ||
 			    info->f_devmaj != major(info->f_dev) ||
-			    info->f_devmin != minor (info->f_dev) ||
+			    info->f_devmin != minor(info->f_dev) ||
 			    (Ullong)info->f_dev != ull) {
 				xh_rangeerr(keyword, arg, len);
 				info->f_dev = 0;
@@ -2238,7 +2257,13 @@ get_acl_access(info, keyword, klen, arg, len)
 		grow_pspace(PS_EXIT, &acl_access_text, (len + 2));
 	if (acl_access_text.ps_path == NULL)
 		return;
-	if (from_utf8((Uchar *)acl_access_text.ps_path, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy(acl_access_text.ps_path, arg);
+		info->f_xflags |= XF_ACL_ACCESS;
+		info->f_acl_access = acl_access_text.ps_path;
+	} else if (from_utf8((Uchar *)acl_access_text.ps_path,
+		    acl_access_text.ps_size,
+		    (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_ACL_ACCESS;
 		info->f_acl_access = acl_access_text.ps_path;
 	} else {
@@ -2264,7 +2289,13 @@ get_acl_default(info, keyword, klen, arg, len)
 		grow_pspace(PS_EXIT, &acl_default_text, (len + 2));
 	if (acl_default_text.ps_path == NULL)
 		return;
-	if (from_utf8((Uchar *)acl_default_text.ps_path, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy(acl_default_text.ps_path, arg);
+		info->f_xflags |= XF_ACL_DEFAULT;
+		info->f_acl_default = acl_default_text.ps_path;
+	} else if (from_utf8((Uchar *)acl_default_text.ps_path,
+		    acl_default_text.ps_size,
+		    (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_ACL_DEFAULT;
 		info->f_acl_default = acl_default_text.ps_path;
 	} else {
@@ -2292,7 +2323,13 @@ get_acl_ace(info, keyword, klen, arg, len)
 		grow_pspace(PS_EXIT, &acl_ace_text, (len + 2));
 	if (acl_ace_text.ps_path == NULL)
 		return;
-	if (from_utf8((Uchar *)acl_ace_text.ps_path, (Uchar *)arg)) {
+	if (ginfo.f_xflags & XF_BINARY) {
+		strcpy(acl_ace_text.ps_path, arg);
+		info->f_xflags |= XF_ACL_ACE;
+		info->f_acl_ace = acl_ace_text.ps_path;
+	} else if (from_utf8((Uchar *)acl_ace_text.ps_path,
+		    acl_ace_text.ps_size,
+		    (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_ACL_ACE;
 		info->f_acl_ace = acl_ace_text.ps_path;
 	} else {
@@ -2404,10 +2441,14 @@ get_dir(info, keyword, klen, arg, len)
 	if (arg[len-2] != '\0')
 		arg[len++] = '\0';	/* Kill '\n' */
 
-	/*
-	 * The non UTF-8 string is shorter so we convert in place.
-	 */
-	from_utf8l((Uchar *)arg, (Uchar *)arg, &len);
+	if (ginfo.f_xflags & XF_BINARY) {
+		;
+	} else {
+		/*
+		 * The non UTF-8 string is shorter so we convert in place.
+		 */
+		from_utf8((Uchar *)arg, len, (Uchar *)arg, &len);
+	}
 	info->f_dir = arg;
 	info->f_dirlen = len;
 }
@@ -2494,10 +2535,14 @@ get_release(info, keyword, klen, arg, len)
 		grip->gflags &= ~GF_RELEASE;
 		return;
 	}
-	/*
-	 * The non UTF-8 string is shorter so we convert in place.
-	 */
-	from_utf8l((Uchar *)arg, (Uchar *)arg, &len);
+	if (ginfo.f_xflags & XF_BINARY) {
+		;
+	} else {
+		/*
+		 * The non UTF-8 string is shorter so we convert in place.
+		 */
+		from_utf8((Uchar *)arg, len, (Uchar *)arg, &len);
+	}
 	grip->gflags |= GF_RELEASE;
 	grip->release = ___savestr(arg);
 }
@@ -2521,6 +2566,31 @@ get_archtype(info, keyword, klen, arg, len)
 }
 
 /*
+ * Get the charset used for path, linkpath, uname and gname.
+ */
+/* ARGSUSED */
+LOCAL void
+get_hdrcharset(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+#ifdef	__needed__
+	BOOL	is_global = info == &ginfo;
+#endif
+
+	if (len == 23 && streql("ISO-IR 10646 2000 UTF-8", arg)) {
+		info->f_xflags &= ~XF_BINARY;
+	} else if (len == 6 && streql("BINARY", arg)) {
+		info->f_xflags |= XF_BINARY;
+	} else {
+		unsup_arg(keyword, arg);
+	}
+}
+
+/*
  * Dummy 'get' function used for all fields that we don't yet understand or
  * fields that we indent to ignore.
  */
@@ -2533,6 +2603,16 @@ get_dummy(info, keyword, klen, arg, len)
 	char	*arg;
 	int	len;
 {
+}
+
+LOCAL void
+unsup_arg(keyword, arg)
+	char	*keyword;
+	char	*arg;
+{
+	errmsgno(EX_BAD,
+		"Unsupported arg '%s' for '%s' in extended header at %lld.\n",
+		arg, keyword, tblocks());
 }
 
 LOCAL void

@@ -1,8 +1,8 @@
-/* @(#)header.c	1.165 18/04/24 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.168 18/05/17 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.165 18/04/24 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.168 18/05/17 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -68,7 +68,8 @@ LOCAL	htab_t	htab[] = {
 /* 8 */	{ "xustar",	"'xstar' format without tar signature",	H_XUSTAR, 0	},
 /* 9 */	{ "exustar",	"'xustar' format - always x-header",	H_EXUSTAR, 0	},
 /*10 */	{ "pax",	"Extended POSIX.1-2001 standard tar",	H_PAX,    0	},
-/*11 */	{ "suntar",	"Sun's extended pre-POSIX.1-2001",	H_SUNTAR, 0	},
+/*11 */	{ "epax",	"Extended POSIX.1-2001 standard tar + x-header",	H_EPAX,    0	},
+/*12 */	{ "suntar",	"Sun's extended pre-POSIX.1-2001",	H_SUNTAR, 0	},
 
 /*15 */	{ "bar",	"SunOS 4.x bar format",			H_BAR,    HF_RO	},
 
@@ -943,6 +944,17 @@ get_tcb(ptb)
 			}
 			setprops(hdrtype);
 			/*
+			 * If the archive format contains extended headers, we
+			 * need to set up iconv().
+			 */
+			if (props.pr_flags & PR_XHDR) {
+				int	t = S_EXTRACT;
+
+				if (rflag || uflag)
+					t |= S_CREATE;
+				utf8_init(t);	/* iconv() setup for xhd */
+			}
+			/*
 			 * Wake up fifo (first block has been swapped above)
 			 * buf_resume() will trigger a shadow call to
 			 * setprops() in the fifo process to make sure that
@@ -1001,6 +1013,7 @@ get_tcb(ptb)
 					return (0);
 				break;
 			case H_PAX:
+			case H_EPAX:
 			case H_USTAR:
 			case H_SUNTAR:
 				if (ismagic(tmagic))
@@ -1271,6 +1284,8 @@ info_to_tcb(info, ptb)
 	if (H_TYPE(hdrtype) == H_USTAR) {
 		info_to_ustar(info, ptb);
 	} else if (H_TYPE(hdrtype) == H_PAX) {
+		info_to_ustar(info, ptb);
+	} else if (H_TYPE(hdrtype) == H_EPAX) {
 		info_to_ustar(info, ptb);
 	} else if (H_TYPE(hdrtype) == H_SUNTAR) {
 		info_to_ustar(info, ptb);
@@ -1737,6 +1752,7 @@ static	BOOL	modewarn = FALSE;
 		tar_to_info(ptb, info);
 		break;
 	case H_PAX:
+	case H_EPAX:
 	case H_USTAR:
 	case H_SUNTAR:
 		ustar_to_info(ptb, info);

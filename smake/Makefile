@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.20 18/03/14 
+#ident @(#)Makefile	1.21 18/05/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,6 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		smake
 CPPOPTS +=	-DUSE_LARGEFILES
+CPPOPTS +=	-DUSE_NSECS		# Enable nanosecond time resolution
 CPPOPTS +=	-DNO_COMPAT '-DDEFAULTS_PATH="$(INS_BASE)/share/lib/smake/defaults.smk"'
 CPPOPTS +=	-DSCHILY_PRINT
 

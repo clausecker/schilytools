@@ -1,8 +1,8 @@
-/* @(#)cond.c	1.28 18/03/20 Copyright 1985-2018 J. Schilling */
+/* @(#)cond.c	1.29 18/05/03 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cond.c	1.28 18/03/20 Copyright 1985-2018 J. Schilling";
+	"@(#)cond.c	1.29 18/05/03 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -338,9 +338,9 @@ parseuntil(task, ilev, std, vpp)
 		printf("'%s' ", vpp[i]);
 	printf("at level %d\n", ilev);
 #endif
-	if (!sp)
-		return (-1);
 	for (;;) {
+		if (!sp)
+			return (-1);
 #ifdef DEBUG
 		if (ilev != sp->s_level)
 			printf("        %s line '%s' (level=%d).\n",

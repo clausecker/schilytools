@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.19 16/11/14 Copyright 2006-2016 J. Schilling */
+/* @(#)inode.c	1.20 18/05/14 Copyright 2006-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.19 16/11/14 Copyright 2006-2015 J. Schilling";
+	"@(#)inode.c	1.20 18/05/14 Copyright 2006-2016 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -14,22 +14,9 @@ static	UConst char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2016 J. Schilling
+ *	Copyright (c) 2006-2018 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
+/*@@C@@*/
 
 #include "mkisofs.h"
 #include <schily/schily.h>
@@ -209,6 +196,8 @@ compute_linkcount(dpnt)
 			 */
 			if (s_entry->isorec.flags[0] & ISO_DIRECTORY)
 				continue;
+			if (s_entry->isorec.flags[0] & ISO_MULTIEXTENT)
+				continue;
 			if (s_entry->de_flags & RELOCATED_DIRECTORY)
 				continue;
 
@@ -291,6 +280,8 @@ assign_linkcount(dpnt)
 		s_entry = dpnt->contents;
 		for (s_entry = dpnt->contents; s_entry; s_entry = s_entry->next) {
 			if (s_entry->isorec.flags[0] & ISO_DIRECTORY)
+				continue;
+			if (s_entry->isorec.flags[0] & ISO_MULTIEXTENT)
 				continue;
 			if (s_entry->de_flags & RELOCATED_DIRECTORY)
 				continue;

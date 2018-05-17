@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.91 18/04/24 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.c	1.92 18/05/06 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.91 18/04/24 Copyright 1993-2018 J. Schilling";
+	"@(#)diff.c	1.92 18/05/06 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -284,7 +284,7 @@ diff_tcb(info)
 	}
 
 	/*
-	 * XXX nsec beachten wenn im Archiv!
+	 * nsec beachten wenn im Archiv!
 	 */
 	if ((diffopts & D_ATIME) != 0) {
 		if (info->f_atime != finfo.f_atime) {

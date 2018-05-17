@@ -1,13 +1,13 @@
-/* @(#)list.c	1.77 17/11/08 Copyright 1985, 1995, 2000-2017 J. Schilling */
+/* @(#)list.c	1.78 18/05/06 Copyright 1985, 1995, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.77 17/11/08 Copyright 1985, 1995, 2000-2017 J. Schilling";
+	"@(#)list.c	1.78 18/05/06 Copyright 1985, 1995, 2000-2018 J. Schilling";
 #endif
 /*
  *	List the content of an archive
  *
- *	Copyright (c) 1985, 1995, 2000-2017 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -128,7 +128,7 @@ extern	struct WALK walkstate;
 
 		if (listnew || listnewf) {
 			/*
-			 * XXX nsec beachten wenn im Archiv!
+			 * nsec beachten wenn im Archiv!
 			 */
 			if (((finfo.f_mtime > newinfo.f_mtime) ||
 			    ((finfo.f_xflags & XF_MTIME) &&

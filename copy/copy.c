@@ -1,13 +1,13 @@
-/* @(#)copy.c	1.50 13/07/30 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling */
+/* @(#)copy.c	1.51 18/05/10 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.50 13/07/30 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling";
+	"@(#)copy.c	1.51 18/05/10 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	copy files ...
  *
- *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling
+ *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -51,7 +51,6 @@ static	UConst char sccsid[] =
 #include <schily/param.h>	/* DEV_BSIZE */
 #include <schily/stat.h>
 #include <schily/time.h>
-#include <schily/utime.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
 #include <schily/maxpath.h>
@@ -302,8 +301,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2013 %s\n"),
-				"1.50",
+		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2018 %s\n"),
+				"1.51",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -852,26 +851,15 @@ xutimes(name, sp)
 	char	*name;
 	STATBUF	*sp;
 {
-#ifdef	HAVE_UTIMES
-	struct	timeval tp[2];
+	struct	timespec tp[2];
 
 	tp[0].tv_sec = sp->st_atime;
 	tp[1].tv_sec = sp->st_mtime;
 
-	tp[0].tv_usec = stat_ansecs(sp) / 1000;
-	tp[1].tv_usec = stat_mnsecs(sp) / 1000;
+	tp[0].tv_nsec = stat_ansecs(sp);
+	tp[1].tv_nsec = stat_mnsecs(sp);
 
-	return (utimes(name, tp));
-
-#else	/* HAVE_UTIMES */
-
-	struct utimbuf ut;
-
-	ut.actime = sp->st_atime;
-	ut.modtime = sp->st_mtime;
-	return (utime(name, &ut));
-
-#endif	/* HAVE_UTIMES */
+	return (utimens(name, tp));
 }
 
 LOCAL BOOL
@@ -1025,6 +1013,8 @@ sparse_copy(fin, fout, from, to, fsize)
 
 #ifdef	_PC_MIN_HOLE_SIZE
 		size = fpathconf(fout, _PC_MIN_HOLE_SIZE);
+#else
+		size = 0;
 #endif
 		if (size <= 0)
 			size = 8192;

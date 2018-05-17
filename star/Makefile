@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.28 17/01/28 
+#ident @(#)Makefile	1.29 18/05/17 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -21,14 +21,15 @@ CPPOPTS +=	-DSET_CTIME -DFIFO -DUSE_MMAP -DUSE_REMOTE -DUSE_RCMD_RSH
 #CPPOPTS +=	-DSET_CTIME -DFIFO -DUSE_MMAP
 #CPPOPTS +=	-DSET_CTIME -DUSE_MMAP
 #CPPOPTS +=	-DFIFO -DUSE_MMAP
-CPPOPTS +=	-DUSE_LARGEFILES
-CPPOPTS +=	-DUSE_FIND
-CPPOPTS +=	-DUSE_ACL
-CPPOPTS +=	-DUSE_XATTR
-CPPOPTS +=	-DUSE_FFLAGS
-CPPOPTS +=	-DCOPY_LINKS_DELAYED
-CPPOPTS +=	-DSTAR_FAT
-CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DUSE_LARGEFILES	# Support files > 2 GB
+CPPOPTS +=	-DUSE_FIND		# Include support for libfind
+CPPOPTS +=	-DUSE_ACL		# Support file ACLs
+CPPOPTS +=	-DUSE_XATTR		# Support (currently Linux) xattr
+CPPOPTS +=	-DUSE_FFLAGS		# Support BSD style file flags
+CPPOPTS +=	-DCOPY_LINKS_DELAYED	# Delayed copy of hard/symlinks
+CPPOPTS +=	-DSTAR_FAT		# One binary for all CLI's
+CPPOPTS +=	-DUSE_ICONV		# Use iconv() for pax filenames
+CPPOPTS +=	-DUSE_NLS		# Include locale support
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \

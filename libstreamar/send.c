@@ -1,13 +1,13 @@
-/* @(#)send.c	1.4 17/02/15 Copyright 2011-2017 J. Schilling */
+/* @(#)send.c	1.5 18/05/17 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)send.c	1.4 17/02/15 Copyright 2011-2017 J. Schilling";
+	"@(#)send.c	1.5 18/05/17 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Send data for a StreamArchive to the output file
  *
- *	Copyright (c) 2011-2017 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -88,6 +88,7 @@ strar_st_send(s, sp)
 	int	ret = 0;
 	int	type;
 	int	xflags = s->f_xflags;
+	int	utf8 = (s->f_xflags & XF_BINARY) ? 0 : T_UTF8;
 	char	buf[32*1024];
 
 #define	MAX_UNAME	64	/* The maximum length of a user/group name */
@@ -107,7 +108,10 @@ strar_st_send(s, sp)
 		return (-1);
 	}
 
-	strar_gen_text("path", s->f_name, -1, 0);
+	if (!utf8)
+		strar_gen_text("hdrcharset", "BINARY", -1, 0);
+
+	strar_gen_text("path", s->f_name, -1, utf8);
 
 	if (type == XT_SLINK) {
 		int	llen;
@@ -118,7 +122,7 @@ strar_st_send(s, sp)
 			 * string from readlink is not null terminated
 			 */
 			buf[llen] = '\0';
-			strar_gen_text("linkpath", buf, -1, 0);
+			strar_gen_text("linkpath", buf, -1, utf8);
 		}
 	}
 	if (s->f_cmdflags & CMD_VERBOSE) {
@@ -155,12 +159,12 @@ strar_st_send(s, sp)
 	if (xflags & XF_UNAME) {
 		ic_nameuid(name, sizeof (name)-1, sp->st_uid);
 		if (name[0])
-			strar_gen_text("uname", name, -1, 0);
+			strar_gen_text("uname", name, -1, utf8);
 	}
 	if (xflags & XF_GNAME) {
 		ic_namegid(name, sizeof (name)-1, sp->st_gid);
 		if (name[0])
-			strar_gen_text("gname", name, -1, 0);
+			strar_gen_text("gname", name, -1, utf8);
 	}
 
 	if (type > XT_DIR) {

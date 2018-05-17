@@ -1,8 +1,8 @@
-/* @(#)header.c	1.92 17/02/15 Copyright 2001-2017 J. Schilling */
+/* @(#)header.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.92 17/02/15 Copyright 2001-2017 J. Schilling";
+	"@(#)header.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines for StreamArchive header metadata.
@@ -18,7 +18,7 @@ static	UConst char sccsid[] =
  *	include any UTF-8 character, the "value" is using UTF-8 or
  *	binary data.
  *
- *	Copyright (c) 2001-2017 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -73,8 +73,10 @@ LOCAL	BOOL	nowarn;
 /*
  * Flags for gen_text()
  */
+#ifndef	T_ADDSLASH
 #define	T_ADDSLASH	1	/* Add slash to the argument	*/
 #define	T_UTF8		2	/* Convert arg to UTF-8 coding	*/
+#endif
 
 typedef struct _unknown unkn_t;
 
@@ -131,7 +133,9 @@ LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int l
 LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	unsup_arg	__PR((char *keyword, char *arg));
 LOCAL	void	bad_utf8	__PR((char *keyword, char *arg));
 
 /*
@@ -184,7 +188,7 @@ LOCAL xtab_t xtab[] = {
 
 			{ "charset",		7, get_dummy,	0	},
 			{ "comment",		7, get_dummy,	0	},
-			{ "hdrcharset",		10, get_dummy,	0	},
+			{ "hdrcharset",		10, get_hdrcharset,	0	},
 
 			{ "devmajor",		8, get_major,	0	},
 			{ "devminor",		8, get_minor,	0	},
@@ -668,7 +672,7 @@ gen_text(keyword, arg, alen, flags)
 
 	i = len;
 	if (flags & T_UTF8)
-		i *= 2;			/* UTF-8 Factor may be up to 6!	    */
+		i *= 6;			/* UTF-8 Factor may be up to 6!	    */
 	if ((xbidx + i) > xblen)
 		xbgrow(i);
 
@@ -680,7 +684,7 @@ gen_text(keyword, arg, alen, flags)
 	*p++ = '=';		/* Fill in '=' after keyword field	    */
 
 	if (flags & T_UTF8) {
-		i = to_utf8l((Uchar *)p, (Uchar *)arg, alen);
+		i = to_utf8((Uchar *)p, i, (Uchar *)arg, alen);
 		p += i + 1;
 	} else {
 		p = movebytes(arg, p, alen);
@@ -1168,8 +1172,8 @@ get_gid(info, keyword, klen, arg, len)
  * Space for returning user/group names.
  * XXX If we ever change to use allocated space, we need to change info_xcopy()
  */
-LOCAL	Uchar	_uname[MAX_UNAME+1];
-LOCAL	Uchar	_gname[MAX_UNAME+1];
+LOCAL	Uchar	_uname[MAX_UNAME+2];
+LOCAL	Uchar	_gname[MAX_UNAME+2];
 
 /*
  * get user name (if name length is > 32 chars or if contains non ASCII chars)
@@ -1187,14 +1191,19 @@ get_uname(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_UNAME;
 		return;
 	}
-	if (strlen(arg) > MAX_UNAME) {
+	if (len > MAX_UNAME) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
-	if (from_utf8(_uname, (Uchar *)arg)) {
+	if (info->f_xflags & XF_BINARY) {
+		strcpy((char *)_uname, arg);
 		info->f_xflags |= XF_UNAME;
 		info->f_uname = (char *)_uname;
-		info->f_umaxlen = strlen((char *)_uname);
+		info->f_umaxlen = len;
+	} else if (from_utf8(_uname, sizeof (_uname), (Uchar *)arg, &len)) {
+		info->f_xflags |= XF_UNAME;
+		info->f_uname = (char *)_uname;
+		info->f_umaxlen = len;
 	} else {
 		bad_utf8(keyword, arg);
 	}
@@ -1216,14 +1225,19 @@ get_gname(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_GNAME;
 		return;
 	}
-	if (strlen(arg) > MAX_UNAME) {
+	if (len > MAX_UNAME) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
-	if (from_utf8(_gname, (Uchar *)arg)) {
+	if (info->f_xflags & XF_BINARY) {
+		strcpy((char *)_gname, arg);
 		info->f_xflags |= XF_GNAME;
 		info->f_gname = (char *)_gname;
-		info->f_gmaxlen = strlen((char *)_gname);
+		info->f_gmaxlen = len;
+	} else if (from_utf8(_gname, sizeof (_gname), (Uchar *)arg, &len)) {
+		info->f_xflags |= XF_GNAME;
+		info->f_gname = (char *)_gname;
+		info->f_gmaxlen = len;
 	} else {
 		bad_utf8(keyword, arg);
 	}
@@ -1245,7 +1259,7 @@ get_path(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_PATH;
 		return;
 	}
-	if (strlen(arg) > PATH_MAX) {
+	if (len > PATH_MAX) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
@@ -1254,7 +1268,10 @@ get_path(info, keyword, klen, arg, len)
 	 */
 	if (info->f_name == NULL)
 		return;
-	if (from_utf8((Uchar *)info->f_name, (Uchar *)arg)) {
+	if (info->f_xflags & XF_BINARY) {
+		strcpy(info->f_name, arg);
+		info->f_xflags |= XF_PATH;
+	} else if (from_utf8((Uchar *)info->f_name, PATH_MAX+1, (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_PATH;
 	} else {
 		bad_utf8(keyword, arg);
@@ -1277,7 +1294,7 @@ get_lpath(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_LINKPATH;
 		return;
 	}
-	if (strlen(arg) > PATH_MAX) {
+	if (len > PATH_MAX) {
 		print_toolong(keyword, arg, len);
 		return;
 	}
@@ -1286,7 +1303,10 @@ get_lpath(info, keyword, klen, arg, len)
 	 */
 	if (info->f_lname == NULL)
 		return;
-	if (from_utf8((Uchar *)info->f_lname, (Uchar *)arg)) {
+	if (info->f_xflags & XF_BINARY) {
+		strcpy(info->f_lname, arg);
+		info->f_xflags |= XF_LINKPATH;
+	} else if (from_utf8((Uchar *)info->f_lname, PATH_MAX+1, (Uchar *)arg, &len)) {
 		info->f_xflags |= XF_LINKPATH;
 	} else {
 		bad_utf8(keyword, arg);
@@ -1624,6 +1644,27 @@ get_archtype(info, keyword, klen, arg, len)
 }
 
 /*
+ * Get the charset used for path, linkpath, uname and gname.
+ */
+/* ARGSUSED */
+LOCAL void
+get_hdrcharset(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	if (len == 23 && streql("ISO-IR 10646 2000 UTF-8", arg)) {
+		info->f_xflags &= ~XF_BINARY;
+	} else if (len == 6 && streql("BINARY", arg)) {
+		info->f_xflags |= XF_BINARY;
+	} else {
+		unsup_arg(keyword, arg);
+	}
+}
+
+/*
  * Dummy 'get' function used for all fields that we don't yet understand or
  * fields that we indent to ignore.
  */
@@ -1636,6 +1677,16 @@ get_dummy(info, keyword, klen, arg, len)
 	char	*arg;
 	int	len;
 {
+}
+
+LOCAL void
+unsup_arg(keyword, arg)
+	char	*keyword;
+	char	*arg;
+{
+	errmsgno(EX_BAD,
+		"Unsupported arg '%s' for '%s' in extended header.\n",
+		arg, keyword);
 }
 
 LOCAL void

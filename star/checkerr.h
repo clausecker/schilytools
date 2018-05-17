@@ -1,8 +1,8 @@
-/* @(#)checkerr.h	1.12 12/11/13 Copyright 2003-2012 J. Schilling */
+/* @(#)checkerr.h	1.13 18/05/15 Copyright 2003-2018 J. Schilling */
 /*
  *	Error control for star.
  *
- *	Copyright (c) 2003-2012 J. Schilling
+ *	Copyright (c) 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -40,9 +42,10 @@ extern "C" {
 #define	E_READLINK	0x0800		/* Could not read symbolic link	   */
 #define	E_GETXATTR	0x1000		/* Could not get xattr		   */
 #define	E_CHDIR		0x2000		/* Could not chdir()		   */
+#define	E_ICONV		0x4000		/* Could not convert via iconv()   */
 
 /*
- * Currently unused: 0x4000 .. 0x8000
+ * Currently unused: 0x8000 .. 0x8000
  */
 
 #define	E_SETTIME	0x10000		/* Could not set file times	   */

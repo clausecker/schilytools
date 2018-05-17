@@ -1,4 +1,4 @@
-#ident "@(#)shlstreamar.mk	1.1 17/02/14 "
+#ident "@(#)shlstreamar.mk	1.2 18/05/17 "
 ###########################################################################
 # Sample makefile for non-shared libraries
 ###########################################################################
@@ -12,6 +12,7 @@ INSDIR=		lib
 TARGETLIB=	streamar
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DUSE_ICONV
 
 include		Targets
 

@@ -1,11 +1,11 @@
-/* @(#)strar.h	1.4 17/02/15 Copyright 2001-2017 J. Schilling */
+/* @(#)strar.h	1.5 18/05/17 Copyright 2001-2018 J. Schilling */
 /*
  *	Defitions for the stream archive interfaces.
  *
  *	A stream archive is based on the method used for
  *	POSIX tar extended headers
  *
- *	Copyright (c) 2001-2017 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -141,6 +141,8 @@ typedef	FINFO	strar;
 #define	XF_MODE		0x800000 /* File mode				  */
 #define	XF_FILETYPE	0x1000000 /* File type				  */
 
+#define	XF_BINARY    0x20000000	/* Binary path/usr/group in x-header	  */
+
 #define	XF_BASE_FILEMETA (XF_FILETYPE | XF_MODE)
 #define	XF_ALL_FILEMETA	(XF_FILETYPE | XF_MODE | \
 			XF_ATIME | XF_MTIME | XF_CTIME | \
@@ -163,7 +165,7 @@ typedef	FINFO	strar;
 #define	OM_ARFD		4
 
 extern	int	strar_open	__PR((strar *s, const char *name, int arfd,
-					int mode));
+					int mode, const char *codeset));
 extern	int	strar_close	__PR((strar *s));
 extern	void	strar_init	__PR((strar *s));
 extern	void	strar_reset	__PR((strar *s));

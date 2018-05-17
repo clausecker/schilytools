@@ -1,8 +1,8 @@
-/* @(#)star.c	1.362 18/04/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.364 18/05/17 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.362 18/04/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.364 18/05/17 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -112,7 +112,7 @@ EXPORT	BOOL	ttyerr		__PR((FILE *f));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5.3";		/* The pure version string	*/
+char	strvers[] = "1.5.4";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -301,6 +301,7 @@ char	*const *find_pav = NULL;	/* av for first find primary	*/
 findn_t	*find_node;			/* syntaxtree from find_parse()	*/
 void	*plusp;				/* residual for -exec ...{} +	*/
 int	find_patlen;			/* len for -find pattern state	*/
+char	*codeset = "ISO8859-1";
 
 LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT |
 				    WALK_STRIPLDOT;
@@ -316,6 +317,9 @@ int	intr	  = 0;		/* Did catch a ^C	*/
 
 BOOL	do_subst;
 
+/*
+ * _grinfo is only used to read the information.
+ */
 GINFO	_ginfo;				/* Global (volhdr) information	*/
 GINFO	_grinfo;			/* Global read information	*/
 GINFO	*gip  = &_ginfo;		/* Global information pointer	*/
@@ -359,7 +363,11 @@ main(ac, av)
 	save_args(ac, av);
 
 #ifdef  USE_NLS
-	setlocale(LC_ALL, "");
+	if (setlocale(LC_ALL, "") != NULL) {
+#ifdef	CODESET
+		codeset = nl_langinfo(CODESET);
+#endif
+	}
 
 #if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
 #define	TEXT_DOMAIN "star"	/* Use this only if it weren't */
@@ -446,6 +454,12 @@ main(ac, av)
 
 	star_mkvers();		/* Create version string */
 	setprops(chdrtype);	/* Set up properties for archive format */
+	/*
+	 * If the archive format contains extended headers, we
+	 * need to set up iconv().
+	 */
+	if (cflag && props.pr_flags & PR_XHDR)
+		utf8_init(S_CREATE); /* Init. iconv() setup for xheader */
 
 	if (!(rflag || uflag) || chdrtype != H_UNDEF)
 		star_verifyopts(); /* Chk if options are valid for chdrtype */

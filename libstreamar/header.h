@@ -1,8 +1,8 @@
-/* @(#)header.h	1.1 17/02/14 Copyright 2001-2017 J. Schilling */
+/* @(#)header.h	1.2 18/05/17 Copyright 2001-2018 J. Schilling */
 /*
  *	Defitions for the stream archive internal interfaces.
  *
- *	Copyright (c) 2001-2017 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,22 @@
 #include <schily/utypes.h>
 #endif
 
+#ifndef _SCHILY_STRAR_H
+#include <schily/strar.h>
+#endif
+
+/*
+ * Flags for gen_text()
+ */
+#define	T_ADDSLASH	1	/* Add slash to the argument	*/
+#define	T_UTF8		2	/* Convert arg to UTF-8 coding	*/
+
+/*
+ * Transfer direction types for utf8_init()
+ */
+#define	S_CREATE	1
+#define	S_EXTRACT	2
+
 extern	void	strar_xbreset		__PR((void));
 extern	char	*strar_gxbuf		__PR((void));
 extern	int	strar_gxbsize		__PR((void));
@@ -44,11 +60,15 @@ extern	void	strar_gen_unumber	__PR((char *keyword, ULlong arg));
 
 extern	BOOL	strar_xhparse		__PR((FINFO *info, char	*p, char *ep));
 
-extern	int	to_utf8			__PR((Uchar *to, Uchar *from));
-extern	int	to_utf8l		__PR((Uchar *to, Uchar *from,
-						int len));
-extern	BOOL	from_utf8		__PR((Uchar *to, Uchar *from));
-extern	BOOL	from_utf8l		__PR((Uchar *to, Uchar *from,
-						int *len));
+/*
+ * unicode.c
+ */
+extern	void	utf8_codeset	__PR((const char *code_set));
+extern	void	utf8_init	__PR((int type));
+extern	void	utf8_fini	__PR((void));
+extern	int	to_utf8		__PR((Uchar *to, int tolen,
+					Uchar *from, int len));
+extern	BOOL	from_utf8	__PR((Uchar *to, int tolen,
+					Uchar *from, int *len));
 
 #endif	/* _HEADER_H */

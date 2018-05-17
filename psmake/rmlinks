@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.24 13/10/24 Copyright 1999-2013 J. Schilling
+# @(#)rmlinks	1.25 18/05/16 Copyright 1999-2013 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -84,6 +84,7 @@ rm -f eaccess.c
 rm -f error.c
 rm -f format.c
 rm -f getexecpath.c
+rm -f getnstimeofday.c
 rm -f printf.c
 rm -f sprintf.c
 rm -f saveargs.c

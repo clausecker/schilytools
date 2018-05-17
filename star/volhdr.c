@@ -1,13 +1,13 @@
-/* @(#)volhdr.c	1.37 17/10/07 Copyright 1994, 2003-2017 J. Schilling */
+/* @(#)volhdr.c	1.40 18/05/17 Copyright 1994, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.37 17/10/07 Copyright 1994, 2003-2017 J. Schilling";
+	"@(#)volhdr.c	1.40 18/05/17 Copyright 1994, 2003-2018 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
  *
- *	Copyright (c) 1994, 2003-2017 J. Schilling
+ *	Copyright (c) 1994, 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,6 +44,7 @@ static	UConst char sccsid[] =
 
 extern	FILE	*vpr;
 extern	BOOL	multivol;
+extern	BOOL	copyflag;
 extern	long	chdrtype;
 extern	char	*vers;
 extern	int	verbose;
@@ -214,7 +215,7 @@ xstrcpy(newp, old, p, len)
 /*
  * Set up the global GINFO *gip structure from a structure that just
  * has been read from the information on the current medium.
- * This structure is inside the shared memory if we are usinf the fifo.
+ * This structure is inside the shared memory if we are using the fifo.
  */
 EXPORT void
 gipsetup(gp)
@@ -263,18 +264,36 @@ extern	BOOL	use_fifo;
 	} else
 #endif
 	{
-		if (gp->label)
+		if (gp->label) {
+			if (gip->label)
+				free(gip->label);
 			gip->label = ___savestr(gp->label);
-		if (gp->filesys)
+		}
+		if (gp->filesys) {
+			if (gip->filesys)
+				free(gip->filesys);
 			gip->filesys = ___savestr(gp->filesys);
-		if (gp->cwd)
+		}
+		if (gp->cwd) {
+			if (gip->cwd)
+				free(gip->cwd);
 			gip->cwd = ___savestr(gp->cwd);
-		if (gp->hostname)
+		}
+		if (gp->hostname) {
+			if (gip->hostname)
+				free(gip->hostname);
 			gip->hostname = ___savestr(gp->hostname);
-		if (gp->release)
+		}
+		if (gp->release) {
+			if (gip->release)
+				free(gip->release);
 			gip->release = ___savestr(gp->release);
-		if (gp->device)
+		}
+		if (gp->device) {
+			if (gip->device)
+				free(gip->device);
 			gip->device = ___savestr(gp->device);
+		}
 	}
 	if (gp->volno > 1)		/* Allow to start with vol # != 1 */
 		stats->volno = gp->volno;
@@ -574,7 +593,7 @@ put_gvolhdr(name)
 		return;
 
 #ifndef	DEV_MINOR_NONCONTIG
-	gen_unumber("SCHILY.devminorbits", minorbits);	
+	gen_unumber("SCHILY.devminorbits", minorbits);
 #endif
 
 	gip->label = name;
@@ -614,6 +633,9 @@ put_gvolhdr(name)
 		gen_number("SCHILY.volhdr.blocksize", gip->blocksize);
 	if (gip->tapesize > 0)
 		gen_number("SCHILY.volhdr.tapesize", gip->tapesize);
+
+	if (copyflag)
+		gen_text("hdrcharset", "BINARY", -1, 0);
 
 	if ((xhsize() + 2 * TBLOCK) > (gip->blocksize * TBLOCK)) {
 		errmsgno(EX_BAD, "Panic: Tape record size too small.\n");

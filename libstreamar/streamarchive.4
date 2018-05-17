@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)streamarchive.4	1.1 17/02/15 Copyr 2017 J. Schilling
+. \" @(#)streamarchive.4	1.2 18/05/17 Copyr 2017-2018 J. Schilling
 . \" StreamArchive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -17,7 +17,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STREAMARCHIVE 4L "17/02/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STREAMARCHIVE 4L "2018/05/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 streamarchive \- StreamArchive file format
 .SH DESCRIPTION
@@ -82,6 +82,71 @@ The time from
 .B st_atime
 in sub second granularity. 
 A nanosecond granularity is currently supported.
+.TP
+.B charset
+The name of the character set used to encode the data in the following file(s).
+.RS
+.PP
+The following values are supported for
+.BR charset :
+.TP 25
+.B "ISO-IR 646 1990
+SO/IEC 646:1990
+.TP
+.B "ISO-IR 8859 1 1998
+ISO/IEC 8859-1:1998
+.TP
+.B "ISO-IR 8859 2 1998
+ISO/IEC 8859-2:1998
+.TP
+.B "ISO-IR 8859 3 1998
+ISO/IEC 8859-3:1998
+.TP
+.B "ISO-IR 8859 4 1998
+ISO/IEC 8859-4:1998
+.TP
+.B "ISO-IR 8859 5 1998
+ISO/IEC 8859-5:1998
+.TP
+.B "ISO-IR 8859 6 1998
+ISO/IEC 8859-6:1998
+.TP
+.B "ISO-IR 8859 7 1998
+ISO/IEC 8859-7:1998
+.TP
+.B "ISO-IR 8859 8 1998
+ISO/IEC 8859-8:1998
+.TP
+.B "ISO-IR 8859 9 1998
+ISO/IEC 8859-9:1998
+.TP
+.B "ISO-IR 8859 10 1998
+ISO/IEC 8859-10:1998
+.TP
+.B "ISO-IR 8859 11 1998
+ISO/IEC 8859-11:1998
+.TP
+.B "ISO-IR 8859 12 1998
+ISO/IEC 8859-12:1998
+.TP
+.B "ISO-IR 8859 13 1998
+ISO/IEC 8859-13:1998
+.TP
+.B "ISO-IR 8859 14 1998
+ISO/IEC 8859-14:1998
+.TP
+.B "ISO-IR 8859 15 1998
+ISO/IEC 8859-15:1998
+.TP
+.B "ISO-IR 10646 2000
+ISO/IEC 10646:2000
+.TP
+.B "ISO-IR 10646 2000 UTF-8"
+ISO/IEC 10646, UTF-8 encoding
+.TP
+.B BINARY
+None
+.RE
 .TP
 .B comment
 Any number of characters that  should be treated as comment.
@@ -205,6 +270,25 @@ The argument is a decimal number.
 .TP
 .B gname
 The group name of the following file(s) coded in UTF-8.
+.TP
+.B hdrcharset
+The name of the character set used to encode the data for the
+.BR gname ,
+.BR linkpath ,
+.BR path " and
+.B uname
+fields in the POSIX.1-2001 extended header records.
+.RS
+.PP
+The following values are supported for
+.BR hdrcharset :
+.TP 25
+.B "ISO-IR 10646 2000 UTF-8"
+ISO/IEC 10646, UTF-8 encoding
+.TP
+.B BINARY
+None
+.RE
 .TP
 .B ino
 The inode number from

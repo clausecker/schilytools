@@ -1,7 +1,7 @@
-/* @(#)make.h	1.100 15/11/06 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
+/* @(#)make.h	1.101 18/05/08 Copyright 1985, 87, 91, 1995-2018 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2015 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2018 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,19 +24,75 @@
 #include <schily/standard.h>	/* #defines BOOL	*/
 #endif
 
+#ifdef	USE_NSECS
+#ifndef	_SCHILY_STAT_H
+#include <schily/stat.h>
+#endif
+
+/*
+ * If we do not have a way to retrieve nanoseconds from stat(),
+ * we cannot use nanoseconds for time stamp comparison.
+ */
+#if !defined(_FOUND_STAT_NSECS_)
+#undef	USE_NSECS
+#endif
+
+/*
+ * If we cannot use long long variables,
+ * we cannot use nanoseconds for time stamp comparison.
+ */
+#ifndef	USE_LONGLONG
+#undef	USE_NSECS
+#endif
+
+#ifdef	NO_NSECS
+#undef	USE_NSECS
+#endif
+#endif
+
+#ifdef	pdp11
+#undef	USE_NSECS
+#endif
+
 /*
  * If sizeof(date_t) is < sizeof(time_t) there may be problems.
  * We thus need to be careful with our typedef.
  */
-#if	SIZEOF_UNSIGNED_LONG_INT >= SIZEOF_TIME_T
+#if	SIZEOF_UNSIGNED_LONG_INT >= SIZEOF_TIME_T && !defined(USE_NSECS)
 typedef unsigned long	date_t;
+#define	SIZEOF_DATE_T	SIZEOF_UNSIGNED_LONG_INT
 #else
 #if	SIZEOF_ULLONG >= SIZEOF_TIME_T
 typedef ULlong		date_t;
+#define	SIZEOF_DATE_T	SIZEOF_ULLONG
 #else
 typedef	time_t		date_t;
+#define	SIZEOF_DATE_T	SIZEOF_TIME_T
 #endif
 #endif
+
+/*
+ * Paranoia
+ */
+#if SIZEOF_DATE_T < 8
+#undef	USE_NSECS
+#endif
+
+/*
+ * We support nanoseconds in date_t by shifting the seconds from time_t
+ * to the left and using the low 30 bits for the nanoseconds. This
+ * permits us to use native comparisons inside C.
+ *
+ * As a result, we have 34 bits left over for the seconds.
+ *
+ * If time_t is unsigned, this works until Wed May 30 01:53:02 2514 GMT
+ * If time_t is signed, this works until   Wed Mar 16 12:56:31 2242 GMT
+ *
+ * In other words, this works for 220 years from now and when it stops
+ * working, we even may have 128 bit in a Intmax_t.
+ */
+#define	NSEC_SHIFT	30
+#define	NSEC_MASK	((date_t_)0x3fffffff)
 
 /*
  * XXX It may be a good idea to make "newtime" > RECURSETIME as

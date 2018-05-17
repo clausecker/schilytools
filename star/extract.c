@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.145 18/01/18 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.147 18/05/03 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.145 18/01/18 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.147 18/05/03 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -578,9 +578,10 @@ error("-->setmode(%s, %llo)\n", info->f_name, (Ullong)info->f_mode);
  */
 EXPORT BOOL
 newer(info, cinfo)
-	FINFO	*info;
-	FINFO	*cinfo;
+	FINFO	*info;	/* The FINFO for the file in the archive */
+	FINFO	*cinfo;	/* The FINFO for the file in the file system */
 {
+	BOOL	havenano;
 
 	if (uncond && !keep_old && !refresh_old)
 		return (FALSE);
@@ -610,9 +611,11 @@ newer(info, cinfo)
 	}
 
 	/*
-	 * XXX nsec beachten wenn im Archiv!
+	 * nsec beachten wenn im Archiv!
 	 */
-	if (cinfo->f_mtime >= info->f_mtime) {
+	havenano = (info->f_xflags & XF_MTIME) && (cinfo->f_flags & F_NSECS);
+	if ((cinfo->f_mtime > info->f_mtime) ||
+	    (!havenano && cinfo->f_mtime == info->f_mtime)) {
 
 	isnewer:
 		if (xdir && is_dir(info))	/* Be silent, we handle it later */
@@ -620,6 +623,28 @@ newer(info, cinfo)
 		if (!nowarn)
 			errmsgno(EX_BAD, "current '%s' newer.\n", info->f_name);
 		return (TRUE);
+	} else if ((cinfo->f_mtime == info->f_mtime) && havenano) {
+		/*
+		 * If we have nanoseconds != 0, this cannot be a DOS file and
+		 * for this reason, the f_mtime resolution is one second.
+		 * An archive with nanosecond resolution and a filesystem with
+		 * microsecond resolution could result in a file in the archive
+		 * that is always newer than the file in the filesystem because
+		 * the timestamp in the filesystem was rounded down. If the
+		 * nanoseconds in the local file are greater than in the
+		 * archive, this is the easy case.
+		 */
+		if (cinfo->f_mnsec >= info->f_mnsec)
+			goto isnewer;
+		/*
+		 * If the local filesystem resolution is only microseconds and
+		 * the resolution in the archive is nanoseconds, we need to
+		 * check based on microseconds to prevent extracting the
+		 * file from the archive again and again.
+		 */
+		if ((cinfo->f_mnsec % 1000 == 0) &&
+		    ((cinfo->f_mnsec / 1000) >= (info->f_mnsec / 1000)))
+			goto isnewer;
 	} else if ((cinfo->f_mtime % 2) == 0 && (cinfo->f_mtime + 1) == info->f_mtime) {
 		/*
 		 * The DOS FAT filestem does only support a time granularity

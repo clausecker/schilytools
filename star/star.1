@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.187 18/04/24 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.189 18/05/15 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/04/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/05/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -429,7 +429,7 @@ have a different meaning if the archive is in
 .BR xustar ,
 .BR exustar ,
 or
-.B pax 
+.BR pax / epax 
 format.
 The option
 .B \-a
@@ -758,6 +758,12 @@ will be strictly conforming.
 File size is unlimited, uid/gid/uname/gidname is unlimited,
 major/minor is limited to 2097151.
 Sparse files will be filled up with zeroes.
+.TP
+.B epax
+A format similar to the
+.B pax
+format but with forced POSIX.1\-2001 extended headers.
+This enforces stimestamps with nanosecond resolution in the archive.
 .TP 10
 .B xstar
 The extended standard
@@ -1009,7 +1015,7 @@ conjunction with the
 .BR xustar ,
 .BR exustar ,
 and with the 
-.B pax 
+.BR pax / epax
 format.)
 Another option to retain the access time for the the files that
 are going to be archives is to readonly mount a 
@@ -1337,7 +1343,7 @@ if the archive format is
 .BR xustar ,
 .BR exustar ,
 or
-.BR pax .
+.BR pax / epax .
 .sp
 If star is run as root and if
 .B \-ctime 
@@ -1583,7 +1589,7 @@ This only works with if the archive format is
 .BR xustar ,
 .BR exustar ,
 or
-.BR pax .
+.BR pax / epax .
 .TP 10
 .B mtime
 Compare modification time of file.
@@ -1595,7 +1601,7 @@ This only works with if the archive format is
 .BR xustar ,
 .BR exustar ,
 or
-.BR pax .
+.BR pax / epax .
 .TP 10
 .B lmtime
 Compare the modification time 
@@ -1860,9 +1866,11 @@ option together with the
 option and thus to ignore some error conditions while aborting on all
 other conditions.
 .TP
+.PD 0
 .BI errctl= " name
 .TP
 .BI errctl= " error control spec
+.PD
 Add the content from file
 .I name
 to the error control definitions or add
@@ -1925,7 +1933,7 @@ aborts (exits) as soon as possible after this error condition has been
 seen instead of making
 .B star
 quiet about the condition.
-This error condition flag may only be used together with at another 
+This error condition flag may only be used together with at leat another 
 error condition or a list of error conditions
 (separated by a '|' character).
 .TP 12
@@ -1969,13 +1977,13 @@ had problems to retrieve the ACL information.
 Suppress warnings about files that could not be opened.
 .TP
 .B READ
-Suppress warnings read errors on files.
+Suppress warnings about read errors on files.
 .TP
 .B WRITE
-Suppress warnings write errors on files.
+Suppress warnings about write errors on files.
 .TP
 .B READLINK
-Suppress warnings 
+Suppress warnings about
 .BR readlink (2)
 errors on symbolic links.
 .TP
@@ -2008,6 +2016,18 @@ is not supported by the archive format.
 Suppress warnings about files on that
 .B star
 could not retrieve the extended file attribute information.
+.TP
+.B CHDIR
+Suppress warnings about
+.BR chdir (2)
+errors.
+.TP
+.B ICONV
+Suppress warnings about
+.BR iconv (3)
+errors.
+These error happen, when text is converted from or to POSIX.1-2001 extended tar
+headers.
 .TP
 .B SETTIME
 Suppress warnings about files on that
@@ -2052,7 +2072,7 @@ In this case,
 tries to match the link name against the pattern in the error control file.
 .TP
 .B BADACL
-Suppress warnings access control list conversion problems.
+Suppress warnings about access control list conversion problems.
 .TP
 .B SETACL
 Suppress warnings about files on that
@@ -2770,7 +2790,7 @@ is reading
 .BR xustar ,
 .BR exustar ,
 or
-.B pax
+.BR pax / epax
 archives). If 
 .B star
 extracts other archive types, the 
@@ -4871,14 +4891,14 @@ to restore filenames that are longer than 100 chars, the
 .IR xustar ,
 .IR exustar
 and
-.I pax
+.IR pax / epax
 archive format uses a method that allows an POSIX.1\-1988 compliant way of 
 storing filenames, if the POSIX method would allow this.
 When the archive format is
 .IR xustar ,
 .IR exustar
 or
-.I pax
+.IR pax / epax
 very long filenames are stored using extended headers from the POSIX.1\-2001 standard.
 .PP
 Some buggy
@@ -4953,7 +4973,7 @@ you may use the
 .IR xustar ,
 .IR exustar
 or the
-.I pax
+.IR pax / epax
 archive format.
 The probability of falsely detecting other
 .B tar
@@ -5142,7 +5162,7 @@ used by the
 .IR xustar ,
 .I exustar
 and
-.I pax
+.IR pax / epax
 format, any filesize may be archived.
 .SH BUGS
 The fact that the 

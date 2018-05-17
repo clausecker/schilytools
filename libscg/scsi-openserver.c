@@ -22,6 +22,8 @@ static	char __sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by

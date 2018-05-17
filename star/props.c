@@ -1,8 +1,8 @@
-/* @(#)props.c	1.57 13/11/03 Copyright 1994-2013 J. Schilling */
+/* @(#)props.c	1.60 18/05/12 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.57 13/11/03 Copyright 1994-2013 J. Schilling";
+	"@(#)props.c	1.60 18/05/12 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	UConst char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2013 J. Schilling
+ *	Copyright (c) 1994-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -148,19 +148,26 @@ setprops(htype)
 		break;
 
 	case H_PAX:				/* ieee 1003.1-2001 ext ustar */
+	case H_EPAX:				/* ieee 1003.1-2001 ext ustar + xheader */
 	case H_USTAR:				/* ieee 1003.1-1988 ustar    */
 	case H_SUNTAR:				/* Sun's tar from Solaris 7-9 */
 		props.pr_maxsize = MAXOCTAL11;
 		props.pr_hdrsize = TAR_HDRSZ;
 		props.pr_flags = PR_POSIX_OCTAL;
-		if (H_TYPE(htype) == H_PAX || H_TYPE(htype) == H_SUNTAR) {
+		if (H_TYPE(htype) == H_PAX ||
+		    H_TYPE(htype) == H_EPAX ||
+		    H_TYPE(htype) == H_SUNTAR) {
 			props.pr_maxsize = 0;
 			props.pr_flags |= PR_XHDR;
 		}
 		props.pr_xhdflags = 0;
 		props.pr_xhmask = 0;
-		if (H_TYPE(htype) == H_PAX)
+		if (H_TYPE(htype) == H_PAX ||
+		    H_TYPE(htype) == H_EPAX)
 			props.pr_xhmask = XF_POSIX;
+		if (H_TYPE(htype) == H_EPAX) {
+			props.pr_xhdflags |= (XF_ATIME|XF_CTIME|XF_MTIME);
+		}
 		props.pr_fillc = '0';		/* Use ustar octal format    */
 		props.pr_xc    = 'x';		/* Use POSIX.1-2001 x-hdr    */
 		props.pr_pad   = 0;
@@ -174,13 +181,16 @@ setprops(htype)
 			props.pr_xc    = 'X';	/* Use Sun Solaris  X-hdr    */
 		}
 		props.pr_diffmask = (D_SPARS|D_ATIME|D_CTIME);
-		if (H_TYPE(htype) == H_PAX) {
+		if (H_TYPE(htype) == H_PAX ||
+		    H_TYPE(htype) == H_EPAX) {
 			props.pr_diffmask = 0L;
 		}
 		props.pr_nflags = PR_POSIX_SPLIT;
 		props.pr_maxnamelen =  NAMSIZ + 1 + PFXSIZ;	/* 256 */
 		props.pr_maxlnamelen = NAMSIZ;
-		if (H_TYPE(htype) == H_PAX || H_TYPE(htype) == H_SUNTAR) {
+		if (H_TYPE(htype) == H_PAX ||
+		    H_TYPE(htype) == H_EPAX ||
+		    H_TYPE(htype) == H_SUNTAR) {
 			props.pr_nflags |= PR_LONG_NAMES;
 			props.pr_maxnamelen =  PATH_MAX;
 			props.pr_maxlnamelen = PATH_MAX;

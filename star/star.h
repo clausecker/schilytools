@@ -1,4 +1,4 @@
-/* @(#)star.h	1.129 18/04/24 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.131 18/05/17 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -52,9 +52,9 @@ extern "C" {
 #define	H_XUSTAR	8	/* ext 1003.1-1988 fmt w/o "tar" sign. (1998) */
 #define	H_EXUSTAR	9	/* ext 1003.1-2001 fmt w/o "tar" sign. (2001) */
 #define	H_PAX		10	/* ieee 1003.1-2001 ext. ustar format (PAX) */
-#define	H_SUNTAR	11	/* Sun's tar implementaion from Solaris 7/8/9 */
-#define	H_TARMAX	11	/* Highest TAR type # */
-#define	H_RES12		12	/* Reserved */
+#define	H_EPAX		11 	/* ieee 1003.1-2001 ext. ustar format + xhdr */
+#define	H_SUNTAR	12	/* Sun's tar implementaion from Solaris 7/8/9 */
+#define	H_TARMAX	12	/* Highest TAR type # */
 #define	H_RES13		13	/* Reserved */
 #define	H_RES14		14	/* Reserved */
 #define	H_BAR		15	/* SUN bar format */
@@ -101,6 +101,12 @@ extern "C" {
 #define	C_XZ		10	/* Compr. with 'xz', unpack with 'xz'	    */
 #define	C_LZIP		11	/* Compr. with 'lzip', unpack with 'lzip'   */
 #define	C_MAX		11
+
+/*
+ * Transfer direction types for utf8_init()
+ */
+#define	S_CREATE	1
+#define	S_EXTRACT	2
 
 /*
  * Header size values
@@ -705,6 +711,7 @@ typedef	struct	{
 #define	XF_XATTR	0x100000 /* Extended Attributes			  */
 
 #define	XF_NOTIME    0x10000000	/* Keine extended Zeiten		  */
+#define	XF_BINARY    0x20000000	/* Binary path/usr/group in x-header	  */
 
 /*
  * All Extended header tags that are covered by POSIX.1-2001
@@ -846,6 +853,7 @@ struct star_stats {
 	int	s_getxattr;	/* get xattr for file failed		  */
 #endif
 	int	s_chdir;	/* chdir() failed			  */
+	int	s_iconv;	/* iconv() failed			  */
 	/*
 	 * Extract only....
 	 */

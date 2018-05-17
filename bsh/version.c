@@ -1,12 +1,12 @@
 int mVERSION = 14;
 int MVERSION = 6;
-char dVERSION[] = "2017/12/20";
+char dVERSION[] = "2018/05/01";
 
-/* @(#)version.c	1.27 17/12/20 Copyright 1985-2015 J. Schilling */
+/* @(#)version.c	1.28 18/05/01 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)version.c	1.27 17/12/20 Copyright 1985-2015 J. Schilling";
+	"@(#)version.c	1.28 18/05/01 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985-2015 J. Schilling

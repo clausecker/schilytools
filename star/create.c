@@ -1,11 +1,11 @@
-/* @(#)create.c	1.139 17/07/16 Copyright 1985, 1995, 2001-2017 J. Schilling */
+/* @(#)create.c	1.140 18/05/06 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.139 17/07/16 Copyright 1985, 1995, 2001-2017 J. Schilling";
+	"@(#)create.c	1.140 18/05/06 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2017 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -286,8 +286,8 @@ take_file(name, info)
 	} else if (dumplevel > 0) {
 		/*
 		 * For now, we cannot reliably deal with sub-second granularity
-		 * on all platforms. For this reason, some files to be on two
-		 * incrementals to make sure not to miss them completely.
+		 * on all platforms. For this reason, we let some files be on
+		 * two incrementals to make sure not to miss them completely.
 		 */
 		if (info->f_mtime >= Newer.tv_sec) {
 			/* EMPTY */
@@ -302,9 +302,22 @@ take_file(name, info)
 	} else if (Newer.tv_sec && (Ctime ? info->f_ctime:info->f_mtime) <=
 								Newer.tv_sec) {
 		/*
-		 * XXX nsec beachten wenn im Archiv!
+		 * First the easy case: Don't take file if seconds are
+		 * less than in the reference file.
 		 */
-		return (FALSE);
+		if ((Ctime ? info->f_ctime:info->f_mtime) < Newer.tv_sec)
+			return (FALSE);
+		/*
+		 * If we do not have nanoseconds, we are done.
+		 */
+		if ((info->f_flags & F_NSECS) == 0)
+			return (FALSE);
+		/*
+		 * Here we know that we have nanoseconds and that seconds
+		 * are equal, so finally check nanoseconds.
+		 */
+		if ((Ctime ? info->f_cnsec:info->f_mnsec) <= Newer.tv_nsec)
+			return (FALSE);
 	} else if (uflag && !update_newer(info)) {
 		return (FALSE);
 	} else if (!multivol &&

@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.171 18/04/11 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.172 18/05/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.171 18/04/11 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.172 18/05/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -1744,6 +1744,7 @@ checkerrs()
 	    xstats.s_isspecial	||
 	    xstats.s_sizeerrs	||
 	    xstats.s_chdir	||
+	    xstats.s_iconv	||
 
 	    xstats.s_settime	||
 	    xstats.s_security	||
@@ -1763,11 +1764,13 @@ checkerrs()
 			return (TRUE);
 
 		errmsgno(EX_BAD, "The following problems occurred during archive processing:\n");
-		errmsgno(EX_BAD, "Cannot: stat %d, open %d, read/write %d, chdir %d. Size changed %d.\n",
+		errmsgno(EX_BAD, "Cannot: stat %d, open %d, read/write %d, chdir %d, iconv %d.\n",
 				xstats.s_staterrs,
 				xstats.s_openerrs,
 				xstats.s_rwerrs,
 				xstats.s_chdir,
+				xstats.s_iconv);
+		errmsgno(EX_BAD, "Size changed %d.\n",
 				xstats.s_sizeerrs);
 		errmsgno(EX_BAD, "Missing links %d, Name too long %d, File too big %d, Not dumped %d.\n",
 				xstats.s_misslinks,

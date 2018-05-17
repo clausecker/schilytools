@@ -1,6 +1,6 @@
-#ident "@(#)rules.man	1.9 17/06/18 "
+#ident "@(#)rules.man	1.10 18/05/03 "
 ###########################################################################
-# Written 1997-2015 by J. Schilling
+# Written 1997-2018 by J. Schilling
 ###########################################################################
 #
 # Manual page building rules
@@ -46,14 +46,21 @@ _INSMODEI=	$(_UNIQ)$(INSMODE)
 __INSMODEI=	$(_INSMODEI:$(_UNIQ)=$(INSMODEF))
 INSMODEI=	$(__INSMODEI:$(_UNIQ)%=%)
 
-all man:	$(PTARGET)
+all man:	$(ARCHDIR) $(WAIT) $(PTARGET)
 
-install installman:	$(ARCHDIR)
+install installman:	$(ARCHDIR) man
 
 installman:	man install
 
-$(PTARGET):	$(ARCHDIR) $(SRCFILE)
+$(PTARGET):	$(SRCFILE)
 		$(LOCALIZE) $(SRCFILE) $@
+
+#
+# gmake only. Other make implementations use a no-xxx/ prefix.
+# gmake calls prerequisites the the right of | order-only-prerequisites
+# and does not evaluate the time stamp from such prerequisites.
+#
+$(GMAKE_ONLY)$(PTARGET): | $(ARCHDIR)
 
 $(ARCHDIR):
 		$(MKDIR) -p $@

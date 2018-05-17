@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.137 16/12/13 joerg */
+/* @(#)tree.c	1.139 18/05/14 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.137 16/12/13 joerg";
+	"@(#)tree.c	1.139 18/05/14 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2016 J. Schilling
+ * Copyright (c) 1999,2000-2018 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -565,6 +565,8 @@ got_valid_name:
 			if (strcmp(s_entry->name, ".") == 0 ||
 				strcmp(s_entry->name, "..") == 0)
 				continue;
+			if (s_entry->isorec.flags[0] & ISO_MULTIEXTENT)
+				continue;
 #ifdef APPLE_HYB
 			/*
 			 * Skip table entry for the resource fork
@@ -707,6 +709,9 @@ got_valid_name:
 				continue;
 			if (strcmp(s_entry->name, ".") == 0 ||
 				strcmp(s_entry->name, "..") == 0)
+				continue;
+
+			if (s_entry->isorec.flags[0] & ISO_MULTIEXTENT)
 				continue;
 #ifdef APPLE_HYB
 			/*
@@ -1412,6 +1417,18 @@ dup_relocated_dir(this_dir, s_entry, whole_path, short_name, statp)
 			short_name, s_entry1,
 			statp, statp, NEED_RE);
 	}
+#ifdef UDF
+	/* set some info used for udf */
+	s_entry1->mode = statp->st_mode;
+	s_entry1->uid =  statp->st_uid;
+	s_entry1->gid =  statp->st_gid;
+	s_entry1->atime.tv_sec = statp->st_atime;
+	s_entry1->atime.tv_nsec = stat_ansecs(statp);
+	s_entry1->mtime.tv_sec = statp->st_mtime;
+	s_entry1->mtime.tv_nsec = stat_mnsecs(statp);
+	s_entry1->ctime.tv_sec = statp->st_ctime;
+	s_entry1->ctime.tv_nsec = stat_cnsecs(statp);
+#endif
 
 	statp->st_size = (off_t)0;
 	statp->st_mode &= 0777;

@@ -1,13 +1,13 @@
-/* @(#)close.c	1.2 17/02/15 Copyright 2017 J. Schilling */
+/* @(#)close.c	1.3 18/05/17 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)close.c	1.2 17/02/15 Copyright 2017 J. Schilling";
+	"@(#)close.c	1.3 18/05/17 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Close a StreamArchive
  *
- *	Copyright (c) 2017 J. Schilling
+ *	Copyright (c) 2017-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/errno.h>
 #include <schily/strar.h>
+#include "header.h"
 
 extern	mode_t	strar_old_umask;
 
@@ -44,5 +45,6 @@ strar_close(info)
 		info->f_listname = NULL;
 	}
 	umask(strar_old_umask);
+	utf8_fini();
 	return (0);
 }

@@ -1,13 +1,13 @@
-/* @(#)open.c	1.4 17/02/15 Copyright 2017 J. Schilling */
+/* @(#)open.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)open.c	1.4 17/02/15 Copyright 2017 J. Schilling";
+	"@(#)open.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Open a StreamArchive
  *
- *	Copyright (c) 2017 J. Schilling
+ *	Copyright (c) 2017-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/errno.h>
 #include <schily/strar.h>
+#include "header.h"
 
 #define	my_uid		strar_my_uid
 #define	mode_mask	strar_mode_mask
@@ -63,11 +64,12 @@ init_umask()
 }
 
 int
-strar_open(info, arname, arfd, mode)
+strar_open(info, arname, arfd, mode, codeset)
 	register FINFO	*info;
 	const	char	*arname;
 		int	arfd;
 		int	mode;
+	const	char	*codeset;
 {
 	strar_init(info);
 
@@ -94,6 +96,12 @@ strar_open(info, arname, arfd, mode)
 	}
 	my_uid = geteuid();
 	init_umask();
+	utf8_codeset(codeset);
+	if (mode & OM_READ) {
+		utf8_init(S_EXTRACT);
+	} else if (mode & OM_WRITE) {
+		utf8_init(S_CREATE);
+	}
 
 	return (0);
 }

@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.21 18/04/16 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.22 18/05/02 Copyr 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2018/04/16" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2018/05/02" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1462,6 +1462,23 @@ file in the current working directory.
 .ne 2
 .mk
 .na
+.B .LOCAL:
+.ad
+.RS 23n
+.rt
+When running in
+.B serial
+mode, this target has no effect. It is used when in
+.B parallel
+mode. See
+.BR dmake (1)
+for more information.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\&.MAKE_VERSION:\fR
 .ad
 .RS 23n
@@ -1492,8 +1509,13 @@ warning message.
 .ad
 .RS 23n
 .rt
-Currently, this target has no effect, it is, however, reserved for future
-use.
+When running in
+.B serial
+mode, this target has no effect. It is used when in
+.B parallel
+mode. See
+.BR dmake (1)
+for more information.
 .RE
 
 .sp
@@ -1504,7 +1526,13 @@ use.
 .ad
 .RS 23n
 .rt
-Currently of no effect, but reserved for future use.
+When running in
+.B serial
+mode, this target has no effect. It is used when in
+.B parallel
+mode. See
+.BR dmake (1)
+for more information.
 .RE
 
 .sp
@@ -1640,7 +1668,13 @@ The suffixes list for selecting implicit rules (see The Suffixes List).
 .ad
 .RS 23n
 .rt
-Currently of no effect, but reserved for future use.
+When running in
+.B serial
+mode, this target has no effect. It is used when in
+.B parallel
+mode. See
+.BR dmake (1)
+for more information.
 .RE
 
 .SS "\fIClearing Special Targets\fR"

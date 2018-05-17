@@ -1,8 +1,8 @@
-/* @(#)make.c	1.206 18/03/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)make.c	1.211 18/05/10 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.206 18/03/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)make.c	1.211 18/05/10 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Make program
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 #include "make.h"
 #include "job.h"
 
-char	make_version[] = "1.2.6";
+char	make_version[] = "1.3";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -168,6 +168,11 @@ date_t	newtime;		/* Special time newer than all		    */
 #define	DAYSECS		(HOURSECS*24)
 #define	MONTHSECS	(DAYSECS*30)
 #define	YEARSECS	(DAYSECS*365)
+#ifdef	USE_NSECS
+#define	DATESECS	((date_t)(1 << NSEC_SHIFT))
+#else
+#define	DATESECS	((date_t)1)
+#endif
 
 char	Nullstr[]	= "";
 char	slash[]		= PATH_DELIM_STR;
@@ -1684,7 +1689,18 @@ again:
 LOCAL date_t
 gcurtime()
 {
-	return ((date_t) time((time_t *) 0));
+	struct timespec	ts;
+	date_t		d;
+
+	getnstimeofday(&ts);
+	d = ts.tv_sec;
+#ifdef	USE_NSECS
+	d <<= NSEC_SHIFT;		/* Make space for nanoseconds */
+	d |= ts.tv_nsec;
+#endif
+	if (Debug > 1)
+		error("gcurtime() = %s (%llx)\n", prtime(d), (Llong)d);
+	return (d);
 }
 
 /*
@@ -1693,32 +1709,37 @@ gcurtime()
 LOCAL date_t
 gnewtime()
 {
-	time_t	t = curtime;
-	time_t	a = YEARSECS;
-	int	i = 0;
+	time_t	t;
+	date_t	d;
 
-	while ((a * 2) > a) {
-		a *= 2;
-		if (++i > 100)
-			break;
+	t = TYPE_MAXVAL(time_t);
+
+	/*
+	 * "t" is now the maximum positive number for type time_t.
+	 * In case of a 64 bit time_t, this is more than we can have in date_t
+	 * so we need to make the number small enough to have space for nsecs.
+	 */
+	d = t;
+#ifdef	USE_NSECS
+#if SIZEOF_DATE_T > SIZEOF_TIME_T
+	d <<= NSEC_SHIFT;		/* Make space for nanoseconds */
+#else
+	d >>= NSEC_SHIFT;		/* Shrink d to maximum time_t */
+	d <<= NSEC_SHIFT;		/* Make space for nanoseconds */
+#endif
+	d += 999999999;			/* Add maximum nanosecond value */
+#endif	/* USE_NSECS */
+
+	while (d == NOTIME || d == BADTIME ||
+			d == RECURSETIME || d == PHONYTIME) {
+		d--;
 	}
-	i = 0;
-	while (a > 0) {
-		while ((t + a) > t) {
-			t += a;
-			if (++i > 100)
-				break;
-		}
-		if (i > 1000)
-			break;
-		a /= 2;
-	}
-	while (t == NOTIME || t == BADTIME ||
-			t == RECURSETIME || t == PHONYTIME) {
-		t--;
-	}
-/*printf("i: %d, %lu, %lx, %s\n", i, t, t, prtime(-3));*/
-	return (t);
+
+/*printf("i: %d, %llu, %llx, %s\n", i, d, d, prtime(-3));*/
+
+	if (Debug > 1)
+		error("gnewtime() = %s (%llx)\n", prtime(d), (Llong)d);
+	return (d);
 }
 
 /*
@@ -1730,8 +1751,9 @@ gftime(file)
 	char	*file;
 {
 	STATBUF	stbuf;
-	char	this_time[32];
-	char	cur_time[32];
+	char	this_time[42];
+	char	cur_time[42];
+	date_t	d;
 
 	/*
 	 * XXX should we cache the file times?
@@ -1751,49 +1773,63 @@ gftime(file)
 		/*
 		 * GNU libc.6 destroys st_mtime
 		 */
-		stbuf.st_mtime = NOTIME;
+		d = NOTIME;
 	} else {
-		register time_t	t;
+#ifdef	USE_NSECS
+		long	nsecs;
+#endif
+		d = stbuf.st_mtime;
+#ifdef	USE_NSECS
+		d <<= NSEC_SHIFT;
+		nsecs = stat_mnsecs(&stbuf);
+#if	!defined(HAVE_UTIMENS) && !defined(HAVE_UTIMENSAT)
+		/*
+		 * If the current platform does not support to willfully
+		 * set full nanosecond values, but only microseconds, we
+		 * compare time stamps only with microsecond resolution.
+		 */
+		nsecs -= nsecs % 1000;
+#endif
+		d |= nsecs;
+#endif
 		/*
 		 * Make sure that the time for an existing file is not
 		 * in the list of special time stamps.
 		 */
-		t = stbuf.st_mtime;
-		while (t == NOTIME || t == BADTIME ||
-		    t == RECURSETIME || t == MAKETIME || t == PHONYTIME) {
-			t++;
+		while (d == NOTIME || d == BADTIME ||
+		    d == RECURSETIME || d == MAKETIME || d == PHONYTIME) {
+			d++;
 		}
-		stbuf.st_mtime = t;
 #ifdef	nonono__
 		if (o == NULL) {
 			o = objlook(file, TRUE);
-			o->o_date = t;
+			o->o_date = d;
 		}
 #endif
 	}
 
 	if (Debug > 3)
-		error("gftime(%s) = %s\n", file, prtime(stbuf.st_mtime));
+		error("gftime(%s) = %s\n", file, prtime(d));
 
 	/*
 	 * If the time stamp retrieved by stat() is more than 5 seconds
 	 * ahead of our start time, we check for a possible time skew between
 	 * this machine and it's fileserver.
 	 */
-	if (stbuf.st_mtime > (curtime +5)) {
+	if (d > (curtime + (5*DATESECS))) {
 		date_t	xcurtime;
 
 		xcurtime = gcurtime();
-		if (stbuf.st_mtime <= (xcurtime +5)) {
+		if (d <= (xcurtime + (5*DATESECS))) {
 			/*
 			 * We run for more than 5 seconds already and the
 			 * file's time stamp is not more than 5 seconds ahead
 			 * of the current time. Return silently.
 			 */
 			curtime = xcurtime;
-			return (stbuf.st_mtime);
+			return (d);
 		}
-		strncpy(this_time, prtime(stbuf.st_mtime), sizeof (this_time));
+		strncpy(this_time, prtime(d), sizeof (this_time));
 		this_time[sizeof (this_time)-1] = '\0';
 		strncpy(cur_time, prtime(curtime), sizeof (cur_time));
 		cur_time[sizeof (cur_time)-1] = '\0';
@@ -1801,7 +1837,7 @@ gftime(file)
 			"WARNING: '%s' has modification time in the future (%s > %s).\n",
 			file, this_time, cur_time);
 	}
-	return (stbuf.st_mtime);
+	return (d);
 }
 
 /*
@@ -1890,6 +1926,9 @@ prtime(date)
 	date_t	date;
 {
 	char	*s;
+	time_t	t;
+	char	nsbuf[20];
+	long	nsecs;
 
 	if (date == (date_t)0)
 		return ("File does not exist");
@@ -1904,8 +1943,21 @@ prtime(date)
 	if (date == newtime)
 		return ("Younger than any file");
 
-	s = ctime((const time_t *)&date);
-	s[strlen(s)-1] = '\0';
+#ifdef	USE_NSECS
+	t = date >> NSEC_SHIFT;
+#else
+	t = date;
+#endif
+	s = ctime(&t);
+	if (s == NULL)
+		strcpy(s, "<time range error>");
+	else
+		s[strlen(s)-1] = '\0';
+#ifdef	USE_NSECS
+	nsecs = date & 0x3fffffff;
+	snprintf(nsbuf, sizeof (nsbuf), ".%9.9ld", nsecs);
+	strcat(s, nsbuf);
+#endif
 	return (s);
 }
 

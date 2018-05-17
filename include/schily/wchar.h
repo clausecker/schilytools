@@ -1,4 +1,4 @@
-/* @(#)wchar.h	1.22 18/02/17 Copyright 2007-2018 J. Schilling */
+/* @(#)wchar.h	1.23 18/05/17 Copyright 2007-2018 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
@@ -178,12 +178,5 @@
 #endif
 
 #endif	/* USE_WCHAR */
-
-#ifndef	HAVE_WCTYPE
-extern	wctype_t	wctype		__PR((const char *));
-#endif
-#ifndef	HAVE_ISWCTYPE
-extern	int		iswctype	__PR((wint_t , wctype_t));
-#endif
 
 #endif	/* _SCHILY_WCHAR_H */

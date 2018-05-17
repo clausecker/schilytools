@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.103 18/04/10 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.105 18/05/06 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.103 18/04/10 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.105 18/05/06 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -66,17 +66,18 @@ typedef struct {
 	char	*this;
 	int	op;
 	union {
-		int	i;
-		long	l;
-		dev_t	dev;
-		ino_t	ino;
-		mode_t	mode;
-		nlink_t	nlink;
-		uid_t	uid;
-		gid_t	gid;
-		size_t	size;
-		time_t	time;
-		FILE	*fp;
+		int		i;
+		long		l;
+		dev_t		dev;
+		ino_t		ino;
+		mode_t		mode;
+		nlink_t		nlink;
+		uid_t		uid;
+		gid_t		gid;
+		size_t		size;
+		time_t		time;
+		struct timespec	ts;
+		FILE		*fp;
 	} val, val2;
 } findn_t;
 
@@ -813,7 +814,12 @@ parseprim(fap)
 			errjmp(fap, geterrno());
 			/* NOTREACHED */
 		}
+#if	defined(_FOUND_STAT_NSECS_)
+		n->val.ts.tv_sec = ns.st_atime;
+		n->val.ts.tv_nsec = stat_ansecs(&ns);
+#else
 		n->val.time = ns.st_atime;
+#endif
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
@@ -832,7 +838,12 @@ parseprim(fap)
 			errjmp(fap, geterrno());
 			/* NOTREACHED */
 		}
+#if	defined(_FOUND_STAT_NSECS_)
+		n->val.ts.tv_sec = ns.st_ctime;
+		n->val.ts.tv_nsec = stat_cnsecs(&ns);
+#else
 		n->val.time = ns.st_ctime;
+#endif
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
@@ -852,7 +863,12 @@ parseprim(fap)
 			errjmp(fap, geterrno());
 			/* NOTREACHED */
 		}
+#if	defined(_FOUND_STAT_NSECS_)
+		n->val.ts.tv_sec = ns.st_mtime;
+		n->val.ts.tv_nsec = stat_mnsecs(&ns);
+#else
 		n->val.time = ns.st_mtime;
+#endif
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
@@ -1599,18 +1615,39 @@ find_expr(f, ff, fs, state, t)
 	case NEWERAA:
 	case NEWERAC:
 	case NEWERAM:
+#if	defined(_FOUND_STAT_NSECS_)
+		if (t->val.ts.tv_sec < fs->st_atime)
+			return (TRUE);
+		return ((t->val.ts.tv_sec == fs->st_atime) &&
+			(t->val.ts.tv_nsec < stat_ansecs(fs)));
+#else
 		return (t->val.time < fs->st_atime);
+#endif
 
 	case NEWERCA:
 	case NEWERCC:
 	case NEWERCM:
+#if	defined(_FOUND_STAT_NSECS_)
+		if (t->val.ts.tv_sec < fs->st_ctime)
+			return (TRUE);
+		return ((t->val.ts.tv_sec == fs->st_ctime) &&
+			(t->val.ts.tv_nsec < stat_cnsecs(fs)));
+#else
 		return (t->val.time < fs->st_ctime);
+#endif
 
 	case NEWER:
 	case NEWERMA:
 	case NEWERMC:
 	case NEWERMM:
+#if	defined(_FOUND_STAT_NSECS_)
+		if (t->val.ts.tv_sec < fs->st_mtime)
+			return (TRUE);
+		return ((t->val.ts.tv_sec == fs->st_mtime) &&
+			(t->val.ts.tv_nsec < stat_mnsecs(fs)));
+#else
 		return (t->val.time < fs->st_mtime);
+#endif
 
 	case TYPE:
 		switch (*(t->this)) {

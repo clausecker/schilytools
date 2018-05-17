@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.162 18/03/12 Copyright 1997-2018 J. Schilling
+.\" @(#)mkisofs.8	1.163 18/05/14 Copyright 1997-2018 J. Schilling
 .\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2018/03/12" "Version 3.02"
+.TH MKISOFS 8 "2018/05/14" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -1683,6 +1683,14 @@ The Rock Ridge protocol is needed in order to add POSIX like file meta data
 like permissions, extended time stamps, user/group is'd, link counts, inode numbers
 and symbolic links. The Rock Ridge protocol allows to archive hierarchy trees
 with unlimited depth.
+.sp
+Warning: When you specify
+.BR \-udf ,
+this causes
+.B Rock\ Ridge
+to be in
+.BR \-r / \-rational\-rock
+form as well.
 .TP
 .B \-r
 .TP
@@ -1989,6 +1997,16 @@ wastes the space from sector ~20 to sector 256 at the beginning of the disk
 in addition to the space needed for real 
 .B UDF 
 data structures.
+.sp
+Warning: When you specify
+.B \-r
+or
+.B \-rational\-rock 
+this causes
+.B UDF
+to be in
+.B \-udf
+form as well.
 .TP
 .B \-udf
 Rationalized UDF with user and group set to 0 and with simplified permissions.

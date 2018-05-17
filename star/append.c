@@ -1,14 +1,14 @@
-/* @(#)append.c	1.29 10/08/21 Copyright 1992, 2001-2010 J. Schilling */
+/* @(#)append.c	1.31 18/05/06 Copyright 1992, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)append.c	1.29 10/08/21 Copyright 1992, 2001-2010 J. Schilling";
+	"@(#)append.c	1.31 18/05/06 Copyright 1992, 2001-2018 J. Schilling";
 #endif
 /*
  *	Routines used to append files to an existing
  *	tape archive
  *
- *	Copyright (c) 1992, 2001-2010 J. Schilling
+ *	Copyright (c) 1992, 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -151,9 +153,6 @@ hash_add(info)
 	register	int	hv;
 			BOOL	slash = FALSE;
 
-	/*
-	 * XXX nsec korrekt implementiert?
-	 */
 	if (info->f_namelen == 0)
 		info->f_namelen = strlen(info->f_name);
 
@@ -169,6 +168,9 @@ hash_add(info)
 			/*
 			 * If the current archive entry holds extended
 			 * time imformation, honor it.
+			 * Since this function is only called with data from
+			 * the archive, it is sufficient to check the XF_MTIME
+			 * flag.
 			 */
 			if (info->f_xflags & XF_MTIME)
 				hp->h_flags |= HF_NSEC;
@@ -208,7 +210,8 @@ update_newer(info)
 	register struct h_elem *hp;
 
 	/*
-	 * XXX nsec korrekt implementiert?
+	 * Since this function is only called with FINFO data from the
+	 * filesystem, it is sufficient to check F_NSECS.
 	 */
 	if ((hp = uhash_lookup(info)) != 0) {
 		if (info->f_mtime > hp->h_time)
