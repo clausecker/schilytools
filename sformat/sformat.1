@@ -1,4 +1,4 @@
-. \" @(#)sformat.1	1.8 18/02/19 Copyright 1986-2018 J. Schilling
+. \" @(#)sformat.1	1.11 18/05/19 Copyright 1986-2018 J. Schilling
 . \" Manual page for sformat
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH "SFORMAT draft" 1L "2018/02/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH "SFORMAT draft" 1L "2018/05/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sformat \- SCSI disk formatting/partitioning/analysis/repair utility
 .SH SYNOPSIS
@@ -732,7 +732,7 @@ A typical output in this case looks like:
 .PP
 .nf
 .na
-.cs R 4*\w'x'/\n(.s
+.if t .cs R 4*\w'x'/\n(.s
 \s-2sparky joerg > sformat
 sformat SCSI format/analysis/repair utilities
 Release 3.1, Copyright J. Schilling
@@ -758,7 +758,7 @@ c1t2d0          12) 'Maxoptix' 'T3-1304         ' '1.1c' Removable Disk
                 16) *
                 17) HOST ADAPTOR
 Select target -1 (0 - 12)/<cr>: \s+2
-.cs R
+.if t .cs R
 .ad
 .fi
 .PP
@@ -766,9 +766,9 @@ The line:
 .PP
 .nf
 .na
-.cs R 4*\w'x'/\n(.s
+.if t .cs R 4*\w'x'/\n(.s
 c0t0d0           0) 'Quantum ' 'XP34300         ' 'F76D' Disk
-.cs R
+.if t .cs R
 .ad
 .fi
 .PP
@@ -788,7 +788,7 @@ be displayed.
 .PP
 .nf
 .na
-.cs R 4*\w'x'/\n(.s
+.if t .cs R 4*\w'x'/\n(.s
 Select target -1 (0 - 6)/<cr>:0
 scsibus0 target 0:
 c0t0d0           0) 'Quantum ' 'XP34300         ' 'F76D' Disk
@@ -800,7 +800,7 @@ c0t0d0           0) 'Quantum ' 'XP34300         ' 'F76D' Disk
                  6) 'Quantum ' 'XP34300         ' 'F76D' unsupported
                  7) 'Quantum ' 'XP34300         ' 'F76D' unsupported
 Select lun -1 (0 - 7)/<cr>:
-.cs R
+.if t .cs R
 .ad
 .fi
 .PP
@@ -1115,12 +1115,14 @@ If you want to change the partition table enter 'y'.
 .B Sformat 
 asks:
 .br
+.nf
 .I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks
 .br
 .I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)
 .br
 .I "Change ?
 .br
+.fi
 If you want to modify this partition enter 'y', otherwise
 enter <CR> until 
 .B sformat 
@@ -1165,12 +1167,14 @@ XXX
 .B Sformat 
 asks:
 .br
+.nf
 .I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks
 .br
 .I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)
 .br
 .I "Ok ?
 .br
+.fi
 Enter <CR> if you still want to modify the partition record.
 You then will be asked again for all parameters of this partition.
 Enter 'y' if this partition is now ok.
@@ -1282,7 +1286,7 @@ Example:
 .PP
 .nf
 .na
-.cs R 4*\w'x'/\n(.s
+.if t .cs R 4*\w'x'/\n(.s
 a I--/
 b    /-----------/
 c I----------------------------------------------------------------------I
@@ -1294,7 +1298,7 @@ h                         /----------------------------------------------I
 WARNING:
 part 'e' has unaligned start.
 part 'g' has unaligned start.
-.cs R
+.if t .cs R
 .ad
 .fi
 .fi
@@ -1363,7 +1367,10 @@ the end of this partition and the end of the disk.
 .SH EXAMPLES
 
 .SH FILES
-
+.PP
+.TP 20
+.B /opt/schily/etc/sformat.dat
+A database with mode pages and disk partitions for disks.
 .SH "SEE ALSO"
 .SH DIAGNOSTICS
 .SH NOTES
@@ -1373,6 +1380,24 @@ This is a draft of the manual changes may be daily.
 .PP
 .ne 10
 .SH AUTHOR
+.LP
+.B sformat
+has been written in 1986 for
+.B SunOS
+by J\*org Schilling. It was the first disk formatting program that worked
+under control of the OS. It was needed to speed up production at
+.B H. Berthold AG
+and to make the
+.B Siemens MegaFile
+disk usable that needed a special track skew value that was not supported
+by the standalone bootable Sun disk formating program.
+.LP
+After
+.B cdrecord
+has been made portable,
+.B sformat
+could be made portable as well.
+.LP
 .nf
 J\*org Schilling
 Seestr. 110
@@ -1383,7 +1408,28 @@ Germany
 Mail bugs and suggestions to:
 .PP
 .B
-joerg@schily.isdn.cs.tu-berlin.de
+joerg.schilling@fokus.fraunhofer.de
 or
 .B
-js@cs.tu-berlin.de
+joerg@schily.net
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B sfomat
+is in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.

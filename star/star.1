@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.189 18/05/15 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.191 18/05/21 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/05/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/05/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3263,16 +3263,16 @@ The fields are separated by spaces, so the
 .B pkglist=
 option does not allow files that contain newline or space characters.
 .TP
-.BR \-pax-c ", " \-notarg
+.BR \-pax\-c ", " \-notarg
 Match all file or archive members except those specified by the pattern or file operands.
 .TP
-.B \-pax-H
+.B \-pax\-H
 Follow symbolic links that have been encountered on the command line.
 If the referenced file does not exist, the file information and type will be for the link itself.
 If the link is referencing a file type that cannot be archived with the current archive format,
 the file information and type will be for the link itself.
 .TP
-.B \-pax-i
+.B \-pax\-i
 Do interactive renaming in a way that has been defined for POSIX
 .BR pax .
 .B Star
@@ -3289,13 +3289,13 @@ is an interactive option that prevents
 .B star
 from being used in non-interactive environments.
 .TP
-.B \-pax-L
+.B \-pax\-L
 Follow symbolic links.
 If the referenced file does not exist, the file information and type will be for the link itself.
 If the link is referencing a file type that cannot be archived with the current archive format,
 the file information and type will be for the link itself.
 .TP
-.B \-pax-ls
+.B \-pax\-ls
 Switch listing format to the format defined for POSIX 
 .B pax
 and
@@ -3306,11 +3306,22 @@ Allow file type arguments to be recognised as regular expressions in a way that 
 for POSIX
 .BR pax .
 .TP
-.B \-pax-n
+.B \-pax\-n
 Allow each pattern to match only once.
-If a pattern matches a directors, then the whole sub tree matches the pattern.
+If a pattern matches a directory, then the whole sub tree matches the pattern.
 .TP
-.BI \-pax-p " string
+.BI \-pax\-o " string
+Set a
+.B pax
+like option control pattern.
+.sp
+The only argument that is currently supported is
+.B binary
+to create a
+.B hdrcharset=BINARY
+header.
+.TP
+.BI \-pax\-p " string
 PAX style privileges string.
 Several characters (each has its own meaning). The following characters are defined:
 .RS

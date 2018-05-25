@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)jobs.c	1.99 17/05/18 2008-2017 J. Schilling
+ * @(#)jobs.c	1.101 18/05/24 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.99 17/05/18 2008-2017 J. Schilling";
+	"@(#)jobs.c	1.101 18/05/24 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -104,6 +104,9 @@ static	UConst char sccsid[] =
 
 
 /*
+ * This is used to emulate waitid() via waitpid(), so we need to take
+ * care about things that don't work and things that are missing.
+ *
  * AIX, Linux and Mac OS X, NetBSD return EINVAL if WNOWAIT is used
  * with waitpid().
  * XXX: We need to verify whether this is true as well with waitid().
@@ -196,7 +199,7 @@ static struct job *str2job	__PR((char *cmdp, char *job, int mustbejob));
 static void	freejob		__PR((struct job *jp));
 	void	collect_fg_job	__PR((void));
 static int	statjob		__PR((struct job *jp,
-					siginfo_t *si, int fg, int rc));
+					siginfo_t *si, pid_t fg, int rc));
 static void	collectjobs	__PR((int wnohang));
 	void	freejobs	__PR((void));
 static void	waitjob		__PR((struct job *jp));
@@ -431,13 +434,19 @@ collect_fg_job()
 
 /*
  * analyze the status of a job
+ *
+ * On platforms with an incomplete and buggy waitid()/waitpid() implementation
+ * like Linux, we pass the process group id of the process, we did wait for in
+ * the parameter "fg". This value has been obtained before waitid() was called.
+ * Since WNOWAIT does not work and as a result, the related process no longer
+ * exists, we cannot call getpgid() here anymore.
  */
 static int
 statjob(jp, si, fg, rc)
-	struct job	*jp;
-	siginfo_t	*si;
-	int		fg;
-	int		rc;
+	struct job	*jp;	/* Job pointer for this job	    */
+	siginfo_t	*si;	/* Siginfo for the child to stat    */
+	pid_t		fg;	/* Whether this is a foreground job */
+	int		rc;	/* Whether to set "exitcode"	    */
 {
 	int	code = si->si_code;
 	pid_t tgid;
@@ -502,8 +511,21 @@ statjob(jp, si, fg, rc)
 		if (fg) {
 			pid_t	jgid = getpgid(jp->j_pid);
 
+#if	WNOWAIT == 0	/* Hack for Linux et al */
+			if (jgid == (pid_t)-1 && fg != (pid_t)-1)
+				jgid = fg;
+#endif
+			/*
+			 * The previous hack was to use "svpgid" in case that
+			 * "jgid" was -1. This turned out to give problems with
+			 *     dosh 'nroff -u1 -Tlp -man $@ | col -x' | more
+			 * but it turned out that "mypgid" was a better
+			 * approximation. Since we now get the value from "fg",
+			 * we go back to the original implementation for the
+			 * second settgid() call.
+			 */
 			if (!settgid(mypgid, jp->j_pgid) ||
-			    !settgid(mypgid, jgid == (pid_t)-1 ? svpgid:jgid)) {
+			    !settgid(mypgid, jgid)) {
 				int	fd = STDIN_FILENO;
 
 				if (tcgetattr(fd, &mystty) < 0 &&
@@ -613,6 +635,9 @@ freejobs()
 	}
 }
 
+/*
+ * Always called for a foreground job.
+ */
 static void
 waitjob(jp)
 	struct job	*jp;
@@ -626,6 +651,9 @@ waitjob(jp)
 #ifdef	DO_TIME
 	struct job	j;
 #endif
+#if	WNOWAIT == 0	/* This is AIX, Linux, Mac OS X or NetBSD.	*/
+	pid_t   jgid;	/* Needed because waitid() always reaps child	*/
+#endif			/* on the incomplete implementation there.	*/
 
 #ifdef	DO_TIME
 	ruget(&jp->j_rustart);
@@ -636,6 +664,9 @@ waitjob(jp)
 	else
 		wflags = 0;
 	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
+#if	WNOWAIT == 0
+	jgid = getpgid(pid);		/* Get it now, we can't do it later */
+#endif
 	do {
 		errno = 0;
 		ret = waitid(P_PID, pid, &si, wflags|WNOWAIT);
@@ -664,7 +695,7 @@ waitjob(jp)
 #ifdef	DO_TIME
 	j = *jp;
 #endif
-	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+	jdone = statjob(jp, &si, 1, 1);		/* Sets exitval, see below */
 	/*
 	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
 	 */
@@ -682,13 +713,13 @@ waitjob(jp)
 #else	/* WNOWAIT == 0 */
 	/*
 	 * Inclomplete waitid() implementation (e.g. Linux). We may fail
-	 * to get the right progrss group for pid and fail to restore
+	 * to get the right process group for pid and fail to restore
 	 * our process group in the terninal.
 	 */
 #ifdef	DO_TIME
 	j = *jp;
 #endif
-	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+	jdone = statjob(jp, &si, jgid, 1);	/* Sets exitval, see below */
 #endif	/* WNOWAIT != 0 */
 
 #ifdef	DO_PIPE_PARENT
@@ -752,6 +783,7 @@ settgid(new, expected)
 		/*
 		 * POSIX says: tcgetpgrp() returns a nonexisting process group
 		 * id when no foreground process group was set up.
+		 *
 		 * Some older Linux versions (e.g. 2.6.18) return a nonexisting
 		 * pgrp in case no process from the expected process group
 		 * exists anymore. If no process with the returned process group
@@ -1096,9 +1128,17 @@ allocjob(cmdp, cwdp, monitor)
 	jpp = &joblst;
 
 	if (monitor) {
+		/*
+		 * First skip all jobs without job id.
+		 */
 		for (; *jpp; jpp = &(*jpp)->j_nxtp)
 			if ((*jpp)->j_jid != 0)
 				break;
+		/*
+		 * Now find the end of the job list or the first
+		 * location where the job numbers are no longer
+		 * contiguous.
+		 */
 		for (jid = 1; *jpp; jpp = &(*jpp)->j_nxtp, jid++)
 			if ((*jpp)->j_jid != jid)
 				break;
@@ -1106,8 +1146,8 @@ allocjob(cmdp, cwdp, monitor)
 		jid = 0;
 
 	jp->j_jid = jid;
-	nextjob = jpp;
-	thisjob = jp;
+	nextjob = jpp;	/* Remember where to insert this job via postjob() */
+	thisjob = jp;	/* This job is going to be inserted by postjob()   */
 }
 
 void

@@ -1,8 +1,8 @@
-/* @(#)gnutar.c	1.30 18/03/19 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)gnutar.c	1.31 18/05/21 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _g_sccsid[] =
-	"@(#)gnutar.c	1.30 18/03/19 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)gnutar.c	1.31 18/05/21 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -483,7 +483,9 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	notpat = TRUE;	/* GNU tar only supports exclude patterns */
 
 	star_checkopts(oldtar, /* dodesc */ FALSE, /* usetape */ TRUE,
-					archive, no_fifo, llbs);
+					archive, no_fifo,
+					/* paxopts */ NULL,
+					llbs);
 	star_nfiles(files, minfiles);
 
 	if ((cflag || xflag) && verbose == 1)

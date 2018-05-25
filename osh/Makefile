@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.90 18/01/05  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.91 18/05/23  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -133,6 +133,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_SYSLOCAL		# Include the "local" builtin
 #CPPOPTS +=	-DDO_SYSFC		# Include the "fc" builtin
 #CPPOPTS +=	-DDO_SYSLIMIT		# Include the "limit" builtin
+#CPPOPTS +=	-DDO_QS_CONVERT		# Convert quoted "\a\b\c" to "'abc'"
 #LIB_FIND +=	-lfind			# Add libfind
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c

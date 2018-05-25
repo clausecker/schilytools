@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)service.c	1.57 18/03/12 2008-2018 J. Schilling
+ * @(#)service.c	1.58 18/05/20 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.57 18/03/12 2008-2018 J. Schilling";
+	"@(#)service.c	1.58 18/05/20 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -444,9 +444,11 @@ execs(ap, t, isvfork, av0)
 		failedx(e, p, arglist);
 		/* NOTREACHED */
 
+#ifdef	ETXTBSY
 	case ETXTBSY:
 		failedx(e, p, txtbsy);
 		/* NOTREACHED */
+#endif
 
 #ifdef	ELIBACC
 	case ELIBACC:

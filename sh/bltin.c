@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.130 18/03/12 2008-2018 J. Schilling
+ * @(#)bltin.c	1.131 18/05/20 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.130 18/03/12 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.131 18/05/20 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -66,6 +66,7 @@ static	UConst char sccsid[] =
 #include	<sys/times.h>
 
 #include	<schily/resource.h>
+#include	<schily/wait.h>		/* Needed for CLD_EXITED */
 
 	void	builtin	__PR((int type, int argc, unsigned char **argv,
 					struct trenod *t, int xflags));

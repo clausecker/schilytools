@@ -1,13 +1,13 @@
-/* @(#)p.c	1.66 17/10/13 Copyright 1985-2017 J. Schilling */
+/* @(#)p.c	1.67 18/05/20 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.66 17/10/13 Copyright 1985-2017 J. Schilling";
+	"@(#)p.c	1.67 18/05/20 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
+#include <schily/types.h>
 #include <schily/utypes.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
@@ -329,7 +330,7 @@ main(ac, av)
 	if (prvers) {
 		/* BEGIN CSTYLED */
 		printf("p %s (%s-%s-%s)\n\n", "2.2", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2017 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */

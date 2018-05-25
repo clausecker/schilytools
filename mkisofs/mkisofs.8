@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.163 18/05/14 Copyright 1997-2018 J. Schilling
+.\" @(#)mkisofs.8	1.164 18/05/24 Copyright 1997-2018 J. Schilling
 .\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2018/05/14" "Version 3.02"
+.TH MKISOFS 8 "2018/05/24" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -3464,25 +3464,6 @@ To create a DVD-Audio of the DVD-Audio compliant source directory
 .PP
 % mkisofs \-o dvda.iso \-dvd\-audio DVD
 
-.SH AUTHOR
-.br
-Eric Youngdale <ericy@gnu.ai.mit.edu> or <eric@andante.org> wrote the
-first versions (1993 .\|.\|. 1998) of the m\&kisofs utility.
-The copyright for old versions of the m\&kisofs utility is held by
-Yggdrasil Computing, Incorporated.
-J\*org Schilling wrote the SCSI transport library and its adaptation layer to
-.B mkisofs
-and newer parts (starting from 1997) of the utility.
-J\*org Schilling is the primary maintainer since 1999, this makes
-.B mkisofs
-Copyright (C) 1997-2014 J\*org Schilling.
-.PP
-HFS hybrid code Copyright (C) James Pearson 1997 .\|.\|. 2001.
-.sp
-libhfs code Copyright (C) 1996, 1997 Robert Leslie.
-.sp
-libfile code Copyright (C) Ian F. Darwin 1986, 1987, 1989, 1990, 1991,
-1992, 1994, 1995.
 .SH NOTES
 .PP
 .B Mkisofs
@@ -3691,6 +3672,27 @@ you may join the developer mailing list via this URL:
 .B
 https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
 
+.SH AUTHOR
+.LP
+Eric Youngdale <ericy@gnu.ai.mit.edu> or <eric@andante.org> wrote the
+first versions (1993 .\|.\|. 1998) of the m\&kisofs utility.
+The copyright for old versions of the m\&kisofs utility is held by
+Yggdrasil Computing, Incorporated.
+.LP
+J\*org Schilling wrote the SCSI transport library and its adaptation layer to
+.B mkisofs
+and newer parts (starting from 1997) of the utility.
+.LP
+J\*org Schilling is the primary author and maintainer since 1999, this makes
+.B mkisofs
+Copyright (C) 1997-2018 J\*org Schilling.
+.PP
+HFS hybrid code Copyright (C) James Pearson 1997 .\|.\|. 2001.
+.sp
+libhfs code Copyright (C) 1996, 1997 Robert Leslie.
+.sp
+libfile code Copyright (C) Ian F. Darwin 1986, 1987, 1989, 1990, 1991,
+1992, 1994, 1995.
 .SH MAINTAINER
 .nf
 J\*org Schilling
@@ -3726,6 +3728,46 @@ https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
 or
 .B
 https://lists.sourceforge.net/lists/listinfo/cdrtools-support
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B cdrtools
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B cdrtools
+is at:
+.LP
+.B
+    http://sourceforge.net/projects/cdrtools/files/
+.LP
+and
+.B
+    http://sourceforge.net/projects/cdrtools/files/alpha
+.LP
+Separate project informations for the
+.B cdrtools
+project may be retrieved from:
+.LP
+.B
+    http://cdrecord.org
 .br
 .ne 7
 .SH "INTERFACE STABILITY

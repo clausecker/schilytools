@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.16 15/11/02 joerg
+.\" @(#)isoinfo.8	1.17 18/05/24 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "2015/11/02" "Version 3.02"
+.TH ISOINFO 8 "2018/05/24" "Version 3.02"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -288,30 +288,6 @@ If the option
 has been specified and the filesystem carries Rock Ridge attributes, the
 .B pathname
 must match the full Rock Ridge pathname of the file.
-.SH AUTHOR
-The author of the original sources (1993 .\|.\|. 1998) is
-Eric Youngdale <ericy@gnu.ai.mit.edu> or <eric@andante.jic.com> is to blame
-for these shoddy hacks.
-J\*org Schilling wrote the SCSI transport library and its adaptation layer to
-the programs and newer parts (starting from 1999) of the utilities, this makes
-them
-Copyright (C) 1999-2004 J\*org Schilling.
-Patches to improve general usability would be gladly accepted.
-.SH BUGS
-The user interface really sucks.
-.SH FUTURE IMPROVEMENTS
-These utilities are really quick hacks, which are very useful for debugging
-problems in mkisofs or in an iso9660 filesystem. In the long run, it would
-be nice to have a daemon that would NFS export a iso9660 image.
-.PP
-The isoinfo program is probably the program that is of the most use to
-the general user.
-.SH AVAILABILITY
-These utilities come with the 
-.B cdrtools
-package, and the primary download site
-is https://sourceforge.net/projects/cdrtools/files/ and many other mirror
-sites. Despite the name, the software is not beta.
 
 .SH ENVIRONMENT
 .TP
@@ -391,6 +367,7 @@ a FIFO size of 8 MB.
 A second drive may be found at scsibus 1, target 6, lun 0 and uses the
 default speed and the default FIFO size.
 .RE
+
 .SH SEE ALSO
 .BR mkisofs (8),
 .BR cdrecord (1),
@@ -398,3 +375,81 @@ default speed and the default FIFO size.
 .BR scg (7),
 .BR rcmd (3),
 .BR ssh (1).
+
+.SH BUGS
+The user interface really sucks.
+
+.SH AUTHOR
+The author of the original sources (1993 .\|.\|. 1998) is
+Eric Youngdale <ericy@gnu.ai.mit.edu> or <eric@andante.jic.com> is to blame
+for these shoddy hacks.
+.LP
+J\*org Schilling wrote the SCSI transport library and its adaptation layer to
+the programs and newer parts (starting from 1999) of the utilities, this makes
+them
+Copyright (C) 1999-2018 J\*org Schilling.
+Patches to improve general usability would be gladly accepted.
+.SH FUTURE IMPROVEMENTS
+These utilities are really quick hacks, which are very useful for debugging
+problems in mkisofs or in an iso9660 filesystem. In the long run, it would
+be nice to have a daemon that would NFS export a iso9660 image.
+.PP
+The isoinfo program is probably the program that is of the most use to
+the general user.
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B cdrtools
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B cdrtools
+is at:
+.LP
+.B
+    http://sourceforge.net/projects/cdrtools/files/
+.LP
+and
+.B
+    http://sourceforge.net/projects/cdrtools/files/alpha
+.LP
+Despite the name, the software is not beta.
+.LP
+Separate project informations for the
+.B cdrtools
+project may be retrieved from:
+.LP
+.B
+    http://cdrecord.org
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B readcd
+are designed for long term stability.
+As
+.B readcd
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B readcd
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR readcd .

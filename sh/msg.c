@@ -37,13 +37,13 @@
 #include <schily/errno.h>
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)msg.c	1.75 17/12/20 2008-2017 J. Schilling
+ * @(#)msg.c	1.76 18/05/20 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.75 17/12/20 2008-2017 J. Schilling";
+	"@(#)msg.c	1.76 18/05/20 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -82,7 +82,9 @@ const char	piperr[]	= "cannot make pipe";
 const char	badopen[]	= "cannot open";
 const char	coredump[]	= " - core dumped";
 const char	arglist[]	= "arg list too long";
+#ifdef	ETXTBSY
 const char	txtbsy[]	= "text busy";
+#endif
 const char	toobig[]	= "too big";
 const char	badexec[]	= "cannot execute";
 const char	notfound[]	= "not found";

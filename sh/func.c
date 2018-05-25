@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2017 J. Schilling
  *
- * @(#)func.c	1.33 17/09/25 2008-2017 J. Schilling
+ * @(#)func.c	1.34 18/05/23 2008-2017 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.33 17/09/25 2008-2017 J. Schilling";
+	"@(#)func.c	1.34 18/05/23 2008-2017 J. Schilling";
 #endif
 
 /*
@@ -63,6 +63,10 @@ static	void	prendlst	__PR((void));
 	void	prnt		__PR((struct trenod *t));
 #endif
 	void	prf		__PR((struct trenod *t));
+#ifdef	DO_QS_CONVERT
+static	int	issqstr		__PR((const unsigned char *s));
+static	void	prs_sqstr	__PR((const unsigned char *s));
+#endif
 static void	prarg		__PR((struct argnod *argp));
 static void	prio		__PR((struct ionod *iop));
 
@@ -649,6 +653,47 @@ prf(t)
 	sigchk();
 }
 
+#ifdef	DO_QS_CONVERT
+/*
+ * Check whether the argument is a single quoted string.
+ * All chars in such a string are prepended by '\\'.
+ */
+static int
+issqstr(s)
+	const unsigned char *s;
+{
+	if (*s != '\\')
+		return (FALSE);
+
+	while (*s++) {
+		if (*s++ == '\0')		/* Second char is nul: "\\\0" */
+			return (FALSE);
+		if (*s == '\0')			/* Ends after an even count */
+			break;
+		if (*s != '\\')			/* Next even char is not '\\' */
+			return (FALSE);
+	}
+	return (TRUE);
+}
+
+/*
+ * Print fully quoted string as single quoted string.
+ * This converts "\a\b\c" to "'abc'".
+ */
+static void
+prs_sqstr(s)
+	const unsigned char *s;
+{
+	prc_buff('\'');
+	while (*s++) {
+		if (*s == '\0')
+			break;
+		prc_buff(*s++);
+	}
+	prc_buff('\'');
+}
+#endif
+
 static void
 prarg(argp)
 	struct argnod	*argp;
@@ -662,7 +707,12 @@ prarg(argp)
 		prn_buff(i++);
 		prs_buff(UC "]: ");
 #endif
-		prs_buff(argp->argval);
+#ifdef	DO_QS_CONVERT
+		if (issqstr(argp->argval))
+			prs_sqstr(argp->argval);
+		else
+#endif
+			prs_buff(argp->argval);
 		argp = argp->argnxt;
 		if (argp)
 			prc_buff(SPACE);

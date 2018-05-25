@@ -1,8 +1,8 @@
-/* @(#)header.c	1.168 18/05/17 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.171 18/05/20 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.168 18/05/17 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.171 18/05/20 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -179,6 +179,7 @@ LOCAL	void	stollb		__PR((char *s, Ullong *ull, int fieldw));
 LOCAL	void	btos		__PR((char *s, Ulong l, int fieldw));
 #endif
 LOCAL	void	llbtos		__PR((char *s, Ullong ull, int fieldw));
+LOCAL	BOOL	nameascii	__PR((char *name));
 LOCAL	void	print_hrange	__PR((char *type, Ullong ull));
 EXPORT	void	dump_info	__PR((FINFO *info));
 
@@ -542,10 +543,18 @@ get_hdrtype(ptb, isrecurse)
 	}
 	if (ustmagcheck(ptb)) {			/* 'ustar\000' POSIX magic */
 		if (isxmagic(ptb)) {
+#ifdef	__historic__
+			/*
+			 * H_EXUSTAR was introduced in August 2001 but since
+			 * October 2003 we have SCHILY.archtype that is always
+			 * used together with H_EXUSTAR. Determine the achive
+			 * type from SCHILY.archtype in the 'g' header.
+			 */
 			if (ptb->ustar_dbuf.t_typeflag == 'g' ||
 			    ptb->ustar_dbuf.t_typeflag == 'x')
 				ret = H_EXUSTAR;
 			else
+#endif
 				ret = H_XUSTAR;
 		} else {
 			if (ptb->ustar_dbuf.t_typeflag == 'g' ||
@@ -1142,6 +1151,17 @@ info->f_namelen, ptb->dbuf.t_prefix, info->f_lnamelen);
 	}
 /* XXX ende alter code und Test */
 
+	if (props.pr_flags & PR_XHDR) {
+		if (!(info->f_xflags & XF_PATH)) {
+			if (!nameascii(info->f_name))
+				info->f_xflags |= XF_PATH;
+		}
+		if (!(info->f_xflags & XF_LINKPATH) && info->f_lnamelen) {
+			if (!nameascii(info->f_lname))
+				info->f_xflags |= XF_LINKPATH;
+		}
+	}
+
 	if (x1 || x2 || (info->f_xflags != 0) || ghdr)
 		xhdr = TRUE;
 
@@ -1279,6 +1299,12 @@ info_to_tcb(info, ptb)
 		}
 	}
 	litos(ptb->dbuf.t_mtime, (Ulong)info->f_mtime, 11);
+	if (props.pr_flags & PR_XHDR) {
+		if (info->f_mtime < 0 || info->f_mtime > MAXOCTAL11)
+			info->f_xflags |= XF_ATIME|XF_MTIME|XF_CTIME;
+		if (info->f_mnsec != 0)
+			info->f_xflags |= XF_ATIME|XF_MTIME|XF_CTIME;
+	}
 	ptb->dbuf.t_linkflag = XTTOUS(info->f_xftype);
 
 	if (H_TYPE(hdrtype) == H_USTAR) {
@@ -1338,13 +1364,21 @@ info_to_star(info, ptb)
 	if (!numeric) {
 		char	opfx0 = ptb->dbuf.t_prefix[0];
 
-		ic_nameuid(ptb->dbuf.t_uname, STUNMLEN+1, info->f_uid);
+		if (ic_nameuid(ptb->dbuf.t_uname, STUNMLEN+1, info->f_uid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_UNAME;
+		}
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_uname[STUNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
 			info->f_xflags |= XF_UNAME;
 		}
-		ic_namegid(ptb->dbuf.t_gname, STGNMLEN+1, info->f_gid);
+		if (ic_namegid(ptb->dbuf.t_gname, STGNMLEN+1, info->f_gid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_GNAME;
+		}
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_gname[STGNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
@@ -1413,9 +1447,17 @@ info_to_ustar(info, ptb)
 
 	if (!numeric) {
 		/* XXX Korrektes overflowchecking fuer xhdr */
-		ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
+		if (ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_UNAME;
+		}
 		/* XXX Korrektes overflowchecking fuer xhdr */
-		ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
+		if (ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_GNAME;
+		}
 		if (*ptb->ustar_dbuf.t_uname) {
 			info->f_uname = ptb->ustar_dbuf.t_uname;
 			info->f_umaxlen = TUNMLEN;
@@ -1532,8 +1574,16 @@ info_to_gnutar(info, ptb)
 	strcpy(ptb->gnu_dbuf.t_magic, gmagic);
 
 	if (!numeric) {
-		ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
-		ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
+		if (ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_UNAME;
+		}
+		if (ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid) >
+									TRUE) {
+			if (props.pr_flags & PR_XHDR)
+				info->f_xflags |= XF_GNAME;
+		}
 		if (*ptb->ustar_dbuf.t_uname) {
 			info->f_uname = ptb->ustar_dbuf.t_uname;
 			info->f_umaxlen = TUNMLEN;
@@ -2549,6 +2599,18 @@ llbtos(s, ull, fieldw)
 	} while (--fieldw > 0 && (ull /= 256) > 0);
 
 	s[0] |= 0x80;
+}
+
+LOCAL BOOL
+nameascii(name)
+	register char	*name;
+{
+	register unsigned char	c;
+	while ((c = (unsigned char)*name++) != '\0') {
+		if (c > 127)
+			return (FALSE);
+	}
+	return (TRUE);
 }
 
 LOCAL void

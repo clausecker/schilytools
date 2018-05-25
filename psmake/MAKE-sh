@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.22 18/05/16 "
+#ident "@(#)MAKE-sh	1.23 18/05/22 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -159,6 +159,12 @@ fi
 #
 if [ "$SYSTEM" = QNX -a "$CC" != gcc ]; then 
 	LF="-N 256k"
+fi 
+#
+# Set -D_GNU_SOURCE on Linux
+#
+if [ "$SYSTEM" = Linux ]; then 
+	DEFINES="$DEFINES -D_GNU_SOURCE"
 fi 
 #
 # VMS does not like -Iinclude, catch "OpenVMS" case also

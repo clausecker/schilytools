@@ -108,6 +108,7 @@
 ./psmake/getargs.c
 ./psmake/geterrno.c
 ./psmake/getexecpath.c
+./psmake/getnstimeofday.c
 ./psmake/include/schily/align.h
 ./psmake/include/schily/archdefs.h
 ./psmake/include/schily/avoffset.h

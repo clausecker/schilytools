@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.106 18/04/30 J. Schilling
+ * @(#)admin.c	1.107 18/05/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.106 18/04/30 J. Schilling"
+#pragma ident "@(#)admin.c 1.107 18/05/20 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -121,7 +121,7 @@ static int	versflag = 4;		/* history vers for new files	*/
 static struct sid	new_sid;	/* -r argument			*/
 static char	*anames[MAXNAMES];	/* -a arguments			*/
 static char	*enames[MAXNAMES];	/* -e arguments			*/
-static char	*unlock;		/* -dl argument			*/
+static char	*unlockarg;		/* -dl argument			*/
 static char	*locks;			/* 'l' flag value in file	*/
 static char	*flag_p[NFLAGS];	/* -f arguments			*/
 static int	asub;			/* Index for anames[]		*/
@@ -347,7 +347,7 @@ char *argv[];
 						if (!range(p))
 							fatal(gettext("element in list out of range (ad28)"));
 						if (*p != 'a')
-							unlock = p;
+							unlockarg = p;
 					}
 					break;
 
@@ -1075,7 +1075,7 @@ char	*afile;
 			}
 			if (rm_flag[k]) {
 				if (f == LOCKFLAG) {
-					if (unlock) {
+					if (unlockarg) {
 						in_f = lval;
 						if (((lval = adjust(in_f)) != NULL) &&
 							!had_flag[k])
@@ -1861,7 +1861,7 @@ char	*line;
 	char	t_line[MAXLINE];
 	char	rel[5];
 
-	t_unlock = unlock;
+	t_unlock = unlockarg;
 	while(*t_unlock) {
 		NONBLANK(t_unlock);
 		t_unlock = getval(t_unlock,rel);

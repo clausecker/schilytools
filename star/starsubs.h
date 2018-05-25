@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.116 18/05/17 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.117 18/05/21 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -455,3 +455,8 @@ extern	BOOL	ia_change	__PR((TCB *ptb, FINFO *info));
 #ifdef _STAR_H
 EXPORT	BOOL	findinfo	__PR((FINFO *info));
 #endif
+
+/*
+ * paxopts.c
+ */
+extern	int	ppaxopts	__PR((const char *opts));

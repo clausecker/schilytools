@@ -1,4 +1,4 @@
-# @(#)README.compile	1.37 18/02/19 Copyright 1997-2018 J. Schilling
+# @(#)README.compile	1.38 18/05/20 Copyright 1997-2018 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -436,6 +436,11 @@ Using a different compiler binary name:
 	You may use CC="fluffy-gcc fluffy-gcc-specific options" if you like
 	to enforce specific options with the compiler. See hints on cross
 	compilation below.
+
+Avoiding to compile C++ based projects:
+
+	Call:
+		make C++BUILD=off
 
 
 Getting help from the make file system:

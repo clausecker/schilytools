@@ -1,8 +1,8 @@
-/* @(#)volhdr.c	1.40 18/05/17 Copyright 1994, 2003-2018 J. Schilling */
+/* @(#)volhdr.c	1.41 18/05/21 Copyright 1994, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.40 18/05/17 Copyright 1994, 2003-2018 J. Schilling";
+	"@(#)volhdr.c	1.41 18/05/21 Copyright 1994, 2003-2018 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
@@ -44,7 +44,7 @@ static	UConst char sccsid[] =
 
 extern	FILE	*vpr;
 extern	BOOL	multivol;
-extern	BOOL	copyflag;
+extern	BOOL	binflag;
 extern	long	chdrtype;
 extern	char	*vers;
 extern	int	verbose;
@@ -634,7 +634,7 @@ put_gvolhdr(name)
 	if (gip->tapesize > 0)
 		gen_number("SCHILY.volhdr.tapesize", gip->tapesize);
 
-	if (copyflag)
+	if (binflag)
 		gen_text("hdrcharset", "BINARY", -1, 0);
 
 	if ((xhsize() + 2 * TBLOCK) > (gip->blocksize * TBLOCK)) {

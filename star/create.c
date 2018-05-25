@@ -1,8 +1,8 @@
-/* @(#)create.c	1.140 18/05/06 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.141 18/05/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.140 18/05/06 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.141 18/05/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
@@ -1109,6 +1109,7 @@ flush_link(lp)
 		BOOL	did_stat;
 		char	*name;
 
+	finfo.f_flags = 0;
 	finfo.f_flags &= ~F_TCB_BUF;
 	if ((ptb = (TCB *)get_block(props.pr_hdrsize)) == NULL)
 		ptb = &tb;

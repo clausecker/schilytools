@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)macro.c	1.87 18/03/08 2008-2018 J. Schilling
+ * @(#)macro.c	1.90 18/05/23 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.87 18/03/08 2008-2018 J. Schilling";
+	"@(#)macro.c	1.90 18/05/23 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -55,6 +55,8 @@ static	UConst char sccsid[] =
 #include	"sym.h"
 #include	<wait.h>
 #endif
+
+#define	no_pipe	(int *)0
 
 		int	macflag;
 static unsigned char	quote;	/* used locally */
@@ -913,7 +915,15 @@ comsubst(trimflag, type)
 #ifdef	PARSE_DEBUG
 		prtree(t, "Command Substitution: ");
 #endif
-		execute(t, XEC_NOSTOP, (int)(flags & errflg), 0, pv);
+		/*
+		 * The SVr4 version of the shell did not allocate a job
+		 * slot when XEC_NOSTOP was specified. Since we use vfork()
+		 * and optiomized pipes (-DDO_PIPE_PARENT) we also need to
+		 * specify XEC_ALLOCJOB to avoid that we overwrite the
+		 * existing job slot with command substitution.
+		 */
+		execute(t, XEC_NOSTOP|XEC_ALLOCJOB, (int)(flags & errflg),
+			no_pipe, pv);
 #ifdef	DO_POSIX_E
 		retval = oret;	/* Restore old retval for $? */
 		retex = oex;
@@ -1230,7 +1240,8 @@ globesc(argp)
 				GROWSTAKTOP();
 				pushstak('\\');
 				break;
-			default: ;
+			default:
+				;
 			}
 		}
 		while (len-- > 0) {

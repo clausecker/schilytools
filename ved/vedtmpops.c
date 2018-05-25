@@ -1,13 +1,13 @@
-/* @(#)vedtmpops.c	1.34 13/07/27 Copyright 1988, 1993-2013 J. Schilling */
+/* @(#)vedtmpops.c	1.35 18/05/24 Copyright 1988, 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedtmpops.c	1.34 13/07/27 Copyright 1988, 1993-2013 J. Schilling";
+	"@(#)vedtmpops.c	1.35 18/05/24 Copyright 1988, 1993-2018 J. Schilling";
 #endif
 /*
  *	Routines that deal with reading/writing of .vedtmp files
  *
- *	Copyright (c) 1988, 1993-2013 J. Schilling
+ *	Copyright (c) 1988, 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,6 +48,7 @@ static	UConst char sccsid[] =
  * -    file-offset     decimal file offset 13 bytes field width null terninated
  * -    column          decimal column 13 bytes field width null terminated
  * -    date            decimal UNIX date of last visit 13 bytes field width
+ *			this works for more than year 9999
  *
  * The first line contains the offset line # of the current file. The first
  * line with a filename is number one.
@@ -77,12 +78,15 @@ LOCAL	long	uid	 = -1;
 
 LOCAL	void	vedtmp_name	__PR((void));
 LOCAL	void	write_vedtmp	__PR((ewin_t *wp, FILE *f,
-				int (*writefunc)(ewin_t *wp, FILE *  f, Uchar* buf, int len, Uchar* name),
+				int (*writefunc)(ewin_t *wp, FILE *  f,
+				Uchar* buf, int len, Uchar* name),
 				BOOL inedit));
 EXPORT	void	put_vedtmp	__PR((ewin_t *wp, BOOL inedit));
-LOCAL	int	read_vedtmp	__PR((ewin_t *wp, char *buf, int len, int *idxp, time_t *ctimep, BOOL inedit));
+LOCAL	int	read_vedtmp	__PR((ewin_t *wp, char *buf, int len,
+				int *idxp, time_t *ctimep, BOOL inedit));
 EXPORT	BOOL	get_vedtmp	__PR((ewin_t *wp, epos_t *posp, int *colp));
-LOCAL	void	cvt_vedtmp	__PR((Uchar *buf, int amt, epos_t *posp, int *colp, long *datp));
+LOCAL	void	cvt_vedtmp	__PR((Uchar *buf, int amt, epos_t *posp,
+				int *colp, long *datp));
 
 /*
  * Create a per user unique name for the .vedtmp file
@@ -101,7 +105,8 @@ LOCAL void
 write_vedtmp(wp, f, writefunc, inedit)
 	ewin_t	*wp;
 	FILE	*f;
-	int	(*writefunc) __PR((ewin_t *wp, FILE *  f, Uchar* buf, int len, Uchar* name));
+	int	(*writefunc) __PR((ewin_t *wp, FILE *  f,
+				Uchar* buf, int len, Uchar* name));
 	BOOL	inedit;
 {
 	Uchar	str[64];
@@ -157,12 +162,25 @@ write_vedtmp(wp, f, writefunc, inedit)
 		slen = 0;
 	if (wp->dot != (epos_t)-1 || newent) {
 		struct timeval	tv;
+		Llong		tdot = (Llong)wp->dot;
+		int		tcol = wp->column;
 
 		if (newent && wp->dot == (epos_t)-1)
 			wp->dot = (epos_t)0;
-		snprintf(C str, sizeof (str), "%*s%13lld", slen, "", (Llong)wp->dot);
+		/*
+		 * If wp->dot >= ~ 2**44, we do not like to clobber the
+		 * vedtmp file but rather remember the beginning of the file.
+		 * So do not write numbers that take more than 13 columns.
+		 */
+#if	defined(HAVE_LARGEFILES) || defined(HAVE_LONGLONG)
+		if (tdot > (Llong)9999999999999LL) {
+			tdot = (Llong)0;
+			tcol = 0;
+		}
+#endif
+		snprintf(C str, sizeof (str), "%*s%13lld", slen, "", tdot);
 		writefunc(wp, f, str, strlen(C str)+1, uvedtmp);
-		snprintf(C str, sizeof (str), "%13d", wp->column);
+		snprintf(C str, sizeof (str), "%13d", tcol);
 		writefunc(wp, f, str, strlen(C str)+1, uvedtmp);
 		gettimeofday(&tv, 0);
 		snprintf(C str, sizeof (str), "%13ld\n", (long)tv.tv_sec);
@@ -191,7 +209,7 @@ put_vedtmp(wp, inedit)
 		vedtmp_name();
 	if (noedtmp)
 		return;
-	if (!readable(wp->curfile))	/* Don't add filename if it doen't exist */
+	if (!readable(wp->curfile))	/* Don't add filename if it doesn't exist */
 		return;
 
 	if (inedit) {
@@ -230,7 +248,7 @@ read_vedtmp(wp, buf, len, idxp, ctimep, inedit)
 	long	idx = 0;
 	int	nlen = 0;
 	time_t	checktime = (time_t)0;
-/*	long	dat;*/
+	long	dat;
 	struct timeval tv;
 	long	i;
 
@@ -295,7 +313,14 @@ read_vedtmp(wp, buf, len, idxp, ctimep, inedit)
 	if (wp->curfile != NULL)
 		nlen = strlen(C wp->curfile);
 	gettimeofday(&tv, 0);
-	for (i = 1; idx == 0 || i <= idx; i++) {
+	/*
+	 * Search as long as we did not yet scan the whole file.
+	 * Remember a possible slot in "idx" even if we did not
+	 * yet find the filename we are looking for. If we find
+	 * the right filename in the vedtmp file, use it, otherwise
+	 * use the first remembered slot that may be overwritten.
+	 */
+	for (i = 1; ; i++) {
 		cnt = fgetline(f, buf, len);
 		if (cnt < 0) {
 			if (ferror(f)) {
@@ -312,9 +337,15 @@ read_vedtmp(wp, buf, len, idxp, ctimep, inedit)
 			idx = i;
 			break;
 		}
-#ifdef	notyet
 		/*
-		 * We need to first read all entries to make sure our name
+		 * Filename was not specified,
+		 * look for index of last edited file.
+		 */
+		if (wp->curfile == NULL && idx == i)
+			break;
+
+		/*
+		 * We need to read all entries to make sure our name
 		 * is not in.
 		 */
 		if (idxp != NULL && idx == 0 && nlen > 0 && nlen < 32) {
@@ -327,39 +358,52 @@ read_vedtmp(wp, buf, len, idxp, ctimep, inedit)
 			 * are not present anymore.
 			 * First check time of last visit...
 			 */
-			cvt_vedtmp(buf, cnt, 0, 0, &dat);
-#define	DEBUG
+			cvt_vedtmp(UC buf, cnt, 0, 0, &dat);
 #ifdef	DEBUG
 			if (0 && !inedit) {
-				error("Name: '%s' len: %d %.24s %s\r\n", buf, strlen(buf),
-					ctime(&dat),
+				time_t	t = dat;
+				error("Name: '%s' len: %d %.24s %s\r\n",
+					buf, (int)strlen(buf),
+					ctime(&t),
 					((long)tv.tv_sec > (dat+3600*24*30))?"OLD":"NEW");
 			}
 #endif
-			if ((long)tv.tv_sec < (dat+3600*24*7))
-				continue;
-
 			/*
-			 * If the file still exists or the name is longer than
-			 * 32 chars leave it untouched.
+			 * If the file no longer exists, we may use this slot.
 			 */
 			ft = gftime(buf);
-			if (ft != 0 || strlen(buf) >= 32)
+			if (ft == 0)
+				goto found;
+			/*
+			 * If the file exists and this entry is not more than
+			 * a month old, keep on searching.
+			 */
+			if ((long)tv.tv_sec < (dat+3600*24*30))
+				continue;
+
+		found:
+			/*
+			 * If the file name is longer than
+			 * 32 chars leave it untouched.
+			 */
+			if (strlen(buf) >= 32)
 				continue;
 #ifdef	DEBUG
 			if (!inedit) {
-				error("Name: '%s' len: %d %.24s %s\r\n", buf, strlen(buf),
-					ctime(&dat),
+				time_t	t = dat;
+				error("Name: '%s' len: %d %.24s %s\r\n",
+					buf, (int)strlen(buf),
+					ctime(&t),
 					((long)tv.tv_sec > (dat+3600*24*30))?"OLD":"NEW");
 			}
 #endif
 			/*
 			 * We found a free slot that fits.
+			 * Remember it and use it in case we have no
+			 * filename match.
 			 */
 			idx = i;
-			break;
 		}
-#endif	/* notyet */
 	}
 	if (idx > i) {
 		/*

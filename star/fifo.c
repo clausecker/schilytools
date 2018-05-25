@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.79 15/04/22 Copyright 1989, 1994-2015 J. Schilling */
+/* @(#)fifo.c	1.81 18/05/20 Copyright 1989, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.79 15/04/22 Copyright 1989, 1994-2015 J. Schilling";
+	"@(#)fifo.c	1.81 18/05/20 Copyright 1989, 1994-2018 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -19,7 +19,7 @@ static	UConst char sccsid[] =
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *		R	fifo_reelwake() wake up put side if mp->reelwait == TRUE
  *
- *	Copyright (c) 1989, 1994-2015 J. Schilling
+ *	Copyright (c) 1989, 1994-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +45,9 @@ static	UConst char sccsid[] =
 #ifdef	FIFO
 
 #if !defined(USE_MMAP) && !defined(USE_USGSHM)
+#ifdef	HAVE_SMMAP
 #define	USE_MMAP
+#endif
 #endif
 #if defined(HAVE_SMMAP) && defined(USE_MMAP)
 #include <schily/mman.h>
@@ -58,20 +60,26 @@ static	UConst char sccsid[] =
 
 #ifndef	HAVE_SMMAP
 #	undef	USE_MMAP
+#	ifdef	FIFO
 #	define	USE_USGSHM	/* SYSV shared memory is the default */
+#	endif
 #endif
 
 #ifdef	HAVE_DOSALLOCSHAREDMEM	/* This is for OS/2 */
 #	undef	USE_MMAP
 #	undef	USE_USGSHM
+#	ifdef	FIFO
 #	define	USE_OS2SHM
+#	endif
 #endif
 
 #ifdef	HAVE_BEOS_AREAS		/* This is for BeOS/Zeta */
 #	undef	USE_MMAP
 #	undef	USE_USGSHM
 #	undef	USE_OS2SHM
+#	ifdef	FIFO
 #	define	USE_BEOS_AREAS
+#	endif
 #endif
 
 #ifdef DEBUG
@@ -237,6 +245,8 @@ extern	BOOL	cflag;
 	buf = mkbeosshm(buflen);
 #endif
 #endif
+	if (buf == NULL)
+		comerrno(EX_BAD, "Cannot get shared memory, fifo missconfigured?\n");
 	mp = (m_head *)buf;
 	fillbytes(buf, addsize, '\0');	/* We init the complete add. space */
 	stats = &mp->stats;

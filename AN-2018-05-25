@@ -1,0 +1,238 @@
+New features with AN-2018-05-25:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	README.compile: Added a hint on how do disable C++ compilation
+	via make make C++BUILD=off
+
+-	Schily Makefile system: A new set of rules enforces ordered execution
+	in parallel mode with SunPro make and GNU make without ignoring
+	the correct up to date state.
+
+	The new rules affect localized scripts.
+
+-	psmake/MAKE-sh: added -D_GNU_SOURCE for Linux compilation.
+
+	Thanks to Jan Engelhardt for reporting
+
+-	libschily: updated the mail addresses in the man pages.
+
+-	libfind: removed blank line in the linker map file
+
+-	libfind: the id cache (uid/gid <->name mapping) now helps star to find
+	whether a user name or group name is not completely 7 bit ASCII and
+	thus needs a locale conversion in star POSIX.1-2001 extended headers.
+
+-	smake: Added a new section "SOURCE DOWNLOAD" to the man pages.
+
+-	star: user name, group name, path and linkpath are now automatically
+	added to the POSIX.1-2001 extended header in case that they include
+	non-ASCII characters (outside the 7-bit range).
+
+-	star: if mtime is negative, mtime is too large for a POSIX.1-1988
+	TAR header or if nanoseconds are non-null and the archive format
+	supports POSIX.1-2001 extended headers, the times are now always
+	recorded in an extended header. This is a requirement from newer
+	POSIX versions.
+
+-	star: Since the probability for creating POSIX.1-2001 x-headers
+	did raise, we cannot make assumptions anymore just from the existence
+	of an x-header. While doing archive format detection, star is no longer
+	happy with a 'x' or 'g' header to decide that an archive is in
+	"exustar" format but requires a SCHILY.archtype keyword.
+
+-	star: The fifo is now using a better autoconfiguration in order to
+	prevent it to try to use shmget() on DOS. This makes star compile 
+	with DJGPP.
+
+-	star: a new option (-pax-o) has been added. This currently only 
+	implelents the flag "binary" that tells star to add a field
+	hdrcharset=BINARY to the extended headers.
+
+-	star: better comment in Makefile
+
+-	star: fixed an ununitialized finfo.f_flags in flush_link()
+
+	Thanks to Martin Liska from Suse for reporting
+
+-	star: updated the mail addresses in the man pages.
+
+-	mt: updated the mail addresses in the man pages.
+
+-	rmt: updated the mail addresses in the man pages.
+
+-	rscsi: updated the mail addresses in the man pages.
+
+-	sfind: updated the mail addresses in the man pages.
+
+-	ved: A better algorithm to reuse outdated slots in the .vedtmp
+	file has been introduced. This prevents the .vedtmp file
+	from growing too fast.
+
+-	ved: the .vedtmp file reserves 13 chars for the "dot" offset but
+	it did not yet check whether the actual offset overflows 13 chars
+	and thus makes the size of the entries non-unified.
+	We now make sure that longer offsets are not written.
+
+	Note that 10**13 is aprox. 2*44, which gives a lot of room for the
+	future.
+
+	Since the same limitation applies to the time_t value, we are still
+	able to use this method in aprox. a million years.
+
+-	SCCS::admin Renamed a variable "unlock" because of name space pollution
+	on DJGPP.
+
+-	sformat: The man page used .cs that dos not work with GNU troff because
+	of a GNU troff bug. We no longer use this command for nroff. Note that
+	the GNU troff bug still applies if you try to print the man page.
+
+-	sformat: History and Download sections have been added to the man page
+
+-	Bourne Shell: Fixed a problem with vfork() support. Calling:
+
+		no/file | more
+
+	caused the vfork()ed child to set "exitcode" in the parent to 127 as a
+	result of the shared memory, so this variable also needs a reset in
+	the parent.
+
+	The bug caused the shell not to reset the tty process group and
+	this caused the shell to either stop with SIGTTIN (Solaris) or to
+	exit (Linux).
+
+-	Bourne Shell: bltin.c needs #include <schily/wait.h> in case that
+	the platform does not support the POSIX standard waitid() and
+	CLD_EXITED. This is e.g. true for DJGPP
+
+-	Bourne Shell: service.c DJGPP does not have ETXTBSY, so use #ifdef
+
+-	Bourne Shell: macro.c needed an additional flag XEC_ALLOCJOB for
+	Command Substitition since the reworked perser/interpreter that uses
+	vfork() and optimized pipes otherwise would overwrite the existing
+	job slot and as a result causing trouble with commands like:
+
+		sccs diffs `sccs tell ` | more
+
+	as this would not restore the shell tty procress group anymore.
+
+-	Bourne Shell: Implemented a better workaround for incomplete/buggy
+	waitid()/waitpid() implementations as on AIX, Linux, Mac OS X or NetBSD.
+
+	Since in these platfoms, wait*() always reaps childs, we cannot call
+	getpgid(pid) after we did wait and as a result, jobcontrol is affected
+	with the following command:
+
+		dosh 'nroff -u1 -Tlp -man $@ | col -x' | more
+
+	and this causes the shell to suspend because of a SIGTTIN or to die
+	because of an EIO from read(0, ...
+
+	In the better workaround, we call getpgid(pid) before we call waitid()
+	and use the result instread of guessing the process group id.
+
+-	Bourne Shell: better comment in jobs.c::allocjob()
+
+-	Bourne Shell: The job printing function now converts strings like
+	\a\b\c to 'abc' to get better readable output for the "jobs" command.
+
+-	mkisofs: tree.c now casts a constant to off_t
+
+-	cdrtools: Added a new section "SOURCE DOWNLOAD" to the man pages.
+
+-	p: wcslen() needs #include <sys/types.h> for size_t
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

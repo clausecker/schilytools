@@ -1,8 +1,8 @@
-/* @(#)pax.c	1.35 18/03/19 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)pax.c	1.36 18/05/21 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.35 18/03/19 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)pax.c	1.36 18/05/21 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
@@ -211,11 +211,6 @@ gargs(ac, av)
 		errmsgno(EX_BAD, "Unsupported option -l.\n");
 		susage(EX_BAD);
 	}
-	if (paxopts) {
-		/* Unsupported in UNIX-98 */
-		errmsgno(EX_BAD, "SUSv2 / UNIX-98 does not specify any option for -o.\n");
-		susage(EX_BAD);
-	}
 	uncond = !paxuflag;
 
 	if (do_stats)
@@ -223,7 +218,9 @@ gargs(ac, av)
 
 	star_checkopts(/* oldtar */ FALSE, /* dodesc */ TRUE,
 				/* usetape */ FALSE,
-				/* archive */ -1, no_fifo, /* llbs */ 0);
+				/* archive */ -1, no_fifo,
+				paxopts,
+				/* llbs */ 0);
 
 	nolinkerr = FALSE;
 }

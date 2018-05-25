@@ -1,8 +1,8 @@
-/* @(#)cpio.c	1.30 18/03/19 Copyright 1989, 2005-2018 J. Schilling */
+/* @(#)cpio.c	1.31 18/05/21 Copyright 1989, 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.30 18/03/19 Copyright 1989, 2005-2018 J. Schilling";
+	"@(#)cpio.c	1.31 18/05/21 Copyright 1989, 2005-2018 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
@@ -347,7 +347,9 @@ gargs(ac, av)
 
 	star_checkopts(/* oldtar */ FALSE, /* dodesc */ FALSE,
 				/* usetape */ FALSE,
-				/* archive */ -1, no_fifo, llbs);
+				/* archive */ -1, no_fifo,
+				/* paxopts */ NULL,
+				llbs);
 
 	nolinkerr = FALSE;
 }

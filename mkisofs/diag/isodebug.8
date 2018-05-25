@@ -1,4 +1,4 @@
-.\" @(#)isodebug.8	1.6 15/11/02 Copyr 2006-2015 J. Schilling
+.\" @(#)isodebug.8	1.7 18/05/24 Copyr 2006-2018 J. Schilling
 .\" Manual page for isodebug
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISODEBUG 1L "Version 3.02 2015/11/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH ISODEBUG 1L "Version 3.02 2018/05/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 isodebug \- print mkisofs debug info from ISO-9660 image
 .SH SYNOPSIS
@@ -105,3 +105,58 @@ https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
 or
 .B
 https://lists.sourceforge.net/lists/listinfo/cdrtools-support
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B cdrtools
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B cdrtools
+is at:
+.LP
+.B
+    http://sourceforge.net/projects/cdrtools/files/
+.LP
+and
+.B
+    http://sourceforge.net/projects/cdrtools/files/alpha
+.LP
+Separate project informations for the
+.B cdrtools
+project may be retrieved from:
+.LP
+.B
+    http://cdrecord.org
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B readcd
+are designed for long term stability.
+As
+.B readcd
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B readcd
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR readcd .

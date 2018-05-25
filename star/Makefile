@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.29 18/05/17 
+#ident @(#)Makefile	1.31 18/05/22 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -17,10 +17,11 @@ TARGET=		star
 #SYMLINKS=	ustar tar
 SYMLINKS=	ustar tar gnutar suntar scpio spax
 CPPOPTS +=	-D__STAR__
-CPPOPTS +=	-DSET_CTIME -DFIFO -DUSE_MMAP -DUSE_REMOTE -DUSE_RCMD_RSH
-#CPPOPTS +=	-DSET_CTIME -DFIFO -DUSE_MMAP
-#CPPOPTS +=	-DSET_CTIME -DUSE_MMAP
-#CPPOPTS +=	-DFIFO -DUSE_MMAP
+CPPOPTS +=	-DSET_CTIME		# Include timestorm code to set ctime
+CPPOPTS +=	-DFIFO			# Include FIFO code
+CPPOPTS +=	-DUSE_MMAP		# Use mmap() for the FIFO
+CPPOPTS +=	-DUSE_REMOTE		# Add support for the rmt protocol
+CPPOPTS +=	-DUSE_RCMD_RSH		# Add fast support for rcmd()
 CPPOPTS +=	-DUSE_LARGEFILES	# Support files > 2 GB
 CPPOPTS +=	-DUSE_FIND		# Include support for libfind
 CPPOPTS +=	-DUSE_ACL		# Support file ACLs
@@ -41,7 +42,7 @@ CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		unicode.c \
 		subst.c volhdr.c \
 		chdir.c match.c defaults.c dumpdate.c \
-		fifo.c device.c checkerr.c \
+		fifo.c device.c checkerr.c paxopts.c \
 		\
 		findinfo.c pathname.c
 

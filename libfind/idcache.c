@@ -1,13 +1,13 @@
-/* @(#)idcache.c	1.30 15/05/01 Copyright 1993, 1995-2015 J. Schilling */
+/* @(#)idcache.c	1.32 18/05/20 Copyright 1993, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idcache.c	1.30 15/05/01 Copyright 1993, 1995-2015 J. Schilling";
+	"@(#)idcache.c	1.32 18/05/20 Copyright 1993, 1995-2018 J. Schilling";
 #endif
 /*
  *	UID/GID caching functions
  *
- *	Copyright (c) 1993, 1995-2015 J. Schilling
+ *	Copyright (c) 1993, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -65,6 +65,7 @@ EXPORT	BOOL 	ic_gidname	__PR((char *name, int namelen, gid_t *gidp));
 LOCAL	void	nameinit	__PR((void));
 EXPORT	uid_t	ic_uid_nobody	__PR((void));
 EXPORT	gid_t	ic_gid_nobody	__PR((void));
+LOCAL	BOOL	nameascii	__PR((char *name));
 
 /*
  * Get name from uid
@@ -85,8 +86,10 @@ ic_nameuid(name, namelen, uid)
 	register uidc_t	*idp;
 
 	for (i = 0, idp = uidcache; i < C_SIZE; i++, idp++) {
-		if (idp->valid == 0)		/* Entry not yet filled */
-			break;
+		if (idp->valid == 0) {		/* Entry not yet filled */
+			lastuidx = i;
+			goto fill;
+		}
 		if (idp->uid == uid)
 			goto out;
 	}
@@ -94,15 +97,20 @@ ic_nameuid(name, namelen, uid)
 	if (lastuidx >= C_SIZE)
 		lastuidx = 0;
 
+fill:
 	idp->uid = uid;
 	idp->name[0] = '\0';
 	idp->valid = 1;
-	if ((pw = getpwuid(uid)) != NULL)
+	if ((pw = getpwuid(uid)) != NULL) {
 		strlcpy(idp->name, pw->pw_name, sizeof (idp->name));
-
+		if (!nameascii(idp->name))
+			idp->valid = 3;		/* Mark name as non-ASCII */
+	}
 out:
 	strlcpy(name, idp->name, namelen);
-	return (name[0] != '\0');
+	if (name[0] != '\0')
+		return (idp->valid);
+	return (FALSE);
 }
 
 /*
@@ -125,8 +133,10 @@ ic_uidname(name, namelen, uidp)
 	}
 
 	for (i = 0, idp = uidcache; i < C_SIZE; i++, idp++) {
-		if (idp->valid == 0)		/* Entry not yet filled */
-			break;
+		if (idp->valid == 0) {		/* Entry not yet filled */
+			lastuidx = i;
+			goto fill;
+		}
 		if (name[0] == idp->name[0] &&
 					strncmp(name, idp->name, len) == 0) {
 			*uidp = idp->uid;
@@ -141,6 +151,7 @@ ic_uidname(name, namelen, uidp)
 	if (lastuidx >= C_SIZE)
 		lastuidx = 0;
 
+fill:
 	idp->uid = 0;
 	idp->name[0] = '\0';
 	strlcpy(idp->name, name, len+1);	/* uidc_t.name is TUNMLEN+1 */
@@ -148,6 +159,8 @@ ic_uidname(name, namelen, uidp)
 	if ((pw = getpwnam(idp->name)) != NULL) {
 		idp->uid = pw->pw_uid;
 		*uidp = idp->uid;
+		if (!nameascii(idp->name))
+			idp->valid = 3;		/* Mark name as non-ASCII */
 		return (TRUE);
 	} else {
 		idp->valid = 2;			/* Mark name as not found */
@@ -175,8 +188,10 @@ ic_namegid(name, namelen, gid)
 	register gidc_t	*idp;
 
 	for (i = 0, idp = gidcache; i < C_SIZE; i++, idp++) {
-		if (idp->valid == 0)		/* Entry not yet filled */
-			break;
+		if (idp->valid == 0) {		/* Entry not yet filled */
+			lastgidx = i;
+			goto fill;
+		}
 		if (idp->gid == gid)
 			goto out;
 	}
@@ -184,15 +199,20 @@ ic_namegid(name, namelen, gid)
 	if (lastgidx >= C_SIZE)
 		lastgidx = 0;
 
+fill:
 	idp->gid = gid;
 	idp->name[0] = '\0';
 	idp->valid = 1;
-	if ((gr = getgrgid(gid)) != NULL)
+	if ((gr = getgrgid(gid)) != NULL) {
 		strlcpy(idp->name, gr->gr_name, sizeof (idp->name));
-
+		if (!nameascii(idp->name))
+			idp->valid = 3;		/* Mark name as non-ASCII */
+	}
 out:
 	strlcpy(name, idp->name, namelen);
-	return (name[0] != '\0');
+	if (name[0] != '\0')
+		return (idp->valid);
+	return (FALSE);
 }
 
 /*
@@ -215,8 +235,10 @@ ic_gidname(name, namelen, gidp)
 	}
 
 	for (i = 0, idp = gidcache; i < C_SIZE; i++, idp++) {
-		if (idp->valid == 0)		/* Entry not yet filled */
-			break;
+		if (idp->valid == 0) {		/* Entry not yet filled */
+			lastgidx = i;
+			goto fill;
+		}
 		if (name[0] == idp->name[0] &&
 					strncmp(name, idp->name, len) == 0) {
 			*gidp = idp->gid;
@@ -231,6 +253,7 @@ ic_gidname(name, namelen, gidp)
 	if (lastgidx >= C_SIZE)
 		lastgidx = 0;
 
+fill:
 	idp->gid = 0;
 	idp->name[0] = '\0';
 	strlcpy(idp->name, name, len+1);	/* gidc_t.name is TGNMLEN+1 */
@@ -238,6 +261,8 @@ ic_gidname(name, namelen, gidp)
 	if ((gr = getgrnam(idp->name)) != NULL) {
 		idp->gid = gr->gr_gid;
 		*gidp = idp->gid;
+		if (!nameascii(idp->name))
+			idp->valid = 3;		/* Mark name as non-ASCII */
 		return (TRUE);
 	} else {
 		idp->valid = 2;			/* Mark name as not found */
@@ -293,4 +318,16 @@ ic_gid_nobody()
 	if (!name_init)
 		nameinit();
 	return (_gid_nobody);
+}
+
+LOCAL BOOL
+nameascii(name)
+	register char	*name;
+{
+	register unsigned char	c;
+	while ((c = (unsigned char)*name++) != '\0') {
+		if (c > 127)
+			return (FALSE);
+	}
+	return (TRUE);
 }

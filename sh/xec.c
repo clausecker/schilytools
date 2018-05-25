@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.98 18/04/21 2008-2018 J. Schilling
+ * @(#)xec.c	1.100 18/05/23 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.98 18/04/21 2008-2018 J. Schilling";
+	"@(#)xec.c	1.100 18/05/23 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -626,6 +626,7 @@ script:
 						mypgid = opgid;
 						flags = oflags;
 						ex = oex;
+						exitval = 0;
 					}
 #endif
 					if (monitor)
@@ -1140,9 +1141,11 @@ script:
 						s = macro(rex->argval);
 #ifdef	CASE_XPRINT
 						if (flags & execpr)
-							cprint(s, UC ")", UC "...");
+							cprint(s, UC ")",
+								UC "...");
 #endif
-						if (gmatch((char *)r, (char *)s) ||
+						if (gmatch((char *)r,
+								(char *)s) ||
 						    ((flags2 & posixflg) == 0 &&
 						    (trim(s), eq(r, s)))) {
 							execute(regp->regcom,
@@ -1279,7 +1282,7 @@ cprint(a1, a2, a3)
 	com[2] = a3;
 	com[3] = ENDARGS;
 
-	execprint(com);	
+	execprint(com);
 }
 #endif
 
