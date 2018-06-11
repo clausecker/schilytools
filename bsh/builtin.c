@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.94 17/05/03 Copyright 1988-2017 J. Schilling */
+/* @(#)builtin.c	1.95 18/06/06 Copyright 1988-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.94 17/05/03 Copyright 1988-2017 J. Schilling";
+	"@(#)builtin.c	1.95 18/06/06 Copyright 1988-2018 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -747,6 +747,11 @@ bwait(vp, std, flag)
 	if (!setjmp(waitjmp)) {
 		if (osig2 != (sigtype) SIG_IGN)
 			intsav = signal(SIGINT, waitint);
+		/*
+		 * A longjmp() from the SIGINT handler may leave
+		 * SIGINT blocked.
+		 */
+		unblock_sigs();
 		if (vp->av_ac == 1) {
 			ex_status = ewait((pid_t)0, 0);
 		} else for (t = &vp->av_av[1]; *t != NULL; t++) {
@@ -1601,6 +1606,11 @@ brepeat(vp, std, flag)
 	if (!setjmp(waitjmp)) {
 		if (osig2 != (sigtype) SIG_IGN)
 			intsav = signal(SIGINT, waitint);
+		/*
+		 * A longjmp() from the SIGINT handler may leave
+		 * SIGINT blocked.
+		 */
+		unblock_sigs();
 		while (count-- > 0) {
 			if (dtime) {
 				if (sttime) {

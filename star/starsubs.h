@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.117 18/05/21 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.118 18/06/10 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -437,7 +437,8 @@ extern	int	texttoflags	__PR((FINFO *info, char *buf));
  * defaults.c
  */
 extern	char	*get_stardefaults __PR((char *name));
-extern	void	star_defaults	__PR((long *fsp, char *dfltname));
+extern	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
+						char *dfltname));
 extern	BOOL	star_darchive	__PR((char *arname, char *dfltname));
 
 /*

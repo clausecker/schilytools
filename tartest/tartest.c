@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.20 17/06/22 Copyright 2002-2017 J. Schilling */
+/* @(#)tartest.c	1.21 18/05/28 Copyright 2002-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.20 17/06/22 Copyright 2002-2017 J. Schilling";
+	"@(#)tartest.c	1.21 18/05/28 Copyright 2002-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2017 J. Schilling
+ *	Copyright (c) 2002-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -85,7 +85,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.20",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.21",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2002-2017 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -436,8 +436,8 @@ checktype(ptb)
 	case 'g':
 	case 'x':
 		if (!is_posix_2001) {
-			error("Archive uses POSIX.1-2001 extensions.\n");
-			error("The correctness of the size field cannot be checked for this reason.\n");
+			printf("Warning: Archive uses POSIX.1-2001 extensions.\n");
+			printf("Warning: The correctness of the size field cannot be checked for this reason.\n");
 			is_posix_2001 = TRUE;
 		}
 		break;
@@ -448,8 +448,8 @@ checktype(ptb)
 	case 'V': case 'W': case 'X': case 'Y': case 'Z':
 		{ static char vend[256];
 			if (vend[ptb->ustar_dbuf.t_typeflag & 0xFF] == 0) {
-				error(
-				"Archive uses Vendor specific extension file type '%c'.\n",
+				printf(
+				"Warning: Archive uses Vendor specific extension file type '%c'.\n",
 				ptb->ustar_dbuf.t_typeflag & 0xFF);
 				vend[ptb->ustar_dbuf.t_typeflag & 0xFF] = 1;
 			}

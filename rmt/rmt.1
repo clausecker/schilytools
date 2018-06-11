@@ -1,4 +1,4 @@
-. \" @(#)rmt.1	1.16 18/05/22 Copyr 1994-2018 J. Schilling
+. \" @(#)rmt.1	1.17 18/06/09 Copyr 1994-2018 J. Schilling
 . \"  Manual Seite fuer rmt
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMT 1 "2018/05/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH RMT 1 "2018/06/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 rmt \- remote magnetic tape protocol server
 .SH SYNOPSIS
@@ -398,10 +398,13 @@ parameter.
 Only Opcodes 0..7 are unique across different architectures.
 In many cases 
 .B Linux
-does not even follow this rule.
+does not even follow this rule and could cause harm to tape media
+in case an old non
+.B RMT protocol VERSION 1
+aware rmt client connects from UNIX to Linux or from Linux to UNIX.
 If we know that we have been called by a 
 .B RMT protocol VERSION 1 
-client, we may safely assume that the client is not using
+client, we may safely assume that the client is not using the
 .B Linux
 mapping over the wire but the standard mapping described below:
 .RS
@@ -739,6 +742,20 @@ server is a new implementation
 that tries to be compatible to all existing implementations.
 It is the only known implementation that in addition tries to
 fix the data exchange problems between different architectures.
+
+.LP
+This
+.B rmt
+implementation has been written in 1994 by J\*org Schilling.
+In 2000, support for
+.B RMT VERSION 1
+has been added
+and a mapping to work around the non-standard Linux
+.B mtio
+opcodes in the range 0..7 has been added.
+.B rmt
+is still maintained by J\*org Schilling.
+.LP
 
 .SH AUTHOR
 .nf

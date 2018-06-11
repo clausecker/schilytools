@@ -1,8 +1,8 @@
-/* @(#)pax.c	1.36 18/05/21 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)pax.c	1.37 18/06/10 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.36 18/05/21 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)pax.c	1.37 18/06/10 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
@@ -87,7 +87,7 @@ LOCAL	void	pax_setopts	__PR((char *o));
  * The official POSIX options start after the -bz/-lzo/-7z/-xz/-lzip option.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
+char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -141,7 +141,7 @@ gargs(ac, av)
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 #ifndef	__old__lint
 				&showtime, &no_stats, & do_stats, &do_fifostats,
-				&numeric,  &no_fifo, &no_fsync,
+				&numeric,  &no_fifo, &no_fsync, &no_fsync,
 				getenum, &bs,
 				getenum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
@@ -318,6 +318,7 @@ xusage(ret)
 	error("\tfs=#\t\tset fifo size to #\n");
 #endif
 	error("\t-no-fsync\tdo not call fsync() for each extracted file (may be dangerous)\n");
+	error("\t-do-fsync\tcall fsync() for each extracted file\n");
 	error("\t-time\t\tprint timing info\n");
 	error("\t-no-statistics\tdo not print statistics\n");
 	error("\t-do-statistics\tprint statistics\n");

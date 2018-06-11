@@ -1,8 +1,8 @@
-/* @(#)header.c	1.171 18/05/20 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.172 18/06/11 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.171 18/05/20 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.172 18/06/11 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -864,6 +864,7 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
+				xstats.s_hardeof++;
 				return (EOF);
 			}
 			hdrtype = get_hdrtype(ptb, FALSE);
@@ -977,6 +978,7 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
+				xstats.s_hardeof++;
 				return (EOF);
 			}
 		}

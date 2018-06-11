@@ -1,4 +1,4 @@
-. \" @(#)scpio.1	1.7 18/05/22 Copyright (C) 1997 by The Open Group, Copyright (C) 2004-2018 J. Schilling
+. \" @(#)scpio.1	1.8 18/06/10 Copyright (C) 1997 by The Open Group, Copyright (C) 2004-2018 J. Schilling
 . \" Manual page for scpio
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SCPIO 1L "2018/05/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SCPIO 1L "2018/06/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 scpio \- copy file archives in and out (LEGACY)
 .SH SYNOPSIS
@@ -463,6 +463,14 @@ for more information.
 .TP
 .B \-no\-fsync
 Do not call
+.BR fsync (2)
+for each file that has been extracted from the archive.
+See
+.BR star (1)
+for more information.
+.TP
+.B \-do\-fsync
+Call
 .BR fsync (2)
 for each file that has been extracted from the archive.
 See

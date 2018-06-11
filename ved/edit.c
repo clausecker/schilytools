@@ -1,13 +1,13 @@
-/* @(#)edit.c	1.24 09/07/13 Copyright 1984-2009 J. Schilling */
+/* @(#)edit.c	1.25 18/06/04 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.24 09/07/13 Copyright 1984-2009 J. Schilling";
+	"@(#)edit.c	1.25 18/06/04 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,8 @@ static	UConst char sccsid[] =
 extern	void	(*chartab[NCTAB][0200])	__PR((ewin_t *));
 extern	int	ctabidx;	/* The table idx where we take commands from */
 
-LOCAL	jmp_buf	jmp;
-extern	jmps_t	*sjp;
+LOCAL	sigjmp_buf	jmp;
+extern	sigjmps_t	*sjp;
 
 extern	long	charstyped;
 
@@ -46,9 +46,9 @@ intr(sig)
 {
 	signal(SIGINT, intr);
 	if (sjp)
-		longjmp(sjp->jb, TRUE);
+		siglongjmp(sjp->jb, TRUE);
 	else
-		longjmp(jmp, TRUE);
+		siglongjmp(jmp, TRUE);
 }
 
 EXPORT void
@@ -67,7 +67,7 @@ edit(wp)
 	vedstartstats();
 
 	sdot = wp->dot;
-	if (setjmp(jmp)) {
+	if (sigsetjmp(jmp, 1)) {
 		if (in_command) {
 /*			dot = sdot;*/
 			update(wp);

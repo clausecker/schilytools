@@ -1,11 +1,11 @@
-/* @(#)defaults.c	1.13 09/07/11 Copyright 1998-2009 J. Schilling */
+/* @(#)defaults.c	1.15 18/06/10 Copyright 1998-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defaults.c	1.13 09/07/11 Copyright 1998-2009 J. Schilling";
+	"@(#)defaults.c	1.15 18/06/10 Copyright 1998-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,10 +37,15 @@ extern	long		bs;
 extern	int		nblocks;
 extern	BOOL		not_tape;
 extern	Ullong		tsize;
+extern	BOOL		silent;
+extern	BOOL		print_artype;
+extern	BOOL		xflag;
+extern	BOOL		nflag;
 
 EXPORT	char	*get_stardefaults __PR((char *name));
 LOCAL	int	open_stardefaults __PR((char *dfltname));
-EXPORT	void	star_defaults	__PR((long *fsp, char *dfltname));
+EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
+						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
 
 EXPORT char *
@@ -75,10 +80,13 @@ open_stardefaults(dfltname)
 }
 
 EXPORT void
-star_defaults(fsp, dfltname)
+star_defaults(fsp, no_fsyncp, dfltname)
 	long	*fsp;
+	BOOL	*no_fsyncp;
 	char	*dfltname;
 {
+	BOOL	is_open = FALSE;
+	BOOL	nofsync = FALSE;
 	long	fs_cur	= 0L;
 	long	fs_max	= -1L;
 
@@ -91,6 +99,7 @@ star_defaults(fsp, dfltname)
 		char	*p = NULL;
 
 		if (open_stardefaults(dfltname) == 0) {
+			is_open = TRUE;
 			p = defltread("STAR_FIFOSIZE=");
 		}
 		if (p) {
@@ -101,9 +110,13 @@ star_defaults(fsp, dfltname)
 	if (fs_cur > 0L) {
 		char	*p = NULL;
 
-		if (open_stardefaults(dfltname) == 0) {
-			p = defltread("STAR_FIFOSIZE_MAX=");
+		if (is_open) {
+			defltfirst();
+		} else if (open_stardefaults(dfltname) == 0) {
+			is_open = TRUE;
 		}
+		if (is_open)
+			p = defltread("STAR_FIFOSIZE_MAX=");
 		if (p) {
 			if (getnum(p, &fs_max) != 1) {
 				comerrno(EX_BAD,
@@ -116,6 +129,42 @@ star_defaults(fsp, dfltname)
 
 	if (fs_cur > 0L && fsp != NULL)
 		*fsp = fs_cur;
+
+	if (no_fsyncp)
+		nofsync = *no_fsyncp;
+	if (nofsync < 0) {
+		char	*p = NULL;
+		BOOL	was_env = FALSE;
+
+		p = getenv("STAR_FSYNC");
+		if (p == NULL) {
+			if (is_open) {
+				defltfirst();
+			} else if (open_stardefaults(dfltname) == 0) {
+				is_open = TRUE;
+			}
+			if (is_open)
+				p = defltread("STAR_FSYNC=");
+		} else {
+			was_env = TRUE;
+		}
+		if (p) {
+			while (*p == ' ' || *p == '\t')
+				p++;
+			if (*p == 'n' || *p == 'N') {
+				nofsync = TRUE;
+				if (!silent && !print_artype && xflag && !nflag)
+					errmsgno(EX_BAD,
+					"WARNING: fsync() disabled from '%s'.\n",
+					was_env ? "environment" :
+					dfltname);
+			} else {
+				nofsync = FALSE;
+			}
+		}
+	}
+	if (no_fsyncp && nofsync >= 0)
+		*no_fsyncp = nofsync;
 
 	defltclose();
 }

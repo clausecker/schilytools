@@ -1,4 +1,4 @@
-/* @(#)breakline.c	1.11 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)breakline.c	1.12 18/06/03 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	break a line pointed to by *buf into fields
  *	returns the number of tokens, the line was broken into (>= 1)
@@ -8,7 +8,7 @@
  *	array[found ... len] point to '\0'
  *	len is the size of the array
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,5 +60,7 @@ breakline(buf, delim, array, len)
 		}
 		bp = dp;
 	}
+	if (found > len)
+		found = len;
 	return (found);
 }

@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.20 16/08/17 Copyright 1985-2016 J. Schilling */
+/* @(#)calc.c	1.22 18/06/06 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.20 16/08/17 Copyright 1985-2016 J. Schilling";
+	"@(#)calc.c	1.22 18/06/06 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2016 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -87,8 +87,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2016 Jörg Schilling\n",
-				"1.20",
+		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2018 Jörg Schilling\n",
+				"1.22",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -292,7 +292,10 @@ prdig(n)
 	else
 		putchar('0');
 	for (i = 1; i <= 31; i++) {
-		n = n << 1;
+		/*
+		 * New compilers like to make left shifting signed vars illegal
+		 */
+		n = (int)(((unsigned int)n) << 1);
 		if (n < 0)
 			putchar('1');
 		else
@@ -314,7 +317,10 @@ prlldig(n)
 	else
 		putchar('0');
 	for (i = 1; i <= 63; i++) {
-		n = n << 1;
+		/*
+		 * New compilers like to make left shifting signed vars illegal
+		 */
+		n = (Llong)(((ULlong)n) << 1);
 		if (n < 0)
 			putchar('1');
 		else
@@ -375,5 +381,7 @@ xbreakline(buf, delim, array, len)
 			dp++;
 		bp = dp;
 	}
+	if (found > len)
+		found = len;
 	return (found);
 }

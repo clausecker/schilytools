@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.31 18/05/22 
+#ident @(#)Makefile	1.33 18/06/08 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -19,6 +19,7 @@ SYMLINKS=	ustar tar gnutar suntar scpio spax
 CPPOPTS +=	-D__STAR__
 CPPOPTS +=	-DSET_CTIME		# Include timestorm code to set ctime
 CPPOPTS +=	-DFIFO			# Include FIFO code
+CPPOPTS +=	-DUSE_SSH		# Use "ssh" by default instead of "rsh"
 CPPOPTS +=	-DUSE_MMAP		# Use mmap() for the FIFO
 CPPOPTS +=	-DUSE_REMOTE		# Add support for the rmt protocol
 CPPOPTS +=	-DUSE_RCMD_RSH		# Add fast support for rcmd()
@@ -55,7 +56,7 @@ HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 #
 # LIB_CAP is needed for Linux capability support in librmt.
 #
-LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_ICONV) $(LIB_INTL) $(LIB_CAP)
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #

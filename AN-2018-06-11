@@ -1,0 +1,249 @@
+New features with AN-2018-06-11:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	include/schily/jmpdefs.h: Added a fallback definition for sigjmp_buf
+
+-	libschily::breakline() fixed a bug that caused the return code to be
+	larger than the number of array elements in some cases.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	libschily: Some open() calls now use O_DIRECTORY
+
+-	libschily: added a waitid() emulation based on waitpid()
+
+-	librmt: a new function rmtrsh() has been added to set up a different
+	method to initiate a remote connection. This allows to tell librmt
+	to make connections with "ssh" instead of using "rcmd()" or "rsh".
+
+	Thanks to a hint from Kristýna Streitová <kstreitova@suse.com>
+
+-	librmt: a new function rmtrmt() has been added to set up a different
+	path to the remote rmt server program. This allows to tell librmt
+	to make connections to servers that are on a path other than "/etc/rmt".
+
+-	librmt: The man pages have been enhanced.
+
+-	libfind: Some open() calls now use O_DIRECTORY
+
+-	libfind: walk.c now uses fchdir() on platforms that support dirfd(DIR*)
+	and by this change, libfind is now aprox. 30% faster than before and
+	makes libfind faster than other find implementations.
+
+-	libfind: walk.c: "!isdot" has been renamed to "need_cd" for better
+	readability of the code.
+
+-	libfind: WALK_STRIPLDOT now strips even multiple occurences of "./" 
+	and if there is no text after that, it replaces the empty string by ".".
+
+-	libfind: new functions wstat() and wlstat() have been added (both are
+	based on fstatat()).
+
+-	libfind: treewalk() now works even without fa.walkflags |= WALK_CHDIR
+
+-	sfind: enhanced the man page to mention -chown, -chgrp and -chmod but
+	with a note that this only works for libfind.
+
+-	star: add $(LIB_ICONV) to the Makefile
+
+-	star: man pages no longer have star(4/5) in the SEE ALSO section but
+	star(4), so the automatic links from man2html(1) work.
+
+-	star: the function has_dotdot() that checks for dangerous filenames
+	that contain ../../ which has been written 15 years ago (as the first
+	tar archiver to make this security check), now also checks for ..\..
+	attacks on Cygwin and other DOS based platforms.
+
+-	star: added a check for the exit code from the compress rogram. This
+	helps to detect certain problems and to make star exit != 0 in such a
+	case. The current code is based on siginfo_t. This is a "new" feature
+	that has been introduced by SVr4 in 1989 and that has been standardized
+	by SUSv1 in 1995. So it needs an OS platform that is actively
+	maintained after the period 1989/1995.
+
+	Thanks to a hint from Kristýna Streitová <kstreitova@suse.com>
+
+-	star: A hard EOF on the input now causes star to exit with a non-zero
+	exit code. This is a fallback method to grant a non-zero exit code
+	on platforms with an unmaintained kernel (such as Linux) where still
+	no working waitid()/siginfo_t exists even though the feature has been
+	introduced in 1989 (29 years ago).
+
+-	star: The Makefile now contains a #define "USE_SSH" to compile in
+	a new default to make remote tape connections using the ssh protocol
+	by default instead of the previous "rsh".
+
+	Thanks to a hint from Kristýna Streitová <kstreitova@suse.com>
+
+-	star: A new option rsh=path has been added to specify a different
+	remote login program on the command line.
+
+	WARNING: since the new default for star is to use "ssh", users that
+	rely on the speed of a rcmd() connection need to either put an empty
+	RSH= variable into the environment or need to specify rsh='' on the
+	star command line.
+
+-	star: A new option rmt=path has been added to specify a different
+	path to the remote tape server program on the command line.
+
+	Since star defaults to the UNIX default path "/etc/rmt", for the server
+	at the remote side, and since most /etc/rmt implementations are
+	dangerous in case that the OS on server and client differ, it is
+	recommended to put "RMT=/opt/schily/sbin/rmt" into the environment or
+	to specify "rmt=/opt/schily/sbin/rmt" on the star command line.
+
+-	star: The environment STAR_FSYNC=N may establish a default in star
+	that enables -no-fifo by default in order to prevent star from being
+	slow on a platform with inefficient buffer cache (like Linux) or on
+	transactional copy on write filesystem like ZFS.
+
+	Note that on Solaris with UFS, the performance degradation from using
+	the reliable mode (and issuing fsync()) is much less than 10%, while on
+	Linux with the UFS clone EXT4, the performance degradation is 400%.
+
+	If this fsync()-less default is enabled, star is always faster than other
+	archivers that never had such a check, but may no longer detect whether a
+	file could not be extracted correctly, since not all problems can be
+	flagged in the close() return code.
+	
+
+-	star: The entry STAR_FSYNC=N in /etc/default/star may establish a 
+	default in star were -no-fifo is enabled by default.
+
+-	star: A new option -do-fifo may reverse the default from the
+	STAR_FSYNC=N environment or from /etc/default/star.
+
+-	rmt: the man page has been enhanced.
+
+-	rmt: the comment in the program has been enhanced.
+
+-	tartest: Some warnings that have been printed to stderr are now on stdout
+	to make them all appear in the same file.
+
+-	star_sym: added the O_DIRECTORY openflag
+
+-	strar: add $(LIB_ICONV) to the Makefile
+
+-	Bourne Shell: error.c needs #include <schily/wait.h> for DJGPP
+
+-	Bourne Shell: enhance man page to mention that %n$ formats are not
+	required by POSIX
+
+-	calc::xbreakline() fixed a bug that caused the return code to be
+	larger than the number of array elements in some cases.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	calc: now casting signed ints to unsigned ints before left shifting
+	as the compilers insist in making this "undefined behavior" even though
+	POSIX did require POSIX hardware to be twos complement based years ago.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	ved: Worked around a problem with signal handling on Linux.
+	Linux is not POSIX XSI compliant and thus does not restore the signal
+	mask after a longjmp() from within a signal handler. Linux needs
+	sigsetjmp()/siglongjmp() instead.
+
+-	bsh: now restoring the signal mask for SIGINT in case we did a longjmp()
+	from a SIGINT handler.
+
+-	calltree: A possible buffer overflow in the lexer is now prevented.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

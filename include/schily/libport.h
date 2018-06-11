@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.46 18/01/17 Copyright 1995-2018 J. Schilling */
+/* @(#)libport.h	1.48 18/06/07 Copyright 1995-2018 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
@@ -405,6 +405,14 @@ extern	int		putenv		__PR((char *new));
 #endif
 #ifndef	HAVE_UNSETENV
 extern	int		unsetenv	__PR((const char *name));
+#endif
+
+#ifndef	HAVE_WAITID
+#ifdef	_SCHILY_WAIT_H
+#define	waitid		js_waitid
+extern	int		waitid		__PR((idtype_t idtype, id_t id,
+						siginfo_t *infop, int opts));
+#endif
 #endif
 
 #ifdef	__SUNOS4

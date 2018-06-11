@@ -1,4 +1,4 @@
-#	@(#)Makefile	1.3 18/05/12 Copyr 2017-2018 J. Schilling
+#	@(#)Makefile	1.4 18/05/26 Copyr 2017-2018 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,7 @@ CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		strar.c
 HFILES=
-LIBS=		-lstreamar -lfind -lschily $(LIB_INTL)
+LIBS=		-lstreamar -lfind -lschily $(LIB_ICONV) $(LIB_INTL)
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #

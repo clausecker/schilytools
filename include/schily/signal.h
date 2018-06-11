@@ -1,8 +1,8 @@
-/* @(#)signal.h	1.10 15/06/23 Copyright 1997-2015 J. Schilling */
+/* @(#)signal.h	1.11 18/06/07 Copyright 1997-2018 J. Schilling */
 /*
  *	Signal abstraction for signals
  *
- *	Copyright (c) 1997-2015 J. Schilling
+ *	Copyright (c) 1997-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,9 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+#ifndef	_SCHILY_TYPES_H
+#include <schily/types.h>
 #endif
 
 #ifdef	HAVE_SIGNAL_H
@@ -56,5 +59,21 @@
 #endif
 #endif
 #endif
+
+#if	!defined(HAVE_TYPE_SIGINFO_T) && !defined(HAVE_SIGINFO_T)
+
+typedef struct {
+	int	si_code;	/* Child status code */
+	pid_t	si_pid;		/* Child pid */
+	int	si_status;	/* Child exit code or signal number */
+	clock_t	si_utime;
+	clock_t	si_stime;
+} siginfo_t;
+
+#ifndef	id_t
+#define	id_t	pid_t
+#endif
+
+#endif	/* !defined(HAVE_TYPE_SIGINFO_T) && !defined(HAVE_SIGINFO_T) */
 
 #endif	/* _SCHILY_SIGNAL_H */

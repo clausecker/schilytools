@@ -1,4 +1,4 @@
-. \" @(#)rmtopen.3	1.4 08/10/12 Copyr 2002 J. Schilling
+. \" @(#)rmtopen.3	1.6 18/06/09 Copyr 2002-2018 J. Schilling
 . \" Manual page for rmtopen
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTOPEN 3L "08/10/12" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTOPEN 3L "2018/06/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
 .SH SYNOPSIS
@@ -195,6 +195,8 @@ rmtclose(remfd);
 .BR rcmd (3),
 .BR rmtinit (3),
 .BR rmtdebug (3),
+.BR rmtrmt (3),
+.BR rmtrsh (3),
 .BR rmthostname (3),
 .BR rmtfilename (3),
 .BR rmtgetconn (3),
@@ -245,6 +247,15 @@ If local and remote
 .B errno
 values do not match, programs may get confused.
 .SH AUTHOR
+.LP
+.B librmt
+has been written in 1990 by J\*org Schilling.
+In 1995, support for
+.B RMT VERSION 1
+has been added.
+.B librmt
+is still maintained by J\*org Schilling.
+.LP
 .nf
 J\*org Schilling
 Seestr. 110
@@ -258,4 +269,4 @@ Mail bugs and suggestions to:
 joerg.schilling@fokus.fraunhofer.de
 or
 .B
-js@cs.tu\-berlin.de
+joerg@schily.net

@@ -1,8 +1,8 @@
-/* @(#)gnutar.c	1.31 18/05/21 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)gnutar.c	1.32 18/06/10 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _g_sccsid[] =
-	"@(#)gnutar.c	1.31 18/05/21 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)gnutar.c	1.32 18/06/10 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -166,7 +166,7 @@ LOCAL	void	gnutar_setopts	__PR((char *o));
  * GNU TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,H&,format&,z,bz,create,c,append,r,list,t,update,u,extract,get,x,compare,d,catenate,concatenate,A,delete,verify,W,remove-files,keep-old-files,k,unlink-first,U,recursive-unlink,sparse,S,to-stdout,O,incremental,G,listed-incremental*,g*,ignore-failed-read,owner*,group*,mode*,atime-preserve,modification-time,m,same-owner,no-same-owner,numeric-owner,same-permissions,preserve-permissions,p,no-same-permissions,same-order,preserve,preserve-order,s,force-local,file&,f&,rsh-command*,multi-volume,M,tape-length&,L&,new-volume-script*,info-script*,F*,volno-file*,blocking-factor&,b&,record-size&,ignore-zeros,i,read-full-records,B,label*,V*,old-archive,portability,o,posix,bzip2,j,gzip,ungzip,compress,uncompress,Z,use-compress-program*,files-from*,T*,null,exclude&,exclude-from&,X&,anchored,no-anchored,ignore-case,no-ignore-case,wildcards,no-wildcards,wildcards-match-slash,no-wildcards-match-slash,absolute-names,P,dereference,h,no-recursion,one-file-system,l,starting-file*,K*,newer*,after-date*,N*,newer-mtime*,backup*,suffix*,v+,verbose+,checkpoint,totals,block-number,R,interactive,confirmation,w,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,H&,format&,z,bz,create,c,append,r,list,t,update,u,extract,get,x,compare,d,catenate,concatenate,A,delete,verify,W,remove-files,keep-old-files,k,unlink-first,U,recursive-unlink,sparse,S,to-stdout,O,incremental,G,listed-incremental*,g*,ignore-failed-read,owner*,group*,mode*,atime-preserve,modification-time,m,same-owner,no-same-owner,numeric-owner,same-permissions,preserve-permissions,p,no-same-permissions,same-order,preserve,preserve-order,s,force-local,file&,f&,rsh-command*,multi-volume,M,tape-length&,L&,new-volume-script*,info-script*,F*,volno-file*,blocking-factor&,b&,record-size&,ignore-zeros,i,read-full-records,B,label*,V*,old-archive,portability,o,posix,bzip2,j,gzip,ungzip,compress,uncompress,Z,use-compress-program*,files-from*,T*,null,exclude&,exclude-from&,X&,anchored,no-anchored,ignore-case,no-ignore-case,wildcards,no-wildcards,wildcards-match-slash,no-wildcards-match-slash,absolute-names,P,dereference,h,no-recursion,one-file-system,l,starting-file*,K*,newer*,after-date*,N*,newer-mtime*,backup*,suffix*,v+,verbose+,checkpoint,totals,block-number,R,interactive,confirmation,w,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -244,7 +244,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 #ifndef	__old__lint
 				&showtime, &no_stats, &do_stats, &do_fifostats,
-				&numeric,  &no_fifo, &no_fsync,
+				&numeric,  &no_fifo, &no_fsync, &no_fsync,
 				getenum, &bs,
 				getenum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
@@ -690,6 +690,7 @@ xusage(ret)
 	error("\tfs=#\t\tset fifo size to #\n");
 #endif
 	error("\t--no-fsync\tdo not call fsync() for each extracted file (may be dangerous)\n");
+	error("\t--do-fsync\tcall fsync() for each extracted file\n");
 	error("\t--time\t\tprint timing info\n");
 	error("\t--no-statistics\tdo not print statistics\n");
 	error("\t--do-statistics\tprint statistics\n");

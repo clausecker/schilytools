@@ -1,13 +1,13 @@
-/* @(#)io.c	1.40 17/07/16 Copyright 1984-2017 J. Schilling */
+/* @(#)io.c	1.41 18/06/04 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.40 17/07/16 Copyright 1984-2017 J. Schilling";
+	"@(#)io.c	1.41 18/06/04 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
  *
- *	Copyright (c) 1984-2017 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -145,7 +145,7 @@ gchar(wp)
 	return (0);		/* Keep lint happy */
 }
 
-EXPORT	jmps_t	*sjp;
+EXPORT	sigjmps_t	*sjp;
 EXPORT	BOOL	interrupted;
 extern	int	intrchar;
 
@@ -159,11 +159,11 @@ EXPORT Uchar
 nigchar(wp)
 	ewin_t	*wp;
 {
-static	jmps_t	gcjmp;
-	jmps_t	*savjp = sjp;
+static	sigjmps_t	gcjmp;
+	sigjmps_t	*savjp = sjp;
 	Uchar	c;
 
-	if (setjmp(gcjmp.jb)) {
+	if (sigsetjmp(gcjmp.jb, 1)) {
 		if (intrchar > 0)
 			interrupted++;
 	} else {
@@ -280,11 +280,11 @@ EXPORT int
 nigetnextc(wp)
 	ewin_t	*wp;
 {
-static	jmps_t	nxjmp;
-	jmps_t	*savjp = sjp;
+static	sigjmps_t	nxjmp;
+	sigjmps_t	*savjp = sjp;
 	int	c;
 
-	if (setjmp(nxjmp.jb)) {
+	if (sigsetjmp(nxjmp.jb, 1)) {
 		if (intrchar > 0)
 			interrupted++;
 	} else {

@@ -1,10 +1,10 @@
-/* @(#)savewd.c	1.1 11/10/21 Copyright 2004-2011 J. Schilling */
+/* @(#)savewd.c	1.3 18/05/30 Copyright 2004-2018 J. Schilling */
 /*
  *	Save and restore working directory.
  *
  *	The code has been adopted from libfind.
  *
- *	Copyright (c) 2004-2011 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,7 +42,11 @@ savewd(sp)
 	sp->fd = -1;
 	sp->name = NULL;
 #ifdef	HAVE_FCHDIR
-	if ((sp->fd = open(".", O_SEARCH|O_NDELAY)) >= 0) {
+	/*
+	 * Note that we do not need O_RDONLY as we do not like to
+	 * run readdir() on that directory but just fchdir().
+	 */
+	if ((sp->fd = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY)) >= 0) {
 #ifdef	F_SETFD
 		(void) fcntl(sp->fd, F_SETFD, FD_CLOEXEC);
 #endif

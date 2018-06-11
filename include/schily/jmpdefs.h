@@ -1,8 +1,8 @@
-/* @(#)jmpdefs.h	1.9 09/07/13 Copyright 1998-2009 J. Schilling */
+/* @(#)jmpdefs.h	1.10 18/06/04 Copyright 1998-2018 J. Schilling */
 /*
  *	Definitions that help to handle a jmp_buf
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,6 +49,7 @@ typedef struct {
 /*
  * Make sure to use the best available
  */
+#define	sigjmp_buf		jmp_buf
 #define	sigjmps_t		jmps_t
 #define	sigsetjmp(je, sm)	setjmp(je)
 #define	siglongjmp		longjmp

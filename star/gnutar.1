@@ -1,4 +1,4 @@
-. \" @(#)gnutar.1	1.4 18/05/22 Copyr 2004-2018 J. Schilling
+. \" @(#)gnutar.1	1.6 18/06/10 Copyr 2004-2018 J. Schilling
 . \"  Manual Seite fuer gnutar
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GNUTAR 1 "2018/05/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH GNUTAR 1 "2018/06/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 gnutar \- emulates the GNU version of the tar archiver
 .SH SYNOPSIS
@@ -259,7 +259,10 @@ set (output) block size to #
 set fifo size to #
 .TP
 .B \-\-no\-fsync
-do not call fsync() for each extracted file (may be dangerous)
+do not call fsync() for each extracted file (may be dangerous).
+.TP
+.B \-\-do\-fsync
+call fsync() for each extracted file.
 .TP
 .B \-\-time
  print timing info
@@ -302,7 +305,7 @@ based optione check
 .BR rsh (1),
 .BR ssh (1),
 .BR star (1),
-.BR star (4/5),
+.BR star (4),
 .BR rcmd (3),
 .BR fssnap (1m)
 .SH DIAGNOSTICS

@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.24 18/05/22 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.26 18/05/31 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/05/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/05/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -216,6 +216,61 @@ against the start time of
 .BR sfind .
 The letters that are recognised in the time spec are taken from
 .BR smhdwy .
+.br
+.ne 5
+.TP
+.BI \-chown " uname
+.PD 0
+.TP
+.BI \-chown " uid
+.PD
+This primary modifies the
+.B owner
+of a file in
+.BR "struct stat" .
+This primary is only available in the library version of
+.BR sfind (1)
+.RB ( libfind ).
+This primary always evaluates to true.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-chgrp " gname
+.PD 0
+.TP
+.BI \-chgrp " gid
+.PD
+This primary modifies the
+.B group
+of a file in
+.BR "struct stat" .
+This primary is only available in the library version of
+.BR sfind (1)
+.RB ( libfind ).
+This primary always evaluates to true.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-chmod " mode
+This primary modifies the
+.B permissions
+of a file in
+.BR "struct stat" .
+The
+.I mode
+parameter may use the same syntax as in the
+.BR chmod (1)
+command.
+This primary is only available in the library version of
+.BR sfind (1)
+.RB ( libfind ).
+This primary always evaluates to true.
+.sp
+This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
@@ -487,8 +542,10 @@ with
 This primary is not mentioned in the POSIX standard.
 .TP
 .BI \-group " gname
+.PD 0
 .TP
 .BI \-group " gid
+.PD
 The primary evaluates as true if the file belongs to the
 group
 .IR gname .
@@ -1044,11 +1101,13 @@ for the file types
 .BR door ,
 .B eventcount
 and
-.BR "event port" . 
+.BR "event port" .
 .TP
 .BI \-user " uname
+.PD 0
 .TP
 .BI \-user " uid
+.PD
 The primary evaluates as true if the file belongs to the
 user
 .IR uname .
@@ -1643,6 +1702,13 @@ be obtained online at
 .BR "http://www.opengroup.org/unix/online.html" .
 .SH BUGS
 .SH AUTHOR
+.LP
+.BR sfind(1)
+and
+.B libfind
+have been initially written by Joerg Schilling in 2004
+and are still maintained by J\*org Schilling.
+.LP
 .nf
 J\*org Schilling
 Seestr. 110

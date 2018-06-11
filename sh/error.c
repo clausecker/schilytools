@@ -35,14 +35,16 @@
 
 #include "defs.h"
 
+#include	<schily/wait.h>		/* Needed for CLD_EXITED */
+
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)error.c	1.27 17/09/10 2008-2017 J. Schilling
+ * @(#)error.c	1.28 18/05/26 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.27 17/09/10 2008-2017 J. Schilling";
+	"@(#)error.c	1.28 18/05/26 2008-2018 J. Schilling";
 #endif
 
 /*

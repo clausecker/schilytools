@@ -1,4 +1,4 @@
-#ident @(#)librmt.mk	1.4 11/04/15 
+#ident @(#)librmt.mk	1.6 18/06/09 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -15,6 +15,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 include		Targets
 LIBS=		
 XMK_FILE=	Makefile.man rmtinit.mk3 rmtdebug.mk3 \
+		rmtrmt.mk3 rmtrsh.mk3 \
 		rmtfilename.mk3 rmthostname.mk3 \
 		rmtgetconn.mk3 \
 		rmtopen.mk3 rmtclose.mk3 \

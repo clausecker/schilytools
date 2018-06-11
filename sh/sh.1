@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.227 18/04/25 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.229 18/06/07 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/04/25" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/06/07" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4291,6 +4291,8 @@ Note that the
 .B history
 is an interactive feature;
 commands read from scripts are not entered into the history.
+.br
+.ne 3
 .LP
 The
 .B fc
@@ -4301,7 +4303,12 @@ it is an artefact from
 from a time when
 .B ksh
 still needed an external editor to modify the history.
-The implementation that is used in this version of the Bourne Shell already
+.br
+.ne 3
+.LP
+The interactive
+.B history
+implementation that is used in this version of the Bourne Shell already
 supported fully integrated editing features in the command line in 1984 and
 uses concepts from 1982 that make
 .B fc
@@ -5009,6 +5016,14 @@ operand contains more format specifiers than
 .I argument
 operands have been specified, string formats are treated as if an empty string
 has been supplied and integer arguments are treated as if a 0 has been supplied.
+.sp
+Note that
+.B POSIX
+neither requires support for floating point numbers nor support for the
+.BI % n $
+and
+.BI * m $
+format.
 .sp
 The
 .B printf

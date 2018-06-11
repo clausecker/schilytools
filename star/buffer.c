@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.172 18/05/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.176 18/06/11 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.172 18/05/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.176 18/06/11 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -60,6 +60,24 @@ static	UConst char sccsid[] =
 #include <schily/io.h>		/* for setmode() prototype */
 #include <schily/libport.h>	/* getpagesize() */
 
+/*
+ * Warning: we need the siginfo_t feature that has been introduced in 1989
+ * with SVr4 and in 1995 with SUSv1. You need a platform that is maintained
+ * since 1995.
+ *
+ * defined(HAVE_SIGPROCMASK) && defined(SA_RESTART) identifies a system that
+ * supports sigaction().
+ *
+ * defined(HAVE_SIGINFO_T) && defined(HAVE_WAITID) is needed in order to get
+ * useful values in siginfo_t. Note that Mac OS X before approx. 2018 e.g.
+ * neither fills in sip->si_pid nor sip->si_code, making siginfo_t useless.
+ */
+#if	defined(HAVE_SIGPROCMASK) && defined(SA_RESTART) && \
+	defined(SA_SIGINFO) && \
+	defined(HAVE_SIGINFO_T) && defined(HAVE_WAITID)
+#define	USE_SIGCLD
+#endif
+
 long	bigcnt	= 0;
 int	bigsize	= 0;		/* Tape block size (may shrink < bigbsize) */
 int	bigbsize = 0;		/* Big buffer size */
@@ -95,6 +113,8 @@ extern	char	*tarfiles[];
 extern	int	ntarfiles;
 extern	int	tarfindex;
 extern	BOOL	force_noremote;
+extern	char	*rsh;
+extern	char	*rmt;
 LOCAL	int	lastremote = -1;
 extern	BOOL	multivol;
 extern	char	*newvol_script;
@@ -209,6 +229,14 @@ openremote()
 #ifdef	USE_REMOTE
 		isremote = TRUE;
 		rmtdebug(debug);
+		if (rsh)
+			rmtrsh(rsh);
+#ifdef	USE_SSH
+		else
+			rmtrsh("ssh");
+#endif
+		if (rmt)
+			rmtrmt(rmt);
 		rmthostname(host, sizeof (host), tarfiles[tarfindex]);
 		if (debug)
 			errmsgno(EX_BAD, "Remote: %s Host: %s file: %s\n",
@@ -1759,7 +1787,9 @@ checkerrs()
 	    xstats.s_setxattr	||
 #endif
 	    xstats.s_setmodes	||
-	    xstats.s_restore) {
+	    xstats.s_restore	||
+	    xstats.s_compress	||
+	    xstats.s_hardeof) {
 		if (nowarn || no_stats || (pid == 0) /* child */)
 			return (TRUE);
 
@@ -1802,6 +1832,10 @@ checkerrs()
 #endif
 		if (xstats.s_restore)
 			errmsgno(EX_BAD, "Problems with restore database.\n");
+		if (xstats.s_compress)
+			errmsgno(EX_BAD, "Problems with compress program.\n");
+		if (xstats.s_hardeof)
+			errmsgno(EX_BAD, "Hard EOF on input.\n");
 		return (TRUE);
 	}
 	return (FALSE);
@@ -1886,6 +1920,45 @@ die(err)
 #if	defined(SIGDEFER) || defined(SVR4)
 #define	signal	sigset
 #endif
+
+LOCAL	pid_t	compresspid;
+
+#ifdef	USE_SIGCLD
+void
+cldhandler(sig, sip, context)
+	int		sig;
+	siginfo_t	*sip;
+	void		*context;
+{
+	if (sip->si_pid != compresspid)
+		return;
+
+	if (sip->si_status != 0 || sip->si_code != CLD_EXITED)
+		xstats.s_compress++;
+
+	if (sip->si_status != 0 && sip->si_code == CLD_EXITED)
+		errmsgno(EX_BAD,
+		"Compress program exited with status %d.\n",
+			sip->si_status);
+	else if (sip->si_status != 0)
+		errmsgno(EX_BAD,
+		"Compress program died with signal %d.\n",
+			sip->si_status);
+}
+
+void 
+handlecld() 
+{ 
+        struct sigaction sa; 
+ 
+        sa.sa_sigaction = cldhandler; 
+        sigemptyset(&sa.sa_mask); 
+        sa.sa_flags = SA_RESTART|SA_SIGINFO; 
+ 
+        sigaction(SIGCHLD, &sa, NULL); 
+} 
+#endif	/* USE_SIGCLD */
+
 LOCAL void
 compressopen()
 {
@@ -1957,6 +2030,9 @@ compressopen()
 #else
 	if (fpipe(pp) == 0)
 		comerr("Compress pipe failed\n");
+#ifdef	USE_SIGCLD
+	handlecld();
+#endif
 	mypid = fork();
 	if (mypid < 0)
 		comerr("Compress fork failed\n");
@@ -1986,6 +2062,8 @@ compressopen()
 			fexecl(zip_prog, tarf, pp[1], null, zip_prog, "-d", (char *)NULL);
 		errmsg("Compress: exec of '%s' failed\n", zip_prog);
 		_exit(-1);
+	} else {
+		compresspid = mypid;
 	}
 	fclose(tarf);
 	if (cflag) {

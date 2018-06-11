@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.147 18/05/03 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.148 18/06/06 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.147 18/05/03 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.148 18/06/06 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -2067,6 +2067,10 @@ skip_slash(info)
 		info->f_lname++;
 }
 
+#if PATH_DELIM == '\\' || defined(IS_CYGWIN)
+#define	NEED_BACKSLASH
+#endif
+
 LOCAL BOOL
 has_dotdot(name)
 	char	*name;
@@ -2075,16 +2079,29 @@ has_dotdot(name)
 
 	while (*p) {
 		if ((p[0] == '.' && p[1] == '.') &&
-		    (p[2] == '/' || p[2] == '\0')) {
+		    (p[2] == '/' ||
+#ifdef	NEED_BACKSLASH
+		    p[2] == '\\' ||
+#endif
+		    p[2] == '\0')) {
 			return (TRUE);
 		}
 		do {
 			if (*p++ == '\0')
 				return (FALSE);
+#ifdef	NEED_BACKSLASH
+		} while (*p != '/' && *p != '\\');
+#else
 		} while (*p != '/');
+#endif
 		p++;
+#ifdef	NEED_BACKSLASH
+		while (*p == '/' || *p == '\\')
+			p++;
+#else
 		while (*p == '/')	/* Skip multiple slashes */
 			p++;
+#endif
 	}
 	return (FALSE);
 }

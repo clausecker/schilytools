@@ -1,4 +1,10 @@
-# /* @(#)librmt-mapvers        1.1 10/10/02 Copyright 2005-2010 J. Schilling */
+# /* @(#)librmt-mapvers        1.3 18/06/09 Copyright 2005-2018 J. Schilling */
+
+SCHILY_1.1 {
+global:
+	rmtrmt;
+	rmtrsh;
+} SCHILY_1.0;
 
 SCHILY_1.0 {
 global:

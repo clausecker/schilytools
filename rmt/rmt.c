@@ -1,8 +1,8 @@
-/* @(#)rmt.c	1.37 09/08/04 Copyright 1994,2000-2009 J. Schilling */
+/* @(#)rmt.c	1.38 18/06/09 Copyright 1994,2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rmt.c	1.37 09/08/04 Copyright 1994,2000-2009 J. Schilling";
+	"@(#)rmt.c	1.38 18/06/09 Copyright 1994,2000-2018 J. Schilling";
 #endif
 /*
  *	Remote tape server
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  *	seems that the current interface supports all what we need over the
  *	wire.
  *
- *	Copyright (c) 1994,2000-2009 J. Schilling
+ *	Copyright (c) 1994,2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -399,6 +399,9 @@ strmatch(str, pat)
 	return (FALSE);
 }
 
+/*
+ * The main work loop
+ */
 LOCAL void
 dormt()
 {
@@ -698,7 +701,7 @@ static	BOOL	version_seen = FALSE;
 	 * But as in many cases Linux does not even follow this rule.
 	 * If we know that we have been called by a VERSION 1 client,
 	 * we may safely assume that the client is not using Linux mapping
-	 * but the standard mapping.
+	 * but the standard mapping when sending mt_op numbers over the wire.
 	 */
 	ret = 0;
 	if (cmd == 'I' && version_seen && (mtop.mt_op != RMTIVERSION)) {
@@ -747,7 +750,8 @@ static	BOOL	version_seen = FALSE;
 /*
  * Map all old /etc/rmt (over the wire) opcodes that should be in range 0..7
  * to numbers that are understood by the local driver.
- * This is needed because Linux does not follow the UNIX conventions.
+ * This is needed because Linux does not follow the UNIX conventions and
+ * uses an incompatible opcode mapping even in the range 0..7.
  */
 LOCAL int
 rmtmapold(cmd)
@@ -921,6 +925,10 @@ statustape(cmd)
 			rmtrespond(mtget.mt_dsreg, geterrno());	break;
 #endif
 #ifdef	HAVE_MTGET_ERREG
+		/*
+		 * This must be retrieved first, as it contains an error
+		 * code that is cleared after issuing the ioctl().
+		 */
 		case MTS_ERREG:
 			rmtrespond(mtget.mt_erreg, geterrno());	break;
 #endif

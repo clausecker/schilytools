@@ -1,4 +1,4 @@
-/* @(#)star.h	1.131 18/05/17 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.133 18/06/11 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -870,6 +870,8 @@ struct star_stats {
 	int	s_setxattr;	/* set xattr for file failed		  */
 #endif
 	int	s_restore;	/* other incremental restore specific	  */
+	int	s_compress;	/* compress specific failures		  */
+	int	s_hardeof;	/* Hard EOF on input			  */
 };
 
 extern	struct	star_stats	xstats;

@@ -1,14 +1,14 @@
-/* @(#)star_sym.c	1.15 11/10/19 Copyright 2005-2011 J. Schilling */
+/* @(#)star_sym.c	1.17 18/05/30 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.15 11/10/19 Copyright 2005-2011 J. Schilling";
+	"@(#)star_sym.c	1.17 18/05/30 Copyright 2005-2018 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2011 J. Schilling
+ *	Copyright (c) 2005-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -206,7 +206,7 @@ extern	BOOL		is_star;
 		usage(0);
 	if (prvers) {
 		printf("%s: %s\n\n", get_progname(), vers);
-		printf("Copyright (C) 2005-2009 Jörg Schilling\n");
+		printf("Copyright (C) 2005-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -316,7 +316,11 @@ walkfunc(nm, fs, type, state)
 		cwd[0] = '\0';
 		getcwd(cwd, sizeof (cwd));
 #else
-		f = open(".", O_SEARCH);
+		/*
+		 * Note that we do not need O_RDONLY as we do not like to
+		 * run readdir() on that directory but just fchdir().
+		 */
+		f = open(".", O_SEARCH|O_DIRECTORY);
 #endif
 		walkhome(state);
 		lstat(name, &sb);

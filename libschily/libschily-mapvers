@@ -1,5 +1,12 @@
-# /* @(#)libschily-mapvers	1.54 18/01/17 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.55 18/06/07 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
+
+SCHILY_1.10 {
+global:
+#ifndef	HAVE_WAITID
+	js_waitid;
+#endif
+} SCHILY_1.9;
 
 SCHILY_1.9 {
 global:

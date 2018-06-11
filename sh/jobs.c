@@ -37,13 +37,13 @@
 #include "jobs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)jobs.c	1.101 18/05/24 2008-2017 J. Schilling
+ * @(#)jobs.c	1.104 18/06/07 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.101 18/05/24 2008-2017 J. Schilling";
+	"@(#)jobs.c	1.104 18/06/07 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -100,9 +100,13 @@ static	UConst char sccsid[] =
 #ifdef	NO_WAITID
 #undef	HAVE_WAITID
 #endif
+
+/*
+ * The following larger block contains definitions that are needed when either
+ * waitid() is missing (e.g. SunOS-4.x) or defective (e.g. Linux, AIX, HP-UX
+ * Mac OS X).
+ */
 #ifndef	HAVE_WAITID		/* Need to define everything for waitid() */
-
-
 /*
  * This is used to emulate waitid() via waitpid(), so we need to take
  * care about things that don't work and things that are missing.
@@ -135,9 +139,14 @@ typedef struct {
 } my_siginfo_t;
 
 #define	siginfo_t	my_siginfo_t
+#undef	waitid
 #define	waitid		my_waitid
+#undef	id_t
 #define	id_t		pid_t
 
+/*
+ * End of definitions needed for waitid() emulation.
+ */
 #endif	/* HAVE_WAITID */
 
 #ifdef	DO_DOT_SH_PARAMS

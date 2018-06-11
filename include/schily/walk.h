@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.31 16/03/10 Copyright 2004-2016 J. Schilling */
+/* @(#)walk.h	1.32 18/06/04 Copyright 2004-2018 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2016 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,7 +40,7 @@ extern "C" {
 /*
  * Flags to control treewalk() via 'walkflags'.
  *
- *	WALK_CHDIR	is not implemented, treewalk() always does chdir()
+ *	WALK_CHDIR	Change directory while traversing
  *
  *	WALK_PHYS	Clearing WALK_PHYS has highest precedence and equals
  *			'find -follow'. If WALK_PHYS is clear, always use stat.

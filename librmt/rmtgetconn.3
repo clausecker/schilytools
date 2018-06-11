@@ -1,4 +1,4 @@
-. \" @(#)rmtgetconn.3	1.3 08/10/12 Copyr 2002 J. Schilling
+. \" @(#)rmtgetconn.3	1.4 18/06/09 Copyr 2002-2018 J. Schilling
 . \" Manual page for rmtgetconn
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTGETCONN 3L "08/10/12" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTGETCONN 3L "2018/06/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtinit, rmtdebug, rmthostname, rmtfilename, rmtgetconn \- initiate a connection to a remote tape server
 .SH SYNOPSIS
@@ -40,6 +40,16 @@ void rmtinit(errmsgn, eexit)
 int rmtdebug(dlevel)
 .B
 	int     dlevel;
+.sp
+.B
+const char *rmtrmt(rmtname)
+.B
+	const char    *rmtname;
+.sp
+.B
+const char *rmtrsh(rshname)
+.B
+	const char    *rshname;
 .sp
 .B
 char *rmtfilename(name)
@@ -83,6 +93,26 @@ and the supplied exit function needs to be compatible with
 allows to set the debug level for the library code. The default debug
 level is 0 and does not print debug messages.
 .TP
+.B rmtrmt()
+allows to set up a different default path to the remote
+.B rmt
+server program. The default is otherwise
+.BR /etc/rmt .
+The 
+.B RMT
+environment still overwrites the default set up by
+.BR rmtrmt() .
+.TP
+.B rmtrsh()
+allows to set up a different remote login program to the remote
+.B rmt
+server program. The default is otherwise to use
+.BR rcmd (3).
+The 
+.B RSH
+environment still overwrites the default set up by
+.BR rmtrsh() .
+.TP
 .B rmtfilename()
 is given a filename that may be either in remote file syntax (
 .I hostname:filename
@@ -123,6 +153,20 @@ to use the documented exit codes for startup errors.
 .TP
 .B rmtdebug()
 returns the old debug level.
+.TP
+.B rmtrmt()
+returns the old default remote
+.B rmt
+server program path or
+.B NULL
+in case that the default was not overwritten.
+.TP
+.B rmtrsh()
+returns the old default
+.B rmt
+remote login program or
+.B NULL
+in case that the default was not overwritten.
 .TP
 .B rmtfilename()
 returns the filename part of the argument string or
@@ -200,6 +244,14 @@ but by calling the program pointed to by
 Use e.g. 
 .BR RSH= /usr/bin/ssh
 to create a secure shell connection.
+.sp
+If the environment
+.B RSH
+is empty, then the default
+.B rcmd()
+is used even in case
+.B rmtrsh()
+has been called.
 .TP
 .B RMT
 If the 
@@ -208,6 +260,15 @@ environment is present, the remote tape server will not be the program
 .B /etc/rmt
 but the program pointed to by
 .BR RMT .
+.sp
+If the environment
+.B RMT
+is empty, then the default
+.B /etc/rmt
+is used even in case
+.B rmtrmt()
+has been called.
+.sp
 Note that the remote tape server program name will be ignored if you log in
 using an account that has been created with a remote tape server program as
 login shell.
@@ -219,6 +280,8 @@ login shell.
 .BR rcmd (3),
 .BR rmtinit (3),
 .BR rmtdebug (3),
+.BR rmtrmt (3),
+.BR rmtrsh (3),
 .BR rmthostname (3),
 .BR rmtfilename (3),
 .BR rmtgetconn (3),
@@ -265,6 +328,15 @@ or
 be prepared that terminal generated signals may interrupt the
 remote connection.
 .SH AUTHOR
+.LP
+.B librmt
+has been written in 1990 by J\*org Schilling.
+In 1995, support for
+.B RMT VERSION 1
+has been added.
+.B librmt
+is still maintained by J\*org Schilling.
+.LP
 .nf
 J\*org Schilling
 Seestr. 110
@@ -278,4 +350,4 @@ Mail bugs and suggestions to:
 joerg.schilling@fokus.fraunhofer.de
 or
 .B
-js@cs.tu\-berlin.de
+joerg@schily.net
