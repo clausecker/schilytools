@@ -1,13 +1,13 @@
-/* @(#)xattr.c	1.14 13/01/15 Copyright 2003-2013 J. Schilling */
+/* @(#)xattr.c	1.19 18/06/16 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.14 13/01/15 Copyright 2003-2013 J. Schilling";
+	"@(#)xattr.c	1.19 18/06/16 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2013 J. Schilling
+ *	Copyright (c) 2003-2018 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -34,6 +34,8 @@ static	UConst char sccsid[] =
 #include "star.h"
 #include <schily/standard.h>
 #include <schily/unistd.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 #include "checkerr.h"
@@ -47,6 +49,10 @@ static	UConst char sccsid[] =
  * It bad to see new global variables while we are working on a star library.
  */
 LOCAL star_xattr_t	*static_xattr;
+#endif
+
+#ifdef	USE_SELINUX
+extern	BOOL		selinux_enabled;
 #endif
 
 #if defined(HAVE_GETXATTR) && !defined(HAVE_LGETXATTR)
@@ -68,6 +74,14 @@ opt_xattr()
 #if defined(HAVE_SETXATTR) || defined(HAVE_LSETXATTR)
 	printf(" Linux-xattr");
 #endif
+#endif
+}
+
+EXPORT void
+opt_selinux()
+{
+#ifdef	USE_SELINUX
+	printf(" SELinux");
 #endif
 }
 
@@ -211,6 +225,11 @@ set_xattr(info)
 		return (TRUE);
 
 	for (xap = info->f_xattr; xap->name != NULL; xap++) {
+#ifdef	USE_SELINUX
+		if (selinux_enabled &&
+		    (strcmp(xap->name, "security.selinux") == 0))
+			continue;
+#endif
 		if (lsetxattr(info->f_name, xap->name, xap->value,
 		    xap->value_len, 0) != 0) {
 			if (!errhidden(E_SETXATTR, info->f_name)) {
@@ -227,6 +246,39 @@ set_xattr(info)
 #endif  /* USE_XATTR */
 	return (TRUE);
 }
+
+#ifdef	USE_SELINUX
+EXPORT BOOL
+setselinux(info)
+	register FINFO	*info;
+{
+	star_xattr_t	*xap;
+
+	if (info->f_xattr == NULL || (info->f_xflags & XF_XATTR) == 0) {
+		if (setfscreatecon(NULL) < 0)
+			goto err;
+		return (TRUE);
+	}
+
+	for (xap = info->f_xattr; xap->name != NULL; xap++) {
+		if (strcmp(xap->name, "security.selinux") == 0) {
+			if (setfscreatecon(xap->value) < 0)
+				goto err;
+			return (TRUE);
+		}
+	}
+	/*
+	 * There was no "security.selinux" label, so we need to clear
+	 * the context.
+	 */
+	if (setfscreatecon(NULL) < 0)
+		goto err;
+	return (TRUE);
+err:
+	errmsg("Cannot setup security context for '%s'.\n", info->f_name);
+	return (FALSE);
+}
+#endif	/* USE_SELINUX */
 
 EXPORT void
 free_xattr(xattr)

@@ -1,6 +1,6 @@
-/* @(#)fgetstr.c	1.12 16/11/07 Copyright 1986, 1996-2016 J. Schilling */
+/* @(#)fgetstr.c	1.13 18/06/18 Copyright 1986, 1996-2018 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2016 J. Schilling
+ *	Copyright (c) 1986, 1996-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,7 +90,7 @@ fgetstr(f, buf, len)
 		(__c f)->_cnt -= n;
 		bp += n;
 		len -= n;
-		if (p != NULL)
+		if (p != NULL || len == 0)
 			break;
 #else
 		if ((c = getc(f)) < 0) {
@@ -103,6 +103,8 @@ fgetstr(f, buf, len)
 		}
 		if (--len > 0)
 			*bp++ = (char)c;
+		else
+			break;
 		if (c == nl)
 			break;
 #endif

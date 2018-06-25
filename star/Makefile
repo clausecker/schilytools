@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.33 18/06/08 
+#ident @(#)Makefile	1.34 18/06/13 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -27,6 +27,7 @@ CPPOPTS +=	-DUSE_LARGEFILES	# Support files > 2 GB
 CPPOPTS +=	-DUSE_FIND		# Include support for libfind
 CPPOPTS +=	-DUSE_ACL		# Support file ACLs
 CPPOPTS +=	-DUSE_XATTR		# Support (currently Linux) xattr
+CPPOPTS +=	-DUSE_SELINUX		# Support SELinux
 CPPOPTS +=	-DUSE_FFLAGS		# Support BSD style file flags
 CPPOPTS +=	-DCOPY_LINKS_DELAYED	# Delayed copy of hard/symlinks
 CPPOPTS +=	-DSTAR_FAT		# One binary for all CLI's
@@ -55,8 +56,9 @@ HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 #LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
 #
 # LIB_CAP is needed for Linux capability support in librmt.
+# LIB_SELINUX is needed for SELinux capability support.
 #
-LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_ICONV) $(LIB_INTL) $(LIB_CAP)
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_ICONV) $(LIB_INTL) $(LIB_CAP) $(LIB_SELINUX)
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #

@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.53 17/02/23 Copyright 2001-2016 J. Schilling */
+/* @(#)acl_unix.c	1.56 18/06/23 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.53 17/02/23 Copyright 2001-2016 J. Schilling";
+	"@(#)acl_unix.c	1.56 18/06/23 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2016 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  *
  *	There are currently two basic flavors of ACLs:
  *
@@ -87,6 +87,8 @@ static	UConst char sccsid[] =
 #include <schily/dirent.h>
 #include <schily/string.h>
 #include <schily/stat.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/idcache.h>
 #include "starsubs.h"
@@ -491,7 +493,7 @@ EXPORT void
 set_acls(info)
 	register FINFO	*info;
 {
-	char		acltext[PATH_MAX+1];
+	char		acltext[PATH_MAX+1];	/* auto space only if small */
 	pathstore_t	aclps;
 	acl_t		acl;
 
@@ -605,7 +607,7 @@ set_acls(info)
 	}
 
 	if (info->f_xflags & XF_ACL_DEFAULT) {
-		ssize_t	len = strlen(info->f_acl_access) + 2;
+		ssize_t	len = strlen(info->f_acl_default) + 2;
 
 		if (len > aclps.ps_size) {
 			if (aclps.ps_path == acltext) {
@@ -1093,7 +1095,7 @@ set_acls(info)
 		acl_check_ids(aclps.ps_path, info->f_acl_access, FALSE);
 	}
 	if (info->f_xflags & XF_ACL_DEFAULT) {
-			char		acltext[PATH_MAX+1];
+			char		acltext[PATH_MAX+1]; /* only if small */
 			pathstore_t	acldps;
 		register char	*cp;
 		register char	*dp;

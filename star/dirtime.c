@@ -1,11 +1,11 @@
-/* @(#)dirtime.c	1.30 13/10/04 Copyright 1988-2013 J. Schilling */
+/* @(#)dirtime.c	1.33 18/06/20 Copyright 1988-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirtime.c	1.30 13/10/04 Copyright 1988-2013 J. Schilling";
+	"@(#)dirtime.c	1.33 18/06/20 Copyright 1988-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2013 J. Schilling
+ *	Copyright (c) 1988-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,13 +41,18 @@ static	UConst char sccsid[] =
  * NOTE: I am not shure if degenerate filenames will fool this algorithm.
  */
 #include <schily/types.h>	/* includes <sys/types.h> needed for mode_t */
+#include <schily/stdio.h>
 #include <schily/standard.h>
+#include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "star.h"
 #include "xutimes.h"
 #include "checkerr.h"
 #include "dirtime.h"
 #include "starsubs.h"
+#include "pathname.h"
 
 #ifdef DEBUG
 extern	BOOL	debug;
@@ -57,35 +62,113 @@ extern	BOOL	debug;
 #endif
 
 /*
- * Maximum depth of directory nesting
- * will be reached if name has the form x/y/z/...
- *
- * NOTE: If PATH_MAX is 1024, sizeof(dtimes) will be 12 kBytes.
+ * Maximum depth of directory nesting depends on availabe memory.
  */
-#define	NTIMES (PATH_MAX/2+1)
+LOCAL	pathstore_t	dirstack;
 
-LOCAL	char dirstack[PATH_MAX];
 #ifdef	SET_CTIME
 #define	NT	3
-LOCAL	struct timespec dtimes[NTIMES][NT];
 LOCAL	struct timespec dottimes[NT] = { {-1, -1}, {-1, -1}, {-1, -1}};
 #else
 #define	NT	2
-LOCAL	struct timespec dtimes[NTIMES][NT];
 LOCAL	struct timespec dottimes[NT] = { -1, -1, -1, -1};
 #endif
 LOCAL	struct timespec badtime = { -1, -1};
 
-LOCAL	mode_t	dmodes[NTIMES];
+typedef	struct timespec	timev[NT];
+
+LOCAL	pathstore_t	dtps;
+LOCAL	int		ndtimes;
+LOCAL	timev		*dtimes;
+
 LOCAL	mode_t	dotmodes = _BAD_MODE;
 
+LOCAL	pathstore_t	dmps;
+LOCAL	int		ndmodes;
+LOCAL	mode_t		*dmodes;
+
+
+LOCAL	BOOL	init_dirtimes	__PR((void));
+LOCAL	BOOL	grow_dtimes	__PR((int n));
+LOCAL	BOOL	grow_dmodes	__PR((int n));
 EXPORT	void	sdirtimes	__PR((char *name, FINFO *info,
 						BOOL do_times, BOOL do_mode));
 EXPORT	void	sdirmode	__PR((char *name, mode_t mode));
-EXPORT	void	dirtimes	__PR((char *name, struct timespec *tp, mode_t mode));
-LOCAL	void	flushdirstack	__PR((char *, int));
+LOCAL	void	dirtimes	__PR((char *name, struct timespec *tp,
+								mode_t mode));
+EXPORT	void	flushdirtimes	__PR((void));
+LOCAL	void	flushdirstack	__PR((char *, char *, int));
 LOCAL	void	setdirtime	__PR((char *, struct timespec *));
 
+LOCAL BOOL
+init_dirtimes()
+{
+	/*
+	 * First the path string
+	 */
+	if (init_pspace(PS_STDERR, &dirstack) < 0)
+		return (FALSE);
+	/*
+	 * Now the time array
+	 */
+	if (!grow_dtimes(1))
+		return (FALSE);
+
+	/*
+	 * Now the mode array
+	 */
+	if (!grow_dmodes(1))
+		return (FALSE);
+
+	return (TRUE);
+}
+
+LOCAL BOOL
+grow_dtimes(n)
+	int	n;
+{
+	if ((n * sizeof (timev)) < ndtimes)
+		return (TRUE);
+
+	/*
+	 * Add 1 since "ndtimes" is the size of the array while "n" is the
+	 * next array index to use.
+	 */
+	if (grow_pspace(PS_STDERR, &dtps, (n+1) * sizeof (timev)) < 0) {
+		return (FALSE);
+	}
+
+	dtimes = (timev *)dtps.ps_path;
+	ndtimes = dtps.ps_size / sizeof (timev);
+
+	return (TRUE);
+}
+
+LOCAL BOOL
+grow_dmodes(n)
+	int	n;
+{
+	if ((n * sizeof (mode_t)) < ndmodes)
+		return (TRUE);
+
+	/*
+	 * Add 1 since "ndmodes" is the size of the array while "n" is the
+	 * next array index to use.
+	 */
+	if (grow_pspace(PS_STDERR, &dmps, (n+1) * sizeof (mode_t)) < 0) {
+		return (FALSE);
+	}
+
+	dmodes = (mode_t *)dmps.ps_path;
+	ndmodes = dmps.ps_size / sizeof (mode_t);
+
+	return (TRUE);
+}
+
+/*
+ * This is the standard method to enter time and mode values
+ * into the directory stack.
+ */
 EXPORT void
 sdirtimes(name, info, do_times, do_mode)
 	char	*name;
@@ -119,6 +202,10 @@ sdirtimes(name, info, do_times, do_mode)
 	dirtimes(name, tp, mode);
 }
 
+/*
+ * This is the method to enter mode values into the directory stack.
+ * It is only used to puch the umask value from _create_dirs().
+ */
 EXPORT void
 #ifdef	PROTOTYPES
 sdirmode(char *name, mode_t mode)
@@ -138,7 +225,7 @@ sdirmode(name, mode)
 	dirtimes(name, tp, mode);
 }
 
-EXPORT void
+LOCAL void
 #ifdef	PROTOTYPES
 dirtimes(char *name, struct timespec tp[NT], mode_t mode)
 #else
@@ -148,10 +235,15 @@ dirtimes(name, tp, mode)
 	mode_t		mode;
 #endif
 {
-	register char	*dp = dirstack;
+	register char	*dp = dirstack.ps_path;
 	register char	*np = name;
 	register int	idx = -1;
 
+	if (dp == NULL) {
+		if (!init_dirtimes())
+			return;
+		dp = dirstack.ps_path;
+	}
 	EDBG(("dirtimes('%s', %s", name, tp ? ctime(&tp[1].tv_sec):"NULL\n"));
 
 	if (np[0] == '\0') {				/* final flush */
@@ -161,7 +253,7 @@ dirtimes(name, tp, mode)
 		}
 		if (dottimes[0].tv_nsec != badtime.tv_nsec)
 			setdirtime(".", dottimes);
-		flushdirstack(dp, -1);
+		flushdirstack(dp, dp, -1);
 		return;
 	}
 
@@ -174,6 +266,16 @@ dirtimes(name, tp, mode)
 #endif
 		dotmodes = mode;
 	} else {
+		size_t	nlen;
+
+		nlen = strlen(np);
+		if (nlen >= dirstack.ps_size) {
+			if (set_pspace(PS_STDERR, &dirstack, nlen+1) < 0) {
+				return;
+			}
+			dp = dirstack.ps_path;
+		}
+
 		/*
 		 * Find end of common part
 		 */
@@ -193,14 +295,15 @@ dirtimes(name, tp, mode)
 		}
 		EDBG(("DIR: '%.*s' DP: '%s' NP: '%s' idx: %d\n",
 				/* XXX Should not be > int */
-				(int)(dp - dirstack), dirstack, dp, np, idx));
+				(int)(dp - dirstack.ps_path),
+				dirstack.ps_path, dp, np, idx));
 
 		if (*dp) {
 			/*
 			 * New directory does not increase the depth of the
 			 * directory stack. Flush all dirs below idx.
 			 */
-			flushdirstack(dp, idx);
+			flushdirstack(dirstack.ps_path, dp, idx);
 		}
 
 		/*
@@ -213,8 +316,12 @@ dirtimes(name, tp, mode)
 				/*
 				 * Disable times of unknown dirs.
 				 */
-				EDBG(("zapping idx: %d\n", idx+1));
-				dtimes[++idx][0] = badtime;
+				if (!grow_dtimes(++idx))
+					return;
+				if (!grow_dmodes(idx))
+					return;
+				EDBG(("zapping idx: %d\n", idx));
+				dtimes[idx][0] = badtime;
 				dmodes[idx] = _BAD_MODE;
 			} else if (*np == '\0') {
 				/*
@@ -226,6 +333,10 @@ dirtimes(name, tp, mode)
 			}
 		}
 		if (tp) {
+			if (!grow_dtimes(idx))
+				return;
+			if (!grow_dmodes(idx))
+				return;
 			EDBG(("set idx %d '%s'\n", idx, name));
 			dtimes[idx][0] = tp[0];	/* overwrite last atime */
 			dtimes[idx][1] = tp[1];	/* overwrite last mtime */
@@ -237,19 +348,30 @@ dirtimes(name, tp, mode)
 	}
 }
 
+/*
+ * Needed for on_comerr() as we cannot pass the needed parameters to dirtimes().
+ */
+EXPORT void
+flushdirtimes()
+{
+	dirtimes("", (struct timespec *)0, (mode_t)0);
+}
+
 LOCAL void
-flushdirstack(dp, depth)
+flushdirstack(dirbase, dp, depth)
+		char	*dirbase;
 	register char	*dp;
 	register int	depth;
 {
-	if (depth == -1 && dp[0] == '/' && dirstack[0] == '/') {
+	if (depth == -1 && dp == dirbase && dp[0] == '/') {
 		/*
 		 * Flush the root dir, avoid flushing "".
 		 */
 		while (*dp == '/')
 			dp++;
 		if (dmodes[++depth] != _BAD_MODE) {
-			EDBG(("depth: %d setmode: '/' to 0%o\n", depth, dmodes[depth]));
+			EDBG(("depth: %d setmode: '/' to 0%o\n",
+							depth, dmodes[depth]));
 			setdirmodes("/", dmodes[depth]);
 		}
 		if (dtimes[depth][0].tv_nsec != badtime.tv_nsec) {
@@ -264,12 +386,13 @@ flushdirstack(dp, depth)
 		if (*dp++ == '/') {
 			*--dp = '\0';	/* temporarily delete '/' */
 			if (dmodes[++depth] != _BAD_MODE) {
-				EDBG(("depth: %d setmode: '%s' to 0%o\n", depth, dirstack, dmodes[depth]));
-				setdirmodes(dirstack, dmodes[depth]);
+				EDBG(("depth: %d setmode: '%s' to 0%o\n",
+						depth, dirbase, dmodes[depth]));
+				setdirmodes(dirbase, dmodes[depth]);
 			}
 			if (dtimes[depth][0].tv_nsec != badtime.tv_nsec) {
 				EDBG(("depth: %d ", depth));
-				setdirtime(dirstack, dtimes[depth]);
+				setdirtime(dirbase, dtimes[depth]);
 			}
 			*dp++ = '/';	/* restore '/' */
 		}

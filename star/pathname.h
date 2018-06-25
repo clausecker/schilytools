@@ -1,6 +1,6 @@
-/* @(#)pathname.h	1.2 13/11/07 Copyright 2004-2013 J. Schilling */
+/* @(#)pathname.h	1.5 18/06/20 Copyright 2004-2018 J. Schilling */
 /*
- *	Copyright (c) 2004-2013 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,10 +27,16 @@
 extern "C" {
 #endif
 
+#ifdef	EOF
+#define	PS_F	FILE		/* stdio.h included	*/
+#else
+#define	PS_F	void		/* stdio.h not included	*/
+#endif
+
 #define	PS_INCR		1024	/* How to increment ps_path size */
-#define	PS_SILENT	(FILE *)0 /* No messages		 */
-#define	PS_STDERR	(FILE *)1 /* Messages to stderr		 */
-#define	PS_EXIT		(FILE *)2 /* Messages to stderr + exit	 */
+#define	PS_SILENT	(PS_F *)0 /* No messages		 */
+#define	PS_STDERR	(PS_F *)1 /* Messages to stderr		 */
+#define	PS_EXIT		(PS_F *)2 /* Messages to stderr + exit	 */
 
 typedef struct pathstore {
 	char	*ps_path;	/* The current path name	*/
@@ -38,12 +44,18 @@ typedef struct pathstore {
 	size_t	ps_size;	/* Current size of 'ps_path'	*/
 } pathstore_t;
 
-extern	int		init_pspace	__PR((FILE *f, pathstore_t *pathp));
-extern	ssize_t		incr_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
-extern	ssize_t		set_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
-extern	ssize_t		grow_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
+extern	int		init_pspace	__PR((PS_F *f, pathstore_t *pathp));
+extern	ssize_t		incr_pspace	__PR((PS_F *f, pathstore_t *pathp,
+								size_t amt));
+extern	ssize_t		set_pspace	__PR((PS_F *f, pathstore_t *pathp,
+								size_t amt));
+extern	ssize_t		grow_pspace	__PR((PS_F *f, pathstore_t *pathp,
+								size_t amt));
 extern	void		free_pspace	__PR((pathstore_t *pathp));
-extern	int		strcpy_pspace	__PR((FILE *f, pathstore_t *pathp, const char *nm));
+extern	int		strlcpy_pspace	__PR((PS_F *f, pathstore_t *pathp,
+						const char *nm, size_t nlen));
+extern	int		strcpy_pspace	__PR((PS_F *f, pathstore_t *pathp,
+							const char *nm));
 
 #ifdef	__cplusplus
 }

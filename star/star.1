@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.195 18/06/10 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.197 18/06/25 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/06/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/06/25" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -693,7 +693,12 @@ format does not use a POSIX magic string, the extensions do not interfere
 with the POSIX tar formats.
 The last 4 bytes of the
 .B tar
-header contain a 'tar\\0' signature.
+header in the
+.B star
+archive format contain a
+.B
+\&'tar\e0'
+signature.
 .TP 10
 .B gnutar
 This is a commonly used, but unfortunately not Posix compliant
@@ -796,7 +801,10 @@ fields for mtime and ctime field are always separated from the
 POSIX file name prefix by a null byte.
 The last 4 bytes of the
 .B tar
-header contain a 'tar\\0' signature.
+header contain a 
+.B
+\&'tar\e0'
+signature.
 .sp
 The 
 .B xstar
@@ -809,7 +817,9 @@ nor called as
 .TP
 .B xustar
 A new format introduced 1998, that omits the
-\&'tar\\0' signature at the end of the
+.B
+\&'tar\e0'
+signature at the end of the
 .B tar
 header. It is otherwise identical
 to the
@@ -1064,6 +1074,13 @@ that archive the offsets for files and that use
 .sp
 to skip to the tape block number of interest in a fast way
 if a single file needs to be restored.
+.sp
+Since the numbers printed by the
+.B \-block\-number
+option are based on a block size of 512 bytes and the tape block size is
+usually larger, the tape block number for the
+.B mt fsr
+command needs to be computed to honor the tape blocking factor.
 .TP
 .BI blocks= "#\fR, " b= "#"
 Set the blocking factor of the 

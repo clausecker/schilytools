@@ -1,11 +1,11 @@
-/* @(#)pathname.c	1.3 14/03/31 Copyright 2004-2014 J. Schilling */
+/* @(#)pathname.c	1.8 18/06/19 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pathname.c	1.3 14/03/31 Copyright 2004-2014 J. Schilling";
+	"@(#)pathname.c	1.8 18/06/19 Copyright 2004-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2004-2014 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,19 +31,31 @@ static	UConst char sccsid[] =
 
 #include "pathname.h"
 
+EXPORT	int		strlcpy_pspace	__PR((FILE *f, pathstore_t *pathp,
+						const char *nm, size_t nlen));
+EXPORT	int		strcpy_pspace	__PR((FILE *f, pathstore_t *pathp,
+							const char *nm));
 EXPORT	int		init_pspace	__PR((FILE *f, pathstore_t *pathp));
 EXPORT	void		free_pspace	__PR((pathstore_t *pathp));
-EXPORT	ssize_t		incr_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
-EXPORT	ssize_t		grow_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
-EXPORT	ssize_t		set_pspace	__PR((FILE *f, pathstore_t *pathp, size_t amt));
+EXPORT	ssize_t		incr_pspace	__PR((FILE *f, pathstore_t *pathp,
+								size_t amt));
+EXPORT	ssize_t		grow_pspace	__PR((FILE *f, pathstore_t *pathp,
+								size_t amt));
+EXPORT	ssize_t		set_pspace	__PR((FILE *f, pathstore_t *pathp,
+								size_t amt));
 
+/*
+ * Copy string "nm" with size "nlen" into pathstore_t.
+ * Grow pathstore_t object if needed.
+ */
 EXPORT int
-strcpy_pspace(f, pathp, nm)
+strlcpy_pspace(f, pathp, nm, nlen)
 	FILE		*f;
 	pathstore_t	*pathp;
 	const char	*nm;
-{
 	size_t		nlen;
+{
+	BOOL	with_len = TRUE;
 
 	if (pathp->ps_path == NULL)
 		pathp->ps_size = 0;
@@ -51,16 +63,39 @@ strcpy_pspace(f, pathp, nm)
 	/*
 	 * If ps_path space is not sufficient, expand it.
 	 */
-	nlen = strlen(nm);
+	if (nlen == (size_t)-1) {
+		with_len = FALSE;
+		nlen = strlen(nm);
+	}
 	if (pathp->ps_size < (nlen + 2)) {
 		if (grow_pspace(f, pathp, (nlen + 2)) < 0)
 			return (-1);
 	}
-	strcpy(pathp->ps_path, nm);
+	if (with_len)
+		strlcpy(pathp->ps_path, nm, nlen+1);
+	else
+		strcpy(pathp->ps_path, nm);
 	pathp->ps_tail = nlen;
 	return (0);
 }
 
+/*
+ * Copy string "nm" into pathstore_t.
+ * Grow pathstore_t object if needed.
+ */
+EXPORT int
+strcpy_pspace(f, pathp, nm)
+	FILE		*f;
+	pathstore_t	*pathp;
+	const char	*nm;
+{
+	return (strlcpy_pspace(f, pathp, nm, (size_t)-1));
+}
+
+/*
+ * Initialize pathstore_t object.
+ * Set initial size to PS_INCR.
+ */
 EXPORT int
 init_pspace(f, pathp)
 	FILE		*f;
@@ -85,6 +120,10 @@ init_pspace(f, pathp)
 	return (0);
 }
 
+/*
+ * Re-adjust the size of a pathstore_t object to the new size in "amt".
+ * This may shrink or grow the object.
+ */
 EXPORT ssize_t
 set_pspace(f, pathp, amt)
 	FILE		*f;
@@ -104,15 +143,31 @@ set_pspace(f, pathp, amt)
 
 	nsize = (amt + PS_INCR - 1) / PS_INCR * PS_INCR;
 	new = __fjrealloc(f, pathp->ps_path, nsize, "path buffer", jmp);
-	if (new == NULL)
+	if (new == NULL) {
+		if (nsize == 0)
+			goto ok;
+		/*
+		 * We could not get new memory, but the old memory
+		 * is still intact.
+		 */
 		return (-1);
-	if (nsize < pathp->ps_size)	/* If it shrinks  */
+	}
+	if (nsize == 0)
+		pathp->ps_path = NULL;
+	else if (nsize < pathp->ps_size) /* If it shrinks  */
 		new[nsize-1] = '\0';	/* Null terminate */
+ok:
 	pathp->ps_path = new;
 	pathp->ps_size = nsize;
+	if (pathp->ps_size <= pathp->ps_tail)
+		pathp->ps_tail = 0;
 	return (nsize);
 }
 
+/*
+ * Re-adjust the size of a pathstore_t object by an increment in "amt".
+ * This may shrink or grow the object.
+ */
 EXPORT ssize_t
 incr_pspace(f, pathp, amt)
 	FILE		*f;
@@ -122,6 +177,10 @@ incr_pspace(f, pathp, amt)
 	return (set_pspace(f, pathp, pathp->ps_size + amt));
 }
 
+/*
+ * Re-adjust the size of a pathstore_t object if "amt" is > than current size.
+ * This may only grow the object.
+ */
 EXPORT ssize_t
 grow_pspace(f, pathp, amt)
 	FILE		*f;
@@ -133,6 +192,9 @@ grow_pspace(f, pathp, amt)
 	return (set_pspace(f, pathp, amt));
 }
 
+/*
+ * Destroy a pathstore_t object.
+ */
 EXPORT void
 free_pspace(pathp)
 	pathstore_t	*pathp;

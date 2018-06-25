@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling */
+/* @(#)xheader.c	1.95 18/06/21 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling";
+	"@(#)xheader.c	1.95 18/06/21 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -36,6 +36,8 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/idcache.h>
 #include "starsubs.h"
@@ -263,10 +265,14 @@ xbinit()
 {
 	_xbinit();
 
-	ginfo.f_name = ___malloc(PATH_MAX+1, "global info name");
-	ginfo.f_lname = ___malloc(PATH_MAX+1, "global info lname");
+	init_pspace(PS_EXIT, &ginfo.f_pname);
+	ginfo.f_name = ginfo.f_pname.ps_path;
 	ginfo.f_name[0] = '\0';
+
+	init_pspace(PS_EXIT, &ginfo.f_plname);
+	ginfo.f_lname = ginfo.f_plname.ps_path;
 	ginfo.f_lname[0] = '\0';
+
 	ginfo.f_uname = ___malloc(MAX_UNAME+1, "global user name");
 	ginfo.f_gname = ___malloc(MAX_UNAME+1, "global group name");
 	ginfo.f_uname[0] = '\0';
@@ -1777,22 +1783,50 @@ get_path(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_PATH;
 		return;
 	}
-	if (len > PATH_MAX) {
-		print_toolong(keyword, arg, len);
-		return;
-	}
+
 	/*
 	 * Check whether we are called via get_xhtype() -> xhparse()
 	 */
 	if (info->f_name == NULL)
 		return;
+
 	if (ginfo.f_xflags & XF_BINARY) {
-		strcpy(info->f_name, arg);
-		info->f_xflags |= XF_PATH;
-	} else if (from_utf8((Uchar *)info->f_name, PATH_MAX+1, (Uchar *)arg, &len)) {
+		if (strlcpy_pspace(PS_STDERR, &info->f_pname, arg, len) < 0) {
+			print_toolong(keyword, arg, len);
+			info->f_xflags |= F_BAD_META;
+			return;
+		}
+		info->f_name = info->f_pname.ps_path;
 		info->f_xflags |= XF_PATH;
 	} else {
-		bad_utf8(keyword, arg);
+		int	ilen = len;
+		BOOL	ret;
+
+		do {
+			len = ilen;
+			ret = from_utf8((Uchar *)info->f_name,
+					info->f_pname.ps_size,
+					(Uchar *)arg, &len);
+			if (len >= info->f_pname.ps_size) {
+				/*
+				 * An increment of 1 is OK, since it is unlikely
+				 * that the path grows by more than 256 per dir.
+				 */
+				if (incr_pspace(PS_STDERR,
+						&info->f_pname, 1) < 0) {
+					print_toolong(keyword, arg, len);
+					info->f_xflags |= F_BAD_META;
+					return;
+				}
+				info->f_name = info->f_pname.ps_path;
+			} else
+				break;
+		} while (1);
+
+		if (ret)
+			info->f_xflags |= XF_PATH;
+		else
+			bad_utf8(keyword, arg);
 	}
 }
 
@@ -1812,22 +1846,50 @@ get_lpath(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_LINKPATH;
 		return;
 	}
-	if (len > PATH_MAX) {
-		print_toolong(keyword, arg, len);
-		return;
-	}
+
 	/*
 	 * Check whether we are called via get_xhtype() -> xhparse()
 	 */
 	if (info->f_lname == NULL)
 		return;
+
 	if (ginfo.f_xflags & XF_BINARY) {
-		strcpy(info->f_lname, arg);
-		info->f_xflags |= XF_LINKPATH;
-	} else if (from_utf8((Uchar *)info->f_lname, PATH_MAX+1, (Uchar *)arg, &len)) {
+		if (strlcpy_pspace(PS_STDERR, &info->f_plname, arg, len) < 0) {
+			print_toolong(keyword, arg, len);
+			info->f_xflags |= F_BAD_META;
+			return;
+		}
+		info->f_lname = info->f_plname.ps_path;
 		info->f_xflags |= XF_LINKPATH;
 	} else {
-		bad_utf8(keyword, arg);
+		int	ilen = len;
+		BOOL	ret;
+
+		do {
+			len = ilen;
+			ret = from_utf8((Uchar *)info->f_lname,
+					info->f_plname.ps_size,
+					(Uchar *)arg, &len);
+			if (len >= info->f_plname.ps_size) {
+				/*
+				 * An increment of 1 is OK, since it is unlikely
+				 * that the path grows by more than 256 per dir.
+				 */
+				if (incr_pspace(PS_STDERR,
+						&info->f_plname, 1) < 0) {
+					print_toolong(keyword, arg, len);
+					info->f_xflags |= F_BAD_META;
+					return;
+				}
+				info->f_lname = info->f_plname.ps_path;
+			} else
+				break;
+		} while (1);
+
+		if (ret)
+			info->f_xflags |= XF_LINKPATH;
+		else
+			bad_utf8(keyword, arg);
 	}
 }
 

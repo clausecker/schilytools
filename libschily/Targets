@@ -1,4 +1,4 @@
-# @(#)Targets	1.59 18/06/07 Copyright 1995-2018 J. Schilling
+# @(#)Targets	1.62 18/06/16 Copyright 1995-2018 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -20,12 +20,12 @@ HFILES_STDIO=	schilyio.h
 #
 
 CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.c \
-		checkerr.c comerr.c fcomerr.c \
+		checkerr.c comerr.c fcomerr.c gtcomerr.c fgtcomerr.c \
 		chown.c \
 		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
 		dirent.c dirname.c diropen.c \
 		dlfcn.c \
-		eaccess.c error.c \
+		eaccess.c error.c gterror.c \
 		faccessat.c fchdir.c \
 		fchmodat.c fchownat.c fconv.c fdopendir.c fexec.c fillbytes.c \
 		findinpath.c \
@@ -45,7 +45,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		getnstimeofday.c gettimeofday.c \
 		gid.c \
 		handlecond.c \
-		jsdprintf.c jsprintf.c jssnprintf.c jssprintf.c \
+		jsdprintf.c jsprintf.c jssnprintf.c jssprintf.c gtprintf.c \
 		kill.c \
 		lchmod.c linkat.c lutimens.c \
 		lxchdir.c \

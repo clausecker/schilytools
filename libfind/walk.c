@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.52 18/06/04 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.54 18/06/20 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.52 18/06/04 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.54 18/06/20 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -66,7 +66,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #if (defined(HAVE_DIRFD) || defined(HAVE_DIR_DD_FD)) && defined(HAVE_FCHDIR)
-#define	USE_FCHDIR		/* Use fchdir() to traverse the tree */
+#define	USE_DIRFD		/* Use fchdir() to traverse the tree */
 #endif
 
 #ifndef	_AT_TRIGGER
@@ -163,8 +163,10 @@ LOCAL	int	wdstat		__PR((const char *nm, struct stat *sp,
 LOCAL	int	wdlstat		__PR((const char *nm, struct stat *sp,
 					struct pdirs *pd));
 
+#ifdef	USE_DIRFD
 LOCAL	DIR	*nopendir	__PR((const char *name, struct pdirs *pd));
 LOCAL	DIR	*dopendir	__PR((const char *name, struct pdirs *pd));
+#endif
 
 EXPORT int
 treewalk(nm, fn, state)
@@ -175,6 +177,17 @@ treewalk(nm, fn, state)
 	struct twvars	vars;
 	statfun		statf = wstat;
 	int		nlen;
+
+#ifndef	USE_DIRFD
+	/*
+	 * If we have no dirfd(), we currently cannot implement
+	 * the walk mode without chdir(). This mainly excludes DOS.
+	 */
+	if ((state->walkflags & WALK_CHDIR) == 0) {
+		seterrno(EINVAL);
+		return (-1);
+	}
+#endif
 
 	vars.Curdir  = NULL;
 	vars.Curdlen = 0;
@@ -263,7 +276,7 @@ walk(nm, sf, fn, state, last)
 	char		*p;
 	struct twvars	*varp = state->twprivate;
 
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 	thisd.p_dir  = (DIR *)NULL;
 #endif
 	thisd.p_varp = varp;
@@ -372,7 +385,9 @@ type_known:
 	if (type == WALK_D) {
 		BOOL		need_cd = !(nm[0] == '.' && nm[1] == '\0');
 		struct pdirs	*pd = last;
+#ifdef	USE_DIRFD
 		opendirfun	opendirp = nopendir;
+#endif
 
 		ret = 0;
 		if ((state->walkflags & WALK_CHDIR) == 0) {
@@ -381,8 +396,9 @@ type_known:
 				sf = wdlstat;
 			}
 			need_cd = FALSE;
+#ifdef	USE_DIRFD
 			opendirp = dopendir;
-
+#endif
 		} else if ((state->walkflags & (WALK_PHYS|WALK_ALLFOLLOW)) ==
 			    WALK_PHYS) {
 			sf = wlstat;
@@ -435,7 +451,7 @@ type_known:
 				goto out;
 		}
 
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 		thisd.p_dir = (*opendirp)(nm, last);
 		/*
 		 * If we are out of fd's, close the directory above and
@@ -485,7 +501,7 @@ type_known:
 			 */
 			Dspace = varp->Curdlen - varp->Curdtail - 2;
 
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 			if (thisd.p_dir == NULL ||
 			    (dp = dfetchdir(thisd.p_dir, ".",
 						&nents, NULL, NULL)) == NULL) {
@@ -531,7 +547,7 @@ type_known:
 			}
 			free(odp);
 		skip:
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 			if (thisd.p_dir) {
 				closedir(thisd.p_dir);
 				thisd.p_dir = (DIR *)NULL;
@@ -571,7 +587,7 @@ type_known:
 		ret = (*fn)(varp->Curdir, &fs, type, state);
 	}
 out:
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 	if (thisd.p_dir)
 		closedir(thisd.p_dir);
 #endif
@@ -756,7 +772,7 @@ xchdotdot(last, tail, state)
 	char	c;
 	struct stat sb;
 
-#ifdef	USE_FCHDIR
+#ifdef	USE_DIRFD
 	if (last->p_dir) {
 		if (fchdir(dirfd(last->p_dir)) >= 0)
 			return (0);
@@ -862,13 +878,17 @@ wdstat(nm, sp, pd)
 {
 	int	fd;
 
+#ifdef	USE_DIRFD
 	if (pd && pd->p_dir) {
 		fd = dirfd(pd->p_dir);
 	} else {
+#endif
 		fd = AT_FDCWD;
 		if (pd)
 			nm = pd->p_varp->Curdir;
+#ifdef	USE_DIRFD
 	}
+#endif
 	return (fstatat(fd, nm, sp, _AT_TRIGGER));
 }
 
@@ -884,16 +904,21 @@ wdlstat(nm, sp, pd)
 {
 	int	fd;
 
+#ifdef	USE_DIRFD
 	if (pd && pd->p_dir) {
 		fd = dirfd(pd->p_dir);
 	} else {
+#endif
 		fd = AT_FDCWD;
 		if (pd)
 			nm = pd->p_varp->Curdir;
+#ifdef	USE_DIRFD
 	}
+#endif
 	return (fstatat(fd, nm, sp, AT_SYMLINK_NOFOLLOW|_AT_TRIGGER));
 }
 
+#ifdef	USE_DIRFD
 /*
  * Open directory WALK_CHDIR is set.
  */
@@ -928,8 +953,8 @@ dopendir(name, pd)
 		if (pd)
 			name = pd->p_varp->Curdir;
 	}
-	if (((dfd = openat(fd, name, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0 ||
-	    (ret = fdopendir(dfd)) == NULL) && geterrno() != ENAMETOOLONG) {
+	if (((dfd = openat(fd, name, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0 &&
+	    geterrno() != ENAMETOOLONG) || (ret = fdopendir(dfd)) == NULL) {
 		return (NULL);
 	}
 	if (ret)
@@ -967,3 +992,4 @@ dopendir(name, pd)
 	ret = fdopendir(fd);
 	return (ret);
 }
+#endif	/* USE_DIRFD */

@@ -1,8 +1,8 @@
-/* @(#)props.c	1.60 18/05/12 Copyright 1994-2018 J. Schilling */
+/* @(#)props.c	1.61 18/06/16 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.60 18/05/12 Copyright 1994-2018 J. Schilling";
+	"@(#)props.c	1.61 18/06/16 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -39,6 +39,8 @@ static	UConst char sccsid[] =
 #include "table.h"
 #include "diff.h"
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 

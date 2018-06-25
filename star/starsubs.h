@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.118 18/06/10 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.120 18/06/13 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -319,8 +319,12 @@ extern	BOOL	get_snumber	__PR((char *keyword, char *arg, Ullong *ullp,
  */
 #ifdef _STAR_H
 extern	void	opt_xattr	__PR((void));
+extern	void	opt_selinux	__PR((void));
 extern	BOOL	get_xattr	__PR((register FINFO *info));
 extern	BOOL	set_xattr	__PR((register FINFO *info));
+#ifdef	USE_SELINUX
+extern	BOOL	setselinux	__PR((register FINFO *info));
+#endif
 extern	void	free_xattr	__PR((star_xattr_t **xattr));
 #endif
 

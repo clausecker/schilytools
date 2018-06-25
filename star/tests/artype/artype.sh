@@ -225,6 +225,7 @@ s=bar.bar
 docommand AT11a "${tar} -t f=${s}" "!=0" "" "\
 star: Blocksize = 16 records.
 star: Can't handle bar archives (yet).
+star: 1 blocks + 0 bytes (total of 8192 bytes = 8.00k).
 "
 docommand AT11b "${tar} -t -print-artype f=${s}" 0 "bar.bar: bar archive.
 " "\

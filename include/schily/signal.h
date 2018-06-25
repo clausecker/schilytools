@@ -1,4 +1,4 @@
-/* @(#)signal.h	1.11 18/06/07 Copyright 1997-2018 J. Schilling */
+/* @(#)signal.h	1.13 18/06/16 Copyright 1997-2018 J. Schilling */
 /*
  *	Signal abstraction for signals
  *
@@ -61,6 +61,13 @@
 #endif
 
 #if	!defined(HAVE_TYPE_SIGINFO_T) && !defined(HAVE_SIGINFO_T)
+
+#ifndef _SCHILY_TIME_H
+#include <schily/time.h>
+#endif
+#ifndef _SCHILY_TIMES_H
+#include <schily/times.h>
+#endif
 
 typedef struct {
 	int	si_code;	/* Child status code */

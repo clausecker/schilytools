@@ -1,8 +1,8 @@
-/* @(#)hole.c	1.64 18/01/24 Copyright 1993-2018 J. Schilling */
+/* @(#)hole.c	1.65 18/06/16 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.64 18/01/24 Copyright 1993-2018 J. Schilling";
+	"@(#)hole.c	1.65 18/06/16 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
@@ -29,6 +29,8 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/standard.h>
 #include "star.h"
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "props.h"
 #include "table.h"

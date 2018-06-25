@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.92 18/05/06 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.c	1.95 18/06/21 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.92 18/05/06 Copyright 1993-2018 J. Schilling";
+	"@(#)diff.c	1.95 18/06/21 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -35,6 +35,8 @@ static	UConst char sccsid[] =
 #include "props.h"
 #include "table.h"
 #include "diff.h"
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
 #include "starsubs.h"
@@ -43,6 +45,8 @@ static	UConst char sccsid[] =
 #ifdef	USE_FIND
 #include <schily/walk.h>
 #endif
+
+#include <schily/nlsdefs.h>
 
 typedef	struct {
 	FILE	*cmp_file;
@@ -103,11 +107,14 @@ extern	struct WALK walkstate;
 #endif
 		FINFO	finfo;
 		TCB	tb;
-		char	name[PATH_MAX+1];
-		char	lname[PATH_MAX+1];
 	register TCB 	*ptb = &tb;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
+
+	if (init_pspace(PS_STDERR, &finfo.f_pname) < 0)
+		return;
+	if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+		return;
 
 	finfo.f_tcb = ptb;
 
@@ -129,8 +136,8 @@ extern	struct WALK walkstate;
 	}
 #endif
 	for (;;) {
-		finfo.f_name = name;
-		finfo.f_lname = lname;
+		finfo.f_name = finfo.f_pname.ps_path;
+		finfo.f_lname = finfo.f_plname.ps_path;
 		if (tcb_to_info(ptb, &finfo) == EOF)
 			break;
 #ifdef	USE_FIND
@@ -170,7 +177,6 @@ LOCAL void
 diff_tcb(info)
 	register FINFO	*info;
 {
-		char	lname[PATH_MAX+1];
 		TCB	tb;
 		FINFO	finfo;
 		FINFO	linfo;
@@ -179,9 +185,6 @@ diff_tcb(info)
 		BOOL	do_void = FALSE;	/* Make GCC happy */
 
 	f = tarf == stdout ? stderr : stdout; /* XXX FILE *vpr is the same */
-
-	finfo.f_lname = lname;
-	finfo.f_lnamelen = 0;
 
 	if (!abs_path &&	/* XXX VVV siehe skip_slash() */
 	    (info->f_name[0] == '/' /* || info->f_lname[0] == '/' */))
@@ -274,7 +277,7 @@ diff_tcb(info)
 			;
 		} else {
 			if (debug) {
-				fprintf(f,
+				fgtprintf(f,
 				"%s: different filetype  %llo != %llo\n",
 				info->f_name,
 				(Ullong)info->f_type, (Ullong)finfo.f_type);
@@ -356,7 +359,7 @@ diff_tcb(info)
 		if ((finfo.f_ino != linfo.f_ino) ||
 		    (finfo.f_dev != linfo.f_dev)) {
 			if (debug || verbose)
-				fprintf(f, "%s: not linked to %s\n",
+				fgtprintf(f, "%s: not linked to %s\n",
 					info->f_name, info->f_lname);
 
 			diffs |= D_HLINK;
@@ -369,7 +372,9 @@ diff_tcb(info)
 	 */
 	if (!is_link(info))
 	if (((diffopts & (D_SLINK|D_SLPATH)) || verbose) && is_symlink(&finfo)) {
-		if (read_symlink(info->f_name, info->f_name, &finfo, &tb)) {
+		if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+			;
+		else if (read_symlink(info->f_name, info->f_name, &finfo, &tb)) {
 			if ((diffopts & D_SLINK) && is_symlink(info) &&
 			    !linkeql(info->f_lname, finfo.f_lname)) {
 				diffs |= D_SLINK;
@@ -414,7 +419,7 @@ diff_tcb(info)
 #endif
 		if (is_sparse(info) != ((finfo.f_flags & F_SPARSE) != 0)) {
 			if (debug || verbose) {
-				fprintf(f, "%s: %s not sparse\n",
+				fgtprintf(f, "%s: %s not sparse\n",
 					info->f_name,
 					is_sparse(info) ? "target":"source");
 			}
@@ -652,7 +657,7 @@ dirdiffs(f, info)
 
 	if (ents1 != ents2) {
 		if (debug || verbose > 2) {
-			fprintf(f, "Archive ents: %d Disk ents: %d '%s'\n",
+			fgtprintf(f, "Archive ents: %d Disk ents: %d '%s'\n",
 					ents1, ents2, info->f_name);
 		}
 		diffs = TRUE;
@@ -667,11 +672,11 @@ dirdiffs(f, info)
 
 	if (debug || verbose > 1) {
 		for (i = 0; i < dlen; i++) {
-			fprintf(f, "Only on disk '%s': '%s'\n",
+			fgtprintf(f, "Only on disk '%s': '%s'\n",
 					info->f_name, od[i] + 1);
 		}
 		for (i = 0; i < alen; i++) {
-			fprintf(f, "Only in archive '%s': '%s'\n",
+			fgtprintf(f, "Only in archive '%s': '%s'\n",
 					info->f_name, oa[i] + 1);
 		}
 	}

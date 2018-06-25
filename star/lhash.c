@@ -1,11 +1,11 @@
-/* @(#)lhash.c	1.20 09/07/11 Copyright 1988, 1993-2009 J. Schilling */
+/* @(#)lhash.c	1.21 18/06/16 Copyright 1988, 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lhash.c	1.20 09/07/11 Copyright 1988, 1993-2009 J. Schilling";
+	"@(#)lhash.c	1.21 18/06/16 Copyright 1988, 1993-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988, 1993-2009 J. Schilling
+ *	Copyright (c) 1988, 1993-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -50,6 +50,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include "star.h"
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 

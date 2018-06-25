@@ -1,8 +1,8 @@
-/* @(#)star.c	1.368 18/06/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.373 18/06/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.368 18/06/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.373 18/06/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -33,13 +33,15 @@ static	UConst char sccsid[] =
 #include "diff.h"
 #include <schily/wait.h>
 #include <schily/standard.h>
-#define	__XDEV__	/* Needed to activate _dev_init() */
+#define	__XDEV__		/* Needed to activate _dev_init() */
 #include <schily/device.h>
 #include <schily/stat.h>	/* Needed for umask(2) */
 #include <schily/getargs.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/idcache.h>
-#include "fifo.h"	/* Needed for #undef FIFO */
+#include "fifo.h"		/* Needed for #undef FIFO */
 #include "dumpdate.h"
 #ifdef	USE_FIND
 #include <schily/walk.h>
@@ -49,6 +51,7 @@ static	UConst char sccsid[] =
 #include <schily/nlsdefs.h>
 
 #include "starsubs.h"
+#include "dirtime.h"
 #include "checkerr.h"
 
 EXPORT	int	main		__PR((int ac, char **av));
@@ -306,6 +309,10 @@ findn_t	*find_node;			/* syntaxtree from find_parse()	*/
 void	*plusp;				/* residual for -exec ...{} +	*/
 int	find_patlen;			/* len for -find pattern state	*/
 char	*codeset = "ISO8859-1";
+#ifdef	USE_SELINUX
+BOOL	selinux_enabled;
+#endif
+
 
 LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT |
 				    WALK_STRIPLDOT;
@@ -451,6 +458,10 @@ main(ac, av)
 	 * and do not call star from root, you are lost.
 	 */
 
+#ifdef	USE_SELINUX
+	selinux_enabled = is_selinux_enabled() > 0;
+#endif
+
 	opentape();
 
 	if (stampfile)
@@ -519,7 +530,16 @@ main(ac, av)
 		}
 	}
 
-
+	/*
+	 * These callbacks are only called in case we leave star via comexit().
+	 * We do this only in case of a severe error.
+	 * These functions are called in the inverse set up oder, so checkerrs()
+	 * called last.
+	 */
+	on_comerr((void(*)__PR((int, void *)))checkerrs, (void *)0);
+	on_comerr((void(*)__PR((int, void *)))prstats, (void *)0);
+	if (xflag)
+		on_comerr((void(*)__PR((int, void *)))flushdirtimes, (void *)0);
 #ifdef	FIFO
 	if (use_fifo) {
 		runfifo(oac, oav);	/* Run FIFO, fork() is called here  */
@@ -1707,7 +1727,7 @@ star_helpvers(name, help, xhelp, prvers)
 	star_mkvers();
 	if (prvers) {
 		printf("%s: %s\n\n", name, vers);
-		printf("Options:");
+		gtprintf("Options:");
 #ifdef	USE_ACL
 		opt_acl();
 #endif
@@ -1723,10 +1743,13 @@ star_helpvers(name, help, xhelp, prvers)
 #ifdef	USE_XATTR
 		opt_xattr();
 #endif
-		printf("\n\n");
-		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2018 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+#ifdef	USE_SELINUX
+		opt_selinux();
+#endif
+		gtprintf("\n\n");
+		gtprintf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2018 Jörg Schilling\n");
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 }

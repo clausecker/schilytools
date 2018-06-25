@@ -1,15 +1,15 @@
 
 # line 2 "cpy.y"
-/* @(#)cpy.y	1.5 10/09/21 2010 J. Schilling */
+/* @(#)cpy.y	1.6 18/06/17 2010-2018 J. Schilling */
 #ifndef lint
 static	char y_sccsid[] =
-	"@(#)cpy.y	1.5 10/09/21 2010 J. Schilling";
+	"@(#)cpy.y	1.6 18/06/17 2010-2018 J. Schilling";
 #endif
 /*
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010 J. Schilling
+ * Copyright (c) 2010-2018 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,16 +87,19 @@ static	char y_sccsid[] =
 # define OROR 267
 # define UMINUS 268
 
-#include <schily/inttypes.h>
-
-#include <schily/stdlib.h>
-#include <schily/string.h>
+#include <inttypes.h>
 
 #ifdef __STDC__
+#include <stdlib.h>
+#include <string.h>
 #define	YYCONST	const
 #else
+#include <malloc.h>
+#include <memory.h>
 #define	YYCONST
 #endif
+
+#include <values.h>
 
 #if defined(__cplusplus) || defined(__STDC__)
 
@@ -141,7 +144,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 155 "cpy.y"
+# line 169 "cpy.y"
 
 # include "yylex.c"
 static YYCONST yytabelem yyexca[] ={
@@ -379,7 +382,7 @@ char * yyreds[] =
 /* Copyright (c) 1988 AT&T */
 /* All Rights Reserved */
 
-#pragma ident	"@(#)cpypre.c	1.1	13/01/04 SMI"
+#pragma ident	"@(#)cpypre.c	1.2	18/06/17 SMI"
 
 /*
 ** Skeleton parser driver for yacc output
@@ -913,85 +916,99 @@ case 2:
 {yyval = yypvt[-2] * yypvt[-0];} break;
 case 3:
 # line 101 "cpy.y"
-{yyval = yypvt[-2] / yypvt[-0];} break;
+{
+			if (yypvt[-0] == 0) {
+				yyerror("division by zero");
+				yyval = 0;
+			} else {
+				yyval = yypvt[-2] / yypvt[-0];
+			}
+		} break;
 case 4:
-# line 103 "cpy.y"
-{yyval = yypvt[-2] % yypvt[-0];} break;
+# line 110 "cpy.y"
+{
+			if (yypvt[-0] == 0) {
+				yyerror("division by zero");
+				yyval = 0;
+			} else {
+				yyval = yypvt[-2] % yypvt[-0];
+			}
+		} break;
 case 5:
-# line 105 "cpy.y"
+# line 119 "cpy.y"
 {yyval = yypvt[-2] + yypvt[-0];} break;
 case 6:
-# line 107 "cpy.y"
+# line 121 "cpy.y"
 {yyval = yypvt[-2] - yypvt[-0];} break;
 case 7:
-# line 109 "cpy.y"
+# line 123 "cpy.y"
 {yyval = yypvt[-2] << yypvt[-0];} break;
 case 8:
-# line 111 "cpy.y"
+# line 125 "cpy.y"
 {yyval = yypvt[-2] >> yypvt[-0];} break;
 case 9:
-# line 113 "cpy.y"
+# line 127 "cpy.y"
 {yyval = yypvt[-2] < yypvt[-0];} break;
 case 10:
-# line 115 "cpy.y"
+# line 129 "cpy.y"
 {yyval = yypvt[-2] > yypvt[-0];} break;
 case 11:
-# line 117 "cpy.y"
+# line 131 "cpy.y"
 {yyval = yypvt[-2] <= yypvt[-0];} break;
 case 12:
-# line 119 "cpy.y"
+# line 133 "cpy.y"
 {yyval = yypvt[-2] >= yypvt[-0];} break;
 case 13:
-# line 121 "cpy.y"
+# line 135 "cpy.y"
 {yyval = yypvt[-2] == yypvt[-0];} break;
 case 14:
-# line 123 "cpy.y"
+# line 137 "cpy.y"
 {yyval = yypvt[-2] != yypvt[-0];} break;
 case 15:
-# line 125 "cpy.y"
+# line 139 "cpy.y"
 {yyval = yypvt[-2] & yypvt[-0];} break;
 case 16:
-# line 127 "cpy.y"
+# line 141 "cpy.y"
 {yyval = yypvt[-2] ^ yypvt[-0];} break;
 case 17:
-# line 129 "cpy.y"
+# line 143 "cpy.y"
 {yyval = yypvt[-2] | yypvt[-0];} break;
 case 18:
-# line 131 "cpy.y"
+# line 145 "cpy.y"
 {yyval = yypvt[-2] && yypvt[-0];} break;
 case 19:
-# line 133 "cpy.y"
+# line 147 "cpy.y"
 {yyval = yypvt[-2] || yypvt[-0];} break;
 case 20:
-# line 135 "cpy.y"
+# line 149 "cpy.y"
 {yyval = yypvt[-4] ? yypvt[-2] : yypvt[-0];} break;
 case 21:
-# line 137 "cpy.y"
+# line 151 "cpy.y"
 {yyval = yypvt[-0];} break;
 case 22:
-# line 139 "cpy.y"
+# line 153 "cpy.y"
 {yyval = yypvt[-0];} break;
 case 23:
-# line 142 "cpy.y"
+# line 156 "cpy.y"
 {yyval = -yypvt[-0];} break;
 case 24:
-# line 144 "cpy.y"
+# line 158 "cpy.y"
 {yyval = !yypvt[-0];} break;
 case 25:
-# line 146 "cpy.y"
+# line 160 "cpy.y"
 {yyval = ~yypvt[-0];} break;
 case 26:
-# line 148 "cpy.y"
+# line 162 "cpy.y"
 {yyval = yypvt[-1];} break;
 case 27:
-# line 150 "cpy.y"
-{yyval= yypvt[-1];} break;
+# line 164 "cpy.y"
+{yyval = yypvt[-1];} break;
 case 28:
-# line 152 "cpy.y"
+# line 166 "cpy.y"
 {yyval = yypvt[-0];} break;
 case 29:
-# line 154 "cpy.y"
-{yyval= yypvt[-0];} break;
+# line 168 "cpy.y"
+{yyval = yypvt[-0];} break;
 # line	556 "/usr/share/lib/ccs/yaccpar"
 	}
 	goto yystack;		/* reset registers in driver code */

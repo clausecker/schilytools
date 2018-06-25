@@ -1,8 +1,8 @@
-/* @(#)tartest.c	1.21 18/05/28 Copyright 2002-2018 J. Schilling */
+/* @(#)tartest.c	1.23 18/06/17 Copyright 2002-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.21 18/05/28 Copyright 2002-2018 J. Schilling";
+	"@(#)tartest.c	1.23 18/06/17 Copyright 2002-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2002-2018 J. Schilling
@@ -28,6 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/getargs.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 
 #include <schily/fcntl.h>			/* O_BINARY */
@@ -85,23 +87,23 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.21",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.23",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-	printf("Copyright (C) 2002-2017 Jörg Schilling\n");
-	printf("This is free software; see the source for copying conditions.  There is NO\n");
-	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	gtprintf("Copyright (C) 2002-2017 Jörg Schilling\n");
+	gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+	gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	if (prversion)
 		exit(0);
 
-	printf("\nTesting for POSIX.1-1990 TAR compliance...\n");
+	gtprintf("\nTesting for POSIX.1-1990 TAR compliance...\n");
 
 	setmode(fileno(stdin), O_BINARY);
 
 	if (!doit(stdin)) {
-		printf(">>> Archive is not POSIX.1-1990 TAR standard compliant.\n");
+		gtprintf(">>> Archive is not POSIX.1-1990 TAR standard compliant.\n");
 		return (1);
 	}
-	printf("No deviations from POSIX.1-1990 TAR standard found.\n");
+	gtprintf("No deviations from POSIX.1-1990 TAR standard found.\n");
 	return (0);
 }
 
@@ -126,7 +128,7 @@ doit(f)
 		r = TRUE;
 		fillbytes(ptb, TBLOCK, '\0');
 		if (fileread(f, ptb, TBLOCK) != TBLOCK) {
-			printf("Hard EOF at block %lld\n", blockno);
+			gtprintf("Hard EOF at block %lld\n", blockno);
 			return (FALSE);
 		}
 
@@ -136,39 +138,39 @@ doit(f)
 			/*
 			 * Check EOF
 			 */
-			printf("Found 1st EOF block at %lld\n", blockno);
+			gtprintf("Found 1st EOF block at %lld\n", blockno);
 			blockno++;
 			if (fileread(f, ptb, TBLOCK) != TBLOCK) {
-				printf(
+				gtprintf(
 				"Hard EOF at block %lld (second EOF block missing)\n",
 					blockno);
 				return (FALSE);
 			}
 			hsum = checksum(ptb);
 			if (hsum != 0) {
-				printf(
+				gtprintf(
 					"Second EOF block missing at %lld\n",
 					blockno);
 				return (FALSE);
 			}
-			printf("Found 2nd EOF block at %lld\n", blockno);
+			gtprintf("Found 2nd EOF block at %lld\n", blockno);
 			return (ret);
 		}
 		if (checks != hsum) {
-			printf("Bad Checksum %0llo != %0llo at block %lld\n",
+			gtprintf("Bad Checksum %0llo != %0llo at block %lld\n",
 							checks, hsum, blockno);
 			signedcksum = TRUE;
 			hsum = checksum(ptb);
 			if (checks == hsum) {
-				printf("Warning: archive uses signed checksums.\n");
+				gtprintf("Warning: archive uses signed checksums.\n");
 				return (FALSE);
 			}
 			if (blockno != 0) {
 				if (is_posix_2001) {
-					printf(
+					gtprintf(
 					"The archive may either be corrupted or using the POSIX.1-2001 size field.\n");
 				} else {
-					printf(
+					gtprintf(
 					"Warning: Corrupted TAR archive.\n");
 				}
 			}
@@ -207,7 +209,7 @@ doit(f)
 		case '1':	/* Hard link */
 		case '2':	/* Symbolic link */
 			if (i != 0) {
-				printf(
+				gtprintf(
 				"Warning: t_size field: %0llu, should be 0 for %s link\n",
 					size,
 					ptb->ustar_dbuf.t_typeflag == '1'?
@@ -225,11 +227,11 @@ doit(f)
 		}
 
 		if (!r || verbose) {
-			printf("*** %sFilename '%s'\n",
+			gtprintf("*** %sFilename '%s'\n",
 						r == FALSE ?
 						"Failing ":"", name);
 			if (lname[0]) {
-				printf("*** %sLinkname '%s'\n",
+				gtprintf("*** %sLinkname '%s'\n",
 						r == FALSE ?
 						"Failing ":"", lname);
 			}
@@ -240,7 +242,7 @@ doit(f)
 		 */
 		while (--i >= 0) {
 			if (fileread(f, ptb, TBLOCK) != TBLOCK) {
-				printf("Hard EOF at block %lld\n", blockno);
+				gtprintf("Hard EOF at block %lld\n", blockno);
 				return (FALSE);
 			}
 			blockno++;
@@ -258,21 +260,21 @@ checkhdr(ptb)
 	Ullong	ll;
 
 	if (ptb->ustar_dbuf.t_name[  0] == '\0') {
-		printf("Warning: t_name[  0] is a null character.\n");
+		gtprintf("Warning: t_name[  0] is a null character.\n");
 		errs++;
 	}
 	if (ptb->ustar_dbuf.t_name[  0] != '\0' &&
 	    ptb->ustar_dbuf.t_name[ 99] != '\0' &&
 	    /* LINTED */
 	    ptb->ndbuf.t_name[100] == '\0') {
-		printf("Warning: t_name[100] is a null character.\n");
+		gtprintf("Warning: t_name[100] is a null character.\n");
 		errs++;
 	}
 	if (ptb->ustar_dbuf.t_linkname[  0] != '\0' &&
 	    ptb->ustar_dbuf.t_linkname[ 99] != '\0' &&
 	    /* LINTED */
 	    ptb->ndbuf.t_linkname[100] == '\0') {
-		printf("Warning: t_linkname[100] is a null character.\n");
+		gtprintf("Warning: t_linkname[100] is a null character.\n");
 		errs++;
 	}
 
@@ -281,7 +283,7 @@ checkhdr(ptb)
 
 	stolli(ptb->ustar_dbuf.t_mode, &ll, 8);
 	if (ll & ~07777) {
-		printf(
+		gtprintf(
 		"Warning: too many bits in t_mode field: 0%llo, should be 0%llo\n",
 			ll, ll & 07777);
 		errs++;
@@ -328,7 +330,7 @@ checkhdr(ptb)
 	 * TAR header. They may have any value...
 	 */
 	if (cmpnullbytes(ptb->ustar_dbuf.t_mfill, 12) < 12) {
-		printf(
+		gtprintf(
 		"Warning: non null character in last 12 bytes of header\n");
 		errs++;
 	}
@@ -372,7 +374,7 @@ checkoctal(ptr, len, text)
 		if (endoff > 0 && (ptr[i] != ' ' && ptr[i] != '\0')) {
 #endif
 			pretty_char(cs, ptr[i] & 0xFF);
-			printf(
+			gtprintf(
 			"Warning: illegal end character '%s' (0x%02X) found in field '%s[%d]'\n",
 					cs,
 					ptr[i] & 0xFF,
@@ -392,7 +394,7 @@ checkoctal(ptr, len, text)
 		}
 		if (!isoctal(ptr[i])) {
 			pretty_char(cs, ptr[i] & 0xFF);
-			printf(
+			gtprintf(
 			"Warning: non octal character '%s' (0x%02X) found in field '%s[%d]'\n",
 					cs,
 					ptr[i] & 0xFF,
@@ -403,7 +405,7 @@ checkoctal(ptr, len, text)
 		}
 	}
 	if (foundoctal && endoff == 0) {
-		printf("Warning: no end character found in field '%s'\n",
+		gtprintf("Warning: no end character found in field '%s'\n",
 			text);
 		ret = FALSE;
 	}
@@ -436,8 +438,8 @@ checktype(ptb)
 	case 'g':
 	case 'x':
 		if (!is_posix_2001) {
-			printf("Warning: Archive uses POSIX.1-2001 extensions.\n");
-			printf("Warning: The correctness of the size field cannot be checked for this reason.\n");
+			gtprintf("Warning: Archive uses POSIX.1-2001 extensions.\n");
+			gtprintf("Warning: The correctness of the size field cannot be checked for this reason.\n");
 			is_posix_2001 = TRUE;
 		}
 		break;
@@ -448,7 +450,7 @@ checktype(ptb)
 	case 'V': case 'W': case 'X': case 'Y': case 'Z':
 		{ static char vend[256];
 			if (vend[ptb->ustar_dbuf.t_typeflag & 0xFF] == 0) {
-				printf(
+				gtprintf(
 				"Warning: Archive uses Vendor specific extension file type '%c'.\n",
 				ptb->ustar_dbuf.t_typeflag & 0xFF);
 				vend[ptb->ustar_dbuf.t_typeflag & 0xFF] = 1;
@@ -458,7 +460,7 @@ checktype(ptb)
 
 	default:
 		pretty_char(cs, ptb->ustar_dbuf.t_typeflag & 0xFF);
-		printf(
+		gtprintf(
 		"Warning: Archive uses illegal file type '%s' (0x%02X).\n",
 				cs,
 				ptb->ustar_dbuf.t_typeflag & 0xFF);
@@ -485,7 +487,7 @@ checkid(ptr, text)
 		for (i = 0; i < len; i++) {
 			if (ptr[i] != '\0') {
 				pretty_char(cs, ptr[i] & 0xFF);
-				printf(
+				gtprintf(
 				"Warning: non null character '%s' (0x%02X) found in field '%s[%d]'\n",
 						cs,
 						ptr[i] & 0xFF,
@@ -498,7 +500,7 @@ checkid(ptr, text)
 	i = len - 1;
 	if (ptr[i] != '\0') {
 		pretty_char(cs, ptr[i] & 0xFF);
-		printf(
+		gtprintf(
 		"Warning: non null string terminator character '%s' (0x%02X) found in field '%s[%d]'\n",
 				cs,
 				ptr[i] & 0xFF,
@@ -524,7 +526,7 @@ checkmagic(ptr)
 	for (i = 0; i < 6; i++) {
 		if (ptr[i] != mag[i]) {
 			pretty_char(cs, ptr[i] & 0xFF);
-			printf(
+			gtprintf(
 			"Warning: illegal character '%s' (0x%02X) found in field 't_magic[%d]'\n",
 					cs,
 					ptr[i] & 0xFF, i);
@@ -550,7 +552,7 @@ checkvers(ptr)
 	for (i = 0; i < 2; i++) {
 		if (ptr[i] != vers[i]) {
 			pretty_char(cs, ptr[i] & 0xFF);
-			printf(
+			gtprintf(
 			"Warning: illegal character '%s' (0x%02X) found in field 't_version[%d]'\n",
 					cs,
 					ptr[i] & 0xFF, i);

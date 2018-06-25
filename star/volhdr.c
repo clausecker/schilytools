@@ -1,8 +1,8 @@
-/* @(#)volhdr.c	1.41 18/05/21 Copyright 1994, 2003-2018 J. Schilling */
+/* @(#)volhdr.c	1.43 18/06/17 Copyright 1994, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.41 18/05/21 Copyright 1994, 2003-2018 J. Schilling";
+	"@(#)volhdr.c	1.43 18/06/17 Copyright 1994, 2003-2018 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
@@ -35,6 +35,8 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include "starsubs.h"
@@ -310,55 +312,55 @@ griprint(gp)
 		return;
 
 	if (gp->label)
-		fprintf(f, "Label       %s\n", gp->label);
+		fgtprintf(f, "Label       %s\n", gp->label);
 
 	if (gp->hostname)
-		fprintf(f, "Host name   %s\n", gp->hostname);
+		fgtprintf(f, "Host name   %s\n", gp->hostname);
 
 	if (gp->filesys)
-		fprintf(f, "File system %s\n", gp->filesys);
+		fgtprintf(f, "File system %s\n", gp->filesys);
 
 	if (gp->cwd)
-		fprintf(f, "Working dir %s\n", gp->cwd);
+		fgtprintf(f, "Working dir %s\n", gp->cwd);
 
 	if (gp->device)
-		fprintf(f, "Device      %s\n", gp->device);
+		fgtprintf(f, "Device      %s\n", gp->device);
 
 	if (gp->release)
-		fprintf(f, "Release     %s\n", gp->release);
+		fgtprintf(f, "Release     %s\n", gp->release);
 
 	if (gp->archtype != H_UNDEF)
-		fprintf(f, "Archtype    %s\n", hdr_name(gp->archtype));
+		fgtprintf(f, "Archtype    %s\n", hdr_name(gp->archtype));
 
 	if (gp->gflags & GF_DUMPTYPE)
-		fprintf(f, "Dumptype    %s\n", dt_name(gp->dumptype));
+		fgtprintf(f, "Dumptype    %s\n", dt_name(gp->dumptype));
 
 	if (gp->gflags & GF_DUMPLEVEL)
-		fprintf(f, "Dumplevel   %d\n", gp->dumplevel);
+		fgtprintf(f, "Dumplevel   %d\n", gp->dumplevel);
 
 	if (gp->gflags & GF_REFLEVEL)
-		fprintf(f, "Reflevel    %d\n", gp->reflevel);
+		fgtprintf(f, "Reflevel    %d\n", gp->reflevel);
 
 	if (gp->gflags & GF_DUMPDATE) {
-		fprintf(f, "Dumpdate    %lld.%9.9lld (%s)\n",
+		fgtprintf(f, "Dumpdate    %lld.%9.9lld (%s)\n",
 			(Llong)gp->dumpdate.tv_sec,
 			(Llong)gp->dumpdate.tv_nsec,
 			dumpdate(&gp->dumpdate));
 	}
 	if (gp->gflags & GF_REFDATE) {
-		fprintf(f, "Refdate     %lld.%9.9lld (%s)\n",
+		fgtprintf(f, "Refdate     %lld.%9.9lld (%s)\n",
 			(Llong)gp->refdate.tv_sec,
 			(Llong)gp->refdate.tv_nsec,
 			dumpdate(&gp->refdate));
 	}
 	if (gp->gflags & GF_VOLNO)
-		fprintf(f, "Volno       %d\n", gp->volno);
+		fgtprintf(f, "Volno       %d\n", gp->volno);
 	if (gp->gflags & GF_BLOCKOFF)
-		fprintf(f, "Blockoff    %llu records\n", gp->blockoff);
+		fgtprintf(f, "Blockoff    %llu records\n", gp->blockoff);
 	if (gp->gflags & GF_BLOCKSIZE)
 		fprintf(f, "Blocksize   %d records\n", gp->blocksize);
 	if (gp->gflags & GF_TAPESIZE)
-		fprintf(f, "Tapesize    %llu records\n", gp->tapesize);
+		fgtprintf(f, "Tapesize    %llu records\n", gp->tapesize);
 }
 
 EXPORT BOOL

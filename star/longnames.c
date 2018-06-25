@@ -1,14 +1,14 @@
-/* @(#)longnames.c	1.57 13/10/09 Copyright 1993, 1995, 2001-2013 J. Schilling */
+/* @(#)longnames.c	1.58 18/06/16 Copyright 1993, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.57 13/10/09 Copyright 1993, 1995, 2001-2013 J. Schilling";
+	"@(#)longnames.c	1.58 18/06/16 Copyright 1993, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
  *	string of 100 charecters
  *
- *	Copyright (c) 1993, 1995, 2001-2013 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/types.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "star.h"
 #include "props.h"

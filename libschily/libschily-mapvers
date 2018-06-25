@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.55 18/06/07 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.58 18/06/16 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.10 {
@@ -6,6 +6,21 @@ global:
 #ifndef	HAVE_WAITID
 	js_waitid;
 #endif
+	gterror;
+	gtprintf;
+	gtcomerr;
+	gtxcomerr;
+	gtcomerrno;
+	gtxcomerrno;
+	gterrmsg;
+	gterrmsgno;
+	fgtprintf;
+	fgtcomerr;
+	fgtxcomerr;
+	fgtcomerrno;
+	fgtxcomerrno;
+	fgterrmsg;
+	fgterrmsgno;
 } SCHILY_1.9;
 
 SCHILY_1.9 {

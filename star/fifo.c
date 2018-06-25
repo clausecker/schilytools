@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.81 18/05/20 Copyright 1989, 1994-2018 J. Schilling */
+/* @(#)fifo.c	1.82 18/06/16 Copyright 1989, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.81 18/05/20 Copyright 1989, 1994-2018 J. Schilling";
+	"@(#)fifo.c	1.82 18/06/16 Copyright 1989, 1994-2018 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -55,6 +55,8 @@ static	UConst char sccsid[] =
 #include "star.h"
 #include "starsubs.h"
 #include "fifo.h"	/* #undef FIFO may happen here */
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/libport.h>	/* getpagesize() */
 

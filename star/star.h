@@ -1,4 +1,4 @@
-/* @(#)star.h	1.133 18/06/11 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.138 18/06/21 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -22,6 +22,7 @@
 #include <schily/utypes.h>
 #include <schily/time.h>
 #include <schily/types.h>
+#include "pathname.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -650,7 +651,23 @@ typedef	struct	{
 #ifdef USE_XATTR
 	star_xattr_t *f_xattr;	/* Extended File Attributes		  */
 #endif
+	/*
+	 * These two members must be last, so we are able to copy everything
+	 * before, e.g. for the options -newest and -newest-file.
+	 */
+	pathstore_t f_pname;	/* Verwaltung für f_name		  */
+	pathstore_t f_plname;	/* Verwaltung für f_lname		  */
+
 } FINFO;
+
+/*
+ * We use offsetof(FINFO, f_pname) to compute the size of the first part
+ * of FINFO that may be copied without breaking things. This is needed for
+ * e.g. the options -newest and -newest-file.
+ */
+#ifndef	offsetof
+#define	offsetof(TYPE, MEMBER)	((size_t) &((TYPE *)0)->MEMBER)
+#endif
 
 #define	init_finfo(fip)	(fip)->f_flags = 0, (fip)->f_xflags = 0
 
@@ -872,6 +889,8 @@ struct star_stats {
 	int	s_restore;	/* other incremental restore specific	  */
 	int	s_compress;	/* compress specific failures		  */
 	int	s_hardeof;	/* Hard EOF on input			  */
+	int	s_substerrs;	/* Problems while executing -s/from/to/   */
+	int	s_selinuxerrs;	/* Problems setting SEL security context  */
 };
 
 extern	struct	star_stats	xstats;
@@ -896,6 +915,14 @@ extern	struct	star_stats	xstats;
 #define	PATH_MAX	1024
 #endif
 
+/*
+ * Hack to do debugging with larger values of PATH_MAX.
+ */
+#if	MY_PATH_MAX > PATH_MAX
+#undef	PATH_MAX
+#define	PATH_MAX	MY_PATH_MAX
+#endif
+
 #ifdef	HAVE_LARGEFILES
 /*
  * XXX Hack until fseeko()/ftello() are available everywhere or until
@@ -905,6 +932,17 @@ extern	struct	star_stats	xstats;
 #define	fseek	fseeko
 #define	ftell	ftello
 #endif
+
+#if	!(defined(USE_XATTR) && defined(HAVE_LISTXATTR) && defined(HAVE_GETXATTR))
+#undef	USE_SELINUX
+#endif
+#if	!defined(HAVE_SELINUX_SELINUX_H) || !defined(HAVE_IS_SELINUX_ENABLED)
+#undef	USE_SELINUX
+#endif
+#ifdef	USE_SELINUX
+#include <selinux/selinux.h>
+#endif
+
 
 #ifdef	__cplusplus
 }

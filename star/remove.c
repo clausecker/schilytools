@@ -1,13 +1,13 @@
-/* @(#)remove.c	1.55 10/08/23 Copyright 1985, 1991-2010 J. Schilling */
+/* @(#)remove.c	1.57 18/06/17 Copyright 1985, 1991-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.55 10/08/23 Copyright 1985, 1991-2010 J. Schilling";
+	"@(#)remove.c	1.57 18/06/17 Copyright 1985, 1991-2018 J. Schilling";
 #endif
 /*
  *	remove files an file trees
  *
- *	Copyright (c) 1985, 1992-2010 J. Schilling
+ *	Copyright (c) 1985, 1992-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,8 @@ static	UConst char sccsid[] =
 #include "table.h"
 #include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
 #include <schily/unistd.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/string.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
@@ -87,7 +89,7 @@ _remove_file(name, isfirst, depth)
 	if (remove_first && !isfirst)
 		return (FALSE);
 	if (!force_remove && (interactive || ask_remove)) {
-		fprintf(vpr, "remove '%s' ? Y(es)/N(o) :", name); fflush(vpr);
+		fgtprintf(vpr, "remove '%s' ? Y(es)/N(o) :", name); fflush(vpr);
 		fgetline(tty, buf, 2);
 	}
 	if (force_remove ||
@@ -115,7 +117,7 @@ _remove_file(name, isfirst, depth)
 #endif
 				if (!remove_recursive) {
 					if (ans == 'Y') {
-						fprintf(vpr,
+						fgtprintf(vpr,
 						"Recursive remove nonempty '%s' ? Y(es)/N(o) :",
 							name);
 						fflush(vpr);

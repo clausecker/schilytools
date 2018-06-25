@@ -1,8 +1,8 @@
-/* @(#)list.c	1.78 18/05/06 Copyright 1985, 1995, 2000-2018 J. Schilling */
+/* @(#)list.c	1.81 18/06/21 Copyright 1985, 1995, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.78 18/05/06 Copyright 1985, 1995, 2000-2018 J. Schilling";
+	"@(#)list.c	1.81 18/06/21 Copyright 1985, 1995, 2000-2018 J. Schilling";
 #endif
 /*
  *	List the content of an archive
@@ -31,6 +31,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 #ifdef	USE_FIND
@@ -86,14 +88,21 @@ extern	struct WALK walkstate;
 		FINFO	newinfo;
 		TCB	tb;
 		TCB	newtb;
-		char	name[PATH_MAX+1];
-		char	lname[PATH_MAX+1];
-		char	newname[PATH_MAX+1];
-		char	newlname[PATH_MAX+1];
 	register TCB 	*ptb = &tb;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 	fillbytes((char *)&newinfo, sizeof (newinfo), '\0');
+
+	if (init_pspace(PS_STDERR, &finfo.f_pname) < 0)
+		return;
+	if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+		return;
+	if (listnew || listnewf) {
+		if (init_pspace(PS_STDERR, &newinfo.f_pname) < 0)
+			return;
+		if (init_pspace(PS_STDERR, &newinfo.f_plname) < 0)
+			return;
+	}
 
 #ifdef	USE_FIND
 	if (dofind) {
@@ -108,8 +117,8 @@ extern	struct WALK walkstate;
 		if (prblockno)
 			(void) tblocks();		/* set curblockno */
 
-		finfo.f_name = name;
-		finfo.f_lname = lname;
+		finfo.f_name = finfo.f_pname.ps_path;
+		finfo.f_lname = finfo.f_plname.ps_path;
 		if (tcb_to_info(ptb, &finfo) == EOF)
 			break;
 		if (xdebug > 0)
@@ -136,22 +145,26 @@ extern	struct WALK walkstate;
 			    (finfo.f_mtime == newinfo.f_mtime) &&
 			    (finfo.f_mnsec > newinfo.f_mnsec))) &&
 					(!listnewf || is_file(&finfo))) {
-				movebytes(&finfo, &newinfo, sizeof (finfo));
+				movebytes(&finfo, &newinfo,
+						offsetof(FINFO, f_pname));
 				movetcb(&tb, &newtb);
-				/*
-				 * Paranoia.....
-				 */
-				strncpy(newname, name, PATH_MAX);
-				newname[PATH_MAX] = '\0';
-				newinfo.f_name = newname;
+				if (strcpy_pspace(PS_STDERR,
+						&newinfo.f_pname,
+						finfo.f_name) < 0) {
+					newinfo.f_name = "";
+				} else {
+					newinfo.f_name =
+						newinfo.f_pname.ps_path;
+				}
 				if (newinfo.f_lname[0] != '\0') {
-					/*
-					 * Paranoia.....
-					 */
-					strncpy(newlname, newinfo.f_lname,
-								PATH_MAX);
-					newlname[PATH_MAX] = '\0';
-					newinfo.f_lname = newlname;
+					if (strcpy_pspace(PS_STDERR,
+							&newinfo.f_plname,
+							finfo.f_lname) < 0) {
+						newinfo.f_lname = "";
+					} else {
+						newinfo.f_lname =
+						    newinfo.f_plname.ps_path;
+					}
 				}
 				newinfo.f_flags |= F_HAS_NAME;
 			}
@@ -281,7 +294,7 @@ list_file(info)
 
 	f = vpr;
 	if (prblockno)
-		fprintf(f, "block %9lld: ", curblockno);
+		fgtprintf(f, "block %9lld: ", curblockno);
 	if (cflag)
 		fprintf(f, "a ");
 	else if (xflag)
@@ -396,16 +409,16 @@ if (xft == 0 || xft == XT_BAD) {
 	 */
 	if (is_link(info)) {
 		if (is_dir(info))
-			fprintf(f, " directory");
+			fgtprintf(f, " directory");
 		fprintf(f, " %s %s",
 			paxls ? "==" : "link to",
 			info->f_lname);
 	} else if (is_symlink(info))
 		fprintf(f, " -> %s", info->f_lname);
 	if (is_volhdr(info))
-		fprintf(f, " --Volume Header--");
+		fgtprintf(f, " --Volume Header--");
 	if (is_multivol(info)) {
-		fprintf(f, " --Continued at byte %lld--",
+		fgtprintf(f, " --Continued at byte %lld--",
 						(Llong)info->f_contoffset);
 	}
 	fprintf(f, "\n");
@@ -428,7 +441,7 @@ vprint(info)
 		f = vpr;
 
 		if (prblockno)
-			fprintf(f, "block %9lld: ", curblockno);
+			fgtprintf(f, "block %9lld: ", curblockno);
 		if (cflag)
 			mode = "a ";
 		else if (xflag)
@@ -450,12 +463,12 @@ vprint(info)
 		}
 		if (is_dir(info)) {
 			if (is_link(info)) {
-				fprintf(f, "%s%s%s directory %s %s\n",
+				fgtprintf(f, "%s%s%s directory %s %s\n",
 					mode, info->f_name, add,
 					paxls ? "==" : "link to",
 					info->f_lname);
 			} else {
-				fprintf(f, "%s%s%s directory\n", mode,
+				fgtprintf(f, "%s%s%s directory\n", mode,
 							info->f_name, add);
 			}
 		} else if (is_link(info)) {
@@ -469,9 +482,9 @@ vprint(info)
 				paxls ? "->" : "symbolic link to",
 				info->f_lname);
 		} else if (is_special(info)) {
-			fprintf(f, "%s%s special\n", mode, info->f_name);
+			fgtprintf(f, "%s%s special\n", mode, info->f_name);
 		} else {
-			fprintf(f, "%s%s %lld bytes, %lld tape blocks\n",
+			fgtprintf(f, "%s%s %lld bytes, %lld tape blocks\n",
 				mode, info->f_name, (Llong)info->f_size,
 				(Llong)tarblocks(info->f_rsize));
 		}

@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.40 17/10/08 2010-2017 J. Schilling */
+/* @(#)cpp.c	1.43 18/06/14 2010-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.40 17/10/08 2010-2017 J. Schilling";
+	"@(#)cpp.c	1.43 18/06/14 2010-2018 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2017 J. Schilling
+ * Copyright (c) 2010-2018 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,8 @@ static	UConst char sccsid[] =
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <schily/stdio.h>
+#include <schily/types.h>
+#include <schily/inttypes.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -208,6 +210,9 @@ STATIC	char	*savch;
 # define MAXIDIRS 20	/* max # of -I directories */
 # define MAXFRE 14	/* max buffers of macro pushback */
 # define MAXFRM 31	/* max number of formals/actuals to a macro */
+
+#define	MAXMULT	(TYPE_MAXVAL(int)/10)
+#define	MAXVAL	(TYPE_MAXVAL(int))
 
 static char warnc = (char)WARN;
 
@@ -887,7 +892,12 @@ dodef(p) char *p; {/* process '#define' */
 				}
 			}
 		}
-		while (pin<p) *psav++= *pin++;
+		while (pin < p) {
+			if (*pin  == warnc) {
+				*psav++= WARN;
+			}
+			*psav++= *pin++;
+		}
 	}
 	*psav++=params; *psav++='\0';
 	if ((cf=oldval)!=NULL) {/* redefinition */
@@ -1037,8 +1047,23 @@ for (;;) {
 			 * Now read the new line number...
 			 */
 			n = 0;
-			while (isdigit(*s))
-				n = n * 10 + *s++ - '0';
+			while (isdigit(*s)) {
+				register int	c;
+
+				if (n > MAXMULT) {
+					pperror("bad number for #line");
+					n = MAXVAL;
+					break;
+				}
+				n *= 10;
+				c = *s++ - '0';
+				if ((MAXVAL - n) < c) {
+					pperror("bad number for #line");
+					n = MAXVAL;
+					break;
+				}
+				n += c;
+			}
 			if (n == 0)
 				pperror("bad number for #line");
 			else
@@ -1201,7 +1226,11 @@ char *namep;
 int enterf;
 {
 	register char *np, *snp;
+#ifdef	SIGNED_HASH
 	register int c, i;
+#else
+	register unsigned int c, i;
+#endif
 	register struct symtab *sp;
 	struct symtab *prev;
 static struct symtab nsym;		/* Hack: Dummy nulled symtab */
@@ -1209,12 +1238,19 @@ static struct symtab nsym;		/* Hack: Dummy nulled symtab */
 	/* namep had better not be too long (currently, <=symlen chars) */
 	np = namep;
 	i = cinit;
+#ifdef	SIGNED_HASH
 	while ((c = *np++) != '\0')
 		i += i+c;
+#else
+	while ((c = *np++ & 0xFF) != '\0')
+		i += i+c;
+#endif
 	c = i;				/* c = i for register usage on pdp11 */
 	c %= symsiz;
+#ifdef	SIGNED_HASH
 	if (c < 0)
 		c += symsiz;
+#endif
 	sp = stab[c];
 	prev = sp;
 	while (sp != NULL) {
@@ -1341,11 +1377,15 @@ subst(p,sp) register char *p; struct symtab *sp; {
 		--flslvl; fasscan();
 	}
 	for (;;) {/* push definition onto front of input stack */
-		while (!iswarn(*--vp)) {
+		while (!iswarn(*--vp)) {	/* Terminates with '\0' also */
 			if (bob(p)) {outptr=inptr=p; p=unfill(p);}
 			*--p= *vp;
 		}
 		if (*vp==warnc) {/* insert actual param */
+			if (*vp == warnc) {
+				*--p = *--vp;
+				continue;
+			}
 			ca=actual[*--vp-1];
 			while (*--ca) {
 				if (bob(p)) {outptr=inptr=p; p=unfill(p);}

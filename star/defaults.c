@@ -1,8 +1,8 @@
-/* @(#)defaults.c	1.15 18/06/10 Copyright 1998-2018 J. Schilling */
+/* @(#)defaults.c	1.16 18/06/16 Copyright 1998-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defaults.c	1.15 18/06/10 Copyright 1998-2018 J. Schilling";
+	"@(#)defaults.c	1.16 18/06/16 Copyright 1998-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2018 J. Schilling
@@ -28,6 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/deflts.h>
 #include <schily/utypes.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "star.h"
 #include "starsubs.h"

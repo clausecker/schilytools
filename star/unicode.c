@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.13 18/05/17 Copyright 2001-2018 J. Schilling */
+/* @(#)unicode.c	1.16 18/06/21 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.13 18/05/17 Copyright 2001-2018 J. Schilling";
+	"@(#)unicode.c	1.16 18/06/21 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -31,6 +31,8 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/iconv.h>
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #ifdef	__STAR__
 #include "star.h"
@@ -194,6 +196,10 @@ _to_utf8(to, tolen, from, len)
 			*to++ = 0xC3;
 			*to++ = c & 0xBF;
 		}
+		/*
+		 * XXX We have plenty of space in "to" when weare called.
+		 * XXX Should we check wether we did hit "tolen"?
+		 */
 	}
 	*to = '\0';
 	return (to - oto);
@@ -218,6 +224,8 @@ _to_iconv(to, tolen, from, len)
 	size_t		ret;
 
 	ret = iconv(ic_to, &fp, &frl, &tp, &tol);
+	if (tol > 0)
+		*tp = '\0';
 	if (ret == (size_t)-1) {
 #ifdef	__STAR__
 		if (!errhidden(E_ICONV, (char *)from)) {
@@ -277,6 +285,7 @@ _from_utf8(to, tolen, from, lenp)
 	register Uchar	c;
 	register BOOL	ret = TRUE;
 	register int	len = *lenp;
+		Uchar	*endp = to + tolen;
 
 	while (--len >= 0) {
 		c = *from++;
@@ -325,8 +334,16 @@ _from_utf8(to, tolen, from, lenp)
 				}
 			}
 		}
+		/*
+		 * It is easy to check, since the result is always only one
+		 * character. We need to stop here since the new path handling
+		 * may need to grow the result in case of an overflow.
+		 */
+		if (to >= endp)
+			break;
 	}
-	*to = '\0';
+	if (to < endp)
+		*to = '\0';
 	*lenp = (to - oto);
 	return (ret);
 }
@@ -350,6 +367,8 @@ _from_iconv(to, tolen, from, len)
 	size_t		ret;
 
 	ret = iconv(ic_from, &fp, &frl, &tp, &tol);
+	if (tol > 0)
+		*tp = '\0';
 	*len = tolen - tol;
 	if (ret == (size_t)-1) {
 #ifdef	__STAR__

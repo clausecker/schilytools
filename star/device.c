@@ -1,13 +1,13 @@
-/* @(#)device.c	1.16 17/10/07 Copyright 1996-2017 J. Schilling */
+/* @(#)device.c	1.17 18/06/16 Copyright 1996-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)device.c	1.16 17/10/07 Copyright 1996-2017 J. Schilling";
+	"@(#)device.c	1.17 18/06/16 Copyright 1996-2018 J. Schilling";
 #endif
 /*
  *	Handle local and remote device major/minor mappings
  *
- *	Copyright (c) 1996-2017 J. Schilling
+ *	Copyright (c) 1996-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,8 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #define	__XDEV__	/* Needed to activate XDEV_T definitions */
 #include <schily/device.h>

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.100 18/05/23 2008-2018 J. Schilling
+ * @(#)xec.c	1.101 18/06/25 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.100 18/05/23 2008-2018 J. Schilling";
+	"@(#)xec.c	1.101 18/06/25 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -1305,6 +1305,7 @@ exallocjob(t, xflags)
 		/* EMPTY */;
 	} else if (monitor) {
 		int save_fd;
+		unsigned char *savebot;
 
 		save_fd = setb(-1);
 		if (xflags & XEC_HASARGV) {
@@ -1325,8 +1326,9 @@ exallocjob(t, xflags)
 		 * We use cwdget(CHDIR_L) as this does not modify PWD
 		 * unless it is definitely invalid.
 		 */
-		allocjob((char *)stakbot, cwdget(CHDIR_L), monitor);
-		(void) setb(save_fd);
+		(void) setb(save_fd);	/* Make string semi-permanent	*/
+		savebot = endb();	/* Get string base address	*/
+		allocjob((char *)savebot, cwdget(CHDIR_L), monitor);
 	} else {
 		allocjob("", (unsigned char *)"", 0);
 	}

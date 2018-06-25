@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.176 18/06/11 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.181 18/06/19 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.176 18/06/11 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.181 18/06/19 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -54,11 +54,15 @@ static	UConst char sccsid[] =
 #include <schily/wait.h>
 #include <schily/mtio.h>
 #include <schily/librmt.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 
 #include <schily/io.h>		/* for setmode() prototype */
 #include <schily/libport.h>	/* getpagesize() */
+
+#include <schily/nlsdefs.h>
 
 /*
  * Warning: we need the siginfo_t feature that has been introduced in 1989
@@ -201,6 +205,10 @@ EXPORT	void	exprstats	__PR((int ret));
 EXPORT	void	excomerrno	__PR((int err, char *fmt, ...)) __printflike__(2, 3);
 EXPORT	void	excomerr	__PR((char *fmt, ...)) __printflike__(1, 2);
 EXPORT	void	die		__PR((int err));
+#ifdef	USE_SIGCLD
+LOCAL	void	cldhandler	__PR((int sig, siginfo_t *sip, void *context));
+LOCAL	void	handlecld	__PR((void));
+#endif
 LOCAL	void	compressopen	__PR((void));
 LOCAL	void	compressclose	__PR((void));
 
@@ -943,10 +951,10 @@ marktcb(addr)
 #ifdef	FIFO
 	bit = addr - mp->base;
 	if (bit % TBLOCK)		/* Remove this paranoia test in future. */
-		error("TCB offset not mudulo 512.\n");
+		errmsgno(EX_BAD, "TCB offset not mudulo 512.\n");
 	bit /= TBLOCK;
 	if (bit_test(mp->bmap, bit))	/* Remove this paranoia test in future. */
-		error("Bit %d is already set.\n", bit);
+		errmsgno(EX_BAD, "Bit %d is already set.\n", bit);
 	bit_set(mp->bmap, bit);
 #endif
 }
@@ -1789,7 +1797,9 @@ checkerrs()
 	    xstats.s_setmodes	||
 	    xstats.s_restore	||
 	    xstats.s_compress	||
-	    xstats.s_hardeof) {
+	    xstats.s_hardeof	||
+	    xstats.s_substerrs	||
+	    xstats.s_selinuxerrs) {
 		if (nowarn || no_stats || (pid == 0) /* child */)
 			return (TRUE);
 
@@ -1830,10 +1840,19 @@ checkerrs()
 				xstats.s_getxattr,
 				xstats.s_setxattr);
 #endif
+#ifdef USE_SELINUX
+		if (xstats.s_selinuxerrs)
+			errmsgno(EX_BAD, "Cannot set SELinux security context: %d.\n",
+				xstats.s_selinuxerrs);
+#endif
 		if (xstats.s_restore)
 			errmsgno(EX_BAD, "Problems with restore database.\n");
 		if (xstats.s_compress)
 			errmsgno(EX_BAD, "Problems with compress program.\n");
+		if (xstats.s_substerrs)
+			errmsgno(EX_BAD,
+				"%d Problem(s) with path substitution.\n",
+				xstats.s_substerrs);
 		if (xstats.s_hardeof)
 			errmsgno(EX_BAD, "Hard EOF on input.\n");
 		return (TRUE);
@@ -1869,7 +1888,7 @@ excomerrno(err, fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	errmsgno(err, "%r", fmt, args);
+	errmsgno(err, "%r", _(fmt), args);
 	va_end(args);
 #ifdef	FIFO
 	fifo_exit(err);
@@ -1897,7 +1916,7 @@ excomerr(fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	errmsgno(err, "%r", fmt, args);
+	errmsgno(err, "%r", _(fmt), args);
 	va_end(args);
 #ifdef	FIFO
 	fifo_exit(err);
@@ -1924,7 +1943,7 @@ die(err)
 LOCAL	pid_t	compresspid;
 
 #ifdef	USE_SIGCLD
-void
+LOCAL void
 cldhandler(sig, sip, context)
 	int		sig;
 	siginfo_t	*sip;
@@ -1946,17 +1965,17 @@ cldhandler(sig, sip, context)
 			sip->si_status);
 }
 
-void 
-handlecld() 
-{ 
-        struct sigaction sa; 
- 
-        sa.sa_sigaction = cldhandler; 
-        sigemptyset(&sa.sa_mask); 
-        sa.sa_flags = SA_RESTART|SA_SIGINFO; 
- 
-        sigaction(SIGCHLD, &sa, NULL); 
-} 
+LOCAL void
+handlecld()
+{
+	struct sigaction sa;
+
+	sa.sa_sigaction = cldhandler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART|SA_SIGINFO;
+
+	sigaction(SIGCHLD, &sa, NULL);
+}
 #endif	/* USE_SIGCLD */
 
 LOCAL void

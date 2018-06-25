@@ -1,8 +1,8 @@
-/* @(#)append.c	1.31 18/05/06 Copyright 1992, 2001-2018 J. Schilling */
+/* @(#)append.c	1.33 18/06/21 Copyright 1992, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)append.c	1.31 18/05/06 Copyright 1992, 2001-2018 J. Schilling";
+	"@(#)append.c	1.33 18/06/21 Copyright 1992, 2001-2018 J. Schilling";
 #endif
 /*
  *	Routines used to append files to an existing
@@ -28,6 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include "star.h"
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 
@@ -67,8 +69,6 @@ skipall()
 {
 		FINFO	finfo;
 		TCB	tb;
-		char	name[PATH_MAX+1];
-		char	lname[PATH_MAX+1];
 	register TCB 	*ptb = &tb;
 
 	if (uflag)
@@ -76,13 +76,18 @@ skipall()
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 
+	if (init_pspace(PS_STDERR, &finfo.f_pname) < 0)
+		return;
+	if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+		return;
+
 	finfo.f_tcb = ptb;
 	for (;;) {
 		if (get_tcb(ptb) == EOF)
 			break;
 
-		finfo.f_name = name;
-		finfo.f_lname = lname;
+		finfo.f_name = finfo.f_pname.ps_path;
+		finfo.f_lname = finfo.f_plname.ps_path;
 		if (tcb_to_info(ptb, &finfo) == EOF)
 			break;
 

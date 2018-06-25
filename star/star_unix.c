@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.108 18/04/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.109 18/06/16 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.108 18/04/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.109 18/06/16 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -40,6 +40,8 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/param.h>	/* For DEV_BSIZE */
 #include <schily/device.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "dirtime.h"
 #include "xutimes.h"

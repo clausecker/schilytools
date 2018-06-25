@@ -1,8 +1,8 @@
-/* @(#)star_sym.c	1.17 18/05/30 Copyright 2005-2018 J. Schilling */
+/* @(#)star_sym.c	1.19 18/06/17 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.17 18/05/30 Copyright 2005-2018 J. Schilling";
+	"@(#)star_sym.c	1.19 18/06/17 Copyright 2005-2018 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -33,6 +33,8 @@ static	UConst char sccsid[] =
 #include "dumpdate.h"
 #include <schily/jmpdefs.h>	/* To include __jmalloc() */
 #include <schily/fcntl.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/maxpath.h>
 #include "starsubs.h"
@@ -206,9 +208,9 @@ extern	BOOL		is_star;
 		usage(0);
 	if (prvers) {
 		printf("%s: %s\n\n", get_progname(), vers);
-		printf("Copyright (C) 2005-2018 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("Copyright (C) 2005-2018 Jörg Schilling\n");
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 

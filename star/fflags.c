@@ -1,13 +1,13 @@
-/* @(#)fflags.c	1.25 11/12/12 Copyright 2001-2011 J. Schilling */
+/* @(#)fflags.c	1.26 18/06/16 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fflags.c	1.25 11/12/12 Copyright 2001-2011 J. Schilling";
+	"@(#)fflags.c	1.26 18/06/16 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags
  *
- *	Copyright (c) 2001-2011 J. Schilling
+ *	Copyright (c) 2001-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,8 @@ static	UConst char sccsid[] =
 #include <schily/dirent.h>
 #include <schily/string.h>
 #include <schily/stat.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 #ifdef	__linux__

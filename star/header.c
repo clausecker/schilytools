@@ -1,8 +1,8 @@
-/* @(#)header.c	1.172 18/06/11 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.174 18/06/17 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.172 18/06/11 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.174 18/06/17 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -34,6 +34,8 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/idcache.h>
 #include "starsubs.h"
@@ -444,7 +446,7 @@ print_hdrtype(f, type)
 		type = H_UNDEF;
 	type = H_TYPE(type);
 
-	fprintf(f, "%s%s archive.\n", isswapped?"swapped ":"", hdr_name(type));
+	fgtprintf(f, "%s%s archive.\n", isswapped?"swapped ":"", hdr_name(type));
 }
 
 EXPORT char *
@@ -871,8 +873,10 @@ get_tcb(ptb)
 			hdrtype = get_xhtype(ptb, hdrtype);
 			if (print_artype) {
 				printf("%s: ", tarfiles[tarfindex]);
-				if (cmptype != C_NONE)
-					printf("%s compressed ", get_cmpname(cmptype));
+				if (cmptype != C_NONE) {
+					gtprintf("%s compressed ",
+						get_cmpname(cmptype));
+				}
 				print_hdrtype(stdout, hdrtype);
 				exit(0);
 			}

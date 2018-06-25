@@ -1,8 +1,8 @@
-/* @(#)cpiohdr.c	1.32 18/03/12 Copyright 1994-2018 J. Schilling */
+/* @(#)cpiohdr.c	1.33 18/06/16 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.32 18/03/12 Copyright 1994-2018 J. Schilling";
+	"@(#)cpiohdr.c	1.33 18/06/16 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -35,6 +35,8 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/intcvt.h>
 #include "starsubs.h"

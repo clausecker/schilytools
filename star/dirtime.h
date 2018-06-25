@@ -1,8 +1,8 @@
-/* @(#)dirtime.h	1.6 13/10/02 Copyright 1996-2013 J. Schilling */
+/* @(#)dirtime.h	1.8 18/06/20 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for dirtime users
  *
- *	Copyright (c) 1996-2013 J. Schilling
+ *	Copyright (c) 1996-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,8 +35,7 @@ extern "C" {
 extern	void	sdirtimes	__PR((char *name, FINFO *info,
 						BOOL do_times, BOOL do_mode));
 extern	void	sdirmode	__PR((char *name, mode_t mode));
-extern	void	dirtimes	__PR((char *name, struct timespec *tp,
-						mode_t mode));
+extern	void	flushdirtimes	__PR((void));
 
 #ifdef	__cplusplus
 }

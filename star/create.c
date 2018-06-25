@@ -1,8 +1,8 @@
-/* @(#)create.c	1.141 18/05/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.143 18/06/17 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.141 18/05/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.143 18/06/17 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
@@ -31,6 +31,8 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/dirent.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/idcache.h>
 #include "restore.h"
@@ -537,7 +539,7 @@ createi(sname, name, namlen, info, last)
 	if (do_subst && subst(info)) {
 		if (info->f_name[0] == '\0') {
 			if (verbose)
-			fprintf(vpr,
+			fgtprintf(vpr,
 				"'%s' substitutes to null string, skipping ...\n",
 							name);
 			return;
@@ -607,7 +609,7 @@ createi(sname, name, namlen, info, last)
 	} else if (take_file(name, info) <= 0) {	/* < TRUE */
 		return;
 	} else if (interactive && !ia_change(ptb, info)) {
-		fprintf(vpr, "Skipping ...\n");
+		fgtprintf(vpr, "Skipping ...\n");
 #ifdef	__PRE_CPIO__
 	} else if (is_symlink(info) && !read_symlink(sname, name, info, ptb)) {
 		/* EMPTY */
@@ -1549,7 +1551,7 @@ put_dir(sname, dname, namlen, info, ptb, last)
 	depth--;
 	if (!nodir) {
 		if (interactive && !ia_change(ptb, info)) {
-			fprintf(vpr, "Skipping ...\n");
+			fgtprintf(vpr, "Skipping ...\n");
 			if (d)
 				closedir(d);
 			if (dp)

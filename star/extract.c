@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.148 18/06/06 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.153 18/06/21 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.148 18/06/06 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.153 18/06/21 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -32,6 +32,8 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/stdlib.h>
 #include <schily/errno.h>
@@ -124,6 +126,9 @@ extern	BOOL	dometa;
 extern	BOOL	xmeta;
 extern	BOOL	lowmem;
 extern	BOOL	do_subst;
+#ifdef	USE_SELINUX
+extern	BOOL	selinux_enabled;
+#endif
 
 #ifdef	USE_FIND
 extern	BOOL	dofind;
@@ -214,8 +219,6 @@ extern	struct WALK walkstate;
 #endif
 		FINFO	finfo;
 		TCB	tb;
-		char	name[PATH_MAX+1];
-		char	lname[PATH_MAX+1];
 	register TCB 	*ptb = &tb;
 		BOOL	restore_init = FALSE;
 		imap_t	*imp = NULL;
@@ -227,6 +230,11 @@ extern	struct WALK walkstate;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 
+	if (init_pspace(PS_STDERR, &finfo.f_pname) < 0)
+		return;
+	if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+		return;
+
 #ifdef	USE_FIND
 	if (dofind) {
 		walkopen(&walkstate);
@@ -237,8 +245,8 @@ extern	struct WALK walkstate;
 	for (;;) {
 		if (get_tcb(ptb) == EOF)
 			break;
-		finfo.f_name = name;
-		finfo.f_lname = lname;
+		finfo.f_name = finfo.f_pname.ps_path;
+		finfo.f_lname = finfo.f_plname.ps_path;
 		if (tcb_to_info(ptb, &finfo) == EOF)
 			break;
 		if (xdebug > 0)
@@ -285,6 +293,15 @@ extern	struct WALK walkstate;
 				imp = sym_dirprepare(&finfo, imp);
 		}
 
+#ifdef	USE_SELINUX
+		if (!to_stdout && selinux_enabled) {
+			/*
+			 * Set up security context for next file.
+			 */
+			if (!setselinux(&finfo))
+				xstats.s_selinuxerrs++;
+		}
+#endif
 		/*
 		 * Special treatment for the idiosyncratic way of dealing with
 		 * hard links in the SVr4 CRC cpio archive format.
@@ -313,7 +330,7 @@ extern	struct WALK walkstate;
 	if (copyhardlinks || copysymlinks)
 		make_copies();
 #endif
-	dirtimes("", (struct timespec *)0, (mode_t)0);
+	flushdirtimes();	/* Flush directory stack */
 	if (dorestore)
 		sym_close();
 }
@@ -388,7 +405,7 @@ extracti(info, imp)
 			 * Changed to empty name: skip...
 			 */
 			if (verbose)
-				fprintf(vpr,
+				fgtprintf(vpr,
 				"'%s' substitutes to null string, skipping ...\n",
 							name);
 			void_file(info);
@@ -409,7 +426,7 @@ extracti(info, imp)
 	}
 	if (interactive && !ia_change(ptb, info)) {
 		if (!nflag)
-			fprintf(vpr, "Skipping ...\n");
+			fgtprintf(vpr, "Skipping ...\n");
 		void_file(info);
 		return (FALSE);
 	}

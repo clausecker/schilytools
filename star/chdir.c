@@ -1,11 +1,11 @@
-/* @(#)chdir.c	1.7 09/07/11 Copyright 1997-2009 J. Schilling */
+/* @(#)chdir.c	1.8 18/06/16 Copyright 1997-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)chdir.c	1.7 09/07/11 Copyright 1997-2009 J. Schilling";
+	"@(#)chdir.c	1.8 18/06/16 Copyright 1997-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,8 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "star.h"
 #include "starsubs.h"

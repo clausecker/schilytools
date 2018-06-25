@@ -1,13 +1,13 @@
-/* @(#)subst.c	1.14 13/10/07 Copyright 1986,2003-2013 J. Schilling */
+/* @(#)subst.c	1.22 18/06/20 Copyright 1986,2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subst.c	1.14 13/10/07 Copyright 1986,2003-2013 J. Schilling";
+	"@(#)subst.c	1.22 18/06/20 Copyright 1986,2003-2018 J. Schilling";
 #endif
 /*
  *	Substitution commands
  *
- *	Copyright (c) 1986,2003-2013 J. Schilling
+ *	Copyright (c) 1986,2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,16 +24,20 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/stdio.h>
+#include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 
 #include <schily/patmatch.h>
 
 #include "star.h"
 #include "starsubs.h"
+#include "pathname.h"
 
 EXPORT	int	parsesubst	__PR((char *cmd, BOOL *arg));
 EXPORT	BOOL	subst		__PR((FINFO *info));
@@ -42,18 +46,20 @@ LOCAL	BOOL	simpleto	__PR((char *s, long len));
 LOCAL	int	catsub		__PR((char *here, char *old, long oldlen, char *to, long tolen, char *limit));
 EXPORT	BOOL	ia_change	__PR((TCB *ptb, FINFO *info));
 LOCAL	BOOL	pax_change	__PR((TCB *ptb, FINFO *info));
+LOCAL	void	s_enomem	__PR((void));
+EXPORT	int	fpgetstr	__PR((FILE *, pathstore_t *));
 
 #define	NPAT	100
-LOCAL	int	npat;
-LOCAL	Uchar	*pat[NPAT];
-LOCAL	int	patlen[NPAT];
-LOCAL	int	maxplen;
-LOCAL	char	*substpat[NPAT];
-LOCAL	int	substlen[NPAT];
-LOCAL	int	*aux[NPAT];
-LOCAL	int	alt[NPAT];
-LOCAL	int	*state;
-LOCAL	Int32_t	substcnt[NPAT];
+LOCAL	int	npat;		/* Number of defined patterns */
+LOCAL	Uchar	*pat[NPAT];	/* Saved list of defined 'from' patterns */
+LOCAL	int	patlen[NPAT];	/* Length of the 'from' pattern */
+LOCAL	int	maxplen;	/* Maximum length of 'from' pattern */
+LOCAL	char	*substpat[NPAT]; /* Saved list of defined 'to' patterns */
+LOCAL	int	substlen[NPAT];	/* Length of the 'to' pattern */
+LOCAL	int	*aux[NPAT];	/* Aux array (compiled pattern) */
+LOCAL	int	alt[NPAT];	/* List of results from patcompile() */
+LOCAL	int	*state;		/* State array used by patmatch() */
+LOCAL	Int32_t	substcnt[NPAT];	/* Subst. count or MAXINT32 for 'g', < 0: 'v' */
 
 extern	FILE	*tty;
 extern	FILE	*vpr;
@@ -77,7 +83,7 @@ parsesubst(cmd, arg)
 	register char	*cp;
 	register char	*endp;
 	register char	c = '/';
-	register char	dc;
+	register char	dc;		/* Delimiting character */
 		long	fromlen;
 		long	tolen;
 		int	cmdlen;
@@ -180,7 +186,8 @@ subst(info)
 
 	info->f_namelen = strlen(info->f_name);
 	/*
-	 * Schleife über alle match & Subst Patterns
+	 * Loop over all match & Subst Patterns.
+	 * Stop after the first match has been seen.
 	 */
 	for (i = 0; i < npat; i++) {
 		to = substitute(info->f_name, info->f_namelen, i, substpat[i], substlen[i]);
@@ -199,45 +206,58 @@ subst(info)
 }
 
 
-LOCAL	char	new[PATH_MAX+1];
+LOCAL	pathstore_t	new;
 /*
  * This is the 'real' substitution routine.
  * It gets called with pre-parsed strings.
+ *
+ * Returns NULL on no-match and on error.
  */
 LOCAL char *
 substitute(from, fromlen, idx, to, tolen)
-	char	*from;
-	long	fromlen;
-	int	idx;
-	char	*to;
-	long	tolen;
+	char	*from;			/* The original string to modify */
+	long	fromlen;		/* strlen(from)			*/
+	int	idx;			/* The index in the pat[] array	*/
+	char	*to;			/* The substitution		*/
+	long	tolen;			/* strlen(to)			*/
 {
 	char	old[PATH_MAX+1];
-	char	xold[PATH_MAX+1];
+	char	*oldp = old;
 	long	oldlen = 0;
 	BOOL	tosimple;
 	Int32_t n = substcnt[idx];
 	char	*end;
 	char	*string;
+	size_t	soff;
 	int	slen;
 	BOOL	didmatch = FALSE;
-	char	*limit = &new[PATH_MAX];
+#define	limit	(new.ps_path + new.ps_size)
 
 	if (fromlen == 0)
 		return (NULL);
+	if (new.ps_size == 0 && init_pspace(PS_EXIT, &new) < 0)
+		return (NULL);
+
 	tosimple = simpleto(to, tolen);
 
 	string = from;
 	slen = strlen(string);
 	end = string;
+	/*
+	 * We simply ignore the 'p'rint statement here as the printing happens
+	 * in the subst() function.
+	 */
 	if (n < 0)
 		n *= -1;
-	while (n--) {
+	while (n-- > 0) {
 
 		/*
 		 * Search the next occurence of the pattern in the 'from' string.
 		 */
 		while (*string != '\0') {
+			/*
+			 * Loop over the from string for a possible match
+			 */
 			if ((end = (char *)patmatch(pat[idx], aux[idx],
 			    (Uchar *)string, 0, slen, alt[idx],
 			    state)) == NULL) {
@@ -247,21 +267,37 @@ substitute(from, fromlen, idx, to, tolen)
 				continue;
 			}
 			if (!didmatch) {
+				/*
+				 * We had a first match. Copy the 'from' string
+				 * into our result storage.
+				 */
 				didmatch = TRUE;
-				strncpy((char *)new, (char *)from, PATH_MAX);
-				new[PATH_MAX] = '\0';
-				string = new + (string - from);
-				end = new + (end - from);
+				strcpy_pspace(PS_EXIT, &new, from);
+
+				/*
+				 * Let 'string' and 'end' have the same offset
+				 * in 'new' as they had in 'from' before.
+				 */
+				string = new.ps_path + (string - from);
+				end = new.ps_path + (end - from);
 
 				if (!tosimple) {
 					/*
-					 * We need to remember the old 'from' string before.
+					 * We need to remember the old 'from'
+					 * string before, since the replacement
+					 * refers to the old 'from' string.
 					 */
 					oldlen = end - string;
-					if (oldlen > PATH_MAX)
-						oldlen = PATH_MAX;
-					strncpy((char *)old, (char *)string, oldlen);
-					old[oldlen] = '\0';
+					if (strlcpy(old, string, oldlen+1) >=
+									oldlen) {
+						oldp = strndup(string, oldlen);
+						if (oldp == NULL) {
+							s_enomem();
+							return (NULL);
+						}
+					} else {
+						oldp = old;
+					}
 				}
 
 			}
@@ -275,34 +311,79 @@ substitute(from, fromlen, idx, to, tolen)
 		 * and insert substitution
 		 */
 		if (tosimple) {
-			strncpy((char *)xold, (char *)end, PATH_MAX);
-			xold[PATH_MAX] = '\0';
+			char	xold[PATH_MAX+1];
+			char	*xoldp;
 
-			if ((string+tolen) >= limit)
-				goto over;
-			strncpy((char *)string, (char *)to, tolen);	/* insert */
-			if ((&string[tolen] + strlen(xold)) >= limit)
-				goto over;
-			strcpy((char *)&string[tolen], (char *)xold);
-			return (new);
-over:
-			errmsgno(EX_BAD, "Substitution path overflow.\n");
-			new[0] = '\0';
-			return (new);
+			/*
+			 * Remember the old string after the matching part.
+			 */
+			if (strlcpy(xold, end, sizeof (xold)) >=
+							sizeof (xold)) {
+				xoldp = strdup(end);
+				if (xoldp == NULL) {
+					s_enomem();
+					return (NULL);
+				}
+			} else {
+				xoldp = xold;
+			}
+
+
+			if ((string+tolen) >= limit) {
+				soff = string - new.ps_path;
+				if (incr_pspace(PS_STDERR, &new,
+					    1 + (string+tolen) - limit) < 0) {
+					s_enomem();
+					if (xoldp != xold)
+						free(xoldp);
+					goto over;
+				}
+				string = new.ps_path + soff;
+			}
+			strlcpy((char *)string, (char *)to, tolen+1);	/* insert */
+
+			/*
+			 * Append non-maching old tail.
+			 */
+			if ((&string[tolen] + strlen(xoldp)) >= limit) {
+				soff = string - new.ps_path;
+				if (incr_pspace(PS_STDERR, &new,
+					    1 + (string+tolen) - limit) < 0) {
+					s_enomem();
+					if (xoldp != xold)
+						free(xoldp);
+					goto over;
+				}
+				string = new.ps_path + soff;
+			}
+			strcpy((char *)&string[tolen], xoldp);
+			if (xoldp != xold)
+				free(xoldp);
 		} else {
+			soff = string - new.ps_path;
 			tolen = catsub(string, old, oldlen, to, tolen, limit);
+			string = new.ps_path + soff;
+			if (oldp != old)
+				free(oldp);
 			if (tolen < 0) {
-				new[0] = '\0';
-				return (new);
+				if (new.ps_path)
+					new.ps_path[0] = '\0';
+				return (new.ps_path);
 			}
 		}
 		string = &string[tolen];
 		slen = strlen(string);
 	}
 	if (didmatch)
-		return (new);
+		return (new.ps_path);
 	return (NULL);
+over:
+	errmsgno(EX_BAD, "Substitution path overflow.\n");
+	if (new.ps_path)
+		new.ps_path[0] = '\0';
+	return (new.ps_path);
 }
+#undef	limit
 
 /*
  * Check is this is a 'simple' 'to'-substitution string
@@ -339,36 +420,75 @@ catsub(here, old, oldlen, to, tolen, limit)
 	register char	*limit;
 {
 	char	xold[PATH_MAX+1];
+	char	*xoldp;
 	char	*p = here;
+	size_t	len;
+	size_t	hoff;
 
 	if (tolen <= 0)
 		return (0);
 
-	strncpy(xold, &here[oldlen], PATH_MAX);
-	xold[PATH_MAX] = '\0';
+	/*
+	 * Remember the old string after the matching part.
+	 */
+	if (strlcpy(xold, &here[oldlen], sizeof (xold)) >= sizeof (xold)) {
+		xoldp = strdup(&here[oldlen]);
+		if (xoldp == NULL) {
+			s_enomem();
+			return (-1);
+		}
+	} else {
+		xoldp = xold;
+	}
 
 	while (--tolen >= 0) {
-		if (here >= limit)
-			goto over;
+		if (here >= limit) {
+			hoff = here - new.ps_path;
+			if (incr_pspace(PS_STDERR, &new,
+				    1 + here - limit) < 0) {
+				s_enomem();
+				goto over;
+			}
+			here = new.ps_path + hoff;
+		}
 		if (*to == '\\') {
 			if (--tolen >= 0)
 				*here++ = *++to;
 		} else if (*to == '&') {
-			if ((here+oldlen) >= limit)
-				goto over;
-			strncpy(here, old, oldlen);
+			if ((here+oldlen) >= limit) {
+				hoff = here - new.ps_path;
+				if (incr_pspace(PS_STDERR, &new,
+					    1 + (here+oldlen) - limit) < 0) {
+					s_enomem();
+					goto over;
+				}
+				here = new.ps_path + hoff;
+			}
+			strlcpy(here, old, oldlen+1);
 			here += oldlen;
 		} else {
 			*here++ = *to;
 		}
 		to++;
 	}
-	if ((here+strlen(xold)) >= limit)
-		goto over;
-	strcpy(here, xold);
+	len = strlen(xoldp);
+	if ((here+len) >= limit) {
+		hoff = here - new.ps_path;
+		if (incr_pspace(PS_STDERR, &new,
+			    1 + (here+len) - limit) < 0) {
+			s_enomem();
+			goto over;
+		}
+		here = new.ps_path + hoff;
+	}
+	strcpy(here, xoldp);
+	if (xoldp != xold)
+		free(xoldp);
 	return (here - p);
 over:
 	errmsgno(EX_BAD, "& Substitution path overflow.\n");
+	if (xoldp != xold)
+		free(xoldp);
 	return (-1);
 }
 
@@ -380,6 +500,7 @@ ia_change(ptb, info)
 {
 	FINFO	cinfo;
 	char	ans;
+	char	abuf[2];
 	int	len;
 
 	if (paxinteract)
@@ -391,22 +512,21 @@ ia_change(ptb, info)
 		vprint(info);
 	if (nflag)
 		return (FALSE);
-	fprintf(vpr, "get/put ? Y(es)/N(o)/C(hange name) :"); fflush(vpr);
-	fgetline(tty, new, 2);
-	if ((ans = toupper(new[0])) == 'Y')
+	fgtprintf(vpr, "get/put ? Y(es)/N(o)/C(hange name) :"); fflush(vpr);
+	fgetline(tty, abuf, sizeof (abuf));
+	if ((ans = toupper(abuf[0])) == 'Y')
 		return (TRUE);
 	else if (ans == 'C') {
 		for (;;) {
-			fprintf(vpr, "Enter new name:");
+			fgtprintf(vpr, "Enter new name:");
 			fflush(vpr);
-			if ((len = fgetline(tty, new, sizeof (new))) == 0)
-				continue;
-			if (len > sizeof (new) - 1)
-				errmsgno(EX_BAD, "Name too long.\n");
-			else
+			len = fpgetstr(tty, &new);
+			if (len < 0)
+				comexit(-2);
+			else if (len > 0)
 				break;
 		}
-		info->f_name = new;
+		info->f_name = new.ps_path;
 		if (xflag) {
 			if (newer(info, &cinfo))
 				return (FALSE);
@@ -435,22 +555,48 @@ pax_change(ptb, info)
 		return (FALSE);
 
 	for (;;) {
-		fprintf(vpr, "%s change?", info->f_name);
+		fgtprintf(vpr, "%s change?", info->f_name);
 		fflush(vpr);
-		if ((len = fgetline(tty, new, sizeof (new))) == 0)
-			break;
-		if (len > sizeof (new) - 1)
-			errmsgno(EX_BAD, "Name too long.\n");
+		len = fpgetstr(tty, &new);
+		if (len < 0)
+			comexit(-2);
 		else
 			break;
 	}
-	if (new[0] == '\0')			/* Skip file */
+	if (new.ps_path[0] == '\0')		/* Skip file */
 		return (FALSE);
-	if (new[0] == '.' && new[1] == '\0')	/* Leave name as is */
+	if (new.ps_path[0] == '.' &&
+	    new.ps_path[1] == '\0')		/* Leave name as is */
 		return (TRUE);
 
-	info->f_name = new;
+	info->f_name = new.ps_path;
 	if (xflag && newer(info, &cinfo))
 		return (FALSE);
 	return (TRUE);
+}
+
+LOCAL void
+s_enomem()
+{
+	errmsgno(EX_BAD, "No memory for substitution.\n");
+	xstats.s_substerrs++;
+}
+
+/*
+ * Read a line of unspecified and arbitrary length from FILE *
+ * and place the result in a pathstore_t object.
+ */
+EXPORT int
+fpgetstr(f, p)
+	register	FILE	*f;
+		pathstore_t	*p;
+{
+	int	ret = getdelim(&p->ps_path, &p->ps_size, '\n', f);
+
+	if (ret <= 0)
+		return (ret);
+
+	if (p->ps_path[ret-1] == '\n')
+		p->ps_path[--ret] = '\0';
+	return (ret);
 }

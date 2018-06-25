@@ -30,10 +30,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)bdiff.c	1.23 18/04/04 J. Schilling
+ * @(#)bdiff.c	1.24 18/06/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.23 18/04/04 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.24 18/06/14 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -121,6 +121,7 @@ static int seglim;	/* limit of size of file segment to be generated */
 static char diffp[]  =  INS_BASE  "/" SCCS_BIN_PRE "bin/" "diff";
 #else
 #define	diffp		diff
+#undef	INS_BASE
 #define	INS_BASE	""
 #endif
 static char diff[]  =  "/usr/bin/diff";

@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.124 17/09/21 Copyright 1985-2017 J. Schilling */
+/* @(#)schily.h	1.129 18/06/18 Copyright 1985-2018 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -347,6 +347,28 @@ extern	int	serrmsgno __PR((int, char *, size_t, const char *, ...))
 extern	void	comexit	__PR((int));
 extern	char	*errmsgstr __PR((int));
 
+/*PRINTFLIKE1*/
+extern	void	gtcomerr __PR((const char *, ...)) __printflike__(1, 2);
+/*PRINTFLIKE2*/
+extern	void	gtxcomerr __PR((int, const char *, ...)) __printflike__(2, 3);
+/*PRINTFLIKE2*/
+extern	void	gtcomerrno __PR((int, const char *, ...)) __printflike__(2, 3);
+/*PRINTFLIKE3*/
+extern	void	gtxcomerrno __PR((int, int, const char *, ...)) __printflike__(3, 4);
+/*PRINTFLIKE1*/
+extern	int	gterrmsg __PR((const char *, ...)) __printflike__(1, 2);
+/*PRINTFLIKE2*/
+extern	int	gterrmsgno __PR((int, const char *, ...)) __printflike__(2, 3);
+
+#ifdef	GT_COMERR
+#define	comerr		gtcomerr
+#define	xcomerr		gtxcomerr
+#define	comerrno	gtcomerrno
+#define	xcomerrno	gtxcomerrno
+#define	errmsg		gterrmsg
+#define	errmsgno	gterrmsgno
+#endif
+
 #ifdef	EOF	/* stdio.h has been included */
 /*PRINTFLIKE2*/
 extern	void	fcomerr		__PR((FILE *, const char *, ...))
@@ -366,18 +388,58 @@ extern	int	ferrmsg		__PR((FILE *, const char *, ...))
 /*PRINTFLIKE3*/
 extern	int	ferrmsgno	__PR((FILE *, int, const char *, ...))
 					__printflike__(3, 4);
+
+/*PRINTFLIKE2*/
+extern	void	fgtcomerr	__PR((FILE *, const char *, ...))
+					__printflike__(2, 3);
+/*PRINTFLIKE3*/
+extern	void	fgtxcomerr	__PR((FILE *, int, const char *, ...))
+					__printflike__(3, 4);
+/*PRINTFLIKE3*/
+extern	void	fgtcomerrno	__PR((FILE *, int, const char *, ...))
+					__printflike__(3, 4);
+/*PRINTFLIKE4*/
+extern	void	fgtxcomerrno	__PR((FILE *, int, int, const char *, ...))
+					__printflike__(4, 5);
+/*PRINTFLIKE2*/
+extern	int	fgterrmsg	__PR((FILE *, const char *, ...))
+					__printflike__(2, 3);
+/*PRINTFLIKE3*/
+extern	int	fgterrmsgno	__PR((FILE *, int, const char *, ...))
+					__printflike__(3, 4);
+
+#ifdef	GT_COMERR
+#define	fcomerr		fgtcomerr
+#define	fxcomerr	fgtxcomerr
+#define	fcomerrno	fgtcomerrno
+#define	fxcomerrno	fgtxcomerrno
+#define	ferrmsg		fgterrmsg
+#define	ferrmsgno	fgterrmsgno
+#endif
+
 #ifdef	_SCHILY_VARARGS_H
+/*
+ * Definitions for the second _comerr() parameter:
+ */
 #define	COMERR_RETURN	0	/* Do not exit, return only		*/
 #define	COMERR_EXIT	1	/* Exit program, map (X % 256) != X to -64 */
 #define	COMERR_EXCODE	2	/* Exit program, do not map exit codes	*/
 /*PRINTFLIKE5*/
 extern	int	_comerr		__PR((FILE *, int, int, int,
 						const char *, va_list));
-#endif
-#endif
+#endif	/* _SCHILY_VARARGS_H */
+#endif	/* EOF */
 
 /*PRINTFLIKE1*/
 extern	int	error __PR((const char *, ...)) __printflike__(1, 2);
+/*PRINTFLIKE1*/
+extern	int	gterror __PR((const char *, ...)) __printflike__(1, 2);
+
+#ifdef	GT_ERROR
+#undef	error
+#define	error		gterror
+#endif
+
 #ifdef	FOUND_SIZE_T
 extern	char	*fillbytes __PR((void *, ssize_t, char));
 extern	char	*zerobytes __PR((void *, ssize_t));
@@ -500,6 +562,14 @@ extern	int	js_snprintf	__PR((char *, size_t, const char *, ...))
 extern	int	js_sprintf	__PR((char *, const char *, ...))
 							__printflike__(2, 3);
 
+#ifdef	EOF	/* stdio.h has been included */
+/*PRINTFLIKE2*/
+extern	int	fgtprintf	__PR((FILE *, const char *, ...))
+							__printflike__(2, 3);
+#endif	/* EOF */
+/*PRINTFLIKE1*/
+extern	int	gtprintf	__PR((const char *, ...)) __printflike__(1, 2);
+
 #ifdef	FOUND_SIZE_T
 extern	void	swabbytes	__PR((void *, ssize_t));
 #endif
@@ -541,8 +611,10 @@ extern	int	_openfd64	__PR((const char *, int));
 #ifndef	NO_SCHILY_PRINT		/* Define to disable *printf() redirects */
 #ifdef	SCHILY_PRINT
 #ifdef	__never__
+#ifndef	GT_ERROR
 #undef	error
 #define	error		js_error
+#endif
 #endif	/* __never__ */
 #undef	dprintf
 #define	dprintf		js_dprintf

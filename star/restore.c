@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.67 18/01/14 Copyright 2003-2018 J. Schilling */
+/* @(#)restore.c	1.68 18/06/16 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.67 18/01/14 Copyright 2003-2018 J. Schilling";
+	"@(#)restore.c	1.68 18/06/16 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -53,6 +53,8 @@ static	UConst char sccsid[] =
 #include "table.h"
 #include "diff.h"
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
 #include <schily/stat.h>	/* XXX Wegen S_IRWXU */

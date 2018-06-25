@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.229 18/06/07 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.231 18/06/22 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/06/07" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/06/22" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -473,6 +473,13 @@ by the execution of list, then the selection list is printed before
 displaying the
 .B PS3
 prompt for the next selection.
+.sp
+The
+.B select
+keyword was not supported by older versions of
+.B sh
+and is not required by
+.BR POSIX .
 
 .br
 .ne 3
@@ -517,6 +524,8 @@ fails.
 .sp
 The optional opening parenthesis was not supported by older versions of
 .BR sh .
+It has been added as it is required by
+.BR POSIX .
 .br
 .ne 3
 .HP
@@ -668,6 +677,11 @@ is followed by white space and a
 it is interpreted as a normal command in order to permit
 .BR "time\ \-p" ,
 as required by POSIX.
+.LP
+.B POSIX
+does not require
+.B time
+to be a keyword.
 .LP
 The following words are only recognized as the first word of a command and
 when not quoted:
@@ -3285,7 +3299,7 @@ Errors may cause a script that contains them to abort.
 In older versions of
 .BR sh ,
 parameter assignments that precede any builtin command did
-affect the shell itself.
+always affect the shell itself.
 .br
 .ne 3
 .TP 4n
@@ -3627,6 +3641,10 @@ The
 .B builtin
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B builtin
+command to be supported.
 
 .br
 .ne 3
@@ -3953,6 +3971,10 @@ The
 .B dosh
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B dosh
+command to be supported.
 
 .br
 .ne 3
@@ -4040,6 +4062,10 @@ The
 .B errstr
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B errstr
+command to be supported.
 
 .br
 .ne 3
@@ -4314,7 +4340,9 @@ uses concepts from 1982 that make
 .B fc
 a deprecated feature for editing commands in the history.
 .B fc
-is required by a POSIX feature named
+is required by a
+.B POSIX
+feature named
 .BR "user portability" ,
 it should be avoided in favor of the
 .B history
@@ -4555,6 +4583,10 @@ The
 .B history
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B history
+command to be supported.
 .RE
 
 .br
@@ -4785,6 +4817,10 @@ The
 .B map
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B map
+command to be supported.
 .RE
 
 .br
@@ -4830,6 +4866,10 @@ The
 .B pgrp
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B pgrp
+command to be supported.
 
 .br
 .ne 3
@@ -5321,6 +5361,10 @@ The
 .B repeat
 command was not supported in older versions of
 .BR sh .
+.B POSIX
+does not require the
+.B repeat
+command to be supported.
 
 .br
 .ne 3

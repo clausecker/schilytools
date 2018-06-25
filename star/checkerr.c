@@ -1,8 +1,8 @@
-/* @(#)checkerr.c	1.25 18/05/15 Copyright 2003-2018 J. Schilling */
+/* @(#)checkerr.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)checkerr.c	1.25 18/05/15 Copyright 2003-2018 J. Schilling";
+	"@(#)checkerr.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Error control for star.
@@ -28,6 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/patmatch.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 
 #include "starsubs.h"
