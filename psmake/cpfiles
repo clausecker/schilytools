@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.28 18/05/16 Copyright 1999-2013 J. Schilling
+# @(#)cpfiles	1.29 18/06/26 Copyright 1999-2013 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -72,6 +72,7 @@ $cp ${incsrc}/include/schily/string.h	include/schily/string.h
 $cp ${incsrc}/include/schily/sunos4_proto.h	include/schily/sunos4_proto.h
 $cp ${incsrc}/include/schily/systeminfo.h	include/schily/systeminfo.h
 $cp ${incsrc}/include/schily/time.h		include/schily/time.h
+$cp ${incsrc}/include/schily/times.h		include/schily/times.h
 $cp ${incsrc}/include/schily/unistd.h	include/schily/unistd.h
 $cp ${incsrc}/include/schily/utime.h	include/schily/utime.h
 $cp ${incsrc}/include/schily/utsname.h	include/schily/utsname.h

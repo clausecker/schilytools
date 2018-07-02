@@ -1,13 +1,13 @@
-/* @(#)expand.c	1.48 17/11/05 Copyright 1985-2017 J. Schilling */
+/* @(#)expand.c	1.51 18/07/01 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.48 17/11/05 Copyright 1985-2017 J. Schilling";
+	"@(#)expand.c	1.51 18/07/01 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include <schily/fcntl.h>
 #include <schily/stdio.h>
 #include "bsh.h"
 #include "node.h"
@@ -51,6 +52,7 @@ LOCAL	int	xcmp		__PR((char *s1, char *s2));
 LOCAL	void	xsort		__PR((char **from, char **to));
 LOCAL	Tnode	*exp		__PR((char *n, int i, Tnode * l));
 EXPORT	Tnode	*expand		__PR((char *s));
+LOCAL	DIR	*lopendir	__PR((char *name));
 
 LOCAL int
 dncmp(s1, s2)
@@ -327,7 +329,7 @@ exp(n, i, l)
 
 	dir = save_base(n, dp);		/* get dirname part */
 	if (dir == (char *)NULL ||
-	    (dirp = opendir(dp == n ? "." : dir)) == (DIR *)NULL)
+	    (dirp = lopendir(dp == n ? "." : dir)) == (DIR *)NULL)
 		goto cannot;
 
 	EDEBUG(("dir: '%s' match: '%.*s'\n", dp == n?".":dir, patlen, dp));
@@ -419,4 +421,52 @@ expand(s)
 		return ((Tnode *)NULL);
 	else
 		return (mklist(exp(s, 0, (Tnode *)NULL)));
+}
+
+LOCAL DIR *
+lopendir(name)
+	char	*name;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+#endif
+	DIR	*ret = NULL;
+
+	if ((ret = opendir(name)) == NULL && geterrno() != ENAMETOOLONG)
+		return ((DIR *)NULL);
+
+#ifdef	HAVE_FCHDIR
+	if (ret)
+		return (ret);
+
+	p = name;
+	fd = AT_FDCWD;
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+			int err = geterrno();
+
+			close(fd);
+			if (err == EMFILE)
+				seterrno(err);
+			else
+				seterrno(ENAMETOOLONG);
+			if (p2)
+				*p2 = '/';
+			return ((DIR *)NULL);
+		}
+		close(fd);
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+	ret = fdopendir(fd);
+#endif
+	return (ret);
 }

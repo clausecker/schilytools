@@ -1,0 +1,53 @@
+# @(#)README	1.3 18/07/02 Copyright 2018 J. Schilling
+
+"pbosh" is a shell that is intended to test shell scripts for portability.
+
+It does not implement extensions on POSIX and thus would fail, in case
+that a shell feature beyond the POSIX standard is used.
+
+Please keep in mind that a script that works with "pbosh" still may fail
+with other shells as POSIX has some features unspecified. One example is
+the way how pipelines are created. "pbosh" implements the optimized method
+and moreover runs the rightmost program from a pipe inside the shell
+process in case that this is a shell builtin. As a result, it is most likely
+that all pipes that work with "pbosh", will also work with "ksh93" but still
+may fail with e.g. "bash".
+
+If you like to check whether your script is portable to the SVr4 Bourne Shell
+as present on e.g. Solaris 10, it is recommended to check whether it also
+runs with another compile variant of "bosh" from schilytools called "osh".
+This is a portable version of the Solaris 10 SVr5 Bourne Shell.
+
+Note: in order to make "pbosh" halfway useful, persistent aliases are not
+disabled by default. You may either test your scripts with other shells in
+addition, or edit the Makefile and comment out the lines with: 
+
+CPPOPTS +=	-DDO_GLOBALALIASES	# Include persistent aliases in ~/.globals 
+CPPOPTS +=	-DDO_LOCALALIASES	# Include persistent aliases in .locals 
+
+Then call "make clean all" to recompile "pbosh" with persistent aliases
+disabled.
+
+Note that Linux distibutions decided that they like to see support for the
+"local" shell builtin beyond basic POSIX features. If you are interested in
+this feature set, you may like to check the "dash" feature set.
+
+If you like to create a shell with similar features as seen in "dash", you may
+do the following:
+
+	cd pbosh
+	smake clean
+	smake 'COPTX=-DNO_INTERACTIVE -DDO_SYSLOCAL'
+
+This still creates a shell with multi-byte support as required by POSIX, but
+otherwise includes similar featues. Since "dash" has no persistent aliases,
+you may like to combine both modifications. This combination of features is
+predefined in "Mdashalike", so you could call:
+
+	smake -f Mdashalike clean all
+
+Note that POSIX requires multi-byte support except when on small embedded
+devices. Since "bosh" supports multi-byte characters and still is faster than
+"dash", it is a nice replacepent for "dash". If "bosh" could disable multi-byte
+support to become as simple as "dash", it would be more than 30% faster than
+"dash" and also smaller than "dash".

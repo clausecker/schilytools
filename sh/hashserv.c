@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)hashserv.c	1.36 18/01/10 2008-2018 J. Schilling
+ * @(#)hashserv.c	1.37 18/06/26 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.36 18/01/10 2008-2018 J. Schilling";
+	"@(#)hashserv.c	1.37 18/06/26 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -531,7 +531,7 @@ what_is_path(name, verbose)
 checkbuiltin:
 #endif
 
-#ifdef	HAVE_LOADABLE_LIBS
+#if	defined(HAVE_LOADABLE_LIBS) && defined(DO_SYSBUILTIN)
 	if ((sp2 = sh_findbuiltin(name)) != NULL) {
 		sn.sysflg = 0;
 		sp = &sn;
@@ -539,7 +539,7 @@ checkbuiltin:
 	} else
 #endif
 	if ((sp = sysnlook(name, commands, no_commands)) != NULL) {
-#ifdef	HAVE_LOADABLE_LIBS
+#if	defined(HAVE_LOADABLE_LIBS) && defined(DO_SYSBUILTIN)
 	isbltin:
 #endif
 		if (!verbose) {

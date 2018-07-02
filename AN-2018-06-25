@@ -224,7 +224,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	cpp: If a character with the value 0xFE appears at the right side
 	of a #define statement, this character is now quoted in order to avoid
-	that this character is intewrpreted as a replacement for a formal
+	that this character is interpreted as a replacement for a formal
 	macro parameter.
 
 	Thanks to Heiko Eiﬂfeldt for reporting

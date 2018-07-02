@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.37 18/04/23 Copyright 1985-2018 J. Schilling */
+/* @(#)parse.c	1.38 18/06/27 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.37 18/04/23 Copyright 1985-2018 J. Schilling";
+	"@(#)parse.c	1.38 18/06/27 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
@@ -31,7 +31,7 @@ static	UConst char sccsid[] =
 #include "node.h"
 #include "ctype.h"
 
-#define	MAXARG	1024	/* old 512 Joerg fuer Ulrich!!!*/
+#define	MAXARG	8192	/* old 512 Joerg fuer Ulrich 1024!!!*/
 
 LOCAL int need_par	= FALSE;
 

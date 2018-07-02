@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.131 18/05/20 2008-2018 J. Schilling
+ * @(#)bltin.c	1.133 18/07/01 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.131 18/05/20 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.133 18/07/01 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -423,7 +423,7 @@ builtin(type, argc, argv, t, xflags)
 					}
 				}
 #endif
-			} while ((f = chdir((const char *) curstak())) < 0 &&
+			} while ((f = lchdir((char *) curstak())) < 0 &&
 			    cdpath);
 
 			free(np);
@@ -457,7 +457,7 @@ builtin(type, argc, argv, t, xflags)
 				unsigned char	*wd;
 
 				ocwdnod();		/* Update OLDPWD=    */
-				cwd(curstak());		/* Canonic from stak */
+				cwd(curstak(), NULL);	/* Canonic from stak */
 				wd = cwdget(cdopt);	/* Get reliable cwd  */
 #ifdef	DO_SYSPUSHD
 				if (type != SYSPUSHD)

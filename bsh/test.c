@@ -1,13 +1,13 @@
-/* @(#)test.c	1.31 16/05/19 Copyright 1986,1995-2016 J. Schilling */
+/* @(#)test.c	1.37 18/07/02 Copyright 1986,1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.31 16/05/19 Copyright 1986,1995-2016 J. Schilling";
+	"@(#)test.c	1.37 18/07/02 Copyright 1986,1995-2018 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
  *
- *	Copyright (c) 1986,1995-2016 J. Schilling
+ *	Copyright (c) 1986,1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include <schily/fcntl.h>
 #include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/setjmp.h>
@@ -49,6 +50,8 @@ static	UConst char sccsid[] =
 
 #ifndef	HAVE_LSTAT
 #	define	lstat	stat
+#undef	AT_SYMLINK_NOFOLLOW
+#define	AT_SYMLINK_NOFOLLOW	0
 #endif
 
 /* Kostet mehr Code den ganzen Kram auf den Stack zu tun */
@@ -82,6 +85,7 @@ LOCAL	BOOL	fowner		__PR((char *name, int owner));
 LOCAL	BOOL	fgroup		__PR((char *name, int group));
 LOCAL	off_t	fsize		__PR((char *name));
 LOCAL	BOOL	isttyf		__PR((int i));
+LOCAL	int	lstatat		__PR((char *name, struct stat *buf, int flag));
 LOCAL	void	expr_syntax	__PR((char *fmt, ...));
 
 /* ARGSUSED */
@@ -454,7 +458,7 @@ fattr(name, type)
 {
 	struct	stat	buf;
 
-	if (lstat(name, &buf) < 0)
+	if (lstatat(name, &buf, AT_SYMLINK_NOFOLLOW) < 0)
 		return (FALSE);
 	return ((buf.st_mode & type) == type);
 }
@@ -466,7 +470,7 @@ ftype(name, type)
 {
 	struct	stat	buf;
 
-	if (lstat(name, &buf) < 0)
+	if (lstatat(name, &buf, AT_SYMLINK_NOFOLLOW) < 0)
 		return (FALSE);
 	return ((buf.st_mode & S_IFMT) == type);
 }
@@ -479,7 +483,7 @@ is_dir(name)
 
 	struct	stat	buf;
 
-	if (stat(name, &buf) < 0)
+	if (lstatat(name, &buf, 0) < 0)
 		return (FALSE);
 	return ((buf.st_mode & S_IFMT) == S_IFDIR);
 }
@@ -491,7 +495,7 @@ fowner(name, owner)
 {
 	struct	stat	buf;
 
-	if (lstat(name, &buf) < 0)
+	if (lstatat(name, &buf, AT_SYMLINK_NOFOLLOW) < 0)
 		return (FALSE);
 	return (buf.st_uid == owner);
 }
@@ -503,7 +507,7 @@ fgroup(name, group)
 {
 	struct	stat	buf;
 
-	if (lstat(name, &buf) < 0)
+	if (lstatat(name, &buf, AT_SYMLINK_NOFOLLOW) < 0)
 		return (FALSE);
 	return (buf.st_gid == group);
 }
@@ -514,7 +518,7 @@ fsize(name)
 {
 	struct	stat	buf;
 
-	if (lstat(name, &buf) < 0)
+	if (lstatat(name, &buf, AT_SYMLINK_NOFOLLOW) < 0)
 		return (-1);
 	return (buf.st_size);
 }
@@ -524,6 +528,63 @@ isttyf(i)
 	int	i;
 {
 	return ((i < 0 || i > 2) ? FALSE : isatty(fdown(tstd[i])));
+}
+
+LOCAL int
+lstatat(name, buf, flag)
+	char		*name;
+	struct stat	*buf;
+	int		flag;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+	int	err;
+#endif
+	int	ret;
+
+	if ((ret = fstatat(AT_FDCWD, name, buf, flag)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	p = name;
+	fd = AT_FDCWD;
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		else
+			break;
+		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+			err = geterrno();
+
+			close(fd);
+			if (err == EMFILE)
+				seterrno(err);
+			else
+				seterrno(ENAMETOOLONG);
+			*p2 = '/';
+			return (dfd);
+		}
+		close(fd);
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+	ret = fstatat(fd, p, buf, flag);
+	err = geterrno();
+	close(fd);
+	seterrno(err);
+#endif
+	return (ret);
 }
 
 /* VARARGS1 */

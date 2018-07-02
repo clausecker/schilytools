@@ -37,13 +37,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2018 J. Schilling
  *
- * @(#)pwd.c	1.27 16/07/06 2008-2016 J. Schilling
+ * @(#)pwd.c	1.31 18/07/02 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.27 16/07/06 2008-2016 J. Schilling";
+	"@(#)pwd.c	1.31 18/07/02 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -52,24 +52,33 @@ static	UConst char sccsid[] =
 #ifdef	SCHILY_INCLUDES
 #include	<schily/errno.h>
 #include	<schily/types.h>
+#include	<schily/fcntl.h>	/* For O_XXX and AT_FDCWD */
 #include	<schily/stat.h>
 #include	<schily/getcwd.h>
 #else
 #include	"mac.h"
 #include	<errno.h>
 #include	<sys/types.h>
+#include	<fcntl.h>
 #include	<sys/stat.h>
 #include	<limits.h>
 #endif
 
-#define	DOT		'.'
+#define	DOT	'.'
 #ifndef	NULL
 #define	NULL	0
 #endif
 #define	SLASH	'/'
-#define	PARTLY	2		/* cwdname may contain symlinks */
+#define	PARTLY	2		/* ncwdname may contain symlinks */
 
-	void	cwd		__PR((unsigned char *dir));
+	int	lchdir		__PR((char *path));
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+static	void	sunos5_cwdfix	__PR((void));
+#endif
+static	Uchar	*lgetcwd	__PR((void));
+	int	lstatat		__PR((char *name, struct stat *buf, int flag));
+	void	cwd		__PR((unsigned char *dir,
+					unsigned char *cwdbase));
 static	void	cwd2		__PR((int cdflg));
 static	int	cwd3		__PR((struct stat *statp));
 #ifdef	DO_POSIX_CD
@@ -79,7 +88,7 @@ static	int	cwd3		__PR((struct stat *statp));
 	void	cwdprint	__PR((int cdflg));
 static void	rmslash		__PR((unsigned char *string));
 	void	ocwdnod		__PR((void));
-static void	cwdnod		__PR((void));
+static void	cwdnod		__PR((unsigned char *wdname));
 
 #ifdef __STDC__
 extern const char	longpwd[];
@@ -88,31 +97,225 @@ extern char	longpwd[];
 #endif
 
 unsigned char *ocwdname;
-unsigned char cwdname[PATH_MAX+1];
+unsigned char cwdname[2];		/* Just a place holder for a Nul byte */
+unsigned char *ncwdname = cwdname;	/* The official handle for $PWD	*/
 
 static int	didpwd = FALSE;
 
 /*
- * Try to update cwdname.
- * Called by the "cd" builtin.
+ * A chdir() implementation that is able to deal with ENAMETOOLONG.
+ */
+int
+lchdir(path)
+	char	*path;
+{
+	int	ret = chdir(path);
+#if	defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
+	char	*p;
+	char	*p2;
+
+	if (ret >= 0 || errno != ENAMETOOLONG)
+		return (ret);
+
+	for (p = path; *p; ) {
+		if ((p2 =  strchr(p, SLASH)) != NULL)
+			*p2 = '\0';
+		if ((ret = chdir(p)) < 0) {
+			*p2 = SLASH;
+			break;
+		}
+		if (p2 == NULL)
+			break;
+		*p2++ = SLASH;
+		p = p2;
+	}
+#endif	/* defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG) */
+	return (ret);
+}
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+/*
+ * Workaround a Solaris getcwd() bug that hits on newer Solaris releases with
+ * getcwd() being a system call. Once a successful getcwd() call that returns
+ * more than PATH_MAX did succeed, future calls to getcwd() always fail with
+ * ERANGE until a successfull new chdir() call has been issued.
+ */
+static void
+sunos5_cwdfix()
+{
+	int	f = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+
+	if (f >= 0) {
+		chdir("/");
+		fchdir(f);
+		close(f);
+	}
+}
+#endif
+
+/*
+ * A getcwd() implementation that is able to deal with more than PATH_MAX.
+ *
+ * Since lgetcwd() overwrites possible data at "staktop", it cannot be called
+ * while ephemeral string processing on the string stack is under way.
+ */
+static unsigned char *
+lgetcwd()
+{
+	unsigned char	*dir = staktop;
+		char	*r;
+	size_t		len = PATH_MAX;
+#if	defined(DO_CHDIR_LONG)
+	int		i = 0;
+#endif
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+retry:
+#endif
+	do {
+		GROWSTAKL(dir, len);
+		*dir = '\0';
+
+		r = getcwd((char *)dir, (brkend - dir)-1);
+#if	defined(DO_CHDIR_LONG)
+		if (++i >= 8)		/* stops at 128 * PATH_MAX */
+			break;
+		len *= 2;
+	} while (r == NULL && errno == ERANGE);
+#else
+	} while (0);
+#endif
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+	if (r == NULL && errno == ERANGE && i == 10) {
+		/*
+		 * Work around a Solaris kernel bug.
+		 */
+		sunos5_cwdfix();
+		goto retry;
+	}
+#endif
+	return ((unsigned char *)r);
+}
+
+/*
+ * A stat() implementation that is able to deal with ENAMETOOLONG.
+ */
+int
+lstatat(name, buf, flag)
+	char		*name;
+	struct stat	*buf;
+	int		flag;
+{
+#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+	int	err;
+#endif
+	int	ret;
+
+	if ((ret = fstatat(AT_FDCWD, name, buf, flag)) < 0 &&
+	    errno != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
+	if (ret >= 0)
+		return (ret);
+
+	p = name;
+	fd = AT_FDCWD;
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		else
+			break;
+		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+			err = errno;
+			close(fd);
+			if (err == EMFILE)
+				errno = err;
+			else
+				errno = ENAMETOOLONG;
+			*p2 = '/';
+			return (dfd);
+		}
+		close(fd);	/* Don't care about AT_FDCWD, it is negative */
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+	ret = fstatat(fd, p, buf, flag);
+	err = errno;
+	close(fd);		/* Don't care about AT_FDCWD, it is negative */
+	errno= err;
+#endif	/* HAVE_FCHDIR && ENAMETOOLONG && DO_CHDIR_LONG */
+	return (ret);
+}
+
+
+/*
+ * Try to update ncwdname.
+ * Called by the "cd" builtin, in this case with "cwdbase" == NULL.
  *
  * Incorrect values will be detected by cwd2().
+ *
+ * If "cwdbase" == NULL, we replace $PWD.
+ *
+ * Otherwise we assume "dir" == "cwdbase" and normalize in place without
+ * updating $PWD. This is used by cwdrel2abs().
+ *
+ * This function is based on string manipulation only.
  */
 void
-cwd(dir)
-	unsigned char	*dir;
+cwd(dir, cwdbase)
+	unsigned char	*dir;		/* The new relative directory	   */
+	unsigned char	*cwdbase;	/* Absolute directory base or NULL */
 {
 	unsigned char *pcwd;
 	unsigned char *pdir;
+	unsigned char *base = cwdbase;
 
-	/* First remove extra /'s */
+	if (base == NULL) {		/* Compute new value on string stack */
+		int	len;		/* and later install result as $PWD  */
 
+		/*
+		 * Create space for $PWD + "/" + length(dir)
+		 * First step over curstak().
+		 */
+		len = length(curstak());
+		pcwd = curstak() + len;
+
+		len = length(ncwdname) + length(dir);
+		pcwd += len;
+		GROWSTAK(pcwd);
+		pcwd -= len;
+		cwdbase = pcwd;
+		movstr(ncwdname, cwdbase);	/* Copy old $PWD to base */
+
+	} else if (dir == cwdbase && *dir != '/') {
+		/*
+		 * In place operation only for absolute path names.
+		 * In case of a relative path name, we need to call getcwd().
+		 */
+		didpwd = FALSE;
+		return;
+	}
+
+	/*
+	 * First remove extra /'s by squeezing the string.
+	 */
 	rmslash(dir);
 
-	/* Now remove any .'s */
-
+	/*
+	 * Now remove any .'s
+	 */
 	pdir = dir;
-	if (*dir == SLASH)
+	if (*dir == SLASH)		/* skip initial slash */
 		pdir++;
 	while (*pdir) {			/* remove /./ by itself */
 		if ((*pdir == DOT) && (*(pdir+1) == SLASH)) {
@@ -122,10 +325,12 @@ cwd(dir)
 		pdir++;
 		while ((*pdir) && (*pdir != SLASH))
 			pdir++;
-		if (*pdir)
+		if (*pdir)		/* skip next slash */
 			pdir++;
 	}
-	/* take care of trailing /. */
+	/*
+	 * Take care of trailing /.
+	 */
 	if (*(--pdir) == DOT && pdir > dir && *(--pdir) == SLASH) {
 		if (pdir > dir) {
 			*pdir = '\0';
@@ -135,31 +340,46 @@ cwd(dir)
 
 	}
 
-	/* Remove extra /'s */
-
+	/*
+	 * Remove extra /'s by squeezing the string.
+	 */
 	rmslash(dir);
 
-	/* Now that the dir is canonicalized, process it */
-
+	/*
+	 * Now that the dir is canonicalized, process it
+	 */
 	if (*dir == DOT && *(dir+1) == '\0') {
+		/*
+		 * This was a chdir("."), so we do not need to change
+		 * the $PWD variable.
+		 */
 		return;
 	}
 
 
 	if (*dir == SLASH) {
-		/* Absolute path */
-
-		pcwd = cwdname;
-		*pcwd++ = *dir++;
+		/*
+		 * Absolute path, overwrite cwdbase.
+		 *
+		 * The resulting string length will be less or equal to the
+		 * string length of the "dir" argument.
+		 */
+		pcwd = cwdbase;
+		*pcwd++ = *dir++;	/* Copy over initial '/' */
 		didpwd = PARTLY;
 	} else {
-		/* Relative path */
-
+		/*
+		 * Relative path, append to cwdbase (usually on string stack).
+		 *
+		 * This may cause an overflow in case there is not enough space
+		 * but the resulting string length will be less or equal to the
+		 * string length in "cwdbase" and "dir" plus 1 ('/').
+		 */
 		if (didpwd == FALSE)
 			return;
 		didpwd = PARTLY;
-		pcwd = cwdname + length(cwdname) - 1;
-		if (pcwd != cwdname+1)
+		pcwd = cwdbase + length(cwdbase) - 1;
+		if (pcwd != cwdbase+1)
 			*pcwd++ = SLASH;
 	}
 	while (*dir) {
@@ -168,7 +388,7 @@ cwd(dir)
 		    (*(dir+2) == SLASH || *(dir+2) == '\0')) {
 			/* Parent directory, so backup one */
 
-			if (pcwd > cwdname+2)
+			if (pcwd > cwdbase+2)
 				--pcwd;
 			while (*(--pcwd) != SLASH)
 				/* LINTED */
@@ -180,44 +400,30 @@ cwd(dir)
 			}
 			continue;
 		}
-		if (pcwd >= &cwdname[PATH_MAX+1]) {
-			didpwd = FALSE;
-			return;
-		}
 		*pcwd++ = *dir++;
 		while ((*dir) && (*dir != SLASH)) {
-			if (pcwd >= &cwdname[PATH_MAX+1]) {
-				didpwd = FALSE;
-				return;
-			}
 			*pcwd++ = *dir++;
 		}
 		if (*dir) {
-			if (pcwd >= &cwdname[PATH_MAX+1]) {
-				didpwd = FALSE;
-				return;
-			}
 			*pcwd++ = *dir++;
 		}
-	}
-	if (pcwd >= &cwdname[PATH_MAX+1]) {
-		didpwd = FALSE;
-		return;
 	}
 	*pcwd = '\0';
 
 	--pcwd;
-	if (pcwd > cwdname && *pcwd == SLASH) {
+	if (pcwd > cwdbase && *pcwd == SLASH) {
 		/* Remove trailing / */
 
 		*pcwd = '\0';
 	}
+	if (base == NULL)
+		cwdnod(cwdbase);	/* Update $PWD */
 }
 
 /*
- * Verify that "cwdname" is identical to "."
+ * Verify that "ncwdname" is identical to "."
  * Set didpwd = FALSE in case of problems.
- * If cdflg is not CHDIR_L, check for symlinks in "cwdname"
+ * If cdflg is not CHDIR_L, check for symlinks in "ncwdname"
  * and set didpwd = FALSE in case a symlink was seen.
  */
 static void
@@ -234,11 +440,11 @@ cwd2(cdflg)
 		if (!(cdflg & CHDIR_L)) {
 			if (!cwd3(&stat1))
 				return;
-		} else if (stat((char *)cwdname, &stat1) == -1) {
+		} else if (lstatat((char *)ncwdname, &stat1, 0) == -1) {
 			didpwd = FALSE;
 			return;
 		}
-	} else if (stat((char *)cwdname, &stat1) == -1) {
+	} else if (lstatat((char *)ncwdname, &stat1, 0) == -1) {
 			didpwd = FALSE;
 			return;
 	}
@@ -261,7 +467,7 @@ static int
 cwd3(statp)
 	struct stat	*statp;
 {
-	unsigned char *pcwd = cwdname + 1;
+	unsigned char *pcwd = ncwdname + 1;
 
 	while (*pcwd) {
 		char c;
@@ -269,8 +475,9 @@ cwd3(statp)
 			/* LINTED */
 			;
 		*--pcwd = '\0';
-		if (lstat((char *)cwdname, statp) == -1 ||
-		    (statp->st_mode & S_IFMT) == S_IFLNK) {
+		if (lstatat((char *)ncwdname, statp,
+			    AT_SYMLINK_NOFOLLOW) == -1 ||
+		    S_ISLNK(statp->st_mode)) {
 			didpwd = FALSE;
 			*pcwd = c;
 			return (FALSE);
@@ -288,11 +495,14 @@ cwd3(statp)
  * Convert a relative pathname into an absolute patname when in -L mode.
  * The relative pathname is expected in curstak() and the result is
  * written to the same location.
+ *
+ * We are _always_ called with relative path names in curstak().
+ *
+ * This function is based only on string manipulation.
  */
 int
 cwdrel2abs()
 {
-	unsigned char	cwdnm[PATH_MAX+1];
 	unsigned char	*p;
 	unsigned char	*p2;
 	int		odidpwd = didpwd;
@@ -301,34 +511,30 @@ cwdrel2abs()
 	/*
 	 * Check whether there is no way to make it "right".
 	 */
-	if (didpwd == FALSE || cwdname[0] == '\0')
+	if (didpwd == FALSE || ncwdname[0] != '/')
 		return (FALSE);
 
 	/*
-	 * cwdname is granted to be null terminated after the above test.
-	 */
-	movstr(cwdname, cwdnm);			/* save old value */
-
-	/*
 	 * Create space for $PWD + "/" + curstak()
+	 * Since we first step over curstak(), we need 2*ret.
 	 */
 	ret = length(curstak());
-	p = curstak() + length(cwdname) + ret;
+	p = curstak() + length(ncwdname) + 2*ret;
 	GROWSTAK(p);
 
 	/*
 	 * Now concat $PWD + "/" + curstak() above current curstak().
 	 */
-	p = curstak() + ret;
-	p2 = movstr(cwdname, p);
-	*p2++ = '/';
-	movstr(curstak(), p2);
+	p = curstak() + ret;	/* Step over old curstak() content  */
+	p2 = movstr(ncwdname, p); /* Copy current $PWD		    */
+	*p2++ = '/';		/* Add '/'			    */
+	movstr(curstak(), p2);	/* Add relative path from curstak() */
 
 	/*
-	 * Canonicalize new absolute path.
+	 * Canonicalize new absolute path in place.
 	 * The input value at curstak() is still valid.
 	 */
-	cwd(p);
+	cwd(p, p);
 	if (didpwd == FALSE) {
 		/*
 		 * TODO: Check whether a long path could be converted into
@@ -338,9 +544,8 @@ cwdrel2abs()
 		goto out;
 	}
 	ret = TRUE;
-	movstr(cwdname, curstak());		/* move result to curstak() */
+	movstr(p, curstak());			/* move result to curstak() */
 out:
-	movstr(cwdnm, cwdname);			/* restore old cwdname	*/
 	didpwd = odidpwd;
 	return (ret);
 }
@@ -358,19 +563,25 @@ unsigned char *
 cwdget(cdflg)
 	int	cdflg;
 {
+	unsigned char	*cwdptr = NULL;
+
 	cwd2(cdflg);
 	if (didpwd == FALSE) {
-		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL)
-			*cwdname = 0;
+		if ((cwdptr = lgetcwd()) == NULL)
+			*ncwdname = 0;
 		didpwd = TRUE;
-
 	}
-	cwdnod();
-	return (cwdname);
+	if (didpwd && cwdptr)
+		cwdnod(cwdptr);
+	else
+		cwdnod(ncwdname);
+	return (ncwdname);
 }
 
 /*
- * Set cwdname (call cwdget()) if needed.
+ * Set ncwdname (call cwdget()) if needed.
+ *
+ * Externally used by the "cd" builtin to update PWD=
  *
  * We use cwdget(CHDIR_L) as this does not modify PWD
  * unless it is definitely invalid.
@@ -378,9 +589,9 @@ cwdget(cdflg)
 unsigned char *
 cwdset()
 {
-	if (cwdname[0] == '\0')
+	if (ncwdname[0] == '\0')
 		cwdget(CHDIR_L);
-	return (cwdname);
+	return (ncwdname);
 }
 
 /*
@@ -391,20 +602,19 @@ void
 cwdprint(cdflg)
 	int	cdflg;
 {
-	unsigned char	*cwdptr = cwdname;
+	unsigned char	*cwdptr = ncwdname;
 #ifdef	DO_POSIX_CD
-	unsigned char	cwdnm[PATH_MAX+1];
 
 	/*
 	 * As cwdprint() is only used to print the current working directory,
-	 * it should only update cwdname[] in case it is definitely invalid.
+	 * it should only update ncwdname[] in case it is definitely invalid.
 	 * For this reason, we call cwd2(CHDIR_L) to just check whether the
 	 * content does not point to the current working directory.
 	 */
 	cwd2(CHDIR_L);
 	if (didpwd == FALSE || (didpwd == PARTLY && !(cdflg & CHDIR_L))) {
 
-		if (getcwd((char *)cwdnm, PATH_MAX+1) == NULL) {
+		if ((cwdptr = lgetcwd()) == NULL) {
 			if (errno && errno != ERANGE)
 				Error(badpwd);
 			else
@@ -412,16 +622,13 @@ cwdprint(cdflg)
 			return;
 		}
 		if (didpwd == FALSE) {
-			movstr(cwdnm, cwdname);
 			didpwd = TRUE;
-		} else {
-			cwdptr = cwdnm;
 		}
 	}
 #else
 	cwd2(cdflg);
 	if (didpwd == FALSE) {
-		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL) {
+		if ((cwdptr = lgetcwd()) == NULL) {
 			if (errno && errno != ERANGE)
 				Error(badpwd);
 			else
@@ -434,7 +641,7 @@ cwdprint(cdflg)
 
 	prs_buff(cwdptr);
 	prc_buff(NL);
-	cwdnod();
+	cwdnod(cwdptr);
 }
 
 /*
@@ -476,11 +683,11 @@ ocwdnod()
 
 	if (opwdnod.namval != ocwdname)
 		free(opwdnod.namval);
-	if (opwdnod.namenv != ocwdname)
+	if (opwdnod.namval != opwdnod.namenv && opwdnod.namenv != ocwdname)
 		free(opwdnod.namenv);
 	free(ocwdname);
-	if (cwdname[0] != '\0')
-		ocwdname = make(cwdname);
+	if (ncwdname[0] != '\0')
+		ocwdname = make(ncwdname);
 	else
 		ocwdname = NULL;		/* Makes OLDPWD= disappear */
 	opwdnod.namval = opwdnod.namenv = ocwdname;
@@ -493,16 +700,26 @@ ocwdnod()
  * Update PWD= node
  */
 static void
-cwdnod()
+cwdnod(wdname)
+	unsigned char	*wdname;
 {
 	extern struct namnod pwdnod;
 
-	if (pwdnod.namval != cwdname)
-		free(pwdnod.namval);
-	if (pwdnod.namenv != cwdname)
-		free(pwdnod.namenv);
-	pwdnod.namval = pwdnod.namenv = cwdname;
+	if (wdname == pwdnod.namval)		/* $PWD still intact */
+		return;
 
+	if (pwdnod.namval != ncwdname)
+		free(pwdnod.namval);
+	if (pwdnod.namval != pwdnod.namenv && pwdnod.namenv != ncwdname)
+		free(pwdnod.namenv);
+
+	if (wdname == ncwdname) {
+		pwdnod.namval = pwdnod.namenv = ncwdname;
+	} else {
+		free(ncwdname);
+		ncwdname = make(wdname);	/* Never returns NULL */
+		pwdnod.namval = pwdnod.namenv = ncwdname;
+	}
 	attrib(&pwdnod, N_ENVCHG);		/* Mark as changed */
 }
 
@@ -549,7 +766,7 @@ init_dirs()
 	if (dirs)
 		return;
 	cwdset();
-	push_dir(cwdname);
+	push_dir(ncwdname);
 }
 
 int

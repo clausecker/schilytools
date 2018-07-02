@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.25 18/05/16 Copyright 1999-2013 J. Schilling
+# @(#)rmlinks	1.26 18/06/26 Copyright 1999-2013 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -46,6 +46,7 @@ rm -f include/schily/string.h
 rm -f include/schily/sunos4_proto.h
 rm -f include/schily/systeminfo.h
 rm -f include/schily/time.h
+rm -f include/schily/times.h
 rm -f include/schily/unistd.h
 rm -f include/schily/utime.h
 rm -f include/schily/utsname.h

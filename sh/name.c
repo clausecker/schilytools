@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)name.c	1.76 18/03/14 2008-2018 J. Schilling
+ * @(#)name.c	1.77 18/06/26 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.76 18/03/14 2008-2018 J. Schilling";
+	"@(#)name.c	1.77 18/06/26 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -555,11 +555,13 @@ readvar(namec, names)
 		names += optv.optind;
 	}
 
+#if	defined(DO_SELECT)
 	if (namec <= 1) {
-		a[0] = UC repname;
+		a[0] = UC repname;	/* REPLY */
 		a[1] = NULL;
 		names = a;
 	} else
+#endif
 #endif
 		names++;
 	ifs = ifsnod.namval;

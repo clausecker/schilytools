@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.231 18/06/22 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.233 18/06/30 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/06/22" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/06/30" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -73,6 +73,13 @@ sh, bosh, jsh \- standard and job control shell and command interpreter
 .LP
 .nf
 .B /usr/bin/bosh\c
+.RB " [" \(miabCcefhikmnprstuvxP "] ["\c
+.IR argument ]...
+.fi
+
+.LP
+.nf
+.B /usr/bin/pbosh\c
 .RB " [" \(miabCcefhikmnprstuvxP "] ["\c
 .IR argument ]...
 .fi
@@ -105,13 +112,26 @@ functionality of
 .B sh
 and enables job control (see
 .B Job Control
-section below).
+section below) by default.
 Job control may also be enabled by calling the shell via the standard name
 and then calling
 .B set\ \-m
 or
 .BR "set\ \-o\ monitor" .
-.sp
+Since
+.B POSIX
+requires that job control is auto-enabled for interactive shells,
+.B jsh
+can be seen as an artefact from the historic Bourne Shell, but is kept for
+compatibility.
+.LP
+.B pbosh
+is a shell with strict POSIX mode enabled by default and with
+.B bosh
+specific enhancements disabled.
+It may be used to check scripts for portability with the minimal
+.B POSIX
+feature set.
 .LP
 Arguments to the shell are listed in the
 .B Invocation
@@ -869,8 +889,13 @@ otherwise the new default is set.
 .ne 3
 .TP
 .B #
-When entered on the command line, this prints the shell version.
-When seen inside a shell script and a space follows, the rest of
+In interactive mode,
+when entered on the command line, this prints the shell version.
+After the command
+.B set -o hashcmds
+in a shell script, if a
+.B #
+is seen inside that shell script and a space follows, the rest of
 the line is interpreted as comment.
 
 .SS "Alias Substitution"

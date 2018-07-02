@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)args.c	1.86 18/03/05 2008-2018 J. Schilling
+ * @(#)args.c	1.89 18/06/27 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.86 18/03/05 2008-2018 J. Schilling";
+	"@(#)args.c	1.89 18/06/27 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -53,6 +53,11 @@ static	UConst char sccsid[] =
  */
 
 #include	"sh_policy.h"
+
+#if !defined(DO_SET_O)
+#undef	DO_GLOBALALIASES
+#undef	DO_LOCALALIASES
+#endif
 
 	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
@@ -68,12 +73,15 @@ static	struct dolnod	*clean_args	__PR((struct dolnod *blk));
 							int funcntp));
 	struct dolnod	*useargs	__PR((void));
 static	unsigned char	*lookcopt	__PR((int wc));
-#if defined(DO_SET_O) && defined(DO_SYSALIAS)
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 static	void		listaliasowner	__PR((int parse, int flagidx));
 #endif
 #ifdef	DO_SET_O
 static	void		listopts	__PR((int parse));
+#ifdef	DO_HOSTPROMPT
 static	void		hostprompt	__PR((int on));
+#endif
 #ifdef	DO_PS34
 static	void		ps_reset	__PR((void));
 #endif
@@ -90,7 +98,8 @@ unsigned char	flagadr[20];
 
 unsigned char	flagchar[] =
 {
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 	0,			/* set -o aliasowner= */
 #endif
 	'a',			/* -a / -o allexport */
@@ -104,7 +113,7 @@ unsigned char	flagchar[] =
 #ifdef	DO_FULLEXCODE
 	0,			/* set -o fullexcode */
 #endif
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	0,			/* set -o globalaliases */
 #endif
 	'h',
@@ -119,7 +128,7 @@ unsigned char	flagchar[] =
 #endif
 	'i',
 	'k',			/* -k / -o keyword */
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)
 	0,			/* set -o localaliases */
 #endif
 	'm',
@@ -162,7 +171,8 @@ unsigned char	flagchar[] =
 #ifdef	DO_SET_O
 char	*flagname[] =
 {
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 	"aliasowner",
 #endif
 	"allexport",		/* -a POSIX */
@@ -176,7 +186,7 @@ char	*flagname[] =
 #ifdef	DO_FULLEXCODE
 	"fullexitcode",		/* -o fullexitcode, do not mask $? */
 #endif
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	"globalaliases",
 #endif
 	"hashall",		/* -h bash name (ksh93 uses "trackall") */
@@ -191,7 +201,7 @@ char	*flagname[] =
 #endif
 	"interactive",		/* -i ksh93 name */
 	"keyword",		/* -k bash/ksh93 name */
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)
 	"localaliases",
 #endif
 	"monitor",		/* -m POSIX */
@@ -233,7 +243,8 @@ char	*flagname[] =
 
 unsigned long	flagval[]  =
 {
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 	fl2 | aliasownerflg,	/* -o aliasowner= */
 #endif
 	exportflg,		/* -a / -o allexport */
@@ -247,7 +258,7 @@ unsigned long	flagval[]  =
 #ifdef	DO_FULLEXCODE
 	fl2 | fullexitcodeflg,	/* -o fullexitcode */
 #endif
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	fl2 | globalaliasflg,	/* -o globalaliases */
 #endif
 	hashflg,		/* -h / -o hashall */
@@ -262,7 +273,7 @@ unsigned long	flagval[]  =
 #endif
 	intflg,			/* -i / -o interactive */
 	keyflg,			/* -k / -o keyword */
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)
 	fl2 | localaliasflg,	/* -o localaliases */
 #endif
 	monitorflg,		/* -m / -o monitor */
@@ -304,6 +315,10 @@ unsigned long	flagval[]  =
 unsigned char *shvers;
 
 /* ========	option handling	======== */
+
+#ifndef	VSHNAME
+#define	VSHNAME	"sh"
+#endif
 
 void
 prversion()
@@ -348,7 +363,8 @@ options(argc, argv)
 		size_t	vlen;
 
 		vlen = snprintf(vbuf, sizeof (vbuf),
-			    "version %s %s (%s-%s-%s)",
+			    "version %s %s %s (%s-%s-%s)",
+			    VSHNAME,
 			    VERSION_DATE, VERSION_STR,
 			    HOST_CPU, HOST_VENDOR, HOST_OS);
 		shvers = alloc(vlen + 1);
@@ -442,7 +458,8 @@ again:
 						argp++;
 						argc--;
 						wc = *flagc;
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 							/* LINTED */
 						if (flagval[flagc-flagchar] ==
 						    (fl2 | aliasownerflg)) {
@@ -513,13 +530,15 @@ again:
 						flags2 &= ~versflg;
 						prversion();
 					}
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 					if (fv == (fl2 | globalaliasflg)) {
 						catpath(homenod.namval,
 						    UC globalname);
 						ab_use(GLOBAL_AB,
 						    (char *)make(curstak()));
 					}
+#endif
+#if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)
 					if (fv == (fl2 | localaliasflg)) {
 						ab_use(LOCAL_AB,
 							(char *)localname);
@@ -623,13 +642,18 @@ again:
 				if (fv == pfshflg)
 					secpolicy_end();
 #endif
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 				if (fv == (fl2 | globalaliasflg)) {
 					ab_use(GLOBAL_AB, NULL);
 				}
+#endif
+#if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)
 				if (fv == (fl2 | localaliasflg)) {
 					ab_use(LOCAL_AB, NULL);
 				}
+#endif
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 				if (fv == (fl2 | aliasownerflg)) {
 					ab_setaltowner(GLOBAL_AB, "");
 					ab_setaltowner(LOCAL_AB, "");
@@ -974,7 +998,8 @@ lookopt(name)
 	return (NULL);
 }
 
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 static void
 listaliasowner(parse, flagidx)
 	int	parse;
@@ -1015,7 +1040,8 @@ listopts(parse)
 			continue;
 					/* LINTED */
 		fv = flagval[flagc-flagchar];
-#ifdef	DO_SYSALIAS
+#if	defined(DO_SYSALIAS) && \
+	(defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES))
 		if (fv == (fl2 | aliasownerflg)) {
 					/* LINTED */
 			listaliasowner(parse, flagc-flagchar);
@@ -1104,8 +1130,10 @@ ps_reset()
 	assign(&ps3nod, UC selectmsg);
 #endif
 	assign(&ps4nod, UC execpmsg);
+#ifdef	DO_HOSTPROMPT
 	if (flags2 & hostpromptflg)
 		hostprompt(TRUE);
+#endif
 }
 #endif	/* DO_PS34 */
 #endif	/* DO_SET_O */

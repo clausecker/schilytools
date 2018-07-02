@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.32 18/03/19 Copyright 1986-2018 J. Schilling */
+/* @(#)hashcmd.c	1.33 18/06/26 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.32 18/03/19 Copyright 1986-2018 J. Schilling";
+	"@(#)hashcmd.c	1.33 18/06/26 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
@@ -34,7 +34,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>		/* To get F_GETFD/F_SETFD */
 
-EXPORT	abidx_t	deftab		= GLOBAL_AB;	/* Use .globals by default */
+extern	abidx_t	deftab;		/* Variable is defined in abbrev.c */
 
 extern	int	delim;
 extern	int	ttyflg;

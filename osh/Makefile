@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.91 18/05/23  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.95 18/06/27  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -13,6 +13,8 @@ TARGET=		osh
 #SYMLINKS +=	jsh			# Job control Bourne Shell
 
 ##CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
+
+CPPOPTS +=	-DVSHNAME='"osh"'	# Shell name variant (bosh/osh/pbosh)
 
 CPPOPTS +=	-DSCHILY_INCLUDES	# Tell the code to use schily include files
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh
@@ -34,6 +36,8 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_HASHCMDS		# Include hash cmds (line starts with #)
 #CPPOPTS +=	-DDO_HOSTPROMPT		# Set PS1 to "hostname uname> "
 #CPPOPTS +=	-DDO_SYSALIAS		# Include alias/unalias builtin
+#CPPOPTS +=	-DDO_GLOBALALIASES	# Include persistent aliases in ~/.globals 
+#CPPOPTS +=	-DDO_LOCALALIASES	# Include persistent aliases in .locals 
 #CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 #CPPOPTS +=	-DDO_SYSREPEAT		# Include the "repeat" builtin
 #CPPOPTS +=	-DDO_SYSDOSH		# Include the "dosh" builtin
@@ -69,6 +73,8 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_POSIX_SPEC_BLTIN	# Only special builtins keep var assignment
 #CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
 #CPPOPTS +=	-DDO_POSIX_CD		# cd/pwd/... implement POSIX -L/-P
+#CPPOPTS +=	-DDO_CHDIR_LONG		# chdir() and pwd() support more than PATH_MAX
+#CPPOPTS +=	-DDO_EXPAND_LONG	# expand() support more than PATH_MAX
 #CPPOPTS +=	-DDO_POSIX_RETURN	# Allow "return" inside "dot" scripts
 #CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
 #CPPOPTS +=	-DDO_POSIX_E		# Use POSIX rules for set -e, e.g. cmd subst

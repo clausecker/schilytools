@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.189 18/03/12 2008-2018 J. Schilling
+ * @(#)defs.h	1.192 18/07/01 2008-2018 J. Schilling
  */
 
 /*
@@ -415,6 +415,7 @@ extern char 		*optarg;
 
 #ifdef	NO_INTERACTIVE
 #undef	INTERACTIVE
+#undef	DO_SYSFC
 #endif
 
 #ifdef	NO_SYSATEXPR
@@ -742,7 +743,10 @@ extern	unsigned char *endb	__PR((void));
 /*
  * pwd.c
  */
-extern	void	cwd		__PR((unsigned char *dir));
+extern	int	lchdir		__PR((char *path));
+extern	int	lstatat		__PR((char *name, struct stat *buf, int flag));
+extern	void	cwd		__PR((unsigned char *dir,
+					unsigned char *cwdbase));
 extern	int	cwdrel2abs	__PR((void));
 extern	unsigned char *cwdget	__PR((int cdflg));
 extern	unsigned char *cwdset	__PR((void));

@@ -36,17 +36,20 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)expand.c	1.19 18/04/27 2008-2018 J. Schilling
+ * @(#)expand.c	1.23 18/07/01 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.19 18/04/27 2008-2018 J. Schilling";
+	"@(#)expand.c	1.23 18/07/01 2008-2018 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  *
  */
+
+#include	<schily/fcntl.h>
+#include	<schily/errno.h>
 
 #include	<sys/types.h>
 #include	<sys/stat.h>
@@ -67,6 +70,7 @@ static	UConst char sccsid[] =
 static void	addg	__PR((unsigned char *, unsigned char *, unsigned char *,
 			    unsigned char *));
 	void	makearg	__PR((struct argnod *));
+static	DIR	*lopendir __PR((char *name));
 
 int
 expand(as, rcnt)
@@ -95,10 +99,10 @@ expand(as, rcnt)
 	 * check for meta chars
 	 */
 	{
-		BOOL open;
+		BOOL openbr;
 
 		slash = 0;
-		open = 0;
+		openbr = 0;
 		(void) mbtowc(NULL, NULL, 0);
 		do
 		{
@@ -118,15 +122,15 @@ expand(as, rcnt)
 
 			case '/':
 				slash++;
-				open = 0;
+				openbr = 0;
 				continue;
 
 			case '[':
-				open++;
+				openbr++;
 				continue;
 
 			case ']':
-				if (open == 0)
+				if (openbr == 0)
 					continue;
 				/* FALLTHROUGH */
 			case '?':
@@ -168,7 +172,7 @@ expand(as, rcnt)
 		}
 	}
 
-	if ((dirf = opendir(*s ? (char *)s : (char *)".")) != 0)
+	if ((dirf = lopendir(*s ? (char *)s : (char *)".")) != 0)
 		dir++;
 
 	/* Let s point to original string because it will be trimmed later */
@@ -315,4 +319,52 @@ makearg(args)
 {
 	args->argnxt = gchain;
 	gchain = args;
+}
+
+static DIR *
+lopendir(name)
+	char	*name;
+{
+#if	defined(HAVE_FCHDIR) && defined(DO_EXPAND_LONG)
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+#endif
+	DIR	*ret = NULL;
+
+	if ((ret = opendir(name)) == NULL && errno != ENAMETOOLONG)
+		return ((DIR *)NULL);
+
+#if	defined(HAVE_FCHDIR) && defined(DO_EXPAND_LONG)
+	if (ret)
+		return (ret);
+
+	p = name;
+	fd = AT_FDCWD;
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+			int err = errno;
+
+			close(fd);
+			if (err == EMFILE)
+				errno = err;
+			else
+				errno = ENAMETOOLONG;
+			if (p2)
+				*p2 = '/';
+			return ((DIR *)NULL);
+		}
+		close(fd);
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+	ret = fdopendir(fd);
+#endif
+	return (ret);
 }

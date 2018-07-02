@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)main.c	1.71 18/01/25 2008-2018 J. Schilling
+ * @(#)main.c	1.72 18/06/25 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.71 18/01/25 2008-2018 J. Schilling";
+	"@(#)main.c	1.72 18/06/25 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -247,6 +247,9 @@ main(c, v, e)
 	    eq("-jbosh", simple((unsigned char *)*v)))
 		flags |= monitorflg;
 
+#ifdef	DO_ALWAYS_POSIX_SH
+	flags2 |= posixflg;
+#else
 #ifdef	DO_POSIX_SH
 	/*
 	 * If the last path name component is "sh", set -o posix by default.
@@ -301,6 +304,7 @@ main(c, v, e)
 	}
 #endif	/* DO_POSIX_PATH */
 #endif	/* DO_POSIX_SH */
+#endif	/* DO_ALWAYS_POSIX_SH */
 	posix = flags2 & posixflg;	/* remember "auto-posix" value */
 
 	hcreate();

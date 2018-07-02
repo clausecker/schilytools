@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.30 17/12/30 Copyright 2006-2017 J. Schilling */
+/* @(#)edit.c	1.35 18/07/02 Copyright 2006-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.30 17/12/30 Copyright 2006-2017 J. Schilling";
+	"@(#)edit.c	1.35 18/07/02 Copyright 2006-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2017 J. Schilling
+ *	Copyright (c) 2006-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,7 @@ static	UConst char sccsid[] =
 
 #include <schily/unistd.h>
 #include <schily/varargs.h>
+#include <schily/fcntl.h>
 #include <schily/stat.h>
 #include <schily/stdio.h>
 #include "bsh.h"
@@ -41,6 +42,7 @@ EXPORT	int	shedit_getdelim	__PR((void));
 EXPORT	void	shedit_treset	__PR((void));
 EXPORT	void	shedit_bhist	__PR((int **ctlcpp));
 EXPORT	void	shedit_bshist	__PR((int **ctlcpp));
+LOCAL	int	lstatat	__PR((char *name, struct stat *buf, int flag));
 
 /*
  * Set up file from where the inout should be read,
@@ -269,8 +271,9 @@ is_dir(name)
 {
 	struct	stat	buf;
 
-	if (stat(name, &buf) < 0)
+	if (lstatat(name, &buf, 0) < 0)
 		return (FALSE);
+
 	return ((buf.st_mode & S_IFMT) == S_IFDIR);
 }
 
@@ -448,4 +451,61 @@ shedit_setprompts(promptidx, nprompts, newprompts)
 
 	for (i = 0; i < nprompts; i++)
 		prompts[i] = newprompts[i];
+}
+
+LOCAL int
+lstatat(name, buf, flag)
+	char		*name;
+	struct stat	*buf;
+	int		flag;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+	int	err;
+#endif
+	int	ret;
+
+	if ((ret = fstatat(AT_FDCWD, name, buf, flag)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	p = name;
+	fd = AT_FDCWD;
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		else
+			break;
+		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+			err = geterrno();
+
+			close(fd);
+			if (err == EMFILE)
+				seterrno(err);
+			else
+				seterrno(ENAMETOOLONG);
+			*p2 = '/';
+			return (dfd);
+		}
+		close(fd);
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+	ret = fstatat(fd, p, buf, flag);
+	err = geterrno();
+	close(fd);
+	seterrno(err);
+#endif
+	return (ret);
 }

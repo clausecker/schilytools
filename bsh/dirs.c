@@ -1,13 +1,13 @@
-/* @(#)dirs.c	1.30 16/09/01 Copyright 1984-2016 J. Schilling */
+/* @(#)dirs.c	1.32 18/06/29 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirs.c	1.30 16/09/01 Copyright 1984-2016 J. Schilling";
+	"@(#)dirs.c	1.32 18/06/29 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Directory routines
  *
- *	Copyright (c) 1984-2016 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,6 +47,7 @@ LOCAL	char	*last_wd	= NULL;
 LOCAL	Tnode	*dirs		= 0;
 LOCAL	BOOL	pwd_done	= FALSE;
 
+LOCAL	int	lchdir		__PR((char *path));
 LOCAL	void	push_dir	__PR((char *name));
 LOCAL	char	*pop_dir	__PR((int offset));
 LOCAL	void	init_dirs	__PR((void));
@@ -63,6 +64,37 @@ LOCAL	void	pr_dir		__PR((FILE * f, char *name, char *home));
 LOCAL	BOOL	higher_dir	__PR((char *dir, char *maxdir));
 LOCAL	char	*abs_path	__PR((char *rel));
 LOCAL	void	shorten		__PR((char *name));
+
+/*
+ * A chdir() implementation that is able to deal with ENAMETOOLONG.
+ */
+LOCAL int
+lchdir(path)
+	char	*path;
+{
+	int	ret = chdir(path);
+#if	defined(ENAMETOOLONG)
+	char	*p;
+	char	*p2;
+
+	if (ret >= 0 || errno != ENAMETOOLONG)
+		return (ret);
+
+	for (p = path; *p; ) {
+		if ((p2 =  strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		if ((ret = chdir(p)) < 0) {
+			*p2 = '/';
+			break;
+		}
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		p = p2;
+	}
+#endif	/* defined(ENAMETOOLONG) */
+	return (ret);
+}
 
 LOCAL void
 push_dir(name)
@@ -95,13 +127,19 @@ pop_dir(offset)
 	return (name);
 }
 
+#define	MAXPN	MAXPATHNAME
+#if	MAXPN < 8192
+#undef	MAXPN
+#define	MAXPN	8192
+#endif
+
 LOCAL void
 init_dirs()
 {
-	char	wd[MAXPATHNAME + 1];
+	char	wd[MAXPN + 1];
 	char	*c_wd = wd;
 
-	if (getcwd(c_wd, MAXPATHNAME) == NULL) {
+	if (getcwd(c_wd, MAXPN) == NULL) {
 		if ((c_wd = getcurenv(cwdname)) == NULL)
 			c_wd = getcurenv(homename);
 	} else {
@@ -311,7 +349,7 @@ changewd(std, newdir, cdenv, locklist, flg)
 
 	if (locklist && higher_dir(newdir, cdenv))
 		return (EACCES);
-	ret = chdir(newdir) < 0 ? geterrno():0;
+	ret = lchdir(newdir) < 0 ? geterrno():0;
 	if (!ret) {
 		pwd_done = FALSE;
 		full = abs_path(newdir);
