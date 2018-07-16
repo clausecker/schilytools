@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.95 18/06/21 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.c	1.98 18/07/15 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.95 18/06/21 Copyright 1993-2018 J. Schilling";
+	"@(#)diff.c	1.98 18/07/15 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -634,6 +634,8 @@ dirdiffs(f, info)
 		int	dlen = 0;
 		int	alen = 0;
 		BOOL	diffs = FALSE;
+		DIR	*dirp;
+		int	err;
 
 	/*
 	 * Old archives had only one nul at the end
@@ -647,10 +649,18 @@ dirdiffs(f, info)
 		info->f_dir[i-1] = '\0';	/* Kill '\n' */
 
 	ep1 = sortdir(info->f_dir, &ents1);	/* from archive */
-	dp2 = fetchdir(info->f_name, &ents2, 0, NULL);
+	dirp = lopendir(info->f_name);
+	if (dirp == NULL) {
+		dp2 = NULL;
+		err = geterrno();
+	} else {
+		dp2 = dfetchdir(dirp, info->f_name, &ents2, 0, NULL);
+		err = geterrno();
+		closedir(dirp);
+	}
 	if (dp2 == NULL) {
 		diffs = TRUE;
-		errmsg("Cannot read dir '%s'.\n", info->f_name);
+		errmsgno(err, "Cannot read dir '%s'.\n", info->f_name);
 		goto no_dircmp;
 	}
 	ep2 = sortdir(dp2, &ents2);		/* from disk */
@@ -743,7 +753,7 @@ cmp_file(info)
 #endif
 	}
 
-	if ((f = fileopen(info->f_name, "rub")) == (FILE *)NULL) {
+	if ((f = lfilemopen(info->f_name, "rub", S_IRWALL)) == (FILE *)NULL) {
 		if (!errhidden(E_OPEN, info->f_name)) {
 			if (!errwarnonly(E_OPEN, info->f_name))
 				xstats.s_openerrs++;

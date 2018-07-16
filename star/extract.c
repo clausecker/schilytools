@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.153 18/06/21 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.155 18/07/15 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.153 18/06/21 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.155 18/07/15 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -759,9 +759,9 @@ _create_dirs(name)
 	if (my_uid != ROOT_UID)
 		mode |= S_IRWXU;	/* Make sure we will be able write */
 
-	if (mkdir(name, mode) < 0) {
+	if (lmkdir(name, mode) < 0) {
 		if (create_dirs(name) &&
-		    mkdir(name, mode) >= 0) {
+		    lmkdir(name, mode) >= 0) {
 			_dir_setownwer(name);
 			if (mode != mode_mask)
 				sdirmode(name, mode_mask); /* Push umask */
@@ -799,7 +799,7 @@ _dir_setownwer(name)
 	if (dir_gid != _BAD_GID)
 		dinfo.f_gid = dir_gid;
 
-	chown(name, dinfo.f_uid, dinfo.f_gid);
+	lchownat(name, dinfo.f_uid, dinfo.f_gid, 0);
 }
 
 EXPORT BOOL
@@ -827,7 +827,7 @@ create_dirs(name)
 		return (TRUE);
 	}
 	*dp = '\0';
-	if (access(name, F_OK) < 0) {
+	if (laccess(name, F_OK) < 0) {
 		if (_create_dirs(name)) {
 			*dp = '/';
 			return (TRUE);
@@ -908,12 +908,12 @@ make_dir(info)
 	if (create_dirs(info->f_name)) {
 		if (_getinfo(info->f_name, &dinfo) && is_dir(&dinfo))
 			return (TRUE);
-		if (mkdir(info->f_name, mode) >= 0)
+		if (lmkdir(info->f_name, mode) >= 0)
 			return (TRUE);
 		err = geterrno();
 		if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 				remove_file(info->f_name, FALSE)) {
-			if (mkdir(info->f_name, mode) >= 0)
+			if (lmkdir(info->f_name, mode) >= 0)
 				return (TRUE);
 		}
 	}
@@ -984,7 +984,7 @@ make_link(info)
 			return (FALSE);
 		name = xname;
 	}
-	if (link(info->f_lname, name) >= 0)
+	if (llink(info->f_lname, name) >= 0)
 		goto ok;
 	err = geterrno();
 	if (info->f_rsize > 0 && is_enoent(err))
@@ -998,19 +998,19 @@ make_link(info)
 		oldflags = linfo.f_fflags;
 		linfo.f_fflags = 0L;
 		set_fflags(&linfo);
-		if (link(info->f_lname, name) >= 0)
+		if (llink(info->f_lname, name) >= 0)
 			goto restore_flags;
 		err = geterrno();
 	}
 #endif
 	if (create_dirs(info->f_name)) {
-		if (link(info->f_lname, name) >= 0)
+		if (llink(info->f_lname, name) >= 0)
 			goto restore_flags;
 		err = geterrno();
 	}
 	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
-		if (link(info->f_lname, name) >= 0)
+		if (llink(info->f_lname, name) >= 0)
 			goto restore_flags;
 	}
 	if (!errhidden(E_OPEN, info->f_name)) {
@@ -1330,6 +1330,7 @@ _make_dcopy(info, do_symlink, retp, eflags)
 {
 	char	nbuf[PATH_MAX+1];
 	char	*dir = info->f_lname;
+	DIR	*dirp;
 	char	*dp;
 	int	nents;
 	int	ret = TRUE;
@@ -1362,8 +1363,14 @@ _make_dcopy(info, do_symlink, retp, eflags)
 		}
 	}
 
-	if ((dp = fetchdir(dir, &nents, NULL, NULL)) == NULL)
+	dirp = lopendir(dir);
+	if (dirp == NULL)
+		return (FALSE);		
+	if ((dp = dfetchdir(dirp, dir, &nents, NULL, NULL)) == NULL) {
+		closedir(dirp);
 		return (FALSE);
+	}
+	closedir(dirp);
 
 	if (!_getinfo(info->f_name, &ninfo)) {
 		_getinfo(dir, &ninfo);
@@ -1479,13 +1486,13 @@ copy_file(from, to, do_symlink, eflags)
 	}
 
 rretry:
-	if ((fin = fileopen(from, "rub")) == 0) {
+	if ((fin = lfilemopen(from, "rub", S_IREAD|S_IWRITE)) == 0) {
 		if (geterrno() == EINTR)
 			goto rretry;
 		errmsg("Cannot open '%s'.\n", from);
 	} else {
 wretry:
-		if ((fout = fileopen(to, "wtcub")) == 0) {
+		if ((fout = lfilemopen(to, "wtcub", S_IREAD|S_IWRITE)) == 0) {
 			if (geterrno() == EINTR)
 				goto wretry;
 #ifdef	__really__
@@ -1523,17 +1530,17 @@ make_fifo(info)
 	}
 	mode = osmode(info->f_mode);
 	mode &= mode_mask;
-	if (mkfifo(name, mode) >= 0)
+	if (lmkfifo(name, mode) >= 0)
 		goto ok;
 	err = geterrno();
 	if (create_dirs(info->f_name)) {
-		if (mkfifo(name, mode) >= 0)
+		if (lmkfifo(name, mode) >= 0)
 			goto ok;
 		err = geterrno();
 	}
 	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
-		if (mkfifo(name, mode) >= 0)
+		if (lmkfifo(name, mode) >= 0)
 			goto ok;
 	}
 	if (!errhidden(E_OPEN, info->f_name)) {
@@ -1589,17 +1596,17 @@ make_special(info)
 	mode &= mode_mask;
 	mode |= info->f_type;	/* Add file type bits */
 	dev = info->f_rdev;
-	if (mknod(name, mode, dev) >= 0)
+	if (lmknod(name, mode, dev) >= 0)
 		goto ok;
 	err = geterrno();
 	if (create_dirs(info->f_name)) {
-		if (mknod(name, mode, dev) >= 0)
+		if (lmknod(name, mode, dev) >= 0)
 			goto ok;
 		err = geterrno();
 	}
 	if ((err == EACCES || is_eexist(err) || is_eloop(err)) &&
 			remove_file(name, FALSE)) {
-		if (mknod(name, mode, dev) >= 0)
+		if (lmknod(name, mode, dev) >= 0)
 			goto ok;
 	}
 	if (!errhidden(E_OPEN, info->f_name)) {
@@ -1656,7 +1663,7 @@ file_tmpname(info, xname)
 	}
 	strcpy(dp, "XXXXXX");
 	seterrno(0);
-	mktemp(xname);
+	lmktemp(xname);
 	if (xname[0] == '\0') {
 		errmsg("Cannot make temporary name for '%s'.\n",
 				info->f_name);
@@ -1672,7 +1679,7 @@ file_open(info, name)
 {
 	FILE	*f;
 
-	while ((f = filemopen(name, "wctub",
+	while ((f = lfilemopen(name, "wctub",
 				osmode(info->f_mode) & mode_mask)) == NULL &&
 				geterrno() == EINTR)
 		;
@@ -1697,7 +1704,7 @@ install_rename(info, xname)
 	if (xname[0] == '\0')
 		return (TRUE);
 
-	if (rename(xname, info->f_name) >= 0)
+	if (lrename(xname, info->f_name) >= 0)
 		return (TRUE);
 	err = geterrno();
 	/*
@@ -1709,7 +1716,7 @@ install_rename(info, xname)
 		force_remove = TRUE;
 	if ((err == EACCES || is_eexist(err) || err == EISDIR || is_eloop(err)) &&
 					remove_file(info->f_name, FALSE)) {
-		if (rename(xname, info->f_name) >= 0) {
+		if (lrename(xname, info->f_name) >= 0) {
 			force_remove = oforce_remove;
 			return (TRUE);
 		}

@@ -1,8 +1,8 @@
-/* @(#)test.c	1.37 18/07/02 Copyright 1986,1995-2018 J. Schilling */
+/* @(#)test.c	1.40 18/07/15 Copyright 1986,1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.37 18/07/02 Copyright 1986,1995-2018 J. Schilling";
+	"@(#)test.c	1.40 18/07/15 Copyright 1986,1995-2018 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
@@ -538,9 +538,7 @@ lstatat(name, buf, flag)
 {
 #ifdef	HAVE_FCHDIR
 	char	*p;
-	char	*p2;
 	int	fd;
-	int	dfd;
 	int	err;
 #endif
 	int	ret;
@@ -554,31 +552,7 @@ lstatat(name, buf, flag)
 	if (ret >= 0)
 		return (ret);
 
-	p = name;
-	fd = AT_FDCWD;
-	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
-			*p2 = '\0';
-		else
-			break;
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
-			err = geterrno();
-
-			close(fd);
-			if (err == EMFILE)
-				seterrno(err);
-			else
-				seterrno(ENAMETOOLONG);
-			*p2 = '/';
-			return (dfd);
-		}
-		close(fd);
-		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
-		p = p2;
-	}
+	fd = bsh_hop_dirs(name, &p);
 	ret = fstatat(fd, p, buf, flag);
 	err = geterrno();
 	close(fd);

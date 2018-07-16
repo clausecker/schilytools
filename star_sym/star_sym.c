@@ -1,8 +1,8 @@
-/* @(#)star_sym.c	1.19 18/06/17 Copyright 2005-2018 J. Schilling */
+/* @(#)star_sym.c	1.20 18/07/15 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.19 18/06/17 Copyright 2005-2018 J. Schilling";
+	"@(#)star_sym.c	1.20 18/07/15 Copyright 2005-2018 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -93,7 +93,7 @@ _getinfo(name, info)
 {
 	struct stat sb;
 
-	if (lstat(name, &sb) < 0)
+	if (lstatat(name, &sb, AT_SYMLINK_NOFOLLOW) < 0)
 		return (FALSE);
 
 	info->f_name = name;
@@ -325,7 +325,7 @@ walkfunc(nm, fs, type, state)
 		f = open(".", O_SEARCH|O_DIRECTORY);
 #endif
 		walkhome(state);
-		lstat(name, &sb);
+		lstatat(name, &sb, AT_SYMLINK_NOFOLLOW);
 #ifndef	HAVE_FCHDIR
 		chdir(cwd);
 #else

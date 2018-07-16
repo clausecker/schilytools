@@ -1,8 +1,8 @@
-/* @(#)remove.c	1.57 18/06/17 Copyright 1985, 1991-2018 J. Schilling */
+/* @(#)remove.c	1.58 18/07/15 Copyright 1985, 1991-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.57 18/06/17 Copyright 1985, 1991-2018 J. Schilling";
+	"@(#)remove.c	1.58 18/07/15 Copyright 1985, 1991-2018 J. Schilling";
 #endif
 /*
  *	remove files an file trees
@@ -25,6 +25,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
+#include <schily/fcntl.h>	/* Wegen AT_REMOVEDIR */
 #include "star.h"
 #include "table.h"
 #include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
@@ -98,10 +99,10 @@ _remove_file(name, isfirst, depth)
 		/*
 		 * only unlink non directories or empty directories
 		 */
-		if (rmdir(name) < 0) {
+		if (lunlinkat(name, AT_REMOVEDIR) < 0) {	/* rmdir() */
 			err = geterrno();
 			if (err == ENOTDIR) {
-				if (unlink(name) < 0) {
+				if (lunlinkat(name, 0) < 0) {
 					err = geterrno();
 #ifdef	RM_DEBUG
 					errmsg("rmdir: Not a dir but cannot unlink file.\n");
@@ -177,7 +178,7 @@ remove_tree(name, isfirst, depth)
 	char		xn[PATH_MAX];	/* XXX A bad idea for a final solution */
 	char		*p;
 
-	if ((d = opendir(name)) == NULL) {
+	if ((d = lopendir(name)) == NULL) {
 		return (FALSE);
 	}
 	depth--;
@@ -199,7 +200,7 @@ remove_tree(name, isfirst, depth)
 		}
 		if (!_remove_file(xn, isfirst, depth))
 			ret = FALSE;
-		if (depth <= 0 && (d = opendir(name)) == NULL) {
+		if (depth <= 0 && (d = lopendir(name)) == NULL) {
 			return (FALSE);
 		}
 	}
@@ -209,7 +210,7 @@ remove_tree(name, isfirst, depth)
 	if (ret == FALSE)
 		return (ret);
 
-	if (rmdir(name) >= 0)
+	if (lunlinkat(name, AT_REMOVEDIR) >= 0)	/* rmdir() */
 		return (ret);
 
 	errmsg("Directory '%s' not removed.\n", name);

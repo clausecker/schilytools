@@ -1,8 +1,8 @@
-/* @(#)dirs.c	1.32 18/06/29 Copyright 1984-2018 J. Schilling */
+/* @(#)dirs.c	1.33 18/07/14 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirs.c	1.32 18/06/29 Copyright 1984-2018 J. Schilling";
+	"@(#)dirs.c	1.33 18/07/14 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Directory routines
@@ -80,7 +80,14 @@ lchdir(path)
 	if (ret >= 0 || errno != ENAMETOOLONG)
 		return (ret);
 
-	for (p = path; *p; ) {
+	p = path;
+	if (*p == '/') {
+		if ((ret = chdir("/")) < 0)
+			return (ret);
+		while (*p == '/')
+			p++;
+	}
+	while (*p) {
 		if ((p2 =  strchr(p, '/')) != NULL)
 			*p2 = '\0';
 		if ((ret = chdir(p)) < 0) {
@@ -90,6 +97,8 @@ lchdir(path)
 		if (p2 == NULL)
 			break;
 		*p2++ = '/';
+		while (*p2 == '/')
+			p2++;
 		p = p2;
 	}
 #endif	/* defined(ENAMETOOLONG) */

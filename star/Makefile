@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.34 18/06/13 
+#ident @(#)Makefile	1.36 18/07/14 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -33,11 +33,14 @@ CPPOPTS +=	-DCOPY_LINKS_DELAYED	# Delayed copy of hard/symlinks
 CPPOPTS +=	-DSTAR_FAT		# One binary for all CLI's
 CPPOPTS +=	-DUSE_ICONV		# Use iconv() for pax filenames
 CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		list.c extract.c create.c append.c diff.c restore.c \
-		remove.c star_unix.c acl_unix.c acltext.c fflags.c \
+		remove.c star_unix.c lpath_unix.c \
+		acl_unix.c acltext.c fflags.c \
 		buffer.c dirtime.c lhash.c \
 		hole.c longnames.c \
 		movearch.c table.c props.c \

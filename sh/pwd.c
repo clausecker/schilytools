@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)pwd.c	1.31 18/07/02 2008-2018 J. Schilling
+ * @(#)pwd.c	1.36 18/07/14 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.31 18/07/02 2008-2018 J. Schilling";
+	"@(#)pwd.c	1.36 18/07/14 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -117,7 +117,14 @@ lchdir(path)
 	if (ret >= 0 || errno != ENAMETOOLONG)
 		return (ret);
 
-	for (p = path; *p; ) {
+	p = path;
+	if (*p == SLASH) {
+		if ((ret = chdir("/")) < 0)
+			return (ret);
+		while (*p == SLASH)
+			p++;
+	}
+	while (*p) {
 		if ((p2 =  strchr(p, SLASH)) != NULL)
 			*p2 = '\0';
 		if ((ret = chdir(p)) < 0) {
@@ -127,6 +134,8 @@ lchdir(path)
 		if (p2 == NULL)
 			break;
 		*p2++ = SLASH;
+		while (*p2 == SLASH)
+			p2++;
 		p = p2;
 	}
 #endif	/* defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG) */
@@ -166,6 +175,7 @@ lgetcwd()
 		char	*r;
 	size_t		len = PATH_MAX;
 #if	defined(DO_CHDIR_LONG)
+#define	LWD_RETRY_MAX	8			/* stops at 128 * PATH_MAX */
 	int		i = 0;
 #endif
 
@@ -178,7 +188,7 @@ retry:
 
 		r = getcwd((char *)dir, (brkend - dir)-1);
 #if	defined(DO_CHDIR_LONG)
-		if (++i >= 8)		/* stops at 128 * PATH_MAX */
+		if (++i >= LWD_RETRY_MAX)	/* stops at 128 * PATH_MAX */
 			break;
 		len *= 2;
 	} while (r == NULL && errno == ERANGE);
@@ -187,7 +197,7 @@ retry:
 #endif
 
 #if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
-	if (r == NULL && errno == ERANGE && i == 10) {
+	if (r == NULL && errno == ERANGE && i == LWD_RETRY_MAX) {
 		/*
 		 * Work around a Solaris kernel bug.
 		 */
@@ -198,42 +208,36 @@ retry:
 	return ((unsigned char *)r);
 }
 
-/*
- * A stat() implementation that is able to deal with ENAMETOOLONG.
- */
+#if	defined(HAVE_FCHDIR) && (defined(DO_EXPAND_LONG) || defined(DO_CHDIR_LONG))
 int
-lstatat(name, buf, flag)
-	char		*name;
-	struct stat	*buf;
-	int		flag;
+sh_hop_dirs(name, np)
+	char	*name;
+	char	**np;
 {
-#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
 	char	*p;
 	char	*p2;
 	int	fd;
 	int	dfd;
 	int	err;
-#endif
-	int	ret;
-
-	if ((ret = fstatat(AT_FDCWD, name, buf, flag)) < 0 &&
-	    errno != ENAMETOOLONG) {
-		return (ret);
-	}
-
-#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
-	if (ret >= 0)
-		return (ret);
 
 	p = name;
 	fd = AT_FDCWD;
+	if (*p == '/') {
+		fd = openat(fd, "/", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		while (*p == '/')
+			p++;
+	}
 	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
+		if ((p2 = strchr(p, '/')) != NULL) {
+			if (p2[1] == '\0')
+				break;
 			*p2 = '\0';
-		else
+		} else {
 			break;
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+		}
+		if ((dfd = openat(fd, p, O_SEARCH|O_DIRECTORY|O_NDELAY)) < 0) {
 			err = errno;
+
 			close(fd);
 			if (err == EMFILE)
 				errno = err;
@@ -247,8 +251,41 @@ lstatat(name, buf, flag)
 		if (p2 == NULL)
 			break;
 		*p2++ = '/';
+		while (*p2 == '/')
+			p2++;
 		p = p2;
 	}
+	*np = p;
+	return (fd);
+}
+#endif
+
+/*
+ * A stat() implementation that is able to deal with ENAMETOOLONG.
+ */
+int
+lstatat(name, buf, flag)
+	char		*name;
+	struct stat	*buf;
+	int		flag;
+{
+#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
+	char	*p;
+	int	fd;
+	int	err;
+#endif
+	int	ret;
+
+	if ((ret = fstatat(AT_FDCWD, name, buf, flag)) < 0 &&
+	    errno != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#if	defined(HAVE_FCHDIR) && defined(ENAMETOOLONG) && defined(DO_CHDIR_LONG)
+	if (ret >= 0)
+		return (ret);
+
+	fd = sh_hop_dirs(name, &p);
 	ret = fstatat(fd, p, buf, flag);
 	err = errno;
 	close(fd);		/* Don't care about AT_FDCWD, it is negative */
@@ -621,9 +658,7 @@ cwdprint(cdflg)
 				Error(longpwd);
 			return;
 		}
-		if (didpwd == FALSE) {
-			didpwd = TRUE;
-		}
+		didpwd = TRUE;
 	}
 #else
 	cwd2(cdflg);

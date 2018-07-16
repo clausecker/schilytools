@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.291 18/03/12 Copyright 1998-2018 J. Schilling
+dnl @(#)configure.in	1.292 18/07/12 Copyright 1998-2018 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.291)dnl
+AC_REVISION(1.292)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -125,6 +125,7 @@ AC_CHECK_HEADERS(windows.h)
 dnl Check for moving Linux targets caused by missing concepts
 AC_CHECK_HEADERS(ext2fs/ext2_fs.h)
 dnl Check for Linux Extended File Attributes definitions
+AC_CHECK_HEADERS(sys/xattr.h)
 AC_CHECK_HEADERS(attr/xattr.h)
 dnl Check for Mas OS X ac, av, env delarations
 AC_CHECK_HEADERS(crt_externs.h)
@@ -943,9 +944,10 @@ if test "$ac_cv_header_sys_acl_h" = yes; then
 
 fi
 
-if test "$ac_cv_header_attr_xattr_h" = yes; then
+if test "$ac_cv_header_attr_xattr_h" = yes || test "$ac_cv_header_sys_xattr_h" = yes; then
   AC_CHECKING(for Linux flavor Extended Attribute support)
-  AC_CHECK_LIB(attr, getxattr, lib_attr="-lattr")
+  AC_CHECK_LIB(c, getxattr, lib_rt="",
+	[AC_CHECK_LIB(attr, getxattr, lib_attr="-lattr")])
   ac_save_LIBS="$LIBS"
   LIBS="$LIBS $lib_attr"
   AC_CHECK_FUNCS(getxattr setxattr listxattr lgetxattr lsetxattr llistxattr)

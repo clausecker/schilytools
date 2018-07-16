@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.101 18/04/26 Copyright 1982, 1984-2018 J. Schilling */
+/* @(#)inputc.c	1.102 18/07/02 Copyright 1982, 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.101 18/04/26 Copyright 1982, 1984-2018 J. Schilling";
+	"@(#)inputc.c	1.102 18/07/02 Copyright 1982, 1984-2018 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -259,6 +259,7 @@ EXPORT	HISTPTR	_search_history	__PR((int flg,
 					int first, char *pat));
 EXPORT	int	search_history	__PR((int flg,
 					int first, char *pat));
+LOCAL	char	*get_histfname	__PR((int flag));
 EXPORT	void	save_history	__PR((int flg));
 EXPORT	void	read_init_history	__PR((void));
 EXPORT	void	readhistory	__PR((MYFILE *f));
@@ -2682,6 +2683,32 @@ remove_history(flg, first, pat)
 	return (0);
 }
 
+#define	HF_READ	0
+#define	HF_SAVE	1
+
+LOCAL char *
+get_histfname(flag)
+	int	flag;
+{
+	if (hfilename)
+		free(hfilename);
+	/*
+	 * First check for "HISTFILE" as this is required by POSIX.
+	 */
+	if ((hfilename = getcurenv(histfilename)) != NULL) {
+		hfilename = concat(hfilename, (char *)NULL);
+	} else {
+		/*
+		 * Our historic name is "$HOME/.history", use it whenever
+		 * "HISTFILE" is not present.
+		 */
+		hfilename = concat(inithome, slash, historyname, (char *)NULL);
+		if (flag == HF_SAVE && !ev_eql(savehistname, on))
+			return (NULL);
+	}
+	return (hfilename);
+}
+
 /*
  * Save the history by writing to ~/.history
  */
@@ -2690,10 +2717,14 @@ save_history(flg)
 	int flg;
 {
 	MYFILE	*f;
+	char	*hfname;
 
 	if (no_lines == 0)	/* don't damage history File */
 		return;
-	f = fileopen(hfilename, for_wct);
+	hfname = get_histfname(HF_SAVE);
+	if (hfname == NULL)
+		return;
+	f = fileopen(hfname, for_wct);
 	if (f) {
 		put_history(f, flg | HI_ANSI_NL, 0, 0, NULL);
 		fclose(f);
@@ -2708,22 +2739,12 @@ EXPORT void
 read_init_history()
 {
 	MYFILE	*f;
+	char	*hfname;
 
-	/*
-	 * First check for "HISTFILE" as this is required by POSIX.
-	 */
-	if ((hfilename = getcurenv(histfilename)) != NULL) {
-		hfilename = concat(hfilename, (char *)NULL);
-	} else {
-		/*
-		 * Our historic name is "$HOME/.history", use it whenever
-		 * "HISTFILE" is not present.
-		 */
-		hfilename = concat(inithome, slash, historyname, (char *)NULL);
-	}
-	if (hfilename == NULL)
+	hfname = get_histfname(HF_READ);
+	if (hfname == NULL)
 		return;
-	f = fileopen(hfilename, for_read);
+	f = fileopen(hfname, for_read);
 	if (f) {
 		readhistory(f);
 		fclose(f);

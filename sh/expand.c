@@ -36,11 +36,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)expand.c	1.23 18/07/01 2008-2018 J. Schilling
+ * @(#)expand.c	1.25 18/07/14 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.23 18/07/01 2008-2018 J. Schilling";
+	"@(#)expand.c	1.25 18/07/14 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -327,7 +327,6 @@ lopendir(name)
 {
 #if	defined(HAVE_FCHDIR) && defined(DO_EXPAND_LONG)
 	char	*p;
-	char	*p2;
 	int	fd;
 	int	dfd;
 #endif
@@ -340,31 +339,13 @@ lopendir(name)
 	if (ret)
 		return (ret);
 
-	p = name;
-	fd = AT_FDCWD;
-	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
-			*p2 = '\0';
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
-			int err = errno;
-
-			close(fd);
-			if (err == EMFILE)
-				errno = err;
-			else
-				errno = ENAMETOOLONG;
-			if (p2)
-				*p2 = '/';
-			return ((DIR *)NULL);
-		}
+	fd = sh_hop_dirs(name, &p);
+	if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
 		close(fd);
-		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
-		p = p2;
+		return ((DIR *)NULL);
 	}
-	ret = fdopendir(fd);
+	close(fd);
+	ret = fdopendir(dfd);
 #endif
 	return (ret);
 }

@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.95 18/06/06 Copyright 1988-2018 J. Schilling */
+/* @(#)builtin.c	1.96 18/07/02 Copyright 1988-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.95 18/06/06 Copyright 1988-2018 J. Schilling";
+	"@(#)builtin.c	1.96 18/07/02 Copyright 1988-2018 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1664,7 +1664,7 @@ blogin(vp, std, flag)
 {
 	if (!not_loginsh(std)) {
 #ifdef	INTERACTIVE
-		if (!no_histflg && ev_eql(savehistname, on))
+		if (!no_histflg)
 			save_history(HI_NOINTR);
 #endif	/* INTERACTIVE */
 		my_exec(loginname, 0, vp, std);

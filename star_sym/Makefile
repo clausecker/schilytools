@@ -1,4 +1,4 @@
-#ident @(#)star_sym.mk	1.10 10/05/13 
+#ident @(#)star_sym.mk	1.11 18/07/14 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -15,7 +15,7 @@ CPPOPTS +=	-D__STAR__
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 
-CFILES=		star_sym.c restore.c dumpdate.c
+CFILES=		star_sym.c restore.c dumpdate.c lpath_unix.c
 LIBS=		-lfind -lschily $(LIB_ACL_TEST) $(LIB_INTL)
 XMK_FILE=	star_sym.mk1
 

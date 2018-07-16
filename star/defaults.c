@@ -1,8 +1,8 @@
-/* @(#)defaults.c	1.16 18/06/16 Copyright 1998-2018 J. Schilling */
+/* @(#)defaults.c	1.17 18/07/10 Copyright 1998-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defaults.c	1.16 18/06/16 Copyright 1998-2018 J. Schilling";
+	"@(#)defaults.c	1.17 18/07/10 Copyright 1998-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2018 J. Schilling
@@ -54,6 +54,8 @@ EXPORT char *
 get_stardefaults(name)
 	char	*name;
 {
+	char	*ret;
+
 	if (name)
 		return (name);
 	/*
@@ -68,7 +70,14 @@ get_stardefaults(name)
 	 * don't contribute work and don't give support, they are causing extra
 	 * work for me and this way slow down the star development.
 	 */
-	return ("/etc/default/star");
+#if defined(PROTOTYPES) && defined(INS_RBASE)
+	ret = INS_RBASE "/etc/default/star";
+	while (ret[0] == '/' && ret[1] == '/')
+		ret++;
+#else
+	ret = "/etc/default/star";
+#endif
+	return (ret);
 }
 
 LOCAL int

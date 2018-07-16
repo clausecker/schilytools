@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)msg.c	1.76 18/05/20 2008-2018 J. Schilling
+ * @(#)msg.c	1.77 18/07/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.76 18/05/20 2008-2018 J. Schilling";
+	"@(#)msg.c	1.77 18/07/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -143,9 +143,15 @@ const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
 #ifdef	DO_SYSALIAS
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 const char	aliasuse[]	=
 		"alias [-a] [-e] [-g] [-l] [-p] [-r] [--raw] [name[=value]...]";
 const char	unaliasuse[]	= "unalias [-a] [-g] [-l] [-p] [name...]";
+#else
+const char	aliasuse[]	=
+		"alias [-a] [-e] [-p] [--raw] [name[=value]...]";
+const char	unaliasuse[]	= "unalias [-a] [-p] [name...]";
+#endif
 #endif
 #ifdef	DO_SYSREPEAT
 const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";

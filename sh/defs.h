@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.192 18/07/01 2008-2018 J. Schilling
+ * @(#)defs.h	1.193 18/07/14 2008-2018 J. Schilling
  */
 
 /*
@@ -744,6 +744,7 @@ extern	unsigned char *endb	__PR((void));
  * pwd.c
  */
 extern	int	lchdir		__PR((char *path));
+extern	int	sh_hop_dirs	__PR((char *name, char **np));
 extern	int	lstatat		__PR((char *name, struct stat *buf, int flag));
 extern	void	cwd		__PR((unsigned char *dir,
 					unsigned char *cwdbase));

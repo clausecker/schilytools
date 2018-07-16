@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.68 18/06/16 Copyright 2003-2018 J. Schilling */
+/* @(#)restore.c	1.71 18/07/15 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.68 18/06/16 Copyright 2003-2018 J. Schilling";
+	"@(#)restore.c	1.71 18/07/15 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -46,6 +46,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
+#include <schily/fcntl.h>	/* Wegen AT_REMOVEDIR */
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include "star.h"
@@ -660,13 +661,14 @@ sym_dirprepare(info, idir)
 	ino_t	*ino2;
 	ino_t	*oino2;
 	char	*slashp = NULL;
+	DIR	*dirp;
 
 	if (info->f_dir == NULL) {
 		/*
 		 * Most likely a mount point
 		 */
 		if (info->f_dev == curfs) {
-			unlink(sym_lock);
+			lunlinkat(sym_lock, 0);
 			comerrno(EX_BAD, "Archive contains directory '%s' without name list\n", info->f_name);
 		}
 		return (idir);
@@ -707,7 +709,7 @@ sym_dirprepare(info, idir)
 
 		imp = idir;
 		if (geterrno() != ENOENT) {
-			if (unlink(info->f_name) < 0)
+			if (lunlinkat(info->f_name, 0) < 0)
 				comerr("Cannot unlink '%s'.\n", info->f_name);
 		}
 #ifdef	MKD_DEBUG
@@ -755,7 +757,14 @@ sym_dirprepare(info, idir)
 	}
 #endif
 
-	dp2 = fetchdir(info->f_name, &ents2, 0, &ino2);
+	ents2 = 0;
+	dirp = lopendir(info->f_name);
+	if (dirp == NULL) {
+		return (idir);
+	} else {
+		dp2 = dfetchdir(dirp, info->f_name, &ents2, 0, &ino2);
+		closedir(dirp);
+	}
 	if ((oino2 = ___malloc(ents2 * sizeof (ino_t), "sym_dirprepare oino2")) == NULL) {
 		return (idir);
 	}
@@ -895,7 +904,7 @@ move2tmp(dir, name, oino, nino)
 	if (nnp) {			/* inode is already in star-tmpdir */
 		if (xdebug)
 			error("unlink(%s)\n", path);
-		if (unlink(path) < 0)
+		if (lunlinkat(path, 0) < 0)
 			comerr("Cannot unlink '%s'.\n", path);
 		purgeent(onp);
 		return;
@@ -903,7 +912,7 @@ move2tmp(dir, name, oino, nino)
 
 	if (xdebug)
 		error("rename(%s, %s)\n", path, tpath);
-	if (rename(path, tpath) < 0)
+	if (lrename(path, tpath) < 0)
 		comerr("Cannot rename '%s' to '%s'.\n", path, tpath);
 
 #ifdef	PADD_NODE_DEBUG
@@ -959,7 +968,7 @@ move2dir(dir, name, oino)
 						sym_tmpdir, onp->i_name);
 		if (xdebug)
 			error("rename(%s, %s)\n", tpath, path);
-		if (rename(tpath, path) < 0) {
+		if (lrename(tpath, path) < 0) {
 			errmsg("Cannot rename '%s' to '%s'.\n", tpath, path);
 			/* XXX set error code */
 			return;
@@ -1020,7 +1029,7 @@ move2dir(dir, name, oino)
 	if ((onp->i_flags & (I_DIR|I_DID_RENAME)) == I_DIR) {
 		if (xdebug)
 			error("rename(%s, %s)\n", tpath, path);
-		if (rename(tpath, path) < 0) {
+		if (lrename(tpath, path) < 0) {
 			/* XXX error code */
 			errmsg("Cannot rename(%s, %s)\n", tpath, path);
 		} else {
@@ -1048,7 +1057,7 @@ move2dir(dir, name, oino)
 	if (xdebug)
 		error("link(%s, %s)\n", tpath, path);
 #ifdef	HAVE_LINK
-	if (link(tpath, path) < 0) {
+	if (llink(tpath, path) < 0) {
 #else
 	if (1) {
 #ifdef	ENOSYS
@@ -1284,9 +1293,9 @@ static	char	td[] = "star-tmpdir/.";
 #define	PERM_BITS	(S_IRWXU|S_IRWXG|S_IRWXO)	/* u/g/o basic perm */
 
 	if (name)
-		f = fileopen(name, "r");
+		f = lfilemopen(name, "r", S_IRUSR|S_IWUSR);
 	else
-		f = fileopen(sym_symtable, "r");
+		f = lfilemopen(sym_symtable, "r", S_IRUSR|S_IWUSR);
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 	if (_getinfo(sym_symtable, &finfo) && !is_file(&finfo)) {
@@ -1443,10 +1452,11 @@ sym_initsym()
 	imap_t	*imp;
 	char	*dp;
 	int	ents;
+	DIR	*dirp;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 	if (!_getinfo(sym_tmpdir, &finfo)) {
-		unlink(sym_lock);
+		lunlinkat(sym_lock, 0);
 		comerr("Cannot stat '%s'\n", sym_tmpdir);
 	}
 
@@ -1483,7 +1493,13 @@ sym_initsym()
 			tmpnotempty();
 	}
 	ents = 0;
-	dp = fetchdir(sym_tmpdir, &ents, 0, (ino_t **)0);
+	dirp = lopendir(sym_tmpdir);
+	if (dirp) {
+		dp = dfetchdir(dirp, sym_tmpdir, &ents, 0, (ino_t **)0);
+		closedir(dirp);
+	} else {
+		dp = NULL;
+	}
 	if (dp)
 		free(dp);
 	if (ents > 0)
@@ -1552,7 +1568,7 @@ sym_init(gp)
 	error("imaps: %p level %d\n", imaps, gp->dumplevel);
 #endif
 
-	f = fileopen(sym_lock, "wce");
+	f = lfilemopen(sym_lock, "wce", S_IRUSR|S_IWUSR);
 	if (f == NULL) {
 		comerr("Cannot create '%s', restore is already running.\n",
 			sym_lock);
@@ -1570,13 +1586,13 @@ sym_init(gp)
 	 */
 	if (gp->dumplevel == 0 && imaps != NULL) {
 		errmsgno(EX_BAD, "Trying to extract a level 0 dump but '%s' exists.\n", sym_symtable);
-		unlink(sym_lock);
+		lunlinkat(sym_lock, 0);
 		comerrno(EX_BAD, "Remove '%s' and try again.\n", sym_symtable);
 	}
 	if (gp->dumplevel > 0 && imaps == NULL) {
 		errmsgno(EX_BAD, "Trying to extract a level %d dump but '%s' does not exist.\n",
 				gp->dumplevel, sym_symtable);
-		unlink(sym_lock);
+		lunlinkat(sym_lock, 0);
 		comerrno(EX_BAD, "Restore the level 0 dump first and try again.\n");
 	}
 	if (gp->dumptype != DT_FULL || odtype != DT_FULL) {
@@ -1667,11 +1683,11 @@ sym_close()
 		return;
 	}
 	if (_getinfo(sym_symtable, &finfo) &&
-	    rename(sym_symtable, sym_oldsymtable) < 0) {
+	    lrename(sym_symtable, sym_oldsymtable) < 0) {
 		errmsg("Cannot rename %s to %s.\n",
 				sym_symtable, sym_oldsymtable);
 	}
-	f = filemopen(sym_symtable, "wct", S_IRUSR|S_IWUSR);
+	f = lfilemopen(sym_symtable, "wct", S_IRUSR|S_IWUSR);
 	if (f == NULL) {
 		errmsg("Cannot create '%s'.\n", sym_symtable);
 		return;
@@ -1705,7 +1721,8 @@ sym_close()
 		fillbytes((char *)&finfo, sizeof (finfo), '\0');
 		if (_getinfo(tpath, &finfo)) {
 			if (is_dir(&finfo)) {
-				if (rmdir(tpath) >= 0) {
+				/* rmdir */
+				if (lunlinkat(tpath, AT_REMOVEDIR) >= 0) {
 					purgeent(imp);
 				} else if (tmpremove) {
 					/*
@@ -1718,7 +1735,7 @@ sym_close()
 				}
 			} else {
 				if (tmpremove || finfo.f_nlink > 1) {
-					if (unlink(tpath) >= 0)
+					if (lunlinkat(tpath, 0) >= 0)
 						purgeent(imp);
 				}
 			}
@@ -1757,15 +1774,15 @@ sym_close()
 	if (fclose(f) != 0)
 		ok = FALSE;
 	if (ok) {
-		unlink(sym_oldsymtable);
+		lunlinkat(sym_oldsymtable, 0);
 	} else {
 		xstats.s_restore++;
-		if (rename(sym_oldsymtable, sym_symtable) < 0)
+		if (lrename(sym_oldsymtable, sym_symtable) < 0)
 			errmsg("Cannot rename %s to %s.\n",
 					sym_oldsymtable, sym_symtable);
 	}
 
-	unlink(sym_lock);
+	lunlinkat(sym_lock, 0);
 }
 
 LOCAL void
@@ -1773,7 +1790,7 @@ sym_dump()
 {
 	FILE	*f;
 
-	f = filemopen(sym_symdump, "wct", S_IRUSR|S_IWUSR);
+	f = lfilemopen(sym_symdump, "wct", S_IRUSR|S_IWUSR);
 	if (f == NULL) {
 		errmsg("Panic: cannot open '%s'\n", sym_symdump);
 		return;
@@ -1948,7 +1965,7 @@ force:
 LOCAL void
 useforce()
 {
-	unlink(sym_lock);
+	lunlinkat(sym_lock, 0);
 	comerrno(EX_BAD, "Use -force-restore if you want to restore anyway.\n");
 	/* NOTREACHED */
 }
@@ -2140,6 +2157,7 @@ dirdiskonly(info, odep, odp)
 		int	dlen = 0;  /* # of entries only on disk		*/
 		int	alen = 0;  /* # of entries only in arch		*/
 		BOOL	diffs = FALSE;
+		DIR	*dirp;
 
 	/*
 	 * Old archives had only one nul at the end
@@ -2153,7 +2171,13 @@ dirdiskonly(info, odep, odp)
 		info->f_dir[i-1] = '\0';	/* Kill '\n' */
 
 	ep1 = sortdir(info->f_dir, &ents1);	/* from archive */
-	dp2 = fetchdir(info->f_name, &ents2, 0, (ino_t **)0);
+	dirp = lopendir(info->f_name);
+	if (dirp) {
+		dp2 = dfetchdir(dirp, info->f_name, &ents2, 0, (ino_t **)0);
+		closedir(dirp);
+	} else {
+		dp2 = NULL;
+	}
 	if (dp2 == NULL) {
 		diffs = TRUE;
 		errmsg("Cannot read dir '%s'.\n", info->f_name);

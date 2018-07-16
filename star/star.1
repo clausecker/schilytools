@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.197 18/06/25 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.198 18/07/05 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/06/25" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/07/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -1860,11 +1860,15 @@ This is needed when
 is run on file system snapshots.
 If
 .B star
-would use the the start time with snapshots, all files that
+would use the the it's own start time with snapshots, all files that
 have been modified between the setup of the snapshot and the start
 of
 .B star
 would be missing on the backup.
+.sp
+A solution is to create the time stamp file, then to create the snapshot
+and later use the option
+.BI dumpdate= name.
 .TP
 .B \-dumpmeta
 changes the behavior of
@@ -4091,7 +4095,7 @@ To be more verbose:
 .B \(bu
 The filesystem needs to uniquely identify files by the two numbers
 .B st_dev
-(The device ID of the device containing the file) and
+(The filesystem ID or device ID of the device containing the file) and
 .B st_ino
 (The file serial number).
 If a file is renamed, these numbers need to be retained.
@@ -4107,7 +4111,9 @@ the file's last status change time.
 Both time stamps need to be dealt with as documented by
 the POSIX standard.
 Both numbers need to be a cardinal
-scalar that is expressible in a decimal number.
+scalar that is expressible in a decimal number or as a decimal number
+that counts in seconds plus another number that counts in fractions of
+a second.
 .TP
 .B \(bu
 The filesystem needs to allow to rename files
@@ -4147,6 +4153,20 @@ a complete directory sub tree is excluded (e.g. by using the
 .B pat=
 option) or if a partial backup starts at a sub directory that is not the
 root directory of the file system.
+.PP
+In case of a partial backup, it is important that no file or directory will
+ever be moved outside the scope and later move into the scope again. Moving
+files or directories outside the scope of a partial backup is detected as
+deletion and moving the files back into the scope does not make them
+appear in an incremental backup since the time stamps of files from inside
+renamed directories did not change.
+.PP
+Note that a backup must not include files that are mounted from another
+filesystem and a restore cannot be done with more than one filesystem as
+target.
+.PP
+Files in the backup tree that are hidden under a mount point cannot be
+part of the backup as long as the backup is not done from a snapshot.
 .PP
 To create a level 0 dump call:
 .PP
@@ -4190,7 +4210,7 @@ are shut down before the snapshot is set up.
 includes options that help to deal with 
 .BR "file system snapshots" .
 The following example backs up a file system on Solaris using a
-file system snapshot:
+file system snapshot from UFS:
 .PP
 .B "echo > /tmp/snapstamp"
 .sp
@@ -4245,8 +4265,10 @@ monthly full dumps take place:
 .DT
 .PP
 The level 10 dumps made between Monday and Friday accumulate all
-changes made within the week. If you don't like this, use the following
-backup schedule:
+changes made within the week, but you only need to restore the
+latest level 10 dump in order to get all changes back.
+If you don't like the size of the accumulated changes,
+use the following backup schedule:
 .PP
 .RS
 .nf
@@ -4301,7 +4323,7 @@ dump has been made on Wednesday of week 3.
 .PP
 To extract a level 0 dump call:
 .PP
-.B "cd /\fIfilestem-mount-point\fP
+.B "cd /\fIextract-filestem-mount-point\fP
 .br
 .B "star \-xpU \-restore f=\fIarchive-name\fP
 .PP
@@ -4315,7 +4337,7 @@ depend on these files.
 .PP
 To extract a level 1 (or higher) dump call:
 .PP
-.B "cd /\fIfilestem-mount-point\fP
+.B "cd /\fIextract-filestem-mount-point\fP
 .br
 .B "star \-xpU \-restore f=\fIarchive-name\fP
 .PP
@@ -4407,7 +4429,15 @@ Upon receipt of a SIGQUIT,
 prints statistics and continues with the current operation. This is 
 useful to watch the progress of the current operation.
 .SH "EXIT STATUS
-The following exit values are returned:
+The following exit values are returned. Note that the negative values are only
+available to modern shells and programs that use
+.BR waitid (2)
+on a
+.B POSIX OS
+and thus can retrieve the full 32 bits of the
+.B star
+exit code. The positive number variants are what you get when only the low
+8 bits from the exit code are available.
 .TP
 .B 0
 All files were processed successfully.

@@ -1,4 +1,4 @@
-# @(#)star.dfl	1.3 18/06/10 Copyright 2003-2018 J. Schilling
+# @(#)star.dfl	1.4 18/07/10 Copyright 2003-2018 J. Schilling
 #
 # This file is /etc/default/star
 #
@@ -22,14 +22,21 @@
 #
 # In former times, enabling fsync() for each extracted file was only a problem
 # on platforms with extremely inefficient filesystem buffer cache (e.g. Linux).
+# With UFS on Solaris, enabling fsync() for each extracted file makes tar
+# extraction approx. 10% slower. With ext4 on Linux, this makes tar extraction
+# approx. 400% slower and with btrfs on Linux it makes tar extraction approx.
+# 2000% slower.
 #
-# Now we have ZFS and ZFS implements transactional filesystem safety, but as a
-# result of it's copy on write concepts, is very expensive if we request a
-# specific state of the filesystem at a given time.
+# Now on Solaris, we have ZFS and ZFS implements transactional filesystem
+# safety, but as a result of it's copy on write concepts, it is very expensive
+# if we request a specific state of the filesystem at a given time. With ZFS
+# on Solaris, enabling fsync() for each extracted file makes tar extraction
+# approx. 400% slower.
 #
 # If you are on a platform with a fair filesystem buffer performance
 # (e.g. Solaris) and do not use ZFS, you should comment out the next statement
-# that switches off fsync() by default.
+# that switches off fsync() by default. Only by enabling fsync() for each
+# extracted file, star may tell whether a file extraction has been successful.
 #
 STAR_FSYNC=N
 

@@ -1,8 +1,8 @@
-/* @(#)dumpdate.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling */
+/* @(#)dumpdate.c	1.29 18/07/16 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling";
+	"@(#)dumpdate.c	1.29 18/07/16 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2018 J. Schilling
@@ -33,6 +33,7 @@ static	UConst char sccsid[] =
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 
+#include "star.h"
 #include "dumpdate.h"
 #include "starsubs.h"
 
@@ -106,7 +107,7 @@ initdumpdates(fname, doupdate)
 {
 	FILE	*f;
 
-	f = fileopen(fname, "r");
+	f = lfilemopen(fname, "r", S_IRWALL);
 	if (f == NULL) {
 		if (geterrno() == ENOENT) {
 			errmsg("Warning no %s.\n", fname);
@@ -114,7 +115,7 @@ initdumpdates(fname, doupdate)
 		}
 		comerr("Cannot open %s.\n", fname);
 	}
-	if (doupdate && access(fname, W_OK) < 0)
+	if (doupdate && laccess(fname, W_OK) < 0)
 		comerr("Cannot access '%s' for update\n", fname);
 
 	(void) flock(fdown(f), LOCK_SH);
@@ -158,7 +159,7 @@ writedumpdates(fname, filesys, level, dflags, date)
 	off_t	fsize;
 	off_t	fpos;
 
-	f = fileopen(fname, "rwc");
+	f = lfilemopen(fname, "rwc", S_IRWALL);
 	if (f == NULL) {
 		errmsg("Cannot open '%s'.\n", fname);
 		return;

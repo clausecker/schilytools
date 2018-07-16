@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.54 18/06/20 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.56 18/07/15 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.54 18/06/20 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.56 18/07/15 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -968,10 +968,21 @@ dopendir(name, pd)
 
 	p = nm;
 	fd = AT_FDCWD;
+	if (*p == '/') {
+		fd = openat(fd, "/", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		while (*p == '/')
+			p++;
+	}
 	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
-			*p2++ = '\0';
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
+		if ((p2 = strchr(p, '/')) != NULL) {
+			if (p2[1] == '\0')
+				p2 = NULL;
+			else
+				*p2++ = '\0';
+		}
+		if ((dfd = openat(fd, p,
+				p2 ? O_SEARCH|O_DIRECTORY|O_NDELAY :
+					O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
 			int err = geterrno();
 
 			free(nm);
@@ -986,6 +997,8 @@ dopendir(name, pd)
 		fd = dfd;
 		if (p2 == NULL)
 			break;
+		while (*p2 == '/')
+			p2++;
 		p = p2;
 	}
 	free(nm);

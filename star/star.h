@@ -1,4 +1,4 @@
-/* @(#)star.h	1.138 18/06/21 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.139 18/07/15 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -248,6 +248,7 @@ extern "C" {
 
 #define	TALLMODES	07777	/* The low 12 bits mentioned in the standard */
 
+#define	S_IRWALL	(S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH)
 
 /*
  * This is the ustar (Posix 1003.1) header.

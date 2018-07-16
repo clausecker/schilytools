@@ -1,8 +1,8 @@
-/* @(#)cpiohdr.c	1.33 18/06/16 Copyright 1994-2018 J. Schilling */
+/* @(#)cpiohdr.c	1.34 18/07/15 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.33 18/06/16 Copyright 1994-2018 J. Schilling";
+	"@(#)cpiohdr.c	1.34 18/07/15 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -585,7 +585,7 @@ cpio_cksum(name)
 	char	*name;
 {
 		char		buf[8192];
-		int		f = _fileopen(name, "rb");
+		int		f = _lfileopen(name, "rb");
 	register int		amt;
 	register char		*p;
 	register char		*ep;

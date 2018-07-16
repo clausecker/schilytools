@@ -1,8 +1,8 @@
-/* @(#)star.c	1.373 18/06/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.374 18/07/15 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.373 18/06/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.374 18/07/15 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -1023,7 +1023,7 @@ openlist()
 		check_stdin("list=");
 		listf = stdin;
 		listfile = "stdin";
-	} else if ((listf = fileopen(listfile, "r")) == (FILE *)NULL)
+	} else if ((listf = lfilemopen(listfile, "r", S_IRWALL)) == (FILE *)NULL)
 		comerr("Cannot open '%s'.\n", listfile);
 }
 
@@ -2030,7 +2030,7 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 		tty = stderr;
 #else
 #ifdef	HAVE__DEV_TTY
-		if ((tty = fileopen("/dev/tty", "r")) == (FILE *)NULL)
+		if ((tty = lfilemopen("/dev/tty", "r", S_IRWALL)) == (FILE *)NULL)
 			comerr("Cannot open '/dev/tty'.\n");
 #else
 		tty = stderr;
@@ -2472,7 +2472,7 @@ getexclude(arg, valp, pac, pav)
 	if (streql(arg, "-")) {
 		check_stdin("-X");
 		xf = stdin;
-	} else if ((xf = fileopen(arg, "r")) == (FILE *)NULL)
+	} else if ((xf = lfilemopen(arg, "r", S_IRWALL)) == (FILE *)NULL)
 		comerr("Cannot open '%s'.\n", arg);
 	hash_xbuild(xf);
 	fclose(xf);

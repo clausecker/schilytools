@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)args.c	1.89 18/06/27 2008-2018 J. Schilling
+ * @(#)args.c	1.90 18/07/04 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.89 18/06/27 2008-2018 J. Schilling";
+	"@(#)args.c	1.90 18/07/04 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -532,10 +532,12 @@ again:
 					}
 #if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 					if (fv == (fl2 | globalaliasflg)) {
-						catpath(homenod.namval,
+						if (homenod.namval) {
+						    catpath(homenod.namval,
 						    UC globalname);
-						ab_use(GLOBAL_AB,
+						    ab_use(GLOBAL_AB,
 						    (char *)make(curstak()));
+						}
 					}
 #endif
 #if	defined(DO_SYSALIAS) && defined(DO_LOCALALIASES)

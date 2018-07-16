@@ -1,4 +1,4 @@
-#ident @(#)tartest.mk	1.7 08/08/15 
+#ident @(#)tartest.mk	1.8 18/07/10 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -14,7 +14,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		tartest.c
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 XMK_FILE=	tartestman.mk
 

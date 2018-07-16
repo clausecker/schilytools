@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.109 18/06/16 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.110 18/07/14 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.109 18/06/16 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.110 18/07/14 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -40,6 +40,7 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/param.h>	/* For DEV_BSIZE */
 #include <schily/device.h>
+#include <schily/string.h>
 #define	GT_COMERR		/* #define comerr gtcomerr */
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
@@ -53,6 +54,8 @@ static	UConst char sccsid[] =
 
 #ifndef	HAVE_LSTAT
 #define	lstat	stat
+#undef	AT_SYMLINK_NOFOLLOW
+#define	AT_SYMLINK_NOFOLLOW	0
 #endif
 #ifndef	HAVE_LCHOWN
 #define	lchown	chown
@@ -93,15 +96,16 @@ LOCAL	int	sutimes		__PR((char *name, FINFO *info));
 EXPORT	int	snulltimes	__PR((char *name, FINFO *info));
 EXPORT	int	sxsymlink	__PR((char *name, FINFO *info));
 EXPORT	int	rs_acctime	__PR((int fd, FINFO *info));
-#ifndef	HAVE_UTIMES
-EXPORT	int	utimes		__PR((char *name, struct timeval *tp));
-#endif
 EXPORT	void	setdirmodes	__PR((char *name, mode_t mode));
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #else
 EXPORT	mode_t	osmode		__PR((mode_t tarmode));
-LOCAL	int	dochmod		__PR((const char *name, mode_t tarmode));
-#define	chmod	dochmod
+LOCAL	int	dolchmodat	__PR((const char *name, mode_t tarmode, flag));
+#endif
+
+#ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
+#else
+#define	lchmodat dolchmodat
 #endif
 
 #ifdef	USE_ACL
@@ -156,18 +160,18 @@ getinfo(name, info)
 	info->f_filetype = -1;	/* Will be overwritten of stat() works */
 newstat:
 	if (paxfollow) {
-		if (stat(name, &stbuf) < 0) {
+		if (lstatat(name, &stbuf, 0 /* stat */) < 0) {
 			if (geterrno() == EINTR)
 				goto newstat;
 			if (geterrno() != ENOENT)
 				return (FALSE);
 
-			while (lstat(name, &stbuf) < 0) {
+			while (lstatat(name, &stbuf, AT_SYMLINK_NOFOLLOW) < 0) {
 				if (geterrno() != EINTR)
 					return (FALSE);
 			}
 		}
-	} else if (follow?stat(name, &stbuf):lstat(name, &stbuf) < 0) {
+	} else if (lstatat(name, &stbuf, follow?0:AT_SYMLINK_NOFOLLOW) < 0) {
 		if (geterrno() == EINTR)
 			goto newstat;
 		return (FALSE);
@@ -445,7 +449,7 @@ again:
 
 	if (first && pr_unsuptype(info)) {
 		first = FALSE;
-		if (lstat(info->f_name, sp) < 0)
+		if (lstatat(info->f_name, sp, AT_SYMLINK_NOFOLLOW) < 0)
 			return (FALSE);
 		goto again;
 	}
@@ -659,7 +663,7 @@ setmodes(info)
 
 		if (is_dir(info))
 			mode |= TUWRITE;
-		if (chmod(info->f_name, mode) < 0) {
+		if (lchmodat(info->f_name, mode, 0 /* chmod */) < 0) {
 			if (!errhidden(E_SETMODE, info->f_name)) {
 				if (!errwarnonly(E_SETMODE, info->f_name))
 					xstats.s_setmodes++;
@@ -686,7 +690,8 @@ setmodes(info)
 		/*
 		 * Star will not allow non root users to give away files.
 		 */
-		lchown(info->f_name, (int)info->f_uid, (int)info->f_gid);
+		lchownat(info->f_name, (int)info->f_uid, (int)info->f_gid,
+			AT_SYMLINK_NOFOLLOW);
 #endif
 
 		if (pflag && !asymlink &&
@@ -700,7 +705,7 @@ setmodes(info)
 			 * destroys the suid and sgid bits.
 			 * We repeat the chmod() in this case.
 			 */
-			if (chmod(info->f_name, mode) < 0) {
+			if (lchmodat(info->f_name, mode, 0 /* chmod */) < 0) {
 				/*
 				 * Do not increment chmod() errors here,
 				 * it did already fail above.
@@ -805,18 +810,7 @@ xutimes(name, tp)
 		setnstimeofday(&tp[2]);
 	}
 #endif
-#ifdef	HAVE_UTIMENSAT
-	ret = utimensat(AT_FDCWD, name, tp, AT_SYMLINK_NOFOLLOW);
-#else
-	{ struct timeval tv[2];
-
-		tv[0].tv_sec  = tp[0].tv_sec;
-		tv[0].tv_usec = tp[0].tv_nsec/1000;
-		tv[1].tv_sec  = tp[1].tv_sec;
-		tv[1].tv_usec = tp[1].tv_nsec/1000;
-		ret = utimes(name, tv);
-	}
-#endif
+	ret = lutimensat(name, tp, 0);	/* SYMLINK_NOFOLLOW not in emulation */
 	errsav = geterrno();
 
 #ifdef	SET_CTIME
@@ -880,7 +874,7 @@ sxsymlink(name, info)
 	umask(info->f_mode ^ 07777);
 #endif
 
-	ret = symlink(linkname, name);
+	ret = lsymlink(linkname, name);
 	errsav = geterrno();
 
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
@@ -935,31 +929,6 @@ rs_acctime(fd, info)
 	return (sutimes(info->f_name, info));
 }
 
-#ifndef	HAVE_UTIMES
-
-#define	utimes	__nothing__	/* BeOS has no utimes() but wrong prototype */
-#include <schily/utime.h>
-#undef	utimes
-
-/*
- * This is an attempt to emulate utimes() using the historic utime() call.
- * As utimes() only supports microseconds, we use struct timeval as parameter.
- */
-EXPORT int
-utimes(name, tp)
-	char		*name;
-	struct timeval	*tp;
-{
-	struct utimbuf	ut;
-
-	ut.actime = tp->tv_sec;
-	tp++;
-	ut.modtime = tp->tv_sec;
-
-	return (utime(name, &ut));
-}
-#endif
-
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #define	OSMODE(tarmode)	    (tarmode)
 #else
@@ -989,7 +958,7 @@ setdirmodes(name, tarmode)
 	register mode_t		_osmode;
 
 	_osmode = OSMODE(tarmode);
-	if (chmod(name, _osmode) < 0) {
+	if (lchmodat(name, _osmode, 0 /* chmod */) < 0) {	/* OK for dir */
 		if (!errhidden(E_SETMODE, name)) {
 			if (!errwarnonly(E_SETMODE, name))
 				xstats.s_setmodes++;
@@ -1016,19 +985,20 @@ osmode(tarmode)
 
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #else
-#undef	chmod
+#undef	lchmodat
 LOCAL int
 #ifdef	PROTOTYPES
-dochmod(register const char *name, register mode_t tarmode)
+dochmod(register const char *name, register mode_t tarmode, int flag)
 #else
-dochmod(name, tarmode)
+dochmod(name, tarmode, flag)
 	register const char	*name;
 	register mode_t		tarmode;
+		int		flag;
 #endif
 {
 	register mode_t		_osmode;
 
 	_osmode = OSMODE(tarmode);
-	return (chmod(name, _osmode));
+	return (lchmodat(name, _osmode, flag));
 }
 #endif

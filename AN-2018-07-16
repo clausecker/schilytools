@@ -1,0 +1,251 @@
+New features with AN-2018-07-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	autoconf/configure: added support to newer linux versions where
+	the xattr support is in sys/xattr.h and libc.
+
+	Thanks to Pavel Raiskup <praiskup@redhat.com> for the hint.
+
+-	include/schily/fcntl.h: Linux O_PATH is similar to POSIX O_SEARCH
+	#define O_SEARCH O_PATH in case that O_PATH is present but O_SEARCH
+	is missing. Note that Linux people do not seem to read standards
+	as they added O_PATH in 2011, 3 years after O_SEARCH was in an
+	accepted POSIX standard.
+
+-	libschily: match.c no longer has it's own Uchar typedef but rather
+	#includes <schily/utypes.h>. This helps to compile on 30+ year old
+	platforms without wchar_t.
+
+	Thanks to Robert Clausecker for reporting.
+
+-	libfind: In case of very long path names, the intermediate directories
+	are now opened with O_SEARCH instead of O_RDONLY.
+
+-	bsh/Bourne Shell/libshedit: In case of very long path names, the 
+	intermediate directories are now opened with O_SEARCH instead of
+	O_RDONLY.
+
+-	Bourne Shell: Calling "exit" now also results in writing back the 
+	history from the history editor.
+
+-	libshedit/bsh/Bourne Shell: The history writeback is now also enabled
+	when the variable HISTFILE points to a file name that is writable or 
+	creatable.
+
+-	Bourne Shell: The man page now better explains the history related
+	shell variables.
+
+-	Bourne Shell: "env - bosh" followed by "set -o globalaliases" did
+	cause a SIGSEGV because $HOME was unset. We no longer try to load
+	the persistent aliases in this case.
+
+-	Bourne Shell: The archive dotfiles.tar.bz2 has been updated and
+	now includes a better sample file for "$HOME/.shrc".
+
+-	Bourne Shell: The alias and unalias builtin commands are now 
+	configurable to disable support for persistent aliases.
+
+-	bsh/Bourne Shell: signal name printing now always assumes decimal
+	numbers for signals.
+
+-	bsh/Bourne Shell: signal name printing no longer needs libschily on
+	recent OS platforms.
+
+-	Shells & star long pathname enhancements:
+
+		These enhancements have been implemented in a way that
+		they do not affect the behavior with pathnames shorter
+		than PATH_MAX.
+
+		If a very long path name is encountered, things become
+		slow since this typically results in hopping over a dozen
+		or more single openat() calls.
+
+		Star may have general problems as a result from new dynamic
+		path name storage handling.
+
+		Star did not yet replace all static path name stuff by
+		dynamic path handling but the typical usage should be covered
+		by the current state. What is missing is support for
+		-install, file unlinking and file renaming.
+
+		Star may have problems with long path names under some
+		rare conditions.
+
+-	Bourne Shell: the pwd command did not work on Solaris with long path
+	names as we introduced a bug short before the final release that
+	caused the Solaris getcwd() bug workaround not to trigger.
+
+-	libfind/bsh/Bourne Shell: The "long" stat() implementation now works
+	with absolute path names as well.
+
+-	bsh/Bourne Shell: The "long" chdir() implementation now works
+	with absolute path names as well.
+
+-	Bourne Shell: The conformance tests now include a test for a null
+	byte in the printf format string.
+
+-	Bourne Shell: The conformance tests now include some printf tests 
+	from Sven Maschek.
+
+-	star: The man page has been enhanced with a better description for
+	incremental backups and restores.
+
+-	star: The file /etc/defaults/star is now prefixed with $INS_RBASE
+	This helps star to support the file in case the installation goes
+	into e.g. the own home directory.
+
+-	star: The comment in /etc/defaults/star has been enhanced for a better
+	understanding of STAR_FSYNC
+
+-	star: tartest: Added $(LIB_INTL) to make it compile again on FreeBSD.
+
+-	star: The maximum path name length is now set to INT_MAX in case that
+	the basic system at least supports fchdir().
+
+-	star: The maximum link path name length is now set to INT_MAX in case
+	that the basic system at least supports fchdir(). Note that symlink
+	target names are still limited to PATH_MAX.
+
+-	star: The above two enhancements permit star to archive infinite
+	long pathnames with tar archive formats that support the POSIX.1-2001
+	arvchive enhancements. The star default archive format is such an
+	archive format. This however currently only works in case that
+
+		star -c ... -find <path>
+
+	is used as libfind supports inifinite long path names since July 2004.
+	The default directry scanning function in star has not yet been
+	converted to support infinitely long path names.
+
+-	star: a new file lpath_unix.c has been added. It contains l*() variants
+	of path name related systemcalls with a wrapper that allows them to
+	work with unlimited long path names. This works on modern OS with a
+	complete set of *at() interfaces and partially on older OS with support
+	for at least fchdir().
+
+	fchdir()	has been introduced in 1986 with SunOS-3.5 for the
+			virtualized NSE development environment.
+
+	*at()		most of the *at() syscalls have been introduced
+			in August 2001 on Solaris 9 beta, but a complete
+			set exists since approx. 2010. In special linkat()
+			is new and cannot be emulated in all cases since it
+			uses two file descriptors as base for the two
+			file names.
+
+	This helps to implement support to extract archives with very long
+	path names on most OS platforms.
+
+	Older OS versions may not be able to deal with very long path names
+	or only partly support them.
+
+-	star: all path name related system interfaces have been replaced by 
+	the l*() versions from lpath_unix.c
+
+-	star: make use of the new Linux xattr autoconf enhancements.
+
+-	star TODO:
+
+	-	replace the remaining static path name buffers by dynamic
+		ones.
+
+	-	make "star -c" able to archive very long path names without
+		the need to use "star -c -find"
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

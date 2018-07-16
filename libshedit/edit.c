@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.35 18/07/02 Copyright 2006-2018 J. Schilling */
+/* @(#)edit.c	1.39 18/07/15 Copyright 2006-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.35 18/07/02 Copyright 2006-2018 J. Schilling";
+	"@(#)edit.c	1.39 18/07/15 Copyright 2006-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2018 J. Schilling
@@ -288,8 +288,7 @@ int	sflg = 1;
 						/* see if its a top level */
 						/* run final file */
 #ifdef	INTERACTIVE
-		if (ev_eql("SAVEHISTORY", "on"))
-			save_history(HI_NOINTR);
+		save_history(HI_NOINTR);
 #endif
 	}
 
@@ -304,8 +303,7 @@ int	sflg = 1;
 EXPORT void
 shedit_treset()
 {
-	if (ev_eql("SAVEHISTORY", "on"))
-		save_history(HI_NOINTR);
+	save_history(HI_NOINTR);
 	reset_tty_modes();
 	reset_line_disc();		/* Line discipline */
 	reset_tty_pgrp();
@@ -382,7 +380,7 @@ shedit_bshist(ctlcpp)
 	if (ctlcpp)
 		*ctlcpp = &ctlc;
 	ctlc = 0;
-	save_history(1);
+	save_history(HI_INTR);
 }
 
 EXPORT char *
@@ -461,9 +459,7 @@ lstatat(name, buf, flag)
 {
 #ifdef	HAVE_FCHDIR
 	char	*p;
-	char	*p2;
 	int	fd;
-	int	dfd;
 	int	err;
 #endif
 	int	ret;
@@ -477,31 +473,7 @@ lstatat(name, buf, flag)
 	if (ret >= 0)
 		return (ret);
 
-	p = name;
-	fd = AT_FDCWD;
-	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
-			*p2 = '\0';
-		else
-			break;
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
-			err = geterrno();
-
-			close(fd);
-			if (err == EMFILE)
-				seterrno(err);
-			else
-				seterrno(ENAMETOOLONG);
-			*p2 = '/';
-			return (dfd);
-		}
-		close(fd);
-		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
-		p = p2;
-	}
+	fd = bsh_hop_dirs(name, &p);
 	ret = fstatat(fd, p, buf, flag);
 	err = geterrno();
 	close(fd);

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)word.c	1.89 18/03/14 2008-2018 J. Schilling
+ * @(#)word.c	1.90 18/07/02 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.89 18/03/14 2008-2018 J. Schilling";
+	"@(#)word.c	1.90 18/07/02 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -918,7 +918,7 @@ xread(f, buf, n)
 		while (--n >= 0) {
 			c = shedit_egetc();
 			if (c == -1 && shedit_getdelim() == -1) { /* EOF */
-				shedit_treset();
+				shedit_treset();	/* Writes ~/.history */
 				return (0);
 			}
 			if (c == CTLC && shedit_getdelim() == CTLC) {

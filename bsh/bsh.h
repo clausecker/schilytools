@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.70 18/04/23 Copyright 1985-2018 J. Schilling */
+/* @(#)bsh.h	1.71 18/07/15 Copyright 1985-2018 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -309,6 +309,7 @@ extern	void	rusageadd	__PR((struct rusage *pru1,
  */
 extern	BOOL	any_match	__PR((char *s));
 extern	Tnode	*expand		__PR((char *s));
+extern	int	bsh_hop_dirs	__PR((char *name, char **np));
 
 /*
  * inputc.c

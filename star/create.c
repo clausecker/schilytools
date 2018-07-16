@@ -1,8 +1,8 @@
-/* @(#)create.c	1.143 18/06/17 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.146 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.143 18/06/17 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.146 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
@@ -166,7 +166,6 @@ LOCAL	mode_t	statmode = _BAD_MODE;
 
 EXPORT	void	checklinks	__PR((void));
 LOCAL	int	take_file	__PR((char *name, FINFO *info));
-EXPORT	int	_fileopen	__PR((char *name, char *mode));
 EXPORT	int	_fileread	__PR((int *fp, void *buf, int len));
 EXPORT	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
 LOCAL	void	createi		__PR((char *sname, char *name, int namlen, FINFO *info, struct pdirs *last));
@@ -395,28 +394,6 @@ take_file(name, info)
 		(void) get_acls(info);
 #endif  /* USE_ACL */
 	return (TRUE);
-}
-
-int
-_fileopen(name, smode)
-	char	*name;
-	char	*smode;
-{
-	int	ret;
-	int	omode = 0;
-	int	flag = 0;
-
-	if (!_cvmod(smode, &omode, &flag))
-		return (-1);
-
-retry:
-	if ((ret = _openfd(name, omode)) < 0) {
-		if (geterrno() == EINTR)
-			goto retry;
-		return (-1);
-	}
-
-	return (ret);
 }
 
 int
@@ -652,7 +629,7 @@ createi(sname, name, namlen, info, last)
 		return;
 
 	} else if (is_file(info) && info->f_size != 0 && !nullout &&
-				(fd = _fileopen(sname, "rb")) < 0) {
+				(fd = _lfileopen(sname, "rb")) < 0) {
 		if (!errhidden(E_OPEN, name)) {
 			if (!errwarnonly(E_OPEN, name))
 				xstats.s_openerrs++;
@@ -713,7 +690,7 @@ createi(sname, name, namlen, info, last)
 		 */
 		do_sparse = sparse && (props.pr_flags & PR_SPARSE);
 		if (do_sparse && nullout &&
-				(fd = _fileopen(sname, "rb")) < 0) {
+				(fd = _lfileopen(sname, "rb")) < 0) {
 			if (!errhidden(E_OPEN, name)) {
 				if (!errwarnonly(E_OPEN, name))
 					xstats.s_openerrs++;
@@ -861,7 +838,7 @@ read_symlink(sname, name, info, ptb)
 	info->f_lname[0] = '\0';
 
 #ifdef	HAVE_READLINK
-	if ((len = readlink(sname, info->f_lname, PATH_MAX)) < 0) {
+	if ((len = lreadlink(sname, info->f_lname, PATH_MAX)) < 0) {
 		if (!errhidden(E_READLINK, name)) {
 			if (!errwarnonly(E_READLINK, name))
 				xstats.s_rwerrs++;
@@ -1146,7 +1123,7 @@ flush_link(lp)
 	finfo.f_tcb = ptb;
 	fd = -1;
 	if (is_file(&finfo) && finfo.f_size != 0 && !nullout &&
-				(fd = _fileopen(name, "rb")) < 0) {
+				(fd = _lfileopen(name, "rb")) < 0) {
 		if (!errhidden(E_OPEN, name)) {
 			if (!errwarnonly(E_OPEN, name))
 				xstats.s_openerrs++;
@@ -1538,7 +1515,7 @@ put_dir(sname, dname, namlen, info, ptb, last)
 				 */
 				dlen--;
 			}
-		} else if (!(d = opendir(sname))) {
+		} else if (!(d = lopendir(sname))) {
 			if (!errhidden(E_OPEN, dname)) {
 				if (!errwarnonly(E_OPEN, dname))
 					xstats.s_openerrs++;
@@ -1685,7 +1662,7 @@ put_dir(sname, dname, namlen, info, ptb, last)
 			createi(name, name, xlen, ninfo, &thisd);
 #ifdef	HAVE_SEEKDIR
 			if (d && is_dir(ninfo) && depth <= 0) {
-				if (!(d = opendir(sname))) {
+				if (!(d = lopendir(sname))) {
 					if (!errhidden(E_OPEN, dname)) {
 						if (!errwarnonly(E_OPEN, dname))
 							xstats.s_openerrs++;

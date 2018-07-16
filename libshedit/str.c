@@ -1,13 +1,13 @@
-/* @(#)str.c	1.7 16/09/15 Copyright 2006-2016 J. Schilling */
+/* @(#)str.c	1.8 18/07/02 Copyright 2006-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.7 16/09/15 Copyright 2006-2016 J. Schilling";
+	"@(#)str.c	1.8 18/07/02 Copyright 2006-2018 J. Schilling";
 #endif
 /*
  *	Some selected strings from bsh needed by the command line editor.
  *
- *	Copyright (c) 2006-2016 J. Schilling
+ *	Copyright (c) 2006-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,8 +28,9 @@ static	UConst char sccsid[] =
 char	mapname[]	= ".bshmap";
 char	historyname[]	= ".history";
 
-char	histname[]	= "HISTORY";
-char	histsizename[]	= "HISTSIZE";	/* POSIX name taken frok ksh */
+char	histname[]	= "HISTORY";	/* Historic name */
+char	savehistname[]	= "SAVEHISTORY"; /* Historic name */
+char	histsizename[]	= "HISTSIZE";	/* POSIX name taken from ksh */
 char	histfilename[]	= "HISTFILE";	/* POSIX name taken from ksh */
 char	ignoreeofname[]	= "IGNOREEOF";
 char	termname[]	= "TERM";

@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.21 17/08/28 Copyright 1998-2017 J. Schilling */
+/* @(#)signames.c	1.22 18/07/07 Copyright 1998-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.21 17/08/28 Copyright 1998-2017 J. Schilling";
+	"@(#)signames.c	1.22 18/07/07 Copyright 1998-2018 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2017 J. Schilling
+ *	Copyright (c) 1998-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/stdio.h>
+#include <schily/stdlib.h>
 #include <schily/string.h>
 #ifdef	USE_JS_BOOL			/* #define USE_JS_BOOL if there is a */
 #define	BOOL	JS_BOOL			/* different (incompatible) BOOL in  */
@@ -595,10 +596,17 @@ str2sig(s, sigp)
 		_rtsiginit();
 #endif
 	if (*s >= '0' && *s <= '9') {
-		int	val;
+		long	val;
+#ifdef	HAVE_STRTOL
+		char	*p;
 
-		if (*astoi(s, &val) != '\0')
+		val = strtol(s, &p, 10);
+		if (*p != '\0')
 			return (-1);
+#else
+		if (*astolb(s, &val, 10) != '\0')
+			return (-1);
+#endif
 
 #ifdef	_SIGRTMIN
 		if (val >= rtmin && val <= rtmax)

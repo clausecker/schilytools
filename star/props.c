@@ -1,8 +1,8 @@
-/* @(#)props.c	1.61 18/06/16 Copyright 1994-2018 J. Schilling */
+/* @(#)props.c	1.63 18/07/14 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.61 18/06/16 Copyright 1994-2018 J. Schilling";
+	"@(#)props.c	1.63 18/07/14 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -73,8 +73,13 @@ setprops(htype)
 		props.pr_diffmask = 0L;
 		props.pr_nflags =
 			PR_POSIX_SPLIT|PR_PREFIX_REUSED|PR_LONG_NAMES;
+#ifdef	HAVE_FCHDIR
+		props.pr_maxnamelen =  INT_MAX;
+		props.pr_maxlnamelen = INT_MAX;
+#else
 		props.pr_maxnamelen =  PATH_MAX;
 		props.pr_maxlnamelen = PATH_MAX;
+#endif
 		props.pr_maxsname =    NAMSIZ;
 		props.pr_maxslname =   NAMSIZ;
 		props.pr_maxprefix =   PFXSIZ;
@@ -116,8 +121,13 @@ setprops(htype)
 		props.pr_diffmask = 0L;
 		props.pr_nflags =
 			PR_POSIX_SPLIT|PR_PREFIX_REUSED|PR_LONG_NAMES;
+#ifdef	HAVE_FCHDIR
+		props.pr_maxnamelen =  INT_MAX;
+		props.pr_maxlnamelen = INT_MAX;
+#else
 		props.pr_maxnamelen =  PATH_MAX;
 		props.pr_maxlnamelen = PATH_MAX;
+#endif
 		props.pr_maxsname =    NAMSIZ;
 		props.pr_maxslname =   NAMSIZ;
 		props.pr_maxprefix =   130;
@@ -194,6 +204,15 @@ setprops(htype)
 		    H_TYPE(htype) == H_EPAX ||
 		    H_TYPE(htype) == H_SUNTAR) {
 			props.pr_nflags |= PR_LONG_NAMES;
+#ifdef	HAVE_FCHDIR
+			props.pr_maxnamelen =  INT_MAX;
+			props.pr_maxlnamelen = INT_MAX;
+#else
+			props.pr_maxnamelen =  PATH_MAX;
+			props.pr_maxlnamelen = PATH_MAX;
+#endif
+		}
+		if (H_TYPE(htype) == H_SUNTAR) {
 			props.pr_maxnamelen =  PATH_MAX;
 			props.pr_maxlnamelen = PATH_MAX;
 		}
@@ -229,8 +248,8 @@ setprops(htype)
 		props.pr_pad   = 0;
 		props.pr_diffmask = 0L;
 		props.pr_nflags = PR_LONG_NAMES;
-		props.pr_maxnamelen =  PATH_MAX;
-		props.pr_maxlnamelen = PATH_MAX;
+		props.pr_maxnamelen =  PATH_MAX;	/* GNU tar can't more */
+		props.pr_maxlnamelen = PATH_MAX;	/* GNU tar can't more */
 		props.pr_maxsname =    NAMSIZ-1;
 		props.pr_maxslname =   NAMSIZ-1;
 		props.pr_maxprefix =   0;

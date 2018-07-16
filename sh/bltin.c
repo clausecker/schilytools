@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.133 18/07/01 2008-2018 J. Schilling
+ * @(#)bltin.c	1.134 18/07/02 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.133 18/07/01 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.134 18/07/02 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -200,6 +200,10 @@ builtin(type, argc, argv, t, xflags)
 
 	case SYSEXIT:			/* POSIX special builtin */
 		if (tried_to_exit++ || endjobs(JOB_STOPPED)) {
+#ifdef	INTERACTIVE
+			if (!(xflags & XEC_EXECED))
+				shedit_treset();	/* Writes ~/.history */
+#endif
 			flags |= forcexit;	/* force exit */
 #ifdef	DO_SIGNED_EXIT
 			exitsh(a1 ? stosi(a1) : retval);

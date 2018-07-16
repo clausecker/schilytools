@@ -1,4 +1,5 @@
-/* @(#)match.c	1.30 18/03/20 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)match.c	1.31 18/07/03 Copyright 1985, 1995-2018 J. Schilling */
+#include <schily/utypes.h>	/* For Uchar			*/
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #define	POSIX_CLASS		/* Support [[:alpha:]] by default */
@@ -78,15 +79,10 @@
 #endif
 
 #ifndef	CHAR
-typedef	unsigned char	Uchar;
-#define	DID_UCHAR_TYPE
 #define	CHAR		Uchar
 #endif
 
 #ifndef	PCHAR
-#ifndef	DID_UCHAR_TYPE
-typedef	unsigned char	Uchar;
-#endif
 #define	PCHAR		Uchar
 #endif
 

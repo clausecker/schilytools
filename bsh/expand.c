@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.51 18/07/01 Copyright 1985-2018 J. Schilling */
+/* @(#)expand.c	1.53 18/07/15 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.51 18/07/01 Copyright 1985-2018 J. Schilling";
+	"@(#)expand.c	1.53 18/07/15 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -52,6 +52,7 @@ LOCAL	int	xcmp		__PR((char *s1, char *s2));
 LOCAL	void	xsort		__PR((char **from, char **to));
 LOCAL	Tnode	*exp		__PR((char *n, int i, Tnode * l));
 EXPORT	Tnode	*expand		__PR((char *s));
+EXPORT	int	bsh_hop_dirs	__PR((char *name, char **np));
 LOCAL	DIR	*lopendir	__PR((char *name));
 
 LOCAL int
@@ -423,13 +424,64 @@ expand(s)
 		return (mklist(exp(s, 0, (Tnode *)NULL)));
 }
 
+#ifdef	HAVE_FCHDIR
+EXPORT int
+bsh_hop_dirs(name, np)
+	char	*name;
+	char	**np;
+{
+	char	*p;
+	char	*p2;
+	int	fd;
+	int	dfd;
+	int	err;
+
+	p = name;
+	fd = AT_FDCWD;
+	if (*p == '/') {
+		fd = openat(fd, "/", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		while (*p == '/')
+			p++;
+	}
+	while (*p) {
+		if ((p2 = strchr(p, '/')) != NULL) {
+			if (p2[1] == '\0')
+				break;
+			*p2 = '\0';
+		} else {
+			break;
+		}
+		if ((dfd = openat(fd, p, O_SEARCH|O_DIRECTORY|O_NDELAY)) < 0) {
+			err = geterrno();
+
+			close(fd);
+			if (err == EMFILE)
+				seterrno(err);
+			else
+				seterrno(ENAMETOOLONG);
+			*p2 = '/';
+			return (dfd);
+		}
+		close(fd);	/* Don't care about AT_FDCWD, it is negative */
+		fd = dfd;
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		while (*p2 == '/')
+			p2++;
+		p = p2;
+	}
+	*np = p;
+	return (fd);
+}
+#endif
+
 LOCAL DIR *
 lopendir(name)
 	char	*name;
 {
 #ifdef	HAVE_FCHDIR
 	char	*p;
-	char	*p2;
 	int	fd;
 	int	dfd;
 #endif
@@ -442,31 +494,13 @@ lopendir(name)
 	if (ret)
 		return (ret);
 
-	p = name;
-	fd = AT_FDCWD;
-	while (*p) {
-		if ((p2 = strchr(p, '/')) != NULL)
-			*p2 = '\0';
-		if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
-			int err = geterrno();
-
-			close(fd);
-			if (err == EMFILE)
-				seterrno(err);
-			else
-				seterrno(ENAMETOOLONG);
-			if (p2)
-				*p2 = '/';
-			return ((DIR *)NULL);
-		}
+	fd = bsh_hop_dirs(name, &p);
+	if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
 		close(fd);
-		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
-		p = p2;
+		return ((DIR *)NULL);
 	}
-	ret = fdopendir(fd);
+	close(fd);
+	ret = fdopendir(dfd);
 #endif
 	return (ret);
 }

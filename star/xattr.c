@@ -1,8 +1,8 @@
-/* @(#)xattr.c	1.19 18/06/16 Copyright 2003-2018 J. Schilling */
+/* @(#)xattr.c	1.20 18/07/12 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.19 18/06/16 Copyright 2003-2018 J. Schilling";
+	"@(#)xattr.c	1.20 18/07/12 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
@@ -28,9 +28,13 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#else
 #if defined(HAVE_ATTR_XATTR_H)
 #include <attr/xattr.h>
-#endif
+#endif	/* HAVE_ATTR_XATTR_H */
+#endif	/* HAVE_SYS_XATTR_H */
 #include "star.h"
 #include <schily/standard.h>
 #include <schily/unistd.h>

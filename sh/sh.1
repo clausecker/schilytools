@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.233 18/06/30 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.234 18/07/04 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/06/30" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/07/04" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1942,6 +1942,11 @@ If set to
 the history editor will not beep in case of an error.
 Use this to allow e.g. silent working in meetings.
 .sp
+.B BEEP
+is only supported if
+.B sh
+was compiled with support for history editing.
+.sp
 The variable
 .B BEEP
 was not supported in older versions of
@@ -2015,6 +2020,11 @@ The name default editor name for the
 .B fc
 command.
 .sp
+.B FCEDIT
+is only supported if
+.B sh
+was compiled with support for history editing.
+.sp
 The variable
 .B FCEDIT
 was not supported in older versions of
@@ -2034,6 +2044,12 @@ If
 is not set before the shell reads the initial history at startup, the name
 .B $HOME/.history
 is used.
+If
+.B HISTFILE
+is set, then the shell will save the history while exiting even in case that
+.B SAVEHISTORY
+was not set.
+.sp
 .B HISTFILE
 is only supported if
 .B sh
@@ -2050,15 +2066,18 @@ was not supported in older versions of
 .B HISTORY
 The maximum number of lines to keep in the command history editor.
 The default is to keep 128 lines of command history.
-.B HISTORY
-is only supported if
-.B sh
-was compiled with support for history editing.
 This is the historic name that is in use since 1984, it is used as a
-fallback, when the POSIX variable
+fallback, when the
+.B POSIX
+variable
 .B HISTSIZE
 (introduced 1992) was not set.
 .sp
+.B HISTORY
+is only supported if
+.B sh
+was compiled with support for history editing.
+.sp
 The variable
 .B HISTORY
 was not supported in older versions of
@@ -2070,12 +2089,15 @@ was not supported in older versions of
 .B HISTSIZE
 The maximum number of lines to keep in the command history editor.
 The default is to keep 128 lines of command history.
+This is the
+.B POSIX
+variable name that has precedence over
+.BR HISTORY .
+.sp
 .B HISTSIZE
 is only supported if
 .B sh
 was compiled with support for history editing.
-This is the POSIX variable name that has precedence over
-.BR HISTORY .
 .sp
 The variable
 .B HISTSIZE
@@ -2098,6 +2120,12 @@ The default is not to ignore EOF.
 See also the command
 .B set -o ignoreeof
 below.
+This is the historic interface that is in use since 1984.
+The
+.B POSIX
+interface is to call
+.BR "set -o ignoreeof" .
+.sp
 .B IGNOREEOF
 is only supported if
 .B sh
@@ -2329,6 +2357,13 @@ the current history is saved in the file
 .B $HOME/.history
 when this shell exits.
 The default is not to save the history.
+This is the historic interface that is in use since 1984.
+The
+.B POSIX
+interface is to set
+.B HISTFILE
+to the absolute path name of the persistent history file.
+.sp
 .B SAVEHISTORY
 is only supported if
 .B sh

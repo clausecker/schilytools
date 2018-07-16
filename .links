@@ -656,4 +656,5 @@
 ./sh/abbrev.h
 ./sh/signames.c
 ./star_sym/dumpdate.c
+./star_sym/lpath_unix.c
 ./star_sym/restore.c

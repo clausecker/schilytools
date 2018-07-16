@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.181 18/06/19 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.182 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.181 18/06/19 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.182 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -352,8 +352,9 @@ opentape()
 		/*
 		 * XXX Should we add an option that allows to specify O_TRUNC?
 		 */
-		while ((tarf = fileopen(tarfiles[tarfindex],
-						cflag?"rwcub":"rub")) ==
+		while ((tarf = lfilemopen(tarfiles[tarfindex],
+						cflag?"rwcub":"rub",
+						S_IRWALL)) ==
 								(FILE *)NULL) {
 			if (!wready || n++ > 12 ||
 			    (geterrno() != EIO && geterrno() != EBUSY)) {
@@ -2073,7 +2074,7 @@ compressopen()
 #endif
 
 		/* We don't want to see errors */
-		null = fileopen("/dev/null", "rw");
+		null = lfilemopen("/dev/null", "rw", S_IRWALL);
 
 		if (cflag)
 			fexecl(zip_prog, pp[0], tarf, null, zip_prog, flg, (char *)NULL);

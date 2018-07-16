@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.11 16/01/21 Copyright 1986-2016 J. Schilling */
+/* @(#)alias.c	1.13 18/07/07 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.11 16/01/21 Copyright 1986-2016 J. Schilling";
+	"@(#)alias.c	1.13 18/07/07 Copyright 1986-2018 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
- *	Copyright (c) 1986-2016 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,7 +41,9 @@ sysalias(argc, argv)
 	int	doglobal = 0;	/* -g persistent global aliases */
 	int	dolocal = 0;	/* -l persistent local aliases */
 	int	pflag = 0;	/* -p push or list parsable */
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 	int	doreload = 0;	/* -r reload from persistent definitions */
+#endif
 	int	doraw = 0;	/* -R/-raw list in raw mode */
 	abidx_t	tab;
 	int	aflags = 0;	/* All (non-begin) type alias */
@@ -54,7 +56,11 @@ sysalias(argc, argv)
 	o[0] = '-';
 	o[2] = '\0';
 	while ((c = optget(argc, argv, &optv,
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 			    "()aeglprR(raw)")) != -1) {
+#else
+			    "()aepR(raw)")) != -1) {
+#endif
 		switch (c) {
 		case 'a':
 			allflag++;
@@ -62,6 +68,7 @@ sysalias(argc, argv)
 		case 'e':
 			persist++;
 			break;
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 		case 'g':
 			if ((flags2 & globalaliasflg) == 0) {
 				o[1] = c;
@@ -80,11 +87,12 @@ sysalias(argc, argv)
 			doglobal = 0;
 			dolocal++;
 			break;
-		case 'p':
-			pflag++;
-			break;
 		case 'r':
 			doreload++;
+			break;
+#endif
+		case 'p':
+			pflag++;
 			break;
 		case 'R':
 			doraw++;
@@ -116,6 +124,7 @@ err:
 		else if ((flags2 & globalaliasflg) != 0)
 			pflags |= AB_PGLOBAL;
 	}
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 	if (doreload) {
 		char	*fname;
 
@@ -127,6 +136,7 @@ err:
 		ab_use(tab, fname);
 		return;
 	}
+#endif
 	if (c >= argc) {
 		/*
 		 * Just list everysthing, never fail.
@@ -185,11 +195,16 @@ sysunalias(argc, argv)
 	optinit(&optv);
 	o[0] = '-';
 	o[2] = '\0';
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 	while ((c = optget(argc, argv, &optv, "aglp")) != -1) {
+#else
+	while ((c = optget(argc, argv, &optv, "ap")) != -1) {
+#endif
 		switch (c) {
 		case 'a':
 			allflag++;
 			break;
+#if	defined(DO_GLOBALALIASES) || defined(DO_LOCALALIASES)
 		case 'g':
 			if ((flags2 & globalaliasflg) == 0) {
 				o[1] = c;
@@ -208,6 +223,7 @@ sysunalias(argc, argv)
 			doglobal = 0;
 			dolocal++;
 			break;
+#endif
 		case 'p':
 			pflag++;
 			break;
