@@ -1,8 +1,8 @@
-/* @(#)longnames.c	1.58 18/06/16 Copyright 1993, 1995, 2001-2018 J. Schilling */
+/* @(#)longnames.c	1.59 18/07/21 Copyright 1993, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.58 18/06/16 Copyright 1993, 1995, 2001-2018 J. Schilling";
+	"@(#)longnames.c	1.59 18/07/21 Copyright 1993, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
@@ -311,7 +311,7 @@ tcb_to_longname(ptb, info)
 	stolli(ptb->dbuf.t_size, &ull);
 	info->f_size = ull;
 	info->f_rsize = info->f_size;
-	if (info->f_size > PATH_MAX) {
+	if (info->f_size > props.pr_maxnamelen) {
 		/*
 		 * We do not know the name here,
 		 * we only have the short ptb->dbuf.t_name
@@ -343,7 +343,9 @@ tcb_to_longname(ptb, info)
 		}
 		info->f_namelen = info->f_size -1;
 		info->f_flags |= F_LONGNAME;
-		move.m_data = info->f_name;
+		if (grow_pspace(PS_STDERR, &info->f_pname, info->f_size) < 0)
+			die(EX_BAD);
+		move.m_data = info->f_name = info->f_pname.ps_path;
 	} else {
 		if ((info->f_xflags & XF_LINKPATH) != 0) {
 			/*
@@ -356,7 +358,9 @@ tcb_to_longname(ptb, info)
 		}
 		info->f_lnamelen = info->f_size -1;
 		info->f_flags |= F_LONGLINK;
-		move.m_data = info->f_lname;
+		if (grow_pspace(PS_STDERR, &info->f_plname, info->f_size) < 0)
+			die(EX_BAD);
+		move.m_data = info->f_lname = info->f_plname.ps_path;
 	}
 	move.m_flags = 0;
 	if (xt_file(info, vp_move_from_arch, &move, 0, "moving long name") < 0)

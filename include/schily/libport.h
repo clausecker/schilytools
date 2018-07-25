@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.48 18/06/07 Copyright 1995-2018 J. Schilling */
+/* @(#)libport.h	1.49 18/07/23 Copyright 1995-2018 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
@@ -303,6 +303,9 @@ extern	void		endgrent __PR((void));
 extern	int		fchdir __PR((int fd));
 #endif
 #ifndef	HAVE_OPENAT
+#if	defined(HAVE_LARGEFILES)
+#	define	openat		openat64
+#endif
 extern	int		openat __PR((int fd, const char *name, int oflag, ...));
 #endif
 
@@ -338,6 +341,9 @@ extern	DIR		*fdopendir __PR((int fd));
 
 #ifdef	_SCHILY_STAT_H
 #ifndef	HAVE_FSTATAT
+#if	defined(HAVE_LARGEFILES)
+#	define	fstatat		fstatat64
+#endif
 extern	int		fstatat __PR((int fd, const char *name,
 					struct stat *sbuf, int flag));
 #endif

@@ -1,8 +1,8 @@
-/* @(#)stdint.h	1.37 15/12/10 Copyright 1997-2015 J. Schilling */
+/* @(#)stdint.h	1.38 18/07/19 Copyright 1997-2018 J. Schilling */
 /*
  *	Abstraction from stdint.h
  *
- *	Copyright (c) 1997-2015 J. Schilling
+ *	Copyright (c) 1997-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -82,7 +82,11 @@
  */
 #define	TYPE_ISSIGNED(t)	(((t)-1) < ((t)0))
 #define	TYPE_ISUNSIGNED(t)	(!TYPE_ISSIGNED(t))
+#if (-3 & 3) == 1		/* Two's complement */
+#define TYPE_MSBVAL(t)		(2 * -(((t)1) << (sizeof (t)*CHAR_BIT - 2)))
+#else
 #define	TYPE_MSBVAL(t)		((t)(~((t)0) << (sizeof (t)*CHAR_BIT - 1)))
+#endif
 #define	TYPE_MINVAL(t)		(TYPE_ISSIGNED(t)			\
 				    ? TYPE_MSBVAL(t)			\
 				    : ((t)0))

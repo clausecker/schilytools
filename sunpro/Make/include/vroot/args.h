@@ -29,9 +29,9 @@
 #pragma	ident	"@(#)args.h	1.7	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)args.h	1.2 17/05/01 2017 J. Schilling
+ * @(#)args.h	1.3 18/07/17 2017-2018 J. Schilling
  */
 
 #ifndef _ARGS_H_
@@ -57,9 +57,10 @@
 #include <sys/file.h>
 #endif
 
-#ifdef	HAVE_YS_SYSCALL_H
-sss
+#ifdef	__never__		/* we do not need it */
+#ifdef	HAVE_SYS_SYSCALL_H
 #include <sys/syscall.h>
+#endif
 #endif
 
 typedef enum { rw_read, rw_write} rwt, *rwpt;

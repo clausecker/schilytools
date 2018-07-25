@@ -1,8 +1,8 @@
-/* @(#)volhdr.c	1.43 18/06/17 Copyright 1994, 2003-2018 J. Schilling */
+/* @(#)volhdr.c	1.44 18/07/17 Copyright 1994, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.43 18/06/17 Copyright 1994, 2003-2018 J. Schilling";
+	"@(#)volhdr.c	1.44 18/07/17 Copyright 1994, 2003-2018 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
@@ -417,8 +417,6 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 {
 	TCB	*ptb = (TCB *)buf;
 	FINFO	finfo;
-	char	name[PATH_MAX+1];
-	char	lname[PATH_MAX+1];
 	Ullong	ull;
 	int	xlen = amt - TBLOCK - 1;
 	char	*p = &buf[TBLOCK];
@@ -426,11 +424,18 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 	char	ec;
 	Llong	bytes;
 	Llong	blockoff;
+	BOOL	ret = FALSE;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 	finfo.f_tcb = ptb;
-	finfo.f_name = name;
-	finfo.f_lname = lname;
+
+	if (init_pspace(PS_STDERR, &finfo.f_pname) < 0)
+		return (FALSE);
+	if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
+		return (FALSE);
+
+	finfo.f_name = finfo.f_pname.ps_path;
+	finfo.f_lname = finfo.f_plname.ps_path;
 
 	/*
 	 * File size is strlen of extended header
@@ -450,8 +455,10 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 	/*
 	 * Return TRUE (no skip) if this was not a volume continuation header.
 	 */
-	if ((grip->gflags & GF_VOLNO) == 0)
-		return (TRUE);
+	if ((grip->gflags & GF_VOLNO) == 0) {
+		ret = TRUE;
+		goto out;
+	}
 
 	if ((gip->dumpdate.tv_sec != grip->dumpdate.tv_sec) ||
 	    (gip->dumpdate.tv_nsec != grip->dumpdate.tv_nsec)) {
@@ -459,13 +466,15 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 			"Dump date %s does not match expected",
 					dumpdate(&grip->dumpdate));
 		error(" %s\n", dumpdate(&gip->dumpdate));
-		return (FALSE);
+		ret = FALSE;
+		goto out;
 	}
 	if (volno != grip->volno) {
 		errmsgno(EX_BAD,
 			"Volume number %d does not match expected %d\n",
 					grip->volno, volno);
-		return (FALSE);
+		ret = FALSE;
+		goto out;
 	}
 	bytes = stats->Tblocks * (Llong)stats->blocksize + stats->Tparts;
 	blockoff = bytes / TBLOCK;
@@ -510,7 +519,12 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 			*skipp += 1;
 		}
 	}
-	return (TRUE);
+	ret = TRUE;
+
+out:
+	free_pspace(&finfo.f_pname);
+	free_pspace(&finfo.f_plname);
+	return (ret);
 }
 
 EXPORT char *

@@ -1,4 +1,4 @@
-/* @(#)openat.c	1.2 11/10/22 Copyright 2011 J. Schilling */
+/* @(#)openat.c	1.3 18/07/16 Copyright 2011-2018 J. Schilling */
 /*
  *	Emulate the behavior of openat(fd, name, flag, mode)
  *
@@ -7,11 +7,15 @@
  *
  *		savewd()/fchdir()/open(name)/restorewd()
  *
+ *	Since the /proc method may fail with ENAMETOOLONG, we need to fall back
+ *	to the fchdir() method in case of long path names and as a result are
+ *	not MT-safe with long path names.
+ *
  *	Errors may force us to abort the program as our caller is not expected
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -82,12 +86,19 @@ openat(fd, name, oflag, va_alist)
 		return (open(name, oflag, omode));
 
 	if ((proc_name = proc_fd2name(buf, fd, name)) != NULL) {
+		/*
+		 * The next open() frequently results in ENAMETOOLONG
+		 */
 		ret = open(proc_name, oflag, omode);
 		if (ret >= 0 || NON_PROCFS_ERRNO(errno))
 			return (ret);
-	} else if (geterrno() == ENAMETOOLONG) {
-		return (-1);
 	}
+
+	/*
+	 * /proc open failed or /proc not available on this platform.
+	 * Give it a chance using fchdir(). But the following code is
+	 * not MT-safe!
+	 */
 
 	if (savewd(&save_wd) < 0) {
 		/*

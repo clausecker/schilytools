@@ -31,13 +31,17 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)report.h	1.2 17/04/23 2017 J. Schilling
+ * @(#)report.h	1.3 18/07/17 2017 J. Schilling
  */
 
 #ifndef _REPORT_H_
 #define _REPORT_H_
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdio.h>
+#else
 #include <stdio.h>
+#endif
 
 extern FILE	*get_report_file(void);
 extern char	*get_target_being_reported_for(void);

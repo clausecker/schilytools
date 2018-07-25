@@ -31,12 +31,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)dosys.cc	1.12 18/04/06 2017-2018 J. Schilling
+ * @(#)dosys.cc	1.13 18/07/17 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.12 18/04/06 2017-2018 J. Schilling";
+	"@(#)dosys.cc	1.13 18/07/17 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -161,8 +161,14 @@ redirect_io(char *stdout_file, char *stderr_file)
 	}
 #endif	/* HAVE_CLOSEFROM */
 #ifndef	O_DSYNC
+#ifdef	O_SYNC
 #define	O_DSYNC	O_SYNC
-#endif
+#else
+#ifdef	O_FSYNC
+#define	O_DSYNC	O_FSYNC
+#endif	/* O_FSYNC */
+#endif	/* O_SYNC */
+#endif	/* O_DSYNC */
 	if ((i = my_open(stdout_file,
 	         O_WRONLY | O_CREAT | O_TRUNC | O_DSYNC,
 	         S_IREAD | S_IWRITE)) < 0) {

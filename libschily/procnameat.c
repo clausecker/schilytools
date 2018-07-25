@@ -1,15 +1,22 @@
-/* @(#)procnameat.c	1.2 11/10/22 Copyright 2011 J. Schilling */
+/* @(#)procnameat.c	1.3 18/07/16 Copyright 2011-2018 J. Schilling */
 /*
  *	Return a path name for a /proc related access to fd/name if possible.
  *
  *	We need to test this at runtime in order to avoid incorrect behavior
  *	from running a program on a newer OS that it has been compiled for.
+ *	There are also platforms like FreeBSD where mounting /proc is optioonal.
  *
+ **************
  *	NOTE:	The entries /proc/self/{fd|path}/%d are symlinks and thus do
  *		not allow to access paths of unlimited length as possible
  *		with a real openat(fd, name, flags) call.
+ **************
  *
- *	Copyright (c) 2011 J. Schilling
+ *	If our caller falls back to the fchdir() method, e.g. because we
+ *	did not detect /proc, or because /proc/self/{fd|path}/%d results
+ *	in ENAMETOOLONG, the resulting code is no longer MT-safe.
+ *
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,9 +45,13 @@
 #define	ENAMETOOLONG	EINVAL
 #endif
 
-#define	PROC_SELF_FD_FORMAT	"/proc/self/fd/%d/%s"	/* Older procfs */
 #define	PROC_SELF_PATH_FORMAT	"/proc/self/path/%d/%s"	/* Newer procfs */
+#define	PROC_SELF_FD_FORMAT	"/proc/self/fd/%d/%s"	/* Older procfs */
 #define	PROC_PID_FD_FORMAT	"/proc/%ld/fd/%d/%s"	/* AIX has no self */
+
+#define	PT_SELF_PATH		1
+#define	PT_SELF_FD		2
+#define	PT_PID_FD		3
 
 char *
 proc_fd2name(buf, fd, name)
@@ -59,30 +70,38 @@ static	int	proc_type;
 		 */
 		proc_fd = open("/proc/self/path", O_SEARCH);
 		if (proc_fd >= 0) {
-			proc_type = 1;
+			proc_type = PT_SELF_PATH;
 			close(proc_fd);
 		} else {
 			proc_fd = open("/proc/self/fd", O_SEARCH);
 			if (proc_fd >= 0) {
-				proc_type = 2;
+				proc_type = PT_SELF_FD;
 				close(proc_fd);
 			} else {
 				js_snprintf(buf, PATH_MAX,
 					"/proc/%ld/fd", (long)getpid());
 				proc_fd = open(buf, O_SEARCH);
 				if (proc_fd >= 0) {
-					proc_type = 3;
+					proc_type = PT_PID_FD;
 					close(proc_fd);
 				} else {
+					/*
+					 * No /proc fs found
+					 */
 					proc_type = -1;
+					seterrno(0);
 					return ((char *)0);
 				}
 			}
 		}
 	} else if (proc_type < 0) {
+		/*
+		 * No /proc fs found
+		 */
+		seterrno(0);
 		return ((char *)0);
 	}
-	if (proc_type == 3) {
+	if (proc_type == PT_PID_FD) {
 		if (js_snprintf(buf, PATH_MAX,
 				PROC_PID_FD_FORMAT,
 				(long)getpid(), fd, name) >= PATH_MAX) {
@@ -90,7 +109,7 @@ static	int	proc_type;
 			return (NULL);
 		}
 	} else if (js_snprintf(buf, PATH_MAX,
-			proc_type == 1 ?
+			proc_type == PT_SELF_PATH ?
 				PROC_SELF_PATH_FORMAT :
 				PROC_SELF_FD_FORMAT,
 			fd, name) >= PATH_MAX) {

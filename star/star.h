@@ -1,4 +1,4 @@
-/* @(#)star.h	1.139 18/07/15 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.140 18/07/19 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -610,7 +610,7 @@ typedef	struct	{
 	int	f_devminorbits;	/* Anzahl d. Minor Bits in f_dev	  */
 	ino_t	f_ino;		/* Dateinummer				  */
 	nlink_t	f_nlink;	/* Anzahl der Links			  */
-	mode_t	f_mode;		/* Zugriffsrechte			  */
+	mode_t	f_mode;		/* Zugriffsrechte (TAR Bit Werte)	  */
 	uid_t	f_uid;		/* Benutzernummer			  */
 	gid_t	f_gid;		/* Benutzergruppe			  */
 	off_t	f_size;		/* Dateigroesze				  */

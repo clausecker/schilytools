@@ -1,8 +1,8 @@
-/* @(#)lpath_unix.c	1.5 18/07/15 Copyright 2018 J. Schilling */
+/* @(#)lpath_unix.c	1.11 18/07/22 Copyright 2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lpath_unix.c	1.5 18/07/15 Copyright 2018 J. Schilling";
+	"@(#)lpath_unix.c	1.11 18/07/22 Copyright 2018 J. Schilling";
 #endif
 /*
  *	Routines for long path names on unix like operating systems
@@ -39,6 +39,11 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include "starsubs.h"
 
+EXPORT	int	lchdir		__PR((char *name));
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+LOCAL	void	sunos5_cwdfix	__PR((void));
+#endif
+EXPORT	char	*lgetcwd	__PR((void));
 EXPORT	int	lmkdir		__PR((char *name, mode_t mode));
 EXPORT	int	laccess		__PR((char *name, int amode));
 EXPORT	int	lstatat		__PR((char *name, struct stat *buf, int flag));
@@ -59,10 +64,105 @@ EXPORT	int	_lfileopen	__PR((char *name, char *mode));
 EXPORT	DIR	*lopendir	__PR((char *name));
 LOCAL	int	hop_dirs	__PR((char *name, char **np));
 
+/*
+ * A chdir() implementation that is able to deal with ENAMETOOLONG.
+ */
+EXPORT int
+lchdir(path)
+	char	*path;
+{
+	int	ret = chdir(path);
+	char	*p;
+	char	*p2;
+
+	if (ret >= 0 || geterrno() != ENAMETOOLONG)
+		return (ret);
+
+	p = path;
+	if (*p == '/') {
+		if ((ret = chdir("/")) < 0)
+			return (ret);
+		while (*p == '/')
+			p++;
+	}
+	while (*p) {
+		if ((p2 =  strchr(p, '/')) != NULL)
+			*p2 = '\0';
+		if ((ret = chdir(p)) < 0) {
+			*p2 = '/';
+			break;
+		}
+		if (p2 == NULL)
+			break;
+		*p2++ = '/';
+		while (*p2 == '/')
+			p2++;
+		p = p2;
+	}
+	return (ret);
+}
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+/*
+ * Workaround a Solaris getcwd() bug that hits on newer Solaris releases with
+ * getcwd() being a system call. Once a successful getcwd() call that returns
+ * more than PATH_MAX did succeed, future calls to getcwd() always fail with
+ * ERANGE until a successfull new chdir() call has been issued.
+ */
+LOCAL void
+sunos5_cwdfix()
+{
+	int	f = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+
+	if (f >= 0) {
+		chdir("/");
+		fchdir(f);
+		close(f);
+	}
+}
+#endif
+
+/*
+ * A getcwd() implementation that is able to deal with more than PATH_MAX.
+ */
+EXPORT char *
+lgetcwd()
+{
+	char	*dir = NULL;
+	char	*r;
+	size_t	len = PATH_MAX;
+#define	LWD_RETRY_MAX	8			/* stops at 128 * PATH_MAX */
+	int	i = 0;
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+retry:
+#endif
+	do {
+		dir = ___realloc(dir, len, "working dir");
+		*dir = '\0';
+
+		r = getcwd(dir, len);
+		if (++i >= LWD_RETRY_MAX)	/* stops at 128 * PATH_MAX */
+			break;
+		len *= 2;
+	} while (r == NULL && errno == ERANGE);
+
+#if	defined(IS_SUN) && defined(__SVR4) && defined(DO_CHDIR_LONG)
+	if (r == NULL && errno == ERANGE && i == LWD_RETRY_MAX) {
+		/*
+		 * Work around a Solaris kernel bug.
+		 */
+		sunos5_cwdfix();
+		goto retry;
+	}
+#endif
+	return (r);
+}
+
 EXPORT int
 #ifdef	PROTOTYPES
-lmkdir(char *name, mode_t mode) 
-#else 
+lmkdir(char *name, mode_t mode)
+#else
 lmkdir(name, mode)
 	char		*name;
 	mode_t		mode;
@@ -503,21 +603,49 @@ lmktemp(name)
 	int	fd;
 	int	fdh;
 	int	err = 0;
+	char	spath[PATH_MAX+1];
+	char	*oname = spath;
 #endif
 	char	*ret;
 
 	if (name == NULL)
 		return (name);
+
+#ifdef	HAVE_FCHDIR
+	/*
+	 * mktemp() is destructive, so we need to save the name before
+	 * as we always fail first with long path names.
+	 */
+	if (strlen(name) < PATH_MAX) {
+		strcpy(oname, name);
+	} else {
+		oname = strdup(name);
+		if (oname == NULL) {
+			name[0] = '\0';
+			return (name);
+		}
+	}
+#endif
 	ret = mktemp(name);
 	if (ret[0] == '\0' &&
 	    geterrno() != ENAMETOOLONG) {
+#ifdef	HAVE_FCHDIR
+		if (oname != spath)
+			free(oname);
+#endif
 		return (ret);
 	}
 
 #ifdef	HAVE_FCHDIR
-	if (ret[0] != '\0')
+	if (ret[0] != '\0') {
+		if (oname != spath)
+			free(oname);
 		return (ret);
+	}
 
+	strcpy(name, oname);
+	if (oname != spath)
+		free(oname);
 	fd = hop_dirs(name, &p);
 	if (fd >= 0) {
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);

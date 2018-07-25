@@ -1,8 +1,8 @@
-/* @(#)remove.c	1.58 18/07/15 Copyright 1985, 1991-2018 J. Schilling */
+/* @(#)remove.c	1.59 18/07/19 Copyright 1985, 1991-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.58 18/07/15 Copyright 1985, 1991-2018 J. Schilling";
+	"@(#)remove.c	1.59 18/07/19 Copyright 1985, 1991-2018 J. Schilling";
 #endif
 /*
  *	remove files an file trees
@@ -36,6 +36,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/errno.h>
 #include "starsubs.h"
+#include "pathname.h"
 
 
 extern	FILE	*tty;
@@ -48,8 +49,10 @@ extern	BOOL	remove_recursive;
 extern	BOOL	keep_nonempty_dirs;
 
 EXPORT	BOOL	remove_file	__PR((char *name, BOOL isfirst));
-LOCAL	BOOL	_remove_file	__PR((char *name, BOOL isfirst, int depth));
-LOCAL	BOOL	remove_tree	__PR((char *name, BOOL isfirst, int depth));
+LOCAL	BOOL	_remove_file	__PR((char *name, pathstore_t *path,
+						BOOL isfirst, int depth));
+LOCAL	BOOL	remove_tree	__PR((char *name, pathstore_t *path,
+						BOOL isfirst, int depth));
 
 /*
  * Remove a file or a directory tree.
@@ -60,8 +63,11 @@ remove_file(name, isfirst)
 	register char	*name;
 		BOOL	isfirst;
 {
-	static	int	depth	= -10;
-	static	int	dinit	= 0;
+	static	int		depth	= -10;
+	static	int		dinit	= 0;
+		pathstore_t	path;
+		char		pbuf[PATH_MAX+1];
+		BOOL		ret;
 
 	if (!dinit) {
 #ifdef	_SC_OPEN_MAX
@@ -71,14 +77,21 @@ remove_file(name, isfirst)
 #endif
 		dinit = 1;
 	}
-	return (_remove_file(name, isfirst, depth));
+	path.ps_size = 0;
+	path.ps_tail = 0;
+	path.ps_path = pbuf;
+	ret = _remove_file(name, &path, isfirst, depth);
+	if (path.ps_path != pbuf)
+		free_pspace(&path);
+	return (ret);
 }
 
 LOCAL BOOL
-_remove_file(name, isfirst, depth)
-	register char	*name;
-		BOOL	isfirst;
-		int	depth;
+_remove_file(name, path, isfirst, depth)
+	register char		*name;
+		pathstore_t	*path;
+		BOOL		isfirst;
+		int		depth;
 {
 	char	buf[32];
 	char	ans = '\0';
@@ -138,7 +151,7 @@ _remove_file(name, isfirst, depth)
 						return (FALSE);
 					}
 				}
-				ret = remove_tree(name, isfirst, depth);
+				ret = remove_tree(name, path, isfirst, depth);
 
 				force_remove = fr_save;
 				remove_recursive = rr_save;
@@ -167,15 +180,17 @@ cannot:
 }
 
 LOCAL BOOL
-remove_tree(name, isfirst, depth)
+remove_tree(name, path, isfirst, depth)
 	register char	*name;
+		pathstore_t	*path;
 		BOOL	isfirst;
 		int	depth;
 {
 	DIR		*d;
 	struct dirent	*dir;
 	BOOL		ret = TRUE;
-	char		xn[PATH_MAX];	/* XXX A bad idea for a final solution */
+	size_t		otail;
+	size_t		nlen;
 	char		*p;
 
 	if ((d = lopendir(name)) == NULL) {
@@ -183,9 +198,23 @@ remove_tree(name, isfirst, depth)
 	}
 	depth--;
 
-	strcpy(xn, name);
-	p = &xn[strlen(name)];
-	*p++ = '/';
+	if (path->ps_tail == 0) {
+		nlen = strlen(name);
+		if (path->ps_size == 0 && nlen > (PATH_MAX-2)) {
+			/*
+			 * Does not fit into static buffer.
+			 */
+			init_pspace(PS_STDERR, path);
+			strcpy_pspace(PS_STDERR, path, name);
+		} else {
+			strcpy(path->ps_path, name);
+			path->ps_tail = nlen;
+		}
+	}
+	otail = path->ps_tail;
+	p = path->ps_path + path->ps_tail;
+	*p++ = '/';					/* Trailing '/' */
+	*p = '\0';
 
 	while ((dir = readdir(d)) != NULL) {
 
@@ -193,19 +222,40 @@ remove_tree(name, isfirst, depth)
 				streql(dir->d_name, ".."))
 			continue;
 
+		nlen = strlen(dir->d_name);
+		if ((nlen + 2 + path->ps_tail) > PATH_MAX) {
+			if (path->ps_size == 0) {
+				/*
+				 * Does not fit into static buffer.
+				 */
+				name[path->ps_tail + 1] = '\0';
+				init_pspace(PS_STDERR, path);
+				strcpy_pspace(PS_STDERR, path, name);
+				path->ps_tail--;	/* Trailing '/' */
+			}
+			grow_pspace(PS_STDERR,
+					path, (nlen + 2 + path->ps_tail));
+			p = path->ps_path + path->ps_tail + 1;
+			*p = 0;
+		}
 		strcpy(p, dir->d_name);
+		path->ps_tail += nlen + 1;
 
 		if (depth <= 0) {
 			closedir(d);
 		}
-		if (!_remove_file(xn, isfirst, depth))
+		if (!_remove_file(path->ps_path, path, isfirst, depth))
 			ret = FALSE;
+		path->ps_tail = otail;
+
 		if (depth <= 0 && (d = lopendir(name)) == NULL) {
+			p[-1] = '\0';			/* Trailing '/' */
 			return (FALSE);
 		}
 	}
 
 	closedir(d);
+	p[-1] = '\0';					/* Trailing '/' */
 
 	if (ret == FALSE)
 		return (ret);

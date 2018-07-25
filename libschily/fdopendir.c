@@ -1,17 +1,21 @@
-/* @(#)fdopendir.c	1.1 13/10/27 Copyright 2011-2013 J. Schilling */
+/* @(#)fdopendir.c	1.2 18/07/16 Copyright 2011-2018 J. Schilling */
 /*
  *	Emulate the behavior of fdopendir(fd)
  *
  *	Note that emulation methods that do not use the /proc filesystem are
  *	not MT safe. In the non-MT-safe case, we do:
  *
- *		savewd()/fchdir()/open(name)/restorewd()
+ *		savewd()/fchdir()/opendir(".")/restorewd()
+ *
+ *	Since the /proc method may fail with ENAMETOOLONG, we need to fall back
+ *	to the fchdir() method in case of long path names and as a result are
+ *	not MT-safe with long path names.
  *
  *	Errors may force us to abort the program as our caller is not expected
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2011-13 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -54,6 +58,9 @@ fdopendir(fd)
 	struct save_wd save_wd;
 
 	if ((proc_name = proc_fd2name(buf, fd, ".")) != NULL) {
+		/*
+		 * The next opendir() frequently results in ENAMETOOLONG
+		 */
 		ret = opendir(proc_name);
 		if (ret != (DIR *)NULL) {
 			close(fd);
@@ -61,9 +68,13 @@ fdopendir(fd)
 		}
 		if (NON_PROCFS_ERRNO(errno))
 			return (ret);
-	} else if (geterrno() == ENAMETOOLONG) {
-		return ((DIR *)NULL);
 	}
+
+	/*
+	 * /proc open failed or /proc not available on this platform.
+	 * Give it a chance using fchdir(). But the following code is
+	 * not MT-safe!
+	 */
 
 	if (savewd(&save_wd) < 0) {
 		/*

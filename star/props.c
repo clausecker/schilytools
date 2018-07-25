@@ -1,8 +1,8 @@
-/* @(#)props.c	1.63 18/07/14 Copyright 1994-2018 J. Schilling */
+/* @(#)props.c	1.64 18/07/23 Copyright 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.63 18/07/14 Copyright 1994-2018 J. Schilling";
+	"@(#)props.c	1.64 18/07/23 Copyright 1994-2018 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -248,8 +248,19 @@ setprops(htype)
 		props.pr_pad   = 0;
 		props.pr_diffmask = 0L;
 		props.pr_nflags = PR_LONG_NAMES;
-		props.pr_maxnamelen =  PATH_MAX;	/* GNU tar can't more */
-		props.pr_maxlnamelen = PATH_MAX;	/* GNU tar can't more */
+#ifdef	HAVE_FCHDIR
+		/*
+		 * GNU tar cannot extract archives with long path names but
+		 * under some conditions creates them. For this reason, it
+		 * does not seem to be a problem if we do not prevent to
+		 * create "gnutar" archives with long path names.
+		 */
+		props.pr_maxnamelen =  INT_MAX;
+		props.pr_maxlnamelen = INT_MAX;
+#else
+		props.pr_maxnamelen =  PATH_MAX;
+		props.pr_maxlnamelen = PATH_MAX;
+#endif
 		props.pr_maxsname =    NAMSIZ-1;
 		props.pr_maxslname =   NAMSIZ-1;
 		props.pr_maxprefix =   0;

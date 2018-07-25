@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)defs.h	1.19 18/01/13 2017-2018 J. Schilling
+ * @(#)defs.h	1.20 18/07/17 2017-2018 J. Schilling
  */
 
 /*
@@ -96,10 +96,15 @@
 /*
  * Definition of wchar functions.
  */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/wctype.h>
+#include <schily/wchar.h>
+#else
 #ifdef	HAVE_WCTYPE_H	/* HP-UX-10.x does not have it */
 #include <wctype.h>
 #endif
 #include <wchar.h>
+#endif
 
 /*
  * A type and some utilities for boolean values

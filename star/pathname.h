@@ -1,4 +1,4 @@
-/* @(#)pathname.h	1.5 18/06/20 Copyright 2004-2018 J. Schilling */
+/* @(#)pathname.h	1.6 18/07/22 Copyright 2004-2018 J. Schilling */
 /*
  *	Copyright (c) 2004-2018 J. Schilling
  */
@@ -44,6 +44,7 @@ typedef struct pathstore {
 	size_t	ps_size;	/* Current size of 'ps_path'	*/
 } pathstore_t;
 
+extern	void		clear_pspace	__PR((pathstore_t *pathp));
 extern	int		init_pspace	__PR((PS_F *f, pathstore_t *pathp));
 extern	ssize_t		incr_pspace	__PR((PS_F *f, pathstore_t *pathp,
 								size_t amt));

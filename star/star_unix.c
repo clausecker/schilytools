@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.110 18/07/14 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.113 18/07/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.110 18/07/14 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.113 18/07/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -85,7 +85,11 @@ extern	BOOL	doxattr;
 extern	BOOL	dofflags;
 
 EXPORT	BOOL	_getinfo	__PR((char *name, FINFO *info));
+EXPORT	BOOL	_lgetinfo	__PR((char *name, FINFO *info));
 EXPORT	BOOL	getinfo		__PR((char *name, FINFO *info));
+#ifdef	HAVE_FSTATAT
+EXPORT	BOOL	getinfoat	__PR((int fd, char *name, FINFO *info));
+#endif
 EXPORT	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
 LOCAL	void	print_badnsec	__PR((FINFO *info, char *name, long val));
 EXPORT	void	checkarch	__PR((FILE *f));
@@ -97,9 +101,9 @@ EXPORT	int	snulltimes	__PR((char *name, FINFO *info));
 EXPORT	int	sxsymlink	__PR((char *name, FINFO *info));
 EXPORT	int	rs_acctime	__PR((int fd, FINFO *info));
 EXPORT	void	setdirmodes	__PR((char *name, mode_t mode));
+EXPORT	mode_t	osmode		__PR((mode_t tarmode));
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #else
-EXPORT	mode_t	osmode		__PR((mode_t tarmode));
 LOCAL	int	dolchmodat	__PR((const char *name, mode_t tarmode, flag));
 #endif
 
@@ -150,6 +154,30 @@ _getinfo(name, info)
 	return (ret);
 }
 
+/*
+ * Simple getinfo() variant using lstat()
+ */
+EXPORT BOOL
+_lgetinfo(name, info)
+	char	*name;
+	register FINFO	*info;
+{
+	BOOL	ret;
+	BOOL	ofollow = follow;
+	BOOL	opaxfollow = paxfollow;
+
+	/*
+	 * Always use lstat()
+	 */
+	follow = FALSE;
+	paxfollow = FALSE;
+	ret = _getinfo(name, info);
+	follow = ofollow;
+	paxfollow = opaxfollow;
+
+	return (ret);
+}
+
 EXPORT BOOL
 getinfo(name, info)
 	char	*name;
@@ -157,7 +185,7 @@ getinfo(name, info)
 {
 	struct stat	stbuf;
 
-	info->f_filetype = -1;	/* Will be overwritten of stat() works */
+	info->f_filetype = -1;	/* Will be overwritten if stat() works */
 newstat:
 	if (paxfollow) {
 		if (lstatat(name, &stbuf, 0 /* stat */) < 0) {
@@ -179,6 +207,39 @@ newstat:
 	info->f_sname = info->f_name = name;
 	return (stat_to_info(&stbuf, info));
 }
+
+#ifdef	HAVE_FSTATAT
+EXPORT BOOL
+getinfoat(fd, name, info)
+	int	fd;
+	char	*name;
+	register FINFO	*info;
+{
+	struct stat	stbuf;
+
+	info->f_filetype = -1;	/* Will be overwritten if stat() works */
+newstat:
+	if (paxfollow) {
+		if (fstatat(fd, name, &stbuf, 0 /* stat */) < 0) {
+			if (geterrno() == EINTR)
+				goto newstat;
+			if (geterrno() != ENOENT)
+				return (FALSE);
+
+			while (fstatat(fd, name, &stbuf, AT_SYMLINK_NOFOLLOW) < 0) {
+				if (geterrno() != EINTR)
+					return (FALSE);
+			}
+		}
+	} else if (fstatat(fd, name, &stbuf, follow?0:AT_SYMLINK_NOFOLLOW) < 0) {
+		if (geterrno() == EINTR)
+			goto newstat;
+		return (FALSE);
+	}
+	info->f_sname = info->f_name = name;
+	return (stat_to_info(&stbuf, info));
+}
+#endif
 
 EXPORT BOOL
 stat_to_info(sp, info)

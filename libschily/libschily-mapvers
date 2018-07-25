@@ -1,8 +1,15 @@
-# /* @(#)libschily-mapvers	1.58 18/06/16 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.59 18/07/23 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.10 {
 global:
+#ifndef	HAVE_OPENAT
+	openat
+	openat64
+#endif
+#ifndef	HAVE_FSTATAT
+	fstatat64;
+#endif
 #ifndef	HAVE_WAITID
 	js_waitid;
 #endif

@@ -1,8 +1,8 @@
-/* @(#)pathname.c	1.8 18/06/19 Copyright 2004-2018 J. Schilling */
+/* @(#)pathname.c	1.9 18/07/22 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pathname.c	1.8 18/06/19 Copyright 2004-2018 J. Schilling";
+	"@(#)pathname.c	1.9 18/07/22 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2004-2018 J. Schilling
@@ -90,6 +90,19 @@ strcpy_pspace(f, pathp, nm)
 	const char	*nm;
 {
 	return (strlcpy_pspace(f, pathp, nm, (size_t)-1));
+}
+
+/*
+ * Initialize pathstore_t object.
+ * Set initial size to PS_INCR.
+ */
+EXPORT void
+clear_pspace(pathp)
+	pathstore_t	*pathp;
+{
+	pathp->ps_path = NULL;
+	pathp->ps_size = 0;
+	pathp->ps_tail = 0;
 }
 
 /*

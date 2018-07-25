@@ -1,13 +1,19 @@
-/* @(#)restore.c	1.71 18/07/15 Copyright 2003-2018 J. Schilling */
+/* @(#)restore.c	1.76 18/07/22 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.71 18/07/15 Copyright 2003-2018 J. Schilling";
+	"@(#)restore.c	1.76 18/07/22 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
+ *
+ *	File renames and file deletions are handled here as well.
+ *	Since we cannot immediately know whether a file is deleted
+ *	or just renamed, files that disappear from their old location
+ *	are first moved to "star-tmpdir" and finally removed from there
+ *	when we decide to exit star.
  *
  *	Copyright (c) 2003-2018 J. Schilling
  */
@@ -28,7 +34,7 @@ static	UConst char sccsid[] =
 /*
  *	Problems:
  *
- *	-	lost+found will usually not extracted and thus
+ *	-	lost+found will usually not be extracted and thus
  *		get no new inode number.
  *		**** Solution: Use -U ****
  *
@@ -73,6 +79,7 @@ extern	BOOL	debug;
 extern	int	xdebug;
 extern	int	verbose;
 extern	dev_t	curfs;
+extern	BOOL	dopartial;
 extern	BOOL	forcerestore;
 extern	char	*vers;
 extern	GINFO	*grip;		/* Global read info pointer	*/
@@ -127,20 +134,21 @@ LOCAL	BOOL	removefile	__PR((char *name));
 LOCAL	BOOL	removetree	__PR((char *name));
 EXPORT	void	sym_initmaps	__PR((void));
 EXPORT	void	sym_open	__PR((char *name));
-LOCAL	int	xgetline	__PR((FILE *f, char *buf, int len, char *name));
+LOCAL	int	xgetline	__PR((FILE *f, char **bufp, size_t *lenp, char *name));
 LOCAL	void	checknl		__PR((FILE *f));
 LOCAL	void	sym_initsym	__PR((void));
 LOCAL	void	tmpnotempty	__PR((void));
 LOCAL	void	purgeent	__PR((imap_t *imp));
 LOCAL	void	purgetree	__PR((imap_t *imp));
 EXPORT	void	sym_init	__PR((GINFO *gp));
-EXPORT	int	ngetline	__PR((FILE *f, char *buf, int len));
 EXPORT	void	sym_close	__PR((void));
 LOCAL	void	sym_dump	__PR((void));
 LOCAL	void	writeheader	__PR((FILE *f));
 LOCAL	void	readheader	__PR((FILE *f));
 LOCAL	void	checkheader	__PR((void));
 LOCAL	void	useforce	__PR((void));
+LOCAL	void	usepartial	__PR((void));
+LOCAL	size_t	fullnlen	__PR((imap_t  *imp, BOOL top));
 LOCAL	char	*fullname	__PR((imap_t *imp, char *cp, char *ep, BOOL top));
 LOCAL	void	printfullname	__PR((FILE *f, imap_t *imp));
 LOCAL	void	printonesym	__PR((FILE *f, imap_t *imp));
@@ -886,34 +894,42 @@ move2tmp(dir, name, oino, nino)
 	ino_t	nino;
 {
 	char	path[2*PATH_MAX+1];
-	char	tpath[128];
+	char	tpath[2*PATH_MAX+1];		/* "star-tmpdir/#%lld" */
+	char	*pathp = path;
+	size_t	pathlen = sizeof (path);
+	size_t	plen;
 	imap_t	*onp;
 	imap_t	*nnp;
 
-	js_snprintf(path, sizeof (path), "%s/%s", dir, name);
-	js_snprintf(tpath, sizeof (tpath), "%s/#%lld", sym_tmpdir, (Llong)nino);
+	plen = strlen(dir) + strlen(name) + 2;	/* "%s/%s" + Nul */
+	if (plen > pathlen) {
+		pathp = ___malloc(plen, "name buffer");
+		pathlen = plen;
+	}
+	js_snprintf(pathp, pathlen, "%s/%s", dir, name);
 
-	onp = pfind_node(path);
+	onp = pfind_node(pathp);
 	if (onp == NULL) {
 		sym_dump();
 		comerrno(EX_BAD,
 			"Panic: amnesia in inode data base for '%s'.\n",
-			path);
+			pathp);
 	}
 	nnp = nifind_node(itmp, nino);
 	if (nnp) {			/* inode is already in star-tmpdir */
 		if (xdebug)
-			error("unlink(%s)\n", path);
-		if (lunlinkat(path, 0) < 0)
-			comerr("Cannot unlink '%s'.\n", path);
+			error("unlink(%s)\n", pathp);
+		if (lunlinkat(pathp, 0) < 0)
+			comerr("Cannot unlink '%s'.\n", pathp);
 		purgeent(onp);
-		return;
+		goto out;
 	}
 
+	js_snprintf(tpath, sizeof (tpath), "%s/#%lld", sym_tmpdir, (Llong)nino);
 	if (xdebug)
-		error("rename(%s, %s)\n", path, tpath);
-	if (lrename(path, tpath) < 0)
-		comerr("Cannot rename '%s' to '%s'.\n", path, tpath);
+		error("rename(%s, %s)\n", pathp, tpath);
+	if (lrename(pathp, tpath) < 0)
+		comerr("Cannot rename '%s' to '%s'.\n", pathp, tpath);
 
 #ifdef	PADD_NODE_DEBUG
 	padd_node_caller = "move2tmp";
@@ -933,6 +949,9 @@ move2tmp(dir, name, oino, nino)
 	for (onp = nnp->i_dir; onp; onp = onp->i_dxnext) {
 		onp->i_dparent = nnp;
 	}
+out:
+	if (pathp != path)
+		free(pathp);
 }
 
 /*
@@ -946,12 +965,22 @@ move2dir(dir, name, oino)
 	ino_t	oino;
 {
 	char	path[2*PATH_MAX+1];
+	char	*pathp = path;
+	size_t	pathlen = sizeof (path);
 	char	tpath[2*PATH_MAX+1];
+	char	*tpathp = tpath;
+	size_t	tpathlen = sizeof (tpath);	
 	imap_t	*onp;
 	imap_t	*nnp;
 	char	*p;
+	size_t	plen;
 
-	js_snprintf(path, sizeof (path), "%s/%s", dir, name);
+	plen = strlen(dir) + strlen(name) + 2;
+	if (plen > pathlen) {
+		pathp = ___malloc(plen, "name buffer");
+		pathlen = plen;
+	}
+	js_snprintf(pathp, pathlen, "%s/%s", dir, name);
 	onp = oifind_node(itmp, oino);
 
 #ifdef	RES_DEBUG
@@ -964,23 +993,28 @@ move2dir(dir, name, oino)
 #endif
 
 	if (onp) {
+		/*
+		 * Since our static buffer is 2*PATH_MAX, we cannot get more
+		 * here because "star-tmpdir" + one path name component cannot
+		 * result in more than 2*256 chars and PATH_MAX is at least 256.
+		 */
 		js_snprintf(tpath, sizeof (tpath), "%s/%s",
 						sym_tmpdir, onp->i_name);
 		if (xdebug)
-			error("rename(%s, %s)\n", tpath, path);
-		if (lrename(tpath, path) < 0) {
-			errmsg("Cannot rename '%s' to '%s'.\n", tpath, path);
+			error("rename(%s, %s)\n", tpath, pathp);
+		if (lrename(tpath, pathp) < 0) {
+			errmsg("Cannot rename '%s' to '%s'.\n", tpath, pathp);
 			/* XXX set error code */
-			return;
+			goto out;
 		}
 #ifdef	PADD_NODE_DEBUG
 		padd_node_caller = "move2dir";
 #endif
-		nnp = padd_node(path, onp->i_oino, onp->i_nino, onp->i_flags);
+		nnp = padd_node(pathp, onp->i_oino, onp->i_nino, onp->i_flags);
 #ifdef	PADD_NODE_DEBUG
 		if (nnp == NULL)
 			errmsgno(EX_BAD, "padd_node(%s, %lld, %lld, %X) = NULL\n",
-				path, (Llong)onp->i_oino,
+				pathp, (Llong)onp->i_oino,
 				(Llong)onp->i_nino, onp->i_flags);
 #endif
 		if (xdebug) {
@@ -992,7 +1026,7 @@ move2dir(dir, name, oino)
 		for (onp = nnp->i_dir; onp; onp = onp->i_dxnext) {
 			onp->i_dparent = nnp;
 		}
-		return;
+		goto out;
 	}
 
 	/*
@@ -1005,59 +1039,71 @@ move2dir(dir, name, oino)
 	 * -	Ist Flag gesetzt, dann Hard Link auf Dir setzen.
 	 */
 	if (xdebug)
-		error("Cannot rename '%s' from '%s'.\n", path, sym_tmpdir);
+		error("Cannot rename '%s' from '%s'.\n", pathp, sym_tmpdir);
 
 	onp = oifind_node((imap_t *)0, oino);
 	if (onp == NULL) {
 		if (xdebug)
 			error("Cannot link/move any file to '%s'.\n",
-								path);
-		return;
+								pathp);
+		goto out;
 	}
-	p = fullname(onp, tpath, &tpath[sizeof (tpath)], TRUE);
+	plen = fullnlen(onp, TRUE);
+	if (plen == 0) {
+		/* XXX error code */
+		errmsgno(EX_BAD, "Path name '");
+		printfullname(stderr, onp);
+		error("' cannot rename\n");
+		goto out;
+	}
+	if (plen > tpathlen) {
+		tpathp = ___malloc(plen, "name buffer");
+		tpathlen = plen;
+	}	
+	p = fullname(onp, tpathp, &tpathp[tpathlen], TRUE);
 	if (p == NULL) {
 		/* XXX error code */
 		errmsgno(EX_BAD, "Path name '");
 		printfullname(stderr, onp);
 		error("' too long, cannot rename\n");
-		return;
+		goto out;
 	}
 	if (xdebug)
 		error("move2dir(%s, %s, %lld) found path => '%s'\n",
-			dir, name, (Llong)oino, tpath);
+			dir, name, (Llong)oino, tpathp);
 
 	if ((onp->i_flags & (I_DIR|I_DID_RENAME)) == I_DIR) {
 		if (xdebug)
-			error("rename(%s, %s)\n", tpath, path);
-		if (lrename(tpath, path) < 0) {
+			error("rename(%s, %s)\n", tpathp, pathp);
+		if (lrename(tpathp, pathp) < 0) {
 			/* XXX error code */
-			errmsg("Cannot rename(%s, %s)\n", tpath, path);
+			errmsg("Cannot rename(%s, %s)\n", tpathp, pathp);
 		} else {
 #ifdef	PADD_NODE_DEBUG
 			padd_node_caller = "move2dir 2";
 #endif
-			nnp = padd_node(path, onp->i_oino, onp->i_nino, onp->i_flags);
+			nnp = padd_node(pathp, onp->i_oino, onp->i_nino, onp->i_flags);
 #ifdef	PADD_NODE_DEBUG
 			if (nnp == NULL)
 				errmsgno(EX_BAD, "padd_node(%s, %lld, %lld, %X) = NULL\n",
-					path, (Llong)onp->i_oino,
+					pathp, (Llong)onp->i_oino,
 					(Llong)onp->i_nino, onp->i_flags);
 #endif
 			purgeent(onp);
 			nnp->i_flags |= I_DID_RENAME;
 			if ((onp->i_flags & I_DIR) == 0)
-				comerrno(EX_BAD, "Panic: Not a dir '%s'.\n", path);
+				comerrno(EX_BAD, "Panic: Not a dir '%s'.\n", pathp);
 			nnp->i_dir = onp->i_dir;
 			for (onp = nnp->i_dir; onp; onp = onp->i_dxnext) {
 				onp->i_dparent = nnp;
 			}
 		}
-		return;
+		goto out;
 	}
 	if (xdebug)
-		error("link(%s, %s)\n", tpath, path);
+		error("link(%s, %s)\n", tpathp, pathp);
 #ifdef	HAVE_LINK
-	if (llink(tpath, path) < 0) {
+	if (llink(tpathp, pathp) < 0) {
 #else
 	if (1) {
 #ifdef	ENOSYS
@@ -1067,16 +1113,16 @@ move2dir(dir, name, oino)
 #endif
 #endif
 		/* XXX error code */
-		errmsg("Cannot link(%s, %s)\n", tpath, path);
+		errmsg("Cannot link(%s, %s)\n", tpathp, pathp);
 	} else {
 #ifdef	PADD_NODE_DEBUG
 		padd_node_caller = "move2dir 3";
 #endif
-		nnp = padd_node(path, onp->i_oino, onp->i_nino, onp->i_flags);
+		nnp = padd_node(pathp, onp->i_oino, onp->i_nino, onp->i_flags);
 #ifdef	PADD_NODE_DEBUG
 		if (nnp == NULL)
 			errmsgno(EX_BAD, "padd_node(%s, %lld, %lld, %X) = NULL\n",
-				path, (Llong)onp->i_oino,
+				pathp, (Llong)onp->i_oino,
 				(Llong)onp->i_nino, onp->i_flags);
 #endif
 #ifdef	nonono
@@ -1090,6 +1136,11 @@ move2dir(dir, name, oino)
 		}
 #endif
 	}
+out:
+	if (pathp != path)
+		free(pathp);
+	if (tpathp != tpath)
+		free(tpathp);
 }
 
 /*
@@ -1152,6 +1203,25 @@ extern	BOOL	nowarn;
 	    !is_special(cinfo) && !is_symlink(cinfo)) {
 		if (slashp)
 			*slashp = '/';
+		if (!(cinfo->f_mode & TUWRITE)) {
+#ifdef	RES2_DEBUG
+			error("sym_typecheck(%s) OLD FILE mode: %o\n",
+				info->f_name, cinfo->f_mode);
+#endif
+			/*
+			 * Need to give write permissions to allow to run
+			 * "star -restore" as non-root user.
+			 *
+			 * info->f_mode | TUWRITE may be closer to the
+			 * final modes than cinfo->f_mode | TUWRITE.
+			 */
+			if (lchmodat(info->f_name,
+				    osmode(info->f_mode | TUWRITE),
+				    0 /* chmod */) < 0) {
+				errmsg("Cannot chmod +w '%s'\n",
+					info->f_name);
+			}
+		}
 		return (imp);
 	}
 
@@ -1183,8 +1253,11 @@ extern	BOOL	nowarn;
 		return (imp);
 	}
 
-	if (imp == NULL)
+	if (imp == NULL) {
+		if (slashp)
+			*slashp = '/';
 		return (imp);
+	}
 
 	if (is_dir(cinfo)) {
 		imap_t	*cmp;
@@ -1277,7 +1350,8 @@ EXPORT void
 sym_open(name)
 	char	*name;
 {
-	char	buf[2*PATH_MAX+1];
+	char	*buf;
+	size_t	buflen = PATH_MAX;
 	FILE	*f;
 	int	amt;
 	char	*p;
@@ -1317,7 +1391,8 @@ static	char	td[] = "star-tmpdir/.";
 	if (f == NULL)
 		return;
 
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	buf = ___malloc(buflen, "line buffer");
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	if (!streql(buf, vers)) {
 		errmsgno(EX_BAD, "Restore version mismatch '%s' '%s'.\n",
 			buf, vers);
@@ -1330,7 +1405,7 @@ static	char	td[] = "star-tmpdir/.";
 
 	readheader(f);
 
-	while ((amt = ngetline(f, buf, sizeof (buf))) > 0) {
+	while ((amt = getdelim(&buf, &buflen, '\0', f)) > 0) {
 		Int32_t	flags;
 
 		checknl(f);
@@ -1393,6 +1468,7 @@ static	char	td[] = "star-tmpdir/.";
 #endif
 	}
 	fclose(f);
+	free(buf);
 
 #ifdef	OLDSYM_DEBUG
 	printsyms(stderr, iroot);
@@ -1401,20 +1477,17 @@ static	char	td[] = "star-tmpdir/.";
 }
 
 LOCAL int
-xgetline(f, buf, len, name)
+xgetline(f, bufp, lenp, name)
 	FILE	*f;
-	char	*buf;
-	int	len;
+	char	**bufp;
+	size_t	*lenp;
 	char	*name;
 {
 	int	amt;
 
-	seterrno(0);
-	if ((amt = ngetline(f, buf, len)) < 0) {
-		if (geterrno() == 0 && amt == EOF) {
-			/*
-			 * If errno is 0, this must be EOF from getc()
-			 */
+	clearerr(f);
+	if ((amt = getdelim(bufp, lenp, '\0', f)) < 0) {
+		if (feof(f)) {
 			amt = 0;
 		} else {
 			comerr("Cannot read '%s'.\n", name);
@@ -1422,8 +1495,6 @@ xgetline(f, buf, len, name)
 	}
 	if (amt == 0)
 		comerrno(EX_BAD, "File '%s' too short.\n", name);
-	if (amt >= len)
-		comerrno(EX_BAD, "Line too long in '%s'.\n", name);
 	checknl(f);
 	return (amt);
 }
@@ -1447,7 +1518,7 @@ checknl(f)
 LOCAL void
 sym_initsym()
 {
-	char	tpath[PATH_MAX+1];
+	char	tpath[2*PATH_MAX+1];
 	FINFO	finfo;
 	imap_t	*imp;
 	char	*dp;
@@ -1606,8 +1677,8 @@ sym_init(gp)
 			dt_name(odtype));
 		}
 		errmsgno(EX_BAD, "WARNING: An incremental restore may not work correctly.\n");
-		if (!forcerestore) {
-			useforce();
+		if (!dopartial && !forcerestore) {
+			usepartial();
 			/* NOTREACHED */
 		}
 		if (gp->dumptype < odtype)
@@ -1619,52 +1690,12 @@ sym_init(gp)
 }
 
 /*
- * A special version of fgetline() that does not stop on '\n' but only on '\0'.
- */
-EXPORT int
-ngetline(f, buf, len)
-	register	FILE	*f;
-			char	*buf;
-	register	int	len;
-{
-	register int	c	= '\0';
-	register char	*bp	= buf;
-	register int	nul	= '\0';
-
-	for (;;) {
-		if ((c = getc(f)) < 0)
-			break;
-		if (c == nul)
-			break;
-		if (--len > 0) {
-			*bp++ = (char)c;
-		} else {
-			/*
-			 * Read up to end of line
-			 */
-			while ((c = getc(f)) >= 0 && c != nul)
-				/* LINTED */
-				;
-			break;
-		}
-	}
-	*bp = '\0';
-	/*
-	 * If buffer is empty and we hit EOF, return EOF
-	 */
-	if (c < 0 && bp == buf)
-		return (c);
-
-	return (bp - buf);
-}
-
-/*
  * Write back the inode symbol table
  */
 EXPORT void
 sym_close()
 {
-	char	tpath[PATH_MAX+1];
+	char	tpath[2*PATH_MAX+1];
 	FINFO	finfo;
 	FILE	*f;
 	imap_t	*imp;
@@ -1840,47 +1871,50 @@ LOCAL void
 readheader(f)
 	FILE	*f;
 {
-	char	buf[2*PATH_MAX+1];
+	char	*buf;
+	size_t	buflen = PATH_MAX;
 	char	*p;
 	Llong	ll;
 
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	buf = ___malloc(buflen, "line buffer");
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	odtype = dt_type(buf);			/* Old Dump type */
 
 	ogp = ___malloc(sizeof (*ogp), "ogp");
 	fillbytes(ogp, sizeof (*ogp), '\0');
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	ogp->release = ___savestr(buf);		/* Last dump SCHILY.release */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	ogp->archtype = hdr_type(buf);		/* Last dump SCHILY.archtype */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	ogp->hostname = ___savestr(buf);		/* " SCHILY.volhdr.hostname */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	ogp->filesys = ___savestr(buf);		/* " SCHILY.volhdr.filesys */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	ogp->dumptype = dt_type(buf);		/* " SCHILY.volhdr.dumptype */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	p = astollb(buf, &ll, 10);
 	if (*p != '\0')
 		comerrno(EX_BAD, "Bad dumplevel '%s' in '%s'.\n",
 			buf, sym_symtable);
 	ogp->dumplevel = ll;			/* " SCHILY.volhdr.dumplevel */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	p = astollb(buf, &ll, 10);
 	if (*p != '\0')
 		comerrno(EX_BAD, "Bad reflevel '%s' in '%s'.\n",
 			buf, sym_symtable);
 	ogp->reflevel = ll;			/* " SCHILY.volhdr.reflevel */
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	if (!getdumptime(buf, &ogp->dumpdate))	/* " SCHILY.volhdr.dumpdate */
 		exit(EX_BAD);
-	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
+	(void) xgetline(f, &buf, &buflen, sym_symtable);
 	if (!getdumptime(buf, &ogp->refdate))	/* " SCHILY.volhdr.refdate */
 		exit(EX_BAD);
 	ogp->gflags = GF_RELEASE | GF_ARCHTYPE | GF_HOSTNAME | GF_FILESYS |
 			GF_DUMPTYPE | GF_DUMPLEVEL | GF_REFLEVEL |
 			GF_DUMPDATE | GF_REFDATE;
 
+	free(buf);
 }
 
 LOCAL void
@@ -1968,6 +2002,43 @@ useforce()
 	lunlinkat(sym_lock, 0);
 	comerrno(EX_BAD, "Use -force-restore if you want to restore anyway.\n");
 	/* NOTREACHED */
+}
+
+LOCAL void
+usepartial()
+{
+	lunlinkat(sym_lock, 0);
+	comerrno(EX_BAD, "Use -partial if you want to restore anyway.\n");
+	/* NOTREACHED */
+}
+
+/*
+ * Compute the name length for full path name for imp
+ */
+LOCAL size_t
+fullnlen(imp, top)
+	imap_t 	*imp;
+	BOOL	top;
+{
+	ssize_t	len = 1;				/* Final Null Byte */
+
+	if (imp == iroot)
+		return (len);
+
+	if (imp == NULL) {
+		errmsgno(EX_BAD, "Panic: fullnlen(NULL)\n");
+		return (0);
+	}
+	len = fullnlen(imp->i_dparent, FALSE);
+	if (len == 0)
+		return (len);
+
+	if (imp->i_name == NULL) {
+		errmsgno(EX_BAD, "Panic: fullnlen NULL i_name\n");
+		return (0);
+	}
+	len += strlen(imp->i_name) + (top ? 0:1);	/* Add '/' if not top */
+	return (len);
 }
 
 /*

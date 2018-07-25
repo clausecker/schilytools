@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)pwd.c	1.36 18/07/14 2008-2018 J. Schilling
+ * @(#)pwd.c	1.37 18/07/16 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.36 18/07/14 2008-2018 J. Schilling";
+	"@(#)pwd.c	1.37 18/07/16 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -208,7 +208,8 @@ retry:
 	return ((unsigned char *)r);
 }
 
-#if	defined(HAVE_FCHDIR) && (defined(DO_EXPAND_LONG) || defined(DO_CHDIR_LONG))
+#if	defined(HAVE_FCHDIR) && \
+	(defined(DO_EXPAND_LONG) || defined(DO_CHDIR_LONG))
 int
 sh_hop_dirs(name, np)
 	char	*name;
@@ -289,7 +290,7 @@ lstatat(name, buf, flag)
 	ret = fstatat(fd, p, buf, flag);
 	err = errno;
 	close(fd);		/* Don't care about AT_FDCWD, it is negative */
-	errno= err;
+	errno = err;
 #endif	/* HAVE_FCHDIR && ENAMETOOLONG && DO_CHDIR_LONG */
 	return (ret);
 }
@@ -604,9 +605,22 @@ cwdget(cdflg)
 
 	cwd2(cdflg);
 	if (didpwd == FALSE) {
-		if ((cwdptr = lgetcwd()) == NULL)
-			*ncwdname = 0;
-		didpwd = TRUE;
+		if ((cwdptr = lgetcwd()) == NULL) {
+			/*
+			 * HP-UX-10.20 returns ENAMETOOLONG even though POSIX
+			 * requires it to work with long path names.
+			 * We check whether the value in "ncwdname" refers
+			 * to "." and contains no symlinks. Since we normalize
+			 * the path name before, this is as secure as a
+			 * successful getcwd() call.
+			 */
+			didpwd = PARTLY;
+			cwd2(CHDIR_P);
+			if (didpwd == FALSE)
+				*ncwdname = 0;
+		} else {
+			didpwd = TRUE;
+		}
 	}
 	if (didpwd && cwdptr)
 		cwdnod(cwdptr);
@@ -628,6 +642,8 @@ cwdset()
 {
 	if (ncwdname[0] == '\0')
 		cwdget(CHDIR_L);
+	if (didpwd == FALSE)
+		return (UC "");
 	return (ncwdname);
 }
 

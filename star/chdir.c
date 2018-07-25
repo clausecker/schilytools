@@ -1,8 +1,8 @@
-/* @(#)chdir.c	1.8 18/06/16 Copyright 1997-2018 J. Schilling */
+/* @(#)chdir.c	1.9 18/07/17 Copyright 1997-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)chdir.c	1.8 18/06/16 Copyright 1997-2018 J. Schilling";
+	"@(#)chdir.c	1.9 18/07/17 Copyright 1997-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2018 J. Schilling
@@ -45,27 +45,29 @@ extern	BOOL	debug;		/* -debug has been specified	*/
 EXPORT char *
 dogetwdir()
 {
-	char	dir[PATH_MAX+1];
+	char	*dir;
 	char	*ndir;
 
-/* XXX MAXPATHNAME vs. PATH_MAX ??? */
-
-	if (getcwd(dir, PATH_MAX) == NULL)
+	if ((dir = lgetcwd()) == NULL)
 		comerr("Cannot get working directory\n");
 	ndir = ___malloc(strlen(dir)+1, "working dir");
 	strcpy(ndir, dir);
+	free(dir);
 	return (ndir);
 }
 
 EXPORT BOOL
 dochdir(dir, doexit)
-	const char	*dir;
+	const	char	*dir;
 	BOOL		doexit;
 {
+	char	*d;
+
 	if (debug) /* temporary */
 		error("dochdir(%s) = ", dir);
 
-	if (chdir(dir) < 0) {
+	d = strdup(dir);
+	if (d == NULL || lchdir(d) < 0) {
 		int	ex = geterrno();
 
 		if (debug) /* temporary */
@@ -79,10 +81,14 @@ dochdir(dir, doexit)
 		}
 		if (doexit)
 			exit(ex);
+		if (d)
+			free(d);
 		return (FALSE);
 	}
 	if (debug) /* temporary */
 		error("%d\n", 0);
 
+	if (d)
+		free(d);
 	return (TRUE);
 }

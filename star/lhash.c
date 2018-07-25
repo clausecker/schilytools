@@ -1,8 +1,8 @@
-/* @(#)lhash.c	1.21 18/06/16 Copyright 1988, 1993-2018 J. Schilling */
+/* @(#)lhash.c	1.22 18/07/17 Copyright 1988, 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lhash.c	1.21 18/06/16 Copyright 1988, 1993-2018 J. Schilling";
+	"@(#)lhash.c	1.22 18/07/17 Copyright 1988, 1993-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1988, 1993-2018 J. Schilling
@@ -121,18 +121,20 @@ _hash_build(fp, htab)
 	register struct h_elem	*hp;
 	register	int	len;
 	register	int	hv;
-			char	buf[PATH_MAX+1];
+			char	*buf = NULL;
+			size_t	bufsize = 0;
 	register	size_t	size;
 
 	size = hash_size(HASH_DFLT_SIZE);
-	while ((len = readnull ? ngetline(fp, buf, sizeof (buf)) :
-				fgetline(fp, buf, sizeof (buf))) >= 0) {
+	while ((len = getdelim(&buf, &bufsize,
+				readnull ? '\0' : '\n', fp)) >= 0) {
 		if (len == 0)
 			continue;
-		if (len >= PATH_MAX) {
-			errmsgno(EX_BAD, "%s: Name too long (%d > %d).\n",
-							buf, len, PATH_MAX);
-			continue;
+		if (!readnull) {
+			if (buf[len-1] == '\n')
+				buf[--len] = '\0';
+			if (len == 0)
+				continue;
 		}
 		hp = ___malloc((size_t)len + 1 + sizeof (struct h_elem *), "list option");
 		strcpy(hp->h_data, buf);
@@ -140,6 +142,8 @@ _hash_build(fp, htab)
 		hp->h_next = htab[hv];
 		htab[hv] = hp;
 	}
+	if (buf)
+		free(buf);
 }
 
 /*

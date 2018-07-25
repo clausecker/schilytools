@@ -1,8 +1,8 @@
-/* @(#)create.c	1.146 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.150 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.146 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.150 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/dirent.h>
 #include <schily/string.h>
+#include <schily/jmpdefs.h>	/* For __fjmalloc() */
 #define	GT_COMERR		/* #define comerr gtcomerr */
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
@@ -168,7 +169,9 @@ EXPORT	void	checklinks	__PR((void));
 LOCAL	int	take_file	__PR((char *name, FINFO *info));
 EXPORT	int	_fileread	__PR((int *fp, void *buf, int len));
 EXPORT	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
-LOCAL	void	createi		__PR((char *sname, char *name, int namlen, FINFO *info, struct pdirs *last));
+LOCAL	void	createi		__PR((char *sname, char *name, int namlen,
+					FINFO *info, pathstore_t *pathp,
+					struct pdirs *last));
 EXPORT	void	createlist	__PR((void));
 LOCAL	BOOL	get_metainfo	__PR((char *line));
 EXPORT	BOOL	read_symlink	__PR((char *sname, char *name, FINFO *info, TCB *ptb));
@@ -185,10 +188,12 @@ EXPORT	void	put_file	__PR((int *fp, FINFO *info));
 EXPORT	void	cr_file		__PR((FINFO *info,
 					int (*)(void *, char *, int),
 					void *arg, int amt, char *text));
-LOCAL	void	put_dir		__PR((char *sname, char *dname, int namlen, FINFO *info,
-								TCB *ptb, struct pdirs *last));
+LOCAL	void	put_dir		__PR((char *sname, char *dname, int namlen,
+					FINFO *info, TCB *ptb,
+					pathstore_t *pathp, struct pdirs *last));
+LOCAL	void	toolong		__PR((char *dname, char	*name, size_t len));
 LOCAL	BOOL	checkdirexclude	__PR((char *sname, char *name, int namlen, FINFO *info));
-EXPORT	BOOL	checkexclude	__PR((char *sname, char *name, int namlen, FINFO *info));
+LOCAL	BOOL	checkexclude	__PR((char *sname, char *name, int namlen, FINFO *info));
 
 #ifdef	USE_FIND
 EXPORT	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
@@ -468,18 +473,20 @@ create(name, Hflag, forceadd)
 	if (forceadd)
 		info->f_flags |= F_FORCE_ADD;
 	paxfollow = opaxfollow;
-	createi(name, name, strlen(name), info, (struct pdirs *)0);
+	createi(name, name, strlen(name), info,
+		(pathstore_t *)0, (struct pdirs *)0);
 }
 
 LOCAL void
-createi(sname, name, namlen, info, last)
+createi(sname, name, namlen, info, pathp, last)
 		char	*sname;
 	register char	*name;
 		int	namlen;
 	register FINFO	*info;
+		pathstore_t *pathp;
 		struct pdirs *last;
 {
-		char	lname[PATH_MAX+1];
+		char	lname[PATH_MAX+1];  /* This limit cannot be overruled */
 		TCB	tb;
 	register TCB	*ptb		= &tb;
 		int	fd		= -1;
@@ -581,7 +588,7 @@ createi(sname, name, namlen, info, last)
 			put_tcb(ptb, info);
 			vprint(info);
 		} else {
-			put_dir(sname, name, namlen, info, ptb, last);
+			put_dir(sname, name, namlen, info, ptb, pathp, last);
 		}
 	} else if (take_file(name, info) <= 0) {	/* < TRUE */
 		return;
@@ -739,7 +746,7 @@ createlist()
 {
 	register int	nlen;
 		char	*name;
-		int	nsize = PATH_MAX+1+512;	/* wegen laenge !!! */
+		size_t	nsize = PATH_MAX;
 
 	/*
 	 * We need at least PATH_MAX+1 and add 512 to get better messages below
@@ -747,26 +754,22 @@ createlist()
 	name = ___malloc(nsize, "name buffer");
 
 	for (nlen = 1; nlen >= 0; ) {
-		if ((nlen = readnull ? ngetline(listf, name, nsize) :
-					fgetline(listf, name, nsize)) < 0)
+		if ((nlen = getdelim(&name, &nsize,
+				readnull ? '\0' : '\n', listf)) < 0)
 			break;
+
 		if (nlen == 0)
 			continue;
+		if (!readnull) {
+			if (name[nlen-1] == '\n')
+				name[--nlen] = '\0';
+			if (nlen == 0)
+				continue;
+		}
 		if (pkglist) {
 			if (!get_metainfo(name))
 				continue;
 			nlen = strlen(name);
-		}
-		if (nlen >= PATH_MAX) {
-			if (!errhidden(E_NAMETOOLONG, name)) {
-				if (!errwarnonly(E_NAMETOOLONG, name))
-					xstats.s_toolong++;
-				errmsgno(EX_BAD,
-				"%s: Name too long (%d >= %d).\n",
-							name, nlen, PATH_MAX);
-				(void) errabort(E_NAMETOOLONG, name, TRUE);
-			}
-			continue;
 		}
 		if (intr)
 			break;
@@ -1422,12 +1425,13 @@ extern	m_stats	*stats;
 #define	newfs(i)	((i)->f_dev != curfs)
 
 LOCAL void
-put_dir(sname, dname, namlen, info, ptb, last)
+put_dir(sname, dname, namlen, info, ptb, pathp, last)
 		char	*sname;
 	register char	*dname;
 	register int	namlen;
 	FINFO	*info;
 	TCB	*ptb;
+	pathstore_t	*pathp;
 	struct pdirs	*last;
 {
 	static	int	depth	= -10;
@@ -1439,9 +1443,8 @@ put_dir(sname, dname, namlen, info, ptb, last)
 #ifdef	HAVE_SEEKDIR
 		long	offset	= 0L;
 #endif
-		char	fname[PATH_MAX+1];	/* XXX */
+	pathstore_t	path;
 	register char	*name;
-	register char	*xdname;
 		int	xlen;
 		BOOL	putdir = FALSE;
 		BOOL	direrr = FALSE;
@@ -1449,6 +1452,7 @@ put_dir(sname, dname, namlen, info, ptb, last)
 		char	*dp = NULL;
 	struct pdirs	thisd;
 	struct pdirs	*pd = last;
+		BOOL	didslash = FALSE;
 
 	if (!dinit) {
 #ifdef	_SC_OPEN_MAX
@@ -1496,7 +1500,22 @@ put_dir(sname, dname, namlen, info, ptb, last)
 			ino_t	*ino = NULL;
 			int	nents;
 
-			dp = fetchdir(sname, &nents, &dlen, dodump?&ino:NULL);
+			d = lopendir(sname);
+			if (d) {
+				dp = dfetchdir(d, sname,
+					    &nents, &dlen, dodump?&ino:NULL);
+#if	defined(HAVE_FSTATAT) && defined(HAVE_DIRFD)
+				if (depth <= 0) {
+					closedir(d);
+					d = NULL;
+				}
+#else
+				closedir(d);
+				d = NULL;
+#endif
+			} else {
+				dp = NULL;
+			}
 			if (dp == NULL) {
 				if (!errhidden(E_OPEN, dname)) {
 					if (!errwarnonly(E_OPEN, dname))
@@ -1565,67 +1584,84 @@ put_dir(sname, dname, namlen, info, ptb, last)
 	}
 
 	if (!nodesc && (!nomount || !newfs(info))) {
+		if (sname != dname)
+			comerrno(EX_BAD, "Panic: put_dir(): sname != dname\n");
 
-		strcpy(fname, dname);
-		xdname = &fname[namlen];
-		if (namlen && xdname[-1] != '/') {
+		name = dname;
+		if (pathp == NULL) {
+			if (name[0] == '.' && name[1] == '/') {
+				for (name++; name[0] == '/'; name++)
+					/* LINTED */
+					;
+				namlen -= name - dname;
+			}
+			if (name[0] == '.' && name[1] == '\0') {
+				name++;
+				namlen--;
+			}
+			pathp = &path;
+			if (init_pspace(PS_STDERR, pathp) < 0 ||
+			    strlcpy_pspace(PS_STDERR, pathp, name, namlen) < 0) {
+				toolong("", name, namlen);
+				goto out;
+			}
+		}
+		if (namlen && pathp->ps_path[pathp->ps_tail - 1] != '/') {
+			char	*p;
+
+			if ((pathp->ps_tail+2) < pathp->ps_size) {
+				if(incr_pspace(PS_STDERR, pathp, 2) < 0) {
+					toolong("", name, namlen);
+					goto out;
+				}
+			}
+			p = &pathp->ps_path[pathp->ps_tail++];
+			*p++ = '/';
+			*p++ = '\0';
 			namlen++;
-			*xdname++ = '/';
+			didslash = TRUE;
 		}
 
 		while (!intr) {
-			if (d) {
+			char	*snm;
+
+			if (lowmem) {
 				if ((dir = readdir(d)) == NULL)
 					break;
 				if (streql(dir->d_name, ".") ||
 						streql(dir->d_name, ".."))
 					continue;
-				name = dir->d_name;
-				xlen = namlen + strlen(name);
+				snm = dir->d_name;
+				xlen = strlen(snm);
 			} else {
 				if (dlen <= 0)
 					break;
 
-				name = &dp[1];
-				xlen = strlen(name);
+				snm = &dp[1];
+				xlen = strlen(snm);
 				dp += xlen + 2;
 				dlen -= xlen + 2;
-				xlen += namlen;
 			}
 
-			if (xlen > PATH_MAX) {
-				char	xname[2*PATH_MAX+1];
-
-				*xdname = '\0';
-				js_snprintf(xname, sizeof (xname), "%s%s",
-					fname, name);
-				if (!errhidden(E_NAMETOOLONG, xname)) {
-					if (!errwarnonly(E_NAMETOOLONG, xname))
-						xstats.s_toolong++;
-					errmsgno(EX_BAD,
-					"%s%s: Name too long (%d > %d).\n",
-						fname, name,
-						xlen, PATH_MAX);
-					(void) errabort(E_NAMETOOLONG, xname,
-									TRUE);
+			if ((namlen+xlen+1) >= pathp->ps_size) {
+				if (grow_pspace(PS_STDERR, pathp, namlen+xlen+1) < 0) {
+					toolong(pathp->ps_path, snm, namlen+xlen);
+					goto out;
 				}
-				continue;
 			}
+			strcpy(&pathp->ps_path[pathp->ps_tail], snm);
+			name = pathp->ps_path;
 
-			strcpy(xdname, name);
-			name = fname;
-
-			if (name[0] == '.' && name[1] == '/') {
-				for (name++; name[0] == '/'; name++)
-					/* LINTED */
-					;
-				xlen -= name - fname;
-			}
-			if (name[0] == '\0') {
-				name = ".";
-				xlen = 1;
-			}
+#if	defined(HAVE_FSTATAT) && defined(HAVE_DIRFD)
+			/*
+			 * We get the performance win only with the native
+			 * fstatat() and not from the emulation.
+			 */
+			if (d ? !getinfoat(dirfd(d), snm, ninfo) :
+				!getinfo(name, ninfo)) {
+#else
 			if (!getinfo(name, ninfo)) {
+#endif
 				if (!errhidden(E_STAT, name)) {
 					if (!errwarnonly(E_STAT, name))
 						xstats.s_staterrs++;
@@ -1639,6 +1675,19 @@ put_dir(sname, dname, namlen, info, ptb, last)
 				seterrno(0);
 				offset = telldir(d);
 				if (geterrno()) {
+					char	*p;
+
+					if (pathp->ps_tail == 0) {
+						dname = ".";
+						p = NULL;
+					} else {
+						/*
+						 * pathstore_t relocates ps_path
+						 */
+						dname = pathp->ps_path;
+						p = &pathp->ps_path[pathp->ps_tail-1];
+						*p = '\0';
+					}
 					if (!errhidden(E_OPEN, dname)) {
 						if (!errwarnonly(E_OPEN, dname))
 							xstats.s_openerrs++;
@@ -1648,6 +1697,8 @@ put_dir(sname, dname, namlen, info, ptb, last)
 						(void) errabort(E_OPEN, dname,
 									TRUE);
 					}
+					if (p)
+						*p = '/';
 					/*
 					 * XXX xstats.s_openerrs is wrong here.
 					 * Avoid an endless loop on unseekable
@@ -1659,9 +1710,25 @@ put_dir(sname, dname, namlen, info, ptb, last)
 				closedir(d);
 			}
 #endif
-			createi(name, name, xlen, ninfo, &thisd);
+			pathp->ps_tail += xlen;
+			createi(name, name, xlen+namlen, ninfo, pathp, &thisd);
+			pathp->ps_tail -= xlen;
+			pathp->ps_path[pathp->ps_tail] = '\0';
 #ifdef	HAVE_SEEKDIR
 			if (d && is_dir(ninfo) && depth <= 0) {
+				char	*p;
+
+				if (pathp->ps_tail == 0) {
+					sname = dname = ".";
+					p = NULL;
+				} else {
+					/*
+					 * pathstore_t relocates ps_path
+					 */
+					sname = dname = pathp->ps_path;
+					p = &pathp->ps_path[pathp->ps_tail-1];
+					*p = '\0';
+				}
 				if (!(d = lopendir(sname))) {
 					if (!errhidden(E_OPEN, dname)) {
 						if (!errwarnonly(E_OPEN, dname))
@@ -1671,6 +1738,8 @@ put_dir(sname, dname, namlen, info, ptb, last)
 						(void) errabort(E_OPEN, dname,
 									TRUE);
 					}
+					if (p)
+						*p = '/';
 					break;
 				}
 				seterrno(0);
@@ -1690,22 +1759,46 @@ put_dir(sname, dname, namlen, info, ptb, last)
 					 * Avoid an endless loop on unseekable
 					 * directories.
 					 */
+					if (p)
+						*p = '/';
 					break;
 				}
+				if (p)
+					*p = '/';
 			}
 #endif
 		}
 	}
 out:
+	if (didslash)
+		pathp->ps_path[--pathp->ps_tail] = '\0';
 	if (d)
 		closedir(d);
 	if (dp)
 		free(info->f_dir);
 	if (info->f_dirinos)
 		free(info->f_dirinos);
+	if (pathp == &path)
+		free_pspace(pathp);
 	depth++;
 	if (!nodir && dirmode && putdir)
 		put_tcb(ptb, info);
+}
+
+LOCAL void
+toolong(dname, name, len)
+	char	*dname;
+	char	*name;
+	size_t	len;
+{
+	if (!errhidden(E_NAMETOOLONG, name)) {
+		if (!errwarnonly(E_NAMETOOLONG, name))
+			xstats.s_toolong++;
+		errmsgno(EX_BAD, "%s%s: Name too long (%lu).\n",
+			dname, name,
+			(unsigned long)len);
+		(void) errabort(E_NAMETOOLONG, name, TRUE);
+	}
 }
 
 LOCAL BOOL
@@ -1717,40 +1810,60 @@ checkdirexclude(sname, name, namlen, info)
 {
 	FINFO	finfo;
 	char	pname[PATH_MAX+1];
+	char	*pnamep = pname;
+	size_t	pnamelen = sizeof (pname);
+	size_t	pnlen;
 	int	OFflag = Fflag;
 	char	*p;
+	BOOL	ret = TRUE;
 
 	Fflag = 0;
-	strcpy(pname, name);
-	p = &pname[namlen];
+	pnlen = namlen;
+	pnlen += 2 + 8;		/* Null Byte + '/' + strlen(".exclude") */
+	if (pnlen > pnamelen) {
+		pnamep = __fjmalloc(stderr, pnlen, "name buffer", JM_RETURN);
+		if (pnamep == NULL) {
+			errmsg("Cannot check '%s' for exclude\n", name);
+			goto notfound;
+		}
+	}
+	strcpy(pnamep, name);
+	p = &pnamep[namlen];
 	if (p[-1] != '/') {
 		*p++ = '/';
 	}
 	strcpy(p, ".mirror");
-	if (!_getinfo(pname, &finfo)) {
+	if (!_getinfo(pnamep, &finfo)) {
 		strcpy(p, ".exclude");
-		if (!_getinfo(pname, &finfo))
+		if (!_getinfo(pnamep, &finfo))
 			goto notfound;
 	}
 	if (is_file(&finfo)) {
 		if (OFflag == 3) {
 			nodesc++;
-			if (!dirmode)
-				createi(sname, name, namlen, info, (struct pdirs *)0);
-			create(pname, FALSE, FALSE);	/* Needed to strip off "./" */
-			if (dirmode)
-				createi(sname, name, namlen, info, (struct pdirs *)0);
+			if (!dirmode) {
+				createi(sname, name, namlen, info,
+					(pathstore_t *)0,
+					(struct pdirs *)0);
+			}
+			create(pnamep, FALSE, FALSE);	/* Needed to strip off "./" */
+			if (dirmode) {
+				createi(sname, name, namlen, info,
+					(pathstore_t *)0,
+					(struct pdirs *)0);
+			}
 			nodesc--;
 		}
-		Fflag = OFflag;
-		return (FALSE);
+		ret = FALSE;
 	}
 notfound:
+	if (pnamep != pname)
+		free(pnamep);
 	Fflag = OFflag;
-	return (TRUE);
+	return (ret);
 }
 
-EXPORT BOOL
+LOCAL BOOL
 checkexclude(sname, name, namlen, info)
 	char	*sname;
 	char	*name;
@@ -1841,7 +1954,8 @@ walkfunc(nm, fs, type, state)
 		finfo.f_sname = nm + state->base;
 		finfo.f_name = nm;
 		stat_to_info(fs, &finfo);
-		createi(nm + state->base, nm, strlen(nm), &finfo, (struct pdirs *)0);
+		createi(nm + state->base, nm, strlen(nm), &finfo,
+			(pathstore_t *)0, (struct pdirs *)0);
 	}
 	return (0);
 }

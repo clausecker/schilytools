@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.30 18/01/01 Copyright 2016-2018 J. Schilling */
+/* @(#)strexpr.c	1.31 18/07/16 Copyright 2016-2018 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.30 18/01/01 Copyright 2016-2018 J. Schilling";
+	"@(#)strexpr.c	1.31 18/07/16 Copyright 2016-2018 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -28,7 +28,9 @@ static	UConst char sccsid[] =
 #define	ARITH_DEBUG
 #else
 #ifdef	PROTOTYPES
+#ifdef	__problem__	/* Varadic macros have been introduced with C99 */
 #define	fprintf(...)
+#endif
 #else
 #define	fprintf()
 #endif

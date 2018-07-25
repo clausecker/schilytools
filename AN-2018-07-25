@@ -1,0 +1,268 @@
+New features with AN-2018-07-25:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	include/schily/stdint.h: the TYPE_MINVAL() macro is now using a
+	specialized macro TYPE_MSBVAL() that avoids a so called "signed
+	integer overflow" on two's complement machines in case it detects a
+	two's complement machine. This helps to avoid compiler warnings with
+	some newer compilers. The portability has not been degraded since
+	for non-two's complement machines, the old methid is used.
+
+-	libschily: None of the *at() emulation functions did not work in case
+	of an ENAMETOOLONG error on a platform that does not implement /proc
+	(e.g. HP-UX-10.20). The code has now been changed to make sure that the
+	fallback to the fchdir() method is used in such a case.
+
+-	libschily: New functions openat64() and fstatat64(). They were missing
+	and now have been implemented.
+
+	This affects the large file ability for:
+
+	-	bsh
+	-	Bourne Shell
+	-	libshedit
+	-	libfind
+	-	star
+
+	on platforms that do not include support for openat() and fstatat()
+	in libc already. Recent platforma are not affected by this enhancement.
+
+-	Bourne Shell: HP-UX-10.20 is in conflict with POSIX and returns 
+	ENAMETOOLONG with getcwd(). We now verify the current PWD value whether
+	it refers to "." and contains no symlinks. In this case we pretend that
+	getcwd() worked and the current $PWD value is correct.
+
+	The reliability of the value is the same as with a working getcwd() in
+	such a case.
+
+-	SunPro Make: Make/include/mksh/defs.h included <wchar.h> but older
+	platforms do not have it. Use <schily/wchar.h> instead.
+
+	Thanks to Robert Clausecker for reporting.
+
+-	SunPro Make: Old FreeBSD neither has O_SYNC, nor O_DSYNC, so we use
+	O_FSYNC here.
+
+-	star: new functions lchdir() & lgetcwd() have been added for dealing
+	with very long path names with the -C option.
+
+-	star: the option list= is now implemented using getdelim() and thus
+	supports to read arbitrary path name length from files or stdin.
+
+-	star: volhdrs are now without a PATH_MAX limit.
+
+-	star: added a new function _lgetinfo() that always does an lstat()
+	independent of -L and -h. This is needed in order to check whether
+	a filesystem object exists and needs to be deleted before extraction.
+
+-	star: line reading functions that deal with the inode database in
+	"star-symtable" in the incremental restore code now support arbitrary
+	line length.
+
+-	star: the "remove" code now supports to remove file system trees of
+	arbitrary depth and path length.
+
+-	star: incremental restores, in case they are not run as root, could
+	under some rare cases (nearly full target filesystem) when inode
+	numbers are reused faster than usual, result in "permission denied"
+	errors while extracting files.
+
+	This happened when such a reused inode has no write permission for
+	the owner. A similar case with changing file type has been fixed
+	in February 2005 as the only bug that ever appeared in star's
+	incremental backup/restore system fater incrementals have been
+	introduced in September 2004. Since February 2005, we remove files
+	with a different type before we create new ones.
+
+	As we previously assumed that incremental restores are always run
+	as root, this permission problem did never cause any harm in the
+	past. This is since root is allowed to create files in readonly
+	directories and since root can write into readonly files.
+
+	We now first run a chmod() +w on directories and files with no
+	write permissions before we extract the content.
+
+	This modification now allows star to be used for private backups
+	and restores without the need to become root for the task.
+
+-	star_sym: Added a new function osmode() because restore.c now
+	needs this function because of the above change and we do not like
+	to add star_unix.c to star_sym.
+
+-	star: Previously, star needed the option -force-restore in order to
+	restore partial dumps. A new option -partial now allows partial
+	restores without at the same time permitting dump level mismatches
+	or reference date mismatches.
+
+-	star: star -Hgnutar now also creates long path names. GNU tar-1.30
+	started to create ong path names under some conditions, even though
+	it is unable to extract archives with long path names. Our archives
+	thus are not more challenging to GNU tar than archives created
+	by GNU tar itself ;-)
+
+-	star: mention the GNU tar long path name problem in the man page.
+
+-	star: mktemp() destroys it's argument even when it fails because
+	of ENAMETOOLONG. We need to save and restore the original name
+	argument to make our long path workaround working.
+
+-	star: "star -x -install ..." now works with very long path names
+	as we have a mktemp() workaround for long path names.
+
+-	star: Long names using the pre-POSIX long pathname header method now 
+	works since the related extraction routine in longname.c now manages
+	dynamic path store as well.
+
+-	star: extraction with symlink emulation (that creates copies) now also
+	supports long path names.
+
+-	star: incremental restores now support long path names.
+
+-	star: "star -c" (without "-find") is now able to handle long
+	path names. This is the final change to make star a fully long path
+	name supporting program.
+
+-	star: star_unix.c: a new function getinfoat() has been added.
+	It uses fstatat() if this function supported by the current platform
+	and not emulated in libschily.
+
+-	star: "star -c" now uses fstatat() via getinfoat() if possible.
+	This causes a 30% performance win in case of "star -c -onull" and
+	makes "star -c" now nearly as fast as "star -c -find".
+
+-	star: pathname.c: New function clear_pspace()
+
+-	star: star -xattr now aborts with an error message that -xattr
+	is reserved for NFSv4 xattrs and that Linux needs -xattr-linux
+
+-	star long path name state report:
+
+	-	All known places that previously used static path name store
+		or system calls directly have been converted to use dynamic
+		path storage and long path name aware functions. This has been
+		extended to any place (even those locations that never reach
+		ENAMETOOLONG) in order to be able to verify the correctness
+		of the change via "nm".
+
+	-	Most long path name features work even on older platforms if
+		at least fchdir() is supported, so this does not need a very
+		recent platform.
+
+	-	Hard links between long path names only work on platforms
+		that natively support the linkat() system call.
+
+	-	The code is not yet optimized for good performance and is
+		currently approx. 30% slower when long paths (> PATH_MAX) are
+		actually used.
+
+-	star TODO:
+
+	-	implement support for NFSv4 xattr
+
+	-	implement support for NFSv4 system attributes
+
+	-	implement support for Trusted Solaris
+
+-	Bourne Shell: strexpr.c no longer contains a #define fprintf(...)
+	since varadic macros do not exist in C89 but require C99.
+
+-	Bourne Shell: The dotfiles.tar.bz2 archive now contains abetter code
+	in $HOME/.shrc that no longer results in error messages from the
+	FreeBSD "ash" that seems to use our file name even though it is not
+	based on the Bourne Shell.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

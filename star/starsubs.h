@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.124 18/07/16 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.129 18/07/23 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -167,11 +167,7 @@ extern	void	sym_open	__PR((char *name));
 extern	void	sym_init	__PR((GINFO *gp));
 #endif
 extern	void	sym_close	__PR((void));
-/*
- * ngetline XXX should be moved to libschily
- */
 #ifdef	EOF
-extern	int	ngetline	__PR((FILE *f, char *buf, int len));
 extern	void	printLsym	__PR((FILE *f));
 #endif
 
@@ -389,7 +385,11 @@ extern	BOOL	remove_file	__PR((char *name, BOOL isfirst));
  */
 #ifdef _STAR_H
 extern	BOOL	_getinfo	__PR((char *name, FINFO *info));
+extern	BOOL	_lgetinfo	__PR((char *name, FINFO *info));
 extern	BOOL	getinfo		__PR((char *name, FINFO *info));
+#ifdef	HAVE_FSTATAT
+extern	BOOL	getinfoat	__PR((int fd, char *name, FINFO *info));
+#endif
 #ifdef	_SCHILY_STAT_H
 extern	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
 #endif
@@ -404,6 +404,12 @@ extern	int	sxsymlink	__PR((char *name, FINFO *info));
 extern	int	rs_acctime	__PR((int fd, FINFO *info));
 extern	void	setdirmodes	__PR((char *name, mode_t mode));
 extern	mode_t	osmode		__PR((mode_t tarmode));
+
+/*
+ * lpath_unix.c
+ */
+extern	int	lchdir		__PR((char *name));
+extern	char	*lgetcwd	__PR((void));
 extern	int	lmkdir		__PR((char *name, mode_t mode));
 extern	int	laccess		__PR((char *name, int amode));
 #ifdef	_SCHILY_STAT_H

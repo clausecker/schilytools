@@ -1,8 +1,8 @@
-/* @(#)star_sym.c	1.20 18/07/15 Copyright 2005-2018 J. Schilling */
+/* @(#)star_sym.c	1.21 18/07/23 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.20 18/07/15 Copyright 2005-2018 J. Schilling";
+	"@(#)star_sym.c	1.21 18/07/23 Copyright 2005-2018 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -43,12 +43,21 @@ static	UConst char sccsid[] =
 #define	lstat	stat
 #endif
 
+#if	S_ISUID == TSUID && S_ISGID == TSGID && S_ISVTX == TSVTX && \
+	S_IRUSR == TUREAD && S_IWUSR == TUWRITE && S_IXUSR == TUEXEC && \
+	S_IRGRP == TGREAD && S_IWGRP == TGWRITE && S_IXGRP == TGEXEC && \
+	S_IROTH == TOREAD && S_IWOTH == TOWRITE && S_IXOTH == TOEXEC
+
+#define	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
+#endif
+
 struct star_stats	xstats;		/* for printing statistics	*/
 
 dev_t	curfs = NODEV;			/* Current st_dev for -M option	*/
 char	*vers;				/* the full version string	*/
 BOOL	force_remove = FALSE;		/* -force-remove on extraction	*/
 BOOL	remove_recursive = FALSE;	/* -remove-recursive on extract	*/
+BOOL	dopartial = FALSE;		/* -partial in incremental mode	*/
 BOOL	forcerestore = FALSE;		/* -force-restore in incremental mode	*/
 BOOL	uncond	  = FALSE;		/* -U unconditional extract	*/
 BOOL	nowarn	  = FALSE;		/* -nowarn has been specified	*/
@@ -84,7 +93,6 @@ make_adir(info)
 	return (FALSE);
 }
 
-
 #include <schily/stat.h>
 EXPORT BOOL
 _getinfo(name, info)
@@ -109,6 +117,37 @@ _getinfo(name, info)
 	default:		info->f_filetype = F_SPEC;
 	}
 	return (TRUE);
+}
+
+#ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
+#define	OSMODE(tarmode)	    (tarmode)
+#else
+#define	OSMODE(tarmode)	    ((tarmode & TSUID   ? S_ISUID : 0)  \
+			    | (tarmode & TSGID   ? S_ISGID : 0) \
+			    | (tarmode & TSVTX   ? S_ISVTX : 0) \
+			    | (tarmode & TUREAD  ? S_IRUSR : 0) \
+			    | (tarmode & TUWRITE ? S_IWUSR : 0) \
+			    | (tarmode & TUEXEC  ? S_IXUSR : 0) \
+			    | (tarmode & TGREAD  ? S_IRGRP : 0) \
+			    | (tarmode & TGWRITE ? S_IWGRP : 0) \
+			    | (tarmode & TGEXEC  ? S_IXGRP : 0) \
+			    | (tarmode & TOREAD  ? S_IROTH : 0) \
+			    | (tarmode & TOWRITE ? S_IWOTH : 0) \
+			    | (tarmode & TOEXEC  ? S_IXOTH : 0))
+#endif
+
+EXPORT mode_t
+#ifdef	PROTOTYPES
+osmode(register mode_t tarmode)
+#else
+osmode(tarmode)
+	register mode_t		tarmode;
+#endif
+{
+	register mode_t		_osmode;
+
+	_osmode = OSMODE(tarmode);
+	return (_osmode);
 }
 
 
