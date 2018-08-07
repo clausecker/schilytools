@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.98 18/07/15 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.c	1.99 18/08/07 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.98 18/07/15 Copyright 1993-2018 J. Schilling";
+	"@(#)diff.c	1.99 18/08/07 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -177,6 +177,7 @@ LOCAL void
 diff_tcb(info)
 	register FINFO	*info;
 {
+		char	lname[PATH_MAX+1]; /* This limit cannot be overruled */
 		TCB	tb;
 		FINFO	finfo;
 		FINFO	linfo;
@@ -185,6 +186,9 @@ diff_tcb(info)
 		BOOL	do_void = FALSE;	/* Make GCC happy */
 
 	f = tarf == stdout ? stderr : stdout; /* XXX FILE *vpr is the same */
+
+	finfo.f_lname = lname;
+	finfo.f_lnamelen = 0;
 
 	if (!abs_path &&	/* XXX VVV siehe skip_slash() */
 	    (info->f_name[0] == '/' /* || info->f_lname[0] == '/' */))
@@ -372,9 +376,11 @@ diff_tcb(info)
 	 */
 	if (!is_link(info))
 	if (((diffopts & (D_SLINK|D_SLPATH)) || verbose) && is_symlink(&finfo)) {
-		if (init_pspace(PS_STDERR, &finfo.f_plname) < 0)
-			;
-		else if (read_symlink(info->f_name, info->f_name, &finfo, &tb)) {
+		/*
+		 * XXX finfo.f_lname is static as the maximum symlink len
+		 * XXX is PATH_MAX.
+		 */
+		if (read_symlink(info->f_name, info->f_name, &finfo, &tb)) {
 			if ((diffopts & D_SLINK) && is_symlink(info) &&
 			    !linkeql(info->f_lname, finfo.f_lname)) {
 				diffs |= D_SLINK;

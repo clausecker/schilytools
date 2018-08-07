@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.113 18/07/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.114 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.113 18/07/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.114 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -82,6 +82,7 @@ extern	BOOL	paxfollow;
 extern	BOOL	nodump;
 extern	BOOL	doacl;
 extern	BOOL	doxattr;
+extern	BOOL	dolxattr;
 extern	BOOL	dofflags;
 
 EXPORT	BOOL	_getinfo	__PR((char *name, FINFO *info));
@@ -144,12 +145,14 @@ _getinfo(name, info)
 	BOOL	ret;
 	BOOL	odoacl = doacl;
 	BOOL	odoxattr = doxattr;
+	BOOL	odolxattr = dolxattr;
 
 	doacl	= FALSE;
 	doxattr	= FALSE;
 	ret = getinfo(name, info);
 	doacl	= odoacl;
 	doxattr	= odoxattr;
+	dolxattr = odolxattr;
 
 	return (ret);
 }
@@ -577,7 +580,7 @@ again:
 #endif  /* USE_ACL */
 
 #ifdef	USE_XATTR
-	if (doxattr)
+	if (dolxattr)
 		(void) get_xattr(info);
 #endif
 
@@ -778,7 +781,7 @@ setmodes(info)
 	}
 
 #ifdef	USE_XATTR
-	if (doxattr)
+	if (dolxattr)
 		set_xattr(info);
 #endif
 

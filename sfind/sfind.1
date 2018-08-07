@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.26 18/05/31 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.28 18/08/01 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/05/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/08/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -219,6 +219,35 @@ The letters that are recognised in the time spec are taken from
 .br
 .ne 5
 .TP
+.PD 0
+.BI "\-call " "command [argument ...] \e;
+.TP
+.BI "\-calldir " "command [argument ...] \e;
+.PD
+These primaries are similar to
+.B \-exec
+and
+.B \-execdir
+but the command is called by a callback into the caller 
+of the library and not by creating a new process.
+.sp
+In the
+.BR "Bourne Shell" ,
+the command is evaluated similar to the
+.BR eval (1)
+command in case it does not contain a shell variable reference
+and similar to
+.BI "sh -c " command " call " argument ...
+in case there is a variable reference.
+.sp
+This primary is only available in the library version of
+.BR sfind (1)
+.RB ( libfind ).
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
 .BI \-chown " uname
 .PD 0
 .TP
@@ -228,6 +257,7 @@ This primary modifies the
 .B owner
 of a file in
 .BR "struct stat" .
+.sp
 This primary is only available in the library version of
 .BR sfind (1)
 .RB ( libfind ).
@@ -246,6 +276,7 @@ This primary modifies the
 .B group
 of a file in
 .BR "struct stat" .
+.sp
 This primary is only available in the library version of
 .BR sfind (1)
 .RB ( libfind ).
@@ -265,6 +296,7 @@ The
 parameter may use the same syntax as in the
 .BR chmod (1)
 command.
+.sp
 This primary is only available in the library version of
 .BR sfind (1)
 .RB ( libfind ).
@@ -752,7 +784,28 @@ then it is representing an absolute number in seconds that is evaluated
 against the start time of
 .BR sfind .
 The letters that are recognised in the time spec are taken from
-.BR smhdwy .
+.B smhdwy
+with the following meaning for time units:
+.RS
+.TP
+.B s
+seconds
+.TP
+.B m
+minutes (60 seconds)
+.TP
+.B h
+hours (60 minutes)
+.TP
+.B d
+days (24 hours)
+.TP
+.B w
+weeks (7 days)
+.TP
+.B y
+years (365 days - a non-leap year)
+.RE
 .TP
 .BI \-name " glob
 The primary evaluates as true if the basename of the

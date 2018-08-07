@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.182 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.183 18/08/07 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.182 18/07/15 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.183 18/08/07 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -492,7 +492,7 @@ EXPORT void
 changetape(donext)
 	BOOL	donext;
 {
-	char	ans[2];
+	char	ans[3];
 	int	nextindex;
 
 	if (donext) {
@@ -555,9 +555,19 @@ changetape(donext)
 				stats->volno, tarfiles[nextindex]);
 		system(scrbuf);
 	} else {
+		int	len;
+
 		errmsgno(EX_BAD, "Mount volume #%d on '%s' and hit <RETURN>",
 			stats->volno, tarfiles[nextindex]);
-		fgetline(tty, ans, sizeof (ans));
+		ans[0] = '\n';
+		len = fgetstr(tty, ans, sizeof (ans));
+		if (len > 0 && ans[len-1] != '\n') {
+			while(getc(tty) != '\n') {
+				if (feof(tty) || ferror(tty))
+					break;
+			}
+		}
+
 		if (ttyerr(tty))
 			exit(1);
 	}

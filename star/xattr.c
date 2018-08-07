@@ -1,8 +1,8 @@
-/* @(#)xattr.c	1.20 18/07/12 Copyright 2003-2018 J. Schilling */
+/* @(#)xattr.c	1.22 18/08/06 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.20 18/07/12 Copyright 2003-2018 J. Schilling";
+	"@(#)xattr.c	1.22 18/08/06 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
@@ -59,6 +59,22 @@ LOCAL star_xattr_t	*static_xattr;
 extern	BOOL		selinux_enabled;
 #endif
 
+#ifdef	XATTR_NOFOLLOW		/* Max OS X has incompatible prototypes */
+
+/*
+ * This works since we currently only use lgetxattr()/lsetxattr()/llistxattr()
+ * but not getxattr()/setxattr()/listxattr(). If we ever need the latter,
+ * we would need to use a different macro names to be able to abstract from
+ * the differences between Linux and Mac OS X.
+ */
+#define	lgetxattr(p, n, v, s)	getxattr(p, n, v, s, 0, XATTR_NOFOLLOW)
+#define	lsetxattr(p, n, v, s, f) setxattr(p, n, v, s, 0, (f)|XATTR_NOFOLLOW)
+#define	llistxattr(p, nb, s)	listxattr(p, nb, s, XATTR_NOFOLLOW)
+
+#else	/* !XATTR_NOFOLLOW */
+/*
+ * This is for Linux
+ */
 #if defined(HAVE_GETXATTR) && !defined(HAVE_LGETXATTR)
 #define	lgetxattr	getxattr
 #endif
@@ -68,6 +84,7 @@ extern	BOOL		selinux_enabled;
 #if defined(HAVE_LISTXATTR) && !defined(HAVE_LLISTXATTR)
 #define	llistxattr	listxattr
 #endif
+#endif	/* !XATTR_NOFOLLOW */
 
 EXPORT void
 opt_xattr()

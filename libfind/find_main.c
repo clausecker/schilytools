@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.70 18/06/04 Copyright 2004-2018 J. Schilling */
+/* @(#)find_main.c	1.71 18/08/01 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_main.c	1.70 18/06/04 Copyright 2004-2018 J. Schilling";
+	"@(#)find_main.c	1.71 18/08/01 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -164,6 +164,8 @@ find_main(ac, av, ev, std, quit)
 	fa.walkflags |= WALK_PHYS;	/* Use lstat() to check files	    */
 	fa.walkflags |= WALK_NOSTAT;	/* Try to avoid lstst()/stat() calls */
 	fa.walkflags |= WALK_NOEXIT;	/* Do not call exit() but return    */
+	if (quit && quit->flags & SQ_CALL)
+		fa.callfun = quit->callfun;
 
 	/*
 	 * Do not check the return code for getargs() as we may get an error

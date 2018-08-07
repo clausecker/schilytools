@@ -1,7 +1,11 @@
-/* @(#)version.h	1.71 18/08/01 Copyright 2012-2018 J. Schilling */
-
+/* @(#)version.c	1.1 18/07/30 Copyright 2018 J. Schilling */
+#include <schily/mconfig.h>
+#ifndef lint
+static	UConst char sccsid[] =
+	"@(#)version.c	1.1 18/07/30 Copyright 2018 J. Schilling";
+#endif
 /*
- * The version for the Bourne Shell
+ *	Copyright (c) 2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,5 +21,5 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2018/08/01"
-#define	VERSION_STR	"a+"
+char	strvers[] = "1.5.4";		/* The pure version string	*/
+char	dvers[]	  = "2018/07/30";		/* Version date			*/

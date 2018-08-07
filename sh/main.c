@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)main.c	1.72 18/06/25 2008-2018 J. Schilling
+ * @(#)main.c	1.73 18/08/01 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.72 18/06/25 2008-2018 J. Schilling";
+	"@(#)main.c	1.73 18/08/01 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -705,6 +705,7 @@ exfile(prof)
 		}
 
 		trapnote = 0;
+		traprecurse = 0;
 		peekc = readwc();
 		if (eof) {
 			/*
@@ -987,5 +988,8 @@ static void
 bosh_init()
 {
 	bosh.intrcnt	= 0;
+	bosh.flagsp	= &flags;
+	bosh.flagsp2	= &flags2;
 	bosh.get_envptr	= get_envptr;
+	bosh.callsh	= callsh;
 }

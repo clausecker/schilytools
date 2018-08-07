@@ -1,8 +1,8 @@
-/* @(#)remove.c	1.59 18/07/19 Copyright 1985, 1991-2018 J. Schilling */
+/* @(#)remove.c	1.60 18/08/07 Copyright 1985, 1991-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.59 18/07/19 Copyright 1985, 1991-2018 J. Schilling";
+	"@(#)remove.c	1.60 18/08/07 Copyright 1985, 1991-2018 J. Schilling";
 #endif
 /*
  *	remove files an file trees
@@ -96,6 +96,7 @@ _remove_file(name, path, isfirst, depth)
 	char	buf[32];
 	char	ans = '\0';
 	int	err = EX_BAD;
+	int	len;
 	BOOL	fr_save = force_remove;
 	BOOL	rr_save = remove_recursive;
 	BOOL	ret;
@@ -104,7 +105,14 @@ _remove_file(name, path, isfirst, depth)
 		return (FALSE);
 	if (!force_remove && (interactive || ask_remove)) {
 		fgtprintf(vpr, "remove '%s' ? Y(es)/N(o) :", name); fflush(vpr);
-		fgetline(tty, buf, 2);
+		buf[0] = '\0';
+		len = fgetstr(tty, buf, 3);
+		if (len > 0 && buf[len-1] != '\n') {
+			while(getc(tty) != '\n') {
+				if (feof(tty) || ferror(tty))
+					break;
+			}
+		}
 	}
 	if (force_remove ||
 	    ((interactive || ask_remove) && (ans = toupper(buf[0])) == 'Y')) {
@@ -135,7 +143,14 @@ _remove_file(name, path, isfirst, depth)
 						"Recursive remove nonempty '%s' ? Y(es)/N(o) :",
 							name);
 						fflush(vpr);
-						fgetline(tty, buf, 2);
+						buf[0] = '\0';
+						len = fgetstr(tty, buf, 3);
+						if (len > 0 && buf[len-1] != '\n') {
+							while(getc(tty) != '\n') {
+								if (feof(tty) || ferror(tty))
+									break;
+							}
+						}
 						if (toupper(buf[0]) == 'Y') {
 							force_remove = TRUE;
 							remove_recursive = TRUE;

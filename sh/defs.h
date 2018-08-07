@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.193 18/07/14 2008-2018 J. Schilling
+ * @(#)defs.h	1.194 18/08/01 2008-2018 J. Schilling
  */
 
 /*
@@ -940,6 +940,7 @@ extern	int	execute		__PR((struct trenod *argt, int xflags,
 extern	unsigned char *ps_macro	__PR((unsigned char *as, int perm));
 extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
 						int xflags));
+extern	int	callsh		__PR((int ac, char **av));
 
 
 #define		_cf(a, b)	cf((unsigned char *)(a), (unsigned char *)(b))
@@ -1231,6 +1232,7 @@ extern unsigned			brkincr;
 #define		SIGIGN		16
 
 extern BOOL			trapnote;
+extern int			traprecurse;
 extern int			trapsig;
 extern unsigned char		*trapcom[];
 
@@ -1377,9 +1379,12 @@ extern int			ucb_builtins;
  * `trapnote' is set to SIGSET when fault is seen and
  * no trap has been set.
  */
-#define		sigchk()	if (trapnote & SIGSET)	{ \
-					exval_sig();	\
-					exitsh(exitval ? exitval : SIGFAIL); \
+#define		sigchk()	if (trapnote & SIGSET)	{		\
+					exval_sig();			\
+					if (!traprecurse) {		\
+						exitsh(exitval ?	\
+						    exitval : SIGFAIL); \
+					}				\
 				}
 
 #define		exitset()	(retex = ex, retval = exitval)

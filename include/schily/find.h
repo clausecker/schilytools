@@ -1,4 +1,4 @@
-/* @(#)find.h	1.25 18/04/10 Copyright 2005-2018 J. Schilling */
+/* @(#)find.h	1.26 18/08/01 Copyright 2005-2018 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
@@ -32,12 +32,25 @@
 #ifndef _SCHILY_STANDARD_H
 #include <schily/standard.h>
 #endif
+#ifndef	_SCHILY_INTTYPES_H
+#include <schily/inttypes.h>
+#endif
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>
 #endif
 
 #ifdef	__cplusplus
 extern "C" {
+#endif
+
+#ifndef	__sqfun_t_defined
+typedef	int	(*sqfun_t)	__PR((void *arg));
+#define	__sqfun_t_defined
+#endif
+
+#ifndef	__cbfun_t_defined
+typedef	int	(*cbfun_t)	__PR((int ac, char  **argv));
+#define	__cbfun_t_defined
 #endif
 
 typedef struct find_args {
@@ -56,6 +69,7 @@ typedef struct find_args {
 	void	*jmp;		/* Used internally by parser	*/
 	int	error;		/* Error code from find_parse()	*/
 	int	argsize;	/* Argument size for this cmd	*/
+	cbfun_t	callfun;	/* Callback function for -call	*/
 	void	*__reserved[16]; /* For future extensions	*/
 } finda_t;
 
@@ -78,23 +92,24 @@ typedef struct find_args {
 #define	findn_t	void
 #endif
 
-#ifndef	__sqfun_t_defined
-typedef	int	(*sqfun_t)	__PR((void *arg));
-#define	__sqfun_t_defined
-#endif
-
 #ifndef	__squit_t_defined
 
 typedef struct {
 	sqfun_t	quitfun;	/* Function to query for shell signal quit   */
 	void	*qfarg;		/* Generic arg for shell builtin quit fun    */
+	Int32_t	flags;		/* Flags to identify data beyond qfarg	    */
+	cbfun_t	callfun;	/* Callback function for -call		    */
+	void	*__reserved[16]; /* For future extensions		    */
 } squit_t;
+
+#define	SQ_CALL	0x01		/* Use call feature */
 
 #define	__squit_t_defined
 #endif
 
 
 extern	void	find_argsinit	__PR((finda_t *fap));
+extern	void	find_sqinit	__PR((squit_t *quit));
 extern	void	find_timeinit	__PR((time_t __now));
 extern	findn_t	*find_printnode	__PR((void));
 extern	findn_t	*find_addprint	__PR((findn_t *np, finda_t *fap));

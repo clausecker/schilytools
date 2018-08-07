@@ -1,0 +1,22 @@
+# /* @(#)libmakestate-mapvers	1.2 18/08/05 Copyright 2011-2018 J. Schilling */
+#include <schily/mconfig.h>
+
+SCHILY_1.0 {
+global:
+	file_lock;
+#if defined(HAVE_LIBELF_H) && defined(LD_SUP_DERIVED)
+	_fini;
+	_init;
+	_lib_version;
+	ld_atexit;
+	ld_atexit64;
+	ld_file;
+	ld_file64;
+	mk_state_collect_dep;
+	mk_state_init;
+	mk_state_update_exit;
+#endif
+local:
+	*;
+};
+

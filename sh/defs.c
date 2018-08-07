@@ -33,14 +33,14 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.c	1.21 18/01/05 2008-2018 J. Schilling
+ * @(#)defs.c	1.22 18/08/01 2008-2018 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.21 18/01/05 2008-2018 J. Schilling";
+	"@(#)defs.c	1.22 18/08/01 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -116,6 +116,7 @@ jmps_t		*dotshell;
 
 /* fault handling */
 BOOL		trapnote;
+int		traprecurse;
 int		trapsig;	/* Last signal */
 
 /* execflgs */

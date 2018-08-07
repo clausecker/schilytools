@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.96 18/07/02 Copyright 1988-2018 J. Schilling */
+/* @(#)builtin.c	1.97 18/08/01 Copyright 1988-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.96 18/07/02 Copyright 1988-2018 J. Schilling";
+	"@(#)builtin.c	1.97 18/08/01 Copyright 1988-2018 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1809,8 +1809,10 @@ bfind(vp, std, flag)
 {
 	squit_t	quit;
 
+	find_sqinit(&quit);
 	quit.quitfun = quitfun;
 	quit.qfarg = &ctlc;
+	quit.flags = 0;
 	ex_status = find_main(vp->av_ac, vp->av_av, evarray, std, &quit);
 }
 #endif

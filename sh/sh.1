@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.234 18/07/04 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.237 18/08/01 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/07/04" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/08/01" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2959,7 +2959,7 @@ evaluates redirections left-to-right. For example:
 .sp
 .in +2
 .nf
-.BI "\&... 1>" "xxx\fR 2>&1"
+.BI "\&... 1>" "xxx" " 2>&1"
 .fi
 .in -2
 .sp
@@ -4408,6 +4408,89 @@ it should be avoided in favor of the
 .B history
 command.
 .RE
+
+.br
+.ne 3
+.TP
+\fBfind\fP \fIfile1 \fP.\|.\|. \fIfilen\fP [\fIfind_expr\fP] 
+.sp .6
+The
+.B find
+command is available as a builtin command that is implemented via
+.BR libfind .
+.sp
+The
+.B find
+implementation of this shell includes primary operators called
+.B \-call
+and
+.B \-calldir
+that allow to directly call back commands into the shell.
+As this does not need to create a new process, it is much faster than the
+.B \-exec
+primary.
+.sp
+In the
+.BR "Bourne Shell" ,
+the command following the
+.B \-call
+primary is evaluated similar to the
+.BR eval (1)
+command in case the first argument to
+.B \-call
+does not contain a shell variable reference and similar to
+.BI "sh -c " command " call " argument ...
+or the
+.BR dosh (1)
+builtin in case there is a variable reference.
+.sp
+The
+.BR eval (1)
+mode is triggered with the command:
+.sp
+.nf
+.B
+    find . -call echo {} \e;
+.fi
+.sp
+The
+.BR dosh (1)
+mode is triggered with:
+.sp
+.nf
+.B
+    find . -call 'test -d "$1" && echo dir: "$1"' {} \e;
+.fi
+.sp
+The shell variable
+.B $0
+is set to the value
+.B call
+in this case and the equivalent
+.B find
+command using
+.B \-exec
+would be:
+.sp
+.nf
+.B
+    find . -exec sh -c 'test -d "$1" && echo dir: "$1"' call {} \e;
+.fi
+.sp
+You may like to try both commands to see the performance win
+using the
+.B \-call
+.BR find (1)
+primary.
+.sp
+See
+.BR sfind (1)
+for more information.
+.sp
+The
+.B find
+command was not supported as builtin command in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -8113,6 +8196,7 @@ CSIEnabled
 .BR ps (1),
 .BR pwd (1),
 .BR set (1),
+.BR sfind (1),
 .BR shell_builtins (1),
 .BR stty (1),
 .BR test (1),

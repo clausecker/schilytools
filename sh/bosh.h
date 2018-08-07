@@ -4,7 +4,7 @@
 /*
  * Copyright 2018 J. Schilling
  *
- * @(#)bosh.h	1.1 18/01/05 Copyright 2018 J. Schilling
+ * @(#)bosh.h	1.2 18/08/01 Copyright 2018 J. Schilling
  *
  * Global variables structure for UNIX Shell
  *
@@ -29,7 +29,10 @@
 
 typedef struct bosh {
 	int	intrcnt;			/* Intr ctr for builtin cmds */
+	unsigned long	*flagsp;		/* ptr to set(1) flags	    */
+	unsigned long	*flagsp2;		/* ptr to set(1) flags	    */
 	Uchar **(*get_envptr) __PR((void));	/* Get tmp. env array	    */
+	int	(*callsh) __PR((int ac, char **av)); /* callb. for find -call */
 } bosh_t;
 
 #endif /* _BOSH_H */

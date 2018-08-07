@@ -1,8 +1,8 @@
-/* @(#)subst.c	1.22 18/06/20 Copyright 1986,2003-2018 J. Schilling */
+/* @(#)subst.c	1.23 18/08/07 Copyright 1986,2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subst.c	1.22 18/06/20 Copyright 1986,2003-2018 J. Schilling";
+	"@(#)subst.c	1.23 18/08/07 Copyright 1986,2003-2018 J. Schilling";
 #endif
 /*
  *	Substitution commands
@@ -500,7 +500,7 @@ ia_change(ptb, info)
 {
 	FINFO	cinfo;
 	char	ans;
-	char	abuf[2];
+	char	abuf[3];
 	int	len;
 
 	if (paxinteract)
@@ -513,7 +513,14 @@ ia_change(ptb, info)
 	if (nflag)
 		return (FALSE);
 	fgtprintf(vpr, "get/put ? Y(es)/N(o)/C(hange name) :"); fflush(vpr);
-	fgetline(tty, abuf, sizeof (abuf));
+	abuf[0] = '\0';
+	len = fgetstr(tty, abuf, sizeof (abuf));
+	if (len > 0 && abuf[len-1] != '\n') {
+		while(getc(tty) != '\n') {
+			if (feof(tty) || ferror(tty))
+				break;
+		}
+	}
 	if ((ans = toupper(abuf[0])) == 'Y')
 		return (TRUE);
 	else if (ans == 'C') {

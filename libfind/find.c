@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.105 18/05/06 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.106 18/08/01 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.105 18/05/06 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.106 18/08/01 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -57,10 +57,16 @@ static	UConst char sccsid[] =
 #endif
 
 #ifdef	__FIND__
-char	strvers[] = "1.4";	/* The pure version string	*/
+char	strvers[] = "1.5";	/* The pure version string	*/
 #endif
 
-typedef struct {
+typedef struct find_node findn_t;
+
+#include <schily/walk.h>
+#define	FIND_NODE
+#include <schily/find.h>
+
+struct find_node {
 	char	*left;
 	char	*right;
 	char	*this;
@@ -78,12 +84,10 @@ typedef struct {
 		time_t		time;
 		struct timespec	ts;
 		FILE		*fp;
+		cbfun_t		callfun;
 	} val, val2;
-} findn_t;
+};
 
-#include <schily/walk.h>
-#define	FIND_NODE
-#include <schily/find.h>
 #include "find_list.h"
 #include "find_misc.h"
 #define	TOKEN_NAMES
@@ -154,6 +158,7 @@ LOCAL	time_t	find_xnow;		/* The exact start time		*/
 LOCAL	findn_t	Printnode = { 0, 0, 0, PRINT };
 
 EXPORT	void	find_argsinit	__PR((finda_t *fap));
+EXPORT	void	find_sqinit	__PR((squit_t *quit));
 EXPORT	void	find_timeinit	__PR((time_t now));
 EXPORT	findn_t	*find_printnode	__PR((void));
 EXPORT	findn_t	*find_addprint	__PR((findn_t *np, finda_t *fap));
@@ -162,6 +167,7 @@ EXPORT	void	find_free	__PR((findn_t *t, finda_t *fap));
 LOCAL	void	find_freenode	__PR((findn_t *t));
 LOCAL	void	nexttoken	__PR((finda_t *fap));
 LOCAL	BOOL	_nexttoken	__PR((finda_t *fap));
+LOCAL	void	badopt		__PR((finda_t *fap, char *word));
 LOCAL	void	errjmp		__PR((finda_t *fap, int err));
 EXPORT	int	find_token	__PR((char *word));
 EXPORT	char	*find_tname	__PR((int op));
@@ -183,6 +189,7 @@ LOCAL	inline BOOL find_expr	__PR((char *f, char *ff, struct stat *fs, struct WAL
 #else
 EXPORT	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs, struct WALK *state, findn_t *t));
 #endif
+LOCAL	BOOL	docall		__PR((char *f, findn_t *t, int ac, char **av, struct WALK *state));
 #ifdef	HAVE_FORK
 LOCAL	BOOL	doexec		__PR((char *f, findn_t *t, int ac, char **av, struct WALK *state));
 #endif
@@ -225,6 +232,15 @@ find_argsinit(fap)
 	fap->jmp = NULL;
 	fap->error = 0;
 	fap->argsize = 0;
+	fap->callfun = NULL;
+	zerobytes(&fap->__reserved, sizeof (fap->__reserved));
+}
+
+EXPORT void
+find_sqinit(quit)
+	squit_t	*quit;
+{
+	zerobytes(quit, sizeof (*quit));
 }
 
 EXPORT void
@@ -380,10 +396,18 @@ _nexttoken(fap)
 	if ((fap->primtype = find_token(word)) >= 0)
 		return (TRUE);
 
+	badopt(fap, word);
+	return (FALSE);
+}
+
+LOCAL void
+badopt(fap, word)
+	finda_t	*fap;
+	char	*word;
+{
 	ferrmsgno(fap->std[2], EX_BAD, _("Bad Option: '%s'.\n"), word);
 	find_usage(fap->std[2]);
 	fap->primtype = FIND_ERRARG;	/* Mark as "parse aborted"	*/
-	return (FALSE);
 }
 
 LOCAL void
@@ -1080,6 +1104,8 @@ parseprim(fap)
 
 	case OK_EXEC:
 	case OK_EXECDIR:
+	case CALL:
+	case CALLDIR:
 	case EXEC:
 	case EXECDIR: {
 		int	i = 1;
@@ -1101,7 +1127,8 @@ parseprim(fap)
 			if (streql(p, ";"))
 				break;
 			else if (streql(p, "+") && streql(fap->Argv[-2], "{}")) {
-				if (n->op == OK_EXECDIR || n->op == EXECDIR) {
+				if (n->op == OK_EXECDIR || n->op == EXECDIR ||
+				    n->op == CALL || n->op == CALLDIR) {
 					ferrmsgno(fap->std[2], EX_BAD,
 					_("'-%s' does not yet work with '+'.\n"),
 						tokennames[n->op]);
@@ -1123,6 +1150,13 @@ parseprim(fap)
 			i++;
 		}
 		n->val.i = i;
+		if (n->op == CALL || n->op == CALLDIR) {
+			if (fap->callfun == NULL) {
+				badopt(fap, tokennames[n->op]);
+				errjmp(fap, EX_BAD);
+			}
+			n->val2.callfun = fap->callfun;
+		}
 		if (Cargv)
 			*Cargv = arg0;
 #ifdef	PLUS_DEBUG
@@ -1334,6 +1368,8 @@ find_hasexec(t)
 	if (find_primary(t, EXECDIR) || find_primary(t, EXECDIRPLUS))
 		return (TRUE);
 	if (find_primary(t, OK_EXEC) || find_primary(t, OK_EXECDIR))
+		return (TRUE);
+	if (find_primary(t, CALL) || find_primary(t, CALLDIR))
 		return (TRUE);
 	return (FALSE);
 }
@@ -1830,6 +1866,13 @@ find_expr(f, ff, fs, state, t)
 		return (FALSE);
 #endif
 
+	case CALL:
+	case CALLDIR:
+		return (docall(
+			state->level && (t->op == CALLDIR)?
+			ff:f,
+			t, t->val.i, (char **)t->this, state));
+
 	case FPRINT:
 		fp = t->val.fp;
 		/* FALLTHRU */
@@ -1897,6 +1940,68 @@ find_expr(f, ff, fs, state, t)
 		state->pflags |= 0x80000000;
 	}
 	return (FALSE);		/* Unknown operator ??? */
+}
+
+LOCAL BOOL
+docall(f, t, ac, av, state)
+	char	*f;
+	findn_t	*t;
+	int	ac;
+	char	**av;
+	struct WALK *state;
+{
+		char	*xav[32];
+	register char	**pp = av;
+	register char	**pp2 = xav;
+		char	** volatile aav = NULL;
+	register int	i;
+		int	retval = 0;
+		BOOL	didhome = FALSE;
+
+	if (f && ac >= 32) {
+		aav = malloc((ac+1) * sizeof (char **));
+		if (aav == NULL) {
+			ferrmsg(state->std[2], _("Cannot malloc arg vector for -call.\n"));
+			return (FALSE);
+		}
+		pp2 = aav;
+	}
+
+	if (t != NULL &&	/* Not called from find_plusflush() */
+	    t->op != CALLDIR) {
+		if (walkhome(state) < 0)
+			ferrmsg(state->std[2], _("Cannot chdir to '.'.\n"));
+		else
+			didhome = TRUE;
+	}
+
+#define	iscurlypair(p)	((p)[0] == '{' && (p)[1] == '}' && (p)[2] == '\0')
+
+	if (f) {				/* NULL for -call+ */
+		for (i = 0; i < ac; i++, pp++) {
+			register char	*p = *pp;
+
+			if (iscurlypair(p))	/* streql(p, "{}") */
+				*pp2++ = f;
+			else
+				*pp2++ = p;
+		}
+		if (aav)
+			pp = aav;
+		else
+			pp = xav;
+		pp[ac] = NULL;	/* -call {} \; is not NULL terminated */
+
+		retval = t->val2.callfun(ac, pp);
+
+	}
+
+	if (didhome)
+		walkcwd(state);
+
+	if (aav != NULL)
+		free(aav);
+	return (retval == 0);
 }
 
 #ifdef	HAVE_FORK
@@ -2418,6 +2523,8 @@ find_usage(f)
 	fprintf(f, _("Primaries:\n"));
 	fprintf(f, _("*	-acl	      TRUE if the file has additional ACLs defined\n"));
 	fprintf(f, _("	-atime #      TRUE if st_atime is in specified range\n"));
+	fprintf(f, _("*	-call command [argument ...] \\;\n"));
+	fprintf(f, _("*	-calldir command [argument ...] \\;\n"));
 #ifdef	CHGRP
 	fprintf(f, _("*	-chgrp gname/gid always TRUE, sets st_gid to gname/gid\n"));
 #endif

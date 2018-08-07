@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.78 18/07/02 Copyright 1984,1985,1988,1989,1991,1994-2018 J. Schilling */
+/* @(#)bsh.c	1.79 18/07/25 Copyright 1984,1985,1988,1989,1991,1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.78 18/07/02 Copyright 1982,1984,1985,1988,1989,1991,1994-2018 J. Schilling";
+	"@(#)bsh.c	1.79 18/07/25 Copyright 1982,1984,1985,1988,1989,1991,1994-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -711,6 +711,9 @@ EXPORT void
 close_other_files(std)
 	FILE	*std[3];
 {
+#ifdef	HAVE_CLOSEFROM
+	closefrom(STDERR_FILENO+1);
+#else
 	register int s0 = fdown(std[0]);
 	register int s1 = fdown(std[1]);
 	register int s2 = fdown(std[2]);
@@ -733,6 +736,7 @@ close_other_files(std)
 		if (i != s0 && i != s1 && i != s2)
 			close(i);
 	}
+#endif	/* HAVE_CLOSEFROM */
 }
 
 LOCAL char *

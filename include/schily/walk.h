@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.32 18/06/04 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.h	1.33 18/08/01 Copyright 2004-2018 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -84,6 +84,11 @@ typedef	int	(*sqfun_t)	__PR((void *arg));
 #define	__sqfun_t_defined
 #endif
 
+#ifndef	__cbfun_t_defined
+typedef	int	(*cbfun_t)	__PR((int ac, char  **argv));
+#define	__cbfun_t_defined
+#endif
+
 struct WALK {
 	int	flags;		/* Flags for communication with (*walkfun)() */
 	int	base;		/* Filename offset in path for  (*walkfun)() */
@@ -103,6 +108,7 @@ struct WALK {
 	int	pflags;		/* (*walkfun)() private, unused by treewalk  */
 	int	auxi;		/* (*walkfun)() private, unused by treewalk  */
 	void	*auxp;		/* (*walkfun)() private, unused by treewalk  */
+	void	*__reserved[16]; /* For future extensions		    */
 };
 
 /*
@@ -124,6 +130,7 @@ extern	void	walkinitstate	__PR((struct WALK *_state));
 extern	void	*walkopen	__PR((struct WALK *_state));
 extern	int	walkgethome	__PR((struct WALK *_state));
 extern	int	walkhome	__PR((struct WALK *_state));
+extern	int	walkcwd		__PR((struct WALK *_state));
 extern	int	walkclose	__PR((struct WALK *_state));
 
 #ifdef	__cplusplus

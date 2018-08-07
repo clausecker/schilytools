@@ -1,8 +1,8 @@
-/* @(#)shcall.h	1.3 10/08/27 Copyright 2009-2010 J. Schilling */
+/* @(#)shcall.h	1.4 18/08/01 Copyright 2009-2018 J. Schilling */
 /*
  *	Abstraction from shcall.h
  *
- *	Copyright (c) 2009-2010 J. Schilling
+ *	Copyright (c) 2009-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,9 @@
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
 #endif
+#ifndef	_SCHILY_INTTYPES_H
+#include <schily/inttypes.h>
+#endif
 
 #ifdef	__cplusplus
 extern "C" {
@@ -34,12 +37,22 @@ typedef	int	(*sqfun_t)	__PR((void *arg));
 #define	__sqfun_t_defined
 #endif
 
+#ifndef	__cbfun_t_defined
+typedef	int	(*cbfun_t)	__PR((int ac, char  **argv));
+#define	__cbfun_t_defined
+#endif
+
 #ifndef	__squit_t_defined
 
 typedef struct {
 	sqfun_t	quitfun;	/* Function to query for shell signal quit   */
 	void	*qfarg;		/* Generic arg for shell builtin quit fun    */
+	Int32_t	flags;		/* Flags to identify data beyond qfarg	    */
+	cbfun_t	callfun;	/* Callback function for -call		    */
+	void	*__reserved[16]; /* For future extensions		    */
 } squit_t;
+
+#define	SQ_CALL	0x01		/* Use call feature */	
 
 #define	__squit_t_defined
 #endif

@@ -1,0 +1,221 @@
+New features with AN-2018-08-07:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Schily Makefilesystem: RULES/rules.shl now filters the preparation of
+	the linker mapfile for shared libraries through tr -d '"'.
+
+	This is needed to work around a bug in the SunPro C CPP program that
+	rejects tokens with more than one "." inside. The workaround is to place
+	related tokens into " to make them a string. The UNIX linker would have
+	no problem with library version information in double  quotes, but the
+	GNU linker does not like them. So we need to remove the double quotes
+	later.
+
+	The compiler bug was detected after the library "libfind" did get the
+	linker version number 0.9.1.
+
+-	Schily Makefilesystem: A workaround has been written for a GNU linker
+	bug that prevented to create versioned shared libraries on Linux.
+
+	There is now a command chain, that does post processing of the linker
+	map file that reverses the order of the versioned blocks.
+
+-	include/schily: The files walk.h, find.h and shcall.h have been enhanced
+	in order to support the new -call feature from libfind.
+
+-	libschily: fgetline() did not stop in case that the buffer was too small.
+	Instead, it did look endlessly doing nothing. This bug was only present
+	in case of the optimized variant that uses movecbytes() to copy blocks.
+
+-	libfind: added support for a new feature: -call allows to do calls into
+	the shell that started "find" as a builtin program. This is approx.
+	40x faster than using -exec.
+
+-	libfind: A new function walkcwd() allows to chdir() back from the start
+	directory (that has been reached by calling walkhome()) to the
+	directory where the treewalker has been before calling walkhome().
+
+-	libfind: the major file name version number was bumped from 2 to 3
+	since the new code causes binary incompatibility with the previous
+	libfind.
+
+-	sfind: The man page now mentions the new features of libfind even
+	though the -call feature cannot be used in the sfind(1) command itself.
+
+-	bsh: bsh now calls find_sqinit() in order to initialize the squit_t
+	structure. This is needed in order to avoid later incompatible
+	binary changes in libfind.
+
+-	Bourne Shell: Added support for -call in libfind. The find(1) builtin
+	in the Bourne Shell now supports to call code in the shell directly
+	via a callback from libfind.
+
+	If you call:
+
+			find . -call echo {} \;
+
+	This is interpreted as if -call did call eval(1) with two parameters:
+
+		1:	echo
+		2:	the expanded {}
+
+	If you call:
+
+			find . -call 'echo "$@"' {} \;
+
+	This is interpreted as if -call did call the dosh(1) builtin from the
+	Bourne Shell with the following parameters:
+
+		1:	'echo "$@"'
+		2:	call		# this is $0
+		3:	the expanded {}
+
+	If you run "find -false" as a reference for performance, the following
+	preformance metering results could be retrieved:
+
+		find . -false		# The performance reference
+		find . -call : \;	# Same wall clock time, 2x CPU time
+		find . -exec false \;	# 30x wall clock time, 40x CPU time
+
+	This makes -call a highly intereting new feature for all commands that
+	could be done with shell builtins.
+
+-	star: using -xattr now only prints a hint on -xattr-linux in case
+	that this happens on a platform that does not support NFSv4 Extended
+	Attribute files, e.g. Linux.
+
+-	star: using -xattr on a platform with NFSv4 Extended Attribute files
+	now prints that this feature is not yet supported in star.
+
+-	star: Release 2018-07-16 caused star not to compile anymore on Mac OS X.
+	This is because sys/xattr.h on Linux and sys/xattr.h on Mac OS X are
+	very similar but incompatible.
+
+	A first quick fix, was to disable Linux xattr support in case that
+	XATTR_NOFOLLOW is defined (which is part of the incompatibility).
+
+	Since things did look simple, we now support these simple xattr method
+	on Mac OS X as well.
+
+-	star: Release 2018-07-16 introduced a bug in the diff code that caused
+	star to dump core while comparing symbolic links. Since the symlink
+	target name cannot be longer than PATH_MAX, we are now using a static
+	path buffer again in this case.
+
+-	star: The routines that read Y/N answers now use fgetstr() instead of
+	fgetline() in order to detect a buffer overrun.
+
+	In case of an overrun, we now read until a newline is seen, in order to
+	get a new sane start for the next question.
+
+-	star: New file version.c include a datefield besides the version
+	number.
+
+-	bsh: bsh now uses closefrom() if present in libc.
+
+-	bsh/libshedit: expand.c now includes <schily/dirent.h> before
+	"bsh.h", which includes <schily/schily.h> and that includes
+	<libschily/libport.h>. The latter is needed to get a fdopendir()
+	prototype for the emulation in libschily. This emulation is used
+	on Mac OS X.
+
+-	SunPro Make: the GNU linker does not like empty map files.
+	We now include a populated version of the linker map file for
+	libmakestate.
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

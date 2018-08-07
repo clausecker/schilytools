@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.53 18/07/15 Copyright 1985-2018 J. Schilling */
+/* @(#)expand.c	1.54 18/08/06 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.53 18/07/15 Copyright 1985-2018 J. Schilling";
+	"@(#)expand.c	1.54 18/08/06 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -25,14 +25,14 @@ static	UConst char sccsid[] =
 
 #include <schily/fcntl.h>
 #include <schily/stdio.h>
+#include <schily/string.h>
+#include <schily/stdlib.h>
+#include <schily/dirent.h>	/* Must be before bsh.h/schily.h/libport.h */
+#include <schily/patmatch.h>
 #include "bsh.h"
 #include "node.h"
 #include "str.h"
 #include "strsubs.h"
-#include <schily/string.h>
-#include <schily/stdlib.h>
-#include <schily/dirent.h>
-#include <schily/patmatch.h>
 
 #ifdef	DEBUG
 #define	EDEBUG(a)	printf a

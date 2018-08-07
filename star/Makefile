@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.36 18/07/14 
+#ident @(#)Makefile	1.37 18/07/30 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -49,7 +49,7 @@ CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		chdir.c match.c defaults.c dumpdate.c \
 		fifo.c device.c checkerr.c paxopts.c \
 		\
-		findinfo.c pathname.c
+		findinfo.c pathname.c version.c
 
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h restore.h \

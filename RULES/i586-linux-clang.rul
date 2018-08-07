@@ -1,4 +1,4 @@
-#ident "@(#)i586-linux-clang.rul	1.2 18/04/11 "
+#ident "@(#)i586-linux-clang.rul	1.3 18/08/05 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -40,12 +40,26 @@ LIB_SOCKET=
 LIB_MATH=	-lm
 LIB_KVM=	
 
+#
+# Sunpro C/C++ run on Solaris and Linux and both have linkers
+# that support mapfiles
+#
+MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
+#
+# The GNU linker is buggy and does not like the official order in linker map
+# files for symbol versioning. The following command reverses the order of
+# the version names in the linker map file.
+#
+MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | sort -t. -n -k1 -k2 -k3 |  tr '@' '\012'
+
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 #
 # Uncomment the next line in case you are on an old Linux version that
 # does not support the -R linker flag.
 #
 #LDOPTS=		$(LIBS_PATH) $(LDPATH)
+LDOPTMAP=	$(PMAPVERS:%=-Wl,--version-script=%)
+LDOPTDYN=	-shared -Wl,-soname,$(TARGET) $(LDOPTMAP)
 
 LORDER=		echo
 TSORT=		cat

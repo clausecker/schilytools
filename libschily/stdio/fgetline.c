@@ -1,6 +1,6 @@
-/* @(#)fgetline.c	1.14 16/11/07 Copyright 1986, 1996-2016 J. Schilling */
+/* @(#)fgetline.c	1.15 18/08/07 Copyright 1986, 1996-2018 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2016 J. Schilling
+ *	Copyright (c) 1986, 1996-2018 J. Schilling
  *
  *	This is an interface that exists in the public since 1982.
  *	The POSIX.1-2008 standard did ignore POSIX rules not to
@@ -142,6 +142,8 @@ js_fgetline(f, buf, len)
 			bp--;		/* Remove '\n' */
 			break;
 		}
+		if (len <= 0)
+			break;
 #else
 		if ((c = getc(f)) < 0) {
 			/*

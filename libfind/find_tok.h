@@ -1,6 +1,6 @@
-/* @(#)find_tok.h	1.6 10/04/19 Copyright 2004-2010 J. Schilling */
+/* @(#)find_tok.h	1.7 18/08/01 Copyright 2004-2018 J. Schilling */
 /*
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -99,10 +99,12 @@
 #define	EXECUTABLE 77	/* -executable	POSIX Extension	*/
 #define	EXECDIR	78	/* -execdir	POSIX Extension	*/
 #define	OK_EXECDIR 79	/* -okdir	POSIX Extension	*/
-#define	ENDPRIM	90	/* End of primary list		*/
-#define	EXECPLUS 81	/* -exec			*/
-#define	EXECDIRPLUS 82	/* -execdir			*/
-#define	ENDTLIST 83	/* End of token list		*/
+#define	CALL	80	/* -call	POSIX Extension	*/
+#define	CALLDIR	81	/* -calldir	POSIX Extension	*/
+#define	ENDPRIM	82	/* End of primary list		*/
+#define	EXECPLUS 83	/* -exec			*/
+#define	EXECDIRPLUS 84	/* -execdir			*/
+#define	ENDTLIST 85	/* End of token list		*/
 
 #define	tokennames	_find_tokennames
 
@@ -188,10 +190,12 @@ LOCAL	char	*tokennames[] = {
 	"executable",	/* 77 EXECUTABLE POSIX Extension */
 	"execdir",	/* 78 EXECDIR	POSIX Extension */
 	"okdir",	/* 79 OK_EXECDIR POSIX Extension */
-	0,		/* 80 End of primary list	*/
-	"exec",		/* 81 Map EXECPLUS -> "exec"	*/
-	"execdir",	/* 82 Map EXECDIRPLUS -> "execdir" */
-	0		/* 83 End of list		*/
+	"call",		/* 80 CALL	POSIX Extension */
+	"calldir",	/* 81 CALLDIR	POSIX Extension */
+	0,		/* 82 End of primary list	*/
+	"exec",		/* 83 Map EXECPLUS -> "exec"	*/
+	"execdir",	/* 84 Map EXECDIRPLUS -> "execdir" */
+	0		/* 85 End of list		*/
 };
 #define	NTOK	((sizeof (tokennames) / sizeof (tokennames[0])) - 1)
 

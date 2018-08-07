@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.56 18/07/15 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.57 18/08/01 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.56 18/07/15 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.57 18/08/01 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -116,6 +116,7 @@ struct twvars {
 	int		Flags;		/* Flags related to this struct	*/
 	struct WALK	*Walk;		/* Backpointer to struct WALK	*/
 	struct stat	Sb;		/* stat(2) buffer for start dir	*/
+	struct pdirs	*pdirs;		/* Previous dirs for walkcwd()	*/
 #ifdef	HAVE_FCHDIR
 	int		Home;		/* open fd to start CWD		*/
 #else
@@ -276,6 +277,7 @@ walk(nm, sf, fn, state, last)
 	char		*p;
 	struct twvars	*varp = state->twprivate;
 
+	varp->pdirs = last;
 #ifdef	USE_DIRFD
 	thisd.p_dir  = (DIR *)NULL;
 #endif
@@ -717,6 +719,9 @@ walkgethome(state)
 	return (0);
 }
 
+/*
+ * Walk back to the directory from where treewalk() has been started.
+ */
 EXPORT int
 walkhome(state)
 	struct WALK	*state;
@@ -732,6 +737,44 @@ walkhome(state)
 	if (varp->Home[0] != '\0')
 		return (chdir(varp->Home));
 #endif
+	return (0);
+}
+
+/*
+ * Walk back to the previous "cwd".
+ * This always works with fchdir() and low directory nesting.
+ * In the other case, it is assumed that walkcwd() is called after walkhome().
+ */
+EXPORT int
+walkcwd(state)
+	struct WALK	*state;
+{
+	struct twvars	*varp = state->twprivate;
+	char		c;
+
+	if (varp == NULL)
+		return (0);
+
+	if (varp->pdirs == NULL)
+		return (0);
+#ifdef	HAVE_FCHDIR
+	if (varp->pdirs->p_dir)
+		return (fchdir(dirfd(varp->pdirs->p_dir)));
+#endif
+	c = varp->Curdir[state->base];
+	varp->Curdir[state->base] = '\0';
+
+	if (chdir(varp->Curdir) < 0) {
+		if (geterrno() != ENAMETOOLONG) {
+			varp->Curdir[state->base] = c;
+			return (-1);
+		}
+		if (xchdir(varp->Curdir) < 0) {
+			varp->Curdir[state->base] = c;
+			return (-1);
+		}
+	}
+	varp->Curdir[state->base] = c;
 	return (0);
 }
 

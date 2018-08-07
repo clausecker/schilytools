@@ -1,10 +1,28 @@
-# /* @(#)libfind-mapvers	1.13 18/05/17 Copyright 2005-2018 J. Schilling */
+# /* @(#)libfind-mapvers	1.14 18/08/01 Copyright 2005-2018 J. Schilling */
+
+/*
+ * Due to a bug in the the C-Preprocessor from SunPro C, we get a syntax
+ * error in case there is a word with more than one dot inside.
+ * Making it a string helps and seems to be accepted by the UNIX linker.
+ * Unfortunately, the GNU linker does not like them, so we run the result
+ * through tr -d '"'
+ */
+"SCHILY_0.9.1" {	# Not yet a stable interface!
+global:
+	find_argsinit;	# find.c moved here to enforce a higher version
+	find_parse;	# find.c moved here to enforce a higher version
+	find_sqinit;	# find.c
+	treewalk;	# walk.c moved here to enforce a higher version
+	walkcwd;	# walk.c
+} SCHILY_0.9;
 
 SCHILY_0.9 {		# Not yet a stable interface!
 global:
+#ifdef	__old_compat__
 	find_argsinit;	#
-	find_free;	#
 	find_parse;	#
+#endif
+	find_free;	#
 } SCHILY_0.2;
 
 SCHILY_0.2 {		# Not yet a stable interface!
@@ -40,7 +58,9 @@ global:
 	find_usage;	# find.c
 	has_acl;	# find_misc.c
 	has_xattr;	# find_misc.c
+#ifdef	__old_compat__
 	treewalk;	# walk.c
+#endif
 	walkopen;	# walk.c
 	walkclose;	# walk.c
 	walkhome;	# walk.c

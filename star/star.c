@@ -1,8 +1,8 @@
-/* @(#)star.c	1.375 18/07/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.379 18/07/30 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.375 18/07/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.379 18/07/30 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -35,6 +35,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #define	__XDEV__		/* Needed to activate _dev_init() */
 #include <schily/device.h>
+#include <schily/fcntl.h>	/* Needed for O_XATTR */
 #include <schily/stat.h>	/* Needed for umask(2) */
 #include <schily/getargs.h>
 #define	GT_COMERR		/* #define comerr gtcomerr */
@@ -116,7 +117,6 @@ EXPORT	BOOL	ttyerr		__PR((FILE *f));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5.4";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -290,6 +290,7 @@ BOOL	symlinks  = FALSE;		/* -symlinks ext. hard as syml	*/
 BOOL	linkdata  = FALSE;		/* -link-data data in hardlinks	*/
 BOOL	doacl	  = FALSE;		/* -acl handle ACLs		*/
 BOOL	doxattr	  = FALSE;		/* -xattr handle extended fattr	*/
+BOOL	dolxattr  = FALSE;		/* -xattr-linux extended fattr	*/
 BOOL	dofflags  = FALSE;		/* -xfflags handle extended ffl	*/
 BOOL	link_dirs = FALSE;		/* -link-dirs hard linked dirs	*/
 BOOL	dodump	  = FALSE;		/* -dump mode with all ino prop	*/
@@ -1554,7 +1555,7 @@ BOOL	Ointeractive	 = FALSE;
 				&copylinks, &copyhardlinks, &copysymlinks,
 				&copydlinks,
 				&hardlinks, &symlinks, &linkdata,
-				&doacl, &doxattr, &doxattr, &dofflags,
+				&doacl, &doxattr, &dolxattr, &dofflags,
 				&link_dirs,
 				&dd_name,
 				&dodump, &dump_cumulative, &dump_cumulative,
@@ -1705,12 +1706,16 @@ LOCAL void
 star_mkvers()
 {
 	char	buf[512];
+extern	char	strvers[];
+extern	char	dvers[];
 
 	if (vers != NULL)
 		return;
 
 	js_snprintf(buf, sizeof (buf),
-		"%s %s (%s-%s-%s)", "star", strvers, HOST_CPU, HOST_VENDOR, HOST_OS);
+		"%s %s (%s-%s-%s) %s", "star", strvers,
+			HOST_CPU, HOST_VENDOR, HOST_OS,
+			dvers);
 
 	vers = ___savestr(buf);
 }
@@ -2068,6 +2073,18 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 	if (doacl)
 		pflag = TRUE;
 
+	if (doxattr) {
+#ifndef	O_XATTR
+		errmsgno(EX_BAD,
+		"This platform does not support NFSv4 extended attribute files.\n");
+		comerrno(EX_BAD,
+		"-xattr is reserved for NFSv4 extended attributes, for Linux use -xattr-linux\n");
+#else
+		comerrno(EX_BAD,
+		"NFSv4 extended attribute files are not yet supported.\n");
+#endif
+	}
+
 	if (paxopts) {
 		if (!ppaxopts(paxopts)) {
 			errmsgno(EX_BAD, "Unsupported option '%s' for %s.\n",
@@ -2219,6 +2236,7 @@ getpriv(arg, valp)
 			pflag = TRUE;
 			doacl = TRUE;
 			doxattr = TRUE;
+			dolxattr = TRUE;
 			dofflags = TRUE;
 			noatime = FALSE;
 			nomtime = FALSE;

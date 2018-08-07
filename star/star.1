@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.203 18/07/23 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.205 18/07/25 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/07/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/07/25" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -64,7 +64,8 @@ directory
 is a very fast
 .BR tar (1)
 like tape archiver with improved functionality.
-It is the only archiver that supports unlimited path name lengths (up to 8 GB).
+It supports unlimited path name lengths (up to 8 GB) in all cases that use
+suitable archive types.
 .PP
 .B Star
 archives and extracts multiple files to and from a single file
@@ -3990,6 +3991,7 @@ See also
 option.
 .TP
 .B \-xattr
+Reserved for NFSv4 extended attributes.
 .TP
 .B \-xattr\-linux
 Store and extract extended file attributes as found on Linux systems.

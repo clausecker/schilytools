@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.101 18/06/25 2008-2018 J. Schilling
+ * @(#)xec.c	1.102 18/08/01 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.101 18/06/25 2008-2018 J. Schilling";
+	"@(#)xec.c	1.102 18/08/01 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -1204,6 +1204,49 @@ execexp(s, f, xflags)
 	execute(cmd(NL, NLFLG | MTFLG | SEMIFLG),
 		xflags, (int)(flags & errflg), no_pipe, no_pipe);
 	pop();
+}
+
+/*
+ * Callback function for find ... -call
+ */
+int
+callsh(ac, av)
+	int	ac;
+	char	**av;
+{
+	struct dolnod	*olddolh;
+	unsigned char	**olddolv = dolv;
+	int		olddolc = dolc;
+	char		*av0 = av[0];
+
+
+	if (!anys(UC "$", UC av0)) {
+		/*
+		 * If av0 does not contain a variable reference,
+		 * behave as with "eval".
+		 */
+		traprecurse++;
+		execexp(UC av0, (Intptr_t)&av[1], 0);	/* xflags ??? */
+		traprecurse--;
+		return (exitval);
+	}
+	/*
+	 * save current positional parameters
+	 */
+	traprecurse++;
+	olddolh = (struct dolnod *)savargs(funcnt);
+	funcnt++;
+	av[0] = "call";
+	setargs(UCP av);
+	execexp(UC av0, (Intptr_t)0, 0);		/* xflags ??? */
+	(void) restorargs(olddolh, funcnt);
+	av[0] = av0;
+	dolv = olddolv;
+	dolc = olddolc;
+	funcnt--;
+	traprecurse--;
+
+	return (exitval);
 }
 
 #ifdef	DO_PS34
