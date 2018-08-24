@@ -1,8 +1,8 @@
-/* @(#)p.c	1.67 18/05/20 Copyright 1985-2018 J. Schilling */
+/* @(#)p.c	1.68 18/08/22 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.67 18/05/20 Copyright 1985-2018 J. Schilling";
+	"@(#)p.c	1.68 18/08/22 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -55,10 +55,10 @@ static	UConst char sccsid[] =
 /*
  * We are on a platform that supports multi byte characters.
  */
-#define	nextc()		nextwc()
-#define	peekc()		peekwc()
-#define	getnextch()	getnextwch()
-#define	ungetch(c)	ungetwch(c)
+#define	nextc()		nextwc()	/* Read next char */
+#define	peekc()		peekwc()	/* Peek next char */
+#define	getnextch()	getnextwch()	/* Consume last peeked char */
+#define	ungetch(c)	ungetwch(c)	/* Unread char back to buffer */
 #else
 #define	nextc()	(--len >= 0 ? (int) *bp++ : \
 			(fill_buf() <= 0 ? (len == 0 ? EOF : -2) : \
@@ -153,8 +153,8 @@ unsigned char *bp;		/* ditto */
 int len = 0;			/* ditto */
 int clen = 0;			/* # of octects in nextwc() multi byte char */
 int pclen = 0;			/* # of octects in peekwc() multi byte char */
-unsigned char *cp;
-unsigned char *pcp;
+unsigned char *cp;		/* Beginning of multi byte char in buffer   */
+unsigned char *pcp;		/* Beginning of peeked multi byte char in buf */
 
 #ifdef	BUFSIZ
 char	buffer[BUFSIZ];		/* our buffer for stdout */
@@ -329,7 +329,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s (%s-%s-%s)\n\n", "2.2", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("p %s (%s-%s-%s)\n\n", "2.3", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -922,13 +922,19 @@ nextc()
 LOCAL int
 nextwc()
 {
+	BOOL	eof = FALSE;
 	int	mlen;
 	wchar_t	c;
 
 	if (len <= 0) {
+		int	olen;
 again:
-		if (fill_buf() <= 0)
+		olen = len;
+		if (fill_buf() <= 0) {
 			return (len == 0 ? EOF : -2);
+		} else if (len > 0 && olen == len) {
+			eof = TRUE;
+		}
 	}
 	mlen = mbtowc(&c, (char *)bp, len);
 	if (mlen >= 0) {
@@ -941,7 +947,7 @@ again:
 		return (c);
 	} else {
 		mbtowc(NULL, NULL, 0);
-		if (len < MB_CUR_MAX) {
+		if (len < MB_CUR_MAX && !eof) {
 			seterrno(0);
 			goto again;
 		}
@@ -951,8 +957,7 @@ again:
 		len--;
 #ifdef	EILSEQ
 		if (geterrno() == EILSEQ) {
-			cp = (unsigned char *)"?";
-			return ('?');
+			return (*cp);
 		}
 #endif
 	}
@@ -965,13 +970,19 @@ again:
 LOCAL int
 peekwc()
 {
+	BOOL	eof = FALSE;
 	int	mlen;
 	wchar_t	c;
 
 	if (len <= 0) {
+		int	olen;
 again:
-		if (fill_buf() <= 0)
+		olen = len;
+		if (fill_buf() <= 0) {
 			return (len == 0 ? EOF : -2);
+		} else if (len > 0 && olen == len) {
+			eof = TRUE;
+		}
 	}
 	mlen = mbtowc(&c, (char *)bp, len);
 	if (mlen >= 0) {
@@ -982,7 +993,7 @@ again:
 		return (c);
 	} else {
 		mbtowc(NULL, NULL, 0);
-		if (len < MB_CUR_MAX) {
+		if (len < MB_CUR_MAX && !eof) {
 			seterrno(0);
 			goto again;
 		}
@@ -990,8 +1001,7 @@ again:
 		pcp = bp;
 #ifdef	EILSEQ
 		if (geterrno() == EILSEQ) {
-			pcp = (unsigned char *)"?";
-			return ('?');
+			return (*pcp);
 		}
 #endif
 	}

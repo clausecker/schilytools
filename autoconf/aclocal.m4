@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.109 17/06/28 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.110 18/08/08 Copyright 1998-2018 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -64,6 +64,7 @@ AC_CACHE_VAL(ac_cv_prog_CPPX,
 [  # This must be in double quotes, not single quotes, because CPP may get
   # substituted into the Makefile and "${CC-cc}" will confuse make.
   CPPX="$CPP"
+  CPPX_IN=""
 	cat > conftestcpp << EOF
 	xxzzy
 EOF
@@ -71,7 +72,7 @@ EOF
 	# and if $CC -E fails, we try to use dirname(which($CC))/cpp
 	# We cannot use AC_TRY_EVAL(CPPX conftestcpp | grep xxzzy) because
 	# of a bug in the parser from bash
-	ac_result=`(echo configure:1288: "$CPPX conftestcpp | grep xxzzy" 1>&5; eval $CPPX conftestcpp | grep xxzzy) 2>&5`
+	ac_result=`(echo configure:__oline__: "$CPPX conftestcpp | grep xxzzy" 1>&5; eval $CPPX conftestcpp | grep xxzzy) 2>&5`
 	if test -z "$ac_result"; then
 		changequote(, )dnl
 		ac_file=`eval type ${CC-cc} 2>/dev/null | sed 's%[^/]*/%/%'`
@@ -80,15 +81,26 @@ EOF
 		changequote([, ])dnl
 		if test -f "$ac_dir"/cpp; then
 			CPPX="$ac_dir"/cpp
+		else
+			# gcc -E does not like all file types, but
+			# gcc -E - < does. Test whether this works.
+			ac_result=`(echo configure:__oline__: "$CPPX - < conftestcpp | grep xxzzy" 1>&5; eval $CPPX - < conftestcpp | grep xxzzy) 2>&5`
+			if test -n "$ac_result"; then
+				CPPX_IN="- <"
+			fi
 		fi
 	fi
-	ac_cv_prog_CPPX="$CPPX"])dnl
+	ac_cv_prog_CPPX="$CPPX"
+	ac_cv_prog_CPPX_IN="$CPPX_IN"])dnl
 	CPPX="$ac_cv_prog_CPPX"
+	CPPX_IN="$ac_cv_prog_CPPX_IN"
 else
 	ac_cv_prog_CPPX="$CPPX"
+	ac_cv_prog_CPPX_IN="$CPPX_IN"
 fi
-AC_MSG_RESULT($CPPX)
+AC_MSG_RESULT($CPPX '"$CPPX_IN"')
 AC_SUBST(CPPX)dnl
+AC_SUBST(CPPX_IN)dnl
 ])
 
 dnl Checks if /bin/sh is bash

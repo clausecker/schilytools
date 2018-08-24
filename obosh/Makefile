@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.95 18/06/27  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.96 18/08/16  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,14 +7,14 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 					# Shell
-TARGET=		osh
+TARGET=		obosh
 #SYMLINKS=	pfsh			# Profile Bourne Shell
 #SYMLINKS +=	bosh			# Bo urne Shell
 #SYMLINKS +=	jsh			# Job control Bourne Shell
 
 ##CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
 
-CPPOPTS +=	-DVSHNAME='"osh"'	# Shell name variant (bosh/osh/pbosh)
+CPPOPTS +=	-DVSHNAME='"obosh"'	# Shell name variant (bosh/obosh/pbosh)
 
 CPPOPTS +=	-DSCHILY_INCLUDES	# Tell the code to use schily include files
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh

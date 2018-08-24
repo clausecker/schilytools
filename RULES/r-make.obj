@@ -1,4 +1,4 @@
-#ident @(#)r-make.obj	1.9 15/04/15 
+#ident @(#)r-make.obj	1.10 18/08/16 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -35,11 +35,11 @@ OFILES=			$(CFILES:%.c=$(ARCHDIR)/%.$o)	$(C++OFILES)
 POFILES=		$(CFILES:%.c=$(ARCHDIR)/%.$o)	$(C++POFILES)
 ###########################################################################
 __COMPILE.c=		$(_UNIQ)$(COMPILE.c)
-___COMPILE.c=		$(__COMPILE.c:$(_UNIQ)=$(CCCC) $(CFLAGS) $(CPPFLAGS) -c)
+___COMPILE.c=		$(__COMPILE.c:$(_UNIQ)=$(CCCC) $(C_FLAGS) $(CFLAGS) $(CPP_FLAGS) $(CPPFLAGS) -c)
 _COMPILE.c=		$(___COMPILE.c:$(_UNIQ)%=%)
 
 __COMPILE.cc=		$(_UNIQ)$(COMPILE.cc)
-___COMPILE.cc=		$(__COMPILE.cc:$(_UNIQ)=$(CC++) $(C++FLAGS) $(CPPFLAGS) -c)
+___COMPILE.cc=		$(__COMPILE.cc:$(_UNIQ)=$(CC++) $(C++FLAGS) $(CCFLAGS) $(CPP_FLAGS) $(CPPFLAGS) -c)
 _COMPILE.cc=		$(___COMPILE.cc:$(_UNIQ)%=%)
 
 __OUTPUT_OPTION=	$(_UNIQ)$(OUTPUT_OPTION)

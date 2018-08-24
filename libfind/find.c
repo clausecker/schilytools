@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.106 18/08/01 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.107 18/08/20 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.106 18/08/01 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.107 18/08/20 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -898,6 +898,32 @@ parseprim(fap)
 		return (n);
 	}
 
+	case NEWERAT:
+	case NEWERCT:
+	case NEWERMT: {
+		struct timespec ts;
+		const char	*te;
+
+		fap->walkflags &= ~WALK_NOSTAT;
+
+		te = parsetime(n->left = nextarg(fap, n), &ts);
+		if (te == NULL || *te != '\0') {
+			ferrmsgno(fap->std[2], EX_BAD,
+				_("Cannot use '%s' as timestamp.\n"), n->left);
+			errjmp(fap, EX_BAD);
+			/* NOTREACHED */
+		}
+#if	defined(_FOUND_STAT_NSECS_)
+		n->val.ts.tv_sec = ts.tv_sec;
+		n->val.ts.tv_nsec = ts.tv_nsec;
+#else
+		n->val.time = ts.tv_sec;
+#endif
+		nexttoken(fap);
+		fap->jmp = ojmp;		/* Restore old jump target */
+		return (n);
+	}
+
 	case TYPE:
 		fap->walkflags &= ~WALK_NOSTAT;
 
@@ -1651,6 +1677,7 @@ find_expr(f, ff, fs, state, t)
 	case NEWERAA:
 	case NEWERAC:
 	case NEWERAM:
+	case NEWERAT:
 #if	defined(_FOUND_STAT_NSECS_)
 		if (t->val.ts.tv_sec < fs->st_atime)
 			return (TRUE);
@@ -1663,6 +1690,7 @@ find_expr(f, ff, fs, state, t)
 	case NEWERCA:
 	case NEWERCC:
 	case NEWERCM:
+	case NEWERCT:
 #if	defined(_FOUND_STAT_NSECS_)
 		if (t->val.ts.tv_sec < fs->st_ctime)
 			return (TRUE);
@@ -1676,6 +1704,7 @@ find_expr(f, ff, fs, state, t)
 	case NEWERMA:
 	case NEWERMC:
 	case NEWERMM:
+	case NEWERMT:
 #if	defined(_FOUND_STAT_NSECS_)
 		if (t->val.ts.tv_sec < fs->st_mtime)
 			return (TRUE);
@@ -2568,7 +2597,7 @@ find_usage(f)
 	fprintf(f, _("	-mtime #      TRUE if st_mtime is in specified range\n"));
 	fprintf(f, _("	-name glob    TRUE if path component matches shell glob\n"));
 	fprintf(f, _("	-newer file   TRUE if st_mtime newer then mtime of file\n"));
-	fprintf(f, _("*	-newerXY file TRUE if [acm]time (X) newer then [acm]time (Y) of file\n"));
+	fprintf(f, _("*	-newerXY file TRUE if [acm]time (X) newer then [acmt]time (Y) of file\n"));
 	fprintf(f, _("	-nogroup      TRUE if not in group database\n"));
 	fprintf(f, _("	-nouser       TRUE if not in user database\n"));
 	fprintf(f, _("	-ok program [argument ...] \\;\n"));

@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.59 18/07/23 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.61 18/08/08 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.10 {
@@ -28,6 +28,33 @@ global:
 	fgtxcomerrno;
 	fgterrmsg;
 	fgterrmsgno;
+#ifndef	HAVE_STRCSPN
+	strcspn;
+#endif
+#ifndef	HAVE_STRLCAT
+	strlcat;
+#endif
+#ifndef	HAVE_STRNLEN
+	strnlen;
+#endif
+#ifndef	HAVE_STRSPN
+	strspn;
+#endif
+#ifndef	HAVE_STRSTR
+	strstr;
+#endif
+#ifndef	HAVE_STRTOD
+	strtod;
+#endif
+#ifndef	HAVE_WCSCSPN
+	wcscspn;
+#endif
+#ifndef	HAVE_WCSSPN
+	wcsspn;
+#endif
+#ifndef	HAVE_WCSSTR
+	wcsstr;
+#endif
 } SCHILY_1.9;
 
 SCHILY_1.9 {

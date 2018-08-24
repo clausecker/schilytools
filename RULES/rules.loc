@@ -1,4 +1,4 @@
-#ident "@(#)rules.loc	1.12 18/05/25 "
+#ident "@(#)rules.loc	1.16 18/08/14 "
 ###########################################################################
 # Written 1997 by J. Schilling
 ###########################################################################
@@ -31,14 +31,14 @@ _INSMODEI=	$(_UNIQ)$(INSMODE)
 __INSMODEI=	$(_INSMODEI:$(_UNIQ)=$(INSMODEF))
 INSMODEI=	$(__INSMODEI:$(_UNIQ)%=%)
 
-all:		$(ARCHDIR) $(WAIT) $(PTARGET)
+all localize:	$(ARCHDIR) $(WAIT) $(PTARGET) $(MAN)
 
 $(PTARGET):	$(SRCFILE)
 		$(LOCALIZE) $(SRCFILE) $@
 
 #
 # gmake only. Other make implementations use a no-xxx/ prefix.
-# gmake calls prerequisites the the right of | order-only-prerequisites
+# gmake calls prerequisites to the right of | as order-only-prerequisites
 # and does not evaluate the time stamp from such prerequisites.
 #
 $(GMAKE_ONLY)$(PTARGET): | $(ARCHDIR)

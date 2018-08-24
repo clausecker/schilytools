@@ -1,4 +1,4 @@
-#ident "@(#)cc-dec.rul	1.18 18/04/11 "
+#ident "@(#)cc-dec.rul	1.19 18/08/16 "
 ###########################################################################
 # Written 1998-2018 by J. Schilling
 ###########################################################################
@@ -21,8 +21,8 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
-CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(DECCOPTOPT) $(COPTX)
+CPP_FLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
+C_FLAGS=	$(COPTS) $(CWARNOPTS) $(COPTOPT) $(DECCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(DECC++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)

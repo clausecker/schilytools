@@ -1,4 +1,4 @@
-#ident "@(#)r-gmake.dep	1.16 15/04/15 "
+#ident "@(#)r-gmake.dep	1.17 18/08/16 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -59,20 +59,20 @@ $(ARCHDIR) $(ARCHDIR)/man:
 #
 ###########################################################################
 $(ARCHDIR)/%.d: %.c
-	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
+	$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKDEP_OUT) $< \
 		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 
 $(ARCHDIR)/%.d: %.C
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
 		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 $(ARCHDIR)/%.d: %.cc
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
 		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 $(ARCHDIR)/%.d: %.cpp
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
 		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 $(ARCHDIR)/%.d: %.cxx
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
 		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 
 $(PDEP_FILE): $(DEP_DEP)

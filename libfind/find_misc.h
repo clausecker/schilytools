@@ -1,6 +1,6 @@
-/* @(#)find_misc.h	1.7 09/07/10 Copyright 2004-2009 J. Schilling */
+/* @(#)find_misc.h	1.8 18/08/20 Copyright 2004-2018 J. Schilling */
 /*
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,9 @@
 #ifndef _SCHILY_STDIO_H
 #include <schily/stdio.h>
 #endif
+#ifndef _SCHILY_STAT_H
+#include <schily/stat.h>
+#endif
 
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
 #	define	HAVE_SUN_ACL
@@ -52,5 +55,7 @@
 
 extern	BOOL	has_acl		__PR((FILE *f, char *name, char *sname, struct stat *sp));
 extern	BOOL	has_xattr	__PR((FILE *f, char *sname));
+
+extern	const char	*parsetime __PR((const char *s, struct timespec *ts));
 
 #endif	/* _FIND_MISC_H */

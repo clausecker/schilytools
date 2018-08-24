@@ -1,14 +1,14 @@
-/* @(#)ctab.c	1.14 09/07/09 Copyright 1986-2009 J. Schilling */
+/* @(#)ctab.c	1.16 18/08/23 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ctab.c	1.14 09/07/09 Copyright 1986-2009 J. Schilling";
+	"@(#)ctab.c	1.16 18/08/23 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	Character string and stringlength tables for screen
  *	output functions.
  *
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,13 +66,17 @@ init_csize(wp)
 	register Uchar	*rcsize = csize;
 
 	for (c = 0; c <= 255; c++, rcsize++) {
-		if (c < SP || c == DEL)			/*ctl*/
+		if (c < SP || c == DEL)			/*ctl */
 			*rcsize = 2;
-		else if ((c > DEL && c < SP8) || c == DEL8) /*8bit ctl*/
+#ifdef	DEL8
+		else if ((c > DEL && c < SP8) || c == DEL8) /* 8bit ctl */
+#else
+		else if (c > DEL && c < SP8)		/* 8bit ctl */
+#endif
 			*rcsize = 3;
-		else if (c >= SP8 && !wp->raw8)		/*8bit norm*/
+		else if (c >= SP8 && !wp->raw8)		/* 8bit norm */
 			*rcsize = 2;
-		else					/*7bit norm*/
+		else					/* normal char */
 			*rcsize = 1;
 	}
 }
@@ -98,7 +102,11 @@ init_ctab(wp)
 		if (c < SP || c == DEL) {		/* ctl char */
 			p = cmakestr(wp, ctl);
 			p[1] = c ^ 0100;
+#ifdef	DEL8
 		} else if ((c > DEL && c < SP8) || c == DEL8) { /* 8 bit ctl */
+#else
+		} else if (c > DEL && c < SP8) {	/* 8 bit ctl */
+#endif
 			p = cmakestr(wp, eightctl);
 			p[2] = c ^ 0300;
 		} else if (c >= SP8 && !wp->raw8) {	/* 8 bit char */

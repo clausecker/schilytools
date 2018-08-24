@@ -1,4 +1,4 @@
-#ident "@(#)cc-gcc.rul	1.19 18/04/11 "
+#ident "@(#)cc-gcc.rul	1.20 18/08/16 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -26,8 +26,8 @@ GCC_OPT32=	-m32
 GCC_OPT64=	-m64
 GCC_OPTXX=	$(GCC_OPT$(C_ARCH:gcc%=%))
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
-CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
+CPP_FLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
+C_FLAGS=	$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)

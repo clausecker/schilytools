@@ -1,4 +1,4 @@
-#ident "@(#)rules.sps	1.15 17/08/04 "
+#ident "@(#)rules.sps	1.16 18/08/16 "
 ###########################################################################
 # Written 2005-2013 by J. Schilling
 ###########################################################################
@@ -81,5 +81,5 @@ LNDIRPRG=	$(__LNDIR_PRG:$(_UNIQ)%=%)
 $(ARCHDIR)/config.status: $(_CONF_SCR:%=$(SRC_DIR)/%)
 	mkdir -p $(ARCHDIR)/; cd $(ARCHDIR)/; \
 	$(LNDIRPRG) ../../$(SRC_DIR)/; \
-	CC="$(XCC_COM)" CFLAGS="$(CFLAGS)" MAKE="$(MAKE)" $(MAKEMACS) $(PCONFSCRIPT) $(CONF_OPTS) && \
+	CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" MAKE="$(MAKE)" $(MAKEMACS) $(PCONFSCRIPT) $(CONF_OPTS) && \
 	( [ ! -f config.status ] && touch config.status || : )

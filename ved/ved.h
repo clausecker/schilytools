@@ -1,8 +1,8 @@
-/* @(#)ved.h	1.41 11/08/03 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling */
+/* @(#)ved.h	1.45 18/08/23 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
 /*
  *	Main include file for VED
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,7 +34,17 @@
 #define	CPP	(char ***)
 #define	UCPP	(unsigned char ***)
 
-typedef	unsigned char	echar_t;
+#undef	MB_LEN_MAX
+#define	MB_LEN_MAX	1
+
+#if	MB_LEN_MAX > 1			/* This is multi byte mode	  */
+typedef	wchar_t		echar_t;	/* A ved internal character	  */
+typedef	wint_t		eint_t;		/* A ved internal "getc()" result */
+
+#else					/* This is single byte mode	  */
+typedef	unsigned char	echar_t;	/* A ved internal character	  */
+typedef	int		eint_t;		/* A ved internal "getc()" result */
+#endif
 
 /*#define	USE_LONGLONG_POS*/
 
@@ -106,11 +116,13 @@ extern	iobuf_t	_bb;
 #	define	ENOENT	ENOFILE
 #endif
 
-#define	SP	0x20
-#define	TAB	0x09
-#define	DEL	0x7F
-#define	SP8	0xA0
-#define	DEL8	0xFF
+#define	SP	0x20				/* The vanilla space	*/
+#define	TAB	0x09				/* The TAB character	*/
+#define	DEL	0x7F				/* The DEL character	*/
+#define	SP8	0xA0				/* The non-breakable space */
+#ifdef	USE_DEL8
+#define	DEL8	0xFF				/* Bef. y diaresis was added */
+#endif
 
 #define	TABNONE	255				/* No table		*/
 #define	TABFIRST CTAB				/* The first table	*/
@@ -194,7 +206,7 @@ typedef struct {
 	FILE	*curfp;		/* current file pointer (if file is locked) */
 	long	curftime;	/* last modification time of current file   */
 	int	curfd;		/* fd used to hold writelock to current file */
-	Uchar	lastch;		/* a global copy of the last read char	    */
+	echar_t	lastch;		/* a global copy of the last read char	    */
 	BOOL	magic;		/* wether to search in 'magic' mode	    */
 	long	modflg;		/* number of modifications since last save  */
 	ecnt_t	curnum;		/* mult # fot next edit command		    */

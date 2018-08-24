@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.25 18/06/04 Copyright 1984-2018 J. Schilling */
+/* @(#)edit.c	1.27 18/08/23 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.25 18/06/04 Copyright 1984-2018 J. Schilling";
+	"@(#)edit.c	1.27 18/08/23 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
@@ -56,8 +56,8 @@ edit(wp)
 	ewin_t	*wp;
 {
 	register void	(*f)			__PR((ewin_t *));
-	register Uchar	c;
-	register Uchar	cc;
+	register echar_t c;
+	register Uchar	cc;		/* Used to index the binding arrays */
 	register epos_t sdot;
 		BOOL	in_command = FALSE;
 
@@ -89,7 +89,7 @@ edit(wp)
 		charstyped++;
 /*cdbg("got: '%c' (%d)", c, c);*/
 		in_command = TRUE;
-		cc = c & 0177;
+		cc = c & 0xFF;
 		wp->lastch = c;
 
 		/*

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)fault.c	1.38 18/01/05 2008-2018 J. Schilling
+ * @(#)fault.c	1.39 18/08/12 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.38 18/01/05 2008-2018 J. Schilling";
+	"@(#)fault.c	1.39 18/08/12 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -835,8 +835,10 @@ init_sigval()
 #ifdef	SIGVTALRM
 	set_sigval(SIGVTALRM, done);
 #endif
+#ifndef	NO_SIGPROF			/* No SIGPROF for gprof */
 #ifdef	SIGPROF
 	set_sigval(SIGPROF, done);
+#endif
 #endif
 #ifdef	SIGXCPU
 	set_sigval(SIGXCPU, done);

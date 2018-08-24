@@ -1,4 +1,4 @@
-#ident "@(#)rules.hlp	1.20 17/06/28 "
+#ident "@(#)rules.hlp	1.21 18/08/14 "
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -24,6 +24,7 @@
 #
 # - all						: see appropriate rules
 # - man installman				: rules.man
+# - localize					: rules.loc
 # - lint					: rules.lnt
 # - clean, clobber, distclean, relink, rmtarget	: rules.clr
 # - rel						: rules.rel
@@ -45,6 +46,7 @@
 	@echo "Available targets are:" $(ALLTARGETS)
 	@echo "	all		make the default target"
 	@echo "	man		make localized man pages"
+	@echo "	localize	make localized scripts"
 	@echo "	lint		lint all sources for the default target"
 	@echo "	clean		remove all made objects and the default target"
 	@echo "	clobber		remove all from 'clean' and all dependency files"

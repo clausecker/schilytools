@@ -1,8 +1,8 @@
-/* @(#)header.c	1.174 18/06/17 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.175 18/08/12 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.174 18/06/17 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.175 18/08/12 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -332,7 +332,10 @@ isstmagic(s)
 }
 
 /*
- * Check for XUSTAR format.
+ * Check for XSTAR / XUSTAR format.
+ *
+ * Since we ise this function after we checked for the "tar" signature, it
+ * is unly used as a XUSTAR check.
  *
  * This is star's upcoming new standard format. This format understands star's
  * old extended POSIX format and in future will write POSIX.1-2001 extensions
@@ -373,27 +376,38 @@ isxmagic(ptb)
 	 * If atime[0]...atime[10] or ctime[0]...ctime[10]
 	 * is not a POSIX octal number it cannot be 'xstar'.
 	 * With the octal representation we may store any date
-	 * for 1970 +- 136 years (1834 ... 2106). After 2106
-	 * we will most likely always use POSIX.1-2001 'x'
-	 * headers and thus don't need to check for base 256
-	 * numbers.
+	 * for 1970 +- 136 years (1834 ... 2106).
+	 *
+	 * After 2106 we will most likely always use POSIX.1-2001 'x'
+	 * headers but still use base 256 numbers in the old tar header.
+	 * We thus still need to check for base 256 numbers even though
+	 * this is very unlikely since we create 'x' headers if nanoseconds
+	 * are != 0 and then use a 0 time stamp for atime/ctime in the
+	 * 'x' header.
 	 */
 	for (i = 0; i < 11; i++) {
-		if (ptb->xstar_dbuf.t_atime[i] < '0' ||
-		    ptb->xstar_dbuf.t_atime[i] > '7')
+		if ((ptb->xstar_dbuf.t_atime[0] & 0x80) == 0 &&
+		   (ptb->xstar_dbuf.t_atime[i] < '0' ||
+		    ptb->xstar_dbuf.t_atime[i] > '7'))
 			return (FALSE);
-		if (ptb->xstar_dbuf.t_ctime[i] < '0' ||
-		    ptb->xstar_dbuf.t_ctime[i] > '7')
+		if (((ptb->xstar_dbuf.t_ctime[0] & 0x80) == 0) &&
+		   (ptb->xstar_dbuf.t_ctime[i] < '0' ||
+		    ptb->xstar_dbuf.t_ctime[i] > '7'))
 			return (FALSE);
 	}
 
 	/*
-	 * Check for both POSIX compliant end of number characters.
+	 * Check for both POSIX compliant end of number characters
+	 * if not using base 256.
 	 */
-	if ((ptb->xstar_dbuf.t_atime[11] != ' ' &&
-	    ptb->xstar_dbuf.t_atime[11]  != '\0') ||
-	    (ptb->xstar_dbuf.t_ctime[11] != ' ' &&
-	    ptb->xstar_dbuf.t_ctime[11]  != '\0'))
+	if ((ptb->xstar_dbuf.t_atime[0] & 0x80) == 0 &&
+	    ptb->xstar_dbuf.t_atime[11] != ' ' &&
+	    ptb->xstar_dbuf.t_atime[11]  != '\0')
+		return (FALSE);
+
+	if ((ptb->xstar_dbuf.t_ctime[0] & 0x80) == 0 &&
+	    ptb->xstar_dbuf.t_ctime[11] != ' ' &&
+	    ptb->xstar_dbuf.t_ctime[11]  != '\0')
 		return (FALSE);
 
 	return (TRUE);
@@ -544,7 +558,7 @@ get_hdrtype(ptb, isrecurse)
 		return (ret);
 	}
 	if (ustmagcheck(ptb)) {			/* 'ustar\000' POSIX magic */
-		if (isxmagic(ptb)) {
+		if (isxmagic(ptb)) {		/* Check for xustar	   */
 #ifdef	__historic__
 			/*
 			 * H_EXUSTAR was introduced in August 2001 but since

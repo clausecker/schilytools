@@ -1,8 +1,8 @@
-/* @(#)send.c	1.5 18/05/17 Copyright 2011-2018 J. Schilling */
+/* @(#)send.c	1.6 18/08/22 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)send.c	1.5 18/05/17 Copyright 2011-2018 J. Schilling";
+	"@(#)send.c	1.6 18/08/22 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Send data for a StreamArchive to the output file
@@ -105,7 +105,8 @@ strar_st_send(s, sp)
 			}
 		}
 	} else if ((xflags & XF_FILETYPE) == 0) {
-		return (-1);
+		seterrno(0);
+		return (-2);
 	}
 
 	if (!utf8)

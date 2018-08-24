@@ -1,11 +1,11 @@
-/* @(#)binding.c	1.13 09/07/09 Copyright 1984,1997,2000-2009 J. Schilling */
+/* @(#)binding.c	1.14 18/08/23 Copyright 1984,1997,2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)binding.c	1.13 09/07/09 Copyright 1984,1997,2000-2009 J. Schilling";
+	"@(#)binding.c	1.14 18/08/23 Copyright 1984,1997,2000-2018 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1984,1997,2000-2009 J. Schilling
+ *	Copyright (c) 1984,1997,2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +32,7 @@ struct funcs {
 	Uchar	defmap;				/* The default mapping	*/
 };
 
-EXPORT	void	(*chartab[NCTAB][0200])	__PR((ewin_t *));
+EXPORT	void	(*chartab[NCTAB][256])	__PR((ewin_t *));
 EXPORT	int	ctabidx;	/* The table idx where we take commands from */
 
 LOCAL	void	setesctab	__PR((ewin_t *wp));
@@ -275,7 +275,6 @@ setx(wp)
 	wp->eflags &= ~COLUPDATE;
 }
 
-/*#ifdef	BIND_VERIFY*/
 #ifdef	BIND_VERIFY
 
 #include "btab.c"
@@ -287,8 +286,8 @@ LOCAL	void	cmptab		__PR((char *name,
 LOCAL void
 cmptab(name, tab, tab2)
 	char	*name;
-	void	(*tab[0200])	__PR((ewin_t *));
-	void	(*tab2[0200])	__PR((ewin_t *));
+	void	(*tab[256])	__PR((ewin_t *));
+	void	(*tab2[256])	__PR((ewin_t *));
 {
 	register int	i;
 
@@ -303,26 +302,37 @@ cmptab(name, tab, tab2)
 }
 #endif
 
+/*
+ * Initialize the whole table.
+ * This is used to install "verror()" in all slots.
+ */
 LOCAL void
 init_table(tab, func)
-	void	(*tab[0200])	__PR((ewin_t *));
+	void	(*tab[256])	__PR((ewin_t *));
 	void	(*func)		__PR((ewin_t *));
 {
 	register int	i;
 
-	for (i = 0; i < 128; i++) {
+	for (i = 0; i < 256; i++) {
 		tab[i] = func;
 	}
 }
 
+/*
+ * Initialize all normal characters slots.
+ * This is used to install "vnorm()", "vsnorm()", "vxmac()".
+ */
 LOCAL void
 init_chars(tab, func)
-	void	(*tab[0200])	__PR((ewin_t *));
+	void	(*tab[256])	__PR((ewin_t *));
 	void	(*func)		__PR((ewin_t *));
 {
 	register int	i;
 
 	for (i = 32; i < 127; i++) {
+		tab[i] = func;
+	}
+	for (i = SP8; i < 256; i++) {
 		tab[i] = func;
 	}
 }
@@ -334,7 +344,7 @@ init_binding()
 	struct	funcs	*fp;
 
 	/*
-	 * First initialize all tables with the error function.
+	 * First initialize all entries in all tables with the error function.
 	 */
 	for (i = TABFIRST; i <= TABLAST; i++)
 		init_table(chartab[i], verror);

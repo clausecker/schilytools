@@ -1,4 +1,4 @@
-# @(#)README.compile	1.38 18/05/20 Copyright 1997-2018 J. Schilling
+# @(#)README.compile	1.39 18/08/14 Copyright 1997-2018 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -617,7 +617,7 @@ Compiling in a cross compilation environment:
 	to run scripts on the target system for some of the tests.
 
 	The "configure" script that is delivered with the Schily makefile
-	system runs more than 770 tests and aprox 70 of them need to be 
+	system runs more than 770 tests and approx. 70 of them need to be 
 	run on the target system.
 
 	The Schily autoconf system now supports a method to run these ~70
@@ -734,7 +734,7 @@ Compiling with the address sanitizer:
 
 	First a note: the address sanitizer needs a lot of memory when in
 	64-bit mode. For this reason, it is recommended to run the tests
-	in 32-bit mode as it may be impossible to provdie a sufficient amount
+	in 32-bit mode as it may be impossible to provide a sufficient amount
 	of memory for the 64-bit mode.
 
 	1) The address sanitizer may cause autoconf to behave incorrectly in

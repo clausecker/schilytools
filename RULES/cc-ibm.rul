@@ -1,4 +1,4 @@
-#ident "@(#)cc-ibm.rul	1.18 18/04/11 "
+#ident "@(#)cc-ibm.rul	1.19 18/08/16 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -31,8 +31,8 @@ IBMLD_OPT32=	-b32
 IBMLD_OPT64=	-b64
 IBMLC_OPTXX=	$(IBMLD_OPT$(C_ARCH:cc%=%))
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
-CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(IBMCOPTOPT) $(COPTX)
+CPP_FLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
+C_FLAGS=	$(COPTS) $(CWARNOPTS) $(COPTOPT) $(IBMCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(IBMC++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)

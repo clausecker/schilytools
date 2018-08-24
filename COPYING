@@ -1,4 +1,4 @@
-# @(#)COPYING	1.15 18/04/24 Copyright 2007-2018 J. Schilling
+# @(#)COPYING	1.18 18/08/16 Copyright 2007-2018 J. Schilling
 
 
 The software in this directory tree is free software and uses
@@ -131,14 +131,16 @@ mountcd/
 	mount root CD image for SchilliX life CD (CDDL)
 mt/
 	magnetic tape control (CDDL)
-osh/
+obosh/
 	A Burne Shell version that is compatible to Solaris 10 (CDDL)
 p/
 	paginates text and filters non-printing characters (CDDL)
 paste/
 	Another "paste" implementation (CDDL)
 patch/
-	a program for applying a diff file to an original
+	a program for applying a diff file to an original (BSD 1 clause)
+pbosh/
+	The Bourne Shell, compile variant that is minimal POSIX (CDDL)
 pkgdefs/
 	Package definitions for CSW (CDDL)
 printf/
@@ -174,7 +176,7 @@ sformat/
 sgrow/
 	grow user stack test program (CDDL)
 sh/
-	The Bourne Shell (with cursor editable history added) (CDDL)
+	The Bourne Shell POSIX enhanced (cursor editable history added) (CDDL)
 smake/
 	A highly portable "make" utility (CDDL)
 star/

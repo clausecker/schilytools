@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.28 18/05/17 Copyr 2003-2018 J. Schilling
+. \" @(#)star.4	1.29 18/08/12 Copyr 2003-2018 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2018/05/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2018/08/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -306,7 +306,7 @@ which results is a maximum value of 2097151.
 Numeric fields with 12 characters may hold up to 11 octal digits (77777777777)
 which results is a maximum value of 8589934591.
 .PP
-.I Star
+.B Star
 implements a vendor specific (and thus non-POSIX) extension to put bigger numbers
 into the numeric fields. This is done by using a 
 .B base 256
@@ -318,11 +318,17 @@ the number. This results in 7 base 256 digits in 8 character fields and in
 11 base 256 digits in 12 character fields.
 All base 256 numbers are two's complement numbers. A base 256 number in a
 8 character field may hold 56 bits, a base 256 number in a 12 character
-field may hold 88 bits. This may be extended to 63 bits for 8 character fields
-and to 95 bits for 12 character fields. For a negative number the first
+field may hold 88 bits.
+.sp
+This may be extended to 63 bits for 8 character fields
+and to 95 bits for 12 character fields. For a negative number, the first
 character currently is set to a value of 255 (all 8 bits are set).
+For a positive number, the first character currently is set to 128 (the top
+bit is set and all other bits are cleared).
+.sp
 The rightmost character in a 8 or 12 character field contains the least
 significant base 256 number.
+.sp
 Recent GNU tar versions implement the same extension.
 .PP
 While the POSIX standard makes it obvious that the fields
@@ -361,8 +367,11 @@ in
 .IR st_mtime .
 If the
 .I mtime
-fiels is assumed to be a signed 33 bit number, the latest representable time
-is 2106 Feb  7 06:28:15 GMT.
+field is assumed to be a signed 33 bit number, the latest representable time
+is 2106 Feb  7 06:28:15 GMT. This is because POSIX does not mention whether
+the time has to be a signed or unsigned number and thus no more than 32 bits
+may be used for a positive value if applications care about
+portability.
 .PP
 The
 .I chksum
@@ -459,7 +468,9 @@ A directory or sub directory. Old (pre POSIX.1-1988)
 .B tar
 implementations did use the same
 .I typeflag
-value as for plain files and added a slash to the name.
+value as for plain files and added a slash to the end of the
+.I name
+field.
 If the
 .I size
 field is non zero then it indicates the maximum size in characters
@@ -531,20 +542,26 @@ The
 is always non zero and denotes the length of the data that follows the header.
 .B Star
 currently is not able to handle this header type.
+As the
+.B ACL
+data used by this format dos not include the numerical user and group id's,
+this format is not recommended for archival.
 .TP
 .B 'D'
 A GNU dump directory.
 This header type is not created by
 .B star
-and handled like a directory during an extract operation, so the content
-is ignored by
+and handled like a POSIX tzpe '5' directory during an extract operation,
+so the data content is ignored by
 .BR star .
 The
 .I size
 field denotes the length of the data that follows the header.
 .TP
 .B 'E'
-A Solaris Extended Attribute File.
+A Solaris Extended Attribute File that is used to archive
+.B NFSv4
+type extended attributes.
 The
 .I size
 field denotes the length of the data that follows the header.
@@ -584,8 +601,9 @@ formats,
 prefers to store long link names using the POSIX.1-2001 method.
 The
 .I size
-is always non zero and denotes the length of the long link name including
-the trailing null byte. The link name is in the data that follows the header.
+is always non zero and denotes the length of the long link target name
+including the trailing null byte.
+The link name is in the data that follows the header.
 .TP
 .B 'L'
 A long file name.
@@ -621,7 +639,8 @@ field is non zero the data following the header is skipped by
 .B star
 if the volume that starts with it is mounted as the first volume.
 This header is ignored if the volume that starts with it is mounted
-as continuation volume.
+as continuation volume. Instead, the following data is used as the continuation
+of the file that is currently extracted.
 .TP
 .B 'N'
 An outdated linktype used by old GNU tar versions to store long file names.
@@ -676,7 +695,8 @@ field is non zero the data following the header is skipped by
 .B 'X'
 A vendor unique variant of the POSIX.1-2001 extended header type.
 It has been implemented by Sun many years before the POSIX.1-2001
-standard has been approved.
+standard has been approved and the POSIX.1-2001 tar extensions are
+based on this Sun tar extension.
 See also the
 .I typeflag
 \&'x' header type.
@@ -1023,6 +1043,12 @@ This highly compact format is understood by
 in
 .B libsec
 from Solaris and by the corresponding code from FreeBSD.
+It is created by removing the
+.B '-'
+characters from the normal compact format.
+.PP
+The advantage of th highly compact format is that it typically avoids the
+need to make the extended header data larger than 512 bytes.
 .PP
 In addition to the documented entry formats, a compatible implementation
 needs to be able to understand the long
@@ -1149,14 +1175,15 @@ ACLs as used by
 .B NTFS
 and
 .BR ZFS .
-.RE
-.sp
+.LP
 Note that the
 .B SCHILY.acl.type
 keyword is currently not generated by
 .BR star .
 Star however accepts this keyword if it appears in extended tar headers.
-The ACL type is determined from the keyword type that holds the ACL text.
+The ACL type is determined from the existence of the keyword type that holds
+the ACL text.
+.RE
 .TP
 .B SCHILY.ddev
 The device ids for names used is the
@@ -1175,6 +1202,9 @@ This keyword is used in
 .B dump
 mode.
 This keyword is not yet implemented.
+It will be implemented in case that
+.B star
+will support incremental dumps that span more than one filesystem.
 .sp
 The value is a signed int.
 An implementation should be able to handle at least 64 bit values.
@@ -1195,7 +1225,9 @@ Note that the value is signed because POSIX does not specify
 more than the type should be an int.
 .TP
 .B SCHILY.devmajor
-The device major number of the file if it is a character or block special file.
+The device major number of the file (from
+.BR st_rdev )
+if it is a character or block special file.
 The argument is a decimal number.
 This field is used if the device major of the file is greater than 2097151 (octal 7777777).
 .sp
@@ -1205,7 +1237,9 @@ Note that the value is signed because POSIX does not specify
 more than the type should be an int.
 .TP
 .B SCHILY.devminor
-The device minor number of the file if it is a character or block special file.
+The device minor number of the file (from
+.BR st_rdev )
+if it is a character or block special file.
 The argument is a decimal number.
 This field is used if the device minor of the file is greater than 2097151 (octal 7777777).
 .sp
@@ -1254,14 +1288,75 @@ The flag character must not be a null character.
 By default, a ^A (octal 001) is used.
 The following flags are defined:
 .RS
-.TP
+.TP 10
 .B \e000
 This is the list terminator character - the second null byte, see below.
 .TP
-.B ^A
+.BR \e001 " (" ^A )
 The default flag that is used in case the 
 .B "dump dir
-features have not been active.
+features have not been active or in case that the file type is unknown.
+.TP
+.BR \e002 " (" ^B )
+The related file is a
+.B FIFO
+special (named pipe).
+.TP
+.BR \e003 " (" ^C )
+The related file is a
+.BR "character special" .
+.TP
+.BR \e004 " (" ^D )
+Reserved, used e.g. by XENIX
+.BR "multiplexed character special" .
+.TP
+.BR \e005 " (" ^E )
+The related file is a
+.BR directory .
+.TP
+.BR \e006 " (" ^F )
+Reserved, used e.g. by XENIX
+.BR "named file" .
+.TP
+.BR \e007 " (" ^G )
+The related file is a
+.BR "block special" .
+.TP
+.BR \e010 " (" ^H )
+Reserved, used e.g. by XENIX
+.BR "multiplexed block special" .
+.TP
+.BR \e011 " (" ^I )
+The related file is a
+.BR "regular file" .
+.TP
+.BR \e012 " (" ^J )
+The related file is a
+.BR "contiguous file" .
+.TP
+.BR \e013 " (" ^K )
+The related file is a
+.BR "symbolic link" .
+.TP
+.BR \e014 " (" ^L )
+Reserved, used e.g. by Solaris
+.BR "shadow inode" .
+.TP
+.BR \e015 " (" ^M )
+The related file is a
+.BR socket .
+.TP
+.BR \e016 " (" ^N )
+The related file is a Solaris
+.BR DOOR .
+.TP
+.BR \e017 " (" ^O )
+The related file is a BSD
+.BR "whiteout entry" .
+.TP
+.BR \e020 " (" ^P )
+Reserved, used e.g. by UNOS
+.BR eventcount .
 .TP
 .B Y
 A non directory file that is in the current (incremental) dump.
@@ -1295,6 +1390,14 @@ entry \e001 (^A) for all files.
 Tar implementations that like to read archives that use the
 .B SCHILY.dir
 keyword, shall not rely on values other than \e000 (^@) or \e001 (^A).
+.PP
+In 2016, with
+.B star-1.5.3
+the values from \e002 to \e020 have been introduced as a result of a
+.B libfind
+update that uses struct dirent member
+.B d_type
+where available.
 .PP
 This keyword is used in
 .B dump
@@ -1551,8 +1654,12 @@ results in a
 .BI SCHILY.xattr. name
 tag and the value of the extended attribute is used as the value of the
 POSIX.1-2001 header tag.
-Note that this way of coding is not portable across platforms.
-A version for BSD may be created but Solaris includes far more
+Note that this way of coding is not portable across platforms,
+even though it is compatible with the implementation on
+.BR "Mac OS X" .
+A version for BSD may be created but
+.B NFSv4
+includes far more
 features with extended attribute files than Linux does.
 .sp
 A future version of

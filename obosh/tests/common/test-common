@@ -19,17 +19,17 @@ powerpc-aix-*)
 		;;
 esac
 
-if [ -f ../../../OBJ/$OARCH/osh ]; then
-	shell=${shell:=../../../OBJ/$OARCH/osh}
-elif [ -f ../../OBJ/$OARCH/osh ]; then
-	shell=${shell:=../../OBJ/$OARCH/osh}
+if [ -f ../../../OBJ/$OARCH/obosh ]; then
+	shell=${shell:=../../../OBJ/$OARCH/obosh}
+elif [ -f ../../OBJ/$OARCH/obosh ]; then
+	shell=${shell:=../../OBJ/$OARCH/obosh}
 fi
 SHELL="$shell"
 export SHELL
 
 #
 # Important: bosh --version returns	Copyright (C) 1982-2017 Joerg Schilling
-# while osh --version returns		Copyright (C) 1985-2017 Joerg Schilling
+# while obosh --version returns		Copyright (C) 1985-2017 Joerg Schilling
 # because the history editor is missing in osh.
 #
 case `$SHELL --version < /dev/null 2>&1 > /dev/null` in

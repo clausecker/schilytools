@@ -1,44 +1,55 @@
-# @(#)rules.cnf.in	1.33 18/03/12 Copyright 1998-2014 J. Schilling
+# @(#)rules.cnf.in	1.36 18/08/15 Copyright 1998-2018 J. Schilling
 
+#
+# WARNING: no space/comment past the following three macros!
+#	   The comment is thus in the line before
+#
+
+# Executable extension "" on UNIX, ".exe" on DOS
 EXEEXT= @EXEEXT@
+
+# If non-empty, prog.exec needs to be called so
 XEXEEXT= @XEXEEXT@
+
+# Object extension, .o on UNIX, .obj on DOS
 OBJEXT= @OBJEXT@
 
-YACC= @YACC@
-BISON= @BISON@
-TSORT_PROG= @TSORT@
-LORDER_PROG= @LORDER@
-CPP= @CPP@
-CPPX= @CPPX@
+YACC= @YACC@			# Yacc parser is present
+BISON= @BISON@			# Bison parser if present
+TSORT_PROG= @TSORT@		# Path to tsort program if present
+LORDER_PROG= @LORDER@		# Path to lorder program if present
+CPP= @CPP@			# Command to run C preprocessor
+CPPX= @CPPX@			# Command to run cpp with any type of file
+CPPX_IN= @CPPX_IN@		# Used with CPPX when "gcc -E - <" is needed
 
-LARGEFILE_CC_OPT= @largefile_cc_opt@
+LARGEFILE_CC_OPT= @largefile_cc_opt@	# Largefile option for IRIX
 SUN_CC64_OPT= @sun_cc64_opt@	# Used on e.g. Solaris and Linux
 HP_CC_ANSI_OPT= @hp_cc_ansi_opt@	# Used on HP-UX
 HP_CC_OPT_OPT= @hp_cc_opt_opt@	# Used on HP-UX
 HP_CC_GPROF_OPT= @hp_cc_gprof_opt@	# Used on HP-UX
 
-MAY_LINUX_SRC_INCLUDE= @may_linux_src_include@
+MAY_LINUX_SRC_INCLUDE= @may_linux_src_include@	# /usr/src/include useful
 
-SCSILIB= @scsi_lib@
-LIB_SCSI= @lib_scsi@
-LIB_RESOLV= @lib_resolv@
-LIB_CRYPT= @lib_crypt@
-LIB_INTL= @lib_intl@
-LIB_ICONV= @lib_iconv@
-LIB_EXPAT= @lib_expat@
-LIB_PCSC= @lib_pcsc@
-LIB_CRYPTO= @lib_crypto@
-LIB_SSL= @lib_ssl@
-LIB_NSL= @lib_nsl@		# For gethostbyname() users
+SCSILIB= @scsi_lib@		# IRIX libcam (outdated)
+LIB_SCSI= @lib_scsi@		# New SCSI lib variable
+LIB_RESOLV= @lib_resolv@	# libresolv if code is not in libc
+LIB_CRYPT= @lib_crypt@		# Library for crypt() if not in libc
+LIB_INTL= @lib_intl@		# Library for gettext() if not in libc
+LIB_ICONV= @lib_iconv@		# Library for iconv() if not in libc
+LIB_EXPAT= @lib_expat@		# Expat library if present
+LIB_PCSC= @lib_pcsc@		# PCSC library if present
+LIB_CRYPTO= @lib_crypto@	# Crypto library for OpenSSL & friends
+LIB_SSL= @lib_ssl@		# SSL library for OpenSSL & friends
+LIB_NSL= @lib_nsl@		# For gethostbyname() / socket() ... users
 LIB_ACL= @lib_acl@		# Full (test/set) ACL users like star
 LIB_ACL_TEST= @lib_acl_test@	# Test only ACL users like libfind
-LIB_ATTR= @lib_attr@
-LIB_SECDB= @lib_secdb@
-LIB_GEN= @lib_gen@
-LIB_ELF= @lib_elf@
-LIB_PTHREAD= @lib_pthread@
-LIB_RT= @lib_rt@
-LIB_DL= @lib_dl@
-LIB_DIR= @lib_dir@
-LIB_CAP= @lib_cap@
-LIB_SELINUX= @lib_selinux@
+LIB_ATTR= @lib_attr@		# Linux xattr library
+LIB_SECDB= @lib_secdb@		# Solaris security access, e.g. getexecattr()
+LIB_GEN= @lib_gen@		# SVr4 library that contains gmatch()
+LIB_ELF= @lib_elf@		# Standard ELF library if present
+LIB_PTHREAD= @lib_pthread@	# POSIX thread library if not in libc
+LIB_RT= @lib_rt@		# Real time lib for e.g. clock_gettime()
+LIB_DL= @lib_dl@		# Dynamic linker library
+LIB_DIR= @lib_dir@		# Lib for opendir() if not in libc
+LIB_CAP= @lib_cap@		# Linux capability lib
+LIB_SELINUX= @lib_selinux@	# SELinux lib

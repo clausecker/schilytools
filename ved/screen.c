@@ -1,13 +1,13 @@
-/* @(#)screen.c	1.40 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)screen.c	1.41 18/08/22 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)screen.c	1.40 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)screen.c	1.41 18/08/22 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Screen update functions for VED
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,13 +33,13 @@ static	UConst char sccsid[] =
  *
  * If the article from James Gosling (ACM Sig-Plan Notices 1981 vol 16 p123-129
  * still applies to EMACS, then its screen update method differs from the
- * update method used by VED. Emacs tries to compute the updated for more
- * than one change while VED only looks for one changeed spot. However, the
+ * update method used by VED. Emacs tries to compute the updates for more
+ * than one change while VED only looks for one changed spot. However, the
  * visible behaviour on screen looks very similar.
  *
  * Newer versions of 'emacs' try to imitate the basic screen update behaviour
  * of VED by doing block insert lines, but are slower (emacs spends 4 times
- * the CPU time in its equivalent screen update package) than VED.
+ * the CPU time in its equivalent screen update package than VED needs).
  * Take extrame care when doing any modifications on this module.
  * The basic functionality has not been changed since 1986. Although
  * many minor changes (markwrap and some cursor positioning problems)
@@ -47,7 +47,7 @@ static	UConst char sccsid[] =
  *
  * The basic idea is to use no retained memory to compare the current and
  * the new screen but to try to compute the visual efects 'on the fly'.
- * This allows to resize the screen without any problems.
+ * This allows to resize the screen to any size without any problems.
  * To be able to compute sizes, a character string table and a corresponding
  * character width table is used. VED may deal with lines that are even longer
  * than the screen if folded and handles printing strings of arbitrary

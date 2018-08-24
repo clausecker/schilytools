@@ -1,4 +1,4 @@
-#ident @(#)rules.inc	1.10 11/07/16 
+#ident @(#)rules.inc	1.11 18/08/13 
 ###########################################################################
 # Written 1999 by J. Schilling
 ###########################################################################
@@ -48,7 +48,14 @@ $(PTARGETCX):	$(OFILES) $(SRCLIBS)
 # If calling "$(PTARGETC)$(_XEXEEXT)" fails, this may be a cross compilation,
 # so retry to run the command under control of "$(CONFIG_RMTCALL)".
 #
-$(PTARGET):	$(OINCSDIR) $(PTARGETCX)
+# We previously had;
+# $(PTARGET):	$(OINCSDIR) $(PTARGETCX)
+# but that caused $(PTARGET) not only to depend on the existence but also
+# on the time stamp of the directory $(OINCSDIR), that could change.
+# Since rules.top contains a rule to create $(OINCSDIR), we may safely assume
+# that $(OINCSDIR) exists before we create $(PTARGET)
+#
+$(PTARGET):	$(PTARGETCX)
 		@echo "	==> GENERATING include file \"$@\""; \
 		$(PTARGETC)$(_XEXEEXT) > $@ || \
 		$(CONFIG_RMTCALL) $(PTARGETC)$(_XEXEEXT) > $@

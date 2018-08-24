@@ -1,4 +1,4 @@
-#ident "@(#)rules.man	1.10 18/05/03 "
+#ident "@(#)rules.man	1.11 18/08/14 "
 ###########################################################################
 # Written 1997-2018 by J. Schilling
 ###########################################################################
@@ -57,7 +57,7 @@ $(PTARGET):	$(SRCFILE)
 
 #
 # gmake only. Other make implementations use a no-xxx/ prefix.
-# gmake calls prerequisites the the right of | order-only-prerequisites
+# gmake calls prerequisites to the right of | as order-only-prerequisites
 # and does not evaluate the time stamp from such prerequisites.
 #
 $(GMAKE_ONLY)$(PTARGET): | $(ARCHDIR)

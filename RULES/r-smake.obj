@@ -1,4 +1,4 @@
-#ident @(#)r-smake.obj	1.10 13/07/22 
+#ident @(#)r-smake.obj	2.2 18/08/16 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -25,37 +25,39 @@
 # to allow concurrent compilation on different platforms.
 # Object file names are constructed from $(CFILES) and $(C++FILES).
 ###########################################################################
-ARCHDIRX=
-___C++OFILES=		$(C++FILES:%.C=%.$o)
-__C++OFILES=		$(___C++OFILES:%.cc=%.$o)
-_C++OFILES=		$(__C++OFILES:%.cpp=%.$o)
-C++OFILES=		$(_C++OFILES:%.cxx=%.$o)
-C++POFILES=		$(C++OFILES:%=$(ARCHDIR)/%)
-OFILES=			$(CFILES:%.c=%.$o)		$(C++OFILES)
+ARCHDIRX=		$(ARCHDIR)/
+___C++OFILES=		$(C++FILES:%.C=$(ARCHDIR)/%.$o)
+__C++OFILES=		$(___C++OFILES:%.cc=$(ARCHDIR)/%.$o)
+_C++OFILES=		$(__C++OFILES:%.cpp=$(ARCHDIR)/%.$o)
+C++OFILES=		$(_C++OFILES:%.cxx=$(ARCHDIR)/%.$o)
+C++POFILES=		$(C++OFILES)
+OFILES=			$(CFILES:%.c=$(ARCHDIR)/%.$o)	$(C++OFILES)
 POFILES=		$(CFILES:%.c=$(ARCHDIR)/%.$o)	$(C++POFILES)
+
 .OBJDIR:		$(ARCHDIR)
 ###########################################################################
 __COMPILE.c=		$(_UNIQ)$(COMPILE.c)
-___COMPILE.c=		$(__COMPILE.c:$(_UNIQ)=$(CCCC) $(CFLAGS) $(CPPFLAGS) -c)
+___COMPILE.c=		$(__COMPILE.c:$(_UNIQ)=$(CCCC) $(C_FLAGS) $(CFLAGS) $(CPP_FLAGS) $(CPPFLAGS) -c)
 _COMPILE.c=		$(___COMPILE.c:$(_UNIQ)%=%)
 
 __COMPILE.cc=		$(_UNIQ)$(COMPILE.cc)
-___COMPILE.cc=		$(__COMPILE.cc:$(_UNIQ)=$(CC++) $(C++FLAGS) $(CPPFLAGS) -c)
+___COMPILE.cc=		$(__COMPILE.cc:$(_UNIQ)=$(CC++) $(C++FLAGS) $(CCFLAGS) $(CPP_FLAGS) $(CPPFLAGS) -c)
 _COMPILE.cc=		$(___COMPILE.cc:$(_UNIQ)%=%)
 
 __OUTPUT_OPTION=	$(_UNIQ)$(OUTPUT_OPTION)
-___OUTPUT_OPTION=	$(__OUTPUT_OPTION:$(_UNIQ)=-o $O/$@)
+___OUTPUT_OPTION=	$(__OUTPUT_OPTION:$(_UNIQ)=-o $@)
 _OUTPUT_OPTION=		$(___OUTPUT_OPTION:$(_UNIQ)%=%)
 ###########################################################################
-%.$o: %.c
+
+$(ARCHDIR)/%.$o: %.c
 			$(_COMPILE.c) $(_OUTPUT_OPTION) $<  $(CC_OUTPUT_FILTER)
-%.$o: %.C
+$(ARCHDIR)/%.$o: %.C
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-%.$o: %.cc
+$(ARCHDIR)/%.$o: %.cc
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-%.$o: %.cpp
+$(ARCHDIR)/%.$o: %.cpp
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-%.$o: %.cxx
+$(ARCHDIR)/%.$o: %.cxx
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
 
 #$(ARCHDIR)/%.$o: %.c

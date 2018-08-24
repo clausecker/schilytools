@@ -1,8 +1,8 @@
-/* @(#)strar.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling */
+/* @(#)strar.c	1.6 18/08/22 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strar.c	1.5 18/05/17 Copyright 2017-2018 J. Schilling";
+	"@(#)strar.c	1.6 18/08/22 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Manage a StreamArchive
@@ -46,6 +46,7 @@ LOCAL	void	usage	__PR((int exitcode));
 LOCAL	void	pvers	__PR((void));
 EXPORT	int	main	__PR((int ac, char *av[]));
 LOCAL	int	create	__PR((strar *info, int ac, char * const av[], FILE *f));
+LOCAL	int	send	__PR((strar *info, char *name));
 LOCAL	int	extract	__PR((strar *info));
 LOCAL	int	list	__PR((strar *info));
 LOCAL	FILE	*openlist __PR((char *listfile));
@@ -72,7 +73,7 @@ usage(exitcode)
 LOCAL void
 pvers()
 {
-	printf("strar %s (%s-%s-%s)\n\n", "1.5",
+	printf("strar %s (%s-%s-%s)\n\n", "1.6",
 		HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2017-2018 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -216,8 +217,7 @@ create(info, ac, av, f)
 		while ((amt = getdelim(&buf, &len, '\n', f)) >= 0) {
 			if (buf[amt-1] == '\n')
 				buf[amt-1] = '\0';
-			if (strar_send(info, buf) != 0)
-				errmsg(_("Cannot archive '%s'.\n"), buf);
+			(void) send(info, buf);
 		}
 	} else {
 		for (; getfiles(&ac, &av, options) > 0; ac--, av++) {
@@ -229,6 +229,24 @@ create(info, ac, av, f)
 	return (0);
 }
 
+
+LOCAL int
+send(info, name)
+	strar	*info;
+	char	*name;
+{
+	int	ret;
+
+	ret = strar_send(info, name);
+	if (ret < 0) {
+		if (ret == -2)
+			errmsgno(EX_BAD,
+				_("Skipping '%s', not a file.\n"), name);
+		else
+			errmsg(_("Cannot archive '%s'.\n"), name);
+	}
+	return (ret);
+}
 
 LOCAL int
 extract(info)
@@ -261,4 +279,3 @@ openlist(listfile)
 
 	return (listf);
 }
-

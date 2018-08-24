@@ -1,4 +1,4 @@
-#ident "@(#)r-make.dep	1.10 15/03/26 "
+#ident "@(#)r-make.dep	1.11 18/08/16 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -62,11 +62,11 @@ $(ARCHDIR) $(ARCHDIR)/man:
 #
 ###########################################################################
 $(ARCHDIR)/%.dep: %.c
-		$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
+		$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKDEP_OUT) $< \
 			| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(DEP_FILE):;' > $@
 
 $(DEP_FILE):	$(DEP_DEP) $(CFILES)
-		$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $(CFILES) \
+		$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKDEP_OUT) $(CFILES) \
 			| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(DEP_FILE):;' > $@
 
 $(DEP_DEP):

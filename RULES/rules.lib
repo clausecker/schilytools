@@ -1,4 +1,4 @@
-#ident "@(#)rules.lib	1.11 16/08/10 "
+#ident "@(#)rules.lib	1.13 18/08/14 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -34,7 +34,7 @@ __AR.o=		$(_UNIQ)$(AR.o)
 ___AR.o=	$(__AR.o:$(_UNIQ)=$(AR) $(ARFLAGS) $@)
 _AR.o=		$(___AR.o:$(_UNIQ)%=%)
 
-all:		$(TARGET_PATH) $(PTARGET)
+all:		$(TARGET_PATH) $(PTARGET) $(MAN)
 
 $(TARGET_PATH):
 		$(MKDIR) -p $@

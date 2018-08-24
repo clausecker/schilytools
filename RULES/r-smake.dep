@@ -1,4 +1,4 @@
-#ident "@(#)r-smake.dep	1.15 15/03/26 "
+#ident "@(#)r-smake.dep	2.2 18/08/16 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -21,7 +21,7 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 DEP_SUFFIX=	.d
-RMDEP=		$(RM) $(RM_FORCE) $(ARCHDIR)/$@
+RMDEP=		$(RM) $(RM_FORCE) $@
 ___C++DEP_FILES= $(C++FILES:%.C=%.d)
 __C++DEP_FILES=	$(___C++DEP_FILES:%.cc=%.d)
 _C++DEP_FILES=	$(__C++DEP_FILES:%.cpp=%.d)
@@ -61,25 +61,27 @@ $(ARCHDIR) $(ARCHDIR)/man:
 
 # Do not define Simple Suffix Rules anymore
 #.d:	.c
-#	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
+#	$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKDEP_OUT) $< \
 #		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
 
-%.d: %.c
-	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
+$(ARCHDIR)/%.d: %.c
+	$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKDEP_OUT) $< \
+		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
 
-%.d: %.C
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
-%.d: %.cc
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
-%.d: %.cpp
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
-%.d: %.cxx
-	$(MKC++DEP) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
+$(ARCHDIR)/%.d: %.C
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
+$(ARCHDIR)/%.d: %.cc
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
+$(ARCHDIR)/%.d: %.cpp
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
+$(ARCHDIR)/%.d: %.cxx
+	$(MKC++DEP) $(CPP_FLAGS) $(CPPFLAGS) $(MKC++DEP_OUT) $< \
+		| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(ARCHDIR)/\1.d:;' > $@
+
+$(PDEP_FILE): $(DEP_DEP)
 
 $(DEP_DEP):
 	@if [ ! -f $@ ]; then				\
@@ -91,7 +93,7 @@ $(DEP_DEP):
 	fi
 
 #$(DEP_FILE):
-#		$(MKDEP) $(CPPFLAGS) -f - $(CFILES) \
+#		$(MKDEP) $(CPP_FLAGS) $(CPPFLAGS) -f - $(CFILES) \
 #			| sed -e 's;^\(.*\.$o[ 	]*:\);$(ARCHDIR)/\1;' > $@
 
 ###########################################################################
@@ -99,4 +101,4 @@ $(DEP_DEP):
 # Include the dependency file(s) generated from the rules above.
 #
 ###########################################################################
--include	$(DEP_DEP) $(DEP_FILE)
+include	$(PDEP_FILE)

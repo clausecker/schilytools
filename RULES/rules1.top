@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.55 18/05/03 "
+#ident "@(#)rules1.top	1.57 18/08/14 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -360,17 +360,18 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # for e.g. the "test" target.
 ###########################################################################
 ALLTARGETS=	all man lint clean clobber cstyle distclean ibins depend rmdep \
-		config TAGS tags tests rmtarget relink rel \
+		localize config TAGS tags tests rmtarget relink rel \
 		$(INSTALLTARGETS) $(UNINSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
 ALLTARGETS_NT=	all man lint clean clobber cstyle distclean ibins depend rmdep \
-		config TAGS tags rmtarget relink rel \
+		localize config TAGS tags rmtarget relink rel \
 		$(INSTALLTARGETS) $(UNINSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
 INSTALLTARGETS=	install installman
 UNINSTALLTARGETS= uninstall uninstallman
 MANTARGETS=	html htmlx htmlxn
 PKGTARGETS=	tarpkg tarpkg1 tarpkg2
+MAN=		man
 
 .PHONY:	$(ALLTARGETS) .help tinfo shell
 

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.29 13/04/21 
+#ident @(#)Makefile	1.31 18/08/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -49,6 +49,8 @@ LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdige
 XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk cdda2mp3.mk
 # cdda2ogg.mk1 fehlt noch für make rel
 
+all:		scripts
+
 xall:		all
 #$(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h:	../cdrecord/cdrecord.c
 
@@ -58,6 +60,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 count:	$(CFILES) $(HFILES)
 	count $r1
 ###########################################################################
+
+scripts:
+		@$(MAKE) -f cdda2ogg.mk all
+		@$(MAKE) -f cdda2mp3.mk all
 
 _ARCH_=		$(_UNIQ)$(O_ARCH)
 _HAVE_LINUX=	$(_ARCH_:$(_UNIQ)linux=1)

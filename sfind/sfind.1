@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.28 18/08/01 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.29 18/08/21 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/08/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/08/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -848,6 +848,45 @@ the last inode change time
 .B m
 the modification time
 .RI ( st_mtime )
+.PP
+.I Y
+may also be:
+.TP
+.B t
+a time description that is used instead of the
+.I file
+argument
+.PP
+The time argument to
+.B \-newer[acm]t
+is expected to be similar to
+.B "ISO 8601"
+in the form
+.sp
+.I
+    yyyy-mm-dd\fBT\fIhh:mm:ss.nnnnnnnnn+zzzz\fR
+.sp
+for a time with timezone
+or
+.sp
+.I
+    yyyy-mm-dd\fBT\fIhh:mm:ss.nnnnnnnnn\fBZ\fR
+.sp
+for GMT based time
+or
+.sp
+.I
+    yyyy-mm-dd\fBT\fIhh:mm:ss.nnnnnnnnn\fR
+.sp
+for local time.
+.PP
+If the time specification is shortened from the right, the latest
+possible time is assumed for the missing values.
+If the time specification is shortened from the left, the missing
+values are replaced by the current time. The maximal shortened time
+specification results in a 
+.B T
+that refers to the end of the current day.
 .PP
 The primary
 .B \-newermm

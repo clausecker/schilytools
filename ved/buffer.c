@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.31 13/06/25 Copyright 1984-2013 J. Schilling */
+/* @(#)buffer.c	1.32 18/08/23 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.31 13/06/25 Copyright 1984-2013 J. Schilling";
+	"@(#)buffer.c	1.32 18/08/23 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Virtual storage (buffer) management.
  *
- *	Copyright (c) 1984-2013 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,7 +72,7 @@ LOCAL	int	numbuffers;
 EXPORT	void	initbuffers	__PR((ewin_t *wp, int nbuf));
 EXPORT	void	termbuffers	__PR((ewin_t *wp));
 LOCAL	void	getheader	__PR((ewin_t *wp));
-LOCAL	Uchar	*getbuffer	__PR((ewin_t *wp));
+LOCAL	echar_t	*getbuffer	__PR((ewin_t *wp));
 LOCAL	BOOL	releasebuffer	__PR((ewin_t *wp, headr_t *linkp));
 EXPORT	headr_t	*addbuffer	__PR((ewin_t *wp, headr_t *prev));
 EXPORT	headr_t	*deletebuffer	__PR((ewin_t *wp, headr_t *linkp));
@@ -198,12 +198,12 @@ getheader(wp)
  * one of the buffers currently in use. The buffer to be released in this
  * case is the first in the least recently used chain.
  */
-LOCAL Uchar *
+LOCAL echar_t *
 getbuffer(wp)
 	ewin_t	*wp;
 {
 	register headr_t *linkp = lru;
-		Uchar	*buf;
+		echar_t	*buf;
 
 #ifdef	DEBUG
 	cdbg("getbuffer()");
@@ -224,7 +224,7 @@ getbuffer(wp)
 			return (buf);
 		}
 	}
-	if ((buf = (Uchar *) malloc(BUFFERSIZE * sizeof (char))) == 0) {
+	if ((buf = (echar_t *) malloc(BUFFERSIZE * sizeof (echar_t))) == 0) {
 		rsttmodes(wp);
 		raisecond("Out of memory", 0);
 	}
@@ -490,9 +490,9 @@ splitbuffer(wp, linkp, pos)
 	int	pos;
 {
 	register headr_t *newlinkp = NULL;
-	register Uchar *from;
-	register Uchar *to;
-		Uchar *end;
+	register echar_t *from;
+	register echar_t *to;
+		echar_t *end;
 		int newsize = linkp->size - pos;
 
 #ifdef	DEBUG
@@ -511,7 +511,7 @@ splitbuffer(wp, linkp, pos)
 	from = linkp->cont + pos;
 	to = newlinkp->cont;
 	if (newsize > 16) {
-		movebytes(C from, C to, newsize);
+		movebytes(C from, C to, newsize * sizeof (echar_t));
 	} else while (to < end) {
 		*to++ = *from++;
 	}
@@ -528,9 +528,9 @@ compressbuffer(wp, linkp)
 		ewin_t	*wp;
 	register headr_t *linkp;
 {
-	register Uchar *from;
-	register Uchar *to;
-		Uchar *end;
+	register echar_t *from;
+	register echar_t *to;
+		echar_t *end;
 	register headr_t *next;
 
 again:
@@ -548,7 +548,7 @@ again:
 	if ((from = linkp->cont) != (to = linkp->buf)) {
 		linkp->flags |= MODIFIED;
 		if (linkp->size > 16) {
-			movebytes(C from, C to, linkp->size);
+			movebytes(C from, C to, linkp->size * sizeof (echar_t));
 		} else {
 			end = to + linkp->size;
 			while (to < end)
@@ -569,7 +569,7 @@ again:
 		to = linkp->cont + linkp->size;
 		linkp->flags |= MODIFIED;
 		if (next->size > 16) {
-			movebytes(C from, C to, next->size);
+			movebytes(C from, C to, next->size * sizeof (echar_t));
 		} else {
 			end = from + next->size;
 			while (from < end)
