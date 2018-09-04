@@ -1,4 +1,4 @@
-. \" @(#)suntar.1	1.12 18/06/10 Copyr 2004-2018 J. Schilling
+. \" @(#)suntar.1	1.13 18/09/01 Copyr 2004-2018 J. Schilling
 . \"  Manual Seite fuer suntar
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STUNAR 1 "2018/06/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STUNAR 1 "2018/09/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 suntar \- create tape archives and add or extract files
 .SH SYNOPSIS
@@ -91,6 +91,9 @@ program currently does not operate on a pipe but on a
 .TP
 .B \-\-secure\-links
 don't extract links that start with '/' or contain '..'
+.TP
+.B \-\-no\-secure\-links
+extract links that start with '/' or contain '..'
 .TP
 .B \-\-acl
 handle access control lists

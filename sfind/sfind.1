@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.29 18/08/21 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.30 18/08/30 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/08/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/08/30" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -1012,20 +1012,16 @@ This usage of the primary
 .B \-perm 
 evaluates as true if any of the permission bits mode are set for the file.
 The specific interpretation when testing whether any of the mode bits are
-set for the file applies only to those mode strings that cannot have a 
-leading
+set for the file applies only to those symbolic mode strings that cannot
+have a leading
 .RB ' + '
 in a POSIX compliant way. This is the case when the
 .RB ' + '
-is directly preceding the characters:
-.RB ' u ',
-.RB ' g ',
-.RB ' o ',
-or
+is directly preceding the character:
 .RB ' a '.
 Because of this limitation, the otherwise correct symbolic mode
 .B +x
-has to be written as
+could be written as
 .B a+x 
 and then preceded by
 .RB ' + '
@@ -1038,6 +1034,56 @@ is still POSIXly correct syntax and there is no way to detect that the first
 is indicating a usage specific to the 
 .B sfind \-perm
 primary.
+The strings
+.RB ' +u ',
+.RB ' +g ',
+.RB ' +o '
+indicate a so called
+.B permcopy
+operation and as a result, most legal symbolic mode strings do not become
+illegal by prefixing them with a
+.RB ' + '.
+.sp
+Since the start value used by the permission parser for the
+.BR find (1)
+.B \-perm
+primary is always zero, any POSIXly valid symbolic mode string may be
+prefixed by
+.RB ' a+, '
+without changing the resulting value, prefixing any mode string with
+.RB ' +a+, '
+makes it a recognized value for this usage of the
+.B \-perm
+primary.
+.sp
+Note that
+.B libfind
+versions before
+.B 1.7
+permitted the
+.I mode
+string to start with
+.RB ' u ',
+.RB ' g ',
+.RB ' o '
+for the 
+.BI \-perm " +mode
+feature and thus might have been in conflict with POSIX.
+.sp
+This usage of the primary 
+.B \-perm
+is not mentioned in the POSIX standard.
+.TP
+.BI \-perm " /mode
+This is an alias for
+.BI \-perm " +mode
+but since 
+.RB ' / '
+is not part of the POSIX standard for the symbolic mode, there is no need
+to prefix the symbolic mode with
+.RB ' a+, '
+to make it work in case the symbolic notation does not start with
+.RB ' a '.
 .sp
 This usage of the primary 
 .B \-perm
@@ -1067,6 +1113,15 @@ This usage of the primary
 evaluates as true if any of the mode bits in the octal notation
 .B onum
 are set for the file.
+.sp
+This usage of the primary 
+.B \-perm
+is not mentioned in the POSIX standard.
+.TP
+.BI \-perm " /onum
+This is an alias for
+.BI \-perm " +onum
+and supported for compatibility reasons.
 .sp
 This usage of the primary 
 .B \-perm

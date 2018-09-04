@@ -1,10 +1,10 @@
-/* @(#)buffer.h	1.16 04/03/12 Copyright 1984, 1988, 1996-2004 J. Schilling */
+/* @(#)buffer.h	1.17 18/08/25 Copyright 1984, 1988, 1996-2018 J. Schilling */
 /*
  *	Definitions for the paged virtual memory susbsystem of ved
  *	The lower level routines are located in buffer.c,
  *	the higher level routines are located in storage.c
  *
- *	Copyright (c) 1984, 1988, 1996-2004 J. Schilling
+ *	Copyright (c) 1984, 1988, 1996-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -89,6 +89,8 @@ extern	void	bufdebug	__PR((ewin_t *wp));
  * storage.c
  */
 extern	void	clearifwpos	__PR((ewin_t *wp, headr_t *this));
-extern	void	findpos		__PR((ewin_t *wp, epos_t pos, headr_t ** returnlink, int *returnpos));
+extern	void	findpos		__PR((ewin_t *wp, epos_t pos,
+					headr_t ** returnlink,
+					int *returnpos));
 
 #endif	/* _BUFFER_H */

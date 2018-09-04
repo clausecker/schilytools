@@ -1,8 +1,8 @@
-/* @(#)vedtmpops.c	1.35 18/05/24 Copyright 1988, 1993-2018 J. Schilling */
+/* @(#)vedtmpops.c	1.36 18/08/26 Copyright 1988, 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedtmpops.c	1.35 18/05/24 Copyright 1988, 1993-2018 J. Schilling";
+	"@(#)vedtmpops.c	1.36 18/08/26 Copyright 1988, 1993-2018 J. Schilling";
 #endif
 /*
  *	Routines that deal with reading/writing of .vedtmp files
@@ -79,7 +79,7 @@ LOCAL	long	uid	 = -1;
 LOCAL	void	vedtmp_name	__PR((void));
 LOCAL	void	write_vedtmp	__PR((ewin_t *wp, FILE *f,
 				int (*writefunc)(ewin_t *wp, FILE *  f,
-				Uchar* buf, int len, Uchar* name),
+				void *buf, int len, Uchar* name),
 				BOOL inedit));
 EXPORT	void	put_vedtmp	__PR((ewin_t *wp, BOOL inedit));
 LOCAL	int	read_vedtmp	__PR((ewin_t *wp, char *buf, int len,
@@ -106,7 +106,7 @@ write_vedtmp(wp, f, writefunc, inedit)
 	ewin_t	*wp;
 	FILE	*f;
 	int	(*writefunc) __PR((ewin_t *wp, FILE *  f,
-				Uchar* buf, int len, Uchar* name));
+				void *buf, int len, Uchar* name));
 	BOOL	inedit;
 {
 	Uchar	str[64];

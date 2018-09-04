@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)bugs.sh	1.4 18/04/29 2017 J. Schilling
+# @(#)bugs.sh	1.5 18/09/01 2017-2018 J. Schilling
 #
 
 # Read test core functions
@@ -21,7 +21,7 @@ $ECHO 'bla' < /dev/null > /dev/null 2> /dev/null || ECHO=/bin/does-not-exist
 $ECHO 'bla' < /dev/null > /dev/null 2> /dev/null || ECHO=echo
 XEOF
 
-docommand -noremove bug01 "LC_ALL=C $SHELL -x ./x" 0 IGNORE NONEMPTY
+docommand -noremove bug01 "LC_ALL=C PS4=\"+ \" $SHELL -x ./x" 0 IGNORE NONEMPTY
 
 #
 # Bash adds stray spaces in the output :-(

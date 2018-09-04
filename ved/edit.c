@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.27 18/08/23 Copyright 1984-2018 J. Schilling */
+/* @(#)edit.c	1.28 18/08/25 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.27 18/08/23 Copyright 1984-2018 J. Schilling";
+	"@(#)edit.c	1.28 18/08/25 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
 
+extern	void	(*nctab[NCTAB])	__PR((ewin_t *));
 extern	void	(*chartab[NCTAB][0200])	__PR((ewin_t *));
 extern	int	ctabidx;	/* The table idx where we take commands from */
 
@@ -85,6 +86,9 @@ edit(wp)
 	for (;;) {
 		sdot = wp->dot;
 		in_command = FALSE;
+		/*
+		 * We never come here with c == EOF
+		 */
 		c = gchar(wp);
 		charstyped++;
 /*cdbg("got: '%c' (%d)", c, c);*/
@@ -96,7 +100,14 @@ edit(wp)
 		 * Choose the right function to call for the current character.
 		 * Refresh the system line or parts of it if needed.
 		 */
-		f = chartab[ctabidx][cc];
+		if (c != cc) {
+			/*
+			 * Handle chars outside the single byte range as normal
+			 */
+			f = nctab[ctabidx];
+		} else {
+			f = chartab[ctabidx][cc];
+		}
 		ctabidx = CTAB;
 		refreshsysline(wp);
 

@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)streamarchive.4	1.3 18/08/16 Copyr 2017-2018 J. Schilling
+. \" @(#)streamarchive.4	1.4 18/08/31 Copyr 2017-2018 J. Schilling
 . \" StreamArchive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -17,7 +17,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STREAMARCHIVE 4L "2018/08/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STREAMARCHIVE 4L "2018/08/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 streamarchive \- StreamArchive file format
 .SH DESCRIPTION
@@ -80,7 +80,9 @@ is only limited by its
 implicit length.
 .SH "HEADER KEYWORDS
 All numerical values are represented as decimal strings.
-All texts are represented as 7-bit ascii or UTF-8:
+All texts are represented as UTF-8 or an unspecified binary format (see
+.B hdrcharset
+keyword) that is expected to be understood by the receiving system:
 .TP
 .B atime
 The time from
@@ -96,7 +98,7 @@ The following values are supported for
 .BR charset :
 .TP 25
 .B "ISO-IR 646 1990
-SO/IEC 646:1990
+ISO/IEC 646:1990
 .TP
 .B "ISO-IR 8859 1 1998
 ISO/IEC 8859-1:1998
@@ -274,7 +276,10 @@ The group ID of the group that owns the file.
 The argument is a decimal number.
 .TP
 .B gname
-The group name of the following file(s) coded in UTF-8.
+The group name of the following file(s) coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .B hdrcharset
 The name of the character set used to encode the data for the
@@ -306,7 +311,9 @@ An implementation should be able to handle at least 64 bit unsigned values.
 .B linkpath
 The name of the 
 .I linkpath
-coded in UTF-8 if it is longer than 100 characters or cannot be expressed in 7-Bit ASCII.
+coded in UTF-8 or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .B mtime
 The time from
@@ -323,7 +330,10 @@ An implementation should be able to handle at least 32 bit unsigned values.
 .B path
 The name of the 
 .I path
-coded in UTF-8.
+coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .B size
 The size of the file as decimal number.
@@ -356,7 +366,10 @@ The uid ID of the group that owns the file.
 The argument is a decimal number.
 .TP
 .B uname
-The user name of the following file(s) coded in UTF-8.
+The user name of the following file(s) coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .IR VENDOR .keyword
 Any keyword that starts with a vendor name in capital letters is reserved 

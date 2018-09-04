@@ -1,13 +1,13 @@
-/* @(#)getperm.c	1.5 12/04/15 Copyright 2004-2009 J. Schilling */
+/* @(#)getperm.c	1.7 18/08/30 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getperm.c	1.5 12/04/15 Copyright 2004-2009 J. Schilling";
+	"@(#)getperm.c	1.7 18/08/30 Copyright 2004-2018 J. Schilling";
 #endif
 /*
- *	Parser for chmod(1)/find(1)-perm, ....
+ *	Parser for chmod(1)/find(1)/umask(1)-perm, ....
  *
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,10 @@ static	UConst char sccsid[] =
 
 #include <schily/nlsdefs.h>
 
-EXPORT	int	getperm		__PR((FILE *f, char *perm, char *opname, mode_t *modep, int smode, int flag));
-LOCAL	char	*getsperm	__PR((FILE *f, char *p, mode_t *mp, int smode, int flag));
+EXPORT	int	getperm		__PR((FILE *f, char *perm, char *opname,
+					mode_t *modep, int smode, int flag));
+LOCAL	char	*getsperm	__PR((FILE *f, char *p, char *opname,
+					mode_t *mp, int smode, int flag));
 LOCAL	mode_t	iswho		__PR((int c));
 LOCAL	int	isop		__PR((int c));
 LOCAL	mode_t	isperm		__PR((int c, int isX));
@@ -98,6 +100,9 @@ getperm(f, perm, opname, modep, smode, flag)
 	mode_t	mm;
 
 	p = perm;
+	if (p == NULL)
+		return (-1);
+
 	if ((flag & GP_FPERM) && *p == '-')
 		p++;
 
@@ -121,8 +126,10 @@ getperm(f, perm, opname, modep, smode, flag)
 		*modep = OSMODE(mm);
 		return (0);
 	}
-	p = getsperm(f, p, modep, smode, flag);
-	if (p && *p != '\0') {
+	p = getsperm(f, p, opname, modep, smode, flag);
+	if (p == NULL) {
+		return (-1);
+	} else if (*p != '\0') {
 		if (f) {
 			if (opname) {
 				ferrmsgno(f, EX_BAD,
@@ -137,15 +144,16 @@ getperm(f, perm, opname, modep, smode, flag)
 		return (-1);
 	}
 #ifdef	PERM_DEBUG
-	error("GETPERM (%c) %4.4lo\n", perm, (long)*modep);
+	error("GETPERM (%s) %4.4lo\n", perm, (long)*modep);
 #endif
 	return (0);
 }
 
 LOCAL char *
-getsperm(f, p, mp, smode, flag)
+getsperm(f, p, opname, mp, smode, flag)
 	FILE	*f;
 	char	*p;		/* The perm input string		*/
+	char	*opname;	/* find(1) operator name / NULL	    */
 	mode_t	*mp;		/* To set the mode			*/
 	int	smode;		/* The start mode for the computation	*/
 	int	flag;		/* Flags, see getperm() flag defs	*/
@@ -156,6 +164,7 @@ getsperm(f, p, mp, smode, flag)
 	mode_t	permval = smode;	/* POSIX start value for "find" */
 #endif
 	mode_t	who;
+	mode_t	who_mask = 0;	/* Useless init to calm down silly GCC */
 	mode_t	m;
 	int	op;
 	mode_t	perms;
@@ -163,22 +172,30 @@ getsperm(f, p, mp, smode, flag)
 
 nextclause:
 #ifdef	PERM_DEBUG
-	error("getsperm(%s)\n", p);
+	error("getsperm(%s, %o)\n", p, smode);
 #endif
 	who = 0;
 	while ((m = iswho(*p)) != 0) {
 		p++;
-		who |= m;
+		who_mask = who |= m;
 	}
 	if (who == 0) {
 		mode_t	mask;
 
+		/*
+		 * If "who" has not been specified, select all bits for umask(1)
+		 * or all reduced by umask(2) in the general case.
+		 */
 		if (flag & GP_UMASK) {
+			who_mask =
 			who = (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
 		} else {
 			umask(mask = umask(0));
 			who = ~mask;
-			who &= (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
+			who &=
+			    (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
+			who_mask =
+			    (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
 		}
 	}
 #ifdef	PERM_DEBUG
@@ -190,13 +207,21 @@ nextop:
 	if ((op = isop(*p)) != '\0')
 		p++;
 #ifdef	PERM_DEBUG
-	error("op '%c'\n", op);
+	error("OP '%c'\n", op);
 	error("getsperm(--->%s)\n", p);
 #endif
 	if (op == 0) {
 		if (f) {
-			ferrmsgno(f, EX_BAD, gettext("Missing -perm op.\n"));
+			if (opname) {
+				ferrmsgno(f, EX_BAD,
+				    gettext("Missing -%s op.\n"), opname);
+			} else {
+				ferrmsgno(f, EX_BAD,
+				    gettext("Missing op in perm string.\n"));
+			}
 		}
+		if (*p == '\0')
+			return (NULL);
 		return (p);
 	}
 
@@ -241,14 +266,20 @@ nextop:
 		if (what & (S_IXUSR|S_IXGRP|S_IXOTH))
 			perms |= (who & (S_IXUSR|S_IXGRP|S_IXOTH));
 		p++;
+#ifdef	PERM_DEBUG
+		error("PERM %4.4lo (copy) WHAT %lo WHO %lo\n",
+			(long)perms, (long)what, (long)who);
+#endif
 	}
 #ifdef	PERM_DEBUG
 	error("getsperm(--->%s)\n", p);
+	error("PERMVAL %lo WHO %lo WHO_MASK %lo PERM %lo OP '%c'\n",
+		(long)permval, (long)who, (long)who_mask, (long)perms, op);
 #endif
 	switch (op) {
 
 	case '=':
-		permval &= ~who;
+		permval &= ~who_mask;
 		/* FALLTHRU */
 	case '+':
 		permval |= (who & perms);

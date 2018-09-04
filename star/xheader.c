@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.95 18/06/21 Copyright 2001-2018 J. Schilling */
+/* @(#)xheader.c	1.96 18/08/29 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.95 18/06/21 Copyright 2001-2018 J. Schilling";
+	"@(#)xheader.c	1.96 18/08/29 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -47,7 +47,7 @@ static	UConst char sccsid[] =
 
 extern	BOOL	no_xheader;
 extern	BOOL	nowarn;
-extern	BOOL	copyflag;
+extern	BOOL	binflag;
 
 extern	GINFO	*grip;				/* Global read info pointer	*/
 
@@ -1003,7 +1003,7 @@ gen_text(keyword, arg, alen, flags)
 	--p,			/* Overshoot compensation		    */
 	*p++ = '=';		/* Fill in '=' after keyword field	    */
 
-	if (flags & T_UTF8 && !copyflag) {
+	if (flags & T_UTF8 && !binflag) {
 		i = to_utf8((Uchar *)p, i, (Uchar *)arg, alen);
 		p += i + 1;
 	} else {

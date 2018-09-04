@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.29 18/08/12 Copyr 2003-2018 J. Schilling
+. \" @(#)star.4	1.30 18/08/31 Copyr 2003-2018 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2018/08/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2018/08/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -762,7 +762,9 @@ implicit length.
 POSIX.1-2001 extended
 .B pax
 header keywords. All numerical values are represented as decimal strings.
-All texts are represented as 7-bit ascii or UTF-8:
+All texts are represented as UTF-8 or an unspecified binary format (see
+.B hdrcharset
+keyword) that is expected to be understood by the receiving system:
 .TP
 .B atime
 The time from
@@ -779,7 +781,7 @@ The following values are supported for
 .BR charset :
 .TP 25
 .B "ISO-IR 646 1990
-SO/IEC 646:1990
+ISO/IEC 646:1990
 .TP
 .B "ISO-IR 8859 1 1998
 ISO/IEC 8859-1:1998
@@ -857,8 +859,12 @@ The argument is a decimal number.
 This field is used if the group ID of a file is greater than 2097151 (octal 7777777).
 .TP
 .B gname
-The group name of the following file(s) coded in UTF-8 if the group name does not
+The group name keyword for the following file(s) is created if the group name does not
 fit into 32 characters or cannot be expressed in 7-Bit ASCII.
+It is coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .B hdrcharset
 The name of the character set used to encode the data for the
@@ -866,7 +872,18 @@ The name of the character set used to encode the data for the
 .BR linkpath ,
 .BR path " and
 .B uname
-fields in the POSIX.1-2001 extended header records.
+fields in the POSIX.1-2001 extended header records
+and for the
+.BR gname ,
+.B uname
+and
+.B path
+parts in the vendor specific extended header records
+.BR SCHILY.acl.ace ,
+.BR SCHILY.acl.access ,
+.B SCHILY.acl.default
+and
+.BR SCHILY.dir .
 .RS
 .PP
 The following values are supported for
@@ -877,12 +894,21 @@ ISO/IEC 10646, UTF-8 encoding
 .TP
 .B BINARY
 None
+.PP
+If the binary encoding is selected, the encoding is the same as used
+by the creating system and it is assumed that the receiving system is
+able to use the values in that encoding.
 .RE
 .TP
 .B linkpath
-The name of the 
+The
 .I linkpath
-coded in UTF-8 if it is longer than 100 characters or cannot be expressed in 7-Bit ASCII.
+keyword is created if the linkpath
+is longer than 100 characters or cannot be expressed in 7-Bit ASCII.
+It is coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .B mtime
 The time from
@@ -892,10 +918,15 @@ in sub second granularity.
 currently supports a nanosecond granularity.
 .TP
 .B path
-The name of the 
+The 
 .I path
-coded in UTF-8 if it does not fit into 100 characters + 155 characters prefix
+keyword is created if the path
+does not fit into 100 characters + 155 characters prefix
 or cannot be expressed in 7-Bit ASCII.
+It is coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .BI realtime. any
 The keywords prefixed by
@@ -922,8 +953,12 @@ The argument is a decimal number.
 This field is used if the uid ID of a file is greater than 2097151 (octal 7777777).
 .TP
 .B uname
-The user name of the following file(s) coded in UTF-8 if the user name does not
+The user name keyword for the following file(s) is created if the user name does not
 fit into 32 characters or cannot be expressed in 7-Bit ASCII.
+It is coded in UTF-8
+or (if the 
+.B hdrcharset
+keyword is present) coded to fit the charset value.
 .TP
 .IR VENDOR .keyword
 Any keyword that starts with a vendor name in capital letters is reserved 

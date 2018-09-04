@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.183 18/08/07 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.184 18/09/01 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.183 18/08/07 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.184 18/09/01 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -1866,6 +1866,11 @@ checkerrs()
 				xstats.s_substerrs);
 		if (xstats.s_hardeof)
 			errmsgno(EX_BAD, "Hard EOF on input.\n");
+
+		if (xstats.s_security)
+			errmsgno(EX_BAD, "See option -.. on why some files have been skipped.\n");
+		if (xstats.s_lsecurity)
+			errmsgno(EX_BAD, "See option -secure-links on why some links have been skipped.\n");
 		return (TRUE);
 	}
 	return (FALSE);

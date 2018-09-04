@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.107 18/08/20 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.108 18/08/30 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.107 18/08/20 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.108 18/08/30 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -56,9 +56,8 @@ static	UConst char sccsid[] =
 #define	MULTI_ARG_MAX		/* SunOS only ?			*/
 #endif
 
-#ifdef	__FIND__
-char	strvers[] = "1.5";	/* The pure version string	*/
-#endif
+LOCAL char strvers[] = "1.7";	/* The pure version string	*/
+#define	VERSION		0x10007
 
 typedef struct find_node findn_t;
 
@@ -205,6 +204,8 @@ LOCAL	BOOL	plusexec	__PR((char *f, findn_t *t, struct WALK *state));
 #endif
 EXPORT	int	find_plusflush	__PR((void *p, struct WALK *state));
 EXPORT	void	find_usage	__PR((FILE *f));
+EXPORT	char	*find_strvers	__PR((void));
+EXPORT	int	find_vers	__PR((void));
 #ifdef	FIND_MAIN
 LOCAL	int	getflg		__PR((char *optstr, long *argp));
 EXPORT	int	main		__PR((int ac, char **av));
@@ -1044,12 +1045,18 @@ parseprim(fap)
 		fap->walkflags &= ~WALK_NOSTAT;
 
 		p = n->left = nextarg(fap, n);
-		if (p[0] == '+') {
-			if (p[1] == '0' ||
-			    p[1] == 'u' || p[1] == 'g' || p[1] == 'o' || p[1] == 'a')
+		if (n->op == PERM) {
+			if (p[0] == '+') {
+				if (p[1] == '0' || /* +0777 is not in POSIX  */
+				    p[1] == 'a') { /* +a=rwx is not in POSIX */
+					p[0] = '/';
+					p++;
+				} else {
+					n->left = "";
+				}
+			} else if (p[0] == '/') {
 				p++;
-			else
-				n->left = "";
+			}
 		}
 		if (getperm(fap->std[2], p, tokennames[n->op],
 				&n->val.mode, (mode_t)0,
@@ -1801,7 +1808,7 @@ find_expr(f, ff, fs, state, t)
 #endif
 
 	case PERM:
-		if (t->left[0] == '+')
+		if (t->left[0] == '/')
 			return ((fs->st_mode & t->val.mode) != 0);
 		else if (t->left[0] == '-')
 			return ((fs->st_mode & t->val.mode) == t->val.mode);
@@ -2621,6 +2628,18 @@ find_usage(f)
 	fprintf(f, _("	-xdev, -mount restrict search to current filesystem (always TRUE)\n"));
 	fprintf(f, _("Primaries marked with '*' are POSIX extensions, avoid them in portable scripts.\n"));
 	fprintf(f, _("If path is omitted, '.' is used. If expression is omitted, -print is used.\n"));
+}
+
+EXPORT char *
+find_strvers()
+{
+	return (strvers);
+}
+
+EXPORT int
+find_vers()
+{
+	return (VERSION);
 }
 
 #ifdef FIND_MAIN

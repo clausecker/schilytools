@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.82 18/05/22 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
+/* @(#)ved.c	1.83 18/08/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.82 18/05/22 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling";
+	"@(#)ved.c	1.83 18/08/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -348,7 +348,7 @@ main(ac, av)
 			excomerrno(wp, err, "Cannot open '%s'.\n", wp->curfile);
 		}
 	}
-	if (pos > wp->eof) {
+	if (pos < 0 || pos > wp->eof) {
 		if (recover) {
 			termbuffers(wp);
 			excomerrno(wp, EX_BAD,

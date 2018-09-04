@@ -1,8 +1,8 @@
-/* @(#)suntar.c	1.40 18/06/10 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)suntar.c	1.41 18/09/01 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.40 18/06/10 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)suntar.c	1.41 18/09/01 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
@@ -69,7 +69,7 @@ LOCAL	void	suntar_setopts	__PR((char *o));
  * Solaris TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -141,7 +141,8 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&do_sattr,		/* --sattr */
 				getenum, &bs,
 				getenum, &fs,
-				&abs_path, &allow_dotdot, &secure_links,
+				&abs_path, &allow_dotdot,
+				&secure_links, &secure_links,
 				&doacl, &dofflags,
 				&copyflag, &diff_flag,
 				gethdr, &chdrtype,
@@ -343,7 +344,7 @@ xusage(ret)
 	error("\txdebug=#,xd=#\tset extended debug level\n");
 	error("\t-/\t\tdon't strip leading '/'s from file names\n");
 	error("\t--..\t\tdon't skip filenames that contain '..' in non-interactive extract\n");
-	error("\t--secure-links\tdon't extract links that start with '/' or contain '..'\n");
+	error("\t--no-secure-links\textract links that start with '/' or contain '..'\n");
 	error("\t--acl\t\thandle access control lists\n");
 	error("\t--xfflags\thandle extended file flags\n");
 	error("\tbs=#\t\tset (output) block size to #\n");

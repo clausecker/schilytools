@@ -1,4 +1,4 @@
-/* @(#)find.h	1.26 18/08/01 Copyright 2005-2018 J. Schilling */
+/* @(#)find.h	1.27 18/08/30 Copyright 2005-2018 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
@@ -128,6 +128,8 @@ extern	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs,
 
 extern	int	find_plusflush	__PR((void *p, struct WALK *state));
 extern	void	find_usage	__PR((FILE *f));
+extern	char	*find_strvers	__PR((void));
+extern	int	find_vers	__PR((void));
 extern	int	find_main	__PR((int ac, char **av, char **ev,
 					FILE *std[3], squit_t *__quit));
 

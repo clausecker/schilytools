@@ -1,8 +1,8 @@
-/* @(#)screen.c	1.41 18/08/22 Copyright 1984-2018 J. Schilling */
+/* @(#)screen.c	1.42 18/08/27 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)screen.c	1.41 18/08/22 Copyright 1984-2018 J. Schilling";
+	"@(#)screen.c	1.42 18/08/27 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Screen update functions for VED
@@ -98,11 +98,12 @@ static	UConst char sccsid[] =
  * oder scrollen gar, wenn es sich um die letzte Bildschirmposition handelt.
  *
  * Da wird es schwierig, die letzte Bildschirmposition zu beschreiben.
- * Ich sehe z.Zt. nur die Möglichkeit durch Verwendung von insert char oder insert
- * line.
+ * Ich sehe z.Zt. nur die Möglichkeit durch Verwendung von insert char oder
+ * insert line.
  *
  * Will man mit insert char arbeiten, dann wird zuerst das Letze Zeichen auf der
- * vorletzten Position geschrieben und dann davor das vorletzte Zeichen eingefügt.
+ * vorletzten Position geschrieben und dann davor das vorletzte Zeichen
+ * eingefügt.
  * Vorteil: ruhiges Bild.
  *
  * Wenn man mit insert Line arbeitet, denn geht es z.B. mit folgendem
@@ -187,15 +188,15 @@ LOCAL	int	passoffset = 0;		/* set with findpos() and left alone */
 
 #ifndef	JOS
 #if	defined(mc68000) && !defined(LONG_MOD)
-#	define	modu(a, b)	((unsigned short) \
+#define	modu(a, b)	((unsigned short) \
 				(((unsigned short)(a)) % ((unsigned short)(b))))
 #else
-#	define	modu(a, b)	((a) % (b))
+#define	modu(a, b)	((a) % (b))
 #endif	/* mc68000 */
 #endif	/* JOS */
 
 #ifndef	modu
-#	define	modu(a, b)	((a) % (b))
+#define	modu(a, b)	((a) % (b))
 #endif
 
 /*
@@ -218,19 +219,25 @@ EXPORT	int	getindent	__PR((ewin_t *wp));
 EXPORT	void	setpos		__PR((ewin_t *wp));
 EXPORT	BOOL	setcursor	__PR((ewin_t *wp));
 LOCAL	void	mappos		__PR((ewin_t *wp, cpos_t * cp));
-EXPORT	epos_t	countpos	__PR((ewin_t *wp, epos_t old, epos_t new, cpos_t * cp));
-LOCAL	epos_t	getcol		__PR((ewin_t *wp, epos_t begin, int maxcol, cpos_t * cp));
+EXPORT	epos_t	countpos	__PR((ewin_t *wp, epos_t old, epos_t new,
+					cpos_t * cp));
+LOCAL	epos_t	getcol		__PR((ewin_t *wp, epos_t begin, int maxcol,
+					cpos_t * cp));
 EXPORT	epos_t	findcol		__PR((ewin_t *wp, int col, epos_t begin));
-LOCAL	epos_t	findmatch	__PR((ewin_t *wp, epos_t begin, cpos_t * a, cpos_t * b));
+LOCAL	epos_t	findmatch	__PR((ewin_t *wp, epos_t begin, cpos_t * a,
+					cpos_t * b));
 EXPORT	void	dispup		__PR((ewin_t *wp, epos_t old, epos_t new));
 LOCAL	void	dispdel		__PR((ewin_t *wp, epos_t old, epos_t new));
 LOCAL	void	dispins		__PR((ewin_t *wp, epos_t old, epos_t new));
 EXPORT	int	realvp		__PR((ewin_t *wp, cpos_t * cp));
 EXPORT	int	realhp		__PR((ewin_t *wp, cpos_t * cp));
-LOCAL	void	typescn		__PR((ewin_t *wp, epos_t begin, int col, epos_t end));
-LOCAL	epos_t	typescx		__PR((ewin_t *wp, epos_t begin, int col, epos_t end));
+LOCAL	void	typescn		__PR((ewin_t *wp, epos_t begin, int col,
+					epos_t end));
+LOCAL	epos_t	typescx		__PR((ewin_t *wp, epos_t begin, int col,
+					epos_t end));
 LOCAL	void	typerest	__PR((ewin_t *wp, epos_t begin, cpos_t * cp));
-EXPORT	void	typescreen	__PR((ewin_t *wp, epos_t begin, int col, epos_t end));
+EXPORT	void	typescreen	__PR((ewin_t *wp, epos_t begin, int col,
+					epos_t end));
 LOCAL	BOOL	outch		__PR((ewin_t *wp, int c));
 LOCAL	BOOL	outnl		__PR((ewin_t *wp, BOOL  nlflg));
 LOCAL	BOOL	outtab		__PR((ewin_t *wp));
@@ -398,7 +405,7 @@ onscreen(wp, cp)
 
 	return (v <= wp->psize-wp->pmargin &&
 		(v != wp->psize-wp->pmargin || realhp(wp, cp) < wp->llen) &&
-						(v > wp->pmargin || wp->window == 0));
+					(v > wp->pmargin || wp->window == 0));
 }
 
 
@@ -423,7 +430,8 @@ getindent(wp)
 	lbeg = revline(wp, wp->dot, (ecnt_t)1);	/* an den Anfang der Zeile */
 	save = wp->magic;
 	wp->magic = TRUE;
-	textbeg = search(wp, lbeg, notwhitespace, strlen(C notwhitespace), 0) - 1;
+	textbeg = search(wp, lbeg, notwhitespace, strlen(C notwhitespace), 0)
+			- 1;
 	wp->magic = save;
 	if (textbeg > wp->dot)
 		textbeg = wp->dot;
@@ -533,7 +541,8 @@ countpos(wp, old, new, cp)
 			if (cp->vp > rpsize)
 				break;
 		} else if (c == TAB) {
-			cp->hp = (cp->hp / wp->tabstop) * wp->tabstop + wp->tabstop;
+			cp->hp = (cp->hp / wp->tabstop) * wp->tabstop +
+					wp->tabstop;
 		} else {
 			cp->hp += rcsize[c];
 		}
@@ -585,7 +594,8 @@ getcol(wp, begin, maxcol, cp)
 			break;
 		} else if (c == TAB) {
 			ocol = cp->hp;
-			cp->hp = (cp->hp / wp->tabstop) * wp->tabstop + wp->tabstop;
+			cp->hp = (cp->hp / wp->tabstop) * wp->tabstop +
+					wp->tabstop;
 			col += cp->hp - ocol;
 		} else {
 			cp->hp += rcsize[c];
@@ -669,8 +679,10 @@ findmatch(wp, begin, a, b)
 			return (wp->eof - cnt);
 		}
 		if (c == TAB) {
-			a->hp = (a->hp / wp->tabstop) * wp->tabstop + wp->tabstop;
-			b->hp = (b->hp / wp->tabstop) * wp->tabstop + wp->tabstop;
+			a->hp = (a->hp / wp->tabstop) * wp->tabstop +
+					wp->tabstop;
+			b->hp = (b->hp / wp->tabstop) * wp->tabstop +
+					wp->tabstop;
 			tabcnt++;
 		} else {
 			a->hp += size = rcsize[c];
@@ -839,7 +851,8 @@ dispdel(wp, old, new)
 				 */
 				bottomv = realvp(wp, &o);
 				bottomv = min(bottomv, wp->psize+1);
-				bottomh = bottomv > wp->psize ? 0 : realhp(wp, &o);
+				bottomh = bottomv > wp->psize ? 0 :
+							realhp(wp, &o);
 
 				if (b_auto_right_margin && !f_ins_char) {
 					/*
@@ -1012,7 +1025,8 @@ realvp(wp, cp)
 	register cpos_t	*cp;
 {
 #ifdef	MARKWRAP
-	return (cp->hp >= (wp->llen+wp->markwrap) ? cp->vp + (cp->hp - wp->markwrap) / wp->llen : cp->vp);
+	return (cp->hp >= (wp->llen+wp->markwrap) ?
+			cp->vp + (cp->hp - wp->markwrap) / wp->llen : cp->vp);
 #else
 	return (cp->hp > wp->llen ? cp->vp + (cp->hp - 1) / wp->llen : cp->vp);
 #endif
@@ -1037,7 +1051,8 @@ realhp(wp, cp)
 	register int	h = cp->hp;
 
 #ifdef	MARKWRAP
-	return (h >= (wp->llen+wp->markwrap) ? (h - wp->markwrap) % wp->llen + wp->markwrap : h);
+	return (h >= (wp->llen+wp->markwrap) ?
+			(h - wp->markwrap) % wp->llen + wp->markwrap : h);
 #else
 	return (h > wp->llen ? (h - 1) % wp->llen + 1 : h);
 #endif
@@ -1092,7 +1107,7 @@ typescx(wp, begin, col, end)
 	register Uchar	c;
 	register Uchar	*s;
 	register Uchar	**rctab;
-	register epos_t	lposition;	/* last position in buffer to be typed */
+	register epos_t	lposition;	/* last pos in buffer to be typed */
 
 	rctab = ctab;
 	findpos(wp, begin, &passlink, &passoffset);
@@ -1108,7 +1123,8 @@ typescx(wp, begin, col, end)
 		c = getnext(wp);
 		begin++;
 		if (c == '\n') {
-			if (!outnl(wp, begin < lposition || gotshorter || linewrap || wp->visible))
+			if (!outnl(wp, begin < lposition || gotshorter ||
+						linewrap || wp->visible))
 				return (begin);
 		} else if (c == '\r' && wp->dosmode && peeknext() == '\n') {
 			/*EMPTY*/
@@ -1244,7 +1260,7 @@ typescreen(wp, begin, col, end)
 }
 
 /*
- * lastchar & lastmark sind ein Versuch den letzen Buchstaben auf dem Schirm
+ * lastchar & lastmark sind ein Versuch den letzten Buchstaben auf dem Schirm
  * zu merken, damit man ihn mit insert char zum Beschreiben der letzten
  * Bildschirmposition verwenden kann.
  * Das funktioniert aber nur, wenn die letzten Buchstaben auf dem Bildschirm
@@ -1296,8 +1312,10 @@ outch(wp, c)
 				offmark();
 			return (FALSE);
 		}
-/* XXX hier ist der Fehler , daß der letze Buchstabe nochmal auf der neuen Zeile ausgegeben wird.
-*/
+/*
+ * XXX hier ist der Fehler, daß der letzte Buchstabe nochmal auf der neuen
+ * XXX Zeile ausgegeben wird.
+ */
 #ifdef	MARKWRAP
 		addchar(lastc);
 #else
@@ -1379,7 +1397,9 @@ outtab(wp)
 	register int	rtabstop = wp->tabstop;
 
 	do {
-		if (!outch(wp, (Uchar) (wp->visible?(modu(lcol+1, rtabstop)?'.' : ':'):' ')))
+		if (!outch(wp, (Uchar) (wp->visible ?
+					(modu(lcol+1, rtabstop)?'.' : ':') :
+					' ')))
 			return (FALSE);
 	} while (modu(lcol, rtabstop));
 	return (TRUE);

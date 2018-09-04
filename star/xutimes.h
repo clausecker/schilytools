@@ -1,4 +1,4 @@
-/* @(#)xutimes.h	1.3 13/10/02 Copyright 1996, 2013 J. Schilling */
+/* @(#)xutimes.h	1.4 18/08/31 Copyright 1996, 2013 J. Schilling */
 /*
  *	Prototypes for xutimes users
  *
@@ -21,4 +21,5 @@
 /*
  * star_unix.c
  */
-extern	int	xutimes		__PR((char *name, struct timespec *tp));
+extern	int	xutimes		__PR((char *name, struct timespec *tp,
+					BOOL asymlink));

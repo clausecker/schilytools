@@ -1,13 +1,13 @@
-/* @(#)movedot.c	1.23 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)movedot.c	1.24 18/08/25 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)movedot.c	1.23 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)movedot.c	1.24 18/08/25 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Functions that are used to move the dot around.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,12 +33,12 @@ static	UConst char sccsid[] =
 #include "movedot.h"
 
 LOCAL	Uchar	whitespace[] = "^![ \t]!$";
-EXPORT	Uchar	notwhitespace[] = "[^ \t]";		/* Used by cmds.c/screen.c */
+EXPORT	Uchar	notwhitespace[] = "[^ \t]";	/* Used by cmds.c/screen.c */
 
 #ifdef	__needed__
 LOCAL	Uchar	inword[] = "[0-9_A-Za-z]";
 #endif
-EXPORT	Uchar	notinword[] = "[^0-9_A-Za-z]!$";	/* Used by tags.c */
+EXPORT	Uchar	notinword[] = "[^0-9_A-Za-z]!$"; /* Used by tags.c */
 
 LOCAL	Uchar	newline[] = "\n";
 LOCAL	Uchar	notnewline[] = "[^\n]";
@@ -50,8 +50,10 @@ EXPORT	epos_t	forwline	__PR((ewin_t *wp, epos_t begin, ecnt_t n));
 EXPORT	epos_t	revline		__PR((ewin_t *wp, epos_t begin, ecnt_t n));
 EXPORT	epos_t	forwpara	__PR((ewin_t *wp, epos_t begin, ecnt_t n));
 EXPORT	epos_t	revpara		__PR((ewin_t *wp, epos_t begin, ecnt_t n));
-LOCAL	epos_t	move_forward	__PR((ewin_t *wp, epos_t begin, ecnt_t n, epos_t (*func)(ewin_t *wp, epos_t begin)));
-LOCAL	epos_t	move_reverse	__PR((ewin_t *wp, epos_t begin, ecnt_t n, epos_t (*func)(ewin_t *wp, epos_t begin)));
+LOCAL	epos_t	move_forward	__PR((ewin_t *wp, epos_t begin, ecnt_t n,
+				epos_t (*func)(ewin_t *wp, epos_t begin)));
+LOCAL	epos_t	move_reverse	__PR((ewin_t *wp, epos_t begin, ecnt_t n,
+				epos_t (*func)(ewin_t *wp, epos_t begin)));
 LOCAL	epos_t	searchword	__PR((ewin_t *wp, epos_t begin));
 LOCAL	epos_t	srevword	__PR((ewin_t *wp, epos_t begin));
 LOCAL	epos_t	searchline	__PR((ewin_t *wp, epos_t begin));
@@ -312,10 +314,13 @@ searchpara(wp, begin)
 			return (begin);
 	} while (begin != prev+1+(wasdos?1:0));
 
-	if (wp->dosmode)
-		begin = search(wp, begin, dosnotnewline, sizeof (dosnotnewline)-1, 0);
-	else
-		begin = search(wp, begin, notnewline, sizeof (notnewline)-1, 0);
+	if (wp->dosmode) {
+		begin = search(wp, begin,
+				dosnotnewline, sizeof (dosnotnewline)-1, 0);
+	} else {
+		begin = search(wp, begin,
+				notnewline, sizeof (notnewline)-1, 0);
+	}
 
 	if (begin <= wp->eof)
 		return (begin-1);
@@ -339,10 +344,13 @@ srevpara(wp, begin)
 	epos_t	prev;
 	BOOL	wasdos;
 
-	if (wp->dosmode)
-		begin = reverse(wp, begin, dosnotnewline, sizeof (dosnotnewline)-1, 0);
-	else
-		begin = reverse(wp, begin, notnewline, sizeof (notnewline)-1, 0);
+	if (wp->dosmode) {
+		begin = reverse(wp, begin,
+				dosnotnewline, sizeof (dosnotnewline)-1, 0);
+	} else {
+		begin = reverse(wp, begin,
+				notnewline, sizeof (notnewline)-1, 0);
+	}
 	begin = reverse(wp, begin, newline, sizeof (newline)-1, 0);
 	if (begin > wp->eof)
 		return (begin);

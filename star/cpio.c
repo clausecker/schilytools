@@ -1,8 +1,8 @@
-/* @(#)cpio.c	1.31 18/05/21 Copyright 1989, 2005-2018 J. Schilling */
+/* @(#)cpio.c	1.32 18/09/01 Copyright 1989, 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.31 18/05/21 Copyright 1989, 2005-2018 J. Schilling";
+	"@(#)cpio.c	1.32 18/09/01 Copyright 1989, 2005-2018 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
@@ -100,7 +100,7 @@ LOCAL	void	cpio_setopts	__PR((char *o));
  * The official POSIX options start after the -bz/-lzop/-7z/-xz/-lzip option.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
+char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,z,bz,lzo,7z,xz,lzip,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -193,7 +193,8 @@ gargs(ac, av)
 				&numeric,  &no_fifo, &no_fsync, &no_fsync,
 				getenum, &bs,
 				getenum, &fs,
-				&abs_path, &allow_dotdot, &secure_links,
+				&abs_path, &allow_dotdot,
+				&secure_links, &secure_links,
 				&doacl, &dofflags,
 				&zflag, &bzflag, &lzoflag,
 				&p7zflag, &xzflag, &lzipflag,
@@ -451,7 +452,8 @@ xusage(ret)
 	error("\txdebug=#,xd=#\tset extended debug level\n");
 	error("\t-/\t\tdon't strip leading '/'s from file names\n");
 	error("\t-..\t\tdon't skip filenames that contain '..' in non-interactive extract\n");
-	error("\t-secure-links\tdon't extract links that start with '/' or contain '..'\n");
+	error("\t-secure-links\tdon't extract links that start with '/' or contain '..' (default)\n");
+	error("\t-no-secure-links\textract links that start with '/' or contain '..'\n");
 	error("\t-acl\t\thandle access control lists\n");
 	error("\t-xfflags\thandle extended file flags\n");
 	error("\tbs=#\t\tset (output) block size to #\n");

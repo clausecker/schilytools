@@ -1,0 +1,275 @@
+New features with AN-2018-09-04:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	libschily: Fixed the behavior of the umask/chmod perm parser for the
+	case where "who" was not specified and the operator is '='. POSIX
+	requires here to first clear all bits in the old value before adding
+	new bits. The old implementation did clear only the bits retrieved
+	from umask(2).
+
+-	libschily: The umask/chmod perm parser now returns -1 for the mode
+	string "u", since the operator is missing. Before, it just printed an
+	error message but did not return -1.
+
+-	libschily: astoul() and astoull() now by default permit to prefix 
+	the unsigned number by a "-". This is required by POSIX for strtoul()
+	and strtoull() and our implementation needs to be compatible to POSIX
+	to make the printf(1) implementation in the Bourne Shell POSIX
+	compatible on older platforms.
+
+	Thanks to Robert Elz for reporting
+
+-	libschily: floating point conversion in printf: avoid a GCC bug
+	that converts
+
+		while (*s)
+			*s++ = toupper(*s);
+	into
+
+		while (*s++)
+			*s = toupper(*s);
+
+-	libschily: floating point conversion in printf: No longer use the
+	UNOS derived "(Infinity)" and "(NaN)" but "inf" and "nan".
+
+-	libschily: floating point conversion in printf: Now print -inf for
+	a negative infinity value.
+
+-	libschily: fconv.c added new functions
+	_ftoes()/_ftofs()/_qftoes()/_qftofs() to be able to add a new parameter
+	without changing the interface for ftoes()/ftofs()/qftoes()/qftofs()
+
+-	libschily: added a new file format.h to share interface definitions
+	between format.c and fconv.c
+
+-	libschily: The new flag UPPERFLG is now implemented in fconv.c.
+
+-	libschily: some manpages did not expand the %e% keyword, therefore
+	SCCS has been told to expand it now.
+
+-	libfind: The "-perm +mode" feature before has been recognised if the
+	+ sign appeared before any character from  the set "ugoa", but since
+	the string "+u" represents a POSIXly valid "permcopy" operation, the
+	new version of libfind only accepts this specific feature if the
+	mode string starts with a "a". Since (with find) the start value of
+	the perm parser is 0, any valid mode string may be prefixed by "a+,"
+	without changing the resulting value, the feature is usable with
+	"-perm +a+,mode".
+
+-	libfind: The phrase "-perm /mode" has been added as an alias for
+	"-perm +mode", but since "/" is not permitted in a POSIX mode string,
+	this methos does not require to prefix the mode string with "a+," to
+	work. "-perm /mode" also helps to give comptibility with GNU find.
+
+-	libfind: "-chmod mode" no longer causes a wrong treatment in some
+	cases as the special treatment for "-perm +mode" no longer applies
+	to -chmod too.
+
+-	libfind: new function find_strvers() returns the version string.
+
+-	libfind: version bumped to 1.7
+
+-	libstreamarchive: the man page now correctly explains that in 
+	BINARY mode, the values for uname/gname/path/linkpath are not 
+	coded in UTF-8.
+
+-	sfind: the man page now reflects the changes in libfind.
+
+-	bsh/Bourne Shell/star: a very long path name could cause a core dump
+	with a "chdir()" operation in some cases, as there was no check for
+	pointer != NULL when restoring the '/' character while hopping over
+	parts of the path name.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	Bourne Shell: conformance tests: The printf tests that depend on
+	'od' now use a better sed filter to prevent differences caused
+	by different amount of space in the od output at the beginning
+	of a line.
+
+	Thanks to Robert Elz for reporting
+
+-	Bourne Shell: conformance tests: printf tests for negative 
+	integer numbers have been added. This is important as POSIX
+	requires "unsigned numbers" that start with a '-' sign to be
+	parsed as if they were signed numbers.
+
+	Thanks to Robert Elz for reporting
+
+-	Bourne Shell: conformance tests: the regression test "bug01" now
+	sets PS4='+ ' to avoid wrong test results in case the calling shell
+	exports a different PS4 value.
+
+	Thanks to Robert Elz for reporting
+
+-	Bourne Shell: The man page now mentions the default $HOME/.shrc
+	together with first mentioning $ENV.
+
+-	star: "star -c H=exustar -pax-o binary" now correctly results in
+	unencoded strings for uname/gname/path/linkpath. There was preliminary
+	code for the -copy mode but the final changes for this binary mode
+	have been forgotten. This was caused by a change of a variable name 
+	from "copyflag" to "binflag" in May 2018.
+
+	WARNING: If you created archives during the past three months using the
+	option "-pax-o binary", you definitely need to recreate the archives
+	in case there are non-ascii characters in values for the named 
+	keywords.
+
+-	star: The code to set the time stamp for extracted files has been
+	changed to correctly deal with symbolic links.
+
+	In former times, time stamps for symlinks have not been set at all
+	as there was n way to do that.
+
+	Later, with the availability if utimensat() This could be done for
+	symlinks as well, if the target systen supports utimensat().
+
+	Recently, the code was rearranged to always use utimensat(), but
+	to use an emulation on older systems. This resulted in sometimes
+	setting the timestamp of the symlink target instead of the
+	symlink, depending on how the emulation could be implemented.
+
+	The new code knows how the emulation is done and avoids to set
+	the times for the symlink targets on older platforms where the
+	emulation does not (cannot) support to set the time of symlinks.
+
+	Thanks to Stephane Chazelas for reporting.
+
+-	star: star -x -to-stdout no longer tries to set the "not extracted"
+	file to Jan 1 1970 in case of an extraction error.
+
+-	star: The option -secure-links has been made the default except when
+	extracting dumps with the -restore option.
+
+	The reason for that change is that a handcrafted tar archive could
+	first include a symlink with absolute target name, e.g. x -> /etc
+	and then include a file x/passwd that would be extracted using 
+	the 'x' link to result in /etc/passwd.
+
+	Our solution with -secure-links is the same since 20 years: do not
+	extract the problematic symlink and as a result, the later file 
+	will be extracted into the local directory tree.
+
+-	star: a new option -no-secure-links allows to disable the secure
+	default behavior.
+
+-	star: Added a new help output to the error statistics in case that
+	a file has been skipped because it contains /../ or when a symbolic
+	link has been skipped because it points to an absolute path or
+	because the symlink target contains /../. This help-text mentions
+	the options -.. and -secure-links respectively.
+
+-	star: the archive format man page now correctly explains that in 
+	BINRAY mode, the values for uname/gname/path/linkpath are not 
+	coded in UTF-8.
+
+-	ved: If the .vedtmp.* file contains a position < 0, this is now seen
+	as something illegal and the cursor position is set to 0. This avoids
+	a core dump in this case.
+
+-	ved: the binding now contains a new set of functions that is used
+	in case that the current character is outside the previous range 0..255.
+	This is a preparation for multi-byte support in ved.
+
+-	ved: Some Cstyle fixes have been applied.
+
+-	ved: Some of the file IO functions have been changed to use void *
+	instzead of Uchar * buffers.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,4 +1,4 @@
-/* @(#)format.c	1.64 17/11/16 Copyright 1985-2017 J. Schilling */
+/* @(#)format.c	1.65 18/09/03 Copyright 1985-2017 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -35,6 +35,7 @@ extern	char	*gcvt __PR((double, int, char *));
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include "format.h"
 
 /*
  * As Llong is currently a 'best effort' long long, we usually need to

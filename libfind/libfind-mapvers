@@ -1,4 +1,4 @@
-# /* @(#)libfind-mapvers	1.14 18/08/01 Copyright 2005-2018 J. Schilling */
+# /* @(#)libfind-mapvers	1.15 18/08/30 Copyright 2005-2018 J. Schilling */
 
 /*
  * Due to a bug in the the C-Preprocessor from SunPro C, we get a syntax
@@ -7,6 +7,12 @@
  * Unfortunately, the GNU linker does not like them, so we run the result
  * through tr -d '"'
  */
+"SCHILY_0.9.2" {	# Not yet a stable interface!
+global:
+	find_strvers;	# find.c
+	find_vers;	# find.c
+} "SCHILY_0.9.1";
+
 "SCHILY_0.9.1" {	# Not yet a stable interface!
 global:
 	find_argsinit;	# find.c moved here to enforce a higher version

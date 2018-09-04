@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.114 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.115 18/08/31 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.114 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.115 18/08/31 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -97,7 +97,7 @@ EXPORT	void	checkarch	__PR((FILE *f));
 EXPORT	BOOL	archisnull	__PR((const char *name));
 EXPORT	BOOL	samefile	__PR((FILE *fp1, FILE *fp2));
 EXPORT	void	setmodes	__PR((FINFO *info));
-LOCAL	int	sutimes		__PR((char *name, FINFO *info));
+LOCAL	int	sutimes		__PR((char *name, FINFO *info, BOOL asymlink));
 EXPORT	int	snulltimes	__PR((char *name, FINFO *info));
 EXPORT	int	sxsymlink	__PR((char *name, FINFO *info));
 EXPORT	int	rs_acctime	__PR((int fd, FINFO *info));
@@ -711,7 +711,7 @@ setmodes(info)
 		 */
 		if (!is_dir(info)) {
 			didutimes = TRUE;
-			if (sutimes(info->f_name, info) < 0) {
+			if (sutimes(info->f_name, info, asymlink) < 0) {
 				if (!errhidden(E_SETTIME, info->f_name)) {
 					if (!errwarnonly(E_SETTIME, info->f_name))
 						xstats.s_settime++;
@@ -785,17 +785,13 @@ setmodes(info)
 		set_xattr(info);
 #endif
 
-#ifdef	HAVE_UTIMENSAT
 	/*
 	 * utimensat() is able to set the time stamps on symlinks, if called
 	 * with the AT_SYMLINK_NOFOLLOW flag, so we include symlinks in the
 	 * list of file types that cause sutimes() to be called.
 	 */
 	if (!nomtime && !is_dir(info)) {
-#else
-	if (!nomtime && !is_dir(info) && !asymlink) {
-#endif
-		if (sutimes(info->f_name, info) < 0 && !didutimes)
+		if (sutimes(info->f_name, info, asymlink) < 0 && !didutimes)
 			if (!errhidden(E_SETTIME, info->f_name)) {
 				if (!errwarnonly(E_SETTIME, info->f_name))
 					xstats.s_settime++;
@@ -807,12 +803,14 @@ setmodes(info)
 	}
 }
 
-EXPORT	int	xutimes		__PR((char *name, struct timespec *tp));
+EXPORT	int	xutimes		__PR((char *name, struct timespec *tp,
+					BOOL asymlink));
 
 LOCAL int
-sutimes(name, info)
+sutimes(name, info, asymlink)
 	char	*name;
 	FINFO	*info;
+	BOOL	asymlink;
 {
 	struct  timespec curtime;
 	struct	timespec tp[3];
@@ -835,7 +833,7 @@ sutimes(name, info)
 	tp[2].tv_sec = 0;
 	tp[2].tv_nsec = 0;
 #endif
-	return (xutimes(name, tp));
+	return (xutimes(name, tp, asymlink));
 }
 
 EXPORT int
@@ -846,7 +844,7 @@ snulltimes(name, info)
 	struct	timespec tp[3];
 
 	fillbytes((char *)tp, sizeof (tp), '\0');
-	return (xutimes(name, tp));
+	return (xutimes(name, tp, is_symlink(info)));
 }
 
 /*
@@ -854,14 +852,15 @@ snulltimes(name, info)
  * This is what we use in star as the default.
  */
 EXPORT int
-xutimes(name, tp)
+xutimes(name, tp, asymlink)
 	char	*name;
 	struct	timespec tp[3];
+	BOOL	asymlink;
 {
 	struct  timespec curtime;
 	struct  timespec pasttime;
 	extern int Ctime;
-	int	ret;
+	int	ret = 0;
 	int	errsav;
 
 #ifndef	HAVE_SETTIMEOFDAY
@@ -874,7 +873,15 @@ xutimes(name, tp)
 		setnstimeofday(&tp[2]);
 	}
 #endif
-	ret = lutimensat(name, tp, 0);	/* SYMLINK_NOFOLLOW not in emulation */
+#if	!defined(HAVE_UTIMENSAT) && \
+	!defined(HAVE_LUTIMENS) && \
+	!defined(HAVE_LUTIMES)
+	/*
+	 * AT_SYMLINK_NOFOLLOW not in emulation
+	 */
+	if (!asymlink)
+#endif
+		ret = lutimensat(name, tp, AT_SYMLINK_NOFOLLOW);
 	errsav = geterrno();
 
 #ifdef	SET_CTIME
@@ -990,7 +997,7 @@ rs_acctime(fd, info)
 		return (ioctl(fd, _FIOSATIME, &atv));
 	}
 #endif
-	return (sutimes(info->f_name, info));
+	return (sutimes(info->f_name, info, FALSE));
 }
 
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */

@@ -1,14 +1,14 @@
-/* @(#)take.c	1.24 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)take.c	1.25 18/08/25 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)take.c	1.24 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)take.c	1.25 18/08/25 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Routines that implement a set of take buffers
  *	and take care of backing up unused buffers into a file
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,8 +37,8 @@ static	UConst char sccsid[] =
 #define	TAKENAMESIZE 17
 
 typedef struct {
-	Uchar	*name;
-	Uchar	*pathname;
+	Uchar	*name;			/* The take name used in ved	*/
+	Uchar	*pathname;		/* Related take file path name	*/
 }  take_t;
 
 LOCAL	take_t	takebufs[MAXTAKEBUFS];	/* the names of take buffers	    */

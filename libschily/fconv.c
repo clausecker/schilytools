@@ -1,4 +1,4 @@
-/* @(#)fconv.c	1.47 18/04/09 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)fconv.c	1.50 18/09/03 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
@@ -30,6 +30,7 @@
 #include <schily/math.h>	/* The default place for isinf()/isnan() */
 #include <schily/nlsdefs.h>
 #include <schily/ctype.h>
+#include "format.h"
 
 #if	!defined(HAVE_STDLIB_H) || defined(HAVE_DTOA)
 extern	char	*ecvt __PR((double, int, int *, int *));
@@ -189,8 +190,13 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #include "cvt.c"
 #endif
 
+#ifdef	JOS_COMPAT
 static	char	_js_nan[] = "(NaN)";
 static	char	_js_inf[] = "(Infinity)";
+#else
+static	char	_js_nan[] = "nan";
+static	char	_js_inf[] = "inf";
+#endif
 
 static	int	_ferr __PR((char *, double, int));
 #endif	/* __DO_LONG_DOUBLE__ */
@@ -215,6 +221,23 @@ ftoes(s, val, fieldwidth, ndigits)
 	register	int	fieldwidth;
 	register	int	ndigits;
 {
+	int	flags = 0;
+
+	if (ndigits < 0) {
+		ndigits = -ndigits;
+		flags |= UPPERFLG;
+	}
+	return (_ftoes(s, val, fieldwidth, ndigits, flags));
+}
+
+EXPORT int
+_ftoes(s, val, fieldwidth, ndigits, flags)
+	register	char 	*s;
+			MDOUBLE	val;
+	register	int	fieldwidth;
+	register	int	ndigits;
+			int	flags;
+{
 	register	char	*b;
 	register	char	*rs;
 	register	int	len;
@@ -223,10 +246,8 @@ ftoes(s, val, fieldwidth, ndigits)
 			int	sign;
 			int	Efmt = FALSE;
 
-	if (ndigits < 0) {
-		ndigits = -ndigits;
+	if (flags & UPPERFLG)
 		Efmt = TRUE;
-	}
 #ifndef	__DO_LONG_DOUBLE__
 	if ((len = _ferr(s, val, Efmt)) > 0)
 		return (len);
@@ -242,11 +263,11 @@ ftoes(s, val, fieldwidth, ndigits)
 #ifdef	__DO_LONG_DOUBLE__
 	len = *b;
 	if (len < '0' || len > '9') {		/* Inf/NaN */
-		strcpy(s, b);
-		if (Efmt) {
-			while (*s)
-				*s++ = toupper(*s);
-		}
+		char	*p;
+
+		for (p = b; *p; p++)
+			*s++ = Efmt ? toupper(*p) : *p;
+		*s = '\0';
 		return (strlen(b));
 	}
 #endif
@@ -308,6 +329,23 @@ ftofs(s, val, fieldwidth, ndigits)
 	register	int	fieldwidth;
 	register	int	ndigits;
 {
+	int	flags = 0;
+
+	if (ndigits < 0) {
+		ndigits = -ndigits;
+		flags |= UPPERFLG;
+	}
+	return (_ftofs(s, val, fieldwidth, ndigits, flags));
+}
+
+EXPORT int
+_ftofs(s, val, fieldwidth, ndigits, flags)
+	register	char 	*s;
+			MDOUBLE	val;
+	register	int	fieldwidth;
+	register	int	ndigits;
+			int	flags;
+{
 	register	char	*b;
 	register	char	*rs;
 	register	int	len;
@@ -316,10 +354,8 @@ ftofs(s, val, fieldwidth, ndigits)
 			int	sign;
 			int	Ffmt = FALSE;
 
-	if (ndigits < 0) {
-		ndigits = -ndigits;
+	if (flags & UPPERFLG)
 		Ffmt = TRUE;
-	}
 #ifndef	__DO_LONG_DOUBLE__
 	if ((len = _ferr(s, val, Ffmt)) > 0)
 		return (len);
@@ -342,11 +378,11 @@ ftofs(s, val, fieldwidth, ndigits)
 #ifdef	__DO_LONG_DOUBLE__
 	len = *b;
 	if (len < '0' || len > '9') {		/* Inf/NaN */
-		strcpy(s, b);
-		if (Ffmt) {
-			while (*s)
-				*s++ = toupper(*s);
-		}
+		char	*p;
+
+		for (p = b; *p; p++)
+			*s++ = Ffmt ? toupper(*p) : *p;
+		*s = '\0';
 		return (strlen(b));
 	}
 #endif
@@ -410,6 +446,8 @@ ftofs(s, val, fieldwidth, ndigits)
 #define	__DO_LONG_DOUBLE__
 #define	ftoes	qftoes
 #define	ftofs	qftofs
+#define	_ftoes	_qftoes
+#define	_ftofs	_qftofs
 #define	ecvt	qecvt
 #define	fcvt	qfcvt
 #include "fconv.c"
@@ -417,18 +455,22 @@ ftofs(s, val, fieldwidth, ndigits)
 #endif
 #endif	/* HAVE_LONGDOUBLE */
 
+/*
+ * Be careful to avoid a GCC bug: while (*s) *s++ = toupper(*s) is converted
+ * to  while (*s++) *s = toupper(*s).
+ */
 LOCAL int
 _ferr(s, val, upper)
 	char	*s;
 	double	val;
 	int	upper;
 {
+	char	*p;
+
 	if (isnan(val)) {
-		strcpy(s, _js_nan);
-		if (upper) {
-			while (*s)
-				*s++ = toupper(*s);
-		}
+		for (p = _js_nan; *p; p++)
+			*s++ = upper ? toupper(*p) : *p;
+		*s = '\0';
 		return (sizeof (_js_nan) - 1);
 	}
 
@@ -436,11 +478,11 @@ _ferr(s, val, upper)
 	 * Check first for NaN because finite() will return 1 on Nan too.
 	 */
 	if (isinf(val)) {
-		strcpy(s, _js_inf);
-		if (upper) {
-			while (*s)
-				*s++ = toupper(*s);
-		}
+		if (val < 0)
+			*s++ = '-';
+		for (p = _js_inf; *p; p++)
+			*s++ = upper ? toupper(*p) : *p;
+		*s = '\0';
 		return (sizeof (_js_inf) - 1);
 	}
 	return (0);

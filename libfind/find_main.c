@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.71 18/08/01 Copyright 2004-2018 J. Schilling */
+/* @(#)find_main.c	1.72 18/08/30 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_main.c	1.71 18/08/01 Copyright 2004-2018 J. Schilling";
+	"@(#)find_main.c	1.72 18/08/30 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -35,8 +35,6 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #include <schily/nlsdefs.h>
-
-char	strvers[] = "1.6";	/* The pure version string	*/
 
 #include <schily/walk.h>
 #include <schily/find.h>
@@ -182,7 +180,7 @@ find_main(ac, av, ev, std, quit)
 	if (prversion) {
 		fprintf(std[1],
 		"sfind release %s (%s-%s-%s) Copyright (C) 2004-2018 Jörg Schilling\n",
-				strvers,
+				find_strvers(),
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		goto out;
 	}

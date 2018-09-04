@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)pwd.c	1.37 18/07/16 2008-2018 J. Schilling
+ * @(#)pwd.c	1.38 18/08/31 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.37 18/07/16 2008-2018 J. Schilling";
+	"@(#)pwd.c	1.38 18/08/31 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -128,7 +128,8 @@ lchdir(path)
 		if ((p2 =  strchr(p, SLASH)) != NULL)
 			*p2 = '\0';
 		if ((ret = chdir(p)) < 0) {
-			*p2 = SLASH;
+			if (p2)
+				*p2 = SLASH;
 			break;
 		}
 		if (p2 == NULL)

@@ -1,8 +1,8 @@
-/* @(#)dirtime.c	1.33 18/06/20 Copyright 1988-2018 J. Schilling */
+/* @(#)dirtime.c	1.34 18/08/31 Copyright 1988-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirtime.c	1.33 18/06/20 Copyright 1988-2018 J. Schilling";
+	"@(#)dirtime.c	1.34 18/08/31 Copyright 1988-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1988-2018 J. Schilling
@@ -405,7 +405,7 @@ setdirtime(name, tp)
 	struct timespec	tp[NT];
 {
 	EDBG(("settime: '%s' to %s", name, ctime(&tp[1].tv_sec)));
-	if (xutimes(name, tp) < 0) {
+	if (xutimes(name, tp, FALSE) < 0) {
 		if (!errhidden(E_SETTIME, name)) {
 			if (!errwarnonly(E_SETTIME, name))
 				xstats.s_settime++;

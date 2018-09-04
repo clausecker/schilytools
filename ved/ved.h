@@ -1,4 +1,4 @@
-/* @(#)ved.h	1.45 18/08/23 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
+/* @(#)ved.h	1.46 18/08/25 Copyr 1984-86, 88-89,97, 2000-2018 J. Schilling */
 /*
  *	Main include file for VED
  *
@@ -97,23 +97,23 @@ typedef struct {
 extern	iobuf_t	_bb;
 
 #ifdef	putchar
-#	undef	putchar
+#undef	putchar
 #endif
 #ifdef	JOS
-#	define	putchar(c) {if (--_bb._count >= 0) *_bb._ptr++ = (c); \
-					else _bflush(c); }
+#define	putchar(c) {if (--_bb._count >= 0) *_bb._ptr++ = (c); \
+				else _bflush(c); }
 #else
-#	define	putchar(c) (--_bb._count >= 0 ? *_bb._ptr++ = (c): _bflush(c))
+#define	putchar(c) (--_bb._count >= 0 ? *_bb._ptr++ = (c): _bflush(c))
 #endif
 
 #ifdef	flush
-#	undef	flush
+#undef	flush
 #endif
 #define	flush()	_bufflush()
 #endif	/* BFSIZE */
 
 #ifdef	JOS
-#	define	ENOENT	ENOFILE
+#define	ENOENT	ENOFILE
 #endif
 
 #define	SP	0x20				/* The vanilla space	*/
@@ -151,11 +151,11 @@ extern	iobuf_t	_bb;
 #define	FNAMESIZE	1024	/* Size of edited filename		*/
 
 #ifdef	JOS
-#	define	DEFSHELL	"/bin/command"
-#	define	HELPFILE UC "/doc/cmds/ved.help"
+#define	DEFSHELL	"/bin/command"
+#define	HELPFILE	UC "/doc/cmds/ved.help"
 #else
-#	define	DEFSHELL	"/bin/sh"
-#	define	HELPFILE UC "/opt/schily/share/man/help/ved.help"
+#define	DEFSHELL	"/bin/sh"
+#define	HELPFILE	UC "/opt/schily/share/man/help/ved.help"
 #endif
 
 /*

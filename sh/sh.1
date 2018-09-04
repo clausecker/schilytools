@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.237 18/08/01 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.238 18/09/01 Copyright 2012-2018 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/08/01" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2018/09/01" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -168,7 +168,7 @@ argument zero is
 .BR \(mi ,
 commands are initially read from
 .B /etc/profile and from
-.BR $HOME/.profile,
+.BR $HOME/.profile ,
 if such files exist.
 Next, for interactive shells, commands are read from
 .B /etc/sh.shrc
@@ -176,7 +176,8 @@ and from the file with a name that results from doing
 .B Parameter Substitution
 on the environment variable
 .B ENV
-if the file exists.
+if the file exists (by default this is the file
+.BR $HOME/.shrc ).
 Thereafter, commands are read as described below, which is also the case
 when the shell is invoked as
 .BR /usr/bin/sh .

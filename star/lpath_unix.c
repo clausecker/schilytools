@@ -1,8 +1,8 @@
-/* @(#)lpath_unix.c	1.11 18/07/22 Copyright 2018 J. Schilling */
+/* @(#)lpath_unix.c	1.12 18/08/31 Copyright 2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lpath_unix.c	1.11 18/07/22 Copyright 2018 J. Schilling";
+	"@(#)lpath_unix.c	1.12 18/08/31 Copyright 2018 J. Schilling";
 #endif
 /*
  *	Routines for long path names on unix like operating systems
@@ -89,7 +89,8 @@ lchdir(path)
 		if ((p2 =  strchr(p, '/')) != NULL)
 			*p2 = '\0';
 		if ((ret = chdir(p)) < 0) {
-			*p2 = '/';
+			if (p2)
+				*p2 = '/';
 			break;
 		}
 		if (p2 == NULL)

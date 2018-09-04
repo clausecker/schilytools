@@ -1,13 +1,13 @@
-/* @(#)fileio.c	1.13 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)fileio.c	1.14 18/08/26 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fileio.c	1.13 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)fileio.c	1.14 18/08/26 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Low level routines for Input/Output from/to files.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,13 +31,13 @@ EXPORT	int	stmpfmodes	__PR((Uchar *name));
 EXPORT	FILE	*openerrmsg	__PR((Uchar *name, char *mode));
 EXPORT	FILE	*opencomerr	__PR((ewin_t *wp, Uchar *name, char *mode));
 EXPORT	FILE	*opensyserr	__PR((ewin_t *wp, Uchar *name, char *mode));
-EXPORT	int	readsyserr	__PR((ewin_t *wp, FILE * f, Uchar *buf, int len,
+EXPORT	int	readsyserr	__PR((ewin_t *wp, FILE * f, void *buf, int len,
 								Uchar *name));
-EXPORT	int	writesyserr	__PR((ewin_t *wp, FILE * f, Uchar* buf, int len,
+EXPORT	int	writesyserr	__PR((ewin_t *wp, FILE * f, void *buf, int len,
 								Uchar *name));
-EXPORT	int	writebsyserr	__PR((ewin_t *wp, FILE * f, Uchar* buf, int len,
+EXPORT	int	writebsyserr	__PR((ewin_t *wp, FILE * f, void *buf, int len,
 								Uchar *name));
-EXPORT	int	writeerrmsg	__PR((ewin_t *wp, FILE * f, Uchar* buf, int len,
+EXPORT	int	writeerrmsg	__PR((ewin_t *wp, FILE * f, void *buf, int len,
 								Uchar *name));
 EXPORT	void	exitcomerr	__PR((ewin_t *wp, char *fmt, ...));
 EXPORT	void	excomerrno	__PR((ewin_t *wp, int err, char *fmt, ...));
@@ -112,7 +112,7 @@ EXPORT int
 readsyserr(wp, f, buf, len, name)
 	ewin_t	*wp;
 	FILE	*f;
-	Uchar	*buf;
+	void	*buf;
 	int	len;
 	Uchar	*name;
 {
@@ -131,7 +131,7 @@ EXPORT int
 writesyserr(wp, f, buf, len, name)
 	ewin_t	*wp;
 	FILE	*f;
-	Uchar	*buf;
+	void	*buf;
 	int	len;
 	Uchar	*name;
 {
@@ -151,7 +151,7 @@ EXPORT int
 writebsyserr(wp, f, buf, len, name)
 	ewin_t	*wp;
 	FILE	*f;
-	Uchar	*buf;
+	void	*buf;
 	int	len;
 	Uchar	*name;
 {
@@ -172,7 +172,7 @@ EXPORT int
 writeerrmsg(wp, f, buf, len, name)
 	ewin_t	*wp;
 	FILE	*f;
-	Uchar	*buf;
+	void	*buf;
 	int	len;
 	Uchar	*name;
 {

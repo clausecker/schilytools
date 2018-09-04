@@ -1,4 +1,4 @@
-/* @(#)astoull.c	1.2 09/07/26 Copyright 1985, 2000-2006 J. Schilling */
+/* @(#)astoull.c	1.3 18/08/31 Copyright 1985, 2000-2018 J. Schilling */
 /*
  *	astoll() converts a string to long long
  *
@@ -13,7 +13,7 @@
  *	Llong is silently reverted to long if the compiler does not
  *	support long long.
  *
- *	Copyright (c) 1985, 2000-2006 J. Schilling
+ *	Copyright (c) 1985, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,10 @@
 #include <schily/utypes.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
+
+#ifndef	NO_SIGNED_ULONG
+#define	DO_SIGNED
+#endif
 
 #define	is_space(c)	 ((c) == ' ' || (c) == '\t')
 #define	is_digit(c)	 ((c) >= '0' && (c) <= '9')

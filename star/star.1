@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.205 18/07/25 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.206 18/09/01 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/07/25" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/09/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2134,10 +2134,10 @@ has not been specified.
 Suppress warnings about links that
 have been skipped on extraction because they have been considered to be a 
 security risk.
-This currently applies to all link names that start with '/' or
+This currently applies to all link target names that start with '/' or
 have a '/../' sequence inside when 
-.B \-secure\-links
-has been specified.
+.B \-no\-secure\-links
+has not been specified.
 In this case, 
 .B star 
 tries to match the link name against the pattern in the error control file.
@@ -3168,6 +3168,13 @@ Do not print statistic messages at the end of a
 .B star
 run.
 .TP
+.B \-no\-secure\-links
+Extract hard links or symbolic links even if the target of the link
+starts with a slash (/) or if /../ is contained in the link target.
+See the description of the option
+.B \-secure\-links
+below.
+.TP
 .B \-no\-xheader
 Do not create or extract POSIX.1-2001 extended headers.
 This option may be used if you like to read an archive with broken
@@ -3650,26 +3657,53 @@ will loop over all substitute patterns until one matches.
 If the name substitutes to the empty string, the file is skipped.
 .TP
 .B \-secure\-links
-Do not extract hard links or symbolic links if the link name (the target of the link)
-starts with a slash (/) or if /../ is contained in the link name.
+Do not extract hard links or symbolic links if the target of the link
+starts with a slash
+.RB ( / )
+or if
+.B /../
+is contained in the link target.
 Tar archives containing such links could be used to compromise the system. If they are
 unpacked together with a lot of other files, this may not even be noticed.
 .sp
-As the usability of a tar archiver would be limited if
+Many system installations contain plenty of symbolic links with absolute path name
+or with
+.B /../
+inside.
+The usability of a tar archiver for system backups would be limited if
 .B \-secure\-links
 checking would be done by default, 
 .B star
-makes link checking optional.
+thus makes link checking optional when in
+.B \-restore
+mode.
+When
+.B \-restore
+has not been specified, link checking is the default, since this is the usual
+way where archives from unknown sources are going to be unpacked.
 .sp
-If you unpacked a tar archive using the
+To turn off
+this default for the usual case, the option
+.B \-no\-secure\-links
+may be used and in
+.B \-restore
+mode, 
 .B \-secure\-links
-and did not get a security warning at the end of the 
+may be specified to turn it on.
+.sp
+If you unpacked a tar archive while
+.B \-secure\-links
+is effective and did not get a security warning at the end of the 
 .B star
 run, all files and links have been extracted.
 If you get a warning, you should unpack the archive a second time and specify the
 options
 .BR \-k ", " \-w " and " \-nowarn
 in addition to the options used for the first run.
+To speed this up, it helps to use:
+.sp
+.B "    star -xvpw -find -type l
+.sp
 See
 .B SECURITY NOTES
 for more information.
@@ -5398,9 +5432,13 @@ option and tar archives where the
 option was not specified before all file type arguments may be critical.
 .PP
 A good advise is to extract all doubtful archives as non root in an empty
-directory and to specify the 
-.B \-secure\-links
-option.
+directory and to neither specify the 
+.B \-/
+nor
+.B \-..
+or
+.B \-no\-secure\-links
+options.
 If you get a warning, you should unpack the archive a second time and specify the
 options
 .BR \-k ", " \-w " and " \-nowarn

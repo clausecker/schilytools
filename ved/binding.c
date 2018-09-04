@@ -1,8 +1,8 @@
-/* @(#)binding.c	1.14 18/08/23 Copyright 1984,1997,2000-2018 J. Schilling */
+/* @(#)binding.c	1.15 18/08/25 Copyright 1984,1997,2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)binding.c	1.14 18/08/23 Copyright 1984,1997,2000-2018 J. Schilling";
+	"@(#)binding.c	1.15 18/08/25 Copyright 1984,1997,2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984,1997,2000-2018 J. Schilling
@@ -32,6 +32,7 @@ struct funcs {
 	Uchar	defmap;				/* The default mapping	*/
 };
 
+EXPORT	void	(*nctab[NCTAB])	__PR((ewin_t *));
 EXPORT	void	(*chartab[NCTAB][256])	__PR((ewin_t *));
 EXPORT	int	ctabidx;	/* The table idx where we take commands from */
 
@@ -356,6 +357,9 @@ init_binding()
 	init_chars(chartab[CTAB], vnorm);
 	init_chars(chartab[ALTTAB], vsnorm);
 	init_chars(chartab[ESCTAB], vxmac);
+	nctab[CTAB] = vnorm;
+	nctab[ALTTAB] = vsnorm;
+	nctab[ESCTAB] = vxmac;
 
 	/*
 	 * Now install all default bindings from the function table.

@@ -1,8 +1,8 @@
-/* @(#)func.h	1.68 13/06/25 Copyright 1984-2013 J. Schilling */
+/* @(#)func.h	1.70 18/08/26 Copyright 1984-2018 J. Schilling */
 /*
  *	Definitions for global functions in VED
  *
- *	Copyright (c) 1984-2013 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -174,7 +174,8 @@ extern	void	vswrite		__PR((ewin_t *wp));
  */
 extern	FILE	*tmpfopen	__PR((ewin_t *wp, Uchar *name, char *mode));
 extern	void	tmpsetup	__PR((void));
-extern	void	takepath	__PR((Uchar *pathname, int pathsize, Uchar *name));
+extern	void	takepath	__PR((Uchar *pathname, int pathsize,
+					Uchar *name));
 extern	void	tmpopen		__PR((ewin_t *wp));
 extern	void	tmpcleanup	__PR((ewin_t *wp, BOOL force));
 
@@ -213,7 +214,8 @@ extern	void	newwindow	__PR((ewin_t *wp));
 extern	int	getindent	__PR((ewin_t *wp));
 extern	void	setpos		__PR((ewin_t *wp));
 extern	BOOL	setcursor	__PR((ewin_t *wp));
-extern	epos_t	countpos	__PR((ewin_t *wp, epos_t x, epos_t y, cpos_t * pos));
+extern	epos_t	countpos	__PR((ewin_t *wp, epos_t x, epos_t y,
+					cpos_t * pos));
 extern	epos_t	findcol		__PR((ewin_t *wp, int h, epos_t x));
 extern	void	dispup		__PR((ewin_t *wp, epos_t old, epos_t new));
 extern	int	realvp		__PR((ewin_t *wp, cpos_t * pos));
@@ -241,22 +243,32 @@ extern	epos_t	revpara		__PR((ewin_t *wp, epos_t start, ecnt_t n));
 extern	void	insert		__PR((ewin_t *wp, Uchar* str, long size));
 extern	void	delete		__PR((ewin_t *wp, epos_t size));
 extern	void	rubout		__PR((ewin_t *wp, epos_t size));
-extern	BOOL	loadfile	__PR((ewin_t *wp, Uchar* filename, BOOL newdefault));
-extern	BOOL	savefile	__PR((ewin_t *wp, epos_t begin, epos_t end, FILE *  f, char *name));
-extern	BOOL	backsavefile	__PR((ewin_t *wp, epos_t begin, epos_t end, FILE *  f, char *name));
-extern	void	getfile		__PR((ewin_t *wp, FILE *  f, epos_t size, char *name));
-extern	void	backgetfile	__PR((ewin_t *wp, FILE *  f, epos_t size, char *name));
+extern	BOOL	loadfile	__PR((ewin_t *wp, Uchar* filename,
+						BOOL newdefault));
+extern	BOOL	savefile	__PR((ewin_t *wp, epos_t begin, epos_t end,
+						FILE *  f, char *name));
+extern	BOOL	backsavefile	__PR((ewin_t *wp, epos_t begin, epos_t end,
+						FILE *  f, char *name));
+extern	void	getfile		__PR((ewin_t *wp, FILE *  f, epos_t size,
+						char *name));
+extern	void	backgetfile	__PR((ewin_t *wp, FILE *  f, epos_t size,
+						char *name));
 extern	BOOL	isdos		__PR((ewin_t *wp));
-extern	int	extract		__PR((ewin_t *wp, epos_t begin, Uchar *str, int size));
-extern	int	extr_line	__PR((ewin_t *wp, epos_t begin, char *str, int size));
-extern	int	retractline	__PR((ewin_t *wp, epos_t begin, char *str, int size));
+extern	int	extract		__PR((ewin_t *wp, epos_t begin, Uchar *str,
+						int size));
+extern	int	extr_line	__PR((ewin_t *wp, epos_t begin, char *str,
+						int size));
+extern	int	retractline	__PR((ewin_t *wp, epos_t begin, char *str,
+						int size));
 #ifdef	_BUFFER_H
 extern	void	clearifwpos	__PR((ewin_t *wp, headr_t *this));
 #endif
 extern	void	clearwpos	__PR((ewin_t *wp));
 extern	void	findwpos	__PR((ewin_t *wp, epos_t new));
 #ifdef	_BUFFER_H
-extern	void	findpos		__PR((ewin_t *wp, epos_t pos, headr_t ** returnlink, int *returnpos));
+extern	void	findpos		__PR((ewin_t *wp, epos_t pos,
+						headr_t ** returnlink,
+						int *returnpos));
 #endif
 
 /*
@@ -292,11 +304,14 @@ extern	void	t_scrdown	__PR((ewin_t *wp, int n));
 extern	void	wait_for_confirm __PR((ewin_t *wp));
 extern	void	wait_continue	__PR((ewin_t *wp));
 /* PRINTFLIKE3 */
-extern	int	getcmdchar	__PR((ewin_t *wp, char *ans, char *msg, ...)) __printflike__(3, 4);
+extern	int	getcmdchar	__PR((ewin_t *wp, char *ans,
+					char *msg, ...)) __printflike__(3, 4);
 /* PRINTFLIKE4 */
-extern	int	getcmdline	__PR((ewin_t *wp, Uchar *result, int len, char *msg, ...)) __printflike__(4, 5);
+extern	int	getcmdline	__PR((ewin_t *wp, Uchar *result, int len,
+					char *msg, ...)) __printflike__(4, 5);
 /* PRINTFLIKE5 */
-extern	int	getccmdline	__PR((ewin_t *wp, int c, Uchar* result, int len, char *msg, ...)) __printflike__(5, 6);
+extern	int	getccmdline	__PR((ewin_t *wp, int c, Uchar* result, int len,
+					char *msg, ...)) __printflike__(5, 6);
 
 /*
  * io.c
@@ -329,14 +344,20 @@ extern	int	stmpfmodes	__PR((Uchar *name));
 extern	FILE	*openerrmsg	__PR((Uchar *name, char *mode));
 extern	FILE	*opencomerr	__PR((ewin_t *wp, Uchar *name, char *mode));
 extern	FILE	*opensyserr	__PR((ewin_t *wp, Uchar *name, char *mode));
-extern	int	readsyserr	__PR((ewin_t *wp, FILE *  f, Uchar *buf, int len, Uchar *name));
-extern	int	writesyserr	__PR((ewin_t *wp, FILE *  f, Uchar *buf, int len, Uchar *name));
-extern	int	writebsyserr	__PR((ewin_t *wp, FILE *  f, Uchar *buf, int len, Uchar *name));
-extern	int	writeerrmsg	__PR((ewin_t *wp, FILE *  f, Uchar *buf, int len, Uchar *name));
+extern	int	readsyserr	__PR((ewin_t *wp, FILE *  f,
+					void *buf, int len, Uchar *name));
+extern	int	writesyserr	__PR((ewin_t *wp, FILE *  f,
+					void *buf, int len, Uchar *name));
+extern	int	writebsyserr	__PR((ewin_t *wp, FILE *  f,
+					void *buf, int len, Uchar *name));
+extern	int	writeerrmsg	__PR((ewin_t *wp, FILE *  f,
+					void *buf, int len, Uchar *name));
 /* PRINTFLIKE2 */
-extern	void	exitcomerr	__PR((ewin_t *wp, char *fmt, ...)) __printflike__(2, 3);
+extern	void	exitcomerr	__PR((ewin_t *wp,
+					char *fmt, ...)) __printflike__(2, 3);
 /* PRINTFLIKE3 */
-extern	void	excomerrno	__PR((ewin_t *wp, int err, char *fmt, ...)) __printflike__(3, 4);
+extern	void	excomerrno	__PR((ewin_t *wp, int err,
+					char *fmt, ...)) __printflike__(3, 4);
 
 /*
  * filesubs.c
@@ -359,7 +380,9 @@ extern	Uchar	*findtake	__PR((ewin_t *wp, Uchar *name));
 extern	void	backuptake	__PR((ewin_t *wp));
 extern	void	loadtake	__PR((ewin_t *wp));
 extern	void	deletetake	__PR((void));
-extern	int	fcopy		__PR((ewin_t *wp, FILE * from, FILE * to, epos_t size, char *fromname, char *toname));
+extern	int	fcopy		__PR((ewin_t *wp, FILE * from, FILE * to,
+					epos_t size, char *fromname,
+					char *toname));
 
 /*
  * message.c
@@ -367,16 +390,20 @@ extern	int	fcopy		__PR((ewin_t *wp, FILE * from, FILE * to, epos_t size, char *f
 extern	void	initmessage	__PR((ewin_t *wp));
 extern	void	initmsgsize	__PR((ewin_t *wp));
 /* PRINTFLIKE2 */
-extern	void	writemsg	__PR((ewin_t *wp, char *str, ...)) __printf0like__(2, 3);
+extern	void	writemsg	__PR((ewin_t *wp,
+					char *str, ...)) __printf0like__(2, 3);
 extern	void	writenum	__PR((ewin_t *wp, ecnt_t num));
 extern	void	writetake	__PR((ewin_t *wp, Uchar *str));
 extern	void	namemsg		__PR((Uchar* name));
 /* PRINTFLIKE2 */
-extern	void	writeerr	__PR((ewin_t *wp, char *str, ...)) __printflike__(2, 3);
+extern	void	writeerr	__PR((ewin_t *wp,
+					char *str, ...)) __printflike__(2, 3);
 /* PRINTFLIKE2 */
-extern	void	writeserr	__PR((ewin_t *wp, char *str, ...)) __printflike__(2, 3);
+extern	void	writeserr	__PR((ewin_t *wp,
+					char *str, ...)) __printflike__(2, 3);
 /* PRINTFLIKE2 */
-extern	void	write_errno	__PR((ewin_t *wp, char *msg, ...)) __printflike__(2, 3);
+extern	void	write_errno	__PR((ewin_t *wp,
+					char *msg, ...)) __printflike__(2, 3);
 extern	void	defaultinfo	__PR((ewin_t *wp, Uchar *str));
 extern	void	defaulterr	__PR((ewin_t *wp, Uchar *str));
 extern	void	refreshmsg	__PR((ewin_t *wp));
@@ -390,8 +417,10 @@ extern	void	nomarkmsg	__PR((ewin_t *wp));
  */
 extern	BOOL	issimple	__PR((Uchar* pattern, int length));
 extern	epos_t	srevchar	__PR((ewin_t *wp, epos_t begin, int ch));
-extern	epos_t	search		__PR((ewin_t *wp, epos_t begin, Uchar *pattern, int size, int domark));
-extern	epos_t	reverse		__PR((ewin_t *wp, epos_t begin, Uchar *pattern, int size, int domark));
+extern	epos_t	search		__PR((ewin_t *wp, epos_t begin,
+					Uchar *pattern, int size, int domark));
+extern	epos_t	reverse		__PR((ewin_t *wp, epos_t begin,
+					Uchar *pattern, int size, int domark));
 
 /*
  * ttymodes.c
@@ -416,7 +445,8 @@ extern	void	macro_reinit	__PR((ewin_t *wp));
  */
 extern	void	vcolon		__PR((ewin_t *wp));
 /* PRINTFLIKE2 */
-extern	void	printscreen	__PR((ewin_t *wp, char *form, ...)) __printflike__(2, 3);
+extern	void	printscreen	__PR((ewin_t *wp,
+					char *form, ...)) __printflike__(2, 3);
 
 /*
  * substcmds.c

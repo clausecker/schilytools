@@ -1,4 +1,4 @@
-/* @(#)astoul.c	1.1 15/12/10 Copyright 1985, 2000-2015 J. Schilling */
+/* @(#)astoul.c	1.2 18/08/31 Copyright 1985, 2000-2018 J. Schilling */
 /*
  *	astoul() converts a string to unsigned long
  *
@@ -10,7 +10,7 @@
  *	leading "0"  makes conversion octal (base 8)
  *	leading "0x" makes conversion hex   (base 16)
  *
- *	Copyright (c) 1985, 2000-2015 J. Schilling
+ *	Copyright (c) 1985, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,6 +31,10 @@
 #include <schily/utypes.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
+
+#ifndef	NO_SIGNED_ULONG
+#define	DO_SIGNED
+#endif
 
 #define	is_space(c)	 ((c) == ' ' || (c) == '\t')
 #define	is_digit(c)	 ((c) >= '0' && (c) <= '9')

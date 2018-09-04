@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.160 18/07/22 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.161 18/08/31 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.160 18/07/22 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.161 18/08/31 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -1953,7 +1953,8 @@ get_ofile(f, info)
 						f, 0, "writing");
 	}
 	if (ret < 0) {
-		snulltimes(info->f_name, info);
+		if (!to_stdout)
+			snulltimes(info->f_name, info);
 		die(EX_BAD);
 	}
 	if (!to_stdout) {
@@ -1982,7 +1983,8 @@ get_ofile(f, info)
 			ret = FALSE;
 		if (ret == FALSE) {
 			xstats.s_rwerrs++;
-			snulltimes(info->f_name, info);
+			if (!to_stdout)
+				snulltimes(info->f_name, info);
 		}
 	}
 	return (ret);
