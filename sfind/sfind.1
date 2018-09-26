@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.30 18/08/30 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.31 18/09/15 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/08/30" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/09/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -740,12 +740,55 @@ not normally be evaluated.
 processes all but the command line arguments. 
 .sp
 This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
 .TP
 .B \-mount
-An alias for 
-.BR \-xdev ,
-try to avoid. This exists only for
-backwards compatibility with old UNIX find versions.
+The primary always evaluates as true; it causes
+.B sfind
+not to report files and not to descent into directories that have a
+different device ID
+.RB ( st_dev ,
+see the
+.BR stat ()
+function defined
+in the System Interfaces volume of IEEE Std 1003.1-2001). If
+any
+.B \-mount
+primary is specified, it applies to the entire
+expression even if the 
+.B \-mount
+primary would not normally be
+evaluated.
+.sp
+The
+.B \-mount
+primary exists for
+backwards compatibility with old UNIX 
+.BR find (1)
+versions.
+.sp
+This primary is not yet mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.B \-mount+
+The primary always evaluates as true; it causes
+.B sfind
+not to continue descending past directories that have a
+different device ID
+.RB ( st_dev ,
+see the
+.BR stat ()
+function defined
+in the System Interfaces volume of IEEE Std 1003.1-2001). If
+any
+.B \-mount+
+primary is specified, it applies to the entire
+expression even if the 
+.B \-mount+
+primary would not normally be
+evaluated.
 .sp
 This primary is not mentioned in the POSIX standard.
 .br
@@ -1288,24 +1331,27 @@ the primary always evaluates as false.
 Currently only Solaris is supported.
 .sp
 This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
 .TP
 .B \-xdev
-The primary always evaluates as true; it causes
-.B sfind
-not to continue descending past directories that have a
-different device ID
-.RB ( st_dev ,
-see the
-.BR stat ()
-function defined
-in the System Interfaces volume of IEEE Std 1003.1-2001). If
-any
+The primary always evaluates as true; it is an alias for
+.B \-mount
+but may become an alias to
+.B \-mount+
+in the future.
+.sp
+Note that the 
+.B POSIX 
+standard is currently in conflict with the established
+.B UNIX
+behavior for
 .B \-xdev
-primary is specified, it applies to the entire
-expression even if the 
-.B \-xdev
-primary would not normally be
-evaluated.
+that is aligned with the behavior of
+.BR nftw (3)
+with 
+.B FTW_MOUNT
+that does not incude mount points in the output.
 
 .PP
 The primaries can be combined using the following operators (in
@@ -1848,6 +1894,9 @@ Open Group Standard is the referee document. The original Standard can
 be obtained online at 
 .BR "http://www.opengroup.org/unix/online.html" .
 .SH BUGS
+.LP
+None known.
+
 .SH AUTHOR
 .LP
 .BR sfind(1)

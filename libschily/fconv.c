@@ -1,4 +1,4 @@
-/* @(#)fconv.c	1.50 18/09/03 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)fconv.c	1.59 18/09/10 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
@@ -199,6 +199,12 @@ static	char	_js_inf[] = "inf";
 #endif
 
 static	int	_ferr __PR((char *, double, int));
+
+static	int	_ecv __PR((char *s, char *b, int fieldwidth, int ndigits,
+				int decpt, int sign, int flags));
+static	int	_fcv __PR((char *s, char *b, int fieldwidth, int ndigits,
+				int decpt, int sign, int flags));
+
 #endif	/* __DO_LONG_DOUBLE__ */
 
 #ifdef	__DO_LONG_DOUBLE__
@@ -239,20 +245,20 @@ _ftoes(s, val, fieldwidth, ndigits, flags)
 			int	flags;
 {
 	register	char	*b;
-	register	char	*rs;
 	register	int	len;
 	register	int	rdecpt;
 			int 	decpt;
 			int	sign;
+#ifdef	__DO_LONG_DOUBLE__
 			int	Efmt = FALSE;
 
 	if (flags & UPPERFLG)
 		Efmt = TRUE;
+#endif
 #ifndef	__DO_LONG_DOUBLE__
-	if ((len = _ferr(s, val, Efmt)) > 0)
+	if ((len = _ferr(s, val, flags)) > 0)
 		return (len);
 #endif
-	rs = s;
 #ifdef	V7_FLOATSTYLE
 	b = ecvt(val, ndigits, &decpt, &sign);
 	rdecpt = decpt;
@@ -262,6 +268,8 @@ _ftoes(s, val, fieldwidth, ndigits, flags)
 #endif
 #ifdef	__DO_LONG_DOUBLE__
 	len = *b;
+	if (len == '-' || len == '+')
+		len = b[1];
 	if (len < '0' || len > '9') {		/* Inf/NaN */
 		char	*p;
 
@@ -271,32 +279,79 @@ _ftoes(s, val, fieldwidth, ndigits, flags)
 		return (strlen(b));
 	}
 #endif
+	return (_ecv(s, b, fieldwidth, ndigits, rdecpt, sign, flags));
+}
+
+#ifndef	__DO_LONG_DOUBLE__
+int
+_ecv(s, b, fieldwidth, ndigits, rdecpt, sign, flags)
+	register char	*s;
+	register char	*b;
+	register int	fieldwidth;
+	register int	ndigits;
+	register int	rdecpt;
+	int	sign;
+	int	flags;
+{
+	register int	len;
+	register char	*rs = s;
+		char	dpoint;
+		char	*pp;
+
+#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
+	dpoint = *(localeconv()->decimal_point);
+#else
+	dpoint = '.';
+#endif
 	len = ndigits + 6;			/* Punkt e +/- nnn */
 	if (sign)
 		len++;
-	if (fieldwidth > len)
+	else if (flags & PLUSFLG)
+		len++;
+	else if (flags & SPACEFLG)
+		len++;
+	if ((flags & PADZERO) == 0 && fieldwidth > len) {
 		while (fieldwidth-- > len)
 			*rs++ = ' ';
+	}
 	if (sign)
 		*rs++ = '-';
+	else if (flags & PLUSFLG)
+		*rs++ = '+';
+	else if (flags & SPACEFLG)
+		*rs++ = ' ';
+	if ((flags & PADZERO) && fieldwidth > len) {
+		while (fieldwidth-- > len)
+			*rs++ = '0';
+	}
 #ifndef	V7_FLOATSTYLE
 	if (*b)
 		*rs++ = *b++;
 #endif
-#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
-	*rs++ = *(localeconv()->decimal_point);
-#else
-	*rs++ = '.';
-#endif
+	pp = rs;
+	if ((flags & HASHFLG) || ndigits != 0)	/* Add '.'? */
+		*rs++ = dpoint;
+
 	while (*b && ndigits-- > 0)
 		*rs++ = *b++;
-	if (Efmt)
+	if (flags & STRIPZERO) {
+		register char	*rpp = pp;
+
+		while (--rs > rpp) {
+			if (*rs != '0')
+				break;
+		}
+		if (*rs == dpoint)
+			rs--;
+		rs++;
+	}
+	if (flags & UPPERFLG)
 		*rs++ = 'E';
 	else
 		*rs++ = 'e';
 	*rs++ = rdecpt >= 0 ? '+' : '-';
 	rdecpt = abs(rdecpt);
-#ifdef	__DO_LONG_DOUBLE__
+#ifdef	HAVE_LONGDOUBLE
 	if (rdecpt >= 1000) {			/* Max-Exp is > 4000 */
 		*rs++ = rdecpt / 1000 + '0';
 		rdecpt %= 1000;
@@ -314,6 +369,8 @@ _ftoes(s, val, fieldwidth, ndigits, flags)
 	*rs = '\0';
 	return (rs - s);
 }
+#endif	/* __DO_LONG_DOUBLE__ */
+
 
 /*
  * fcvt() from Cygwin32 is buggy.
@@ -347,20 +404,19 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 			int	flags;
 {
 	register	char	*b;
-	register	char	*rs;
 	register	int	len;
-	register	int	rdecpt;
 			int 	decpt;
 			int	sign;
+#ifdef	__DO_LONG_DOUBLE__
 			int	Ffmt = FALSE;
 
 	if (flags & UPPERFLG)
 		Ffmt = TRUE;
+#endif
 #ifndef	__DO_LONG_DOUBLE__
-	if ((len = _ferr(s, val, Ffmt)) > 0)
+	if ((len = _ferr(s, val, flags)) > 0)
 		return (len);
 #endif
-	rs = s;
 #ifdef	USE_ECVT
 	/*
 	 * Needed on systems with broken fcvt() implementation
@@ -377,6 +433,8 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 #endif
 #ifdef	__DO_LONG_DOUBLE__
 	len = *b;
+	if (len == '-' || len == '+')
+		len = b[1];
 	if (len < '0' || len > '9') {		/* Inf/NaN */
 		char	*p;
 
@@ -386,17 +444,54 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 		return (strlen(b));
 	}
 #endif
-	rdecpt = decpt;
+	return (_fcv(s, b, fieldwidth, ndigits, decpt, sign, flags));
+}
+
+#ifndef	__DO_LONG_DOUBLE__
+LOCAL int
+_fcv(s, b, fieldwidth, ndigits, rdecpt, sign, flags)
+	register char	*s;
+	register char	*b;
+	register int	fieldwidth;
+	register int	ndigits;
+	register int	rdecpt;
+	int	sign;
+	int	flags;
+{
+	register int	len;
+	register char	*rs = s;
+		char	dpoint;
+		char	*pp;
+
+#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
+	dpoint = *(localeconv()->decimal_point);
+#else
+	dpoint = '.';
+#endif
+
 	len = rdecpt + ndigits + 1;
 	if (rdecpt < 0)
 		len -= rdecpt;
 	if (sign)
 		len++;
-	if (fieldwidth > len)
+	else if (flags & PLUSFLG)
+		len++;
+	else if (flags & SPACEFLG)
+		len++;
+	if ((flags & PADZERO) == 0 && fieldwidth > len) {
 		while (fieldwidth-- > len)
 			*rs++ = ' ';
+	}
 	if (sign)
 		*rs++ = '-';
+	else if (flags & PLUSFLG)
+		*rs++ = '+';
+	else if (flags & SPACEFLG)
+		*rs++ = ' ';
+	if ((flags & PADZERO) && fieldwidth > len) {
+		while (fieldwidth-- > len)
+			*rs++ = '0';
+	}
 	if (rdecpt > 0) {
 		len = rdecpt;
 		while (*b && len-- > 0)
@@ -411,11 +506,10 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 		*rs++ = '0';
 	}
 #endif
-#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
-	*rs++ = *(localeconv()->decimal_point);
-#else
-	*rs++ = '.';
-#endif
+	pp = rs;
+	if ((flags & HASHFLG) || ndigits != 0)		/* Add '.'? */
+		*rs++ = dpoint;
+
 	if (rdecpt < 0) {
 		len = rdecpt;
 		while (len++ < 0 && ndigits-- > 0)
@@ -423,13 +517,79 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 	}
 	while (*b && ndigits-- > 0)
 		*rs++ = *b++;
+	if (flags & STRIPZERO) {
+		register char	*rpp = pp;
+
+		while (--rs > rpp) {
+			if (*rs != '0')
+				break;
+		}
+		if (*rs == dpoint)
+			rs--;
+		rs++;
+	} else {
 #ifdef	USE_ECVT
-	while (ndigits-- > 0)
-		*rs++ = '0';
+		while (ndigits-- > 0)
+			*rs++ = '0';
 #endif
+	}
 	*rs = '\0';
 	return (rs - s);
 }
+#endif	/* __DO_LONG_DOUBLE__ */
+
+EXPORT int
+_ftogs(s, val, fieldwidth, ndigits, flags)
+	register	char 	*s;
+			MDOUBLE	val;
+	register	int	fieldwidth;
+	register	int	ndigits;
+			int	flags;
+{
+	register	char	*b;
+	register	int	len;
+			int 	decpt;
+			int	sign;
+#ifdef	__DO_LONG_DOUBLE__
+			int	Gfmt = FALSE;
+
+	if (flags & UPPERFLG)
+		Gfmt = TRUE;
+#endif
+#ifndef	__DO_LONG_DOUBLE__
+	if ((len = _ferr(s, val, flags)) > 0)
+		return (len);
+#endif
+	b = ecvt(val, ndigits, &decpt, &sign);
+#ifdef	__DO_LONG_DOUBLE__
+	len = *b;
+	if (len == '-' || len == '+')
+		len = b[1];
+	if (len < '0' || len > '9') {		/* Inf/NaN */
+		char	*p;
+
+		for (p = b; *p; p++)
+			*s++ = Gfmt ? toupper(*p) : *p;
+		*s = '\0';
+		return (strlen(b));
+	}
+#endif
+	if ((flags & HASHFLG) == 0)
+		flags |= STRIPZERO;
+#ifdef	V7_FLOATSTYLE
+	if ((decpt >= 0 && decpt-ndigits > 4) ||
+#else
+	if ((decpt >= 0 && decpt-ndigits > 0) ||
+#endif
+	    (decpt < -3)) {			/* e-format */
+		decpt--;
+		return (_ecv(s, b, fieldwidth, ndigits, decpt, sign, flags));
+	} else {				/* f-format */
+		ndigits -= decpt;
+		return (_fcv(s, b, fieldwidth, ndigits, decpt, sign, flags));
+	}
+}
+
 
 #ifndef	__DO_LONG_DOUBLE__
 
@@ -448,6 +608,7 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
 #define	ftofs	qftofs
 #define	_ftoes	_qftoes
 #define	_ftofs	_qftofs
+#define	_ftogs	_qftogs
 #define	ecvt	qecvt
 #define	fcvt	qfcvt
 #include "fconv.c"
@@ -460,18 +621,25 @@ _ftofs(s, val, fieldwidth, ndigits, flags)
  * to  while (*s++) *s = toupper(*s).
  */
 LOCAL int
-_ferr(s, val, upper)
+_ferr(s, val, flags)
 	char	*s;
 	double	val;
-	int	upper;
+	int	flags;
 {
+	char	*old = s;
 	char	*p;
+	int	upper;
 
+	upper = flags & UPPERFLG;
 	if (isnan(val)) {
+		if (val < 0)		/* Should not happen */
+			*s++ = '-';
+		else if (flags & PLUSFLG)
+			*s++ = '+';
 		for (p = _js_nan; *p; p++)
 			*s++ = upper ? toupper(*p) : *p;
 		*s = '\0';
-		return (sizeof (_js_nan) - 1);
+		return (s - old);
 	}
 
 	/*
@@ -480,10 +648,12 @@ _ferr(s, val, upper)
 	if (isinf(val)) {
 		if (val < 0)
 			*s++ = '-';
+		else if (flags & PLUSFLG)
+			*s++ = '+';
 		for (p = _js_inf; *p; p++)
 			*s++ = upper ? toupper(*p) : *p;
 		*s = '\0';
-		return (sizeof (_js_inf) - 1);
+		return (s - old);
 	}
 	return (0);
 }

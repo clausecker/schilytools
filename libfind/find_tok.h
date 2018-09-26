@@ -1,4 +1,4 @@
-/* @(#)find_tok.h	1.8 18/08/20 Copyright 2004-2018 J. Schilling */
+/* @(#)find_tok.h	1.9 18/09/15 Copyright 2004-2018 J. Schilling */
 /*
  *	Copyright (c) 2004-2018 J. Schilling
  */
@@ -104,10 +104,11 @@
 #define	OK_EXECDIR 82	/* -okdir	POSIX Extension	*/
 #define	CALL	83	/* -call	POSIX Extension	*/
 #define	CALLDIR	84	/* -calldir	POSIX Extension	*/
-#define	ENDPRIM	85	/* End of primary list		*/
-#define	EXECPLUS 86	/* -exec			*/
-#define	EXECDIRPLUS 87	/* -execdir			*/
-#define	ENDTLIST 88	/* End of token list		*/
+#define	MOUNTPLUS 85	/* -mount+	POSIX Extension	*/
+#define	ENDPRIM	86	/* End of primary list		*/
+#define	EXECPLUS 87	/* -exec			*/
+#define	EXECDIRPLUS 88	/* -execdir			*/
+#define	ENDTLIST 89	/* End of token list		*/
 
 #define	tokennames	_find_tokennames
 
@@ -198,10 +199,11 @@ LOCAL	char	*tokennames[] = {
 	"okdir",	/* 82 OK_EXECDIR POSIX Extension */
 	"call",		/* 83 CALL	POSIX Extension */
 	"calldir",	/* 84 CALLDIR	POSIX Extension */
-	0,		/* 85 End of primary list	*/
-	"exec",		/* 86 Map EXECPLUS -> "exec"	*/
-	"execdir",	/* 87 Map EXECDIRPLUS -> "execdir" */
-	0		/* 88 End of list		*/
+	"mount+",	/* 85 MOUNTPLUS	POSIX Extension */
+	0,		/* 86 End of primary list	*/
+	"exec",		/* 87 Map EXECPLUS -> "exec"	*/
+	"execdir",	/* 88 Map EXECDIRPLUS -> "execdir" */
+	0		/* 89 End of list		*/
 };
 #define	NTOK	((sizeof (tokennames) / sizeof (tokennames[0])) - 1)
 

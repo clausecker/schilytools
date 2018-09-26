@@ -1,8 +1,8 @@
-/* @(#)binding.c	1.15 18/08/25 Copyright 1984,1997,2000-2018 J. Schilling */
+/* @(#)binding.c	1.16 18/09/16 Copyright 1984,1997,2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)binding.c	1.15 18/08/25 Copyright 1984,1997,2000-2018 J. Schilling";
+	"@(#)binding.c	1.16 18/09/16 Copyright 1984,1997,2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984,1997,2000-2018 J. Schilling
@@ -40,8 +40,8 @@ LOCAL	void	setesctab	__PR((ewin_t *wp));
 LOCAL	void	setalttab	__PR((ewin_t *wp));
 LOCAL	void	saltesctab	__PR((ewin_t *wp));
 LOCAL	void	setx		__PR((ewin_t *wp));
-LOCAL	void	init_table	__PR((void (*tab[0200])(ewin_t *), void (*func)(ewin_t *)));
-LOCAL	void	init_chars	__PR((void (*tab[0200])(ewin_t *), void (*func)(ewin_t *)));
+LOCAL	void	init_table	__PR((void (*tab[256])(ewin_t *), void (*func)(ewin_t *)));
+LOCAL	void	init_chars	__PR((void (*tab[256])(ewin_t *), void (*func)(ewin_t *)));
 EXPORT	void	init_binding	__PR((void));
 EXPORT	void	bindcmd		__PR((ewin_t *wp, Uchar* cmd, int cmdlen));
 
@@ -281,8 +281,8 @@ setx(wp)
 #include "btab.c"
 
 LOCAL	void	cmptab		__PR((char *name,
-					void (*tab[0200])(ewin_t *),
-					void (*tab2[0200])(ewin_t *)));
+					void (*tab[256])(ewin_t *),
+					void (*tab2[256])(ewin_t *)));
 
 LOCAL void
 cmptab(name, tab, tab2)

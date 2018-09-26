@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.30 10/05/13 
+#ident @(#)Makefile	1.31 18/09/16 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -31,7 +31,8 @@ CFILES=		ved.c edit.c binding.c vedtmpops.c cmds.c quitcmds.c \
 		ttycmds.c ttymodes.c macro.c coloncmds.c \
 		substcmds.c tags.c map.c vedstats.c consdebug.c
 
-HFILES=		buffer.h ved.h func.h map.h movedot.h terminal.h ttys.h
+HFILES=		buffer.h ved.h func.h map.h movedot.h terminal.h ttys.h \
+		version.h
 #LIBS=		-lunos
 LIBS=		-lxtermcap -lschily
 XMK_FILE=	Makefile.man ved-e.mk1 ved-w.mk1 \

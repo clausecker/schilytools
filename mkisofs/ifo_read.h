@@ -1,4 +1,4 @@
-/* @(#)ifo_read.h	1.2 04/03/02 joerg */
+/* @(#)ifo_read.h	1.3 18/09/17 joerg */
 
 #ifndef	_IFO_READ_H
 #define	_IFO_READ_H
@@ -8,8 +8,9 @@
  *				  Håkan Hjort <d95hjort@dtek.chalmers.se
  *				  Olaf Beck <olaf_sc@yahoo.com>
  *				  (I only did the cut down no other contribs)
- *				  Jörg Schilling <schilling@fokus.gmd.de>
- *				  (making the code portable)
+ *
+ * Copyright (C) 2000, 2001, 2002-2015 Jörg Schilling <joerg@schily.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in 1.292
+# From configure.in 1.293
 
 
 
@@ -8198,7 +8198,7 @@ fi
 eval echo "$ac_t""$ac_cv_type_timestruc_t" 1>&6
 if test $ac_cv_type_timestruc_t = no; then
   cat >> confdefs.h <<\EOF
-#define timestruc_t timespec
+#define timestruc_t struct timespec
 EOF
 
 fi

@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.108 18/08/30 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.109 18/09/15 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.108 18/08/30 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.109 18/09/15 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -1086,6 +1086,12 @@ parseprim(fap)
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
+	case MOUNTPLUS:
+		fap->walkflags &= ~WALK_NOSTAT;
+		fap->walkflags |= WALK_XDEV;
+		nexttoken(fap);
+		fap->jmp = ojmp;		/* Restore old jump target */
+		return (n);
 	case DEPTH:
 		fap->walkflags |= WALK_DEPTH;
 		nexttoken(fap);
@@ -1820,6 +1826,7 @@ find_expr(f, ff, fs, state, t)
 
 	case XDEV:
 	case MOUNT:
+	case MOUNTPLUS:
 	case DEPTH:
 	case FOLLOW:
 	case DOSTAT:
@@ -2601,6 +2608,7 @@ find_usage(f)
 	fprintf(f, _("*	-ls	      list files similar to 'ls -ilds' (always TRUE)\n"));
 	fprintf(f, _("*	-maxdepth #   descend at most # directory levels (always TRUE)\n"));
 	fprintf(f, _("*	-mindepth #   start tests at directory level # (always TRUE)\n"));
+	fprintf(f, _("*	-mount+       do not descend into mounted directories (always TRUE)\n"));
 	fprintf(f, _("	-mtime #      TRUE if st_mtime is in specified range\n"));
 	fprintf(f, _("	-name glob    TRUE if path component matches shell glob\n"));
 	fprintf(f, _("	-newer file   TRUE if st_mtime newer then mtime of file\n"));

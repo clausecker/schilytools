@@ -1,13 +1,13 @@
-/* @(#)dvd_file.c	1.15 15/12/15 joerg */
+/* @(#)dvd_file.c	1.16 18/09/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_file.c	1.15 15/12/15 joerg";
+	"@(#)dvd_file.c	1.16 18/09/17 joerg";
 #endif
 /*
  * DVD_AUD_VID code
  *  Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
- *  Copyright (c) 2002-2012 Jörg Schilling <schilling@fokus.gmd.de>
+ *  Copyright (c) 2002-2015 Jörg Schilling <joerg@schily.net>
  */
 /*
  * This program is free software; you can redistribute it and/or modify

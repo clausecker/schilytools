@@ -1,7 +1,7 @@
-/* @(#)files.c	1.19 10/12/19 joerg */
+/* @(#)files.c	1.20 18/09/17 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)files.c	1.19 10/12/19 joerg";
+	"@(#)files.c	1.20 18/09/17 joerg";
 
 #endif
 /*
@@ -10,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2018 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ struct file_adds {
 	 * XXX code in tree.c made by Ross Biro biro@yggdrasil.com
 	 * XXX to work on operating systems other than Linux :-(
 	 * XXX Changes made by Joerg Schilling
-	 * XXX joerg@schily.isdn.cs.tu-berlin.de
+	 * XXX joerg@schily.net
 	 * XXX to prevent core dumps on Solaris.
 	 * XXX Space allocated:
 	 * XXX		1024 bytes == NAME_MAX

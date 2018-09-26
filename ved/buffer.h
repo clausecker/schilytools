@@ -1,4 +1,4 @@
-/* @(#)buffer.h	1.17 18/08/25 Copyright 1984, 1988, 1996-2018 J. Schilling */
+/* @(#)buffer.h	1.18 18/09/19 Copyright 1984, 1988, 1996-2018 J. Schilling */
 /*
  *	Definitions for the paged virtual memory susbsystem of ved
  *	The lower level routines are located in buffer.c,
@@ -49,8 +49,13 @@
 /*
  * Header for a page in the paged virtual memory.
  * One header is allocated for each BUFFERSIZE part of the file.
- * With 1024 bytes/buffer page and 32 bit pointers this uses 32 bytes/header.
- * This is 32768 bytes per MB of the edited file.
+ * Assuming large file support makes off_t size == 8.
+ * With 1024 bytes/buffer page and 32 bit pointers this uses 34 bytes/header.
+ * This is 34816 bytes per MB of the edited file.
+ * With 8192 bytes/buffer page and 32 bit pointers this uses 34 bytes/header.
+ * This is 4352 bytes per MB of the edited file.
+ * With 8192 bytes/buffer page and 64 bit pointers this uses 60 bytes/header.
+ * This is 7680 bytes per MB of the edited file.
  */
 typedef	struct _header	headr_t;
 struct _header {

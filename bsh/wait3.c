@@ -1,14 +1,14 @@
-/* @(#)wait3.c	1.21 16/08/10 Copyright 1995-2016 J. Schilling */
+/* @(#)wait3.c	1.22 18/09/17 Copyright 1995-2018 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.21 16/08/10 Copyright 1995-2016 J. Schilling";
+	"@(#)wait3.c	1.22 18/09/17 Copyright 1995-2018 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
  *
- * J"org Schilling (joerg@schily.isdn.cs.tu-berlin.de js@cs.tu-berlin.de)
+ * J"org Schilling (joerg@schily.net)
  */
 /*
  * The contents of this file are subject to the terms of the

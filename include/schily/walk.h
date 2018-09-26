@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.33 18/08/01 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.h	1.34 18/09/15 Copyright 2004-2018 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -67,6 +67,8 @@ extern "C" {
 #define	WALK_LS_ATIME	0x1000	/* -ls lists atime instead of mtime	*/
 #define	WALK_LS_CTIME	0x2000	/* -ls lists ctime instead of mtime	*/
 #define	WALK_STRIPLDOT	0x4000	/* Strip leading "./" from path		*/
+#define	WALK_MOUNTPLUS	0x8000	/* Do not continue at mount points	*/
+#define	WALK_XDEV	0x8000	/* Do not continue at mount points	*/
 
 /*
  * The 'type' argument to walkfun.

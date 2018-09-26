@@ -1,8 +1,8 @@
-/* @(#)star.c	1.380 18/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.381 18/09/18 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.380 18/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.381 18/09/18 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -83,7 +83,7 @@ LOCAL	int	getpaxH		__PR((char *arg, long *valp, int *pac, char *const **pav));
 LOCAL	int	getpaxL		__PR((char *arg, long *valp, int *pac, char *const **pav));
 LOCAL	int	getpaxP		__PR((char *arg, long *valp, int *pac, char *const **pav));
 LOCAL	int	getfind		__PR((char *arg, long *valp, int *pac, char *const **pav));
-LOCAL	int	getpriv		__PR((char *arg, long *valp));
+LOCAL	int	getpaxpriv	__PR((char *arg, long *valp));
 LOCAL	int	getlldefault	__PR((char *arg, Llong *valp, int mult));
 EXPORT	int	getbnum		__PR((char *arg, Llong *valp));
 EXPORT	int	getknum		__PR((char *arg, Llong *valp));
@@ -1506,7 +1506,7 @@ BOOL	Ointeractive	 = FALSE;
 				&nodir,
 				&nomtime, &nochown, &nochown,
 				&paxopts,
-				getpriv, NULL,
+				getpaxpriv, NULL,
 				&acctime, &acctime,
 				&pflag, &nopflag, &dirmode,
 				&nolinkerr,
@@ -2224,7 +2224,7 @@ getfind(arg, valp, pac, pav)
 
 /* ARGSUSED */
 LOCAL int
-getpriv(arg, valp)
+getpaxpriv(arg, valp)
 	char	*arg;
 	long	*valp;	/* Not used until we introduce a ptr to opt struct */
 {

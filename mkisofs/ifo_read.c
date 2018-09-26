@@ -1,12 +1,12 @@
-/* @(#)ifo_read.c	1.17 16/10/23 joerg */
+/* @(#)ifo_read.c	1.18 18/09/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ifo_read.c	1.17 16/10/23 joerg";
+	"@(#)ifo_read.c	1.18 18/09/17 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
- * Copyright (C) 2002-2016 Jörg Schilling <schilling@fokus.gmd.de>
+ * Copyright (C) 2002-2016 Jörg Schilling <joerg@schily.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

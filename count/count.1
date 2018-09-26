@@ -1,4 +1,4 @@
-. \" @(#)count.1	1.4 01/04/29 Copyr 1982-1995 J. Schilling
+. \" @(#)count.1	1.6 18/09/19 Copyr 1982-1995 J. Schilling
 . \"  Manual page for count
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH COUNT 1L "01/04/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH COUNT 1L "2018/09/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 count \- counts items in a file
 .SH SYNOPSIS
@@ -47,7 +47,10 @@ can be abbreviated with
 .BR \-ll .
 .TP 10
 .B \-chars
-Counts characters.
+Counts characters based on bytes.
+.TP
+.B \-mchars
+Counts multi byte characters.
 .TP
 .B \-words
 Counts words.
@@ -97,7 +100,7 @@ Germany
 Mail bugs and suggestions to:
 .PP
 .B
-schilling@fokus.gmd.de
+joerg.schilling@fokus.fraunhofer.de
 or
 .B
-js@cs.tu-berlin.de
+joerg@schily.net

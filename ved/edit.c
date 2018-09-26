@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.28 18/08/25 Copyright 1984-2018 J. Schilling */
+/* @(#)edit.c	1.29 18/09/16 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.28 18/08/25 Copyright 1984-2018 J. Schilling";
+	"@(#)edit.c	1.29 18/09/16 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
@@ -29,7 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/jmpdefs.h>
 
 extern	void	(*nctab[NCTAB])	__PR((ewin_t *));
-extern	void	(*chartab[NCTAB][0200])	__PR((ewin_t *));
+extern	void	(*chartab[NCTAB][256])	__PR((ewin_t *));
 extern	int	ctabidx;	/* The table idx where we take commands from */
 
 LOCAL	sigjmp_buf	jmp;

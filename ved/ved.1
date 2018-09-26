@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.20 18/01/14 Copyright 1984-2018 J. Schilling
+.\" @(#)ved.1	1.25 18/09/17 Copyright 1984-2018 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2018/09/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -82,7 +82,7 @@ is the same as calling
 
 .SH OPTIONS
 .TP
-.BR \-v ", " \-vedhelp
+.BR \-v ", " \-vhelp ", " \-vedhelp
 An editing session is started with the on-line help. This is done in read-only mode.
 .TP
 .BR \-r ", " \-readonly
@@ -102,10 +102,10 @@ uses 10 in-core buffers, each in-core buffer takes 8 kB (the actual values that
 are compiled into
 .B ved
 may be retrieved by calling
-.BI "ved \-help" ").
+.BR "ved \-help" ").
 Files that are bigger than the total amount of in-core buffer space are
 edited by using the swap file of
-.BI ved .
+.BR ved .
 If you specify a number that is higher than the default, you will need
 more space in memory but the speed will slightly increase.
 .TP
@@ -115,7 +115,9 @@ Don't create
 when writing back the file using the quit command of the editor.
 Note that if you use this option you will still break hard links.
 If you like to write into the original file, you should better use
-the 'W' command when you quit
+the
+.RB ' W '
+command when you quit
 .BR ved .
 .TP
 .B  \-nolock
@@ -128,24 +130,25 @@ lock request.
 .TP
 .BR \-e ", " \-edtmp
 Don't write to the file
-.BI .vedtmp .uid .
-(
-.B ved
+.BI .vedtmp .uid \fR.
+.RB ( ved
 normally stores the names and cursor positions of files in
-.BI .vedtmp .uid
-)
+.BI .vedtmp .uid \fR)
 .TP
 .B \-raw8
 Do not expand 8-bit characters. Note that
 .B ved
-will by default not expand 8-bit characters that seem to be printable.
-If this option is ised, the expansion of 8-bit characters is turned off
+will by default not expand 8-bit characters that seem to be printable,
+e.g. when the terminal is in 8-bit mode.
+If this option is used, the expansion of 8-bit characters is turned off
 unconditionally.
+If the terminal is in 7-bit mode, this may result in incorrectly displayed
+characters.
 .TP
-.B \-dos
+.BR \-d ", " \-dos
 Map new-line to carriage-return new-line and hide carriage-return
 characters that are directly followed by a new-line.
-If you type in a new line this results in inserting a carriage-return
+If you type in a new line character this results in inserting a carriage-return
 new-line pair.
 But as
 .B ved
@@ -171,15 +174,18 @@ files will always be edited in POSIX mode.
 Start editing session with search to
 .IR searchstr .
 .TP
-.B \-tag
-First filename is really a ctag.
+.BR \-t ", " \-tag
+First filename is really a
+. BR ctag .
 .TP
 .BI wrapmargin= #
-Set default wrap margin to #.
+Set default wrap margin to
+.IR # .
 The wrap margin is counted from the end of a terminal line.
 .TP
 .BI maxlinelen= #
-Set max line length for autowrap to #.
+Set max line length for autowrap to
+.IR # .
 The behaviour is similar to the 
 .I wrapmargin=
 option but ved does not use the maximum linelength from the 
@@ -192,8 +198,11 @@ Recover Session from specified filename.
 generates a file
 .I vedP.xxxx
 in the
-.I /tmp
-directory in which all action of the user is stored during the session.
+.I /var/tmp
+directory or in the directory named by the
+.B VED_TMPDIR
+environment
+in which all action of the user is stored during the session.
 This file must be used as the only argument to
 .B ved
 when running a recover session.
@@ -209,7 +218,7 @@ The first field is used to display informational messages and to fetch
 additional input that is required for some commands.
 Each command that needs confirmation requests input from this field.
 The size of this field defaults to 1/4th of the length of a line.
-It may use more if needed.
+This field may use more space if needed.
 .TP
 .B Number
 The second field contains the current multiplier for the next command.
@@ -221,8 +230,11 @@ This multiplier will be referred to as
 .I number
 in the following text.
 The size of this field is fixed to 1/8th of the length of a line.
+If the actual number does not fit into the given space, the text
+.B BIG
+is printed instead.
 .TP
-.B Takebuf
+.B Takebuffer
 The third field contains is the name of the actual take buffer.
 The name of this buffer defaults to
 .B default
@@ -232,7 +244,7 @@ The size of this field is fixed to 1/4th of the length of a line.
 .B Filename
 The fourth field usually displays the current filename.
 The size of this field defaults to 1/4th of the length of a line.
-It may use up more if needed and no error text is displayed.
+It may use up more space if needed and no error text is displayed.
 It may be hidden for some time if a long error message is displayed.
 .TP
 .B "Error text
@@ -246,9 +258,9 @@ does not distinguish between
 .I "command mode
 and
 .IR "insert mode" .
-All non control characters are treated as input
-(which should be inserted into the file buffer)
-unless they are prefixed by some commands that need arguments.
+Unless prefixed by commands that need arguments,
+all non control characters are treated as input
+(which is inserted into the file buffer).
 .PP
 All basic
 .B ved
@@ -288,7 +300,7 @@ command takes an argument, the argument is terminated with a
 carriage return
 .BR <CR> .
 .PP
-A command may be modified in four ways:
+A command may be modified in five ways:
 .TP
 .B Escape commands
 Typing the
@@ -305,12 +317,42 @@ key (
 .B ^]
 ) before the command,
 inserts a mark (with a few exceptions) in the text usually at the
-current cursor position. You can precede any command that
+current cursor position and then executes the normal command.
+You can precede any command that
 moves the cursor with the
 .B ALT
 key and
 .B ved
 sets the mark before moving the cursor.
+.TP
+.B Alt Escape commands
+Typing
+.B ALT
+(
+.B ^]
+) and
+.B ESC
+(
+.B ^[
+) before the command,
+inserts a mark (with a few exceptions) in the text usually at the
+current cursor position and then executes the
+.B ESC
+command.
+You can precede any 
+.B ESC
+command that moves the cursor with the
+.B ALT
+key and
+.B ved
+sets the mark before moving the cursor.
+.sp
+Typing
+.B ESC
+followed by
+.B ALT
+yields in the same effect.
+
 .TP
 .B Extended commands
 Typing a
@@ -3242,4 +3284,4 @@ Mail bugs and suggestions to:
 joerg.schilling@fokus.fraunhofer.de
 or
 .B
-js@cs.tu-berlin.de
+joerg@schily.net

@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)defs.h	1.20 18/07/17 2017-2018 J. Schilling
+ * @(#)defs.h	1.21 18/09/20 2017-2018 J. Schilling
  */
 
 /*
@@ -441,7 +441,15 @@ typedef enum {
 /*
  * timestruc_t is SVR4 specific
  */
+#ifdef	__nonono__
+/*
+ * We don't need this typedef, since there is a
+ * #define	timestruc_t	struct timespec
+ * in $(SRCROOT)/incs/*/xconfig.h that is created by "configure" in
+ * case out current platform does not support that typedef.
+ */
 typedef struct timespec timestruc_t;
+#endif
 #endif
 
 extern const timestruc_t file_no_time;

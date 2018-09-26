@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.102 18/07/02 Copyright 1982, 1984-2018 J. Schilling */
+/* @(#)inputc.c	1.103 18/09/25 Copyright 1982, 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.102 18/07/02 Copyright 1982, 1984-2018 J. Schilling";
+	"@(#)inputc.c	1.103 18/09/25 Copyright 1982, 1984-2018 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1932,6 +1932,9 @@ again:
 
 	/*
 	 * Call path name expand routing from bsh
+	 *
+	 * XXX: If the characters to the left of the cursor contain pattern meta
+	 * XXX: characters that are not escaped, this will cause false matches.
 	 */
 	np = expand(ns);
 	free(ns);
@@ -2026,7 +2029,13 @@ again:
 				*multip = multi;
 		}
 	}
-	if (!show && p2) {
+	/*
+	 * xlen-len may be negative in case that there was a false match
+	 * that results in directory entries that do not start with
+	 * the last word in the line. This happens when there are unescaped
+	 * pattern meta characters in the last word on the line.
+	 */
+	if (!show && p2 && (xlen-len) >= 0) {
 		wcsncpy(p2, &wp[len], xlen-len);
 		if (p1) {
 			if ((xlen - len) == 0)

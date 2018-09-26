@@ -1,4 +1,4 @@
-/* @(#)format.h	1.1 18/09/03 Copyright 2018 J. Schilling */
+/* @(#)format.h	1.4 18/09/10 Copyright 2018 J. Schilling */
 /*
  *	Definitions used in common by format.c and fconf.c
  *
@@ -32,12 +32,18 @@
 #define	GOTDOT		32	/* '.' found */
 #define	GOTSTAR		64	/* '*' found */
 #define	UPPERFLG	128	/* %E/%F/%G */
+#define	PADZERO		256	/* '0' pad */
+#define	STRIPZERO	512	/* %g like trailing '0' removal */
+
+#define	SIGNFLG		0x10000	/* sign flag from *cvt() */
 
 extern	int	_ftoes __PR((char *, double, int, int, int));
 extern	int	_ftofs __PR((char *, double, int, int, int));
+extern	int	_ftogs __PR((char *, double, int, int, int));
 #ifdef	HAVE_LONGDOUBLE
 extern	int	_qftoes __PR((char *, long double, int, int, int));
 extern	int	_qftofs __PR((char *, long double, int, int, int));
+extern	int	_qftogs __PR((char *, long double, int, int, int));
 #endif
 
 #endif	/* _FORMAT_H */

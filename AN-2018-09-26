@@ -1,0 +1,306 @@
+New features with AN-2018-09-26:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+
+-	Schily.Copyright: Copyright dates made recent, pbosh added,
+	mail addresses made recent.
+
+-	RULES: rules.top now clears some make macros like CFLAGS= that
+	typically are intialized with values from the make default rules.
+
+	Using CFLAGS=value on the make command line still works.
+
+	Since CFLAGS is typically initialized with "-O" and since $(CFLAGS)
+	appears past out internal optimization variable in the cc command
+	line, this caused the optiomization to be lowered blow the level
+	we typically have in the platform defaults.
+
+-	README.compile: mail addresses made recent
+
+-	PORTING: mail addresses made recent
+
+-	READMEs/README.install: mail addresses made recent
+
+-	./configue: Don't let automated procedures that assume the outdated
+	GNU buildsystem fail. Introduce a 30 second delay instead.
+
+-	man/man4/makefiles.4: mail addresses made recent
+
+-	man/man4/makerules.4: mail addresses made recent
+
+-	Makefile system: Added a first attempt to support OS400. The
+	content of the new rule files my not yet be fully correct.
+
+	Thanks to Jack Woehr for reporting
+
+-	configure: incs/*/xconfig.h now contains a working fallback #define
+	for the SVr4 type timestruc_t.
+
+	Thanks to Jack Woehr for reporting
+
+-	Added static definitions to compile for IBMs OS400.
+	Note that the default compile mode is 64 bit.
+
+	Thanks to Jack Woehr for reporting
+
+-	unit test system: Added new options -wo and -we that tell docommand()
+	to use "diff -w" for stdout and / or stderr instead of just "diff".
+
+	Thanks to Michael Bäuerle <michael.baeuerle@gmx.net> for reportig
+
+-	unit test system: Added new options -bo and -be that tell docommand()
+	to use "diff -b" for stdout and / or stderr instead of just "diff".
+
+	Thanks to Michael Bäuerle <michael.baeuerle@gmx.net> for reportig
+
+-	psmake: Added the forgotten file "format.h" that was introduced
+	with the last release. The fact that there was no symlink to that
+	file prevented to build the bootstrap "smake" binary.
+
+	Thanks to Jack Woehr for reporting
+
+-	libschily: printf() (the code in fconv.c) now honors the # flag for 
+	the float formats %e & %f
+
+-	libschily: printf() fconv.c now returns the correct length of the
+	error string even if this is "-inf".
+
+-	libschily: printf() now prints INF/NAN for %G
+
+	Thanks to Robert Elz for reporting
+
+-	libschily: printf() %+ (plusflg) is now implemented for floats as well.
+
+	Thanks to Robert Elz for reporting
+
+-	libschily: printf() (format.c) the # modifier with %#.2o with arg 2
+	no longer prints a superfluous '0'.
+
+	Thanks to Robert Elz for reporting
+
+-	libschily: printf() (format.c/fconv.c) have been modified to no
+	longer use gcvt() but own _ftogs()/_qftogs() functions for the
+	%g format. This is needed in order to correctly support the
+	# modifier
+
+	Thanks to Robert Elz for reporting
+
+-	libfind: treewalk() now supports a new flag WALK_MOUNTPLUS.
+
+	This new flag reports mount points but does not descend into them.
+
+	The existing flag WALK_MOUNT does not report mount points and does
+	not descend into them.
+
+	The background for this change is:
+
+	1)	"star -cM ..." and "star -c -find . -xdev ..." differ
+		in their behavior and there was no way to get the
+		star -M behavior from libfind.
+
+	2)	The POSIX standard for "find -xdev ..." is in conflict
+		with the documented behavior for "find -xdev ..." on
+		UNIX and with the documented and POSIX standard behavior
+		of nftw() with the FTW_MOUNT flag (The UNIX find(1) 
+		implementation is based on nftw()).
+
+	3)	There is a general need to have the other behavior where
+		mount points are reported.
+
+-	libfind: find(1) gets a new primary operator "-mount+" as a
+	supplement to the historic UNIX "-mount" behavior that is based
+	on WALK_MOUNT. -mount+ is based on WALK_MOUNTPLUS
+
+-	sfind: The man page now dowuments thenew primary -mount+
+
+-	Bourne Shell/printf: printf now correctly uses mbtowc() for '"c'
+	conversion of characters.
+
+-	Bourne Shell/printf: printf %.0b now works correctly and prints
+	nothing.
+
+	Thanks to Robert Elz for reporting
+
+-	printf: errors now cause an exit code != 0
+
+	Thanks to Robert Elz for reporting
+
+-	Bourne Shell: the man page now contains a better explanation on when
+	the "find -call" uses the eval(1) approximation and when it uses
+	the dosh(1) approximation.
+
+-	Bourne Shell: The unit test script for the builtin printf(1) now
+	uses "docommand() -bo" to trigger "diff -b" because NetBSD comes
+	with an od(1) that outputs unneeded spaces at the end of the lines.
+
+-	ved: ved -vedhelp as mentioned in the man page now works again as
+	an alias to ved -vhelp.
+
+-	ved: Some forgotten places with 0200 for the size if the binding 
+	arrray have been changed to 256 to make ved work again for all
+	8 bit characters.
+
+-	ved: Typo correction in ved.h
+
+-	ved: ved.h added the needed #includes for National Language Support
+	and for wide characters.
+
+-	ved: better comment for the needed size of ved in buffer.h
+
+-	ved: consdebug.c introduced a workaround for a configuration bug
+	with GCC on Linux that makes it impossible to avoid a warning
+	about unused return values from write() using standard C methods.
+
+-	ved: vedstats.c fixed some typos.
+
+-	ved: io.c better comment to help understanding how a conversion
+	for multi byte support could be done.
+
+-	ved: io.c has been restructured to make sure that getnextc() no
+	longer calls inchar() but recursively getnextc(). This is needed
+	to prepare a clean layer where mbtowc() may be called.
+
+-	ved: ved -version now prints a date together with the version number.
+
+-	ved: major overhoul of the man page
+
+-	count: The man page now includes current mail addresses.
+
+-	count: The program now supports localized strings, but not yet
+	localizated texts.
+
+-	count: The program now supports multi byte characters together
+	with the mew option -mchars, -m, -C
+
+-	count: the default value for the tab width is now 8.
+
+-	mkisofs: The mail address and some Copyright dates have been made
+	recent.
+
+-	cdrecord/README: The mail adresses have been made recent.
+
+-	star: The README file now mentions very long path names and
+	uses recent mail addresses
+
+-	star: the function getpriv() has been renamed to getpaxpriv()
+	since a function getpriv() is part of libc on OS400.
+
+	Thanks to Jack Woehr for reporting
+
+-	libshedit/bsh/Bourne Shell: A word that starts with unescaped pattern
+	matcher meta characters could cause a core dump when the matching
+	results did not start with the start of that word. this happens when
+	the first caracters are typed manually and are e.g. "#-" which matches
+	on "nothing" and as a result, "#-*" match es on anything, so the 
+	matching results do not start with the beginning of the word.
+
+	We currently only prevent the core dump.
+
+-	bsh: Mail address in wait3.c has been made recent.
+
+
+-	SCCS: The makefiles for sccsdiff and rcssccs now include $(CPP_FLAGS)
+	as needed since the definitions have been changed with
+	schilytools-2018-08-24
+
+-	SunPro Make: snpro/Make/include/mksh/defs.h no longer tries to create
+	a typedef for timestruc_t on non-SVr4 based platforms, but uses the
+	fallback #define from incs/*/xconfig.h
+
+	Thanks to Jack Woehr for reporting
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

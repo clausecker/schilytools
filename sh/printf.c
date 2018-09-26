@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.14 17/11/21 Copyright 2015-2017 J. Schilling */
+/* @(#)printf.c	1.17 18/09/08 Copyright 2015-2018 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	printf builtin or standalone
@@ -11,7 +11,7 @@
  *	to use a callback function to output a character. This can be done
  *	using the format() function from libschily.
  *
- *	Copyright (c) 2015-2017 J. Schilling
+ *	Copyright (c) 2015-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.14 17/11/21 Copyright 2015-2017 J. Schilling";
+	"@(#)printf.c	1.17 18/09/08 Copyright 2015-2018 J. Schilling";
 
 #include <schily/errno.h>
 #include <schily/alloca.h>
@@ -68,6 +68,7 @@ LOCAL	int	xprd	__PR((unsigned char *fmt, double d, int *width));
 LOCAL	char	*gstr	__PR((unsigned char ***appp));
 LOCAL	char	gchar	__PR((unsigned char ***appp));
 LOCAL	void	grangechk __PR((unsigned char *p, unsigned char *ep));
+LOCAL	Intmax_t strtoc	__PR((unsigned char **epp));
 LOCAL	Intmax_t gintmax __PR((unsigned char ***appp));
 LOCAL	UIntmax_t guintmax __PR((unsigned char ***appp));
 #ifdef	DO_SYSPRINTF_FLOAT
@@ -208,6 +209,27 @@ grangechk(p, ep)
 }
 
 /*
+ * Fetch "c type argument
+ */
+LOCAL Intmax_t
+strtoc(epp)
+	unsigned char	**epp;
+{
+	unsigned char	*ep = *epp;
+	Intmax_t	val;
+	wchar_t		wc;
+	size_t		len = strlen(C ep);
+
+	len = mbtowc(&wc, C ep, len);
+	if (wc && len > 0)
+		ep += len;
+	*epp = ep;
+	val = wc;
+
+	return (val);
+}
+
+/*
  * Fetch Intmax_t argument
  */
 LOCAL Intmax_t
@@ -221,10 +243,8 @@ gintmax(appp)
 
 		errno = 0;
 		if (*cp == '"' || *cp == '\'') {
-			ep = ++cp;
-			val = *ep;
-			if (val)
-				ep++;
+			ep = &cp[1];
+			val = strtoc(&ep);
 		} else {
 #ifdef	HAVE_STRTOLL
 			val = strtoll(C cp, CP &ep, 0);
@@ -252,10 +272,8 @@ guintmax(appp)
 
 		errno = 0;
 		if (*cp == '"' || *cp == '\'') {
-			ep = ++cp;
-			val = *ep;
-			if (val)
-				ep++;
+			ep = &cp[1];
+			val = strtoc(&ep);
 		} else {
 #ifdef	HAVE_STRTOULL
 			val = strtoull(C cp, CP &ep, 0);
@@ -284,10 +302,8 @@ gdouble(appp)
 
 		errno = 0;
 		if (*cp == '"' || *cp == '\'') {
-			ep = ++cp;
-			val = *ep;
-			if (val)
-				ep++;
+			ep = &cp[1];
+			val = strtoc(&ep);
 		} else {
 			val = strtod(C cp, CP &ep);
 		}
@@ -402,7 +418,8 @@ sysprintf(argc, argv)
 				cp--;
 				continue;
 			}
-			fldwidth = signif = pflags = 0;
+			fldwidth = pflags = 0;
+			signif = -1;
 			per = cp++;		/* Start of new printf format */
 			pfmt = fm;
 			*pfmt++ = '%';
@@ -556,7 +573,7 @@ sysprintf(argc, argv)
 						len = 1;
 						wc = *p;
 					}
-					if (signif > 0 &&
+					if (signif >= 0 &&
 					    (staktop - stakbot + len) > signif)
 						break;
 					if (wc == '\\') {

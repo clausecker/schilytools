@@ -1,4 +1,4 @@
-# @(#)README.compile	1.39 18/08/14 Copyright 1997-2018 J. Schilling
+# @(#)README.compile	1.40 18/09/17 Copyright 1997-2018 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -815,7 +815,6 @@ Seestr. 110
 D-13353 Berlin
 Germany
 
-Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
-	joerg.schilling@fokus.fraunhofer.de
+Email: 	joerg.schilling@fokus.fraunhofer.de, joerg@schily.net
 
 Please mail bugs and suggestions to me.

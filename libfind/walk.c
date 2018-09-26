@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.57 18/08/01 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.58 18/09/15 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.57 18/08/01 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.58 18/09/15 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -443,6 +443,14 @@ type_known:
 			pd = pd->p_last;
 		}
 
+		if ((state->walkflags & WALK_XDEV) != 0 &&
+		    varp->Sb.st_dev != fs.st_dev) {
+			/*
+			 * A directory that is a mount point. Report and return.
+			 */
+			ret = (*fn)(varp->Curdir, &fs, type, state);
+			goto out;
+		}
 		if ((state->walkflags & WALK_DEPTH) == 0) {
 			/*
 			 * Found a directory, check the content past this dir.

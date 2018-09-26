@@ -1,10 +1,12 @@
-#!/bin/sh
+#ident "@(#)00210002307w-os400-cc.rul	1.2 18/09/24 "
 ###########################################################################
-#ident "@(#)MKLINKS	1.1 08/07/31 "
+# Written 1996-2018 by J. Schilling
 ###########################################################################
-# Written 2008 by J. Schilling
+#
+# Platform dependent MACROS for OS400
+#
 ###########################################################################
-# Copyright (c) 2008 J. Schilling
+# Copyright (c) J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -18,24 +20,26 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-if [ ! -d RULES/. ]; then
-	ln -s makefiles/RULES		.
-fi
-if [ ! -d DEFAULTS_DIST/. ]; then
-	ln -s makefiles/DEFAULTS	DEFAULTS_DIST
-fi
-if [ ! -d autoconf/. ]; then
-	ln -s conf			autoconf
-fi
-if [ ! -d libedc/. ]; then
-	ln -s libedc_ecc		libedc
-fi
-if [ ! -d libschily/. ]; then
-	ln -s lib			libschily
-fi
-if [ ! -d readcd/. ]; then
-	ln -s cdrecord			readcd
-fi
-if [ ! -d smake/. ]; then
-	ln -s build			smake
-fi
+include $(SRCROOT)/$(RULESDIR)/rules.prg
+###########################################################################
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH:cc%=ibm%).rul
+
+#
+# Make 64 bit the default
+#
+IBMCC_OPT=    -q64
+
+AIX_ARCH=	$(IBMCC_OPTXX:-q%=-X%)
+
+OSDEFS +=	-DPROTOTYTPES
+
+KDEFINES=	-DKERNEL -D_KERNEL
+
+LIB_SOCKET=
+LIB_MATH=	-lm
+#LIB_KVM=	-lkvm
+
+RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+
+LORDER=		lorder $(AIX_ARCH)
+AR=		@echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)

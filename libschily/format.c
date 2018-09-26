@@ -1,4 +1,4 @@
-/* @(#)format.c	1.65 18/09/03 Copyright 1985-2017 J. Schilling */
+/* @(#)format.c	1.72 18/09/10 Copyright 1985-2018 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,7 @@ extern	char	*gcvt __PR((double, int, char *));
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/ctype.h>
 #include "format.h"
 
 /*
@@ -159,14 +160,6 @@ typedef struct f_args {
 	int	err;			/* FILE * I/O error		*/
 #endif
 } f_args;
-
-#define	MINUSFLG	1	/* '-' flag */
-#define	PLUSFLG		2	/* '+' flag */
-#define	SPACEFLG	4	/* ' ' flag */
-#define	HASHFLG		8	/* '#' flag */
-#define	APOFLG		16	/* '\'' flag */
-#define	GOTDOT		32	/* '.' found */
-#define	GOTSTAR		64	/* '*' found */
 
 #define	FMT_ARGMAX	30	/* Number of fast args */
 
@@ -400,6 +393,7 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 				if (fa.fldwidth < 0) {
 					fa.fldwidth = -fa.fldwidth;
 					fa.minusflag = 1;
+					fa.flags |= MINUSFLG;
 				}
 			} else {
 				/*
@@ -416,8 +410,10 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 			/*
 			 * '0' may be a flag.
 			 */
-			if (!(fa.flags & (GOTDOT | GOTSTAR | MINUSFLG)))
+			if (!(fa.flags & (GOTDOT | GOTSTAR | MINUSFLG))) {
 				fa.fillc = '0';
+				fa.flags |= PADZERO;
+			}
 			/* FALLTHRU */
 		case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
@@ -469,6 +465,7 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 					if (fa.fldwidth < 0) {
 						fa.fldwidth = -fa.fldwidth;
 						fa.minusflag = 1;
+						fa.flags |= MINUSFLG;
 					}
 				} else {
 					/*
@@ -491,6 +488,18 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 			continue;
 #endif
 		}
+		/*
+		 * If the space and the + flag are present,
+		 * the space flag will be ignored.
+		 */
+		if ((fa.flags & (PLUSFLG|SPACEFLG)) == (PLUSFLG|SPACEFLG))
+			fa.flags &= ~SPACEFLG;
+		/*
+		 * If the 0 and the - flag are present,
+		 * the 0 flag will be ignored.
+		 */
+		if ((fa.flags & (MINUSFLG|PADZERO)) == (MINUSFLG|PADZERO))
+			fa.flags &= ~PADZERO;
 
 		if (strchr("UCSIL", *fmt)) {
 			/*
@@ -683,94 +692,101 @@ error sizeof (ptrdiff_t) is unknown
 		case 'e':
 		case 'E': {
 			int	signific;
+			int	fwidth = 0;
 
 			if (fa.signific == -1)
 				fa.signific = 6;
 			signific = fa.signific;
+			if (!fa.minusflag)
+				fwidth = fa.fldwidth;
 			if (*fmt == 'E')
-				signific = -signific;
+				fa.flags |= UPPERFLG;
 			if (type == 'L') {
 #ifdef	HAVE_LONGDOUBLE
 				long double ldval = va_arg(args, long double);
 
 #if	(defined(HAVE_QECVT) || defined(HAVE__LDECVT))
-				qftoes(buf, ldval, 0, signific);
+				_qftoes(buf, ldval, fwidth, signific, fa.flags);
+				fa.fillc = ' ';
 				count += prbuf(buf, &fa);
 				continue;
 #else
 				dval = ldval;
 #endif
 #endif
+			} else {
+				dval = va_arg(args, double);
 			}
-			dval = va_arg(args, double);
-			ftoes(buf, dval, 0, signific);
+			_ftoes(buf, dval, fwidth, signific, fa.flags);
+			fa.fillc = ' ';
 			count += prbuf(buf, &fa);
 			continue;
 			}
 		case 'f':
 		case 'F': {
 			int	signific;
+			int	fwidth = 0;
 
 			if (fa.signific == -1)
 				fa.signific = 6;
 			signific = fa.signific;
+			if (!fa.minusflag)
+				fwidth = fa.fldwidth;
 			if (*fmt == 'F')
-				signific = -signific;
+				fa.flags |= UPPERFLG;
 			if (type == 'L') {
 #ifdef	HAVE_LONGDOUBLE
 				long double ldval = va_arg(args, long double);
 
 #if	(defined(HAVE_QFCVT) || defined(HAVE__LDFCVT))
-				qftofs(buf, ldval, 0, signific);
+				_qftofs(buf, ldval, fwidth, signific, fa.flags);
+				fa.fillc = ' ';
 				count += prbuf(buf, &fa);
 				continue;
 #else
 				dval = ldval;
 #endif
 #endif
+			} else {
+				dval = va_arg(args, double);
 			}
-			dval = va_arg(args, double);
-			ftofs(buf, dval, 0, signific);
+			_ftofs(buf, dval, fwidth, signific, fa.flags);
+			fa.fillc = ' ';
 			count += prbuf(buf, &fa);
 			continue;
 			}
 		case 'g':
 		case 'G': {
+			int	signific;
+			int	fwidth = 0;
+
 			if (fa.signific == -1)
 				fa.signific = 6;
 			if (fa.signific == 0)
 				fa.signific = 1;
+			signific = fa.signific;
+			if (!fa.minusflag)
+				fwidth = fa.fldwidth;
+			if (*fmt == 'G')
+				fa.flags |= UPPERFLG;
 			if (type == 'L') {
 #ifdef	HAVE_LONGDOUBLE
 				long double ldval = va_arg(args, long double);
 
-#if	(defined(HAVE_QGCVT) || defined(HAVE__LDGCVT))
-
-#ifdef	HAVE__LDGCVT
-#define	qgcvt(ld, n, b)	_ldgcvt(*(long_double *)&ld, n, b)
-#endif
-				(void) qgcvt(ldval, fa.signific, buf);
-				if (*fmt == 'G') {
-					char	*p = strchr(buf, 'e');
-
-					if (p)
-						*p = 'E';
-				}
+#if	(defined(HAVE_QECVT) || defined(HAVE__LDECVT))
+				_qftogs(buf, ldval, fwidth, signific, fa.flags);
+				fa.fillc = ' ';
 				count += prbuf(buf, &fa);
 				continue;
 #else
 				dval = ldval;
 #endif
 #endif
+			} else {
+				dval = va_arg(args, double);
 			}
-			dval = va_arg(args, double);
-			(void) gcvt(dval, fa.signific, buf);
-			if (*fmt == 'G') {
-				char	*p = strchr(buf, 'e');
-
-				if (p)
-					*p = 'E';
-			}
+			_ftogs(buf, dval, fwidth, signific, fa.flags);
+			fa.fillc = ' ';
 			count += prbuf(buf, &fa);
 			continue;
 			}
@@ -978,23 +994,32 @@ error sizeof (ptrdiff_t) is unknown
 #endif
 			prdnum(val, &fa);
 			break;
-		case 'O':
+		case 'O': {
 			/* output a long octal number */
-			if (fa.flags & HASHFLG) {
-				fa.prefix = "0";
-				fa.prefixlen = 1;
-			}
+
+			char	*p = fa.bufp;
 #ifdef	USE_LONGLONG
 			if (type == 'Q') {
 				prlonum(llval, &fa);
 			} else
 #endif
 			{
+
 				pronum(val & 07, &fa);
 				if ((res = (val>>3) & rshiftmask(long, 3)) != 0)
 					pronum(res, &fa);
 			}
+			if ((fa.flags & HASHFLG) &&
+			    (p - fa.bufp) >= fa.signific) {
+				/*
+				 * Add '0' only if not left zero filled
+				 * otherwise.
+				 */
+				fa.prefix = "0";
+				fa.prefixlen = 1;
+			}
 			break;
+		}
 		case 'p':
 		case 'x':
 			/* output a hex long */

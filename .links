@@ -156,6 +156,7 @@
 ./psmake/flag.c
 ./psmake/flush.c
 ./psmake/format.c
+./psmake/format.h
 ./psmake/getargs.c
 ./psmake/geterrno.c
 ./psmake/getexecpath.c
@@ -198,6 +199,7 @@
 ./psmake/include/schily/sunos4_proto.h
 ./psmake/include/schily/systeminfo.h
 ./psmake/include/schily/time.h
+./psmake/include/schily/times.h
 ./psmake/include/schily/types.h
 ./psmake/include/schily/unistd.h
 ./psmake/include/schily/utime.h

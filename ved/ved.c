@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.83 18/08/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
+/* @(#)ved.c	1.86 18/09/16 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.83 18/08/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling";
+	"@(#)ved.c	1.86 18/09/16 Copyright 1984, 85, 86, 88, 89, 97, 2000-2018 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -40,11 +40,12 @@ static	UConst char sccsid[] =
 #include "buffer.h"
 #include "movedot.h"
 #include "terminal.h"
+#include "version.h"
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/sigblk.h>
 
-EXPORT	char	ved_version[] = "1.7";
+EXPORT	char	ved_version[] = VERSION;
 EXPORT	int	mflag;		/* if > 0 : take characters from macro	    */
 EXPORT	int	ReadOnly;	/* if > 0 : do not allow to write back mods */
 
@@ -111,7 +112,7 @@ usage(exitcode)
 }
 
 LOCAL	char	opts[] =
-"help,version,readonly+,r+,vhelp,v,buffers#,b#,nobak,n,nolock,raw8,dos,d,nodos,tag,t,wrapmargin#,w#,maxlinelen#,maxll#,+#LL,s*,edtmp,e,Recover,R";
+"help,version,readonly+,r+,vhelp,vedhelp,v,buffers#,b#,nobak,n,nolock,raw8,dos,d,nodos,tag,t,wrapmargin#,w#,maxlinelen#,maxll#,+#LL,s*,edtmp,e,Recover,R";
 
 EXPORT int
 main(ac, av)
@@ -141,7 +142,7 @@ main(ac, av)
 	if (getallargs(&cac, &cav, opts,
 			&help, &prvers,
 			&ReadOnly, &ReadOnly,
-			&Vhelp, &Vhelp,
+			&Vhelp, &Vhelp, &Vhelp,
 			&buffers, &buffers,
 			&nobak, &nobak,
 			&nolock,
@@ -159,7 +160,9 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("ved %s (%s-%s-%s)\n\n", ved_version, HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("ved %s %s (%s-%s-%s)\n\n",
+			ved_version, VERSION_DATE,
+			HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");

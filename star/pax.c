@@ -1,8 +1,8 @@
-/* @(#)pax.c	1.38 18/09/01 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)pax.c	1.39 18/09/18 Copyright 1989, 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.38 18/09/01 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)pax.c	1.39 18/09/18 Copyright 1989, 2003-2018 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
@@ -163,7 +163,7 @@ gargs(ac, av)
 				&paxlflag,		/* -l */
 				&paxnflag,		/* -n */
 				&paxopts,		/* -o */
-				getpriv, NULL,		/* -p */
+				getpaxpriv, NULL,	/* -p */
 				parsesubst, &do_subst,	/* -s */
 				&paxtflag,		/* -t */
 				&paxuflag,		/* -u */

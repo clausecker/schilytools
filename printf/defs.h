@@ -1,8 +1,8 @@
-/* @(#)defs.h	1.2 17/11/16 Copyright 2017 J. Schilling */
+/* @(#)defs.h	1.3 18/09/11 Copyright 2017-2018 J. Schilling */
 /*
  *	Definitions for using the printf Bourne Shell builtin as standalone
  *
- *	Copyright (c) 2017 J. Schilling
+ *	Copyright (c) 2017-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,7 +36,6 @@
 #define	nullstr				""
 #define	ERROR				1
 #define	usage				"Usage"
-#define	exitval				0
 #define	flushb()			fflush(stdout)
 #define	prc_buff			putchar
 #define	bprintf				printf
@@ -45,11 +44,14 @@
 #define	realloc(p, s)			___realloc(p, s, "string stack")
 #endif
 
-#define	bfailure(p1, p2, p3)		fprintf(stderr, "%s: %s%s\n", \
-						p1, _(p2), p3)
-#define	gfailure(p1, p2)		fprintf(stderr, "%s: %s\n", \
-						_(C p1), _(p2))
+#define	bfailure(p1, p2, p3)		{ fprintf(stderr, "%s: %s%s\n",	\
+						p1, _(p2), p3);		\
+						exitval = 1; }
+#define	gfailure(p1, p2)		{ fprintf(stderr, "%s: %s\n",	\
+						_(C p1), _(p2));	\
+						exitval = 1; }
 
+extern	int	exitval;
 
 extern int	main			__PR((int argc, char **argv));
 extern int	sysprintf		__PR((int argc, unsigned char **argv));

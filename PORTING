@@ -1,3 +1,5 @@
+# @(#)PORTING	1.7 18/09/17 Copyright 1997-2018 J. Schilling
+
 Porting FAQ for SING (Schily Is Not Gnu) utilities.
 
 -	The base for porting is the makefile system.
@@ -136,9 +138,4 @@ II)	Implementing a SCSI Transport Layer for your architecture:
 Joerg Schilling
 
 joerg.schilling@fokus.fraunhofer.de
-joerg@schily.isdn.cs.tu-berlin.de
-js@cs.tu-berlin.de
-
-
-
-
+joerg@schily.net

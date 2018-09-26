@@ -1,13 +1,13 @@
-/* @(#)vedstats.c	1.8 09/07/13 Copyright 2000-2009 J. Schilling */
+/* @(#)vedstats.c	1.9 18/09/19 Copyright 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedstats.c	1.8 09/07/13 Copyright 2000-2009 J. Schilling";
+	"@(#)vedstats.c	1.9 18/09/19 Copyright 2000-2018 J. Schilling";
 #endif
 /*
  *	Statistics module for VED (Visual EDitor)
  *
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -98,7 +98,7 @@ vedstatistics()
 	error("sum  time %8ld 탎 %5ld 탎/char\n",
 		usecs, usecs/charstyped);
 
-	error("witout load time:\n");
+	error("without load time:\n");
 	tms.tms_utime -= stms.tms_utime;
 	tms.tms_stime -= stms.tms_stime;
 
@@ -115,7 +115,7 @@ vedstatistics()
 	error("sum  time %8ld 탎 %5ld 탎/char\n",
 		usecs, usecs/charstyped);
 
-	error("witout save time:\n");
+	error("without load/save time:\n");
 	tms.tms_utime = etms.tms_utime - stms.tms_utime;
 	tms.tms_stime = etms.tms_stime - stms.tms_stime;
 

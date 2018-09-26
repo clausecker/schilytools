@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.292 18/07/12 Copyright 1998-2018 J. Schilling
+dnl @(#)configure.in	1.293 18/09/20 Copyright 1998-2018 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.292)dnl
+AC_REVISION(1.293)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -375,7 +375,7 @@ AC_INCL_CHECK_TYPE(
 #ifdef	HAVE_STAT_H
 #include <stat.h>
 #endif
-], timestruc_t, timespec)
+], timestruc_t, struct timespec)
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short int)

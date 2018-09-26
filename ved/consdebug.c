@@ -1,8 +1,8 @@
-/* @(#)consdebug.c	1.22 09/07/13 Copyright 1986-2009 J. Schilling */
+/* @(#)consdebug.c	1.23 18/09/20 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)consdebug.c	1.22 09/07/13 Copyright 1986-2009 J. Schilling";
+	"@(#)consdebug.c	1.23 18/09/20 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Print debugging messages to the console or to "VED_DBGTERM" environment
@@ -33,7 +33,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 EXPORT	void	cdbg		__PR((char *fmt, ...));
-EXPORT	void	writecons	__PR((char *s));
+EXPORT	int	writecons	__PR((char *s));
 EXPORT	long	getcaller	__PR((void));
 
 #ifndef	DEBUG
@@ -81,19 +81,22 @@ cdbg(fmt, va_alist)
 #endif
 	snprintf(buf, sizeof (buf), "%r", fmt, args);
 	va_end(args);
-	writecons(buf);
+	(void) writecons(buf);
 }
 
 /*
  * Write to the console or to "VED_DBGTERM" environment.
  * Open and close the device for every access.
+ * The return code is to fool GCC as there are broken GCC
+ * configurations on Linux where (void) write() results in a warning.
  */
-EXPORT void
+EXPORT int
 writecons(s)
 	char	*s;
 {
 	static	int	f;
 		char	*cname;
+		int	r;
 
 	if (f == 0) {
 		if ((cname = getenv("VED_DBGTERM")) == NULL)
@@ -101,11 +104,12 @@ writecons(s)
 
 		f = open(cname, 1);
 		if (f == 0)
-			return;
+			return (0);
 	}
 
-	write(f, s, strlen(s));
-	write(f, "\n", 1);
+	r =  write(f, s, strlen(s));
+	r += write(f, "\n", 1);
+	return (r);
 }
 
 /*
@@ -149,7 +153,7 @@ cdbg(fmt, va_alist)
 }
 
 /* ARGSUSED */
-EXPORT void
+EXPORT int
 writecons(s)
 	char	*s;
 {

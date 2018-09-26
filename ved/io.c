@@ -1,8 +1,8 @@
-/* @(#)io.c	1.41 18/06/04 Copyright 1984-2018 J. Schilling */
+/* @(#)io.c	1.43 18/09/23 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.41 18/06/04 Copyright 1984-2018 J. Schilling";
+	"@(#)io.c	1.43 18/09/23 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
@@ -124,7 +124,10 @@ EXPORT	int	_bufflush	__PR((void));
 
 /*
  * Read the next character from the terminal (stdin). Exit on read error or EOF
- * Used by macro.c (for internal use) and the only 'real' user edit().
+ *
+ * -	Used by macro.c (for internal use)
+ * -	The only 'real' user is edit().
+ *
  * Expands the input first by the mapper and then by the macro package.
  */
 EXPORT Uchar
@@ -140,7 +143,8 @@ gchar(wp)
 	}
 	if (c >= 0)
 		return ((Uchar)c);
-	eexit(wp);
+
+	eexit(wp);		/* Prepare quit without write back */
 	exit(0);		/* No Return */
 	return (0);		/* Keep lint happy */
 }
@@ -150,8 +154,11 @@ EXPORT	BOOL	interrupted;
 extern	int	intrchar;
 
 /*
- * Non-interruptable version of gchar() used by command line input and all
- * other places whre only one additional character needs to be read.
+ * Non-interruptable version of gchar()
+ *
+ * -	used by command line input and all other places where
+ *	only one additional character needs to be read.
+ * 
  * Catches the interrupt and maps the interrupt character back
  * to a usable input character.
  */
@@ -176,9 +183,12 @@ static	sigjmps_t	gcjmp;
 
 #include "map.h"
 /*
- * Internal function used by gchar() to get the next character from
- * mapped input stream maintained by map.c Input is either taken from
- * the mapper outpout or from terminal inpout (see explanation im map.c).
+ * Internal function used by gchar()
+ * to get the next character from mapped input stream
+ * maintained by map.c
+ *
+ * Input is either taken from the mapper output or from
+ * terminal inpout (see explanation im map.c).
  */
 LOCAL int
 inchar(wp)
@@ -212,6 +222,10 @@ LOCAL	long	pmodflg;
  * Low level function to read the next character from either the input
  * terminal or the recover protocol file of a crashed edit session.
  * This function is only used by map.c to get the next character.
+ *
+ * Since this is the low level input routine used below the mapper,
+ * it will never be called when there is no character in the map
+ * recover buffer anymore.
  */
 EXPORT int
 getnextc(wp)
@@ -222,10 +236,10 @@ getnextc(wp)
 
 	if (recover) {
 		c = getc(rec_file);
-		if (c == EOF) {
+		if (c == EOF) {			/* Recover protocol used up */
 			fclose(rec_file);
 			recover = 0;
-			return (inchar(wp));
+			return (getnextc(wp));	/* Retry with input from tty */
 		} else {
 			return (c);
 		}
@@ -272,7 +286,7 @@ getnextc(wp)
 }
 
 /*
- * Non-interruptable version of nigetnextc() used by map.c
+ * Non-interruptable version of getnextc() used by map.c
  * Catches the interrupt and maps the interrupt character back
  * to a usable input character.
  */

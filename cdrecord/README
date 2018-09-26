@@ -1,6 +1,6 @@
-# @(#)README	1.28 16/08/10 Copyright 1996-2002 J. Schilling
+# @(#)README	1.29 18/09/17 Copyright 1996-2018 J. Schilling
 
-This is Version 2.0 of cdrecord
+This is Version 3.02 of cdrecord
 
 Cdrecord allows you to create CD's on a CD-Recorder.
 Cdrecord runs on:
@@ -439,7 +439,7 @@ filesystem for Solaris that uses packet writing on the CD-Recorder.
 The filesystem will create a single session CD that may be finally converted
 to a hybrid filesystem that allows to be read as 
 ISO-9660 with Rock Ridge extensions too.
-Please mail suggestions to: wofs@schily.isdn.cs.tu-berlin.de
+Please mail suggestions to: joerg@schily.net
 
 If you want to use the CD-recorder as CD-ROM device, have a look at 
 

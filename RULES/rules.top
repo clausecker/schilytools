@@ -1,4 +1,4 @@
-#ident "@(#)rules.top	1.23 17/05/09 "
+#ident "@(#)rules.top	1.24 18/09/25 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -63,6 +63,21 @@ COMPILE.c=
 #
 ###########################################################################
 COMPILE.cc=
+
+###########################################################################
+#
+# Various flags may be set in the default rules from various make programs
+# Clear this here, to avoid trouble. We are still able to use make command
+# line macros to overwrite this.
+#
+###########################################################################
+ARFLAGS=
+ASFLAGS=
+CFLAGS=
+CPPFLAGS=
+LDFLAGS=
+LFLAGS=
+YFLAGS=
 
 ###########################################################################
 #

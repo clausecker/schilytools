@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.29 18/06/26 Copyright 1999-2013 J. Schilling
+# @(#)cpfiles	1.30 18/09/17 Copyright 1999-2013 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -110,6 +110,7 @@ $cp ${incsrc}/${lib}/comerr.c		comerr.c
 $cp ${incsrc}/${lib}/eaccess.c		eaccess.c
 $cp ${incsrc}/${lib}/error.c		error.c
 $cp ${incsrc}/${lib}/format.c		format.c
+$cp ${incsrc}/${lib}/format.h		format.h
 $cp ${incsrc}/${lib}/getexecpath.c	getexecpath.c
 $cp ${incsrc}/${lib}/getnstimeofday.c	getnstimeofday.c
 #$cp ${incsrc}/${lib}/printf.c		printf.c

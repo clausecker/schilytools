@@ -1,18 +1,8 @@
 #!/bin/sh
 ###########################################################################
-# @(#)docommand	1.11 16/07/10 Written 2011-2016 by J. Schilling
+# @(#)docommand	1.13 18/09/20 Written 2011-2016 by J. Schilling
 ###########################################################################
-# The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only
-# (the "License").  You may not use this file except in compliance
-# with the License.
-#
-# See the file CDDL.Schily.txt in this distribution for details.
-# A copy of the CDDL is also available via the Internet at
-# http://www.opensource.org/licenses/cddl1.txt
-#
-# When distributing Covered Code, include this CDDL HEADER in each
-# file and include the License file CDDL.Schily.txt from this distribution.
+#@@C@@
 ###########################################################################
 #
 # docommand()	the base test function
@@ -23,6 +13,10 @@
 # -silent	do not print command label nor "passed"
 # -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
+# -wo		call diff -w to compare the stdout
+# -we		call diff -w to compare the stderr
+# -bo		call diff -b to compare the stdout
+# -be		call diff -b to compare the stderr
 #
 # Parameters:
 # $1 a command label to be printed
@@ -41,6 +35,10 @@ docommand() {
 	silent=false
 	esilent=false
 	diffout=""
+	wo=""
+	we=""
+	bo=""
+	be=""
 	noremove=false
 	cmd_label="$1"
 	while true
@@ -57,6 +55,22 @@ docommand() {
 			;;
 		-noremove | --noremove)
 			noremove=true
+			shift
+			;;
+		-wo | --wo)
+			wo=-w
+			shift
+			;;
+		-we | --we)
+			we=-w
+			shift
+			;;
+ 		-bo | --bo)
+			bo=-b
+			shift
+			;;
+		-be | --be)
+			be=-b
 			shift
 			;;
 		*)
@@ -105,7 +119,7 @@ $msg"
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
-		eval diff exp.stdout got.stdout $diffout || \
+		eval diff $wo $bo exp.stdout got.stdout $diffout || \
 				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
@@ -119,7 +133,7 @@ $msg"
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
 		echo		>> got.stderr	# Make output end in newline
-		eval diff exp.stderr got.stderr $diffout || \
+		eval diff $we $be exp.stderr got.stderr $diffout || \
 				fail "$cmd_label: stderr format error with $2"
 	fi
 	
@@ -138,6 +152,10 @@ $msg"
 # -silent	do not print command label nor "passed"
 # -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
+# -wo		call diff -w to compare the stdout
+# -we		call diff -w to compare the stderr
+# -bo		call diff -b to compare the stdout
+# -be		call diff -b to compare the stderr
 #
 # Parameters:
 # $1 a command label to be printed
@@ -157,6 +175,10 @@ do_output() {
 	silent=false
 	esilent=false
 	diffout=""
+	wo=""
+	we=""
+	bo=""
+	be=""
 	noremove=false
 	cmd_label="$1"
 	while true
@@ -173,6 +195,22 @@ do_output() {
 			;;
 		-noremove | --noremove)
 			noremove=true
+			shift
+			;;
+		-wo | --wo)
+			wo=-w
+			shift
+			;;
+		-we | --we)
+			we=-w
+			shift
+			;;
+		-bo | --bo)
+			bo=-b
+			shift
+			;;
+		-be | --be)
+			be=-b
 			shift
 			;;
 		*)
@@ -218,7 +256,7 @@ $msg"
 		fi
 	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
-		eval diff "$4" got.stdout $diffout || \
+		eval diff $wo $bo "$4" got.stdout $diffout || \
 				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
@@ -232,7 +270,7 @@ $msg"
 		echo_nonl "$5" > exp.stderr	# Save stderr sample to file
 		echo		>> exp.stderr	# Make sample end in newline
 		echo		>> got.stderr	# Make output end in newline
-		eval diff exp.stderr got.stderr $diffout || \
+		eval diff $we $be exp.stderr got.stderr $diffout || \
 				fail "$cmd_label: stderr format error with $2"
 	fi
 	
@@ -251,6 +289,10 @@ $msg"
 # -silent	do not print command label nor "passed"
 # -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
+# -wo		call diff -w to compare the stdout
+# -we		call diff -w to compare the stderr
+# -bo		call diff -b to compare the stdout
+# -be		call diff -b to compare the stderr
 #
 # Parameters:
 # $1 a command label to be printed
@@ -270,6 +312,10 @@ do_error() {
 	silent=false
 	esilent=false
 	diffout=""
+	wo=""
+	we=""
+	bo=""
+	be=""
 	noremove=false
 	cmd_label="$1"
 	while true
@@ -286,6 +332,22 @@ do_error() {
 			;;
 		-noremove | --noremove)
 			noremove=true
+			shift
+			;;
+		-wo | --wo)
+			wo=-w
+			shift
+			;;
+		-we | --we)
+			we=-w
+			shift
+			;;
+		-bo | --bo)
+			bo=-b
+			shift
+			;;
+		-be | --be)
+			be=-b
 			shift
 			;;
 		*)
@@ -334,7 +396,7 @@ $msg"
 		echo_nonl "$4" > exp.stdout	# Save stdout sample to file
 		echo		>> exp.stdout	# Make sample end in newline
 		echo		>> got.stdout	# Make output end in newline
-		eval diff exp.stdout got.stdout $diffout || \
+		eval diff $wo $bo exp.stdout got.stdout $diffout || \
 				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
@@ -345,7 +407,7 @@ $msg"
 		fi
 	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
-		eval diff "$5" got.stderr $diffout || \
+		eval diff $we $be "$5" got.stderr $diffout || \
 				fail "$cmd_label: stderr format error with $2"
 	fi
 	
@@ -364,6 +426,10 @@ $msg"
 # -silent	do not print command label nor "passed"
 # -esilent	be silent for errors to permit hidden tests
 # -noremove	do not remove exp.*, got.* and cmd.last
+# -wo		call diff -w to compare the stdout
+# -we		call diff -w to compare the stderr
+# -bo		call diff -b to compare the stdout
+# -be		call diff -b to compare the stderr
 #
 # Parameters:
 # $1 a command label to be printed
@@ -384,6 +450,10 @@ do_outerr() {
 	silent=false
 	esilent=false
 	diffout=""
+	wo=""
+	we=""
+	bo=""
+	be=""
 	noremove=false
 	cmd_label="$1"
 	while true
@@ -400,6 +470,22 @@ do_outerr() {
 			;;
 		-noremove | --noremove)
 			noremove=true
+			shift
+			;;
+		-wo | --wo)
+			wo=-w
+			shift
+			;;
+		-we | --we)
+			we=-w
+			shift
+			;;
+		-bo | --bo)
+			bo=-b
+			shift
+			;;
+		-be | --be)
+			be=-b
 			shift
 			;;
 		*)
@@ -445,7 +531,7 @@ $msg"
 		fi
 	elif test "$4" != "IGNORE"		# Verify stdout?
 	then
-		eval diff "$4" got.stdout $diffout || \
+		eval diff $wo $bo "$4" got.stdout $diffout || \
 				fail "$cmd_label: stdout format error with $2"
 	fi
 	if test "$5" = "NONEMPTY"		# Need stderr msg?
@@ -456,7 +542,7 @@ $msg"
 		fi
 	elif test "$5" != "IGNORE"		# Verify stderr?
 	then
-		eval diff "$5" got.stderr $diffout || \
+		eval diff $we $be "$5" got.stderr $diffout || \
 				fail "$cmd_label: stderr format error with $2"
 	fi
 	

@@ -1,4 +1,4 @@
-/* @(#)ved.h	1.46 18/08/25 Copyr 1984-86, 88-89,97, 2000-2018 J. Schilling */
+/* @(#)ved.h	1.48 18/09/20 Copyr 1984-86, 88-89,97, 2000-2018 J. Schilling */
 /*
  *	Main include file for VED
  *
@@ -25,6 +25,11 @@
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
+#include <schily/nlsdefs.h>
+#include <schily/limits.h>	/* for  MB_LEN_MAX	*/
+#include <schily/ctype.h>	/* For isprint()	*/
+#include <schily/wchar.h>	/* wchar_t		*/
+#include <schily/wctype.h>	/* For iswprint()	*/
 #include <schily/schily.h>
 
 #define	C	(char *)
@@ -34,8 +39,10 @@
 #define	CPP	(char ***)
 #define	UCPP	(unsigned char ***)
 
+#ifndef	DO_WCHAR
 #undef	MB_LEN_MAX
 #define	MB_LEN_MAX	1
+#endif
 
 #if	MB_LEN_MAX > 1			/* This is multi byte mode	  */
 typedef	wchar_t		echar_t;	/* A ved internal character	  */
@@ -79,7 +86,7 @@ enum nicht { blau, besoffen };
 #endif
 
 /*
- * We do out own buffering for outout to the screen to make ved
+ * We do our own buffering for outout to the screen to make ved
  * fast on all operating systems independent of the I/O implementation.
  * Our output buffer size should be more than the size of a usual screen.
  * As most lines are shorter that 40 characters, a bufsize of 4096 chars
