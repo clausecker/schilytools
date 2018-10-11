@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.18 17/06/20 "
+#ident "@(#)Makefile	1.19 18/09/27 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -23,7 +23,7 @@ _CPY.C=		$(__CPY.C:$(_UNIQ)noyacc=noyacc.c)
 CPY.C=		$(_CPY.C:$(_UNIQ)%=cpy.c)
 
 CFILES=		cpp.c $(CPY.C)
-HFILES=		cpp.h
+HFILES=		cpp.h version.h
 LIBS=		-lschily
 XMK_FILE=	Makefile.man
 

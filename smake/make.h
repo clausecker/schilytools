@@ -1,4 +1,4 @@
-/* @(#)make.h	1.101 18/05/08 Copyright 1985, 87, 91, 1995-2018 J. Schilling */
+/* @(#)make.h	1.102 18/10/01 Copyright 1985, 87, 91, 1995-2018 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2018 by J. Schilling
@@ -65,6 +65,7 @@ typedef unsigned long	date_t;
 #if	SIZEOF_ULLONG >= SIZEOF_TIME_T
 typedef ULlong		date_t;
 #define	SIZEOF_DATE_T	SIZEOF_ULLONG
+#define	LL_DATE_T
 #else
 typedef	time_t		date_t;
 #define	SIZEOF_DATE_T	SIZEOF_TIME_T

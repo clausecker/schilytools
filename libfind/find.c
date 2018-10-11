@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.109 18/09/15 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.112 18/09/27 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.109 18/09/15 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.112 18/09/27 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -56,8 +56,8 @@ static	UConst char sccsid[] =
 #define	MULTI_ARG_MAX		/* SunOS only ?			*/
 #endif
 
-LOCAL char strvers[] = "1.7";	/* The pure version string	*/
-#define	VERSION		0x10007
+#include "version.h"
+LOCAL char strvers[] = VERSION;	/* The pure version string	*/
 
 typedef struct find_node findn_t;
 
@@ -1079,14 +1079,14 @@ parseprim(fap)
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
 
-	case XDEV:
 	case MOUNT:
 		fap->walkflags &= ~WALK_NOSTAT;
 		fap->walkflags |= WALK_MOUNT;
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
-	case MOUNTPLUS:
+	case XDEV:				/* POSIX alias set up on */
+	case MOUNTPLUS:				/* 27.9.2018		 */
 		fap->walkflags &= ~WALK_NOSTAT;
 		fap->walkflags |= WALK_XDEV;
 		nexttoken(fap);
@@ -2608,6 +2608,7 @@ find_usage(f)
 	fprintf(f, _("*	-ls	      list files similar to 'ls -ilds' (always TRUE)\n"));
 	fprintf(f, _("*	-maxdepth #   descend at most # directory levels (always TRUE)\n"));
 	fprintf(f, _("*	-mindepth #   start tests at directory level # (always TRUE)\n"));
+	fprintf(f, _("	-mount        restrict search to current filesystem (always TRUE)\n"));
 	fprintf(f, _("*	-mount+       do not descend into mounted directories (always TRUE)\n"));
 	fprintf(f, _("	-mtime #      TRUE if st_mtime is in specified range\n"));
 	fprintf(f, _("	-name glob    TRUE if path component matches shell glob\n"));
@@ -2633,7 +2634,7 @@ find_usage(f)
 	fprintf(f, _("	-user uname/uid TRUE if st_uid matches uname/uid\n"));
 	fprintf(f, _("*	-writable     TRUE if file is writable by real user id\n"));
 	fprintf(f, _("*	-xattr	      TRUE if the file has extended attributes\n"));
-	fprintf(f, _("	-xdev, -mount restrict search to current filesystem (always TRUE)\n"));
+	fprintf(f, _("	-xdev	      do not descend into mounted directories (always TRUE)\n"));
 	fprintf(f, _("Primaries marked with '*' are POSIX extensions, avoid them in portable scripts.\n"));
 	fprintf(f, _("If path is omitted, '.' is used. If expression is omitted, -print is used.\n"));
 }
@@ -2647,7 +2648,7 @@ find_strvers()
 EXPORT int
 find_vers()
 {
-	return (VERSION);
+	return (VERSION_NUM);
 }
 
 #ifdef FIND_MAIN

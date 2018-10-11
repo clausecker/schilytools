@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)io.c	1.37 18/03/12 2008-2018 J. Schilling
+ * @(#)io.c	1.38 18/10/07 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.37 18/03/12 2008-2018 J. Schilling";
+	"@(#)io.c	1.38 18/10/07 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -98,6 +98,7 @@ initf(fd)
 	f->fnxt = f->fend = f->fbuf;
 	f->nxtoff = f->endoff = 0;
 	f->feval = 0;
+	f->alias = 0;
 	f->flin = 1;
 	f->feof = FALSE;
 }
@@ -126,6 +127,7 @@ push(af)
 	f->peekn = 0;
 	f->feof = 0;
 	f->feval = 0;
+	f->alias = 0;
 	standin = f;
 }
 

@@ -1,8 +1,8 @@
-/* @(#)p.c	1.68 18/08/22 Copyright 1985-2018 J. Schilling */
+/* @(#)p.c	1.69 18/09/28 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.68 18/08/22 Copyright 1985-2018 J. Schilling";
+	"@(#)p.c	1.69 18/09/28 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -329,7 +329,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s (%s-%s-%s)\n\n", "2.3", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2018/09/28", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -787,7 +787,7 @@ get_action()
 	case '!':
 		clearline();
 		sprintf(buf, "%s -t", shell);
-		system(buf);
+		(void) system(buf);
 		return (-1);
 	case 'v':
 	case 'V':
@@ -796,7 +796,7 @@ get_action()
 			sprintf(buf, "%s +%d %s", editor, lineno, filename);
 			printf("%s", buf);
 			fflush(stdout);
-			system(buf);
+			(void) system(buf);
 			return (-1);
 		}
 	default:

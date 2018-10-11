@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2018 J. Schilling
  *
- * @(#)main.cc	1.40 18/03/25 2017-2018 J. Schilling
+ * @(#)main.cc	1.41 18/10/05 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.40 18/03/25 2017-2018 J. Schilling";
+	"@(#)main.cc	1.41 18/10/05 2017-2018 J. Schilling";
 #endif
 
 /*
@@ -1534,7 +1534,7 @@ read_command_options(register int argc, register char **argv)
 				break;
 			case 32: /* -m seen */
 				argv[i] = (char *)NOCATGETS("-m");
-#ifndef TEAMWARE_MAKE_CMN
+#if !defined(TEAMWARE_MAKE_CMN) && !defined(PMAKE)
 				warning(gettext("Ignoring DistributedMake -m option"));
 #endif
 				break;

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)word.c	1.90 18/07/02 2008-2018 J. Schilling
+ * @(#)word.c	1.93 18/10/08 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.90 18/07/02 2008-2018 J. Schilling";
+	"@(#)word.c	1.93 18/10/08 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -96,14 +96,12 @@ static unsigned char	*do_tilde __PR((unsigned char *arg));
 
 /* ========	character handling for command lines	======== */
 
-#ifdef	DO_SYSALIAS
-static	void		*seen;	/* Structure to track recursive alias calls */
-#endif
 
 int
 word()
 {
 	unsigned int	c, d;
+	void		*seen;
 
 	wdnum = 0;
 	wdset &= ~KEYFLAG;
@@ -130,6 +128,16 @@ word()
 			break;	/* out of comment - white space loop */
 		}
 	}
+
+	/*
+	 * We skipped the white space...
+	 * Now remember the alias state from the beginning of this word as we
+	 * later need to check whether there might be a loop for this word. We
+	 * need to do it here since parsing the word may cause the pushed macro
+	 * replacement to be popped already at the end of the word.
+	 */
+	seen = standin->alias;
+
 	if (!eofmeta(c) || (c == '^' && (flags2 & posixflg))) {
 		struct argnod	*arg = (struct argnod *)locstak();
 		unsigned char	*argp = arg->argval;
@@ -238,6 +246,7 @@ word()
 			estabf(UC val);			/* Install value    */
 			standin->fdes = -2;		/* Make it auto-pop */
 			standin->peekn = peekn;		/* Remember peekn   */
+			standin->alias = seen;		/* Curr. alias list */
 			peekn = 0;			/* for later use    */
 
 			if (abegin > 0) {		/* Was a begin alias */
@@ -251,7 +260,6 @@ word()
 			return (word());		/* Parse replacement */
 		}
 	}
-	seen = NULL;
 #endif
 	reserv = FALSE;
 	return (wdval);
@@ -776,7 +784,8 @@ retry:
 		extern	int	abegin;
 
 			if (f->fdes == -3) /* Continue with begin alias */
-				abegin++;
+				if (abegin == 0)
+					abegin++;
 			peekn = f->peekn;
 			pop();
 			free(f);

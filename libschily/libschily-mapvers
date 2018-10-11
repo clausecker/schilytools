@@ -1,5 +1,13 @@
-# /* @(#)libschily-mapvers	1.61 18/08/08 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.62 18/10/11 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
+
+SCHILY_2.0 {
+	mkfstream;	# New allocator because structure did grow
+	fsgetc;		# Always use central funtion in new version
+	getvargs;	# ga_props and ga_flags flipped 23. 10. 2016
+	getvallargs;	# ga_props and ga_flags flipped 23. 10. 2016
+	getvfiles;	# ga_props and ga_flags flipped 23. 10. 2016
+} SCHILY_1.10;
 
 SCHILY_1.10 {
 global:
@@ -366,9 +374,13 @@ global:
 
 	getperm;
 
+#ifdef	__old_compat__
 	mkfstream;
+#endif
 	fsclose;
+#ifdef	__old_compat__
 	fsgetc;
+#endif
 	fspushcha;
 	fspushstr;
 	fssetfile;
@@ -385,9 +397,11 @@ global:
 	getlltnum;
 	getxtnum;
 	getllxtnum;
+#ifdef	__old_compat__
 	getvargs;
 	getvallargs;
 	getvfiles;
+#endif
 	getargerror;
 
 #ifndef	HAVE_STRLCPY

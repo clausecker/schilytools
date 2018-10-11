@@ -1,6 +1,6 @@
-/* @(#)schilyio.h	2.31 16/11/06 Copyright 1986, 1995-2016 J. Schilling */
+/* @(#)schilyio.h	2.32 18/10/10 Copyright 1986, 1995-2018 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2016 J. Schilling
+ *	Copyright (c) 1986, 1995-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -162,7 +162,7 @@ extern	void	_io_add_my_flag __PR((FILE *, int));
  */
 #ifdef	FAST_GETC_PUTC
 
-#define	__c	(struct SCHILY__FILE_TAG *)
+#define	__js_fp	(struct SCHILY__FILE_TAG *)
 
 #ifndef	HAVE___FILBUF
 #define	HAVE___FILBUF
@@ -205,8 +205,8 @@ extern	int	_filbuf			__PR((FILE *));
 #undef	DO_DOWN
 #endif	/* !HAVE_USG_STDIO */
 
-#ifndef	__c
-#define	__c
+#ifndef	__js_fp
+#define	__js_fp
 #endif
 
 #ifndef	DO_DOWN
@@ -227,19 +227,19 @@ extern	int	_filbuf			__PR((FILE *));
  *	and if iop->_flag refers to a stream with appropriate modes.
  *	If _iob[] gets expanded by malloc() we cannot check upper bound.
  */
-#define	down(f)		((f) == 0 || (__c f)->_flag == 0 ? \
+#define	down(f)		((f) == 0 || (__js_fp f)->_flag == 0 ? \
 				(raisecond(_badfile, 0L), (FILE *)0) : (f))
 
-#define	down1(f, fl1)	((f) == 0 || (__c f)->_flag == 0 ? \
+#define	down1(f, fl1)	((f) == 0 || (__js_fp f)->_flag == 0 ? \
 					(raisecond(_badfile, 0L), (FILE *)0) : \
-				(((__c f)->_flag & fl1) != fl1 ? \
+				(((__js_fp f)->_flag & fl1) != fl1 ? \
 					(raisecond(_badop, 0L), (FILE *)0) : \
 					(f)))
 
-#define	down2(f, fl1, fl2)	((f) == 0 || (__c f)->_flag == 0 ? \
+#define	down2(f, fl1, fl2)	((f) == 0 || (__js_fp f)->_flag == 0 ? \
 				(raisecond(_badfile, 0L), (FILE *)0) : \
-				    (((__c f)->_flag & fl1) != fl1 && \
-				    ((__c f)->_flag & fl2)  != fl2 ? \
+				    (((__js_fp f)->_flag & fl1) != fl1 && \
+				    ((__js_fp f)->_flag & fl2)  != fl2 ? \
 				(raisecond(_badop, 0L), (FILE *)0) : \
 				(f)))
 #endif	/* DO_DOWN */

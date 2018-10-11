@@ -1,9 +1,9 @@
-#ident "@(#)00210002307w-os400-gcc.rul	1.2 18/09/24 "
+#ident "@(#)x86_64-linux-pcc.rul	1.2 18/10/11 "
 ###########################################################################
-# Written 1997-2018 by J. Schilling
+# Written 1996-2018 by J. Schilling
 ###########################################################################
 #
-# Platform dependent MACROS for OS400
+# Platform dependent MACROS for Linux
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -25,35 +25,41 @@ include $(SRCROOT)/$(RULESDIR)/rules.prg
 include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
 
 #
-# Make 64 bit the default
+# LINUX_SRC_INCLUDE is defined in DEFAULTS/Defaults.linux
 #
-GCC_OPT=	-maix64
-GCC_OPT32=	-maix32
-GCC_OPT64=	-maix64
-AIX_ARCH=	$(GCC_OPTXX:-maix%=-X%)
-
-OSDEFS +=	-DPROTOTYTPES
+INCDIRSX +=	$(LINUX_SRC_INCLUDE)
+OSDEFS +=
 
 KDEFINES=	-DKERNEL -D_KERNEL
-
-COPTDYN=	-pic
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
 SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
 
-LIB_SOCKET=
+LIB_SOCKET=	
 LIB_MATH=	-lm
-LIB_KVM=
+LIB_KVM=	
+
+#
+# Sunpro C/C++ run on Solaris and Linux and both have linkers
+# that support mapfiles
+#
+MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
+#
+# The GNU linker is buggy and does not like the official order in linker map
+# files for symbol versioning. The following command reverses the order of
+# the version names in the linker map file.
+#
+MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | sort -t. -k1,1 -k2,2n -k3,3n |  tr '@' '\012'
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
-LDOPTDYN=
-LNDYNLIB=	@
+#
+# Uncomment the next line in case you are on an old Linux version that
+# does not support the -R linker flag.
+#
+#LDOPTS=		$(LIBS_PATH) $(LDPATH)
+LDOPTMAP=	$(PMAPVERS:%=-Wl,--version-script=%)
+LDOPTDYN=	-shared -Wl,-soname,$(TARGET) $(LDOPTMAP)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
-
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
-
-LORDER=		lorder $(AIX_ARCH)
-AR=		@echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)
+LORDER=		echo
+TSORT=		cat

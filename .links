@@ -238,6 +238,7 @@
 ./psmake/strncpy.c
 ./psmake/uname.c
 ./psmake/update.c
+./psmake/version.h
 ./psmake/xconfig.h.in
 ./readcd/cd_misc.c
 ./readcd/misc.c

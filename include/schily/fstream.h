@@ -1,8 +1,8 @@
-/* @(#)fstream.h	1.18 17/12/30 Copyright 1985-2017 J. Schilling */
+/* @(#)fstream.h	1.19 18/10/07 Copyright 1985-2018 J. Schilling */
 /*
  *	Definitions for the file stream package
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -74,6 +74,7 @@ struct fstream {
 	CHAR	*fstr_buf;	/* The current buffer for coocked input */
 	int 	(*fstr_func) __PR((struct fstream *__out, FILE *__in));
 	int	(*fstr_rfunc) __PR((struct fstream *__in));
+	void	*fstr_auxp;	/* Aux pointer e.g. to detect alias loops */
 	CHAR	fstr_sbuf[STR_SBUF_SIZE + 1];
 };
 

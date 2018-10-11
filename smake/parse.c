@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.119 18/01/15 Copyright 1985-2018 J. Schilling */
+/* @(#)parse.c	1.120 18/10/03 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.119 18/01/15 Copyright 1985-2018 J. Schilling";
+	"@(#)parse.c	1.120 18/10/03 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Make program
@@ -628,7 +628,7 @@ define_var(name, val)
 	if (o->o_flags & F_READONLY)		/* Check for "read only" */
 		return;
 	o->o_flags |= Mflags;			/* Add current global flags */
-	if (*val) {				/* Only if not empty */
+	if (val && *val) {			/* Only if not empty */
 		ov = objlook(val, TRUE);
 		tail = listcat(ov, tail);
 	}

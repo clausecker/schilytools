@@ -1,6 +1,6 @@
-/* @(#)getdelim.c	1.3 16/11/06 Copyright 2015-2016 J. Schilling */
+/* @(#)getdelim.c	1.4 18/10/10 Copyright 2015-2018 J. Schilling */
 /*
- *	Copyright (c) 2015-2016 J. Schilling
+ *	Copyright (c) 2015-2018 J. Schilling
  *
  */
 /*
@@ -68,22 +68,22 @@ getdelim(bufp, lenp, delim, f)
 #if	defined(HAVE_USG_STDIO) || defined(FAST_GETC_PUTC)
 		size_t	n;
 
-		if ((__c f)->_cnt <= 0) {
+		if ((__js_fp f)->_cnt <= 0) {
 			if (usg_filbuf(f) == EOF)
 				break;
-			(__c f)->_cnt++;
-			(__c f)->_ptr--;
+			(__js_fp f)->_cnt++;
+			(__js_fp f)->_ptr--;
 		}
 
 		n = ep - lp;
-		if (n > (__c f)->_cnt)
-			n = (__c f)->_cnt;
-		p = movecbytes((__c f)->_ptr, lp, delim, n);
+		if (n > (__js_fp f)->_cnt)
+			n = (__js_fp f)->_cnt;
+		p = movecbytes((__js_fp f)->_ptr, lp, delim, n);
 		if (p) {
 			n = p - lp;
 		}
-		(__c f)->_ptr += n;
-		(__c f)->_cnt -= n;
+		(__js_fp f)->_ptr += n;
+		(__js_fp f)->_cnt -= n;
 		lp += n;
 #else
 		c = getc(f);

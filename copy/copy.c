@@ -1,8 +1,8 @@
-/* @(#)copy.c	1.51 18/05/10 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling */
+/* @(#)copy.c	1.52 18/09/27 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.51 18/05/10 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling";
+	"@(#)copy.c	1.52 18/09/27 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	copy files ...
@@ -301,8 +301,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2018 %s\n"),
-				"1.51",
+		printf(_("Copy release %s %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2018 %s\n"),
+				"1.52", "2018/09/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);

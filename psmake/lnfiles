@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.30 18/09/17 Copyright 1999-2013 J. Schilling
+# @(#)lnfiles	1.31 18/10/10 Copyright 1999-2013 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -37,6 +37,7 @@ $cp ${incsrc}/${smake}/parse.c		parse.c
 $cp ${incsrc}/${smake}/readfile.c	readfile.c
 $cp ${incsrc}/${smake}/rules.c		rules.c
 $cp ${incsrc}/${smake}/update.c		update.c
+$cp ${incsrc}/${smake}/version.h		version.h
 $cp ${incsrc}/../../include/schily/archdefs.h	include/schily/archdefs.h
 $cp ${incsrc}/../../include/schily/ccomdefs.h	include/schily/ccomdefs.h
 $cp ${incsrc}/../../include/schily/ctype.h	include/schily/ctype.h

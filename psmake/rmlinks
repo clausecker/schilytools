@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.27 18/09/17 Copyright 1999-2013 J. Schilling
+# @(#)rmlinks	1.28 18/10/10 Copyright 1999-2018 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -11,6 +11,7 @@ rm -f parse.c
 rm -f readfile.c
 rm -f rules.c
 rm -f update.c
+rm -f version.h
 rm -f include/schily/archdefs.h
 rm -f include/schily/ccomdefs.h
 rm -f include/schily/ctype.h

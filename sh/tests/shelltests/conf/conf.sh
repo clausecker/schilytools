@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)conf.sh	1.1 16/07/31 2016 J. Schilling
+# @(#)conf.sh	1.2 18/10/07 2016 J. Schilling
 #
 
 # Read test core functions
@@ -17,14 +17,14 @@ remove config.*
 #
 # First run the system shell
 #
-docommand conf00 "$SHELL -c '../../../../autoconf/configure'" 0 IGNORE ""
+docommand conf00 "CONFIG_NOFAIL=TRUE $SHELL -c '../../../../autoconf/configure'" 0 IGNORE ""
 
 mv xconfig.h	xconfig.0
 mv rules.cnf	rules.0
 
 remove config.*
 
-docommand -noremove conf01 "$SHELL -c 'CONFIG_SHELL=$SHELL $SHELL ../../../../autoconf/configure'" 0 IGNORE ""
+docommand -noremove conf01 "$SHELL -c 'CONFIG_NOFAIL=TRUE CONFIG_SHELL=$SHELL $SHELL ../../../../autoconf/configure'" 0 IGNORE ""
 
 diff rules.0 rules.cnf || fail "$cmd_label: rules.cnf format error with $SHELL"
 diff xconfig.0 xconfig.h || fail "$cmd_label: xconfig.h format error with $SHELL"

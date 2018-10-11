@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.19 17/05/09 Copyright 1999-2014 J. Schilling
+# @(#)config.guess	1.20 18/10/03 Copyright 1999-2014 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -361,6 +361,11 @@ EOF
 	exit 0 ;;
     *:AIX:*:*)
 	echo rs6000-ibm-aix
+	exit 0 ;;
+    *:OS400:*:*)
+	# The AIX emulation on OS400 returns the serial number for uname -m
+	# e.g. 00210002307W, we return "powerpc" for the architecture.
+	echo powerpc-ibm-os400
 	exit 0 ;;
     ibmrt:4.4BSD:*|romp-ibm:BSD:*)
 	echo romp-ibm-bsd4.4

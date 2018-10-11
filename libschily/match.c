@@ -1,4 +1,4 @@
-/* @(#)match.c	1.31 18/07/03 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)match.c	1.32 18/09/30 Copyright 1985, 1995-2018 J. Schilling */
 #include <schily/utypes.h>	/* For Uchar			*/
 #include <schily/standard.h>
 #include <schily/patmatch.h>
@@ -468,7 +468,7 @@ prim(ap)
 					nextitem(ap);
 					while (ap->Ch != ':' &&
 					    ap->Ch != '\0') {
-						if (pc > &class[CL_SIZE])
+						if (pc >= &class[CL_SIZE])
 							return (ENDSTATE);
 						*pc = ap->Ch;
 						if (*pc++ != ap->Ch)

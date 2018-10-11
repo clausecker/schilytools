@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.32 17/06/28 Copyright 1996-2017 J. Schilling */
+/* @(#)archconf.c	1.33 18/10/03 Copyright 1996-2017 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.32 17/06/28 Copyright 1996-2017 J. Schilling";
+	"@(#)archconf.c	1.33 18/10/03 Copyright 1996-2017 J. Schilling";
 #endif
 /*
  *	Make program
@@ -542,9 +542,9 @@ do_archheuristics()
 	/*
 	 * Try to define global processor architecture
 	 */
-	l = objlist("MAKE_ARCH");
+	l = objlist("MAKE_ARCH");		/* uname -p is an extension */
 	if (l == NULL) {
-		l = objlist("MAKE_MACH");
+		l = objlist("MAKE_MACH");	/* Chheck uname -m	*/
 		if (l != NULL) {
 			name = l->l_obj->o_name;
 			if (strstr(name, "sun3"))
@@ -571,14 +571,24 @@ do_archheuristics()
 			define_var("MAKE_M_ARCH", "i86pc");
 	}
 
-	l = objlist("MAKE_OS");
-	if (l != NULL &&
-/*				streql(l->l_obj->o_name, "SunOS")) {*/
-				streql(l->l_obj->o_name, "sunos")) {
-		l = objlist("MAKE_OSREL");
-		if (l != NULL && l->l_obj->o_name[0] >= '5')
-/*			define_lvar("MAKE_OSDEFS", "-D__SOL2 -D__SVR4");*/
-			define_var("MAKE_OSDEFS", "-D__SVR4");
+	name = get_var("MAKE_OS");
+	if (name != NULL) {
+		if (streql(name, "os400")) {
+			/*
+			 * OS400 returns serial number in uname -m
+			 */
+			if (get_var("MAKE_HWSERIAL") == NULL) {
+				name = get_var("MAKE_MACH");
+				define_var("MAKE_HWSERIAL", name);
+			}
+			define_var("MAKE_MACH", "powerpc");
+		}
+		if (streql(name, "sunos")) {
+			l = objlist("MAKE_OSREL");
+			if (l != NULL && l->l_obj->o_name[0] >= '5')
+/*				define_lvar("MAKE_OSDEFS", "-D__SOL2 -D__SVR4");*/
+				define_var("MAKE_OSDEFS", "-D__SVR4");
+		}
 	}
 }
 

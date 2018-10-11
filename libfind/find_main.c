@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.72 18/08/30 Copyright 2004-2018 J. Schilling */
+/* @(#)find_main.c	1.73 18/09/27 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_main.c	1.72 18/08/30 Copyright 2004-2018 J. Schilling";
+	"@(#)find_main.c	1.73 18/09/27 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 
 #include <schily/walk.h>
 #include <schily/find.h>
+#include "version.h"
 
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type,
 					struct WALK *state));
@@ -179,8 +180,8 @@ find_main(ac, av, ev, std, quit)
 	}
 	if (prversion) {
 		fprintf(std[1],
-		"sfind release %s (%s-%s-%s) Copyright (C) 2004-2018 Jörg Schilling\n",
-				find_strvers(),
+		"sfind release %s %s (%s-%s-%s) Copyright (C) 2004-2018 Jörg Schilling\n",
+				find_strvers(), VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		goto out;
 	}

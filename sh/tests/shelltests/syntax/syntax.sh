@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)syntax.sh	1.2 17/08/01 Copyright 2017 J. Schilling
+# @(#)syntax.sh	1.3 18/10/09 Copyright 2017 J. Schilling
 #
 
 # Read test core functions
@@ -77,5 +77,12 @@ docommand syn113 "$SHELL -c 'r=\"!#\"; case \$r in !) echo \$r 1 ;; !\$) echo \$
 docommand syn114 "$SHELL -c 'r=\"@\"; case \$r in !) echo \$r 1 ;; !\$) echo \$r 2;; \$!) echo \$r 3;; !#) echo \$r 4;; (@) echo \$r 5;; *) echo \$r 6 ;; esac'" 0 "@ 5\n" ""
 docommand syn115 "$SHELL -c 'r=\"bla\"; case \$r in !) echo \$r 1 ;; !\$) echo \$r 2;; \$!) echo \$r 3;; !#) echo \$r 4;; (@) echo \$r 5;; *) echo \$r 6 ;; esac'" 0 "bla 6\n" ""
 docommand syn116 "$SHELL -c 'r=\"(@)\"; case \$r in !) echo \$r 1 ;; !\$) echo \$r 2;; \$!) echo \$r 3;; !#) echo \$r 4;; (@) echo \$r 5;; *) echo \$r 6 ;; esac'" 0 "(@) 6\n" ""
+
+#
+# The AT&T hack in _macro() from the 1980s together with the POSIX change in
+# case caused this to fail when the shell is in strict POSIX mode:
+#
+docommand syn140 "$SHELL -c 'x=; case \$x in \"\") echo OK;; *) echo BAD; esac'" 0 "OK\n" ""
+docommand syn141 "$SHELL ${o_posix}  -c 'x=; case \$x in \"\") echo OK;; *) echo BAD; esac'" 0 "OK\n" ""
 
 success

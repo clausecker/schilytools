@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.33 17/12/30 Copyright 1985-2017 J. Schilling */
+/* @(#)fstream.c	1.34 18/10/07 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.33 17/12/30 Copyright 1985-2017 J. Schilling";
+	"@(#)fstream.c	1.34 18/10/07 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2017 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -77,6 +77,7 @@ mkfstream(f, sfun, rfun, efun)
 	fsp->fstr_pushed = (fstream *)0;
 	fsp->fstr_func = sfun;
 	fsp->fstr_rfunc = rfun;
+	fsp->fstr_auxp = 0;
 	return (fsp);
 }
 
@@ -284,7 +285,11 @@ fspushcha(fsp, c)
 {
 	char t[2];
 
+#ifdef	WSTRINGS
+	t[0] = (char)1;		/* Nonzero placeholder */
+#else
 	t[0] = (char)c;
+#endif
 	t[1] = 0;
 	fspushstr(fsp, t);
 #ifdef	WSTRINGS
@@ -292,6 +297,8 @@ fspushcha(fsp, c)
 	 * Solange es kein fspushstr mit SHORT * gibt, wird zuerst Platz
 	 * geschafft und dann der korrekte Buchstabe eingetragen.
 	 */
+	if (fsp->fstr_pushed != NULL)
+		fsp = fsp->fstr_pushed;
 	*fsp->fstr_bp = c;
 #endif
 }

@@ -37,7 +37,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)mode.h	1.26 18/01/08 2008-2018 J. Schilling
+ * @(#)mode.h	1.28 18/10/07 2008-2018 J. Schilling
  */
 
 /*
@@ -108,21 +108,22 @@ typedef union
 #endif
 struct fileblk
 {
-	int		fdes;
-	unsigned	flin;
-	int		peekn;
-	BOOL		feof;
+	int		fdes;		/* file descr. or < 0 for string */
+	unsigned	flin;		/* current line */
+	int		peekn;		/* saved peekn for aliases */
+	BOOL		feof;		/* EOF marker */
 #if BUFFERSIZE > 128
-	unsigned int	fsiz;
+	unsigned int	fsiz;		/* buffer size to use */
 #else
 	unsigned char	fsiz;
 #endif
-	unsigned char	*fnxt;
-	unsigned char	*fend;
+	unsigned char	*fnxt;		/* ptr. to next char in buffer */
+	unsigned char	*fend;		/* ptr. past end of buffer */
 	off_t		nxtoff;		/* file offset */
 	off_t		endoff;		/* file offset */
-	unsigned char	**feval;
-	struct fileblk	*fstak;
+	unsigned char	**feval;	/* arg vector for eval */
+	struct fileblk	*fstak;		/* previous input if stacked */
+	void		*alias;		/* active aliases */
 	unsigned char	fbuf[BUFFERSIZE];
 };
 
@@ -133,24 +134,29 @@ struct tempblk
 };
 
 
-/* for files not used with file descriptors */
+/*
+ * for files not used with file descriptors
+ *
+ * fsiz is 1 in this case
+ */
 struct filehdr
 {
-	int		fdes;
-	unsigned	flin;
-	int		peekn;
-	BOOL		feof;
+	int		fdes;		/* file descr. or < 0 for string */
+	unsigned	flin;		/* current line */
+	int		peekn;		/* saved peekn for aliases */
+	BOOL		feof;		/* EOF marker */
 #if BUFFERSIZE > 128
-	unsigned int	fsiz;
+	unsigned int	fsiz;		/* buffer size to use */
 #else
 	unsigned char	fsiz;
 #endif
-	unsigned char	*fnxt;
-	unsigned char	*fend;
+	unsigned char	*fnxt;		/* ptr. to next char in buffer */
+	unsigned char	*fend;		/* ptr. past end of buffer */
 	off_t		nxtoff;		/* file offset */
 	off_t		endoff;		/* file offset */
-	unsigned char	**feval;
-	struct fileblk	*fstak;
+	unsigned char	**feval;	/* arg vector for eval */
+	struct fileblk	*fstak;		/* previous input if stacked */
+	void		*alias;		/* active aliases */
 	unsigned char	_fbuf[1];
 };
 

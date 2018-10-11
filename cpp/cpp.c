@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.43 18/06/14 2010-2018 J. Schilling */
+/* @(#)cpp.c	1.44 18/09/27 2010-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.43 18/06/14 2010-2018 J. Schilling";
+	"@(#)cpp.c	1.44 18/09/27 2010-2018 J. Schilling";
 #endif
 /*
  * C command
@@ -88,6 +88,7 @@ static	UConst char sccsid[] =
 #include <schily/varargs.h>
 
 #include "cpp.h"
+#include "version.h"
 
 #define STATIC	static
 
@@ -1545,6 +1546,18 @@ main(argc,argv)
 					else
 						goto unknown;
 					continue;
+				case 'v':
+					if (strcmp(argv[i], "-version") == 0) {
+						printf("cpp version %s %s (%s-%s-%s)\n",
+						    VERSION,
+						    VERSION_DATE,
+						    HOST_CPU, HOST_VENDOR, HOST_OS);
+						printf("\n");
+						printf("Copyright (C) 1978 AT&T (John F. Reiser)\n");
+						printf("Copyright (C) 2010-2018 Joerg Schilling\n");	
+						exit(0);
+					}
+					goto unknown;
 				case 'x':
 					if (strcmp(argv[i], "-xsc") == 0)
 						char_is_signed = 1;

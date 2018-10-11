@@ -1,13 +1,13 @@
-/* @(#)change.c	1.44 17/07/17 Copyright 1985, 87-90, 95-99, 2000-2017 J. Schilling */
+/* @(#)change.c	1.45 18/09/27 Copyright 1985, 87-90, 95-99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)change.c	1.44 17/07/17 Copyright 1985, 87-90, 95-99, 2000-2017 J. Schilling";
+	"@(#)change.c	1.45 18/09/27 Copyright 1985, 87-90, 95-99, 2000-2018 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
  *
- *	Copyright (c) 1985, 87-90, 95-99, 2000-2017 J. Schilling
+ *	Copyright (c) 1985, 87-90, 95-99, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -157,8 +157,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prversion) {
-		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2017 Jörg Schilling\n",
-				"1.44",
+		printf("Change release %s %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2018 Jörg Schilling\n",
+				"1.45", "2018/09/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

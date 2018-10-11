@@ -1,8 +1,8 @@
-/* @(#)input.c	1.40 18/04/23 Copyright 1985-2018 J. Schilling */
+/* @(#)input.c	1.41 18/10/07 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.40 18/04/23 Copyright 1985-2018 J. Schilling";
+	"@(#)input.c	1.41 18/10/07 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
@@ -92,8 +92,8 @@ LOCAL int	dqlevel = 0;			/* Current double quoting level */
 LOCAL int	xqlevel = 0;			/* At the begin of "" quoting */
 LOCAL int	begalias = 0;			/* Begin aliases allowed? */
 LOCAL int	nextbegin = 0;			/* Begin aliases on next word */
-LOCAL void	*seen;				/* List of seen aliases */
 
+LOCAL	int	_fsgetc		__PR((fstream *is));
 LOCAL	int	fillbuf		__PR((int c, char *wbuf, fstream *is));
 LOCAL	int	readchar	__PR((fstream *fsp));
 EXPORT	int	nextch		__PR((void));
@@ -114,6 +114,39 @@ EXPORT	void	unxquote	__PR((void));
 EXPORT	int	begina		__PR((BOOL beg));
 LOCAL	int	input_expand	__PR((fstream * os, fstream * is));
 
+/*
+ * Wrapper for fsgetc() that calls fspop() is needed.
+ * This is needed since we added a fspush() to implement the push
+ * of data for the input from an alias replacement. fspush() is needed
+ * in order to keep track of the end of the related replacement text.
+ */
+LOCAL int
+_fsgetc(is)
+	register fstream	*is;
+{
+	int	c;
+
+again:
+	c = fsgetc(is);		/* The real stream lib ibterface */
+	if (c == EOF) {
+		fstream	*pushed;
+
+		if ((pushed = fspushed(is)) != NULL) {
+			/*
+			 * If we had a pushed begin alias that ends in
+			 * a space or a TAB, re-enable begin aliases.
+			 */
+			if (pushed->fstr_flags & 1)
+				begina(TRUE);
+			fspop(is);
+			goto again;
+		}
+		return (EOF);
+	}
+	return (c);
+}
+#define fsgetc _fsgetc
+
 LOCAL int
 fillbuf(c, wbuf, is)
 	register int		c;
@@ -132,6 +165,7 @@ fillbuf(c, wbuf, is)
 	if (c != (int)'\'')
 #endif
 		fspushcha(is, c);	/* Not yet wanted - push back */
+
 	return (c);
 }
 
@@ -410,18 +444,6 @@ input_expand(os, is)
 	for (;;) {
 		c = fsgetc(is);
 		if (c == EOF) {
-			fstream	*pushed;
-			if ((pushed = fspushed(is)) != NULL) {
-				/*
-				 * If we had a pushed begin alias that ends in
-				 * a space or a TAB, re-enable begin aliases.
-				 */
-				if (pushed->fstr_flags & 1)
-					begina(TRUE);
-				fspop(is);
-				continue;
-			}
-			seen = 0;
 			return (EOF);
 		}
 		if (c == '\\') {
@@ -445,10 +467,15 @@ input_expand(os, is)
 			begina(FALSE);
 			break;
 		} else if (!strchr(fsep, c) && !ctlc) {
+			void	*seen = 0;
+			fstream	*push = 0;
+
 			/*
 			 * Could be a word, so try alias expansion
 			 */
 			c = fillbuf(c, buf, is);
+			if ((push = fspushed(is)) != NULL)
+				seen = push->fstr_auxp;
 			if ((val = ab_value(LOCAL_AB, buf, &seen, begalias)) == NULL)
 				val = ab_value(GLOBAL_AB, buf, &seen, begalias);
 #ifdef DEBUG
@@ -462,29 +489,26 @@ input_expand(os, is)
 #endif
 			if (val != NULL) {
 				if (--loopcnt >= 0) {
-					fstream	*pushed = 0;
+					fstream	*pushed = fspush(is,
+							    (fstr_efun)berror);
 
+					if (pushed)
+						pushed->fstr_auxp = seen;
 					/*
 					 * If a begin alias was expanded and the
 					 * new text ends in a space or tab, the
 					 * next word will be a begin alias too.
 					 */
-					if (begalias != 0) {
+					if (pushed && begalias != 0) {
 						int len = strlen(val);
 
 						if (len > 0 &&
 						    (val[len-1] == ' ' ||
 						    val[len-1] == '\t')) {
-							pushed = fspush(is,
-							    (fstr_efun)berror);
+							pushed->fstr_flags |= 1;
 						}
 					}
-					if (pushed) {
-						pushed->fstr_flags |= 1;
-						fspushstr(pushed, val);
-					} else {
-						fspushstr(is, val);
-					}
+					fspushstr(pushed?pushed:is, val);
 				} else {
 					syntax("Alias loop on '%s'.", buf);
 					break;
@@ -641,6 +665,5 @@ input_expand(os, is)
 			break;
 		}
 	}
-	seen = 0;
 	return (0);
 }

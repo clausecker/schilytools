@@ -1,4 +1,4 @@
-/* @(#)fgetstr.c	1.13 18/06/18 Copyright 1986, 1996-2018 J. Schilling */
+/* @(#)fgetstr.c	1.14 18/10/10 Copyright 1986, 1996-2018 J. Schilling */
 /*
  *	Copyright (c) 1986, 1996-2018 J. Schilling
  */
@@ -66,7 +66,7 @@ fgetstr(f, buf, len)
 #if	defined(HAVE_USG_STDIO) || defined(FAST_GETC_PUTC)
 		size_t	n;
 
-		if ((__c f)->_cnt <= 0) {
+		if ((__js_fp f)->_cnt <= 0) {
 			if (usg_filbuf(f) == EOF) {
 				/*
 				 * If buffer is empty and we hit EOF, return EOF
@@ -75,19 +75,19 @@ fgetstr(f, buf, len)
 					return (EOF);
 				break;
 			}
-			(__c f)->_cnt++;
-			(__c f)->_ptr--;
+			(__js_fp f)->_cnt++;
+			(__js_fp f)->_ptr--;
 		}
 
 		n = len;
-		if (n > (__c f)->_cnt)
-			n = (__c f)->_cnt;
-		p = movecbytes((__c f)->_ptr, bp, '\n', n);
+		if (n > (__js_fp f)->_cnt)
+			n = (__js_fp f)->_cnt;
+		p = movecbytes((__js_fp f)->_ptr, bp, '\n', n);
 		if (p) {
 			n = p - bp;
 		}
-		(__c f)->_ptr += n;
-		(__c f)->_cnt -= n;
+		(__js_fp f)->_ptr += n;
+		(__js_fp f)->_cnt -= n;
 		bp += n;
 		len -= n;
 		if (p != NULL || len == 0)

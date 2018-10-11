@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)macro.c	1.90 18/05/23 2008-2018 J. Schilling
+ * @(#)macro.c	1.92 18/10/09 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.90 18/05/23 2008-2018 J. Schilling";
+	"@(#)macro.c	1.92 18/10/09 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -86,7 +86,9 @@ static unsigned char	*prefsubstr __PR((unsigned char *v, unsigned char *pat,
 static unsigned char	*mbdecr	__PR((unsigned char *s, unsigned char *sp));
 static int		suffsubstr __PR((unsigned char *v, unsigned char *pat,
 					int largest));
+#ifdef	__needed__
 static Uchar	*globesc	__PR((Uchar *argp));
+#endif
 #endif
 static void	sizecpy		__PR((int vsize, Uchar *v, int trimflag));
 static Uchar	*trimcpy	__PR((Uchar *argp, int trimflag));
@@ -514,7 +516,12 @@ docolon:
 						if (c == '#' || c == '%') {
 							int	nc = readwc();
 
+#ifdef	__needed__
+							/*
+							 * See globesc() below.
+							 */
 							ntrim = 0;
+#endif
 							if (nc == c) {
 								largest++;
 							} else {
@@ -564,7 +571,12 @@ docolon:
 					/*
 					 * Treat double quotes in glob pattern.
 					 */
+#ifdef	__needed__
+					/*
+					 * See ntrim = 0 above.
+					 */
 					argp = globesc(argp);
+#endif
 					if (c == '#') {
 						v = prefsubstr(v, argp,
 								largest);
@@ -756,6 +768,7 @@ _macro(as)
 		pushstak('\\');
 		GROWSTAKTOP();
 		pushstak('\0');
+		zerostak();
 /*
  * above is the fix for *'.c' bug
  */
@@ -1207,6 +1220,7 @@ suffsubstr(v, pat, largest)
  * Convert prefix and suffix pattern into something that is
  * accepted by glob().
  */
+#ifdef	__needed__
 static Uchar *
 globesc(argp)
 	Uchar	*argp;
@@ -1253,6 +1267,7 @@ globesc(argp)
 	staktop = (absstak(b));
 	return (&staktop[1]);	/* Point past first added null byte */
 }
+#endif
 #endif
 
 /*

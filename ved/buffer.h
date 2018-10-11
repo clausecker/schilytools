@@ -1,4 +1,4 @@
-/* @(#)buffer.h	1.18 18/09/19 Copyright 1984, 1988, 1996-2018 J. Schilling */
+/* @(#)buffer.h	1.19 18/10/01 Copyright 1984, 1988, 1996-2018 J. Schilling */
 /*
  *	Definitions for the paged virtual memory susbsystem of ved
  *	The lower level routines are located in buffer.c,
@@ -57,8 +57,8 @@
  * With 8192 bytes/buffer page and 64 bit pointers this uses 60 bytes/header.
  * This is 7680 bytes per MB of the edited file.
  */
-typedef	struct _header	headr_t;
-struct _header {
+typedef	struct _headr	headr_t;
+struct _headr {
 	headr_t	*next;		/* next header in the linked list	    */
 	headr_t	*prev;		/* previous header in the linked list	    */
 	headr_t	*nextr;		/* next header in most recently used list   */

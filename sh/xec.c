@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.102 18/08/01 2008-2018 J. Schilling
+ * @(#)xec.c	1.104 18/10/10 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.102 18/08/01 2008-2018 J. Schilling";
+	"@(#)xec.c	1.104 18/10/10 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -364,6 +364,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 							postjob(parent, 1, 1);
 						}
 #endif
+						pos = hashdata(cmdhash);
 						builtin(cmdhash,
 							argn, com, t, xflags);
 #ifdef	DO_PIPE_PARENT
@@ -392,6 +393,14 @@ execute(argt, xflags, errorflg, pf1, pf2)
 							dotbrk = 0;
 							longjmp(dotshell->jb,
 								    1);
+						}
+#endif
+#ifdef	DO_POSIX_E
+						if (errorflg &&
+						    (flags & errflg) &&
+						    exitval &&
+						    pos != SYSRETURN) {
+							done(0);
 						}
 #endif
 						break;
@@ -953,9 +962,19 @@ script:
 			execute(lstptr(t)->lstlef,
 				xflags&XEC_NOSTOP, errorflg,
 				no_pipe, no_pipe);
-			/* Update errorflg if set -e is invoked in the sub-sh */
+			/*
+			 * When not in POSIX mode, be compatible to the Solaris
+			 * modifications for bugid 1133408 even tough this is
+			 * questionable:
+			 *
+			 * Update errorflg if set -e is invoked in the sub-sh
+			 */
 			execute(lstptr(t)->lstrit,
+#ifdef	DO_POSIX_E
+				xflags, errorflg,
+#else
 				xflags, (errorflg | (eflag & errflg)),
+#endif
 				no_pipe, no_pipe);
 			break;
 
@@ -1139,6 +1158,13 @@ script:
 						unsigned char	*s;
 
 						s = macro(rex->argval);
+						/*
+						 * Make 'case "" in "")' work.
+						 * See AT&T hack in _macro() and
+						 * quoted nul removal in trims()
+						 */
+						if (s[0] == '\\' && s[1] == '\0')
+							s++;
 #ifdef	CASE_XPRINT
 						if (flags & execpr)
 							cprint(s, UC ")",
@@ -1172,8 +1198,6 @@ out:
 #endif
 	sigchk();
 	tdystak(sav, iosav);
-	if (flags & errflg && exitval)
-		done(0);
 	flags |= eflag;
 	return (exitval);
 }

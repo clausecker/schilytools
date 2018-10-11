@@ -1,8 +1,8 @@
-/* @(#)make.c	1.211 18/05/10 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)make.c	1.212 18/10/03 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.211 18/05/10 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)make.c	1.212 18/10/03 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Make program
@@ -42,8 +42,9 @@ static	UConst char sccsid[] =
 
 #include "make.h"
 #include "job.h"
+#include "version.h"
 
-char	make_version[] = "1.3";
+char	make_version[] = VERSION;
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -825,8 +826,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2018 Jörg Schilling\n",
-				make_version,
+		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2018 Jörg Schilling\n",
+				make_version, VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

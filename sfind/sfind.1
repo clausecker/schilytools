@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.31 18/09/15 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.32 18/09/27 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/09/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/09/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -766,17 +766,25 @@ The
 primary exists for
 backwards compatibility with old UNIX 
 .BR find (1)
-versions.
+versions and has been added to POSIX with issue 8.
 .sp
-This primary is not yet mentioned in the POSIX standard.
+If both
+.B \-mount
+and
+.B \-mount+
+or
+.B \-xdev
+have been specified,
+.B \-mount
+wins.
 .br
 .ne 5
 .TP
 .B \-mount+
 The primary always evaluates as true; it causes
 .B sfind
-not to continue descending past directories that have a
-different device ID
+to report directories but not to continue descending past directories
+that have a different device ID
 .RB ( st_dev ,
 see the
 .BR stat ()
@@ -790,7 +798,10 @@ expression even if the
 primary would not normally be
 evaluated.
 .sp
-This primary is not mentioned in the POSIX standard.
+This primary is not mentioned in the POSIX standard, but the POSIX
+.B \-xdev
+primary is an alias to
+.BR \-mount+ .
 .br
 .ne 5
 .TP
@@ -1335,15 +1346,16 @@ This primary is not mentioned in the POSIX standard.
 .ne 5
 .TP
 .B \-xdev
-The primary always evaluates as true; it is an alias for
+The primary always evaluates as true; it was an alias to
 .B \-mount
-but may become an alias to
+for compatibility to historic UNIX implementations
+but has become an alias to
 .B \-mount+
-in the future.
+with a POSIX wording bug fix in September 2018.
 .sp
-Note that the 
+Note that the bug fix in the
 .B POSIX 
-standard is currently in conflict with the established
+standard makes it in conflict with the established
 .B UNIX
 behavior for
 .B \-xdev
@@ -1352,6 +1364,13 @@ that is aligned with the behavior of
 with 
 .B FTW_MOUNT
 that does not incude mount points in the output.
+Since half of the implementations followed the ambigous wording
+in the POSIX standard from 1992 and half of the implementations
+followed the historic UNIX behavior, the POSIX wording that requires
+to report the directory type mount points has been finally set up
+and
+.B libfind
+now follows the POSIX wording.
 
 .PP
 The primaries can be combined using the following operators (in
@@ -1376,15 +1395,15 @@ Alternation of primaries; the OR operator. The second
 expression is not evaluated if the first expression is
 true.
 .PP
-If no expression is present, 
+If no expression is present at all, 
 .B \-print
-is used as the
+is used as the default
 expression. Otherwise, if the given expression does not contain
 any of the primaries 
-.BR "\-exec ", " \-ok ", or " \-print ,
+.BR "\-exec" , " \-ok" ", or" " \-print" ,
 the given expression is effectively replaced by:
 .PP
-.I "( given_expression ) \-print
+.BI "( " given_expression " ) \-print
 .PP
 The 
 .BR \-user ", " \-group ", and " \-newer
@@ -1394,11 +1413,13 @@ respective arguments only once.
 .SH EXAMPLES
 1. The following commands are equivalent:
 .PP
+.B "sfind
+.br
 .B "sfind .
 .br
 .B "sfind . -print
 .PP
-They both write out the entire directory hierarchy from the
+They all write out the entire directory hierarchy from the
 current directory.
 .PP
 2. The following command:
@@ -1437,7 +1458,8 @@ the SCCS directories.
 .PP
 6. The following command is roughly equivalent to the
 .B -nt
-extension to test:
+extension to
+.BR test (1):
 .PP
 .B "if [ -n `sfind file1 -prune -newer file2` ]; then
 .br

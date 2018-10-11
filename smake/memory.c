@@ -1,8 +1,8 @@
-/* @(#)memory.c	1.23 17/03/17 Copyright 1985-2012 J. Schilling */
+/* @(#)memory.c	1.24 18/10/01 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)memory.c	1.23 17/03/17 Copyright 1985-2012 J. Schilling";
+	"@(#)memory.c	1.24 18/10/01 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Make program
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/align.h>
 #include "make.h"
 
 EXPORT	char	*gbuf;
@@ -174,11 +175,11 @@ fastalloc(size)
 	 * XXX Should rather include schily/align.h and use the right
 	 * XXX macros.
 	 */
-/*#define	round_up(x)		((x) + (4 - ((x) & 3)))*/
-#define	ALIGN_PTR		(sizeof (char *))
-#define	ALIGN_PMASK		(sizeof (char *)-1)
-/*#define	round_up(x)		((x) + (ALIGN_PTR - ((x) & ALIGN_PMASK)))*/
-#define	round_up(x)		((x) + (ALIGN_PTR - 1 - (((x)-1) & ALIGN_PMASK)))
+#ifdef	LL_DATE_T
+#define	round_up(x)		(unsigned) llalign(x)
+#else
+#define	round_up(x)		(unsigned) palign(x)
+#endif
 
 	size = round_up(size);
 

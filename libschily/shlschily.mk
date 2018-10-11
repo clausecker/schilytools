@@ -1,4 +1,4 @@
-#ident @(#)shlschily.mk	1.8 12/08/14 
+#ident @(#)shlschily.mk	1.9 18/10/11 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,6 +6,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 SUBARCHDIR=	/pic
+SHL_MAJOR=	2
+SHL_MINOR=	0
 .SEARCHLIST:	. $(ARCHDIR) stdio $(ARCHDIR)
 VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib

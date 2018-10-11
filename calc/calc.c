@@ -1,8 +1,8 @@
-/* @(#)calc.c	1.22 18/06/06 Copyright 1985-2018 J. Schilling */
+/* @(#)calc.c	1.23 18/09/27 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.22 18/06/06 Copyright 1985-2018 J. Schilling";
+	"@(#)calc.c	1.23 18/09/27 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
@@ -87,8 +87,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2018 Jörg Schilling\n",
-				"1.22",
+		printf("Calc release %s %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2018 Jörg Schilling\n",
+				"1.23", "2018/09/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

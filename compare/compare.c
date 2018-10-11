@@ -1,8 +1,8 @@
-/* @(#)compare.c	1.23 11/08/03 Copyright 1985, 88, 96-99, 2000-2011 J. Schilling */
+/* @(#)compare.c	1.25 18/09/27 Copyright 1985, 88, 96-99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)compare.c	1.23 11/08/03 Copyright 1985, 88, 96-99, 2000-2011 J. Schilling";
+	"@(#)compare.c	1.25 18/09/27 Copyright 1985, 88, 96-99, 2000-2018 J. Schilling";
 #endif
 /*
  *	compare two file for identical contents
@@ -15,7 +15,7 @@ static	UConst char sccsid[] =
  *		5	cannot open one of the files
  *		6	I/O error on one of the files
  *
- *	Copyright (c) 1985, 88, 96-99, 2000-2011 J. Schilling
+ *	Copyright (c) 1985, 88, 96-99, 2000-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,14 +52,14 @@ char	buf1[8*1024];
 char	buf2[8*1024];
 
 char *options =
-	"help,version,s,silent,b&,begin&,c&,count&,all,a,long,l,lines,L";
-/*	"s,silent,help,b#,begin#,begin1#,b1#,begin2#,b2#,c#,count#,a,all";*/
+	"help,version,s,silent,b&,begin&,b1&,begin1&,b2&,begin2&,c&,count&,all,a,long,l,lines,L";
 
 LOCAL	void	usage	__PR((int exitcode));
 EXPORT	int	main	__PR((int ac, char **av));
 LOCAL	int	fsame	__PR((FILE *f1, FILE *f2));
 LOCAL	void	skip	__PR((FILE * f, off_t pos));
-LOCAL	void	compare	__PR((FILE * f1, FILE * f2, off_t pos, off_t count));
+LOCAL	void	compare	__PR((FILE * f1, FILE * f2, off_t pos1, off_t pos2,
+				off_t count));
 LOCAL	char	*printc	__PR((int c, char *bp));
 LOCAL	void	prc	__PR((int c, char *bp));
 LOCAL	void	prchar	__PR((int c, char *bp));
@@ -74,8 +74,8 @@ usage(exitcode)
 	error("Options:\n");
 	error("\t-silent \tbe silent\n");
 	error("\tbegin=# \toffset for both files\n");
-/*	error("\tbegin1=#\toffset for file1\n");*/
-/*	error("\tbegin2=#\toffset for file2\n");*/
+	error("\tbegin1=#\toffset for file1\n");
+	error("\tbegin2=#\toffset for file2\n");
 	error("\tcount=# \tcompare # bytes\n");
 	error("\t-all,-a \tcompare to end of files\n");
 	error("\t-long,-l\tcompare to end of files\n");
@@ -96,8 +96,8 @@ main(ac, av)
 	int	help	= 0;
 	int	prversion = 0;
 	Llong	bpos	= 0;
-/*	long	bpos1	= 0;*/
-/*	long	bpos2	= 0;*/
+	Llong	bpos1	= 0;
+	Llong	bpos2	= 0;
 	Llong	count	= 0;
 	int	ex;
 	int	cac;
@@ -111,6 +111,10 @@ main(ac, av)
 		&silent, &silent,
 		getllnum, &bpos,
 		getllnum, &bpos,
+		getllnum, &bpos1,
+		getllnum, &bpos1,
+		getllnum, &bpos2,
+		getllnum, &bpos2,
 		getllnum, &count,
 		getllnum, &count,
 		&allflg, &allflg,
@@ -122,8 +126,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Compare release %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2011 Jörg Schilling\n",
-				"1.23",
+		printf("Compare release %s %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2018 Jörg Schilling\n",
+				"1.25", "2018/09/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -163,6 +167,10 @@ main(ac, av)
 	f2->_ff &= ~_FASCII;
 #endif
 	/* XXX attention if we use bpos1 && bpos2 */
+	if (bpos && bpos1 == 0)
+		bpos1 = bpos;
+	if (bpos && bpos2 == 0)
+		bpos2 = bpos;
 	ex = fsame(f1, f2);
 	switch (ex) {
 
@@ -184,11 +192,11 @@ main(ac, av)
 		}
 #endif
 	}
-	if (bpos) {
-		skip(f1, (off_t)bpos);
-		skip(f2, (off_t)bpos);
-	}
-	compare(f1, f2, (off_t)bpos, (off_t)count);
+	if (bpos1)
+		skip(f1, (off_t)bpos1);
+	if (bpos2)
+		skip(f2, (off_t)bpos2);
+	compare(f1, f2, (off_t)bpos1, (off_t)bpos2, (off_t)count);
 	/* NOTREADCHED */
 	return (0);	/* Keep lint happy */
 }
@@ -226,9 +234,14 @@ skip(f, pos)
 	register FILE	*f;
 	register off_t	pos;
 {
-	register off_t	i	= (off_t)0;
+	register off_t	i;
 	register long	n;
 
+	i = fileseek(f, pos);
+	if (i >= (off_t)0)
+		return;
+
+	i = (off_t)0;
 	while (i < pos) {
 		n = ffileread(f, buf1, (int)min(sizeof (buf1), pos - i));
 		if (n <= 0)
@@ -238,10 +251,11 @@ skip(f, pos)
 }
 
 LOCAL void
-compare(f1, f2, pos, count)
+compare(f1, f2, pos1, pos2, count)
 	FILE	*f1;
 	FILE	*f2;
-	off_t	pos;
+	off_t	pos1;
+	off_t	pos2;
 	off_t	count;
 {
 	register unsigned char	*p1 = NULL;
@@ -273,7 +287,8 @@ compare(f1, f2, pos, count)
 				cnt = min(cnt, count - i);
 			n = cmpbytes(p1, p2, cnt);
 			i += n;
-			pos += n;
+			pos1 += n;
+			pos2 += n;
 			l1 -= n;
 			l2 -= n;
 			p1 += n;
@@ -285,34 +300,34 @@ compare(f1, f2, pos, count)
 			}
 		}
 		if (l1 < 0 || ferror(f1)) {
-			if (sizeof (pos) > sizeof (long)) {
+			if (sizeof (pos1) > sizeof (long)) {
 				errmsg("Error reading '%s', at %lld (0x%llx)\n",
-						n1, (Llong)pos, (Llong)pos);
+						n1, (Llong)pos1, (Llong)pos1);
 			} else {
 				errmsg("Error reading '%s', at %ld (0x%lx)\n",
-						n1, (long)pos, (long)pos);
+						n1, (long)pos1, (long)pos1);
 			}
 			exit(6);
 		}
 		if (l2 < 0 || ferror(f2)) {
-			if (sizeof (pos) > sizeof (long)) {
+			if (sizeof (pos1) > sizeof (long)) {
 				errmsg("Error reading '%s', at %lld (0x%llx)\n",
-						n2, (Llong)pos, (Llong)pos);
+						n2, (Llong)pos2, (Llong)pos2);
 			} else {
 				errmsg("Error reading '%s', at %ld (0x%lx)\n",
-						n2, (long)pos, (long)pos);
+						n2, (long)pos2, (long)pos2);
 			}
 			exit(6);
 		}
 		if (l1 <= 0 || feof(f1)) {
 			if (!feof(f2) && l2 > 0) {
 				if (!silent) {
-					if (sizeof (pos) > sizeof (long)) {
+					if (sizeof (pos1) > sizeof (long)) {
 						printf("%s is longer than %s at %lld (0x%llx)\n",
-							n2, n1, (Llong)pos, (Llong)pos);
+							n2, n1, (Llong)pos1, (Llong)pos1);
 					} else {
 						printf("%s is longer than %s at %ld (0x%lx)\n",
-							n2, n1, (long)pos, (long)pos);
+							n2, n1, (long)pos1, (long)pos1);
 					}
 				}
 				if (!exitcode)
@@ -321,12 +336,12 @@ compare(f1, f2, pos, count)
 			break;
 		} else if (l2 <= 0 || feof(f2)) {
 			if (!silent) {
-				if (sizeof (pos) > sizeof (long)) {
+				if (sizeof (pos1) > sizeof (long)) {
 					printf("%s is longer than %s at %lld (0x%llx)\n",
-						n1, n2, (Llong)pos, (Llong)pos);
+						n1, n2, (Llong)pos2, (Llong)pos2);
 				} else {
 					printf("%s is longer than %s at %ld (0x%lx)\n",
-						n1, n2, (long)pos, (long)pos);
+						n1, n2, (long)pos2, (long)pos2);
 				}
 			}
 			if (!exitcode)
@@ -343,18 +358,35 @@ compare(f1, f2, pos, count)
 				}
 				if (!allflg)
 					printf("files differ at byte ");
-				if (sizeof (pos) > sizeof (long)) {
+				if (pos1 != pos2) {
+				if (sizeof (pos1) > sizeof (long)) {
+					printf("%6lld  (0x%06llx) / %6lld  (0x%06llx)\t0x%02x != 0x%02x%6s%6s",
+						(Llong)pos1, (Llong)pos1,
+						(Llong)pos2, (Llong)pos2,
+						*p1, *p2,
+						printc(*p1, cb1), printc(*p2, cb2));
+				} else {
+					printf("%6ld  (0x%06lx) / %6ld  (0x%06lx)\t0x%02x != 0x%02x%6s%6s",
+						(long)pos1, (long)pos1,
+						(long)pos2, (long)pos2,
+						*p1, *p2,
+						printc(*p1, cb1), printc(*p2, cb2));
+				}
+				} else {
+				if (sizeof (pos1) > sizeof (long)) {
 					printf("%6lld  (0x%06llx)\t0x%02x != 0x%02x%6s%6s",
-						(Llong)pos, (Llong)pos, *p1, *p2,
+						(Llong)pos1, (Llong)pos1, *p1, *p2,
 						printc(*p1, cb1), printc(*p2, cb2));
 				} else {
 					printf("%6ld  (0x%06lx)\t0x%02x != 0x%02x%6s%6s",
-						(long)pos, (long)pos, *p1, *p2,
+						(long)pos1, (long)pos1, *p1, *p2,
 						printc(*p1, cb1), printc(*p2, cb2));
+				}
 				}
 				putchar('\n');
 			}
-			pos++;
+			pos1++;
+			pos2++;
 			i++;
 			l1--;
 			l2--;

@@ -1,6 +1,6 @@
-# @(#)Targets	1.7 18/08/20 Copyright 2005-2018 J. Schilling
+# @(#)Targets	1.8 18/09/27 Copyright 2005-2018 J. Schilling
 
 CFILES=		find.c walk.c fetchdir.c cmpdir.c \
 		find_misc.c find_list.c find_main.c \
 		idcache.c ptime.c
-HFILES=		find_misc.h find_list.h find_tok.h
+HFILES=		find_misc.h find_list.h find_tok.h version.h

@@ -1,8 +1,8 @@
-/* @(#)strar.c	1.6 18/08/22 Copyright 2017-2018 J. Schilling */
+/* @(#)strar.c	1.7 18/09/28 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strar.c	1.6 18/08/22 Copyright 2017-2018 J. Schilling";
+	"@(#)strar.c	1.7 18/09/28 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Manage a StreamArchive
@@ -73,7 +73,7 @@ usage(exitcode)
 LOCAL void
 pvers()
 {
-	printf("strar %s (%s-%s-%s)\n\n", "1.6",
+	printf("strar %s %s (%s-%s-%s)\n\n", "1.7", "2018/09/28",
 		HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2017-2018 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
