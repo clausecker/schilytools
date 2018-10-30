@@ -1,4 +1,4 @@
-#ident "@(#)powerpc-os400-gcc.rul	1.4 18/10/03 "
+#ident "@(#)powerpc-os400-gcc.rul	1.6 18/10/14 "
 ###########################################################################
 # Written 1997-2018 by J. Schilling
 ###########################################################################
@@ -46,7 +46,7 @@ LIB_KVM=
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
-LDOPTDYN=
+LDOPTDYN=	-shared
 LNDYNLIB=	@
 
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

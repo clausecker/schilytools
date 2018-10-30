@@ -1,8 +1,8 @@
-/* @(#)make.c	1.212 18/10/03 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)make.c	1.213 18/10/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.212 18/10/03 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)make.c	1.213 18/10/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
 #endif
 /*
  *	Make program
@@ -93,7 +93,6 @@ EXPORT	char	*curwdir	__PR((void));
 LOCAL	char	*getdefaultsfile	__PR((void));
 LOCAL	int	put_env		__PR((char *new));
 LOCAL	int	unset_env	__PR((char *name));
-LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 
 BOOL	posixmode	= FALSE;	/* We found a .POSIX target	*/
 BOOL	Eflag		= FALSE;	/* -e Environment overrides vars*/
@@ -2138,16 +2137,4 @@ unset_env(name)
 
 	unsetenv(name);			/* OpenBSD deviates and returns void */
 	return (0);
-}
-
-/*
- * A strcpy() that works with overlapping buffers
- */
-LOCAL void
-ovstrcpy(p2, p1)
-	register char	*p2;
-	register char	*p1;
-{
-	while ((*p2++ = *p1++) != '\0')
-		;
 }

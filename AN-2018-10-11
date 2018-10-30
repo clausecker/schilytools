@@ -118,7 +118,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 -	libfind/star/mkisofs/bsh/Bourne Shell: "find -xdev" is no longer
 	UNIX compatible but rather POSIX compatible.
 
-	*** Uncompatible change ***
+	*** Incompatible change ***
 	*** POSIX wording from 1992 is in conflict with UNIX implementation ***
 
 	Background: POSIX in 1992 introduced a wording for -xdev that was in

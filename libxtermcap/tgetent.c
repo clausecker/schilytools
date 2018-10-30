@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.43 18/04/22 Copyright 1986-2018 J. Schilling */
+/* @(#)tgetent.c	1.44 18/10/14 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.43 18/04/22 Copyright 1986-2018 J. Schilling";
+	"@(#)tgetent.c	1.44 18/10/14 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -107,7 +107,10 @@ LOCAL	char	*tinsint	__PR((char *ep, int i));
 LOCAL	void	tstrip		__PR((void));
 LOCAL	char	*tmalloc	__PR((int size));
 LOCAL	char	*trealloc	__PR((char *p, int size));
-LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
+#ifdef	NO_LIBSCHILY
+#define	ovstrcpy	_ovstrcpy
+LOCAL	char	*ovstrcpy	__PR((char *p2, const char *p1));
+#endif
 LOCAL	void	e_tcname	__PR((char *name));
 
 EXPORT int
@@ -899,17 +902,23 @@ trealloc(p, size)
 	return ((char *)NULL);
 }
 
+#ifdef	NO_LIBSCHILY
 /*
  * A strcpy() that works with overlapping buffers
  */
-LOCAL void
+LOCAL char *
 ovstrcpy(p2, p1)
-	register char	*p2;
-	register char	*p1;
+	register char		*p2;
+	register const char	*p1;
 {
+	char	*ret = p2;
+
 	while ((*p2++ = *p1++) != '\0')
 		;
+
+	return (ret);
 }
+#endif
 
 LOCAL void
 e_tcname(name)

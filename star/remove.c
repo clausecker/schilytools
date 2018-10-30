@@ -1,8 +1,8 @@
-/* @(#)remove.c	1.60 18/08/07 Copyright 1985, 1991-2018 J. Schilling */
+/* @(#)remove.c	1.61 18/10/23 Copyright 1985, 1991-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.60 18/08/07 Copyright 1985, 1991-2018 J. Schilling";
+	"@(#)remove.c	1.61 18/10/23 Copyright 1985, 1991-2018 J. Schilling";
 #endif
 /*
  *	remove files an file trees
@@ -108,7 +108,7 @@ _remove_file(name, path, isfirst, depth)
 		buf[0] = '\0';
 		len = fgetstr(tty, buf, 3);
 		if (len > 0 && buf[len-1] != '\n') {
-			while(getc(tty) != '\n') {
+			while (getc(tty) != '\n') {
 				if (feof(tty) || ferror(tty))
 					break;
 			}
@@ -146,7 +146,7 @@ _remove_file(name, path, isfirst, depth)
 						buf[0] = '\0';
 						len = fgetstr(tty, buf, 3);
 						if (len > 0 && buf[len-1] != '\n') {
-							while(getc(tty) != '\n') {
+							while (getc(tty) != '\n') {
 								if (feof(tty) || ferror(tty))
 									break;
 							}

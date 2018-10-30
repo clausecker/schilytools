@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.12 12/05/06 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.13 18/10/28 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "2012/05/06" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "2018/10/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -24,16 +24,16 @@ termcap
 ]
 .SH DESCRIPTION
 .B termcap
-reads termcap entries and outputs them in standard order and
-with standard escape sequences. This allows to convert termcap
+reads termcap entries and outputs them in unified order and
+with unified escape sequences. This allows to convert termcap
 files into a comparable format.
 .PP
-The termcap database is an ASCII representation of the data
-so people may believe that there is no need for a compiler.
+Since the termcap database is an ASCII representation of the data,
+people may believe that there is no need for a compiler.
 Syntax checks and unification however are a property of compilers.
 The
 .B termcap
-program checks for correct data types, outputs all entries in a unique
+program checks for correct data types, outputs all entries in a unified
 order and recodes all strings with the same escape notation.
 This is needed in to compare two entries and it makes life easier.
 .PP
@@ -140,6 +140,11 @@ In addition, the escape sequences
 and
 .B \el
 are mapped to BEL, ESCAPE, ':', ',', ' ' and LINEFEED.
+.TP
+.B \-oneline
+Output all termcap entries in a single line per entry.
+This helps to scan the whole termcap data base for terminals with specific
+properties.
 .TP
 .B \-s
 Output commands to set and export

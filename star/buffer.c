@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.184 18/09/01 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.185 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.184 18/09/01 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.185 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -562,7 +562,7 @@ changetape(donext)
 		ans[0] = '\n';
 		len = fgetstr(tty, ans, sizeof (ans));
 		if (len > 0 && ans[len-1] != '\n') {
-			while(getc(tty) != '\n') {
+			while (getc(tty) != '\n') {
 				if (feof(tty) || ferror(tty))
 					break;
 			}

@@ -1,4 +1,4 @@
-# @(#)Targets	1.64 18/09/03 Copyright 1995-2018 J. Schilling
+# @(#)Targets	1.65 18/10/14 Copyright 1995-2018 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -55,6 +55,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		mkstemp.c \
 		mem.c jmem.c fjmem.c \
 		openat.c openat64.c \
+		ovstrcpy.c \
 		permtostr.c \
 		procnameat.c putenv.c \
 		raisecond.c readlinkat.c rename.c renameat.c resolvepath.c \

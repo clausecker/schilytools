@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)bltin.c	1.134 18/07/02 2008-2018 J. Schilling
+ * @(#)bltin.c	1.135 18/10/23 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.134 18/07/02 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.135 18/10/23 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -734,8 +734,10 @@ builtin(type, argc, argv, t, xflags)
 				case '?':
 					gfailure(UC usage, repuse);
 					err = 1;
+					goto reperr;
 				}
 			}
+		reperr:
 			if (err)
 				break;
 

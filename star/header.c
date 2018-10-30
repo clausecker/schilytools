@@ -1,8 +1,8 @@
-/* @(#)header.c	1.175 18/08/12 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.176 18/10/23 Copyright 1985, 1994-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.175 18/08/12 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.176 18/10/23 Copyright 1985, 1994-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -387,11 +387,11 @@ isxmagic(ptb)
 	 */
 	for (i = 0; i < 11; i++) {
 		if ((ptb->xstar_dbuf.t_atime[0] & 0x80) == 0 &&
-		   (ptb->xstar_dbuf.t_atime[i] < '0' ||
+		    (ptb->xstar_dbuf.t_atime[i] < '0' ||
 		    ptb->xstar_dbuf.t_atime[i] > '7'))
 			return (FALSE);
 		if (((ptb->xstar_dbuf.t_ctime[0] & 0x80) == 0) &&
-		   (ptb->xstar_dbuf.t_ctime[i] < '0' ||
+		    (ptb->xstar_dbuf.t_ctime[i] < '0' ||
 		    ptb->xstar_dbuf.t_ctime[i] > '7'))
 			return (FALSE);
 	}

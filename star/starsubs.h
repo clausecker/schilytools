@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.129 18/07/23 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.132 18/10/24 Copyright 1996-2018 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -35,6 +35,7 @@ extern	int	main		__PR((int ac, char **av));
 extern	int	getnum		__PR((char *arg, long *valp));
 extern	int	getbnum		__PR((char *arg, Llong *valp));
 extern	int	getknum		__PR((char *arg, Llong *valp));
+extern	void	set_signal	__PR((int sig, RETSIGTYPE (*handler)(int)));
 extern	void	copy_create	__PR((int ac, char *const *av));
 extern	void	star_verifyopts	__PR((void));
 #ifdef	EOF
@@ -44,7 +45,7 @@ extern	BOOL	ttyerr		__PR((FILE *f));
 /*
  * chdir.c
  */
-extern	char	*dogetwdir	__PR((void));
+extern	char	*dogetwdir	__PR((BOOL doexit));
 extern	BOOL	dochdir		__PR((const char *dir, BOOL doexit));
 
 /*
@@ -417,7 +418,8 @@ extern	int	lstatat		__PR((char *name, struct stat *buf, int flag));
 #endif
 extern	int	lchmodat	__PR((char *name, mode_t mode, int flag));
 #ifdef	_SCHILY_TIME_H
-extern	int	lutimensat	__PR((char *name, struct timespec *ts, int flag));
+extern	int	lutimensat	__PR((char *name, struct timespec *ts,
+					int flag));
 #endif
 extern	int	lreadlink	__PR((char *name, char *buf, size_t bufsize));
 extern	int	lsymlink	__PR((char *name, char *name2));
@@ -425,7 +427,8 @@ extern	int	llink		__PR((char *name, char *name2));
 extern	int	lrename		__PR((char *name, char *name2));
 extern	int	lmknod		__PR((char *name, mode_t mode, dev_t dev));
 extern	int	lmkfifo		__PR((char *name, mode_t mode));
-extern	int	lchownat	__PR((char *name, uid_t uid, gid_t gid, int flag));
+extern	int	lchownat	__PR((char *name, uid_t uid, gid_t gid,
+					int flag));
 extern	int	lunlinkat	__PR((char *name, int flag));
 extern	char	*lmktemp	__PR((char *name));
 #ifdef	EOF

@@ -1,0 +1,259 @@
+New features with AN-2018-10-30:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+
+-	Fixed a bug in the OS400 support that caused the linker flags for
+	shared libraries to be cleared. We now use LDOPTDYN= -shared
+	instead of the GCC default -shared -Wl,-soname,$(TARGET) as the linker
+	on OS400 does not support -Wl,-soname
+
+-	include/schily/walk.h: Added new flags to struct WALK that allow to
+	signal that owner/group, modes or times have been changed in
+	struct stat:
+
+	#define WALK_WF_CHOWN   4096    /* changed st_uid or st_gid */ 
+	#define WALK_WF_CHMOD   8192    /* changed st_mode */ 
+	#define WALK_WF_CHTIME  16384   /* changed st_mtime or st_ctime */ 
+
+-	psmake: added ovstrcpy.c to "lnfiles". "cpfiles", "rmlinks" and "MAKE-sh".
+	See ovstrcpy.c move to libschily below.
+
+-	libschily: ovstrcpy() from various programs has been moved to libschily.
+	This affects smake, mkisofs, patch, ved, count, sformat
+
+-	libfind: walkcwd() no longer tries to call dirfd() unless it exists or
+	DIR->dd_fd exists.
+
+	This should make it compile with DJGPP again.
+
+-	libfind: the time parser now supports the new time spec "now" for
+	the current time.
+
+-	libfind: The new primaries -chatime, -chctime, -chmtime allow to
+	set the time stamps in struct stat to arbitrary values.
+
+-	libfind: A new primaries -chfile allows to set the modified struct
+	stat values from -chown, -chgrp, -chmod, -chatime, -chctime, -chmtime
+	to the file.
+
+	On platforms where chmod() is not possible on a symbolic link, symbolic
+	links are skipped with that change.
+
+	On platforms where it is not possible to set times on symbolic links,
+	symbolic linkes are skipped with that change.
+
+-	libxtermcap: static ovstrcpy() has been moved to libschily.
+
+-	sfind: new primaries -chatime, -chctime, -chmtime
+
+-	sfind: The new primary -chfile allows to set the modified struct
+	stat values from -chown, -chgrp, -chmod, -chatime, -chctime, -chmtime
+	to the file.
+
+-	sfind: the primaries -chown, -chgrp, -chmod are now available in the
+	program variant as well since we now have -chfile that makes them
+	useful in the generic case as well.
+
+-	sfind: documented the new primaries -chatime, -chctime, -chmtime
+
+-	sfind: documented the new primary -chfile
+
+-	count: fixed some minor bugs in multi byte character handling for illegal
+	character sequences.
+
+-	ved: the central character input routine now may be compiled to convert
+	multi byte characters to wide characters.
+
+-	Bourne Shell: disable a check for /usr/lib/locale if we are not on Solaris.
+	This is needed in order to make sure setlocale() is called on NetBSD.
+	This disables our check that is intended to avoid a "bad locale" message
+	when in single user mode with a split root filesystem when /usr is not
+	yet mounted.
+
+	Thanks to Michael Bäuerle for reporting
+
+-	Bourne Shell: calling "repeat -test" did result in 4 Usage messages.
+	A missing exit from a loop has been added.
+
+-	Bourne Shell: new primaries -chatime, -chctime, -chmtime,
+	-chown, -chgrp, -chmod, -chfile in the built in find(1)
+
+-	star: changed the members of struct dumpdates to have the prefix dd_ in
+	all members.
+
+-	star: Enhanced the comment in fifo.c and fifo.h
+
+-	star: Added "volatile" to a selection of struct members in struct m_head.
+	This should help to avoid specific optimization from newer compilers
+	that could cause problems with the synchronization of the fifo.
+
+-	star: added new flag members (eflags & pflags) to struct m_head to make
+	sure that the probability of changing too much with &= and |= operators
+	in only a single flag word is reduced. We added:
+
+	eflags	for flags that are only used in preparation of an exit
+
+	pflags	for flags that are modified only by the put side of the FIFO
+		when doing changes at unpredictive time slots.
+
+-	star: make sure that "star -c" results in a non-zero exit code if it
+	is interupted by ^C.
+
+	Note that star catches ^C in order to avoid to create defective tar
+	archives (similar to a GNU tar bug) in such a case, but previously 
+	behaved like SunOS tar that finishes with the current file, writes
+	a correct EOF record to the archive and then exits  with 0.
+
+	The star exit code in case of a ^C with star -c is -4.
+
+-	star: Added new code to allow to debug a hanging FIFO.
+
+	If the FIFO hangs, use "ps -efc| grep star" to find the two process
+	IDs for the two star processes and then call:
+
+		kill -RTMAX <pid1>
+		kill -RTMAX <pid2>
+
+	and report the output that appears after sending this signal to both
+	processes.
+
+-	star: the path name length and the link name length are now set from
+	the POSIX 2001 extended tar headers in case that a name appears in that
+	extended meta data. This may speed up thigs that need to know the path
+	name length.
+
+-	star: Star now retrieves the current working directory in extract mode.
+	If this fails, it is not seen as a severe error and star continues to
+	work.
+
+-	star: the behavior for links in the default case (with
+	-secure-links active) has been made more user friendly.
+
+	Star now only flags links that point outside the current working
+	directory. This makes all tar extractions in default mode safe as long
+	as they are done inside an empty diretory.
+
+-	star: various Cstyle changes
+
+-	star: documented the new primaries -chatime, -chctime, -chmtime
+
+	These primaries allow to archive files with aribitrary time stamps.
+
+	If you e.g. like to archive all files with the current time, use:
+
+		star -c -find . -chmtime now
+
+-	mkisofs: documented the new -find primaries -chatime, -chctime, -chmtime
+
+-	p: The pager no longer reduces the output width by one in case that the
+	terminal has the "am" and the "xn" property set. This in special allows
+	to write up to the end of a line in "xterm".
+
+	Note that we still reduce the output width by one in case that the
+	terminal has no termcap entry and in case that the terminal has "am"
+	but not "xn". If we did not reduce the output width in that case, this
+	would cause the output files from script(1) to become hard to read.
+
+	Thanks to Steffen Nurpmeso <steffen@sdaoden.eu> for helping to find the
+	related problem.
+
+-	termcap: The termcap program now has a nw option "-oneline" that causes
+	the termcap entries to be always written as a single line. This helps to
+	use grep to check for terminals with specific features in the termcap
+	data base.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

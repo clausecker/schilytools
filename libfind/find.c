@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.112 18/09/27 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.114 18/10/29 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.112 18/09/27 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.114 18/10/29 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -899,6 +899,10 @@ parseprim(fap)
 		return (n);
 	}
 
+	case CHATIME:
+	case CHCTIME:
+	case CHMTIME:
+
 	case NEWERAT:
 	case NEWERCT:
 	case NEWERMT: {
@@ -1137,6 +1141,7 @@ parseprim(fap)
 	case READABLE:
 	case WRITABLE:
 	case EXECUTABLE:
+	case CHFILE:
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
@@ -1769,8 +1774,40 @@ find_expr(f, ff, fs, state, t)
 #endif
 		return (TRUE);
 
+	case CHATIME:
+#if	defined(_FOUND_STAT_NSECS_)
+		fs->st_atime = t->val.ts.tv_sec;
+		stat_set_ansecs(fs, t->val.ts.tv_nsec);
+#else
+		fs->st_atime = t->val.time;
+#endif
+		state->flags |= WALK_WF_CHTIME;	/* Impossible to keep old */
+		return (TRUE);
+
+	case CHCTIME:
+#if	defined(_FOUND_STAT_NSECS_)
+		fs->st_ctime = t->val.ts.tv_sec;
+		stat_set_cnsecs(fs, t->val.ts.tv_nsec);
+#else
+		fs->st_ctime = t->val.time;
+#endif
+		state->flags |= WALK_WF_CHTIME;	/* Impossible to keep old */
+		return (TRUE);
+
+	case CHMTIME:
+#if	defined(_FOUND_STAT_NSECS_)
+		fs->st_mtime = t->val.ts.tv_sec;
+		stat_set_mnsecs(fs, t->val.ts.tv_nsec);
+#else
+		fs->st_mtime = t->val.time;
+#endif
+		state->flags |= WALK_WF_CHTIME;	/* Impossible to keep old */
+		return (TRUE);
+
 #ifdef	CHOWN
 	case CHOWN:
+		if (fs->st_uid != t->val.uid)
+			state->flags |= WALK_WF_CHOWN;
 		fs->st_uid = t->val.uid;
 		return (TRUE);
 #endif
@@ -1787,6 +1824,8 @@ find_expr(f, ff, fs, state, t)
 
 #ifdef	CHGRP
 	case CHGRP:
+		if (fs->st_gid != t->val.gid)
+			state->flags |= WALK_WF_CHOWN;
 		fs->st_gid = t->val.gid;
 		return (TRUE);
 #endif
@@ -1808,10 +1847,81 @@ find_expr(f, ff, fs, state, t)
 			(S_ISDIR(fs->st_mode) ||
 			(fs->st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)) != 0) ?
 								GP_DOX:GP_NOX);
+		if ((fs->st_mode & S_ALLMODES) != t->val.mode)
+			state->flags |= WALK_WF_CHMOD;
 		fs->st_mode &= ~S_ALLMODES;
 		fs->st_mode |= t->val.mode;
 		return (TRUE);
 #endif
+
+	case CHFILE: {
+		BOOL	ret = TRUE;
+
+		if (state->flags & WALK_WF_CHMOD) {
+#ifdef	HAVE_CHMOD
+#ifndef	HAVE_LCHMOD
+#undef	lchmod
+#define	lchmod	chmod
+			if (!S_ISLNK(fs->st_mode))
+#endif
+			if (lchmod(state->level ? ff : f, fs->st_mode) < 0) {
+				ferrmsg(state->std[2], _("Cannot chmod '%s'.\n"), ff);
+				ret = FALSE;
+			}
+#else
+			ferrmsg(state->std[2], _("Cannot chmod: unsupported.\n"));
+			ret = FALSE;
+#endif
+		}
+		if (state->flags & WALK_WF_CHOWN) {
+#ifdef	HAVE_CHOWN
+#ifndef	HAVE_LCHOWN
+#undef	lchown
+#define	lchown	chown
+			if (!S_ISLNK(fs->st_mode))
+#endif
+			if (lchown(state->level ? ff : f, fs->st_uid, fs->st_gid) < 0) {
+				ferrmsg(state->std[2], _("Cannot chown '%s'.\n"), ff);
+				ret = FALSE;
+			}
+#else
+			ferrmsg(state->std[2], _("Cannot chown: unsupported.\n"));
+			ret = FALSE;
+#endif
+		}
+		if (state->flags & WALK_WF_CHTIME) {
+#if	defined(HAVE_UTIMENSAT) || defined(HAVE_LUTIMES) || defined(HAVE_LUTIME) || defined(HAVE_UTIMES)
+			struct  timespec tp[3];
+
+			tp[0].tv_sec = fs->st_atime;
+#if	defined(_FOUND_STAT_NSECS_)
+			tp[0].tv_nsec = stat_ansecs(fs);
+#else
+			tp[0].tv_nsec = 0;
+#endif
+			tp[1].tv_sec = fs->st_mtime;
+#if	defined(_FOUND_STAT_NSECS_)
+			tp[1].tv_nsec = stat_mnsecs(fs);
+#else
+			tp[1].tv_nsec = 0;
+#endif
+#if	defined(HAVE_UTIMENSAT) || defined(HAVE_LUTIMES) || defined(HAVE_LUTIME)
+#define	NOFOLLOW	AT_SYMLINK_NOFOLLOW
+#else
+#define	NOFOLLOW	0
+			if (!S_ISLNK(fs->st_mode))
+#endif
+			if (utimensat(AT_FDCWD, state->level ? ff : f, tp, NOFOLLOW) < 0) {
+				ferrmsg(state->std[2], _("Cannot set time on '%s'.\n"), ff);
+				ret = FALSE;
+			}
+#else
+			ferrmsg(state->std[2], _("Cannot set time: unsupported.\n"));
+			ret = FALSE;
+#endif
+		}
+		return (ret);
+		}
 
 	case PERM:
 		if (t->left[0] == '/')
@@ -2568,6 +2678,15 @@ find_usage(f)
 	fprintf(f, _("	-atime #      TRUE if st_atime is in specified range\n"));
 	fprintf(f, _("*	-call command [argument ...] \\;\n"));
 	fprintf(f, _("*	-calldir command [argument ...] \\;\n"));
+#ifdef	CHATIME
+	fprintf(f, _("*	-chatime tspec always TRUE, sets st_atime to tspec\n"));
+#endif
+#ifdef	CHCTIME
+	fprintf(f, _("*	-chctime tspec always TRUE, sets st_ctime to tspec\n"));
+#endif
+#ifdef	CHMTIME
+	fprintf(f, _("*	-chmtime tspec always TRUE, sets st_mtime to tspec\n"));
+#endif
 #ifdef	CHGRP
 	fprintf(f, _("*	-chgrp gname/gid always TRUE, sets st_gid to gname/gid\n"));
 #endif
@@ -2576,6 +2695,9 @@ find_usage(f)
 #endif
 #ifdef	CHOWN
 	fprintf(f, _("*	-chown uname/uid always TRUE, sets st_uid to uname/uid\n"));
+#endif
+#ifdef	CHFILE
+	fprintf(f, _("*	-chfile	      sets st_uid/st_gid, st_mode, st_?time in file\n"));
 #endif
 	fprintf(f, _("	-ctime #      TRUE if st_ctime is in specified range\n"));
 	fprintf(f, _("	-depth	      evaluate directory content before directory (always TRUE)\n"));

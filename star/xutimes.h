@@ -1,8 +1,8 @@
-/* @(#)xutimes.h	1.4 18/08/31 Copyright 1996, 2013 J. Schilling */
+/* @(#)xutimes.h	1.5 18/10/21 Copyright 1996, 2013-2018 J. Schilling */
 /*
  *	Prototypes for xutimes users
  *
- *	Copyright (c) 1996, 2013 J. Schilling
+ *	Copyright (c) 1996, 2013-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

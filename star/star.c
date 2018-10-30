@@ -1,8 +1,8 @@
-/* @(#)star.c	1.381 18/09/18 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
+/* @(#)star.c	1.385 18/10/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.381 18/09/18 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
+	"@(#)star.c	1.385 18/10/24 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2018 J. Schilling
@@ -96,7 +96,7 @@ LOCAL	int	getexclude	__PR((char *arg, long *valp, int *pac, char *const **pav));
 #ifdef	USED
 LOCAL	int	addfile		__PR((char *optstr, long *dummy));
 #endif
-LOCAL	void	set_signal	__PR((int sig, RETSIGTYPE (*handler)(int)));
+EXPORT	void	set_signal	__PR((int sig, RETSIGTYPE (*handler)(int)));
 LOCAL	void	exsig		__PR((int sig));
 LOCAL	void	sighup		__PR((int sig));
 LOCAL	void	sigintr		__PR((int sig));
@@ -487,7 +487,9 @@ main(ac, av)
 	xbinit();		/* Initialize buffer for extended headers */
 
 	if (dir_flags && (!tflag || copyflag))
-		wdir = dogetwdir();
+		wdir = dogetwdir(TRUE);		/* Exit on failure */
+	else if (xflag)
+		wdir = dogetwdir(FALSE);	/* Return NULL on failure */
 
 	getnstimeofday(&ddate);
 	now	 = ddate.tv_sec + 60;
@@ -646,6 +648,14 @@ main(ac, av)
 			"Processed all possible files, despite earlier errors.\n");
 		}
 		excode = -2;
+	}
+	if (intr) {
+		/*
+		 * This happens when we are in create mode and the interrupt is
+		 * delayed in order to prevent inconsistent archives.
+		 */
+		if (excode == 0)
+			excode = -4;
 	}
 	if (!isatty(fdown(stderr))) {
 		char	*p;
@@ -827,10 +837,10 @@ star_create(ac, av)
 					comerrno(EX_BAD, "Perform a level 0 dump first.\n");
 				}
 				if (dp) {
-					oldlevel = dp->level;
-					Newer = dp->date;
-					gip->reflevel = dp->level;
-					gip->refdate = dp->date;
+					oldlevel = dp->dd_level;
+					Newer = dp->dd_date;
+					gip->reflevel = dp->dd_level;
+					gip->refdate = dp->dd_date;
 					gip->gflags |= (GF_REFLEVEL|GF_REFDATE);
 				}
 
@@ -847,7 +857,8 @@ star_create(ac, av)
 					dumpdate(&ddate));
 				error("Date of last level %d%s dump: %s\n",
 					oldlevel,
-					(dp && (dp->flags & DD_PARTIAL)) ? "P":" ",
+					(dp && (dp->dd_flags & DD_PARTIAL)) ?
+						"P":" ",
 					dumpdate(&Newer));
 
 				put_volhdr(volhdr, TRUE);
@@ -2547,7 +2558,7 @@ addfile(optstr, dummy)
 }
 #endif
 
-LOCAL void
+EXPORT void
 set_signal(sig, handler)
 	int		sig;
 	RETSIGTYPE	(*handler)	__PR((int));

@@ -222,6 +222,7 @@
 ./psmake/movebytes.c
 ./psmake/niread.c
 ./psmake/niwrite.c
+./psmake/ovstrcpy.c
 ./psmake/parse.c
 ./psmake/raisecond.c
 ./psmake/readfile.c

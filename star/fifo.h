@@ -1,9 +1,9 @@
-/* @(#)fifo.h	1.31 12/01/01 Copyright 1989-2012 J. Schilling */
+/* @(#)fifo.h	1.36 18/10/22 Copyright 1989-2018 J. Schilling */
 /*
  *	Definitions for a "fifo" that uses
  *	shared memory between two processes
  *
- *	Copyright (c) 1989-2012 J. Schilling
+ *	Copyright (c) 1989-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,7 +36,7 @@
 	defined(HAVE_CLONE_AREA) && defined(HAVE_CREATE_AREA) && \
 	defined(HAVE_DELETE_AREA)
 #include <OS.h>
-#	define	HAVE_BEOS_AREAS	/* BeOS/Zeta */
+#define	HAVE_BEOS_AREAS	/* BeOS/Zeta */
 #endif
 #if	!defined(HAVE_SMMAP) && !defined(HAVE_USGSHM) && \
 	!defined(HAVE_DOSALLOCSHAREDMEM) && !defined(HAVE_BEOS_AREAS)
@@ -69,43 +69,66 @@ typedef	struct	{
 } m_stats;
 
 /*
- * Shared data used to control the FIFO
+ * Shared data used to control the FIFO.
+ *
+ * This structure is at the start of the shared memory segment.
+ *
+ * If the first character in the comment is a P, this is modified by the put
+ * side.
+ *
+ * If the first character in the comment is a G, this is modified by the get
+ * side.
+ *
+ * In order to avoid the need for semaphores to control the change of values
+ * in this structure, members marked with "P", are only modified by the
+ * put side of the FIFO and members marked with "G" are only marked by the
+ * get side of the FIFO.
+ *
+ * Members marked with "P-" are set by the put side and reset by the get side.
+ * Members marked with "G-" are set by the get side and reset by the put side.
+ * Since this reset happens while the "set" side did already decide to wait
+ * and the reset happens just before the other side decided to wake up the
+ * the first side, this is not a problem.
  */
+#define	V	volatile
 typedef struct {
-	char	*putptr;	/* put pointer within shared memory	    */
-	char	*getptr;	/* get pointer within shared memory	    */
-	char	*base;		/* base of fifo within shared memory segment */
-	char	*end;		/* end of real shared memory segment	    */
-	int	size;		/* size of fifo within shared memory segment */
-	int	ibs;		/* input transfer size			    */
-	int	obs;		/* output transfer size			    */
-	int	rsize;		/* rest size between head struct and .base  */
-	unsigned long	icnt;	/* input count (incremented on each put)    */
-	unsigned long	ocnt;	/* output count (incremented on each get)   */
-	char	iblocked;	/* input  (put side) is blocked		    */
-	char	oblocked;	/* output (get side) is blocked		    */
-	char	m1;		/* Semaphore claimed by newvolhdr()	    */
-	char	m2;		/* Semaphore claimed by cr_file()	    */
-	char	chreel;		/* Semaphore claimed by startvol()	    */
-	char	reelwait;	/* input  (put side) is blocked on "chreel" */
-	int	hiw;		/* highwater mark			    */
-	int	low;		/* lowwater mark			    */
-	int	flags;		/* fifo flags				    */
-	int	ferrno;		/* errno from fifo background process	    */
-	int	gp[2];		/* sync pipe for get process		    */
-	int	pp[2];		/* sync pipe for put process		    */
-	int	puts;		/* fifo put count statistic		    */
-	int	gets;		/* fifo get get statistic		    */
-	int	empty;		/* fifo was empty count statistic	    */
-	int	full;		/* fifo was full count statistic	    */
-	int	maxfill;	/* max # of bytes in fifo		    */
-	int	moves;		/* # of moves of residual bytes		    */
-	Llong	mbytes;		/* # of residual bytes moved		    */
-	m_stats	stats;		/* statistics				    */
-	bitstr_t *bmap;		/* Bitmap used to store TCB positions	    */
-	int	bmlast;		/* Last bits # in use in above Bitmap	    */
-	GINFO	ginfo;		/* To share GINFO for P.1-2001 'g' headers  */
+	char	* V putptr;	/* P  put pointer within shared memory	    */
+	char	* V getptr;	/* G  get pointer within shared memory	    */
+	char	*base;		/*    fifobase within shared memory segment */
+	char	*end;		/*    end of real shared memory segment	    */
+	int	size;		/*    fifosize within shared memory segment */
+	int	ibs;		/*    input transfer size		    */
+	int	obs;		/*    output transfer size		    */
+	int	rsize;		/*    restsize between head struct and .base */
+	V unsigned long	icnt;	/* P  input count (incremented on each put) */
+	V unsigned long	ocnt;	/* G  output count (incremented on each get) */
+	V char	iblocked;	/* P- input  (put side) is blocked	    */
+	V char	oblocked;	/* G- output (get side) is blocked	    */
+	V char	m1;		/*    Semaphore claimed by newvolhdr()	    */
+	V char	m2;		/*    Semaphore claimed by cr_file()	    */
+	V char	chreel;		/*    Semaphore claimed by startvol()	    */
+	V char	reelwait;	/* P- input (put side) is blocked on "chreel" */
+	V char	eflags;		/*    fifo exit flags			    */
+	V char	pflags;		/*    fifo put flags			    */
+	V int	flags;		/*    fifo flags			    */
+	V int	ferrno;		/*    errno from fifo background process    */
+	int	hiw;		/*    highwater mark			    */
+	int	low;		/*    lowwater mark			    */
+	int	gp[2];		/*    sync pipe for get process		    */
+	int	pp[2];		/*    sync pipe for put process		    */
+	V int	puts;		/*    fifo put count statistic		    */
+	V int	gets;		/*    fifo get get statistic		    */
+	V int	empty;		/*    fifo was empty count statistic	    */
+	V int	full;		/*    fifo was full count statistic	    */
+	V int	maxfill;	/*    max # of bytes in fifo		    */
+	V int	moves;		/*    # of moves of residual bytes	    */
+	V Llong	mbytes;		/*    # of residual bytes moved		    */
+	m_stats	stats;		/*    statistics			    */
+	bitstr_t *bmap;		/*    Bitmap used to store TCB positions    */
+	int	bmlast;		/*    Last bits # in use in above Bitmap    */
+	GINFO	ginfo;		/*    To share GINFO for P.1-2001 'g' headers */
 } m_head;
+#undef	V
 
 #define	gpin	gp[0]		/* get pipe in  */
 #define	gpout	gp[1]		/* get pipe out */
@@ -114,15 +137,31 @@ typedef struct {
 
 #define	FIFO_AMOUNT(p)	((p)->icnt - (p)->ocnt)
 
-#define	FIFO_FULL	0x004	/* fifo is full			*/
-#define	FIFO_MEOF	0x008	/* EOF on input (put side)	*/
-#define	FIFO_MERROR	0x010	/* error on input (put side)	*/
-#define	FIFO_EXIT	0x020	/* exit() on non tape side	*/
-#define	FIFO_EXERRNO	0x040	/* errno from non tape side	*/
+/*
+ * The FIFO flags are used only inside fifo.c
+ *
+ * FIFO_MERROR	 set by the get side
+ * FIFO_IWAIT	 set by the put side before startup, reset by the get side
+ * FIFO_I_CHREEL set by the get side, reset by the put side with get waiting
+ *
+ * pflags:
+ * FIFO_MEOF	 set and reset by the put side
+ * FIFO_O_CHREEL set by the put side, reset by the get side with put waiting
+ *
+ * eflags:
+ * FIFO_EXIT	 set by the side that decided to abort the program
+ * FIFO_EXERRNO	 set by the side that decided to abort the program
+ */
+#define	FIFO_MERROR	0x001	/* G error on input (get side)	*/
 
-#define	FIFO_IWAIT	0x200	/* input (put side) waits after first record */
-#define	FIFO_I_CHREEL	0x400	/* change input tape reel if fifo gets empty */
-#define	FIFO_O_CHREEL	0x800	/* change output tape reel if fifo gets empty */
+#define	FIFO_IWAIT	0x010	/* G input (put side) wait after first record */
+#define	FIFO_I_CHREEL	0x020	/* G change in tape reel if fifo gets empty  */
+
+#define	FIFO_MEOF	0x001	/* P EOF on input (put side)	*/
+#define	FIFO_O_CHREEL	0x002	/* P change out tape reel if fifo gets empty */
+
+#define	FIFO_EXIT	0x001	/* E exit() on non tape side	*/
+#define	FIFO_EXERRNO	0x002	/* E errno from non tape side	*/
 
 #ifdef	FIFO
 /*

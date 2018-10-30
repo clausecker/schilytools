@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.153 18/07/02  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.154 18/10/15  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -26,6 +26,7 @@ CPPOPTS +=	-DUSE_JS_BOOL		# Allow to use schily/dbgmalloc.h
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 #CPPOPTS +=	-DNO_VFORK		# Don't use vfork()
 #CPPOPTS +=	-DNO_WAITID		# Don't use waitid()
+#CPPOPTS +=	-DDO_SPLIT_ROOT		# No setlocale() without localedir
 
 CPPOPTS +=	-D_iBCS2 				# SCO echo compat
 CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSCMD"'	# gettext()

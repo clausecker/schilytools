@@ -1,8 +1,8 @@
-/* @(#)subst.c	1.23 18/08/07 Copyright 1986,2003-2018 J. Schilling */
+/* @(#)subst.c	1.24 18/10/23 Copyright 1986,2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subst.c	1.23 18/08/07 Copyright 1986,2003-2018 J. Schilling";
+	"@(#)subst.c	1.24 18/10/23 Copyright 1986,2003-2018 J. Schilling";
 #endif
 /*
  *	Substitution commands
@@ -516,7 +516,7 @@ ia_change(ptb, info)
 	abuf[0] = '\0';
 	len = fgetstr(tty, abuf, sizeof (abuf));
 	if (len > 0 && abuf[len-1] != '\n') {
-		while(getc(tty) != '\n') {
+		while (getc(tty) != '\n') {
 			if (feof(tty) || ferror(tty))
 				break;
 		}

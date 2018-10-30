@@ -1,4 +1,4 @@
-/* @(#)find_tok.h	1.9 18/09/15 Copyright 2004-2018 J. Schilling */
+/* @(#)find_tok.h	1.11 18/10/29 Copyright 2004-2018 J. Schilling */
 /*
  *	Copyright (c) 2004-2018 J. Schilling
  */
@@ -105,10 +105,14 @@
 #define	CALL	83	/* -call	POSIX Extension	*/
 #define	CALLDIR	84	/* -calldir	POSIX Extension	*/
 #define	MOUNTPLUS 85	/* -mount+	POSIX Extension	*/
-#define	ENDPRIM	86	/* End of primary list		*/
-#define	EXECPLUS 87	/* -exec			*/
-#define	EXECDIRPLUS 88	/* -execdir			*/
-#define	ENDTLIST 89	/* End of token list		*/
+#define	CHATIME 86	/* -chatime	POSIX Extension */
+#define	CHCTIME 87	/* -chctime	POSIX Extension */
+#define	CHMTIME 88	/* -chmtime	POSIX Extension */
+#define	CHFILE 89	/* -chfile	POSIX Extension */
+#define	ENDPRIM	90	/* End of primary list		*/
+#define	EXECPLUS 91	/* -exec			*/
+#define	EXECDIRPLUS 92	/* -execdir			*/
+#define	ENDTLIST 93	/* End of token list		*/
 
 #define	tokennames	_find_tokennames
 
@@ -200,10 +204,14 @@ LOCAL	char	*tokennames[] = {
 	"call",		/* 83 CALL	POSIX Extension */
 	"calldir",	/* 84 CALLDIR	POSIX Extension */
 	"mount+",	/* 85 MOUNTPLUS	POSIX Extension */
-	0,		/* 86 End of primary list	*/
-	"exec",		/* 87 Map EXECPLUS -> "exec"	*/
-	"execdir",	/* 88 Map EXECDIRPLUS -> "execdir" */
-	0		/* 89 End of list		*/
+	"chatime",	/* 86 CHATIME	POSIX Extension */
+	"chctime",	/* 87 CHCTIME	POSIX Extension */
+	"chmtime",	/* 88 CHMTIME	POSIX Extension */
+	"chfile",	/* 89 CHFILE	POSIX Extension */
+	0,		/* 90 End of primary list	*/
+	"exec",		/* 91 Map EXECPLUS -> "exec"	*/
+	"execdir",	/* 92 Map EXECDIRPLUS -> "execdir" */
+	0		/* 93 End of list		*/
 };
 #define	NTOK	((sizeof (tokennames) / sizeof (tokennames[0])) - 1)
 

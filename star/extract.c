@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.161 18/08/31 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.163 18/10/25 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.161 18/08/31 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.163 18/10/25 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 #endif
 
 #ifdef	JOS
-#	define	mkdir	makedir
+#define	mkdir	makedir
 #endif
 #include "dirtime.h"
 #include "restore.h"
@@ -176,6 +176,7 @@ EXPORT	int	xt_file		__PR((FINFO * info,
 					void *arg, int amt, char *text));
 EXPORT	void	skip_slash	__PR((FINFO * info));
 LOCAL	BOOL	has_dotdot	__PR((char *name));
+LOCAL	BOOL	inside_tree	__PR((FINFO * info));
 
 #ifdef COPY_LINKS_DELAYED
 typedef	struct _mcq {
@@ -466,6 +467,15 @@ extracti(info, imp)
 	}
 	if (secure_links && (is_link(info) || is_symlink(info)) &&
 	    (info->f_lname[0] == '/' || has_dotdot(info->f_lname))) {
+		if (info->f_lname[0] != '/') {
+			/*
+			 * Absolute paths are always a problem, but symlinks
+			 * should be allowed as long as they do not point
+			 * outside the current tree.
+			 */
+			if (inside_tree(info))
+				goto link_ok;
+		}
 		if (!errhidden(E_LSECURITY, info->f_lname)) {
 			if (!errwarnonly(E_LSECURITY, info->f_lname))
 				xstats.s_lsecurity++;
@@ -476,6 +486,7 @@ extracti(info, imp)
 		void_file(info);
 		return (FALSE);
 	}
+link_ok:
 	vprint(info);
 	if (dorestore) {
 		/*
@@ -1310,7 +1321,9 @@ make_copies()
 
 		while (mcqp) {
 			MCQ	*mcqp_save	= mcqp;
-			BOOL	ret		= _make_copy(&mcqp->info, mcqp->do_symlink, eflags);
+			BOOL	ret		= _make_copy(&mcqp->info,
+							mcqp->do_symlink,
+							eflags);
 
 			if (ret) {
 				if (!to_stdout)
@@ -2211,4 +2224,83 @@ has_dotdot(name)
 #endif
 	}
 	return (FALSE);
+}
+
+LOCAL BOOL
+inside_tree(info)
+	FINFO	*info;
+{
+	char	_rpath[PATH_MAX+1];
+	char	_npath[PATH_MAX+1];
+	char	*rpath = _rpath;
+	char	*npath = _npath;
+	char	*p;
+	size_t	len;
+	ssize_t	nlen;
+	BOOL	ret = FALSE;
+extern	const	char	*wdir;
+
+	/*
+	 * If we are in the root directory, any unusual pathname is critical.
+	 */
+	if (wdir != NULL && wdir[0] == '/' && wdir[1] == '\0')
+		return (FALSE);
+
+	if (info->f_namelen > 0)
+		len = info->f_namelen;
+	else
+		len = strlen(info->f_name);
+
+	if (info->f_lnamelen > 0)
+		len += info->f_lnamelen;
+	else
+		len += strlen(info->f_lname);
+
+	if (++len > sizeof (_rpath)) {
+		rpath = __jmalloc(len, "name buffer", JM_RETURN);
+		if (rpath == NULL)
+			return (FALSE);
+	}
+	if (len > sizeof (_npath)) {
+		npath = __jmalloc(len, "name buffer", JM_RETURN);
+		if (npath == NULL)
+			goto out;
+	}
+
+	/*
+	 * Create combined path name.
+	 */
+	if (info->f_lname[0] != '/') {
+		strcpy(rpath, info->f_name);
+		p = strrchr(rpath, '/');
+		if (p == NULL)
+			rpath[0] = '\0';
+		else
+			*++p = '\0';
+	} else {
+		rpath[0] = '\0';
+	}
+	strcat(rpath, info->f_lname);
+
+	/*
+	 * Normalize combined path name.
+	 */
+	nlen = resolvenpath(rpath, npath, len);
+	if (nlen < 0)
+		goto out;
+	npath[nlen] = '\0';
+
+	/*
+	 * Check if it points outside our working directory.
+	 */
+	if (npath[0] != '/' && !has_dotdot(npath))
+		ret = TRUE;
+
+out:
+	if (rpath != _rpath)
+		free(rpath);
+	if (npath != _npath)
+		free(npath);
+
+	return (ret);
 }

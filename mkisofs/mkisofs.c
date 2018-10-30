@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.294 18/04/02 joerg */
+/* @(#)mkisofs.c	1.295 18/10/14 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.294 18/04/02 joerg";
+	"@(#)mkisofs.c	1.295 18/10/14 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -1483,7 +1483,6 @@ struct directory *get_graft	__PR((char *arg, char *graft_point, size_t glen,
 						char **short_namep, BOOL do_insert));
 EXPORT	void	*e_malloc	__PR((size_t size));
 EXPORT	char	*e_strdup	__PR((const char *s));
-LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 LOCAL	void	checkarch	__PR((char *name));
 
 LOCAL void
@@ -3948,18 +3947,6 @@ e_strdup(s)
 	if (s == NULL)
 		comerr(_("Not enough memory for strdup(%s)\n"), s);
 	return (ret);
-}
-
-/*
- * A strcpy() that works with overlapping buffers
- */
-LOCAL void
-ovstrcpy(p2, p1)
-	register char	*p2;
-	register char	*p1;
-{
-	while ((*p2++ = *p1++) != '\0')
-		;
 }
 
 LOCAL void

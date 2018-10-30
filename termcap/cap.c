@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.48 18/01/14 Copyright 2000-2018 J. Schilling */
+/* @(#)cap.c	1.49 18/10/28 Copyright 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.48 18/01/14 Copyright 2000-2018 J. Schilling";
+	"@(#)cap.c	1.49 18/10/28 Copyright 2000-2018 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -80,6 +80,7 @@ LOCAL	BOOL	nowarn = FALSE;
 LOCAL	BOOL	dooctal = FALSE;
 LOCAL	BOOL	docaret = FALSE;
 LOCAL	BOOL	gnugoto = FALSE;
+LOCAL	BOOL	oneline = FALSE;
 
 #ifdef	HAVE_SETVBUF
 LOCAL	char	obuf[4096];
@@ -299,6 +300,7 @@ usage(ex)
 	error("-nodisabled	do not output disabled termcap entries\n");
 	error("-nounknown	do not output unkonwn termcap entries\n");
 	error("-nowarn		do not warn about problems that could be fixed\n");
+	error("-oneline	output termcap entries in a single line\n");
 	error("-s		Output commands to set and export TERM and TERMCAP.\n");
 	error("-tc		follow tc= entries and generate cumulative output\n");
 	error("-v		increase verbosity level\n");
@@ -345,9 +347,10 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,noinorder,v+,s,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
+	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,noinorder,oneline,v+,s,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
 				&help, &prvers,
 				&dodump, &inorder, &noinorder,
+				&oneline,
 				&verbose,
 				&sflag,
 				&do_tc,
@@ -361,7 +364,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.48", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("termcap %s %s (%s-%s-%s)\n\n", "1.49", "2018/10/28",
+				HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -937,12 +941,13 @@ BOOL	didobsolete = FALSE;
 					curlen = strlen(val) + 4;
 				if (curlen <= 0)
 					break;
-				if (flags != t) {
+				if (flags != t && !oneline) {
 					printf("\\\n\t:");
 					llen = 9;
 					flags = t;
 				}
-				if ((llen > 9) && ((llen + curlen) >= 79)) {
+				if ((llen > 9) && ((llen + curlen) >= 79 &&
+				   !oneline)) {
 					printf("\\\n\t:");
 					llen = 9 + curlen;
 				} else {
@@ -972,9 +977,13 @@ BOOL	didobsolete = FALSE;
 				if (nounknown)
 					continue;
 
-				if (llen > 9 || flags == 0)
+				if ((llen > 9 || flags == 0) && !oneline)
 					printf("\\\n\t:");
-				printf("%s%s", "..UNKNOWN:\\\n\t:", unknown);
+				if (!oneline) {
+					printf("%s%s",
+						"..UNKNOWN:\\\n\t:",
+						unknown);
+				}
 				llen = 99;
 			} else {
 				if (disabled[0] == '\0')
@@ -982,9 +991,13 @@ BOOL	didobsolete = FALSE;
 				if (nodisabled)
 					continue;
 
-				if (llen > 9 || flags == 0)
+				if ((llen > 9 || flags == 0) && !oneline)
 					printf("\\\n\t:");
-				printf("%s%s", "..DISABLED:\\\n\t:", disabled);
+				if (!oneline) {
+					printf("%s%s",
+						"..DISABLED:\\\n\t:",
+						disabled);
+				}
 				llen = 99;
 			}
 			continue;
@@ -1107,7 +1120,8 @@ trynum:
 		continue;
 
 printit:
-		if (flags != (caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING|C_TC))) {
+		if (!oneline &&
+		    flags != (caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING|C_TC))) {
 			printf("\\\n\t:");
 			llen = 9;
 			flags = caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING|C_TC);
@@ -1117,11 +1131,14 @@ printit:
 		 * If j > 0, sort order is BOOL -> INT -> STRING
 		 * Do not print the OBSOLETE header in this case.
 		 */
-		if (j < 0 && (caplist[i].tc_flags & C_OLD) != 0) {
+		if (!oneline &&
+		    j < 0 && (caplist[i].tc_flags & C_OLD) != 0) {
 			if (!didobsolete) {
 				if (llen > 9)
 					printf("\\\n\t:");
-				printf("..OBSOLETE:\\\n\t:");
+				if (!oneline) {
+					printf("..OBSOLETE:\\\n\t:");
+				}
 				llen = 9;
 				didobsolete = TRUE;
 			}
@@ -1130,7 +1147,7 @@ printit:
 /*error("line: '%s', llen: %d curlen: %d sum: %d\n", line, llen, curlen, llen + curlen);*/
 		p = line;
 		curlen = strlen(p);
-		if ((llen > 9) && ((llen + curlen) >= 79)) {
+		if ((llen > 9) && ((llen + curlen) >= 79) && !oneline) {
 			printf("\\\n\t:");
 			llen = 9 + curlen;
 		} else {

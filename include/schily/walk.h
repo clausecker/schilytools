@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.34 18/09/15 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.h	1.35 18/10/29 Copyright 2004-2018 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -122,6 +122,10 @@ struct WALK {
 #define	WALK_WF_NOCWD	8	/* walk() -> caller: cannot get working dir  */
 #define	WALK_WF_NOHOME	16	/* walk() -> caller: cannot chdir("..")	    */
 #define	WALK_WF_NOTDIR	32	/* walk() -> walk(): file is not a directory */
+
+#define	WALK_WF_CHOWN	4096	/* (*walkfun)(): changed st_uid or st_gid */
+#define	WALK_WF_CHMOD	8192	/* (*walkfun)(): changed st_mode */
+#define	WALK_WF_CHTIME	16384	/* (*walkfun)(): changed st_mtime or st_ctime */
 
 typedef	int	(*walkfun)	__PR((char *_nm, struct stat *_fs, int _type,
 						struct WALK *_state));

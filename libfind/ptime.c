@@ -1,8 +1,8 @@
-/* @(#)ptime.c	1.2 18/08/24 Copyright 2018 J. Schilling */
+/* @(#)ptime.c	1.3 18/10/28 Copyright 2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ptime.c	1.2 18/08/24 Copyright 2018 J. Schilling";
+	"@(#)ptime.c	1.3 18/10/28 Copyright 2018 J. Schilling";
 #endif
 /*
  *	Parse time in a format similar to ISO 8601
@@ -80,6 +80,11 @@ parsetime(s, ts)
 	tmthis = *localtime(&t);
 
 	SKIPBLANK(s);
+
+	if (streql(s, "now")) {
+		getnstimeofday(ts);
+		return (&s[3]);
+	}
 
 	p = strchr(s, 'T');
 	if (p == NULL)

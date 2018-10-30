@@ -1,8 +1,8 @@
-/* @(#)create.c	1.150 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.151 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.150 18/07/24 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.151 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
@@ -51,8 +51,8 @@ static	UConst char sccsid[] =
 
 #ifdef	OWN_ACLTEXT
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
-#	define	HAVE_SUN_ACL
-#	define	HAVE_ANY_ACL
+#define	HAVE_SUN_ACL
+#define	HAVE_ANY_ACL
 #endif
 #endif
 /*
@@ -63,9 +63,9 @@ static	UConst char sccsid[] =
  * star.h at all.
  * HAVE_HP_ACL is currently not included in HAVE_ANY_ACL.
  */
-#	ifndef	HAVE_ANY_ACL
-#	undef	USE_ACL		/* Do not try to get or set ACLs */
-#	endif
+#ifndef	HAVE_ANY_ACL
+#undef	USE_ACL		/* Do not try to get or set ACLs */
+#endif
 #endif
 
 struct pdirs {
@@ -1610,7 +1610,7 @@ put_dir(sname, dname, namlen, info, ptb, pathp, last)
 			char	*p;
 
 			if ((pathp->ps_tail+2) < pathp->ps_size) {
-				if(incr_pspace(PS_STDERR, pathp, 2) < 0) {
+				if (incr_pspace(PS_STDERR, pathp, 2) < 0) {
 					toolong("", name, namlen);
 					goto out;
 				}

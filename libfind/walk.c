@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.58 18/09/15 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.59 18/10/28 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.58 18/09/15 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.59 18/10/28 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -765,7 +765,8 @@ walkcwd(state)
 
 	if (varp->pdirs == NULL)
 		return (0);
-#ifdef	HAVE_FCHDIR
+
+#if	defined(HAVE_FCHDIR) && defined(USE_DIRFD)
 	if (varp->pdirs->p_dir)
 		return (fchdir(dirfd(varp->pdirs->p_dir)));
 #endif

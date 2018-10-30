@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.73 18/09/27 Copyright 2004-2018 J. Schilling */
+/* @(#)find_main.c	1.74 18/10/29 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_main.c	1.73 18/09/27 Copyright 2004-2018 J. Schilling";
+	"@(#)find_main.c	1.74 18/10/29 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 
 #include <schily/walk.h>
 #include <schily/find.h>
+#include "find_tok.h"
 #include "version.h"
 
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type,
@@ -206,6 +207,7 @@ find_main(ac, av, ev, std, quit)
 			ret = EX_BAD;
 			goto out;
 		}
+#ifndef	CHFILE
 		if (find_pname(Tree, "-chown") || find_pname(Tree, "-chgrp") ||
 		    find_pname(Tree, "-chmod")) {
 			ferrmsgno(std[2], EX_BAD,
@@ -214,6 +216,7 @@ find_main(ac, av, ev, std, quit)
 			ret = EX_BAD;
 			goto out;
 		}
+#endif
 	} else {
 		Tree = 0;
 	}

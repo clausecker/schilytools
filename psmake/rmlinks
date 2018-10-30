@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.28 18/10/10 Copyright 1999-2018 J. Schilling
+# @(#)rmlinks	1.29 18/10/29 Copyright 1999-2018 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -103,6 +103,7 @@ rm -f jsprintf.c
 rm -f jssnprintf.c
 rm -f snprintf.c
 rm -f movebytes.c
+rm -f ovstrcpy.c
 rm -f raisecond.c
 rm -f rename.c
 rm -f searchinpath.c

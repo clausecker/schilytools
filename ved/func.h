@@ -1,4 +1,4 @@
-/* @(#)func.h	1.70 18/08/26 Copyright 1984-2018 J. Schilling */
+/* @(#)func.h	1.72 18/10/14 Copyright 1984-2018 J. Schilling */
 /*
  *	Definitions for global functions in VED
  *
@@ -316,8 +316,8 @@ extern	int	getccmdline	__PR((ewin_t *wp, int c, Uchar* result, int len,
 /*
  * io.c
  */
-extern	Uchar	gchar		__PR((ewin_t *wp));
-extern	Uchar	nigchar		__PR((ewin_t *wp));
+extern	echar_t	gchar		__PR((ewin_t *wp));
+extern	echar_t	nigchar		__PR((ewin_t *wp));
 extern	int	getnextc	__PR((ewin_t *wp));
 extern	int	nigetnextc	__PR((ewin_t *wp));
 extern	void	flushprot	__PR((ewin_t *wp));

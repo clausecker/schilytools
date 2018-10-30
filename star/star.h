@@ -1,4 +1,4 @@
-/* @(#)star.h	1.140 18/07/19 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.141 18/10/23 Copyright 1985, 1995-2018 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2018 J. Schilling
  */
@@ -934,7 +934,8 @@ extern	struct	star_stats	xstats;
 #define	ftell	ftello
 #endif
 
-#if	!(defined(USE_XATTR) && defined(HAVE_LISTXATTR) && defined(HAVE_GETXATTR))
+#if	!(defined(USE_XATTR) && \
+	defined(HAVE_LISTXATTR) && defined(HAVE_GETXATTR))
 #undef	USE_SELINUX
 #endif
 #if	!defined(HAVE_SELINUX_SELINUX_H) || !defined(HAVE_IS_SELINUX_ENABLED)

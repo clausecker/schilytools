@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)main.c	1.73 18/08/01 2008-2018 J. Schilling
+ * @(#)main.c	1.74 18/10/15 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.73 18/08/01 2008-2018 J. Schilling";
+	"@(#)main.c	1.74 18/10/15 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -138,10 +138,17 @@ main(c, v, e)
 	mypgid = getpgid(mypid);	/* get process group for this shell */
 	mysid = getsid(mypid);		/* get process group id of leader */
 
+#if	defined(IS_SUN) || defined(DO_SPLIT_ROOT)
 	/*
 	 * Do locale processing only if /usr is mounted.
+	 * This is to help the single user shell to work.
+	 * Since localedir may not be the same for all target architectures
+	 * we just disable this check for a non-Solaris environment.
 	 */
 	localedir_exists = (access(localedir, F_OK) == 0);
+#else
+	localedir_exists = TRUE;
+#endif
 
 	/*
 	 * initialize storage allocation

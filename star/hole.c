@@ -1,8 +1,8 @@
-/* @(#)hole.c	1.65 18/06/16 Copyright 1993-2018 J. Schilling */
+/* @(#)hole.c	1.66 18/10/23 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.65 18/06/16 Copyright 1993-2018 J. Schilling";
+	"@(#)hole.c	1.66 18/10/23 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
@@ -37,13 +37,13 @@ static	UConst char sccsid[] =
 #include "starsubs.h"
 #include "checkerr.h"
 #ifdef	sun
-#	include <sys/filio.h>
-#	if	_FIOAI == _FIOOBSOLETE67
-#	undef	_FIOAI
-#	endif
-#	ifdef	_FIOAI
-#	include <sys/fs/ufs_filio.h>
-#	endif
+#include <sys/filio.h>
+#if	_FIOAI == _FIOOBSOLETE67
+#undef	_FIOAI
+#endif
+#ifdef	_FIOAI
+#include <sys/fs/ufs_filio.h>
+#endif
 #endif	/* sun */
 
 #ifdef	SEEK_DEBUG
@@ -746,7 +746,7 @@ mk_sp_list(fp, info, spp)
 		int	fai_idx;
 	struct fioai	fai;
 	struct fioai	*faip;
-#	define	NFAI	1024
+#define	NFAI	1024
 	daddr_t		fai_arr[NFAI];
 #endif	/* _FIOAI */
 #endif	/* SEEK_HOLE */

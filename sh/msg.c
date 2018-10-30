@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)msg.c	1.77 18/07/05 2008-2018 J. Schilling
+ * @(#)msg.c	1.78 18/10/15 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.77 18/07/05 2008-2018 J. Schilling";
+	"@(#)msg.c	1.78 18/10/15 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -263,8 +263,13 @@ const char	fcedit[]	= "/bin/ed";
 
 /*
  * locale testing
+ *
+ * Since localedir may not be the same for all target architectures
+ * we just disable this check for a non-Solaris environment.
  */
+#if	defined(IS_SUN) || defined(DO_SPLIT_ROOT)
 const char	localedir[]	= "/usr/lib/locale";
+#endif
 int		localedir_exists;
 
 /*

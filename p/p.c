@@ -1,8 +1,8 @@
-/* @(#)p.c	1.69 18/09/28 Copyright 1985-2018 J. Schilling */
+/* @(#)p.c	1.71 18/10/29 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.69 18/09/28 Copyright 1985-2018 J. Schilling";
+	"@(#)p.c	1.71 18/10/29 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -134,9 +134,12 @@ char	*ce;		/* clear endline */
 char	*cl;		/* clear screen */
 int	li;		/* lines on screen */
 int	co;		/* columns on screen */
+BOOL	am = TRUE;	/* automatic margins */
+BOOL	xn;		/* newline ignored > 80 */
 BOOL	has_standout;
 BOOL	has_bold;
 BOOL	has_ul;
+BOOL	has_termcap;
 int	standout;
 int	underl;
 
@@ -329,7 +332,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2018/09/28", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2018/10/29", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -390,7 +393,13 @@ main(ac, av)
 	setbuf(stdout, buffer);
 #endif
 
-	if (lwidth > 2)
+	/*
+	 * If we evaluate "has_termcap" here, we could avoid to reduce the width
+	 * of the terminal in case that "am" but not "xn" is present. This
+	 * however would result in missing line breaks in files created by the
+	 * screen(1) utility.
+	 */
+	if (am && !xn && lwidth > 2)
 		lwidth--;
 	lines = psize-2;
 
@@ -1305,6 +1314,10 @@ do_search()
 	}
 }
 
+/*
+ * Remove underlining and overstriking sequences.
+ * Put the result into "ob".
+ */
 LOCAL int
 unul(ob, ib, amt)
 	register Uchar	*ob;
@@ -1390,6 +1403,8 @@ init_termcap()
 	sbp = stbuf;
 
 	if ((tname = getenv("TERM")) && tgetent(NULL, tname) == 1) {
+		has_termcap = TRUE;
+
 		so = tgetstr("so", &sbp);	/* start standout */
 		se = tgetstr("se", &sbp);	/* end standout */
 		us = tgetstr("us", &sbp);	/* start underline */
@@ -1400,6 +1415,8 @@ init_termcap()
 		cl = tgetstr("cl", &sbp);	/* clear screen */
 		li = tgetnum("li");		/* lines on screen */
 		co = tgetnum("co");		/* columns on screen */
+		am = tgetflag("am");		/* automatic margins */
+		xn = tgetflag("xn");		/* newline ignored > 80 */
 		if (so != NULL && se != NULL) {
 			has_standout = TRUE;
 		} else {
@@ -1547,13 +1564,13 @@ init_tty_size()
 #endif
 #else
 	if (psize == 0) {
-		if (li > 0 && li < 100)
+		if (li > 0 && li < 1000)
 			psize = li;
 		else
 			psize = DEF_PSIZE;
 	}
 	if (lwidth == 0) {
-		if (co > 0 && co < 255)
+		if (co > 0 && co < 1000)
 			lwidth = co;
 		else
 			lwidth = DEF_LWIDTH;

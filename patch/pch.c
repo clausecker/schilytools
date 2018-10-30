@@ -1,8 +1,8 @@
-/* @(#)pch.c	1.35 18/04/10 2011-2018 J. Schilling */
+/* @(#)pch.c	1.36 18/10/14 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.35 18/04/10 2011-2018 J. Schilling";
+	"@(#)pch.c	1.36 18/10/14 2011-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
@@ -65,7 +65,6 @@ static	int	intuit_diff_type __PR((void));
 static	void	next_intuit_at __PR((LINENUM file_pos, LINENUM file_line));
 static	void	skip_to __PR((off_t file_pos, off_t file_line));
 static	void	malformed __PR((void));
-static	void	ovstrcpy __PR((char *p2, char *p1));
 static	ssize_t	pgets __PR((char **bfp, size_t *szp, FILE *fp));
 
 /* Prepare to look for the next patch in the patch file. */
@@ -1177,18 +1176,6 @@ _("Unexpected end of file in patch at line %lld.\n"),
 	if (p_end+1 < hunkmax)		/* paranoia reigns supreme... */
 		p_char[p_end+1] = '^';	/* add a stopper for apply_hunk */
 	return (TRUE);
-}
-
-/*
- * A strcpy() that works with overlapping buffers
- */
-static void
-ovstrcpy(p2, p1)
-	register char	*p2;
-	register char	*p1;
-{
-	while ((*p2++ = *p1++) != '\0')
-		;
 }
 
 /* Input a line from the patch file, worrying about indentation. */

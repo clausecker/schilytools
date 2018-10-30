@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.76 18/07/22 Copyright 2003-2018 J. Schilling */
+/* @(#)restore.c	1.77 18/10/23 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.76 18/07/22 Copyright 2003-2018 J. Schilling";
+	"@(#)restore.c	1.77 18/10/23 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -969,7 +969,7 @@ move2dir(dir, name, oino)
 	size_t	pathlen = sizeof (path);
 	char	tpath[2*PATH_MAX+1];
 	char	*tpathp = tpath;
-	size_t	tpathlen = sizeof (tpath);	
+	size_t	tpathlen = sizeof (tpath);
 	imap_t	*onp;
 	imap_t	*nnp;
 	char	*p;
@@ -1059,7 +1059,7 @@ move2dir(dir, name, oino)
 	if (plen > tpathlen) {
 		tpathp = ___malloc(plen, "name buffer");
 		tpathlen = plen;
-	}	
+	}
 	p = fullname(onp, tpathp, &tpathp[tpathlen], TRUE);
 	if (p == NULL) {
 		/* XXX error code */

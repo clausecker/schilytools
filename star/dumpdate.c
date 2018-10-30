@@ -1,8 +1,8 @@
-/* @(#)dumpdate.c	1.29 18/07/16 Copyright 2003-2018 J. Schilling */
+/* @(#)dumpdate.c	1.30 18/10/21 Copyright 2003-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.29 18/07/16 Copyright 2003-2018 J. Schilling";
+	"@(#)dumpdate.c	1.30 18/10/21 Copyright 2003-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2018 J. Schilling
@@ -176,8 +176,9 @@ writedumpdates(fname, filesys, level, dflags, date)
 	fseek(f, 0L, SEEK_SET);
 
 	fsize = filesize(f);
-	for (dp = dumpdates; dp; dp = dp->next) {
-		outentry(f, dp->name, dp->level, dp->flags, &dp->date);
+	for (dp = dumpdates; dp; dp = dp->dd_next) {
+		outentry(f, dp->dd_name, dp->dd_level,
+				dp->dd_flags, &dp->dd_date);
 	}
 	fflush(f);
 	fpos = filepos(f);
@@ -345,7 +346,7 @@ checkdumpdates(name, level, dflags)
 	rp = _checkdumpdates(name, level, dflags & ~DD_CUMULATIVE);
 	rp2 = _checkdumpdates(name, level, dflags);
 
-	if (rp && rp2 && (rp2->date.tv_sec > rp->date.tv_sec))
+	if (rp && rp2 && (rp2->dd_date.tv_sec > rp->dd_date.tv_sec))
 		return (rp2);
 	return (rp);
 }
@@ -359,12 +360,12 @@ _checkdumpdates(name, level, dflags)
 	dumpd_t	*dp = dumpdates;
 	dumpd_t	*rp = NULL;
 
-	for (; dp; dp = dp->next) {
-		if (!streql(name, dp->name))
+	for (; dp; dp = dp->dd_next) {
+		if (!streql(name, dp->dd_name))
 			continue;
-		if ((dp->flags & DD_PARTIAL) != (dflags & DD_PARTIAL))
+		if ((dp->dd_flags & DD_PARTIAL) != (dflags & DD_PARTIAL))
 			continue;
-		if ((dflags & DD_CUMULATIVE) && level == dp->level) {
+		if ((dflags & DD_CUMULATIVE) && level == dp->dd_level) {
 			rp = dp;
 			break;
 		}
@@ -372,20 +373,20 @@ _checkdumpdates(name, level, dflags)
 		 * We are not interested in tardump entries for
 		 * this level or higher, so skip them.
 		 */
-		if (level <= dp->level)
+		if (level <= dp->dd_level)
 			continue;
 
 		/*
 		 * If we did already find a more recent entry in tardumps
 		 * we consider this one outdated.
 		 */
-		if (rp && rp->date.tv_sec > dp->date.tv_sec)
+		if (rp && rp->dd_date.tv_sec > dp->dd_date.tv_sec)
 			continue;
 		rp = dp;
 	}
 #ifdef	DEBUG
 	if (rp)
-		outentry(stderr, rp->name, rp->level, rp->flags, &rp->date);
+		outentry(stderr, rp->dd_name, rp->dd_level, rp->dd_flags, &rp->dd_date);
 #endif
 	return (rp);
 }
@@ -400,27 +401,27 @@ adddumpdates(name, level, dflags, date, useold)
 {
 	dumpd_t	*dp = dumpdates;
 
-	for (; dp; dp = dp->next) {
-		if (streql(name, dp->name) && level == dp->level &&
-		    (dp->flags & DD_PARTIAL) == (dflags & DD_PARTIAL)) {
+	for (; dp; dp = dp->dd_next) {
+		if (streql(name, dp->dd_name) && level == dp->dd_level &&
+		    (dp->dd_flags & DD_PARTIAL) == (dflags & DD_PARTIAL)) {
 			if (useold) {
-				dp->date = *date;
+				dp->dd_date = *date;
 				return;
 			}
 			errmsgno(EX_BAD,
 				"Duplicate tardumps entry '%s %d%s %lld'.\n",
-				dp->name, dp->level,
+				dp->dd_name, dp->dd_level,
 				(dflags & DD_PARTIAL) ? "P":"",
-				(Llong)dp->date.tv_sec);
+				(Llong)dp->dd_date.tv_sec);
 
-			if (date->tv_sec == dp->date.tv_sec)
+			if (date->tv_sec == dp->dd_date.tv_sec)
 				return;
 			comerrno(EX_BAD, "Timestamps differs - aborting.\n");
 		}
 	}
 	dp = newdumpdates(name, level, dflags, date);
 	*dumptail = dp;
-	dumptail = &dp->next;
+	dumptail = &dp->dd_next;
 }
 
 LOCAL dumpd_t *
@@ -432,12 +433,12 @@ newdumpdates(name, level, dflags, date)
 {
 	dumpd_t	*dp;
 
-	dp	  = ___malloc(sizeof (*dp), "tardumps entry");
-	dp->next  = NULL;
-	dp->name  = ___savestr(name);
-	dp->level = level;
-	dp->flags = dflags;
-	dp->date  = *date;
+	dp		= ___malloc(sizeof (*dp), "tardumps entry");
+	dp->dd_next	= NULL;
+	dp->dd_name	= ___savestr(name);
+	dp->dd_level	= level;
+	dp->dd_flags	= dflags;
+	dp->dd_date	= *date;
 
 	return (dp);
 }
@@ -446,9 +447,9 @@ LOCAL dumpd_t *
 freedumpdates(dp)
 	dumpd_t	*dp;
 {
-	dumpd_t	*next = dp->next;
+	dumpd_t	*next = dp->dd_next;
 
-	free(dp->name);
+	free(dp->dd_name);
 	free(dp);
 
 	return (next);

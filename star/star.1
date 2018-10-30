@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.206 18/09/01 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.210 18/10/28 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/09/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/10/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2423,6 +2423,45 @@ implements the following additional
 .B find
 primaries:
 .RS
+.br
+.ne 5
+.TP
+.BI \-chatime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last access
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
+.br
+.ne 5
+.TP
+.BI \-chctime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last status change
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
+.br
+.ne 5
+.TP
+.BI \-chmtime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last modification
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
 .TP
 .BI \-chgrp " gname
 The primary always evaluates as true;
@@ -3666,13 +3705,19 @@ is contained in the link target.
 Tar archives containing such links could be used to compromise the system. If they are
 unpacked together with a lot of other files, this may not even be noticed.
 .sp
-Many system installations contain plenty of symbolic links with absolute path name
-or with
+Links that do not point outside the tree that starts with the current
+working directory are not seen as a security risk. This makes
+.B star
+easy to use.
+It is always safe to unpack an unknown archive in an empty directory.
+.sp
+Many system installations contain plenty of symbolic links with absolute
+path name or with
 .B /../
 inside.
 The usability of a tar archiver for system backups would be limited if
 .B \-secure\-links
-checking would be done by default, 
+checking would be done by default for backups as well,
 .B star
 thus makes link checking optional when in
 .B \-restore
@@ -4554,6 +4599,17 @@ exit code. The positive number variants are what you get when only the low
 .TP
 .B 0
 All files were processed successfully.
+.br
+.ne 3
+.TP
+.B -4 / 252
+.B Star
+has been interrupted in create mode and the end of star has been delayed
+until the current file has been archived completely. This error is only
+used in case that no other error occured and the tar archive only has 
+become shorter than expected.
+.br
+.ne 3
 .TP
 .B -3 / 253
 .B Star
@@ -4562,12 +4618,18 @@ has been called with the option
 or the
 .B errctl=
 option has been used to mark the current error fatal.
+.br
+.ne 3
 .TP
 .B -2 / 254
 One or more files could not be processed successfully.
+.br
+.ne 3
 .TP
 .B -1 / 255
 Command line parsing error.
+.br
+.ne 3
 .TP
 .B >0
 Other positive exit codes: The
@@ -4799,6 +4861,13 @@ make all files world readable in the archive, use:
 .IP
 .B
 example# star \-c f=\fIarchive-name\fP \-find . \-chown root \-chgrp root \-chmod o+r
+.PP
+If you like to archive all files with a mtime of
+.BR now ,
+use:
+.IP
+.B
+example# star \-c f=\fIarchive-name\fP \-find . \-chmtime now
 .PP
 If you like to list all files in an archive in a way like
 .BR sfind (1),
@@ -5519,6 +5588,14 @@ Be careful not to make typos with the above options. The result could be
 that a file is created as a result of the mistyped option.
 .PP
 There is currently no way to set the fifo lowwater and highwater marks.
+.PP
+If you ever discover a hang in the
+.B fifo
+of star, get the process ids for both star processes, send both a
+.B RTMAX
+signal using
+.BR kill (1)
+and report the disgnostic output.
 .PP
 There is currently no way to automatically delete files in the target file tree
 if they are obsolete.

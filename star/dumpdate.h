@@ -1,6 +1,6 @@
-/* @(#)dumpdate.h	1.14 13/10/05 Copyright 2003-2013 J. Schilling */
+/* @(#)dumpdate.h	1.15 18/10/21 Copyright 2003-2018 J. Schilling */
 /*
- *	Copyright (c) 2003-2013 J. Schilling
+ *	Copyright (c) 2003-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,11 +29,11 @@
 typedef struct dumpdates dumpd_t;
 
 struct dumpdates {
-	dumpd_t		*next;
-	char		*name;
-	int		level;
-	struct timespec	date;
-	Uchar		flags;
+	dumpd_t		*dd_next;
+	char		*dd_name;
+	int		dd_level;
+	struct timespec	dd_date;
+	Uchar		dd_flags;
 };
 
 /*

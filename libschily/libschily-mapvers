@@ -1,7 +1,8 @@
-# /* @(#)libschily-mapvers	1.62 18/10/11 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.63 18/10/14 Copyright 2005-2018 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_2.0 {
+	ovstrcpy;
 	mkfstream;	# New allocator because structure did grow
 	fsgetc;		# Always use central funtion in new version
 	getvargs;	# ga_props and ga_flags flipped 23. 10. 2016

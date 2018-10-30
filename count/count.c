@@ -1,8 +1,8 @@
-/* @(#)count.c	1.27 18/09/19 Copyright 1986-2018 J. Schilling */
+/* @(#)count.c	1.29 18/10/14 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)count.c	1.27 18/09/19 Copyright 1986-2018 J. Schilling";
+	"@(#)count.c	1.29 18/10/14 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	count words, lines, and/or chars in files
@@ -69,9 +69,6 @@ LOCAL	void	count	__PR((FILE * f));
 LOCAL	void	phead	__PR((void));
 LOCAL	void	p	__PR((Llong val));
 LOCAL	int	statfile __PR((FILE * f));
-#if	MB_LEN_MAX > 1
-LOCAL	void	ovstrcpy __PR((char *p2, char *p1));
-#endif
 
 LOCAL void
 usage(exitcode)
@@ -148,7 +145,7 @@ main(ac, av)
 	if (prversion) {
 		printf(
 		_("Count release %s %s (%s-%s-%s) Copyright (C) 1986-2018 Jörg Schilling\n"),
-				"1.27", "2018/09/19",
+				"1.29", "2018/10/14",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -247,11 +244,12 @@ count(f)
 					(void) mbtowc(NULL, NULL, 0);
 					if (nmb < MB_LEN_MAX)
 						continue;
+					wc = mb[0] & 0xFF;
 					chars++;
 					mchars++;
 					mb[nmb] = '\0';
 					nmb -= 1;
-					ovstrcpy(mb, &mb[nmb]);
+					ovstrcpy(mb, &mb[1]);
 					continue;
 				} else {
 					if (mlen == 0)
@@ -261,7 +259,7 @@ count(f)
 					if (nmb > mlen) {
 						mb[nmb] = '\0';
 						nmb -= mlen;
-						ovstrcpy(mb, &mb[nmb]);
+						ovstrcpy(mb, &mb[mlen]);
 					} else {
 						nmb = 0;
 					}
@@ -281,7 +279,7 @@ count(f)
 				mchars++;
 				mb[nmb] = '\0';
 				nmb -= 1;
-				ovstrcpy(mb, &mb[nmb]);
+				ovstrcpy(mb, &mb[1]);
 				continue;
 			} else {
 				if (mlen == 0)
@@ -291,7 +289,7 @@ count(f)
 				if (nmb > mlen) {
 					mb[nmb] = '\0';
 					nmb -= mlen;
-					ovstrcpy(mb, &mb[nmb]);
+					ovstrcpy(mb, &mb[mlen]);
 				} else {
 					nmb = 0;
 				}
@@ -439,17 +437,3 @@ statfile(f)
 	nfiles++;
 	return (1);
 }
-
-#if	MB_LEN_MAX > 1
-/*
- * A strcpy() that works with overlapping buffers
- */
-LOCAL void
-ovstrcpy(p2, p1)
-	register char	*p2;
-	register char	*p1;
-{
-	while ((*p2++ = *p1++) != '\0')
-		;
-}
-#endif

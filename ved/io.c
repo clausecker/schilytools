@@ -1,8 +1,8 @@
-/* @(#)io.c	1.43 18/09/23 Copyright 1984-2018 J. Schilling */
+/* @(#)io.c	1.46 18/10/14 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.43 18/09/23 Copyright 1984-2018 J. Schilling";
+	"@(#)io.c	1.46 18/10/14 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
@@ -93,8 +93,8 @@ LOCAL	Uchar	*markbuf;	/* write ptr for printing alt video	    */
 
 EXPORT	iobuf_t	_bb;
 
-EXPORT	Uchar	gchar		__PR((ewin_t *wp));
-EXPORT	Uchar	nigchar		__PR((ewin_t *wp));
+EXPORT	echar_t	gchar		__PR((ewin_t *wp));
+EXPORT	echar_t	nigchar		__PR((ewin_t *wp));
 LOCAL	int	inchar		__PR((ewin_t *wp));
 EXPORT	int	getnextc	__PR((ewin_t *wp));
 EXPORT	int	nigetnextc	__PR((ewin_t *wp));
@@ -129,20 +129,77 @@ EXPORT	int	_bufflush	__PR((void));
  * -	The only 'real' user is edit().
  *
  * Expands the input first by the mapper and then by the macro package.
+ *
+ * Never returns EOF since EOF ic checked here.
  */
-EXPORT Uchar
+EXPORT echar_t
 gchar(wp)
 	ewin_t	*wp;
 {
 	int	c;
+#if	MB_LEN_MAX > 1
+static	Uchar	mbuf[MB_LEN_MAX+1];
+static	Uchar	*bp = mbuf;
+static	size_t	mblen;
+	echar_t	wc;
+	size_t	wclen;
 
+again:
+#endif
 	if (mflag == 0) {
 		c = inchar(wp);
 	} else if ((c = gmacro()) == 0) {
 		c = inchar(wp);
 	}
+#if	MB_LEN_MAX <= 1
 	if (c >= 0)
-		return ((Uchar)c);
+		return ((echar_t)c);
+#else
+	if (c != EOF) {
+		*bp++ = c;
+		mblen++;
+		if ((wclen = mbtowc(&wc, C mbuf, mblen)) < 0) {
+			mbtowc(NULL, NULL, 0);
+			if (mblen < MB_LEN_MAX)
+				goto again;
+
+			/*
+			 * Deliver one byte and give the rest another try.
+			 */
+			wc = mbuf[0];
+			*bp-- = '\0';
+			ovstrcpy(C mbuf, C &mbuf[1]);
+			mblen--;
+			return (wc);
+		} else {
+			if (wclen == mblen) {
+				bp = mbuf;
+				mblen = 0;
+			} else {
+				/*
+				 * Left over bytes from a previus failure.
+				 */
+				*bp = '\0';
+				ovstrcpy(C mbuf, C &mbuf[wclen]);
+				mblen -= wclen;
+				bp = &mbuf[wclen];
+			}
+			return (wc);
+		}
+	} else {
+		if (mblen > 0) {
+			/*
+			 * Deliver the characters left over in mbuf after
+			 * we get EOF from the input.
+			 */
+			*bp = '\0';
+			wc = mbuf[0];
+			ovstrcpy(C mbuf, C &mbuf[1]);
+			mblen--;
+			return (wc);
+		}
+	}
+#endif
 
 	eexit(wp);		/* Prepare quit without write back */
 	exit(0);		/* No Return */
@@ -161,8 +218,10 @@ extern	int	intrchar;
  * 
  * Catches the interrupt and maps the interrupt character back
  * to a usable input character.
+ *
+ * Never returns EOF since EOF ic checked in gchar().
  */
-EXPORT Uchar
+EXPORT echar_t
 nigchar(wp)
 	ewin_t	*wp;
 {

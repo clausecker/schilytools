@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.32 18/09/27 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.35 18/10/29 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/09/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/10/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -248,6 +248,51 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
+.BI \-chatime " timespec
+This primary modifies the
+.B time of last access
+of a file in
+.BR "struct stat" .
+This primary always evaluates to true.
+See
+.BI \-newer XY
+below for a description of
+.IR timespec .
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-chctime " timespec
+This primary modifies the
+.B time of last status change
+of a file in
+.BR "struct stat" .
+This primary always evaluates to true.
+See
+.BI \-newer XY
+below for a description of
+.IR timespec .
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-chmtime " timespec
+This primary modifies the
+.B time of last modification
+of a file in
+.BR "struct stat" .
+This primary always evaluates to true.
+See
+.BI \-newer XY
+below for a description of
+.IR timespec .
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
 .BI \-chown " uname
 .PD 0
 .TP
@@ -257,10 +302,6 @@ This primary modifies the
 .B owner
 of a file in
 .BR "struct stat" .
-.sp
-This primary is only available in the library version of
-.BR sfind (1)
-.RB ( libfind ).
 This primary always evaluates to true.
 .sp
 This primary is not mentioned in the POSIX standard.
@@ -276,10 +317,6 @@ This primary modifies the
 .B group
 of a file in
 .BR "struct stat" .
-.sp
-This primary is only available in the library version of
-.BR sfind (1)
-.RB ( libfind ).
 This primary always evaluates to true.
 .sp
 This primary is not mentioned in the POSIX standard.
@@ -296,11 +333,34 @@ The
 parameter may use the same syntax as in the
 .BR chmod (1)
 command.
-.sp
-This primary is only available in the library version of
-.BR sfind (1)
-.RB ( libfind ).
 This primary always evaluates to true.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.B \-chfile
+If a previous primary
+.BR \-chatime ,
+.BR \-chctime ,
+.BR \-chmtime ,
+.BR \-chown ,
+.B \-chgrp
+or 
+.B \-chmod 
+modified elements in 
+.BR "struct stat" ,
+the modified values are set on the file.
+.sp
+On platforms where
+.BR chmod (2)
+is not possible on symbolic links,
+symbolic links are skipped.
+On platforms where
+is not possible to set time stamps on symbolic links,
+symbolic links are skipped.
+.sp
+If setting the new values does not work, this primary evaluates to false.
 .sp
 This primary is not mentioned in the POSIX standard.
 .br
@@ -941,6 +1001,10 @@ values are replaced by the current time. The maximal shortened time
 specification results in a 
 .B T
 that refers to the end of the current day.
+.PP
+The string
+.B now
+refers to the current time.
 .PP
 The primary
 .B \-newermm

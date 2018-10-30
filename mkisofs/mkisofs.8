@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.164 18/05/24 Copyright 1997-2018 J. Schilling
+.\" @(#)mkisofs.8	1.165 18/10/30 Copyright 1997-2018 J. Schilling
 .\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2018/05/24" "Version 3.02"
+.TH MKISOFS 8 "2018/10/30" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -1014,6 +1014,45 @@ primaries:
 Lists the available
 .BR find (1)
 syntax.
+.br
+.ne 5
+.TP
+.BI \-chatime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last access
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
+.br
+.ne 5
+.TP
+.BI \-chctime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last status change
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
+.br
+.ne 5
+.TP
+.BI \-chmtime " timespec
+The primary always evaluates as true;
+it modifies the
+.B time of last modification
+of a file in
+.BR "struct stat" .
+See
+.BR sfind (1)
+for a description of
+.IR timespec .
 .TP
 .BI \-chgrp " gname
 The primary always evaluates as true;

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.31 18/10/10 Copyright 1999-2013 J. Schilling
+# @(#)lnfiles	1.32 18/10/29 Copyright 1999-2013 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -127,6 +127,7 @@ $cp ${incsrc}/${lib}/fillbytes.c	fillbytes.c
 $cp ${incsrc}/${lib}/getargs.c		getargs.c
 $cp ${incsrc}/${lib}/geterrno.c	geterrno.c
 $cp ${incsrc}/${lib}/movebytes.c	movebytes.c
+$cp ${incsrc}/${lib}/ovstrcpy.c		ovstrcpy.c
 $cp ${incsrc}/${lib}/raisecond.c	raisecond.c
 $cp ${incsrc}/${lib}/rename.c		rename.c
 $cp ${incsrc}/${lib}/searchinpath.c	searchinpath.c

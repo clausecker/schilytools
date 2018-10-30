@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.96 18/08/29 Copyright 2001-2018 J. Schilling */
+/* @(#)xheader.c	1.97 18/10/24 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.96 18/08/29 Copyright 2001-2018 J. Schilling";
+	"@(#)xheader.c	1.97 18/10/24 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1797,6 +1797,7 @@ get_path(info, keyword, klen, arg, len)
 			return;
 		}
 		info->f_name = info->f_pname.ps_path;
+		info->f_namelen = len;
 		info->f_xflags |= XF_PATH;
 	} else {
 		int	ilen = len;
@@ -1823,10 +1824,12 @@ get_path(info, keyword, klen, arg, len)
 				break;
 		} while (1);
 
-		if (ret)
+		if (ret) {
+			info->f_namelen = len;
 			info->f_xflags |= XF_PATH;
-		else
+		} else {
 			bad_utf8(keyword, arg);
+		}
 	}
 }
 
@@ -1860,6 +1863,7 @@ get_lpath(info, keyword, klen, arg, len)
 			return;
 		}
 		info->f_lname = info->f_plname.ps_path;
+		info->f_lnamelen = len;
 		info->f_xflags |= XF_LINKPATH;
 	} else {
 		int	ilen = len;
@@ -1886,10 +1890,12 @@ get_lpath(info, keyword, klen, arg, len)
 				break;
 		} while (1);
 
-		if (ret)
+		if (ret) {
+			info->f_lnamelen = len;
 			info->f_xflags |= XF_LINKPATH;
-		else
+		} else {
 			bad_utf8(keyword, arg);
+		}
 	}
 }
 
