@@ -1,0 +1,395 @@
+New features with AN-2018-11-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+
+-	Schily Makefilesystem (RULES): The linux configuration rules now use
+	"sort -V" to work around a "GNU ld" bug that causes correct linker
+	mapfiles to be rejected unless they appear in a GNU ideosyncratic
+	order.
+
+-	Schily Makefilesystem (RULES): The NetBSD configuration rules now
+	support versioned shared libraries, using "tail -r" since sort does
+	not support sort -V
+
+-	Schily Makefilesystem (RULES): Added NetBSD support for clang
+
+-	include/schily/getopt.h: A new include file has been created for our
+	libgetopt that includes an enhanced getopt() implementation.
+
+-	libgetopt: The source now includes a makefile for shared compilation
+	and a linker map file for libgetopt.
+
+	Note: This is not yet integrated into the usual systematic concept that
+	created shared libraries with "smake LINKMODE=dynamic".
+
+-	libgetopt: The undocumented variable "_sp" from SVr4 has been renamed
+	to "opt_sp" and (on platforms that support "#pragma weak") there is a
+	weak reference _sp to that new variable, giving backwards compatibility.
+
+	The reason for doing this is to make sure that people on Illumos or
+	Oracle Solaris, who still have an outdated version of getopt() in their
+	local libc, do not try to link the Bourne Shell only against their old
+	getopt(). If they did this, they would not get the documented enhanced
+	getopt() features from the Bourne Shell.
+
+-	libgetopt: A makefile for installing the man page has been added.
+
+-	libschily: resolvenpath() did not work as expected when some path names
+	do not exist. A stat() call that should check whether we already
+	reached the "/" directory caused a return (-1) even with
+	(flags & RSPF_EXIST) == 0
+
+	This bug caused star to classify more symlinks as dangerous than
+	needed.
+
+-	libschily::format.c The schily printf is now able to do %.*s with
+	a significance > 8192 without overwriting the internal buffer.
+
+	The new code is implemented via strnlen() and no longer copies
+	the string - thus it should be even faster.
+
+-	libfind: Added support for being able to use simple shell scripts
+	(scripts that do not start with a #! line) as commands for the
+	-exec and -exec + primaries.
+
+	This requires a reordering of the arg vector and to insert a "sh"
+	as new argv[0] before the original arguments.
+
+-	libfind: added a new timestamp to the libfind version.
+
+-	libxtermcap: tdecode() no longer overreads the input buffer if the
+	string ends in a '^' of '\\'.
+
+-	libxtermcap: tgetstr() no longer overwrites a local buffer in case it
+	was called with a NULL array pointer and the input string is longer
+	than 1024.
+
+-	cdrecord: enhanced man page to better point to -raw96r as the best
+	write mode for CD-audio media since many writers today are from the
+	Chinese company "Lite-ON" that sells hardware with defective firmware.
+
+-	sfind: the man page now correctly mentions that -xdev has been
+	introduced in 1985 by BSD/SunOS already and that the POSIX standard text
+	is compatible to the original behavior.
+
+-	count: Fixed a bug that was introduced with setting tabsize
+	to 8 by default.
+
+	The output for the number of octetts (chars) has been wrong.
+
+-	star: A typo in the function dolchmodat() has been fixed. The bug has been
+	introduced in July 2018 while adding support for very long path names.
+
+	dolchmodat() is needed/used when a platform uses different file mode
+	bits than defined by POSIX. In this case, the fix allows to compile
+	star with DJGPP again.
+
+-	star: added a new timestamp to the star version.
+
+-	star: The man page now mentions incremental backups and restores in the
+	FEATURES section.
+
+-	ved: man page, ved.help and vedsheet.tr have been reworked to fix typos
+	and to make things easier to understand. This has been done because of
+	a hint from Heiko Eiﬂfeldt.
+
+-	udiff: fixed typos in the source and in the man page.
+
+	Thanks to a hint from Heiko Eiﬂfeldt.
+
+-	Bourne Shell: The shell now uses "opt_sp" as the name for the
+	undocumented additional getopt() interface from AT&T. This has been
+	done to avoid being able to link the Bourne Shell on Illumos or Oracle
+	Solaris without using our libgetopt. If this was done, we could not
+	support UNIX/MULTICS style long options and we could not support
+	-help/--help, since the latter is implemented via long options that
+	are not an alias to short options.
+
+-	Bourne Shell: added a new timestamp to the Bourne Shell version.
+
+-	SCCS: sccs.c Some Cstyle changes.
+
+-	SCCS: sccs.c fixed a malloc() bug related to recursive (-R) use that
+	could cause a core dump with command lines like this:
+
+		sccs -R diffs path/to/file1 path/to/file2 path/to/file3
+
+-	SCCS: sccs.c: the command "sccs add" is now able to convert all kind of
+	legal path names into path names that are relative to the change set 
+	home directory and it is able to recognise whether a path is outside
+	the change set home directry tree.
+
+-	SCCS: libcomobj: added new source files:
+
+		homesubs.c	includes fchdir(2) management functions
+		fdirsubs.c	includes open(2)/close(2) dir management
+				functions
+		intree.c	Check and manage whether a path is inside the
+				project tree.
+		sclose.c	To close the FILE * from a struct packet and
+				mark it closed
+
+-	SCCS: libcomobj: getline.c now uses getdelim() to read lines. This
+	avoids the need to call strlen() for the line length and it allows
+	to have embedded nul characters in a line.
+
+	This is a preparation for a future sccs version that will be able
+	to avoid "uuencode" for so called "binary" files. In former times,
+	this was impossible but since diff(1) includes a -a ooption to
+	treat binary files as text files, any type of file could be treated
+	as a text file with line by line checks for changes.
+
+-	SCCS: libcomobj: getline.c now implements a new function grewind()
+
+-	SCCS: helpfiles: added new error codes for the enhanced code
+	for "sccs add".
+
+-	SCCS: the "ut" helpfile did still contain explanation text from 1977
+	that mentions a maximum file size of 1MB. The new text mentions 
+	platform specific and process specific limitations and leaves the
+	value open.
+
+-	SCCS: All programs now accept -version in addition to -V and --version
+
+-	SCCS: The man pages now mention -version and --version
+
+-	SCCS: The get(1) man page now correctly mentions the differences
+	between the UNIX get(1) program and the POSIX get(1) documentation.
+
+-	SCCS: delta.c: The comment has been enhanced in order to help future
+	enhancements.
+
+-	SCCS: delta.c: Added a new option -X to allow to add many more new
+	options.
+
+-	SCCS: delta.c: Added a new option -Xprepend to allow an efficient way
+	of adding the content of a file to the beginning of the g-content of
+	an existing SCCS history file.
+
+	This method is needed in order to manage the SCCS changeset file, see
+	"man sccschangeset" in a performant way after a huge project like the
+	Linux kernel did introduce commits over many dozens of years.
+
+	Since we do not have the changeset file as g-file in the filesystem and
+	since we do not need to call diff(1), creating the needed delta for
+	the changeset file to handle a new commit is 2.5x faster with this new 
+	method than it would be using the standard method.
+
+	The following -X options are currently available:
+
+	prepend		See above
+
+	help		list this option overview
+
+-	SCCS man pages now document the new option -X for delta(1)
+
+-	SCCS "sccs help delta" now documents the new option -X for delta(1)
+
+-	SCCS "sccs help delta_Xopts" now lists the new delta -X options
+
+-	SCCS: cdc.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: comb.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: prs.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: prt.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: rmchg.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: unget.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: val.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: sccslog.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: sccscvt.c: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: sccsdiff: This command now supports a -N option like admin, delta
+	and get. This allows it to be used in project mode with the SCCS
+	history files in a separate tree that starts in .sccs/ in the
+	project home directory.
+
+-	SCCS: comb.c: If a SCCS history file has been a V6 history file, the
+	new history file is created as V6 history file as well.
+
+-	SCCS: val.c: This command now supports a -v option to print the SCCS
+	history file type. The output is:
+
+	SCCS V4 <name>
+	or
+	SCCS V6 <name>
+
+	No other checks (except for a valid magic first line) are done.
+
+-	SCCS: val.c the internal getline function now uses
+	getdelim() as it is done in libcomobj. This is
+	needed once we allow nul Bytes in history files.
+
+-	SCCS: the SCCS version has been bumped to 5.09.
+
+-	SCCS TODO:
+
+	-	enhance history file parser to read SCCS V6 speficic flags
+		and meta data
+
+	-	Enhance prs(1) to be able to print the SCCS V6 Initial Path
+
+	-	Enhance prs(1) to be able to print the SCCS V6 Unified Random
+
+	-	Enhance admin(1) to be able to control SCCS V6 Initial Path
+		and Unified Random from the command line
+
+	-	Enhance comb(1) to be able to keep SCCS V6 Initial Path
+		and Unified Random from the old history file when creating
+		a new one.
+
+	-	Write unit tests for -N
+
+	-	Write a unit test for delta -Xprepend
+
+	-	Write a unit test for val -v
+
+-	termcap: If the termcap string ended one byte after a ':', the
+	buffer has been overead.
+
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	termcap: If the termcap string ended one byte after a '^', the
+	buffer has been overead.
+
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	termcap: If the termcap string ended one byte after a '\\', the
+	buffer has been overead.
+
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	termcap: The string table length check no longer causes a buffer
+	overflow with long strings.
+
+-	termcap: The buffers have been enlarged and termcap entries > 4096
+	bytes are no longer processed.
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

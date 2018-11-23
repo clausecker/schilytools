@@ -26,10 +26,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)getopt.c	1.17 17/12/08 J. Schilling
+ * @(#)getopt.c	1.18 18/11/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.17 17/12/08 J. Schilling"
+#pragma ident "@(#)getopt.c 1.18 18/11/11 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -106,6 +106,17 @@ static char *parselong  __PR((const char *optstring, const char *opt,
  * So, why isn't this "static" you ask?  Because the historical Bourne
  * shell has actually latched on to this little piece of private data.
  */
+#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
+/*
+ * The name of the variable on SVr4 was _sp, but we enhanced the features
+ * of getopt() to support long options and since recent versions of the
+ * Bourne Shell rely on long option support, the easiest way to signal the
+ * enhanced features of this getopt() implementation is to change the name
+ * of the state variable to opt_sp.
+ */
+#pragma weak _sp = opt_sp	/* Backwards compatibility for old programs */
+#endif
+#define	_sp	opt_sp
 int _sp = 1;
 
 /*

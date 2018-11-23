@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.41 18/04/03 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-get.1	1.43 18/11/10 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2018/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2018/11/10" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -649,7 +649,13 @@ the location of the
 .br
 .ne 3
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B get
 version number string and exists.
@@ -791,6 +797,10 @@ is as follows:
 \fB"%s\en%d lines\en"\fR, <\fISID\fR>, <\fInumber of lines\fR>
 .fi
 .in -2
+.sp
+The text
+.B lines
+may appear in the language of the current locale.
 
 .SS /usr/xpg4/bin/get
 
@@ -802,9 +812,13 @@ is as follows:
 .LP
 .in +2
 .nf
-\fB"%s\en%d\en"\fR, <\fISID\fR>, <\fInumber of lines\fR>
+\fB"%s\en%d lines\en"\fR, <\fISID\fR>, <\fInumber of lines\fR>
 .fi
 .in -2
+.sp
+The text
+.B lines
+is always in English.
 
 .SH USAGE
 

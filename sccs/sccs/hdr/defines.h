@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)defines.h	1.98 18/04/30 J. Schilling
+ * @(#)defines.h	1.101 18/11/22 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.98 18/04/30 J. Schilling"
+#pragma ident "@(#)defines.h 1.101 18/11/22 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -130,7 +130,9 @@ extern char *optarg;
  * implemented in schily/schily.h.
  */
 #ifdef	NEED_SCHILY_PRINT
+#ifndef	SCHILY_PRINT
 #define	SCHILY_PRINT
+#endif
 #endif
 #include	<schily/schily.h>
 
@@ -620,6 +622,7 @@ extern	int	sethomestat;	/* sethome() status flags */
 
 extern	char	*auxf	__PR((char *, int));
 extern	void	sinit	__PR((struct packet *, char *, int));
+extern	void	sclose	__PR((struct packet *));
 extern	char	*checkmagic __PR((struct packet *, char *));
 extern	void	setup	__PR((struct packet *, int));
 extern	void	finduser __PR((struct packet *));
@@ -661,6 +664,7 @@ extern	void	fmterr	__PR((struct packet *));
 #undef	getline
 #define	getline	comgetline
 extern	char	*getline __PR((struct packet *));
+extern	void	grewind	__PR((struct packet *));
 extern	void	putline	__PR((struct packet *, char *));
 extern	void	putchr	__PR((struct packet *, int c));
 extern	void	putctl	__PR((struct packet *));
@@ -723,6 +727,14 @@ extern	char *	change_ab __PR((char *cbuf, struct packet *pkt));
 extern	void	initN	__PR((Nparms *N));
 extern	void	parseN	__PR((Nparms *N));
 extern	char *	bulkprepare __PR((Nparms *N, char *afile));
+
+extern	int	opendirfd	__PR((const char *name));
+extern	int	closedirfd	__PR((int fd));
+extern	int	opencwd		__PR((void));
+extern	int	openphome	__PR((void));
+extern	BOOL	has_dotdot	__PR((const char *name));
+extern	BOOL	in_tree		__PR((const char *name));
+extern	void	make_relative	__PR((char *name));
 
 /*
  * Declares for external variables in lib/mpwlib

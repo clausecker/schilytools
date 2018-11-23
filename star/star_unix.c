@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.115 18/08/31 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.116 18/11/03 Copyright 1985, 1995, 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.115 18/08/31 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.116 18/11/03 Copyright 1985, 1995, 2001-2018 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -105,7 +105,7 @@ EXPORT	void	setdirmodes	__PR((char *name, mode_t mode));
 EXPORT	mode_t	osmode		__PR((mode_t tarmode));
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #else
-LOCAL	int	dolchmodat	__PR((const char *name, mode_t tarmode, flag));
+LOCAL	int	dolchmodat	__PR((char *name, mode_t tarmode, int flag));
 #endif
 
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
@@ -1059,10 +1059,10 @@ osmode(tarmode)
 #undef	lchmodat
 LOCAL int
 #ifdef	PROTOTYPES
-dochmod(register const char *name, register mode_t tarmode, int flag)
+dolchmodat(register char *name, register mode_t tarmode, int flag)
 #else
-dochmod(name, tarmode, flag)
-	register const char	*name;
+dolchmodat(name, tarmode, flag)
+	register char		*name;
 	register mode_t		tarmode;
 		int		flag;
 #endif

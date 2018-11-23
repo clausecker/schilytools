@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.35 18/10/29 Copyr 2004-2018 J. Schilling
+.\" @(#)sfind.1	1.36 18/11/07 Copyr 2004-2018 J. Schilling
 .\" Manual page for sfind
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "2018/10/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "2018/11/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -1410,31 +1410,43 @@ This primary is not mentioned in the POSIX standard.
 .ne 5
 .TP
 .B \-xdev
-The primary always evaluates as true; it was an alias to
+The primary always evaluates as true; with older releases of
+.B libfind
+it was an alias to
 .B \-mount
-for compatibility to historic UNIX implementations
-but has become an alias to
+for compatibility to
+.B AT&T UNIX
+implementations
+but it has become an alias to
 .B \-mount+
-with a POSIX wording bug fix in September 2018.
+after a POSIX standard bug fix in September 2018.
 .sp
-Note that the bug fix in the
+Note that the
 .B POSIX 
-standard makes it in conflict with the established
-.B UNIX
-behavior for
+standard was aligned with the
+.B BSD/SunOS
+behavior from 1985 and differs from the
+.B AT&T UNIX
+behavior from 1988 for
 .B \-xdev
-that is aligned with the behavior of
+that was aligned with the behavior of
 .BR nftw (3)
 with 
 .B FTW_MOUNT
 that does not incude mount points in the output.
-Since half of the implementations followed the ambigous wording
-in the POSIX standard from 1992 and half of the implementations
-followed the historic UNIX behavior, the POSIX wording that requires
-to report the directory type mount points has been finally set up
+
+Since the original implementation for
+.B \-xdev
+from
+.B BSD/SunOS
+from 1985
+and the POSIX standard from 1992 require
+to report the directory type mount points,
+this has been finally set up for
+.B \-xdev
 and
 .B libfind
-now follows the POSIX wording.
+now follows the POSIX/BSD/SunOS wording.
 
 .PP
 The primaries can be combined using the following operators (in

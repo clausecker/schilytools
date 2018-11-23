@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)what.c	1.17 18/04/29 J. Schilling
+ * @(#)what.c	1.18 18/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.17 18/04/29 J. Schilling"
+#pragma ident "@(#)what.c 1.18 18/11/08 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -112,7 +112,7 @@ main(argc, argv)
 			    }
 			}
 			i = current_optind;
-			c = getopt(argc, argv, "-sV(version)");
+			c = getopt(argc, argv, "()-sV(version)");
 
 				/*
 				 * This takes care of options given after

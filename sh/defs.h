@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.h	1.194 18/08/01 2008-2018 J. Schilling
+ * @(#)defs.h	1.195 18/11/11 2008-2018 J. Schilling
  */
 
 /*
@@ -259,6 +259,7 @@ extern "C" {
 #ifdef	SCHILY_INCLUDES
 #include	<schily/mconfig.h>
 #include	<schily/unistd.h>
+#include	<schily/getopt.h>
 #include	<schily/stdlib.h>	/* malloc()/free()... */
 #include	<schily/limits.h>
 #include	<schily/maxpath.h>
@@ -404,7 +405,7 @@ extern pid_t	mysid;
 /* getopt */
 extern int		optind;
 extern int		opterr;
-extern int 		_sp;
+#define	_sp		opt_sp	/* Use variable name from new getopt() */
 extern char 		*optarg;
 
 #ifdef	STAK_DEBUG

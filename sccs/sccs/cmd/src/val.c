@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)val.c	1.47 18/04/29 J. Schilling
+ * @(#)val.c	1.55 18/11/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.47 18/04/29 J. Schilling"
+#pragma ident "@(#)val.c 1.55 18/11/22 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -76,6 +76,7 @@ static int	infile_err = 0;	/* file error code (from 'validate') */
 static int	inpstd;		/* TRUE = args from standard input */
 
 static struct packet gpkt;
+static Nparms	N;			/* Keep -N parameters		*/
 
 static struct deltab dt;
 static struct deltab odt;
@@ -131,7 +132,6 @@ int argc;
 char	*argv[];
 {
 	FILE	*iop;
-	register int j;
 	char *lp;
 
 	/*
@@ -192,13 +192,9 @@ char	*argv[];
 			ret_code |= inline_err;
 		    }
 		}
-	}
-	else {
+	} else {
 		inpstd = FALSE;
-		for (j = 1; j < argc; j++)
-			sprintf(line, "%s", argv[j]);
-		j = strlen(line);
-		line[j > 0 ? j : 0] = '\0';
+		line[0] = '\0';
 		process(line, argc, argv);
 		ret_code = inline_err;
 	}
@@ -233,6 +229,7 @@ char	*argv[];
 	int 	c;
 
 	int current_optind;
+	int no_arg;
 
 	silent = FALSE;
 	path[0] = sid[0] = type[0] = name[0] = 0;
@@ -254,6 +251,7 @@ char	*argv[];
 	current_optind = 1;
 	optind = 1;
 	opterr = 0;
+	no_arg = 0;
 	j = 1;
 	/*CONSTCOND*/
 	while (1) {
@@ -261,11 +259,18 @@ char	*argv[];
 				current_optind = optind;
 				argv[j] = 0;
 				if (optind > j+1) {
-					argv[j+1] = NULL;
+					if ((argv[j+1][0] != '-') &&
+					    (no_arg == 0)) {
+						argv[j+1] = NULL;
+					} else {
+						optind = j+1;
+						current_optind = optind;
+			 		}
 				}
 			}
+			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "-r:sm:y:hTV(version)");
+			c = getopt(argc, argv, "()-r:sm:y:hvTN:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -301,11 +306,23 @@ char	*argv[];
 				case 'm':
 					strlcpy(name, p, sizeof (name));
 					break;
+				case 'v':
+					break;
 
 				case 'T':
 					debug = TRUE;
 					silent = FALSE;
 					break;
+
+				case 'N':	/* Bulk names */
+					initN(&N);
+					if (optarg == argv[j+1]) {
+					   no_arg = 1;
+					   break;
+					}
+					N.n_parm = p;
+					break;
+
 				case 'V':		/* version */
 					printf("val %s-SCCS version %s %s (%s-%s-%s)\n",
 						PROVIDER,
@@ -316,7 +333,7 @@ char	*argv[];
 
 				default:
 					Fflags &= ~FTLEXIT;
-					fatal(gettext("Usage: val [ -h ] [ -s ] [ -m name ] [ -r SID ] [ -T ] [ -y type ] s.filename..."));
+					fatal(gettext("Usage: val [ -h ] [ -s ] [ -m name ] [ -r SID ] [ -T ] [ -v ]\n\t[ -y type ] [ -N[bulk-spec]] s.filename..."));
 					if (debug) {
 						printf(gettext("Uknown option '%c'.\n"),
 							optopt?optopt:c);
@@ -371,6 +388,15 @@ char	*argv[];
 	    return;		/* return to 'main' routine */
 	}
 	line_sw = 1;		/* print command line flag */
+
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
+
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
 	/*
 	loop through 'validate' for each file on command line.
 	*/
@@ -393,7 +419,7 @@ char	*argv[];
 		}
 		strlcpy(path, filelist[i+j], sizeof (path));
 		if (!inpstd) {
-			do_file(path, do_validate, 1, 1);
+			do_file(path, do_validate, 1, N.n_sdot);
 			continue;
 		}
 		validate(path, sid, type, name);
@@ -417,6 +443,17 @@ static void
 do_validate(c_path)
 	char	*c_path;
 {
+	if (HADUCN) {
+		char	*ofile = c_path;
+
+		c_path = bulkprepare(&N, c_path);
+		if (c_path == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
+
 	validate(c_path, sid, type, name);
 	inline_err |= infile_err;
 
@@ -477,6 +514,15 @@ char	*c_name;
 			infile_err |= CORRUPT_ERR;
 		}
 		else {
+			if (HADV) {
+				if (gpkt.p_flags & PF_V6)
+					printf("SCCS V6 %s\n", c_path);
+				else
+					printf("SCCS V4 %s\n", c_path);
+				sclose(&gpkt);
+				return;
+			}
+
 			/*
 			 * Read delta table for get_hashtest()
 			 */
@@ -501,8 +547,7 @@ char	*c_name;
 			SID.
 			*/
 			if (do_delt(&gpkt, goods, c_sid)) {
-				fclose(gpkt.p_iop);
-				gpkt.p_iop = NULL;
+				sclose(&gpkt);
 				get_close();		/* for SID checksums */
 				if (debug)
 					printf(gettext(
@@ -552,8 +597,7 @@ char	*c_name;
 				if (gpkt.p_line != NULL &&
 				    gpkt.p_line[0] == CTLCHAR &&
 				    gpkt.p_line[1] != BUSERTXT) {
-					fclose(gpkt.p_iop);
-					gpkt.p_iop = NULL;
+					sclose(&gpkt);
 					get_close();	/* for SID checksums */
 					if (debug)
 						printf(gettext(
@@ -604,8 +648,7 @@ char	*c_name;
 			while (read_mod(&gpkt))
 				;
 		}
-	fclose(gpkt.p_iop);	/* close file pointer */
-	gpkt.p_iop = NULL;
+	sclose(&gpkt);		/* close file pointer */
 	get_close();		/* for SID checksums */
 	}
 	/* return to 'process' function */
@@ -853,13 +896,33 @@ static char	*
 get_line(pkt)
 register struct packet *pkt;
 {
+#ifdef	NO_GETDELIM
 	char	buf[DEF_LINE_SIZE];
-	int	eof;
 	register size_t nread = 0;
+#endif
+	int	eof = 0;
 	register size_t used = 0;
 	register signed char *p;
 	register unsigned char *u_p;
 
+#ifndef	NO_GETDELIM
+	/*
+	 * getdelim() allows to read lines that have embedded nul bytes
+	 * and we don't need to call strlen().
+	 */
+	errno = 0;
+	used = getdelim(&pkt->p_line, &pkt->p_line_size, '\n', pkt->p_iop);
+	if (used == -1) {
+		if (errno == ENOMEM)
+			fatal(gettext("OUT OF SPACE (ut9)"));
+		if (ferror(pkt->p_iop)) {
+			xmsg(pkt->p_file, NOGETTEXT("getline"));
+		} else if (feof(pkt->p_iop)) {
+			used = 0;
+			eof = 1;
+		}
+	}
+#else
 	/* read until EOF or newline encountered */
 	do {
 		if (!(eof = (fgets(buf, sizeof (buf), pkt->p_iop) == NULL))) {
@@ -877,6 +940,9 @@ register struct packet *pkt;
 			used += nread;
 		}
 	} while (!eof && (pkt->p_line[used-1] != '\n'));
+#endif
+	pkt->p_linebase = pkt->p_line;
+	pkt->p_line_length = used;
 
 	/* check end of file condition */
 	if (eof && (used == 0)) {

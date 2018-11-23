@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.40 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-delta.1	1.45 18/11/21 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2018/11/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -61,7 +61,10 @@ sccs-delta, delta \- make a delta to an SCCS file
 .RB "    [" "-y \c
 .RI [ comment "]] \c
 .RB [ "-D \c
-.IR diff-file "] \c
+.IR diff-file "]
+.br
+.RB "    [" -X\c
+.IR extended-options "] "\c
 .RB [ -N\c
 .IR bulk-spec "] \c
 .IR s.filename ...
@@ -464,7 +467,49 @@ implementations.
 .br
 .ne 3
 .TP
+.BI \-X extended\-options
+Specify extended options. The argument
+.I extended\-options
+may be a comma separated list of extended option names.
+.sp
+The following extended options are supported, they may be abbreviated as long
+ad the abbreviation is still unique:
+.sp
+.RS
+.TP
+.B prepend
+Prepend the current content of the
+.B g-file
+to the previous content of that file.
+With this option, there is no need to unpack the old reference version
+and to diff the current version against that old version. This causes
+a major performance win that is used for updating the
+.BR sccschangeset (4)
+file when in
+.BR "project mode" .
+.TP
+.B help
+Print a short online help for available options.
+.PP
+The
+.B \-X
+option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
+
+.br
+.ne 3
+.TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B delta
 version number string and exists.

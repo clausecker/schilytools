@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.107 18/05/20 J. Schilling
+ * @(#)admin.c	1.108 18/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.107 18/05/20 J. Schilling"
+#pragma ident "@(#)admin.c 1.108 18/11/08 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -232,7 +232,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqkw:a:e:V:(version)");
+		        c = getopt(argc, argv, "()-i:t:m:y:d:f:r:nN:hzboqkw:a:e:V:(version)");
 				/*
 				*  this takes care of options given after
 				*  file names.

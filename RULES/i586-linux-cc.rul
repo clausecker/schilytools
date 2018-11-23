@@ -1,4 +1,4 @@
-#ident "@(#)i586-linux-cc.rul	1.17 18/10/11 "
+#ident "@(#)i586-linux-cc.rul	1.18 18/11/07 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -50,7 +50,7 @@ MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
 # files for symbol versioning. The following command reverses the order of
 # the version names in the linker map file.
 #
-MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | sort -t. -k1,1 -k2,2n -k3,3n |  tr '@' '\012'
+MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | sort -V |  tr '@' '\012'
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 #

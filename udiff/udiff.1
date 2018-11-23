@@ -1,5 +1,5 @@
-. \" @(#)udiff.1	1.5 10/05/11 Copyright 1985-2010 J. Schilling
-. \"  Manual page for diff
+. \" @(#)udiff.1	1.6 18/11/17 Copyright 1985-2010 J. Schilling
+. \"  Manual page for udiff
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH UDIFF 1 "10/05/11" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH UDIFF 1 "2018/11/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 udiff \- shows where two files differ
 .SH SYNOPSIS
@@ -24,7 +24,8 @@ udiff \- shows where two files differ
 ]
 .I file1 file2
 .SH DESCRIPTION
-diff shows what lines differ between two files.
+.B udiff
+shows what lines differ between two files.
 .SH OPTIONS
 .TP
 .B \-help
@@ -46,7 +47,7 @@ is called as
 the default is two lines, otherwise it is one line.
 .TP
 .B \-posix
-Outout the differences in POSIX style instead of using
+Outut the differences in POSIX style instead of using
 .B udiff
 style.
 .SH NOTES

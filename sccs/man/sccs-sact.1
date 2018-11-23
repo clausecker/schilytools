@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-sact.1	1.19 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-sact.1	1.20 18/11/08 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-sact 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-sact 1 "2018/11/08" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sact, sact \- show editing activity status of an SCCS file
 .SH SYNOPSIS
@@ -115,7 +115,13 @@ Suppresses the error message when a file is not currently edited.
 .br
 .ne 2
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B sact
 version number string and exists.

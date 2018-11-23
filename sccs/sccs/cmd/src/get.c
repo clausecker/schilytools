@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)get.c	1.76 18/04/04 J. Schilling
+ * @(#)get.c	1.78 18/11/18 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.76 18/04/04 J. Schilling"
+#pragma ident "@(#)get.c 1.78 18/11/18 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -173,7 +173,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFN:V(version)");
+		        c = getopt(argc, argv, "()-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFN:V(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -320,7 +320,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file]\n\t[-isid-list] [-rsid] [-xsid-list][ -N[bulk-spec]] file ..."));
+			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file]\n\t[-isid-list] [-rsid] [-xsid-list][ -N[bulk-spec]] s.filename ..."));
 			}
 
 			/*

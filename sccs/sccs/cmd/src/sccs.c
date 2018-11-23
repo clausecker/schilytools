@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)sccs.c	1.88 18/04/30 J. Schilling
+ * @(#)sccs.c	1.95 18/11/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.88 18/04/30 J. Schilling"
+#pragma ident "@(#)sccs.c 1.95 18/11/14 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -621,7 +621,7 @@ main(argc, argv)
 			   }
 			   i = current_optind;
 			}
-			c = getopt(argc, argv, "-rp:d:RTV(version)");
+			c = getopt(argc, argv, "()-rp:d:RTV(version)");
 			if (c == EOF) {
 			   break;
 			}
@@ -1618,7 +1618,7 @@ get_list_files(listftailpp, filename, no_sdot)
 {
    struct list_files *listfilesp = *listftailpp;
 
-   listfilesp->next = malloc(sizeof(struct list_files));
+   listfilesp->next = malloc(sizeof (struct list_files));
    if (listfilesp->next == NULL) {
       perror(gettext("Sccs: no mem"));
       exit(EX_OSERR);
@@ -1906,20 +1906,20 @@ makefile(name, in_SccsDir)
 	if ((in_SccsDir[0] != '\0') &&
 	    (name[0] != '/') &&
 	    (strncmp(name, "./", 2) != 0)) {
-	   gstrcpy(buf, in_SccsDir, sizeof(buf));
-	   gstrcat(buf, "/", sizeof(buf));
+	   gstrcpy(buf, in_SccsDir, sizeof (buf));
+	   gstrcat(buf, "/", sizeof (buf));
 	} else {
-	   gstrcpy(buf, "", sizeof(buf));
+	   gstrcpy(buf, "", sizeof (buf));
 	}
 
 	/* then the head of the pathname */
 
-	gstrncat(buf, name, p - name, sizeof(buf));
+	gstrncat(buf, name, p - name, sizeof (buf));
 	q = &buf[strlen(buf)];
 
 	/* now copy the final part of the name, in case useful */
 
-	gstrcpy(q, p, sizeof(buf));
+	gstrcpy(q, p, sizeof (buf));
 
 	/* so is it useful? */
 
@@ -1930,9 +1930,9 @@ makefile(name, in_SccsDir)
 	         (strcmp(curcmd->sccsname, "editor") == 0) ||
 	         (strcmp(curcmd->sccsname, "admin") == 0) ||
 	         (isdir(buf) == 0)) {
-	        gstrcpy(q, SccsPath, sizeof(buf));
-	        gstrcat(buf, "/s.", sizeof(buf));
-	        gstrcat(buf, p, sizeof(buf));
+	        gstrcpy(q, SccsPath, sizeof (buf));
+	        gstrcat(buf, "/s.", sizeof (buf));
+	        gstrcat(buf, p, sizeof (buf));
 	     }
 	  }
 	  else {
@@ -1940,17 +1940,17 @@ makefile(name, in_SccsDir)
 	         (strcmp(curcmd->sccsname, "enter") == 0) ||
 	         (strcmp(curcmd->sccsname, "editor") == 0) ||
 	         (strcmp(curcmd->sccsname, "admin") == 0)) {
-	        gstrcpy(q, SccsPath, sizeof(buf));
-	        gstrcat(buf, "/s.", sizeof(buf));
-	        gstrcat(buf, p, sizeof(buf));
+	        gstrcpy(q, SccsPath, sizeof (buf));
+	        gstrcat(buf, "/s.", sizeof (buf));
+	        gstrcat(buf, p, sizeof (buf));
 	    }
 	    else
 	      if (isdir(buf) == 0) {
-	        gstrcpy(q, SccsPath, sizeof(buf));
-	        gstrcat(buf, "/s.", sizeof(buf));
-	        gstrcat(buf, p, sizeof(buf));
+	        gstrcpy(q, SccsPath, sizeof (buf));
+	        gstrcat(buf, "/s.", sizeof (buf));
+	        gstrcat(buf, p, sizeof (buf));
 	        if (!_exists(buf)) {
-	             gstrcpy(q, p, sizeof(buf));
+	             gstrcpy(q, p, sizeof (buf));
 	        }
 	      }
 	   }
@@ -2037,10 +2037,8 @@ static bool
 safepath(p)
 	register char *p;
 {
-	if (*p != '/')
-	{
-		while (strncmp(p, "../", 3) != 0 && strcmp(p, "..") != 0)
-		{
+	if (*p != '/') {
+		while (strncmp(p, "../", 3) != 0 && strcmp(p, "..") != 0) {
 			p = strchr(p, '/');
 			if (p == NULL)
 				return (TRUE);
@@ -2051,7 +2049,7 @@ safepath(p)
 	exit(EX_USAGE);
 
 	/*unreached*/
-	return FALSE;
+	return (FALSE);
 }
 
 static int
@@ -2191,16 +2189,14 @@ clean(mode, argv)
 	ex_status = EX_OK;
 	for (ap = argv; *++ap != NULL; )
 	{
-		if (**ap == '-')
-		{
+		if (**ap == '-') {
 			/* we have a flag */
-			switch ((*ap)[1])
-			{
-			  case 'b':
+			switch ((*ap)[1]) {
+			case 'b':
 				nobranch = TRUE;
 				break;
 
-			  case 'u':
+			case 'u':
 				if ((*ap)[2] != '\0')
 					usernm = sccs_user(&(*ap)[2]);
 				else if (Rflag && (ap[1] == NULL || ap[2] == NULL))
@@ -2210,13 +2206,11 @@ clean(mode, argv)
 				else
 					usernm = logname();
 				break;
-			  case 'U' :
+			case 'U':
 				usernm = logname();
 				break;
 			}
-		}
-		else
-		{
+		} else {
 			if (subdir != NULL)
 				usrerr(gettext("too many args"));
 			else
@@ -2228,25 +2222,26 @@ clean(mode, argv)
 	**  Find and open the SCCS directory.
 	*/
 
-	gstrcpy(buf, SccsDir, sizeof(buf));
+	gstrcpy(buf, SccsDir, sizeof (buf));
 	if (buf[0] != '\0')
-		gstrcat(buf, "/", sizeof(buf));
+		gstrcat(buf, "/", sizeof (buf));
 	if (subdir != NULL)
-		gstrcat(buf, subdir, sizeof(buf));
+		gstrcat(buf, subdir, sizeof (buf));
 	bufend = &buf[strlen(buf)-1];
 	while (bufend > buf && *bufend == '/')
 		*bufend-- = '\0';
 	if ((bufend = strstr(buf, SccsPath)) == NULL ||
 	    bufend[strlen(SccsPath)] != '\0') {
 		if (subdir != NULL)
-			gstrcat(buf, "/", sizeof(buf));
-		gstrcat(buf, SccsPath, sizeof(buf));
+			gstrcat(buf, "/", sizeof (buf));
+		gstrcat(buf, SccsPath, sizeof (buf));
 	}
 	bufend = &buf[strlen(buf)];
 	basebuf[0] = '\0';
 	baseend = basebuf;
 	if (Rflag) {
-		gstrncat(basebuf, buf, bufend - buf - strlen(SccsPath), sizeof(basebuf));
+		gstrncat(basebuf, buf, bufend - buf - strlen(SccsPath),
+			sizeof (basebuf));
 		baseend = &basebuf[strlen(basebuf)];
 	}
 
@@ -2272,16 +2267,16 @@ clean(mode, argv)
 			continue;
 		} else {
 			*bufend = '\0';
-			gstrcpy(namefile, buf, sizeof(namefile));
-			gstrcat(namefile, "/", sizeof(namefile));
-			gstrcat(namefile, dir->d_name, sizeof(namefile));
+			gstrcpy(namefile, buf, sizeof (namefile));
+			gstrcat(namefile, "/", sizeof (namefile));
+			gstrcat(namefile, dir->d_name, sizeof (namefile));
 		}
 
 		/* got an s. file -- see if the p. file exists */
-		gstrcpy(bufend, NOGETTEXT("/p."), sizeof(buf) - (bufend - buf));
+		gstrcpy(bufend, NOGETTEXT("/p."), sizeof (buf) - (bufend - buf));
 		basefile = bufend + 3;
-		gstrcpy(basefile, &dir->d_name[2], sizeof(buf) - (basefile - buf));
-		gstrcpy(baseend, &dir->d_name[2], sizeof(basebuf) - (baseend - basebuf));
+		gstrcpy(basefile, &dir->d_name[2], sizeof (buf) - (basefile - buf));
+		gstrcpy(baseend, &dir->d_name[2], sizeof (basebuf) - (baseend - basebuf));
 
 		/*
 		**  open and scan the p-file.
@@ -2321,16 +2316,16 @@ clean(mode, argv)
 
 		/* the s. file exists and no p. file exists -- unlink the g-file */
 		if (mode == CLEANC && !gotpfent) {
-		   if (_exists(basebuf) != 0) {
-		      if (((_Statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0)||
-		          (edited != 0)) {
-			 unlink(basebuf);
-		      } else {
-			 ex_status = 1;
-			 fprintf(stderr,
-			   gettext("ERROR [%s]: the file `%s' is writable\n"),
-			   namefile, Rflag ? basebuf : basefile);
-		      }
+		    if (_exists(basebuf) != 0) {
+			if (((_Statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0)||
+			    (edited != 0)) {
+				unlink(basebuf);
+		    } else {
+			ex_status = 1;
+			fprintf(stderr,
+			    gettext("ERROR [%s]: the file `%s' is writable\n"),
+			    namefile, Rflag ? basebuf : basefile);
+		    }
 		   }
 		}
 	}
@@ -2524,7 +2519,7 @@ do_unedit(fn)
 	if (pfp == NULL)
 	{
 		printf(gettext("%12s: not being edited\n"),
-		       gfile);
+			gfile);
 		if (pfn == fn)
 			free(pfn);
 		if (Gfile)
@@ -2629,7 +2624,7 @@ do_unedit(fn)
 				free(Gfile);
 			return;
 		}
-		while (fgets(buf, sizeof buf, tfp) != NULL) {
+		while (fgets(buf, sizeof (buf), tfp) != NULL) {
 			if (fputs(buf, pfp) == EOF) {
 				xmsg(pfn, NOGETTEXT("unedit"));
 			}
@@ -2718,7 +2713,7 @@ getpfent(pfp)
 	static char buf[PFILELG];
 	register char *p;
 
-	if (fgets(buf, sizeof buf, pfp) == NULL)
+	if (fgets(buf, sizeof (buf), pfp) == NULL)
 		return (NULL);
 
 	ent.p_osid = p = buf;
@@ -2735,15 +2730,14 @@ static int
 checkpfent(pf)
 struct p_file *pf;
 {
-	if ( pf->p_osid == NULL ||
-	     pf->p_nsid == NULL ||
-	     pf->p_user == NULL ||
-	     pf->p_date == NULL ||
-	     pf->p_time == NULL )
-	{
-	     return (0);
+	if (pf->p_osid == NULL ||
+	    pf->p_nsid == NULL ||
+	    pf->p_user == NULL ||
+	    pf->p_date == NULL ||
+	    pf->p_time == NULL) {
+		return (0);
 	} else {
-	     return (1);
+		return (1);
 	}
 }
 
@@ -2905,7 +2899,7 @@ static char *gstrcat(to, from, xlength)
 	if (strlen(from) + strlen(to) >= xlength) {
 		gstrbotch(to, from);
 	}
-	return(strcat(to, from));
+	return (strcat(to, from));
 }
 
 static char *gstrncat(to, from, n, xlength)
@@ -2916,7 +2910,7 @@ static char *gstrncat(to, from, n, xlength)
 	if (n + strlen(to) >= xlength) {
 		gstrbotch(to, from);
 	}
-	return(strncat(to, from, n));
+	return (strncat(to, from, n));
 }
 
 static char *gstrcpy(to, from, xlength)
@@ -2927,7 +2921,7 @@ static char *gstrcpy(to, from, xlength)
 	if (strlen(from) >= xlength) {
 		gstrbotch(from, (char *)0);
 	}
-	return(strcpy(to, from));
+	return (strcpy(to, from));
 }
 
 static void
@@ -2935,8 +2929,8 @@ gstrbotch(str1, str2)
 	const char	*str1, *str2;
 {
 	usrerr(gettext("Filename(s) too long: %s %s"),
-	       str1,
-	       str2);
+		str1,
+		str2);
 }
 
 static int
@@ -3001,7 +2995,7 @@ diffs(nfiles, argv)
 	}
 	diffs_ap = NULL;
 	diffs_np = NULL;
-	rval     = err;
+	rval	 = err;
 	free(args);
 
 	return (rval);
@@ -3024,7 +3018,7 @@ char *file;
 
 	if ((diffs_ap == NULL) && (diffs_np == NULL))
 		return;
-	if ((pfile = makefile(file,newSccsDir)) == NULL)
+	if ((pfile = makefile(file, newSccsDir)) == NULL)
 		return;
 	if ((gfile = makegfile(pfile)) == NULL)
 		return;
@@ -3075,17 +3069,13 @@ char *file;
 		 * 1. We dont want to exec diff command in case when s-file exists and clear file doesnt.
 		 * 2. We want to exec diff command in case when p-file exists and clear file doesnt.
 		 */
-		if(
-			!( sfile_exists && !isfile(gfile) )
-			|| ( isfile(pfile) && !isfile(gfile) )
-		)
-		{
+		if (!(sfile_exists && !isfile(gfile)) ||
+		    (isfile(pfile) && !isfile(gfile))) {
 			char	*diffcmd = NOGETTEXT("-diff:elsfnhqabBNpwtCIDUu");
 
 			if (strcmp(maincmd->sccsname, "ldiffs") == 0)
 				diffcmd = NOGETTEXT("-ldiff:elsfnhqabBNpwtCIDUu");
-			if( command(&diffs_ap[1], TRUE, diffcmd) > 1 )
-			{
+			if (command(&diffs_ap[1], TRUE, diffcmd) > 1) {
 				Fcnt = 1;
 			}
 		}
@@ -3364,12 +3354,24 @@ istext(nfiles, argv)
 	return (rval);
 }
 
+/*
+ * Code to support project enhancements for SCCS.
+ * This is mainly the project set home directory, the directory ".sccs" in that
+ * directory and the changeset file.
+ */
 static char	**anames;
 static int	alen;
 static int	anum;
 static int	addfile		__PR((char *file));
+static void	free_anames	__PR((void));
 static int	readncache	__PR((void));
 static int	addcmp		__PR((const void *file1, const void *file2));
+static void	cvtpath		__PR((char *nm, char *nbuf, size_t nbsize,
+					int cwd, int phome));
+
+/*
+ * Add a single file name to the array of files that describes the project.
+ */
 static int
 addfile(file)
 	char	*file;
@@ -3385,6 +3387,23 @@ addfile(file)
 	return (0);
 }
 
+/*
+ * Free old strings from anames[].
+ */
+static void
+free_anames()
+{
+	int	i;
+
+	for (i = 0; i < anum; i++) {
+		free(anames[i]);
+	}
+	anames = 0;
+}
+
+/*
+ * Read the current name cache file and keep it in an in core array.
+ */
 static int
 readncache()
 {
@@ -3398,6 +3417,12 @@ readncache()
 	if (nfp == NULL) {
 		return (-1);
 	}
+
+	/*
+	 * Reset old entries in anames[].
+	 * Then read in the file.
+	 */
+	free_anames();
 	while (fgets(lbuf, sizeof (lbuf), nfp) != NULL) {
 		size_t	llen = strlen(lbuf);
 
@@ -3409,20 +3434,111 @@ readncache()
 	return (0);
 }
 
+/*
+ * Add compare function for qsort().
+ * Note that we do not compare the time_t field and thus use an offset of 15,
+ * see below for the format used for this string.
+ */
 static int
 addcmp(file1, file2)
 	const void	*file1;
 	const void	*file2;
 {
-	int	ret = strcmp(&(*(char **)file1)[13], &(*(char **)file2)[13]);
+	int	ret = strcmp(&(*(char **)file1)[15], &(*(char **)file2)[15]);
 
 	if (ret == 0) {
-		Ffile = &(*(char **)file1)[13];
+		Ffile = &(*(char **)file1)[15];
 		fatal(gettext("already tracked (sc4)"));
 	}
 	return (ret);
 }
 
+/*
+ * Convert a path name that is relative to the current working directory into
+ * a path name that is relative to the change set home directory and normalize
+ * the resulting path name.
+ */
+static void
+cvtpath(nm, nbuf, nbsize, cwd, phome)
+	char	*nm;		/* The file name argument */
+	char	*nbuf;		/* The file name output buffer */
+	size_t	nbsize;		/* The size of the file name output buffer */
+	int	cwd;		/* File descriptor to working dir */
+	int	phome;		/* File descriptor to change set home dir */
+{
+	char	npbuf[FILESIZE];
+	size_t	npboff;
+	int	nlen;
+	char	*name;
+
+	name = nm;
+	npboff = 0;
+	if (cwdprefix[0] && name[0] != '/') {
+		/*
+		 * We are not in the change set home directory and
+		 * "name" is not an absolute path name.
+		 * Copy the cwd prefix before the path to get a path
+		 * name that is relative to the the change set home.
+		 */
+		strlcpy(&npbuf[npboff], cwdprefix, sizeof (npbuf) - npboff);
+		npboff += cwdprefixlen;
+		strlcpy(&npbuf[npboff], "/", sizeof (npbuf) - npboff);
+		npboff += 1;
+		strlcpy(&npbuf[npboff], name, sizeof (npbuf) - npboff);
+		name = npbuf;
+	}
+	/*
+	 * Since all our path names are relative to the change set
+	 * home directory, we need to fchdir() to that directory before
+	 * we normalize the path name.
+	 */
+	if (*nm != '/' && fchdir(phome) < 0) {
+		Ffile = setahome ? setahome : setrhome;
+		efatal("cannot change directory (cm16)");
+	}
+	nlen = resolvepath(name, nbuf, nbsize);	/* Must exist */
+	if (nlen < 0) {
+		efatal("path conversion error (cm12)");
+	} else if (nlen >= nbsize) {
+		fatal("resolved path too long (cm13)");
+	} else {
+		/*
+		 * While the libschily implementation null terminates
+		 * the names, this is not the case for the Solaris
+		 * syscall resolvepath().
+		 */
+		nbuf[nlen] = '\0';
+
+		/*
+		 * If the resulting name is an absolute path that starts
+		 * with the absolute change set home directory string,
+		 * try to make it relative by removing the absolute home
+		 * path string.
+		 *
+		 * If the remaining path is not inside the change set
+		 * home tree, abort.
+		 */
+		if (nbuf[0] == '/' && setahome)
+			make_relative(nbuf);
+		if (!in_tree(nbuf)) {
+			Ffile = nbuf;
+			fatal("not in tree (cm17)");
+		}
+	}
+	/*
+	 * Chdir() back to our previous working directory since all
+	 * file arguments are relative to that directory.
+	 */
+	if (*nm != '/' && fchdir(cwd) < 0) {
+		Ffile = ".";
+		efatal("cannot change directory (cm16)");
+	}
+}
+
+/*
+ * Add file to the current file set for the current change set.
+ * This command always needs to have file type argument(s).
+ */
 static int
 addcmd(nfiles, argv)
 	int	nfiles;
@@ -3431,10 +3547,11 @@ addcmd(nfiles, argv)
 	char	nbuf[FILESIZE];
 	size_t	nboff;
 	int	rval = 0;
-	int	nlen;
 	char	**np;
 	char	**ap = argv;
 	int	files = 0;
+	int	cwd = -1;	/* File descriptor to cwd */
+	int	phome = -1;	/* File descriptor to project home */
 	struct stat statb;
 
 	for (np = &ap[1]; *np != NULL; np++) {
@@ -3451,36 +3568,44 @@ addcmd(nfiles, argv)
 			continue;
 		}
 		if (files == 0) {
-			checkhome(NULL);
-			readncache();
+			/*
+			 * In order to keep the first implementation simple,
+			 * we assume that the current working directory is
+			 * always inside the change set tree and that all
+			 * file arguments are from the same change set.
+			 *
+			 * XXX If we like to enhance this, we first need to
+			 * XXX find what we like to support.
+			 */
+			checkhome(NULL);	/* No project set home: abort */
+			readncache();		/* Read already known files */
+
+			cwd = opencwd();
+			phome = openphome();
 		}
 		files |= 1;
-		strlcpy(nbuf, "A 0000000000 ", sizeof (nbuf));
+		/*
+		 * 12 digits work from year -1199 up to year 33658 but we may
+		 * need to check for strange time stamps if time_t has more
+		 * that 32 bits since such a strange time stamp could cause
+		 * an overflow in the string below.
+		 */
+		strlcpy(nbuf, "A 000000000000 ", sizeof (nbuf));
 		if (stat(*np, &statb) < 0)
 			xmsg(*np, NOGETTEXT("add"));
-		sprintf(&nbuf[2], "%10ld ", (long)statb.st_mtime);
-		nboff = 13;
-		if (cwdprefix[0]) {
-			strlcpy(&nbuf[nboff], cwdprefix, sizeof (nbuf) - nboff);
-			nboff += cwdprefixlen;
-			strlcpy(&nbuf[nboff], "/", sizeof (nbuf) - nboff);
-			nboff += 1;
-		}
- 		nlen = resolvepath(*np, &nbuf[nboff], sizeof (nbuf) - nboff);	/* Must exist */
-		if (nlen < 0) {
-			efatal("path conversion error (cm12)");
-		} else if (nlen >= sizeof (nbuf) - nboff) {
-			fatal("resolved path too long (cm13)");
-		} else {
-			/*
-			 * While the libschily implementation null terminates
-			 * the names, this is not the case for the Solaris
-			 * syscall resolvepath().
-			 */
-			nbuf[nboff + nlen] = '\0';
-			addfile(nbuf);
-		}
+#if SIZEOF_TIME_T > 4
+		if (statb.st_mtime > 999999999999L ||
+		    statb.st_mtime < -99999999999L)
+			efatal("file not in supported time range (cm15)");
+#endif
+		sprintf(&nbuf[2], "%12ld ", (long)statb.st_mtime);
+		nboff = 15;
+		cvtpath(*np, &nbuf[nboff], sizeof (nbuf) - nboff, cwd, phome);
+		addfile(nbuf);
 	}
+	closedirfd(cwd);
+	closedirfd(phome);
+
 	if (files == 0) {
 		usrerr(gettext(" missing file arg (cm3)"));
 	} else {
@@ -3525,19 +3650,25 @@ commitcmd(nfiles, argv)
 			continue;
 		}
 		if (files == 0) {
-			checkhome(NULL);
+			checkhome(NULL);	/* No project set home: abort */
 		}
 		files |= 1;
 /*		rval |= initdir(*np, flags);*/
 	}
 	if (files == 0) {
 /*		rval |= initdir(".", flags);*/
+		checkhome(NULL);		/* No project set home: abort */
 	}
 	fprintf(stderr, "sccs: 'commit' not yet implemented\n");
 	rval = 1;
 	return (rval);
 }
 
+/*
+ * Init directories for use with the project enhanced variant of SCCS.
+ * This creates a directory named ".sccs" in the projects root directory.
+ * The important content of that directory is the changeset history file.
+ */
 static int
 initcmd(nfiles, argv)
 	int	nfiles;
@@ -3582,6 +3713,14 @@ initcmd(nfiles, argv)
 	return (rval);
 }
 
+/*
+ * Initialize a directory as root directory for a project enhanced SCCS.
+ * This creates a directory named ".sccs" in the projects root directory.
+ * The important content of that directory is the changeset history file.
+ * The default is to have the SCCS history files for the files in the
+ * project in $PROJECTROOT/.sccs/data but the files may be in the historic
+ * location if the bit IF_INTREE is set in "flags".
+ */
 LOCAL int
 initdir(hpath, flags)
 	char	*hpath;
@@ -3590,10 +3729,10 @@ initdir(hpath, flags)
 	char	nbuf[FILESIZE];
 	int	err = 0;
 
-	resolvenpath(hpath, nbuf, sizeof (nbuf));	/* Max not yet exist */
+	resolvenpath(hpath, nbuf, sizeof (nbuf));	/* May not yet exist */
 	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
 
-	unsethome();
+	unsethome();					/* Forget old home */
 	xsethome(hpath);
 
 #ifdef	DEBUG
@@ -3655,13 +3794,14 @@ removecmd(nfiles, argv)
 			continue;
 		}
 		if (files == 0) {
-			checkhome(NULL);
+			checkhome(NULL);	/* No project set home: abort */
 		}
 		files |= 1;
 /*		rval |= initdir(*np, flags);*/
 	}
 	if (files == 0) {
 /*		rval |= initdir(".", flags);*/
+		checkhome(NULL);		/* No project set home: abort */
 	}
 	fprintf(stderr, "sccs: 'remove' not yet implemented\n");
 	rval = 1;
@@ -3692,13 +3832,14 @@ renamecmd(nfiles, argv)
 			continue;
 		}
 		if (files == 0) {
-			checkhome(NULL);
+			checkhome(NULL);	/* No project set home: abort */
 		}
 		files |= 1;
 /*		rval |= initdir(*np, flags);*/
 	}
 	if (files == 0) {
 /*		rval |= initdir(".", flags);*/
+		checkhome(NULL);		/* No project set home: abort */
 	}
 	fprintf(stderr, "sccs: 'rename' not yet implemented\n");
 	rval = 1;
@@ -3730,14 +3871,15 @@ statuscmd(nfiles, argv)
 			continue;
 		}
 		if (files == 0) {
-			checkhome(NULL);
-			readncache();
+			checkhome(NULL);	/* No project set home: abort */
+			readncache();		/* Read already known files */
 		}
 		files |= 1;
 /*		rval |= initdir(*np, flags);*/
 	}
 	if (files == 0) {
 /*		rval |= initdir(".", flags);*/
+		checkhome(NULL);		/* No project set home: abort */
 	}
 	for (i = 0; i < anum; i++) {
 		char	nbuf[FILESIZE];
@@ -3763,6 +3905,9 @@ statuscmd(nfiles, argv)
 	}
 	return (rval);
 }
+/*
+ * End of code to support project enhancements for SCCS.
+ */
 
 /*
 **  MAKEGFILE -- make filename of clear file
@@ -3783,14 +3928,14 @@ makegfile(name)
 	register char *gname, *p, *g, *s;
 
 	if (name == NULL || *name == '\0') {
-		return NULL;
+		return (NULL);
 	}
 	if (sccsfile(name)) {
 		gname = name;
 	} else {
-		gname = makefile(name,SccsDir);
+		gname = makefile(name, SccsDir);
 		if (gname == NULL) {
-			return NULL;
+			return (NULL);
 		}
 	}
 	if (gname == name) {
@@ -3801,30 +3946,33 @@ makegfile(name)
 		}
 		strcpy(gname, name);
 	}
-	if ( !sccsfile(gname)) {
+	if (!sccsfile(gname)) {
 		free(gname);
-		return NULL;
+		return (NULL);
 	}
 	g = auxf(gname, 'g');
-	s = malloc(strlen(SccsPath) + strlen(g) + 4);	/*	"%s/s.%s"	*/
+	s = malloc(strlen(SccsPath) + strlen(g) + 4);	/* "%s/s.%s" */
 	if (s == NULL) {
-	      perror(gettext("Sccs: no mem"));
-	      exit(EX_OSERR);
+		perror(gettext("Sccs: no mem"));
+		exit(EX_OSERR);
 	}
 	sprintf(s, "%s/s.%s", SccsPath, g);
 	p = gname + strlen(gname) - strlen(s);
 	if (strcmp(p, s) != 0) {
 		free(gname);
 		free(s);
-		return NULL;
+		return (NULL);
 	}
 	strcpy(p, g);
 	free(s);
-	return gname;
+	return (gname);
 }
 
 #ifdef	USE_RECURSIVE
 
+/*
+ * Code to implement support for "sccs -R ..."
+ */
 #include <schily/walk.h>
 #include <schily/find.h>
 #include <schily/getcwd.h>
@@ -3844,7 +3992,8 @@ struct wargs {
 	int	argsize;	/* Size	of allocated argv	*/
 };
 
-LOCAL int walkfunc	__PR((char *_nm, struct stat *_fs, int _type, struct WALK *_state));
+LOCAL int walkfunc	__PR((char *_nm, struct stat *_fs,
+				int _type, struct WALK *_state));
 
 LOCAL int
 walkfunc(nm, fs, type, state)
@@ -4047,6 +4196,11 @@ dorecurse(argv, np, dir, cmd)
 		SccsDir = "";
 	}
 
+	/*
+	 * If recursion should find all files, "dir" equals "." and we will not
+	 * use the following block that only applies to commands with explicit
+	 * path names to non-directories.
+	 */
 	if (stat(dir, &sb) < 0 || !S_ISDIR(sb.st_mode)) {
 		char	*p = strrchr(dir, '/');
 		int	cwdlen;
@@ -4058,8 +4212,8 @@ dorecurse(argv, np, dir, cmd)
 		} else if (p == dir) {
 			strcpy(&Cwd[2], "/");
 		} else {
-			if ((cwdlen + 3) < Cwdlen) {
-				Cwdlen = cwdlen + 10;
+			if ((cwdlen + 4) > Cwdlen) {
+				Cwdlen = roundup(cwdlen+4, 64);
 				Cwd = realloc(Cwd, Cwdlen);
 				if (Cwd == NULL) {
 					perror(gettext("Sccs: no mem"));
@@ -4070,7 +4224,7 @@ dorecurse(argv, np, dir, cmd)
 		}
 
 		*np = dpath ? dpath : dir;
-		Rflag = -1;
+		Rflag = -1;			/* avoid further recursion */
 		ac = command(argv, TRUE, "");
 		Rflag = 1;
 		SccsDir = oSccsDir;
@@ -4141,13 +4295,13 @@ dorecurse(argv, np, dir, cmd)
 		}
 	}
 
-	Rflag = -1;
+	Rflag = -1;				/* avoid further recursion */
 	treewalk(dpath ? dpath : dir, walkfunc, &walkstate);
 	Rflag = 1;
 
 	if (bitset(COLLECT, cmd->sccsflags)) {
 		Cwd[2] = '\0';
-		Rflag = -1;
+		Rflag = -1;			/* avoid further recursion */
 		wa.rval |= command(wa.argv, TRUE, "");
 		Rflag = 1;
 	}

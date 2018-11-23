@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-val.1	1.24 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-val.1	1.29 18/11/21 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-val 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2018/11/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -47,8 +47,13 @@ sccs-val, val \- validate an SCCS file
 .I name\c
 .RB "] [" -r\c
 .I sid\c
-.RB "] [" "-y \c
-.IR type "] " s.filename ...
+.RB "] [" "-v" ]
+.br
+.RB "    [" "-y \c
+.IR type "] ["\c
+.B -N\c
+.IR bulk-spec "] \c
+s.filename ...
 .fi
 
 .SH DESCRIPTION
@@ -113,7 +118,7 @@ of the codes generated for each command line and file processed.
 The following options are supported:
 .br
 .ne 2
-.TP
+.TP 13
 .B \-h
 Check 
 SID specific checksums that are available with
@@ -141,9 +146,18 @@ is ambiguous, invalid, or absent from the
 .BR s. file.
 .br
 .ne 2
-.TP 9
+.TP
 .B \-s
 Silent.  Suppresses the normal error or warning messages.
+.br
+.ne 2
+.TP
+.BI \-v
+Check the version of the SCCS history file and print it.
+No other checks except for the magic number are attempted
+in case that
+.B \-v
+has been specified.
 .br
 .ne 2
 .TP
@@ -153,6 +167,100 @@ Compares
 with the 
 .B "%\&Y%"
 ID keyword.
+
+.sp
+.ne 3
+.TP
+.BI -N bulk-spec
+Processes a bulk of SCCS history files.
+This option allows to do an efficient mass processing of SCCS history files.
+.sp
+The
+.I bulk-spec
+parameter is composed from an optional list of
+.B flag
+parameters followed by an optional
+.B path
+specifier.
+.sp
+The following flag types are supported:
+.RS
+.TP 10
+.B none
+.LP
+.ne 4
+The following path specifier types are supported:
+.TP 10
+.B \-N
+The file name parameters to the
+.B val
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are automatically derived from the g-file names by prepending
+.B s.
+to the last path name component.
+.TP
+.B \-Ns.
+The file name parameters to the
+.B val
+command are
+.I s.filename
+files.
+The the g-files names are automatically derived by removing
+.B s.
+from the beginning of last path name component of the
+.IR s.filename.
+.TP
+.BI \-N dir
+The file name parameters to the
+.B val
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are put into directory
+.IR dir ,
+the names are automatically derived from the g-file names by prepending
+.IB dir /s.
+to the last path name component.
+.TP
+.BI \-N dir /s.
+The file name parameters to the
+.B val
+command are
+.I s.filename
+files in directory
+.IR dir .
+The the g-files names are automatically derived by removing
+.IB dir /s.
+from the beginning of last path name component of the
+.IR s.filename.
+.PP
+A typical value for
+.I dir
+is
+.BR SCCS .
+.PP
+In order to overcome the limited number of
+.BR exec (2)
+arguments, it is recommended to use
+.RB ` \(mi \&'
+as the file name parameter for
+.BR val (1)
+and to send a list of path names to
+.BR stdin .
+.PP
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
+
 .br
 .ne 2
 .TP
@@ -181,7 +289,13 @@ in debug mode to check for all problems.
 
 .ne 3
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B val
 version number string and exists.

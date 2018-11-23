@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)comb.c	1.27 18/04/29 J. Schilling
+ * @(#)comb.c	1.30 18/11/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.27 18/04/29 J. Schilling"
+#pragma ident "@(#)comb.c 1.30 18/11/20 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -51,6 +51,7 @@
 static struct sid sid;
 
 static struct packet gpkt;
+static Nparms	N;			/* Keep -N parameters		*/
 static int	num_files;
 static int	Do_prs;
 static char	*clist;
@@ -81,6 +82,7 @@ register char *argv[];
 	int testmore;
 	extern int Fcnt;
 	int current_optind;
+	int no_arg;
 
 	/*
 	 * Set locale for all categories.
@@ -114,6 +116,7 @@ register char *argv[];
 	current_optind = 1;
 	optind = 1;
 	opterr = 0;
+	no_arg = 0;
 	i = 1;
 	/*CONSTCOND*/
 	while (1) {
@@ -121,11 +124,18 @@ register char *argv[];
 				current_optind = optind;
 				argv[i] = 0;
 				if (optind > i+1) {
-					argv[i+1] = NULL;
+					if ((argv[i+1][0] != '-') &&
+					    (no_arg == 0)) {
+						argv[i+1] = NULL;
+					} else {
+						optind = i+1;
+						current_optind = optind;
+					}
 				}
 			}
+			no_arg = 0;
 			i = current_optind;
-			c = getopt(argc, argv, "-p:c:osV(version)");
+			c = getopt(argc, argv, "()-p:c:osN:V(version)");
 
 				/*
 				 * This takes care of options given after
@@ -167,6 +177,15 @@ register char *argv[];
 				testmore++;
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[i+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf(
 				"comb %s-SCCS version %s %s (%s-%s-%s)\n",
@@ -178,7 +197,7 @@ register char *argv[];
 
 			default:
 				fatal(gettext(
-				"Usage: comb [ -os ][ -c sid-list ] [ -p SID ] s.filename ..."));
+				"Usage: comb [ -os ][ -c sid-list ] [ -p SID ][ -N[bulk-spec]] s.filename ..."));
 			}
 
 			if (testmore) {
@@ -211,13 +230,20 @@ register char *argv[];
 		fatal(gettext("missing file arg (cm3)"));
 	if (HADP && HADC)
 		fatal(gettext("can't have both -p and -c (cb2)"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	iop = stdout;
 	for (i = 1; i < argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, comb, 1, 1);
+			do_file(p, comb, 1, N.n_sdot);
 	fclose(iop);
 	iop = NULL;
 
@@ -239,6 +265,23 @@ char *file;
 
 	if (setjmp(Fjmp))
 		return;
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
+			sid.s_rel = N.n_sid.s_rel;
+			sid.s_lev = N.n_sid.s_lev;
+			sid.s_br  = N.n_sid.s_br;
+			sid.s_seq = N.n_sid.s_seq;
+		}
+	}
+
 	sinit(&gpkt, file, SI_OPEN);
 	gpkt.p_verbose = -1;
 	gpkt.p_stdout = stderr;
@@ -311,13 +354,19 @@ char *file;
 	if ((Val_ptr = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 		Val_ptr = Blank;
 	fprintf(iop, "v=`prs -r%s -d:MR: %s`\n", rarg, gpkt.p_file);
+	fprintf(iop, "vs=`val -v %s`\n", gpkt.p_file);
+	fprintf(iop, "V6=\n");
+	fprintf(iop, "case \"$vs\" in\n");
+	fprintf(iop, "SCCS\\ V6*)\n");
+	fprintf(iop, "\tV6=-V6;;\n");
+	fprintf(iop, "esac\n");
 	fprintf(iop, "if test \"$v\"\n");
 	fprintf(iop, "then\n");
 	fprintf(iop,
-	"admin -iCOMB$$ -r%s -fv%s -m\"$v\" -y'This was COMBined' s.COMB$$\n",
+	"admin $V6 -iCOMB$$ -r%s -fv%s -m\"$v\" -y'This was COMBined' s.COMB$$\n",
 		rarg, Val_ptr);
 	fprintf(iop, "else\n");
-	fprintf(iop, "admin -iCOMB$$ -r%s -y'This was COMBined' s.COMB$$\n", rarg);
+	fprintf(iop, "admin $V6 -iCOMB$$ -r%s -y'This was COMBined' s.COMB$$\n", rarg);
 	fprintf(iop, "fi\n");
 	Do_prs = 1;
 	fprintf(iop, "rm -f COMB$$\n");

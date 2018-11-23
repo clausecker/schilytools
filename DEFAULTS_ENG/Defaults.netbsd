@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.netbsd	1.5 13/11/04 "
+#ident "@(#)Defaults.netbsd	1.6 18/11/14 "
 ###########################################################################
 #
 # global definitions for NetBSD Systems
@@ -32,6 +32,7 @@ DEFINCDIRS=	$(SRCROOT)/include
 DEFOSINCDIRS=
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)	Will probably not work
+RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib
 
 ###########################################################################
 #

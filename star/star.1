@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.210 18/10/28 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.212 18/11/07 Copyr 1982-2018 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/10/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2018/11/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -150,6 +150,23 @@ option to learn how to fetch files from a list of directories
 A substitute option allows 
 .BR ed (1)
 like pattern substitution in file names. 
+.PP
+.B Star
+includes support for incremental
+.B backup
+and
+.B restore
+similar to the 
+.B BSD
+commands
+.BR dump (1)
+and
+.BR restore (1)
+that are known as 
+.BR ufsdump (1)
+and
+.BR ufsrestore (1)
+on Solaris.
 .PP
 .B Star
 includes an enhanced function that is similar to the 

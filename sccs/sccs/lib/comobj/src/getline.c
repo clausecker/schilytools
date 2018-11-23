@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)getline.c	1.15 11/09/14 J. Schilling
+ * @(#)getline.c	1.17 18/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.15 11/09/14 J. Schilling"
+#pragma ident "@(#)getline.c 1.17 18/11/13 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -41,6 +43,10 @@
 #pragma ident	"@(#)sccs:lib/comobj/getline.c"
 #endif
 #include	<defines.h>
+#include	<i18n.h>
+
+char 	*getline	__PR((struct packet *pkt));
+void	grewind		__PR((struct packet *pkt));
 
 /*
  *	Routine to read a line into the packet.  The main reason for
@@ -52,10 +58,16 @@ char *
 getline(pkt)
 register struct packet *pkt;
 {
-	int	eof;
+	int	eof = 0;
+#ifndef	NO_GETDELIM
+	register ssize_t used = 0;
+		size_t line_size;
+		char	*line;
+#else
 	register size_t used = 0;
 	register size_t line_size;
 	register char	*line;
+#endif
 
 	if (pkt->p_wrttn == 0)
 		putline(pkt, (char *) 0);
@@ -70,6 +82,24 @@ register struct packet *pkt;
 	/* read until EOF or newline encountered */
 	line = pkt->p_line;
 	line[0] = '\0';
+#ifndef	NO_GETDELIM
+	/*
+	 * getdelim() allows to read lines that have embedded nul bytes
+	 * and we don't need to call strlen().
+	 */
+	errno = 0;
+	used = getdelim(&line, &line_size, '\n', pkt->p_iop);
+	if (used == -1) {
+		if (errno == ENOMEM)
+			fatal(gettext("OUT OF SPACE (ut9)"));
+		if (ferror(pkt->p_iop)) {
+			xmsg(pkt->p_file, NOGETTEXT("getline"));
+		} else if (feof(pkt->p_iop)) {
+			used = 0;
+			eof = 1;
+		}
+	}
+#else
 	do {
 		line[line_size - 1] = '\t';	/* arbitrary non-zero char */
 		line[line_size - 2] = ' ';	/* arbitrary non-newline char */
@@ -91,6 +121,7 @@ register struct packet *pkt;
 		}
 	} while (!eof);
 	used += strlen(&line[used]);
+#endif
 	pkt->p_line = line;
 	pkt->p_linebase = line;
 	pkt->p_line_size = line_size;
@@ -99,9 +130,7 @@ register struct packet *pkt;
 	/* check end of file condition */
 	if (eof && (used == 0)) {
 		if (!pkt->p_reopen) {
-			if (pkt->p_iop)
-				(void) fclose(pkt->p_iop);
-			pkt->p_iop = 0;
+			sclose(pkt);
 		}
 		if (!pkt->p_chkeof)
 			fatal(gettext("premature eof (co5)"));
@@ -109,15 +138,7 @@ register struct packet *pkt;
 		    if (pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash) & 0xFFFF)
 			fatal(gettext("Corrupted file (co6)"));
 		if (pkt->p_reopen) {
-			rewind(pkt->p_iop);
-			pkt->p_reopen = 0;
-			pkt->p_slnno = 0;
-			pkt->p_ihash = 0;
-			pkt->p_chash = 0;
-			pkt->p_uchash = 0;
-			pkt->p_nhash = 0;
-			pkt->p_keep = 0;
-			pkt->do_chksum = 0;
+			grewind(pkt);
 		}
 		return (NULL);
 	}
@@ -157,4 +178,19 @@ register struct packet *pkt;
 	}
 
 	return (pkt->p_line);
+}
+
+void
+grewind(pkt)
+	register struct packet *pkt;
+{
+	rewind(pkt->p_iop);
+	pkt->p_reopen = 0;
+	pkt->p_slnno = 0;
+	pkt->p_ihash = 0;
+	pkt->p_chash = 0;
+	pkt->p_uchash = 0;
+	pkt->p_nhash = 0;
+	pkt->p_keep = 0;
+	pkt->do_chksum = 0;
 }

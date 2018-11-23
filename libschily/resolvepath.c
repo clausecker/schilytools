@@ -1,4 +1,4 @@
-/* @(#)resolvepath.c	1.6 15/07/20 Copyright 2011-2015 J. Schilling */
+/* @(#)resolvepath.c	1.7 18/10/30 Copyright 2011-2015 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
@@ -156,7 +156,14 @@ register 	char	*e;
 			}
 			b = buf + strlen(buf);
 			if (stat(buf, &sb) < 0) {
-				return (-1);
+				/*
+				 * If it does not exist, it cannot be identical
+				 * to "/", so let us continue.
+				 */
+				if (flags & RSPF_EXIST)
+					return (-1);
+				else
+					sb.st_ino = 0;
 			}
 			if (rsb.st_ino == 0 || rsb.st_nlink == 0) {
 				if (stat("/", &rsb) < 0)

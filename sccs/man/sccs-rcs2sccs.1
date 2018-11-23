@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-rcs2sccs.1	1.13 18/01/14 Copyright 2011-2018 J. Schilling
+.\" @(#)sccs-rcs2sccs.1	1.14 18/11/08 Copyright 2011-2018 J. Schilling
 .\" Manual page for sccscvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -26,7 +26,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-rcs2sccs 1 "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-rcs2sccs 1 "2018/11/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-rcs2sccs, rcs2sccs \- convert RCS files into SCCS files
 .SH SYNOPSIS
@@ -66,7 +66,13 @@ Convert into SCCS v6 history files.
 .br
 .ne 3
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B rcs2sccs
 version number string and exists.

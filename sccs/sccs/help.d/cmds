@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.51 17/09/21 J. Schilling 
+* @(#)cmds	1.54 18/11/19 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -33,7 +33,7 @@
 -delta
 	delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-q[nsedelim]]
 		[-y<comment>] [-D diff-file] [-N[bulk-spec]]
-		[-d] [-f] [-h] [-p] [-z] [-Cdir] file ...
+		[-d] [-f] [-h] [-p] [-z] [-Cdir] [-Xopts] file ...
 
 	Make a delta to an SCCS file
 
@@ -54,7 +54,20 @@ options:
 	-Cdir	Working directory for g-file
 	-Ddfile	Provide a file with prepared diff output to delta
 	-Nspec	Process a bulk of SCCS history files
+	-Xopts	Specify extended options as comma separated list
 	-V	Print version number
+
+Use 'help delta_Xopts' for help on the -X options.
+
+-delta_Xopts
+X options may be specified as a comma separated list. The following
+options are available, theycan be abbreviated as long as the abbreviation
+is still unique:
+
+prepend		Prepend the current content of the g-file to the previous
+		content of that file.
+
+help		print this help
 
 -get
 	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>] [-Cdir]

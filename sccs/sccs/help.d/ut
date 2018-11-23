@@ -20,7 +20,7 @@
 *
 * Copyright 2006-2015 J. Schilling
 *
-* @(#)ut	1.6 15/02/28 J. Schilling
+* @(#)ut	1.7 18/11/11 J. Schilling
 *
 * @(#)ut 1.2 06/12/12
 *
@@ -58,8 +58,8 @@ have read permission, or write permission, or both.
 It is also possible that one or more directories in the path aren't executable.
 -8
 "write error"
-The file which caused the write error is as large
-as a file can be (currently 1M bytes).
+The file which caused the write error reached an implementation defined or 
+process specific maximum size.
 -9
 "out of space"
 There's no more dynamic memory left.

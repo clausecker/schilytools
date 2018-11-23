@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prt.c	1.35 18/04/29 J. Schilling
+ * @(#)prt.c	1.37 18/11/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.35 18/04/29 J. Schilling"
+#pragma ident "@(#)prt.c 1.37 18/11/20 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -71,6 +71,7 @@
 #define	NOEOF	0
 #define	BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
 
+static Nparms	N;			/* Keep -N parameters		*/
 static FILE *iptr;
 static char *line = NULL;
 static size_t line_size = 0;
@@ -137,6 +138,7 @@ char *argv[];
 	int testklt;
 	extern int Fcnt;
 	int current_optind;
+	int no_arg;
 
 	/*
 	 * Set locale for all categories.
@@ -181,12 +183,13 @@ char *argv[];
 	current_optind = 1;
 	optind = 1;
 	opterr = 0;
+	no_arg = 0;
 	j = 1;
 	/*CONSTCOND*/
 	while (1) {
 			if (current_optind < optind) {
 			    if (optind > j+1) {
-				if ((argv[j+1][0] != '-') &&
+				if ((argv[j+1][0] != '-') && (no_arg == 0) &&
 				    ((argv[j][0] == 'c' && argv[j+1][0] <= '9') ||
 				    (argv[j][0] == 'r' && argv[j+1][0] <= '9') ||
 				    (argv[j][0] == 'y' && argv[j+1][0] <= '9'))) {
@@ -201,8 +204,9 @@ char *argv[];
 			    }
 			    current_optind = optind;
 			}
+			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "-r:c:y:esdaiuftbtV(version)");
+			c = getopt(argc, argv, "()-r:c:y:esdaiuftbtN:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -278,6 +282,15 @@ char *argv[];
 				prefix++;
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[j+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf("prt %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -287,7 +300,7 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: prt [ -abdefistu ][ -c date-time ]\n\t[ -r date-time ][ -ySID ] s.filename..."));
+				fatal(gettext("Usage: prt [ -abdefistu ][ -c date-time ]\n\t[ -r date-time ][ -ySID ][ -N[bulk-spec]] s.filename..."));
 			}
 
 			/*
@@ -316,8 +329,14 @@ char *argv[];
 
 	if (HADC && HADR)
 		fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -331,7 +350,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, prt, 1, 1);
+			do_file(p, prt, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -356,6 +375,16 @@ char *file;
 
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of prt */
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
 
 	if (HADE)
 		HADD = HADI = HADU = HADF = HADT = 1;

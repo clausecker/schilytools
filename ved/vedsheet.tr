@@ -15,7 +15,7 @@ Label////set mark first/set mark first
 //top/bot/from top/from bot
 |\(<-/A/start of line/start of para/start of line/start of para
 F2/B/go to beginning/go to bottom/go to beginning/go to bottom
-F1/C/exit/backup file/~/~
+F1/C/exit [+save file buffer]/save file buffer/~/~
 F3/D/delete char/delete words/~/~
 \(->|/E/end of line/end of para/end of line/end of para
 \(->/F/forward char/forward word/forward char/forward word

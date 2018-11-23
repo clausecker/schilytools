@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.25 18/09/17 Copyright 1984-2018 J. Schilling
+.\" @(#)ved.1	1.26 18/11/17 Copyright 1984-2018 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2018/09/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2018/11/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -48,7 +48,8 @@ and
 It is powerful and easy to learn,
 it has no limitations on line length and the type of characters
 that may appear in a file.
-It has almost no limitations on file size and supports to edit large files (files > 2 GB)
+It has almost no limitations on file size and supports editing of
+large files (files > 2 GB)
 if the OS has large file support.
 .PP
 To use
@@ -98,7 +99,8 @@ file back even in quit force mode.
 .BI b= "#, " buffers= #
 By default
 .B ved
-uses 10 in-core buffers, each in-core buffer takes 8 kB (the actual values that
+uses 10 in-core buffers to edit the file,
+each in-core buffer takes 8 kB (the actual values that
 are compiled into
 .B ved
 may be retrieved by calling
@@ -136,9 +138,10 @@ normally stores the names and cursor positions of files in
 .BI .vedtmp .uid \fR)
 .TP
 .B \-raw8
-Do not expand 8-bit characters. Note that
+Do not expand characters with the MSB set. Note that
 .B ved
-will by default not expand 8-bit characters that seem to be printable,
+will by default not expand characters with the MSB set that seem to be
+printable,
 e.g. when the terminal is in 8-bit mode.
 If this option is used, the expansion of 8-bit characters is turned off
 unconditionally.
@@ -152,7 +155,7 @@ If you type in a new line character this results in inserting a carriage-return
 new-line pair.
 But as
 .B ved
-is acting binary transparent, reading in files that do not follow DOS
+is acting binary transparently, reading in files that do not follow DOS
 newline conventions will not cause the content of the file to
 be automatically converted to use DOS new-lines.
 .sp
@@ -160,15 +163,15 @@ If
 .B \-nodos
 has not been specified, 
 .B ved
-tries to autodetect whether a file needs DOS mapping or not.
+tries to auto-detect whether a file needs DOS (CR/LF to LF) mapping or not.
 .TP
 .B \-nodos
 Do not map new-line to carriage-return new-line and hide carriage-return
 characters that are directly followed by a new-line.
 If
 .B \-nodos
-has been specified, autodetection of DOS files is disabled and
-files will always be edited in POSIX mode.
+has been specified, auto-detection of DOS files is disabled and
+files will always be edited in POSIX line mode.
 .TP
 .BI "s=" "search string"
 Start editing session with search to
@@ -193,7 +196,7 @@ current screen width but the fixed length
 .IR # .
 .TP
 .BR \-R ", " \-Recover
-Recover Session from specified filename.
+Recover session from specified filename.
 .B ved
 generates a file
 .I vedP.xxxx
@@ -235,7 +238,12 @@ If the actual number does not fit into the given space, the text
 is printed instead.
 .TP
 .B Takebuffer
-The third field contains is the name of the actual take buffer.
+The third field contains is the name of the actual take buffer
+that is used for
+.B cut
+and
+.B paste
+operations.
 The name of this buffer defaults to
 .B default
 on startup. It may be changed by the user.
@@ -359,6 +367,13 @@ Typing a
 .B ^X
 before another command enters the extended mode. The extended
 mode just enters another level of commands.
+These extended commands have their own list of
+.BR basic ,
+.BR ESC ,
+.B ALT
+and
+.B ALT/ESC
+command tables.
 .TP
 .B Multiplied execution
 Numbers that are entered by typing
@@ -413,6 +428,11 @@ lb lw1b l l l l
  \(ua/P/up line/up para/up line/up para
 .TE
 .in +0.5i
+.PP
+.B para
+is used as ab abbreviation for 
+.B paragraph
+to make the table fit into the standard line width.
 
 .PP
 .B Cursor movement commands in detail:
@@ -616,7 +636,7 @@ Depending on the cursor position, with or without
 .I number
 being greater than one,
 .B ^F
-could move the cursor down to the next line. If the cursor is at
+could move the cursor to a later line. If the cursor is at
 the end of the line, the cursor will move to the first position of
 the next line.
 .RE
@@ -848,17 +868,19 @@ first inserts the mark, then moves the cursor up that number of paragraphs
 prior to its current position.
 .RE
 
-.SH "ADDITION/DELETION"
+.SH "INSERTION/DELETION"
 .PP
-All additions are always made at the place where the visible cursor is.
+All insertions are always made at the place where the visible cursor is.
 .PP
 All deletions are saved in two buffers: the
 .B forward delete buffer
-and the
-.BR "backwards delete buffer" .
+contains the text that has been deleted using forward delete commands and the
+.B "backwards delete buffer"
+contains te text that has been deleted using backward delete commands.
 The characters in the backward delete buffer are saved in reverse order
 to allow to reinsert them in the correct order.
-As long as you don't move the cursor and start deleting new text, the content
+As long as you don't move the cursor and start deleting new text in either
+direction, the content
 of both, the forward and the backwards delete buffer may be reinserted
 with the
 .B undo delete
@@ -867,7 +889,7 @@ after you moved the cursor to another position in the file
 
 .PP
 .ne 14
-.B Addition/Deletion command overview:
+.B Insertion/Deletion command overview:
 .in -0.5i
 .ne 12
 .TS
@@ -893,7 +915,7 @@ lb lw1b l l l l
 .in +0.5i
 
 .PP
-.B Addition/Deletion commands in detail:
+.B Insertion/Deletion commands in detail:
 .TP
 .B ^D
 erases the character at the cursor position.
@@ -1117,7 +1139,7 @@ lb lw1b l l l l
 .B Cut/Paste commands in detail:
 .TP
 .B ^T
-removes a line from the file and puts it in the current
+removes a line from the file buffer and puts it in the current
 take buffer. The line is defined from the current cursor
 position to the next carriage return.
 .RS
@@ -1126,12 +1148,12 @@ If
 .I number
 is greater than one,
 .B ^T
-removes that number of lines from the file and puts them
+removes that number of lines from the file buffer and puts them
 in the current take buffer.
 .RE
 .TP
 .B <ESC>^T
-removes a paragraph from the file and puts it in the
+removes a paragraph from the file buffer and puts it in the
 current take buffer. A paragraph is defined from the
 current cursor position to two successive carriage
 returns--one at the end of the last line and one on the
@@ -1142,7 +1164,7 @@ If
 .I number
 is greater than one,
 .B <ESC>^T
-removes that number of paragraphs from the file and puts them
+removes that number of paragraphs from the file buffer and puts them
 in the current take buffer.
 .RE
 .TP
@@ -1167,18 +1189,18 @@ buffer will be empty.
 .B <ALT>^V
 replaces the selection (what lies between the mark and
 the cursor) with whatever is in the current take buffer.
-The old content of the selection is lost.
+The old content of the selection is not saved in any way.
 The take buffer will still contain a copy of the text.
 .TP
 .B <ALT><ESC>^V
 replaces the selection (what lies between the mark and
 the cursor) with whatever is in the current take buffer and
 clears the take buffer.
-The old content of the selection is lost.
+The old content of the selection is not saved in any way.
 The take buffer will be empty.
 .TP
 .B ^Y
-removes a character from the file and puts it in the
+removes a character from the file buffer and puts it in the
 current take buffer. The character at the current cursor
 position is the one taken.
 .RS
@@ -1191,7 +1213,7 @@ takes that number of characters and puts them in the current buffer.
 .RE
 .TP
 .B <ESC>^Y
-removes a word from the file and puts it in the current
+removes a word from the file buffer and puts it in the current
 take buffer. A word consists of any characters from the
 current cursor position up to the next blank or
 carriage return.
@@ -1225,7 +1247,17 @@ message.
 
 .SH "SEARCH"
 .PP
-
+The search commands search for specified text in the file buffer and may place
+the cursor to matching text.
+.PP
+If the pattern contains pattern matching meta characters, the pattern matcher
+is used (unless the no magic mode has been selected - see 
+.B set
+command below) and if there are no meta characters, a simple search is used.
+.PP
+See
+.BR match (1)
+for more information on the pattern matcher.
 
 .B Search command overview:
 .in -0.5i
@@ -1459,7 +1491,12 @@ finds that numbered occurrence of the search string,
 with the numbering beginning from the current cursor position.
 .RE
 
-.SH "EXITING/PUTTING"
+.SH "EXITING/SAVING"
+.PP
+These commands are related to quitting
+.B ved
+and saving the current version of the edited text in a file.
+.PP
 .TP
 .B ^C
 The QUIT command ends the editing session.
@@ -2483,11 +2520,11 @@ You may create macros in
 .B ved
 that are a combination of different
 .B ved
-basic commands.
+basic commands and input text.
 To create a macro, you need to edit the file
 .B .vedmac
 in your home directory.
-You may do this bey either explicitly typing
+You may do this by either explicitly typing
 .I "ved ~/.vedmac
 or by using the built in
 .B ved
@@ -2525,9 +2562,102 @@ They also may recursively call each other and you may set
 to a value greater than one to execute a macro more than once.
 There is currently no way to execute a macro in a conditional way.
 
+.SH "MAPPINGS"
+You may create mappings in
+.B ved
+that contain arbitrary character sequences.
+To create a mapping, you need to edit the file
+.B .vedmap
+in your home directory.
+.PP
+The file
+.B "~/.vedmap
+contains a number of lines with the following structure:
+.LP
+.IB "  map_from" : map_to : comment
+.LP
+and holds a map definition like this:
+.PP
+.B "\\\\E[193z:^C:Quit Editor  (L2)"
+.PP
+Each map definition has three fields:
+.TP 10
+.I map-from
+The from string (left hand side) of the map. In our case, the name is the sequence
+.B "\\\\E[193z
+which is the output of the L2 function key on a Sun keyboard.
+Every time when you type the character sequence
+.B "\\\\E[193z
+or hit a function key that emits this character sequence, it will replaced by the
+the replacement string before the input is read by
+.BR ved.
+.TP
+.I map-to
+The replacement (right hand size or to string) of the macro. In our case the map expands to
+.B "^C"
+and will quit
+.BR ved .
+.TP
+.I comment
+A comment for better understanding of the map file. The comment is
+ignored.
+.LP
+If both
+.I map_from
+and
+.I map_to
+are empty, the related line is ignored by the mapper, so a line may contain:
+.LP
+.BI "  ::" comment
+.LP
+A
+.B nul character
+in either
+.I map_from
+or
+.I map_to
+is currently not supported, but an empty
+.I map_to
+is interpreted as a 
+.BR "nul character" .
+.LP
+If a line has an empty
+.I map_to
+and the comment field starts with a 
+.B *
+like this:
+.LP
+.IB "  map_from" :: *comment
+.LP
+an existing mapping is removed. This permits to avoid unwanted mappings
+that have been set up from the
+.B TERMCAP
+entry.
+A typical use case for this feature is to avoid the mapping:
+.LP
+.BR "  ^H" : "^?" : "Key Backspace -> Delete Char
+.LP
+that is caused by the
+.B TERMCAP
+capability
+.B kb
+for terminals that create a backspace with the delete key.
+.LP
+Since the file
+.B $HOME/.vedmap
+is read in a sequential way, a later line with the same
+.I map_from
+may establish a different mapping.
+.PP
+The fields are separated by a colon.
+The text in the macro file is fed through
+.B tdecode()
+to allow the same escape sequences as you may have in the termcap file.
+
 .SS "Input Mappings"
 .LP
-The command line history editor maps input from the terminal into mapped text
+.B Ved
+maps input from the terminal into mapped text
 before it is interpreted by the editor. If a match is found on the input
 from the terminal, the related input text is directly replaced by it's
 replacement string.
@@ -2536,8 +2666,12 @@ A mapping may be prevented by typing the map quote character which is the
 character
 .RB ( ^@ ),
 directly before the matching text is entered.
-If this text is usually interpreted by the history editor, you first need to
-type the history editing quoting character
+If this text is usually interpreted by
+.BR ved ,
+you first need to
+type the
+.B ved
+quoting character
 .BR ^^ .
 To be sure that you are able to literally enter some text, type
 .BR ^^^@
@@ -2570,14 +2704,14 @@ capabilities:
 mapped to
 .BR ^P .
 .br
-The previous command line from the history is displayed.
+The cursor is placed on the previous line.
 .TP
 .B kd
 .BR "Key cursor down" ,
 mapped to
 .BR ^N .
 .br
-The next command line from the history is displayed.
+The cursor is placed on the next line.
 .TP
 .B kr
 .BR "Key cursor forward (right)" ,
@@ -2598,14 +2732,14 @@ Move cursor one character to the left.
 mapped to
 .BR ^A .
 .br
-The Cursor is moved to the beginning of the current command line.
+The Cursor is moved to the beginning of the current line.
 .TP
 .B @7
 .BR "Key cursor -> End" ,
 mapped to
 .BR ^E .
 .br
-The Cursor is moved to the end of the current command line.
+The Cursor is moved to the end of the current line.
 .TP
 .B kD
 .BR "Key Delete Character" ,
@@ -2633,7 +2767,7 @@ character.
 Since companies followed the design of the IBM PC keyboard layout,
 the related key usually sends
 .BR \e010 .
-If you like to literally enter a backspace into the command line, type
+If you like to literally enter a backspace, type
 .BR ^^^@^H
 .RB ( "control up-arrow" " followed by " "Nul"
 .RB "followed by " ^H ).
@@ -2757,106 +2891,16 @@ tries to read the file
 .B $HOME/.vedmap
 to retrieve additional mappings.
 
-.SH "MAPPINGS"
-You may create mappings in
-.B ved
-that contain arbitrary character sequences.
-To create a mapping, you need to edit the file
-.B .vedmap
-in your home directory.
-.PP
-The file
-.B "~/.vedmap
-contains a number of lines with the following structure:
-.LP
-.IB "  map_from" : map_to : comment
-.LP
-and holds a map definition like this:
-.PP
-.B "\\\\E[193z:^C:Quit Editor  (L2)"
-.PP
-Each map definition has three fields:
-.TP 10
-.I map-from
-The from string (left hand side) of the map. In our case, the name is the sequence
-.B "\\\\E[193z
-which is the output of the L2 function key on a Sun keyboard.
-Every time when you type the character sequence
-.B "\\\\E[193z
-or hit a function key that emits this character sequence, it will replaced by the
-the replacement string before the input is read by
-.BR ved.
-.TP
-.I map-to
-The replacement (right hand size or to string) of the macro. In our case the map expands to
-.B "^C"
-and will quit
-.BR ved .
-.TP
-.I comment
-A comment for better understanding of the map file. The comment is
-ignored.
-.LP
-If both
-.I map_from
-and
-.I map_to
-are empty, the related line is ignored by the mapper, so a line may contain:
-.LP
-.BI "  ::" comment
-.LP
-A
-.B nul character
-in either
-.I map_from
-or
-.I map_to
-is currently not supported, but an empty
-.I map_to
-is interpreted as a 
-.BR "nul character" .
-.LP
-If a line has an empty
-.I map_to
-and the comment field starts with a 
-.B *
-like this:
-.LP
-.IB "  map_from" :: *comment
-.LP
-an existing mapping is removed. This permits to avoid unwanted mappings
-that have been set up from the
-.B TERMCAP
-entry.
-A typical use case for this feature is to avoid the mapping:
-.LP
-.BR "  ^H" : "^?" : "Key Backspace -> Delete Char
-.LP
-that is caused by the
-.B TERMCAP
-capability
-.B kb
-for terminals that create a backspace with the delete key.
-.LP
-Since the file
-.B $HOME/.vedmap
-is read in a sequential way, a later line with the same
-.I map_from
-may establish a different mapping.
-.PP
-The fields are separated by a colon.
-The text in the macro file is fed through
-.B tdecode()
-to allow the same escape sequences as you may have in the termcap file.
-
 .SS Termcap
 .LP
 The
 .B termcap
-data base is used to make the command history editor independent
+data base is used to make 
+.B ved
+independent
 from the terminal capabilities. Cursor key output is retrieved from
-the data base and mapped to the cursor movement commands of the
-history editor.
+the data base and mapped to the cursor movement commands of
+.BR ved .
 .LP
 .ne 5
 The following variables are used by
@@ -3072,7 +3116,7 @@ The environment variable
 is used to suppress beeping when set to
 .IR off.
 This helps to use 
-.B p
+.B ved
 on a notebook in a meeting.
 .TP
 .B PATH
@@ -3151,21 +3195,25 @@ e.g. function names, macro names and typedefs.
 By default, 
 .B ved
 looks for a 
-.B tag
-file in the current directory and if not found in all directories 
-that are closer to the root directory. If a 
-.B tag 
+.B tags
+file in the current directory and if 
+a
+.B tags 
+file is not found in the current directory,
+the directories above the current directory are searched
+until the root directory is reached. If a 
+.B tags 
 file can be found in a directory closer to the root directory,
 .B ved 
-will modify the file name from within the 
-.B tag
+will modify the file path from within the 
+.B tags
 file to reflect the directory distance to this 
-.B tag
+.B tags
 file. This property is unique to
 .BR ved .
 .B Ved
 accepts
-.B tag
+.B tags
 files in the same notation as
 .BR vi .
 .TP
@@ -3245,7 +3293,7 @@ it tends to be non-portable between different platforms.
 While
 .B termcap
 allows to have a private terminal database in the NFS mounted home directory,
-the same attept tends to give problems with
+the same attempt tends to give problems with
 .B terminfo
 if a vendor did make private additions.
 Because

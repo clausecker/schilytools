@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prs.c	1.50 18/04/29 J. Schilling
+ * @(#)prs.c	1.53 18/11/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.50 18/04/29 J. Schilling"
+#pragma ident "@(#)prs.c 1.53 18/11/20 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -94,6 +94,7 @@ static char	Deltadatel[DT_ZSTRSIZE];
 static char	*Deltatime;
 static char	tempskel[] = NOGETTEXT("/tmp/prXXXXXX"); /* used to generate */
 							/* temp file names */
+static Nparms	N;			/* Keep -N parameters		*/
 static struct	sid	sid;
 
 static char	untmp[32], uttmp[32], cmtmp[32];
@@ -216,7 +217,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "-d:r:c:ealV(version)");
+			c = getopt(argc, argv, "()-d:r:c:ealN:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -286,6 +287,15 @@ char *argv[];
 				}
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[j+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf("prs %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -295,7 +305,7 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: prs [ -ael ][ -c date-time ][ -d dataspec ]\n\t[ -r SID ] s.filename ..."));
+				fatal(gettext("Usage: prs [ -ael ][ -c date-time ][ -d dataspec ]\n\t[ -r SID ][ -N[bulk-spec]] s.filename ..."));
 			}
 
 			/*
@@ -324,6 +334,9 @@ char *argv[];
 	if (!HADD)
 		HADD = 1;
 	*/
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 
 	/*
 	check the dataspec line and determine if any tmp files
@@ -332,6 +345,9 @@ char *argv[];
 	ck_spec(dataspec);
 
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -345,7 +361,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, process, 1, 1);
+			do_file(p, process, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -363,6 +379,22 @@ register	char	*file;
 {
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of 'process' */
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
+			sid.s_rel = N.n_sid.s_rel;
+			sid.s_lev = N.n_sid.s_lev;
+			sid.s_br  = N.n_sid.s_br;
+			sid.s_seq = N.n_sid.s_seq;
+		}
+	}
 
 	sinit(&gpkt, file, SI_OPEN);	/* init packet and open SCCS file */
 
@@ -399,6 +431,8 @@ register	char	*file;
 	/*
 	 * If there are SCCS v6 flags or SCCS v6 global meta data,
 	 * we need to skip this here.
+	 * XXX In order to be able to print this data, we need to
+	 * XXX parse this block instead of just skipping it.
 	 */
 	if (gpkt.p_line != NULL &&
 	    gpkt.p_line[0] == CTLCHAR && gpkt.p_line[1] != BUSERTXT)
@@ -919,6 +953,18 @@ struct	stats	*statp;
 				k += 3;
 				printf("%s", k);
 				break;
+#ifdef	FUTURE
+			case 256*'p'+'6':	/* :6p: V6 Initial Path */
+				if (gpkt.p_init_path)
+					printf("%s", gpkt.p_init_path);
+				break;
+			case 256*'r'+'6': {	/* :6r: V6 Unified Random */
+				char	rbuf[64];
+				urand_ba(&gpkt.p_rand, rbuf, sizeof (rbuf));
+				printf("%s", rbuf);
+				break;
+				}
+#endif
 			default:
 				putchar(':');
 				lp -= 2;

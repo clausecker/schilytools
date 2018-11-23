@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.4 15/03/10 Copyright 2011-2015 J. Schilling
+ * @(#)bulk.c	1.5 18/11/20 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.4 15/03/10 Copyright 2011-2015 J. Schilling"
+#pragma ident "@(#)bulk.c	1.5 18/11/20 Copyright 2011-2018 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -107,8 +107,8 @@ bulkprepare(N, afile)
 	char	*afile;
 {
 static int	dfd = -1;
-static char	Dir[FILESIZE];
-static char	Nhold[FILESIZE];
+static char	Dir[FILESIZE];		/* The directory base of the g-file */
+static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 
 #ifdef	HAVE_FCHDIR
 	if (sethomestat & SETHOME_OFFTREE) {	/* Would need openat() */
@@ -209,7 +209,7 @@ static char	Nhold[FILESIZE];
 		if (!sccsfile(afile))
 			fatal(gettext("not an SCCS file (co1)"));
 
-		np = sname(afile);
+		np = sname(afile);		/* simple-name/base-name */
 		np = np + 2 - plen;
 		if (np < afile ||
 		    ((np > afile) && (np[-1] != '/')) ||
@@ -276,5 +276,10 @@ static char	Nhold[FILESIZE];
 				xmsg(dbuf, NOGETTEXT("mkdirs"));
 		}
 	}
+#ifdef	BULK_DEBUG
+	fprintf(stderr, "Dir '%s' %p\n", Dir, Dir);
+	fprintf(stderr, "Nhold '%s' %p\n", Nhold, Nhold);
+	fprintf(stderr, "afile '%s' %p\n", afile, afile);
+#endif
 	return (afile);
 }

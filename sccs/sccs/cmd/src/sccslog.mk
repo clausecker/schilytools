@@ -1,4 +1,4 @@
-#ident @(#)sccslog.mk	1.10 18/04/04 
+#ident @(#)sccslog.mk	1.11 18/11/20 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -12,6 +12,7 @@ INSDIR=		bin
 TARGET=		sccslog
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
@@ -20,7 +21,7 @@ CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		sccslog.c
 HFILES=		
-LIBS=		-lschily $(LIB_INTL)
+LIBS=		-lcomobj -lmpw -lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

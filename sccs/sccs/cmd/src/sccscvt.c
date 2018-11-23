@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.18 18/04/04 Copyright 2011-2018 J. Schilling */
+/* @(#)sccscvt.c	1.20 18/11/20 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.18 18/04/04 Copyright 2011-2018 J. Schilling";
+	"@(#)sccscvt.c	1.20 18/11/20 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -39,10 +39,12 @@ LOCAL	void	cvtdelt2v6	__PR((struct packet *pkt));
 LOCAL	void	get_setup	__PR((char *file));
 LOCAL	int	get_hash	__PR((int ser));
 LOCAL	void	clean_up	__PR((void));
+LOCAL	int	getN		__PR((const char *, void *));
 
 LOCAL	struct utsname	un;
 LOCAL	char		*uuname;
 LOCAL	struct packet	gpkt;
+LOCAL	Nparms		N;			/* Keep -N parameters		*/
 
 LOCAL	BOOL	dov6	= -1;
 LOCAL	BOOL	keepold;
@@ -52,13 +54,14 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	fprintf(stderr, _("Usage: sccscvt [options] file1..filen\n"));
+	fprintf(stderr, _("Usage: sccscvt [options] s.file1 .. s.filen\n"));
 	fprintf(stderr, _("	-help	Print this help.\n"));
 	fprintf(stderr, _("	-version Print version number.\n"));
 	fprintf(stderr, _("	-V4	Convert history files to SCCS v4.\n"));
 	fprintf(stderr, _("	-V6	Convert history files to SCCS v6.\n"));
 	fprintf(stderr, _("	-d	Discard SCCS v6 meta data.\n"));
 	fprintf(stderr, _("	-keep,-k Keep original history file as o.file.\n"));
+	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
 	exit(exitcode);
 }
 
@@ -69,7 +72,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,V4%0,V6,d,k,keep";
+	char	*opts = "help,V,version,V4%0,V6,d,k,keep,N&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nargs = 0;
@@ -112,7 +115,8 @@ main(ac, av)
 			&help, &pversion, &pversion,
 			&dov6, &dov6,
 			&discardv6,
-			&keepold, &keepold) < 0) {
+			&keepold, &keepold,
+			getN, &N) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
 	}
@@ -132,6 +136,15 @@ main(ac, av)
 		errmsgno(EX_BAD, _("Need to specify -V4 or -V6.\n"));
 		usage(EX_BAD);
 	}
+	if (N.n_parm) {					/* Parse -N args  */
+		parseN(&N);
+	}
+
+	xsethome(NULL);
+	if (N.n_parm && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	Fflags &= ~FTLEXIT;
+	Fflags |= FTLJMP;
 
 	cac = ac;
 	cav = av;
@@ -175,13 +188,17 @@ dodir(name)
 	base++;
 	len = sizeof (fname) - strlen(fname);
 	while ((d = readdir(dp)) != NULL) {
+		char * oparm = N.n_parm;
+
 		np = d->d_name;
 
 		if (np[0] != 's' || np[1] != '.' || np[2] == '\0')
 			continue;
 
 		strlcpy(base, np, len);
+		N.n_parm = NULL;
 		convert(fname);
+		N.n_parm = oparm;
 	}
 	closedir(dp);
 }
@@ -199,6 +216,16 @@ convert(file)
 	 */
 	if (setjmp(Fjmp))
 		return;
+	if (N.n_parm) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
 
 	if (!sccsfile(file)) {
 		errmsgno(EX_BAD, _("%s: not an SCCS file (co1).\n"), file);
@@ -656,4 +683,14 @@ clean_up()
 		ffreeall();
 		unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
 	}
+}
+
+LOCAL int
+getN(argp, valp)
+	const char	*argp;
+	void		*valp;
+{
+	initN(&N);
+	N.n_parm = (char *)argp;
+	return (TRUE);
 }

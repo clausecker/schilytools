@@ -1,4 +1,4 @@
-.\" @(#)sccs-log.1	1.22 18/01/14 Copyr 1997-2018 J. Schilling
+.\" @(#)sccs-log.1	1.24 18/11/20 Copyr 1997-2018 J. Schilling
 .\" Manual page for sccs-log
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,14 +25,14 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-log 1 "2018/01/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-log 1 "2018/11/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-log, sccslog \- create changelog from SCCS history files
 .SH SYNOPSIS
 .B
 sccslog 
 .RI [ options ]
-.I file1 .. filen
+.I s.file1 .. s.filen
 .SH DESCRIPTION
 .B Sccslog
 creates a Changelog file from SCCS history files.
@@ -88,6 +88,100 @@ the same delta comment.
 Prints a short summary of the 
 .B sccslog
 options and exists.
+
+.sp
+.ne 3
+.TP
+.BI -N bulk-spec
+Processes a bulk of SCCS history files.
+This option allows to do an efficient mass processing of SCCS history files.
+.sp
+The
+.I bulk-spec
+parameter is composed from an optional list of
+.B flag
+parameters followed by an optional
+.B path
+specifier.
+.sp
+The following flag types are supported:
+.RS
+.TP 10
+.B none
+.LP
+.ne 4
+The following path specifier types are supported:
+.TP 10
+.B \-N
+The file name parameters to the
+.B sccslog
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are automatically derived from the g-file names by prepending
+.B s.
+to the last path name component.
+.TP
+.B \-Ns.
+The file name parameters to the
+.B sccslog
+command are
+.I s.filename
+files.
+The the g-files names are automatically derived by removing
+.B s.
+from the beginning of last path name component of the
+.IR s.filename.
+.TP
+.BI \-N dir
+The file name parameters to the
+.B sccslog
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are put into directory
+.IR dir ,
+the names are automatically derived from the g-file names by prepending
+.IB dir /s.
+to the last path name component.
+.TP
+.BI \-N dir /s.
+The file name parameters to the
+.B sccslog
+command are
+.I s.filename
+files in directory
+.IR dir .
+The the g-files names are automatically derived by removing
+.IB dir /s.
+from the beginning of last path name component of the
+.IR s.filename.
+.PP
+A typical value for
+.I dir
+is
+.BR SCCS .
+.PP
+In order to overcome the limited number of
+.BR exec (2)
+arguments, it is recommended to use
+.RB ` \(mi \&'
+as the file name parameter for
+.BR sccslog (1)
+and to send a list of path names to
+.BR stdin .
+.PP
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
+
 .TP
 .B \-V
 .TP
@@ -101,7 +195,34 @@ To creates a changelog for all SCCS history files in directory SCCS call:
 .IP
 .B "sccslog SCCS/s.*"
 .SH ENVIRONMENT VARIABLES
-None.
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR val (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR admin (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
 .SH FILES
 .TP
 .B $HOME/.sccs/usermap

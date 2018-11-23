@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.114 18/10/29 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.115 18/11/12 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.114 18/10/29 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.115 18/11/12 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -49,6 +49,7 @@ static	UConst char sccsid[] =
 #include <schily/grp.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
+#include <schily/errno.h>
 
 #include <schily/nlsdefs.h>
 
@@ -130,6 +131,10 @@ struct find_node {
  *	If a 64 bit libfind calls a 32 bit program, the arg vector and the
  *	environment array in the called program needs less space than in the
  *	calling libfind code.
+ *
+ *	Note that the "avx" entry is only needed in case we have no vfork()
+ *	since we aways need to create an arg vector copy in the vfork() case.
+ *	This copy is created in doexec() and takes care of the extra space.
  */
 struct plusargs {
 	struct plusargs	*next;		/* Next in list for flushing	*/
@@ -138,6 +143,7 @@ struct plusargs {
 	char		*laststr;	/* points to last used string	*/
 	int		nenv;		/* Number of entries in env	*/
 	int		ac;		/* The argc for our command	*/
+	char		*avx;		/* Space for "sh" for scripts	*/
 	char		*av[1];		/* The argv for our command	*/
 };
 
@@ -2173,8 +2179,11 @@ doexec(f, t, ac, av, state)
 	int	retval;
 
 #ifdef	HAVE_VFORK
-	if (f && ac >= 32) {
-		aav = malloc((ac+1) * sizeof (char **));
+	if (f && ac >= 32) {			/* This is not exec + */
+		/*
+		 * One NULL pointer and one index for "sh".
+		 */
+		aav = malloc((ac+1+1) * sizeof (char **));
 		if (aav == NULL) {
 			ferrmsg(state->std[2], _("Cannot malloc arg vector for -exec.\n"));
 			return (FALSE);
@@ -2224,8 +2233,8 @@ doexec(f, t, ac, av, state)
 		return (retval == 0);
 	} else {
 #ifdef	HAVE_VFORK
-			char	*xav[32];
-		register char	**pp2 = xav;
+			char	*xav[32+1];
+		register char	**pp2 = &xav[1];
 #endif
 		register int	i;
 		register char	**pp = av;
@@ -2249,7 +2258,7 @@ doexec(f, t, ac, av, state)
 
 #ifdef	HAVE_VFORK
 		if (aav)
-			pp2 = aav;
+			pp2 = &aav[1];			/* Room for "sh"   */
 #endif
 		if (f) {				/* NULL for -exec+ */
 			for (i = 0; i < ac; i++, pp++) {
@@ -2265,18 +2274,18 @@ doexec(f, t, ac, av, state)
 					*pp = f;
 #endif
 			}
+			*pp2 = NULL;
 #ifdef	HAVE_VFORK
 			if (aav)
-				pp = aav;
+				pp = &aav[1];
 			else
-				pp = xav;
+				pp = &xav[1];
+#else
+			pp = av;
 #endif
 		} else {
 			pp = av;
 		}
-#ifndef	HAVE_VFORK
-		pp = av;
-#endif
 #ifdef	PLUS_DEBUG
 		error("argsize %d\n",
 			(plusp->endp - (char *)&plusp->nextargp[0]) -
@@ -2292,10 +2301,40 @@ doexec(f, t, ac, av, state)
 			(plusp->endp - (char *)&plusp->nextargp[0]) -
 			(plusp->laststr - (char *)&plusp->nextargp[1]));
 #endif
+		if (err == ENOEXEC) {
+			char	**ps = &pp[-1];
+
+#ifndef	HAVE_VFORK
+			if (f && ac >= 32) {	/* This is not exec + */
+				/*
+				 * One NULL pointer and one index for "sh".
+				 */
+				ps = malloc((ac+1+1) * sizeof (char **));
+				if (ps == NULL) {
+					ferrmsg(state->std[2],
+					_("Cannot malloc arg vector for -exec.\n"));
+					goto exerr;
+				}
+				pp2 = &ps[1];
+				for (i = 0; i < ac; i++, pp++) {
+					*pp2++ = *pp;
+				}
+				*pp2 = NULL;
+			}
+#endif
+			ps[0] = "sh";
+			fexecve(ps[0], state->std[0],
+					state->std[1],
+					state->std[2],
+					ps, state->env);
+		}
 		/*
 		 * This is the forked process and for this reason, we may
 		 * call _exit() here without problems.
 		 */
+#ifndef	HAVE_VFORK
+exerr:
+#endif
 		ferrmsgno(state->std[2], err,
 			_("Cannot execute '%s'.\n"), av[0]);
 		_exit(err);

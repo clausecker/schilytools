@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.155 18/05/24 Copyright 1996-2018 J. Schilling
+.\" @(#)cdrecord.1	1.156 18/11/08 Copyright 1996-2018 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -26,7 +26,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDRECORD 1 "Version 3.02 2018/05/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CDRECORD 1 "Version 3.02 2018/11/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cdrecord \- record audio or data CD, DVD or BluRay
 .SH SYNOPSIS
@@ -228,6 +228,13 @@ section for more information).
 .sp
 There are several CD writers with bad firmware
 that result in broken disks when writing in TAO or SAO mode.
+The result of this firmware bugs is that in special with disks written with no
+pregap, the time is going backwards on the player or the disk will not continue
+with the next track. Since today, many CD writers are made by the Chinese 
+manufacturer
+.B Lite-ON
+that is known for various firmware defects, it is recommended to write all
+audio CDs in raw mode.
 If you find any problems with the layout of a disk or with subchannel 
 content (e.g. wrong times on the display when playing the CD) and your drive
 supports to write in 
@@ -271,6 +278,8 @@ Set
 .B "RAW writing mode
 with 2352 byte sectors plus 96 bytes of raw P-W sub-channel data resulting
 in a sector size of 2448 bytes.
+Because there are several CD writers with firmware bugs,
+.B "this is the preferred mode to write audio CDs."
 This is the preferred raw writing mode as it gives best control over the
 CD-writing process.
 Writing data disks in raw mode needs significantly more CPU time than other

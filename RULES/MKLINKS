@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.130 17/08/01 "
+#ident "@(#)MKLINKS	1.131 18/11/15 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -172,18 +172,40 @@ $symlink	i386-freebsd-cc.rul	i386-dragonfly-cc.rul
 $symlink	i386-freebsd-gcc.rul	i386-dragonfly-gcc.rul
 $symlink	i386-freebsd-cc.rul	x86_64-dragonfly-cc.rul
 $symlink	i386-freebsd-gcc.rul	x86_64-dragonfly-gcc.rul
+
 $symlink	i386-netbsd-cc.rul	amd64-netbsd-cc.rul
+$symlink	i386-netbsd-cc.rul	amd64-netbsd-cc32.rul
+$symlink	i386-netbsd-cc.rul	amd64-netbsd-cc64.rul
 $symlink	i386-netbsd-gcc.rul	amd64-netbsd-gcc.rul
+$symlink	i386-netbsd-gcc.rul	amd64-netbsd-gcc32.rul
+$symlink	i386-netbsd-gcc.rul	amd64-netbsd-gcc64.rul
 $symlink	i386-netbsd-cc.rul	alpha-netbsd-cc.rul
+$symlink	i386-netbsd-cc.rul	alpha-netbsd-cc32.rul
+$symlink	i386-netbsd-cc.rul	alpha-netbsd-cc64.rul
 $symlink	i386-netbsd-gcc.rul	alpha-netbsd-gcc.rul
+$symlink	i386-netbsd-gcc.rul	alpha-netbsd-gcc32.rul
+$symlink	i386-netbsd-gcc.rul	alpha-netbsd-gcc64.rul
 $symlink	i386-netbsd-cc.rul	sparc-netbsd-cc.rul
+$symlink	i386-netbsd-cc.rul	sparc-netbsd-cc32.rul
+$symlink	i386-netbsd-cc.rul	sparc-netbsd-cc64.rul
 $symlink	i386-netbsd-gcc.rul	sparc-netbsd-gcc.rul
+$symlink	i386-netbsd-gcc.rul	sparc-netbsd-gcc32.rul
+$symlink	i386-netbsd-gcc.rul	sparc-netbsd-gcc64.rul
 $symlink	i386-netbsd-cc.rul	mac68k-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	mac68k-netbsd-gcc.rul
 $symlink	i386-netbsd-cc.rul	amiga-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	amiga-netbsd-gcc.rul
 $symlink	i386-netbsd-cc.rul	macppc-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	macppc-netbsd-gcc.rul
+$symlink	i386-netbsd-clang.rul	amd64-netbsd-clang.rul
+$symlink	i386-netbsd-clang.rul	amd64-netbsd-clang32.rul
+$symlink	i386-netbsd-clang.rul	amd64-netbsd-clang64.rul
+$symlink	i386-netbsd-clang.rul	alpha-netbsd-clang.rul
+$symlink	i386-netbsd-clang.rul	alpha-netbsd-clang32.rul
+$symlink	i386-netbsd-clang.rul	alpha-netbsd-clang64.rul
+$symlink	i386-netbsd-clang.rul	sparc-netbsd-clang.rul
+$symlink	i386-netbsd-clang.rul	sparc-netbsd-clang32.rul
+$symlink	i386-netbsd-clang.rul	sparc-netbsd-clang64.rul
 $symlink	i386-openbsd-cc.rul	amd64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	amd64-openbsd-gcc.rul
 $symlink	amd64-bitrig-clang.rul	amd64-bitrig-clang32.rul

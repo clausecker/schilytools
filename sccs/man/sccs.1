@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.44 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs.1	4.45 18/11/08 Copyright 2007-2018 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2018/11/08" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -561,7 +561,13 @@ Trace.  Print extra debug messages.
 .br
 .ne 3
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B sccs
 version number string and exists.

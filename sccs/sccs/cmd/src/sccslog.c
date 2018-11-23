@@ -1,26 +1,15 @@
-/* @(#)sccslog.c	1.39 18/02/19 Copyright 1997-2018 J. Schilling */
+/* @(#)sccslog.c	1.43 18/11/22 Copyright 1997-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.39 18/02/19 Copyright 1997-2018 J. Schilling";
+	"@(#)sccslog.c	1.43 18/11/22 Copyright 1997-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2018 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- * A copy of the CDDL is also available via the Internet at
- * http://www.opensource.org/licenses/cddl1.txt
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
+#include <defines.h>
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
@@ -59,6 +48,7 @@ LOCAL	int		listsize;
 LOCAL	char		*Cwd;
 LOCAL	char		*SccsPath = "";
 LOCAL	BOOL		extended = FALSE;
+LOCAL	Nparms		N;			/* Keep -N parameters		*/
 
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
@@ -67,6 +57,7 @@ EXPORT	int	main		__PR((int ac, char *av[]));
 LOCAL	void	dodir		__PR((char *name));
 LOCAL	void	dofile		__PR((char *name));
 LOCAL	int	fgetline	__PR((FILE *, char *, int));
+LOCAL	int	getN		__PR((const char *, void *));
 
 /*
  * XXX With SCCS v6 local time + GMT off, we should not compare struct tm
@@ -177,7 +168,7 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	fprintf(stderr, "Usage: sccslog [options] file1..filen\n");
+	fprintf(stderr, "Usage: sccslog [options] s.file1 .. s.filen\n");
 	fprintf(stderr, "	-help	Print this help.\n");
 	fprintf(stderr, "	-version Print version number.\n");
 	fprintf(stderr, "	-a	Print all deltas with times differing > 60s separately.\n");
@@ -185,6 +176,7 @@ usage(exitcode)
 	fprintf(stderr, "	-Cdir	Base dir for printed filenames.\n");
 	fprintf(stderr, "	-p subdir	Define SCCS subdir.\n");
 	fprintf(stderr, "	-x	Include all comment, even SCCSv6 metadata.\n");
+	fprintf(stderr, "	-Nbulk-spec Processes a bulk of SCCS history files.\n");
 	exit(exitcode);
 }
 
@@ -195,7 +187,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,a+,x,C*,p*";
+	char	*opts = "help,V,version,a+,x,C*,p*,N&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nopooling = 0;
@@ -204,13 +196,19 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 	cac = --ac;
 	cav = ++av;
 
 	if (getallargs(&cac, &cav, opts,
 			&help, &pversion, &pversion,
 			&nopooling, &extended,
-			&Cwd, &SccsPath) < 0) {
+			&Cwd, &SccsPath,
+			getN, &N) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
 	}
@@ -224,6 +222,15 @@ main(ac, av)
 			HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
+	if (N.n_parm) {					/* Parse -N args  */
+		parseN(&N);
+	}
+
+	xsethome(NULL);
+	if (N.n_parm && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	Fflags &= ~FTLEXIT;
+	Fflags |= FTLJMP;
 
 	cac = ac;
 	cav = av;
@@ -248,7 +255,7 @@ main(ac, av)
 
 	qsort(list, listsize, sizeof (struct xx), xxcmp);
 
-#ifdef	DEBUG
+#ifdef	SCCSLOG_DEBUG
 	printf("%d Einträge\n", listsize);
 #endif
 	for (i = 0; i < listsize; i++) {
@@ -311,13 +318,17 @@ dodir(name)
 	base++;
 	len = sizeof (fname) - strlen(fname);
 	while ((d = readdir(dp)) != NULL) {
+		char * oparm = N.n_parm;
+
 		np = d->d_name;
 
 		if (np[0] != 's' || np[1] != '.' || np[2] == '\0')
 			continue;
 
 		strlcpy(base, np, len);
+		N.n_parm = NULL;
 		dofile(fname);
+		N.n_parm = oparm;
 	}
 	closedir(dp);
 }
@@ -333,6 +344,19 @@ dofile(name)
 	struct tm tm;
 	char	*bname;
 	char	*pname;
+
+	if (setjmp(Fjmp))
+		return;
+	if (N.n_parm) {
+		char	*ofile = name;
+
+		name = bulkprepare(&N, name);
+		if (name == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
 
 	f = fopen(name, "rb");
 	if (f == NULL) {
@@ -400,26 +424,46 @@ dofile(name)
 			char	user[256];
 			time_t	t;
 			Llong	lt;
-			int	gmtoff;
+			int	nsecs;
+			int	gmtoffs;
 			char	*p = &buf[4];
 
-			len = sscanf(p, "%s %d/%d/%d %d:%d:%d%d %s",
+			len = sscanf(p, "%s %d/%d/%d %d:%d:%d.%d%d %s",
 				vers,
 				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
-				&gmtoff,
+				&nsecs,
+				&gmtoffs,
+				user);
+			if (len == 10) {
+				int hours = gmtoffs / 100;
+				int mins  = gmtoffs % 100;
+
+				gmtoffs = hours * 3600 + mins * 60;
+			} else {
+				gmtoffs = 1;
+			}
+			if (len < 10)
+				len = sscanf(p, "%s %d/%d/%d %d:%d:%d%d %s",
+				vers,
+				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
+				&gmtoffs,
 				user);
 			if (len == 9) {
-				int hours = gmtoff / 100;
-				int mins  = gmtoff % 100;
+				int hours = gmtoffs / 100;
+				int mins  = gmtoffs % 100;
 
-				gmtoff = hours * 3600 + mins * 60;
+				gmtoffs = hours * 3600 + mins * 60;
 			} else {
-				gmtoff = 1;
+				/*
+				 * XXX GMT offset aus localtime bestimmen?
+				 * XXX Nein, wir nehmen mktime() bei len >= 9.
+				 */
+				gmtoffs = 1;
 			}
 			if (len < 9)
-				len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",
-				vers,
+				len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",				vers,
 				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
 				user);
@@ -442,9 +486,10 @@ dofile(name)
 				tm.tm_year -= 56;	/* 2 * 4 * 7 */
 				if (len >= 9) {
 					lt = t = mkgmtime(&tm);
-					lt -= gmtoff;
-					t -= gmtoff;
+					lt -= gmtoffs;
+					t -= gmtoffs;
 				} else {
+#undef	mktime						/* Don't use xmktime */
 					lt = t = mktime(&tm);
 				}
 				tm.tm_year += 56;
@@ -452,8 +497,8 @@ dofile(name)
 			} else {
 				if (len >= 9) {
 					lt = t = mkgmtime(&tm);
-					lt -= gmtoff;
-					t -= gmtoff;
+					lt -= gmtoffs;
+					t -= gmtoffs;
 				} else {
 					lt = t = mktime(&tm);
 				}
@@ -484,7 +529,7 @@ dofile(name)
 				comerr("No memory.\n");
 			list[listsize].time = t;
 			list[listsize].ltime = lt;
-			list[listsize].gmtoff = gmtoff;
+			list[listsize].gmtoff = gmtoffs;
 			list[listsize].tm   = tm;
 			list[listsize].user = strdup(user);
 			list[listsize].vers = strdup(vers);
@@ -543,4 +588,14 @@ fgetline(f, buf, len)
 	if (len > 0 && buf[len-1] == '\n')
 		buf[--len] = '\0';
 	return (len);
+}
+
+LOCAL int
+getN(argp, valp)
+	const char	*argp;
+	void		*valp;
+{
+	initN(&N);
+	N.n_parm = (char *)argp;
+	return (TRUE);
 }

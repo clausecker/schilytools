@@ -1,8 +1,8 @@
-/* @(#)count.c	1.29 18/10/14 Copyright 1986-2018 J. Schilling */
+/* @(#)count.c	1.30 18/11/03 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)count.c	1.29 18/10/14 Copyright 1986-2018 J. Schilling";
+	"@(#)count.c	1.30 18/11/03 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	count words, lines, and/or chars in files
@@ -145,7 +145,7 @@ main(ac, av)
 	if (prversion) {
 		printf(
 		_("Count release %s %s (%s-%s-%s) Copyright (C) 1986-2018 Jörg Schilling\n"),
-				"1.29", "2018/10/14",
+				"1.30", "2018/11/03",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -211,13 +211,13 @@ count(f)
 	register FILE *f;
 {
 	register wint_t	c;
-	register BOOL	inword = FALSE;
-	register off_t	hpos = (off_t)0;
+	register BOOL	inword	= FALSE;
+	register off_t	hpos	= (off_t)0;
 	register off_t	chars	= (off_t)0;
-	register off_t	mchars	= (off_t)0;
 	register off_t	words	= (off_t)0;
 	register off_t	lines 	= (off_t)0;
 	register off_t	llen	= (off_t)0;
+	register off_t	mchars	= (off_t)0;
 #if	MB_LEN_MAX > 1
 		char	mb[MB_LEN_MAX+1];
 	register size_t	nmb;
@@ -326,11 +326,11 @@ count(f)
 			chars++;
 		}
 	} else while ((c = getc(f)) != EOF) {
+		chars++;
 		if (iswhite(c)) {
 			if (c == '\n') {
 				if (hpos > llen)
 					llen = hpos;
-				chars += hpos+1;
 				hpos = 0;
 				lines++;
 			} else if (c == '\t') {
@@ -349,7 +349,6 @@ count(f)
 	if (c == EOF && ferror(f))
 		errmsg("I/O error on '%s'.\n", filename);
 
-	chars += hpos;
 	if (hpos > llen)
 		llen = hpos;
 	if (f != stdin)

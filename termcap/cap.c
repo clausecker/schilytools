@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.49 18/10/28 Copyright 2000-2018 J. Schilling */
+/* @(#)cap.c	1.57 18/11/23 Copyright 2000-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.49 18/10/28 Copyright 2000-2018 J. Schilling";
+	"@(#)cap.c	1.57 18/11/23 Copyright 2000-2018 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -187,7 +187,7 @@ init_clist()
 
 /*
  * Skip past next ':'.
- * If the are two consecutive ':', the returned pointer may point to ':'.
+ * If there are two consecutive ':', the returned pointer may point to ':'.
  *
  * A copy from the local function libxtermcap:tgetent.c:tskip()
  */
@@ -315,9 +315,9 @@ main(ac, av)
 {
 	int	cac;
 	char	*const *cav;
-	char	*tbuf;		/* Termcap buffer */
-	char	unknown[TBUF];	/* Buffer fuer "unknown" Entries */
-	char	disabled[TBUF];	/* Buffer fuer :..xx: Entries */
+	char	*tbuf;			/* Termcap buffer */
+	char	unknown[5*TBUF];	/* Buffer fuer "unknown" Entries */
+	char	disabled[5*TBUF];	/* Buffer fuer :..xx: Entries */
 	char	*tname = getenv("TERM");
 	char	*tcap = getenv("TERMCAP");
 	int	slen = 0;
@@ -364,7 +364,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s %s (%s-%s-%s)\n\n", "1.49", "2018/10/28",
+		printf("termcap %s %s (%s-%s-%s)\n\n", "1.57", "2018/11/23",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -476,8 +476,8 @@ checkentries(tname, slenp)
 	char	*tname;
 	int	*slenp;
 {
-	char	stbuf[TBUF];	/* String buffer zum zaehlen */
-	char	*sbp;		/* Sting buffer Ende */
+	char	stbuf[10*TBUF];	/* String buffer zum zaehlen */
+	char	*sbp;		/* String buffer Ende */
 	int	i;
 	int	b;		/* Fuer bool/int Werte */
 	char	*p;
@@ -494,6 +494,12 @@ checkentries(tname, slenp)
 	else
 		i = strlen(tbuf);
 	printf("tbuf: '%.*s'\n", i, tbuf);
+
+	b = strlen(tbuf);
+	if (b > 2*TBUF) {
+		error("%s: termcap entry too long (%d bytes).\n", tname, b);
+		return;
+	}
 
 	sbp = stbuf;
 	p2 = tbuf;
@@ -530,15 +536,52 @@ checkentries(tname, slenp)
 			if (p2 == NULL)
 				break;
 			if (*p2 == '=') {
+				char	*n = tskip(p2);
+
 				p = &p2[1];
-				strcpy(sbp, p);
-				if ((p = strchr(sbp, ':')) != NULL)
-					*p = '\0';
+				n--;			/* Backstep from ':' */
+				if ((n - p) >= TBUF) {
+					error("NOTICE(%s). string '%.*s' too long.\n",
+					tname, (int)(n - p2)+2, p2-2);
+					break;
+				}
+				strlcpy(sbp, p, n-p+1);
 				p = sbp;	/* The tc= parameter */
 			} else
 				break;
 		} else {
-			p = tgetstr(caplist[i].tc_name, &sbp);
+			char	*e = tfind(tbuf, caplist[i].tc_name);
+			char	*n = tskip(e);
+
+			/*
+			 * e and n are always != NULL.
+			 */
+			p = NULL;
+			if (*e == '=' && (n - e) > 1024) {
+				/*
+				 * Warn if the string is > 1024, but let up to
+				 * 4096 bytes appear to be able to count the
+				 * real length.
+				 */
+				error("NOTICE(%s). string '%.*s' longer than %d.\n",
+					tname, (int)(n - e)+1, e-2, 1024);
+			}
+			if (*e != '=') {
+				/*
+				 * Not a string type entry.
+				 */
+				/* EMPTY */
+				;
+			} else if ((n - e) > 4*TBUF) {
+				error("NOTICE(%s). string '%.*s' too long.\n",
+					tname, (int)(n - e)+1, e-2);
+			} else if ((sbp - stbuf) > 4*TBUF) {
+				error(
+				"NOTICE(%s). '%.*s' string table overflow.\n",
+					tname, (int)(n - e)+1, e-2);
+			} else {
+				p = tgetstr(caplist[i].tc_name, &sbp);
+			}
 		}
 		if (caplist[i].tc_name[0] == 'm' &&
 		    caplist[i].tc_name[1] == 'a' &&
@@ -635,6 +678,21 @@ checkbad(tname, unknown, disabled)
 	BOOL	out_tty = isatty(STDOUT_FILENO);
 
 	p = tskip(tbuf);
+
+	i = strlen(tbuf);
+	if (i > 2*TBUF) {
+		printf("# BAD(%s). Skipping long entry (%d bytes): '%s'\n",
+					tname,
+					i,
+					tbuf);
+		if (!out_tty)
+		error("BAD(%s). Skipping long entry (%d bytes): '%.*s'\n",
+					tname,
+					i,
+					(int)(p - tbuf - 1), tbuf);
+		return;
+	}
+
 	up = unknown;
 	dp = disabled;
 	while (*p) {
@@ -650,17 +708,18 @@ checkbad(tname, unknown, disabled)
 			p = tskip(p);
 			continue;
 		}
-		if (p[1] == ':') {
+		if (p[1] == '\0' ||
+		    p[1] == ':') {
 			if (p[0] == '\t' ||	/* This is an indented line */
 			    p[0] == ' ') {	/* also ignore single space */
 				p = tskip(p);
 				continue;
 			}
-			printf("# NOTICE(%s). Short entry (':%c:') removed\n",
-				tname, p[0]);
+			printf("# NOTICE(%s). Short entry (':%c%s') removed\n",
+				tname, p[0], p[1]?":":"");
 			if (!out_tty)
-			error("NOTICE(%s). Short entry (':%c:') removed\n",
-				tname, p[0]);
+			error("NOTICE(%s). Short entry (':%c%s') removed\n",
+				tname, p[0], p[1]?":":"");
 			p = tskip(p);
 			continue;
 		}
@@ -778,7 +837,7 @@ checkbad(tname, unknown, disabled)
 		} else if ((caplist[i].tc_flags & (C_STRING|C_PARM)) == (C_STRING|C_PARM)) {
 
 			if (p[2] == '=') {
-				char	buf[TBUF];
+				char	buf[5*TBUF];
 				char	*bp = buf;
 				char	*val = tdecode(&p[3], &bp);
 
@@ -810,6 +869,10 @@ checkbad(tname, unknown, disabled)
 				printf("# BAD(%s). Type mismatch '%s' in '%.*s' is STRING should be %s\n",
 					tname, ent, (int)(p2 - p - 1), p, type2str(caplist[i].tc_flags));
 			}
+		}
+		if (rp) {		/* tgetstr() return was malloc()ed */
+			free(rp);
+			rp = NULL;
 		}
 		rb = tgetnum(caplist[i].tc_name);
 		if (rb >= 0)
@@ -865,9 +928,9 @@ outcap(tname, unknown, disabled, obsolete_last)
 	char	*disabled;
 	BOOL	obsolete_last;	/* obsolete_last == !inorder */
 {
-	char	stbuf[TBUF];	/* String buffer zum zaehlen */
-	char	line[TBUF];	/* Fuer Einzelausgabe */
-	char	*sbp;		/* Sting buffer Ende */
+	char	stbuf[10*TBUF];	/* String buffer zum zaehlen */
+	char	line[10*TBUF];	/* Fuer Einzelausgabe */
+	char	*sbp;		/* String buffer Ende */
 	int	llen;
 	int	curlen;
 	int	i;
@@ -879,6 +942,12 @@ outcap(tname, unknown, disabled, obsolete_last)
 	char	*pe;
 	char	*tbuf = tcgetbuf();
 BOOL	didobsolete = FALSE;
+
+
+	b = strlen(tbuf);
+	if (b > 2*TBUF) {
+		return;
+	}
 
 	p = strchr(tbuf, ':');
 	if (p)
@@ -1022,15 +1091,16 @@ BOOL	didobsolete = FALSE;
 			else
 				p2 = tfind(p2, "tc");
 			if (p2 == NULL)
-				break;
+				break;				/* End of loop */
 			if (*p2 == '=') {
 				p = &p2[1];
 				strcpy(sbp, p);
 				if ((p = strchr(sbp, ':')) != NULL)
 					*p = '\0';
 				p = sbp;
-			} else
-				break;
+			} else {
+				break;				/* End of loop */
+			}
 			curlen = sprintf(line, "%s=%s:", caplist[i].tc_name, p);
 			i--;
 			goto printit;
@@ -1362,7 +1432,7 @@ checkquote(tname, s)
 	char	*tname;
 	char	*s;
 {
-static			char	out[TBUF];
+static			char	out[5*TBUF];
 			char	nm[16];
 			int	i;
 	register	Uchar	c;
@@ -1393,9 +1463,28 @@ static			char	out[TBUF];
 
 	for (; (c = *ep++) && c != ':'; *bp++ = c) {
 		if (c == '^') {
-			c = *ep++ & 0x1F;
+			c = *ep++;
+			if (c == '\0') {
+				printf(
+				"# NOTICE(%s). ^ quoting followed by no character in '%s'\n",
+							tname, s);
+				if (!out_tty)
+				error("NOTICE(%s). ^ quoting followed by no character in '%s'\n",
+							tname, s);
+				break;
+			}
+			c &= 0x1F;
 		} else if (c == '\\') {
 			c = *ep++;
+			if (c == '\0') {
+				printf(
+				"# NOTICE(%s). \\ quoting followed by no character in '%s'\n",
+							tname, s);
+				if (!out_tty)
+				error("NOTICE(%s). \\ quoting followed by no character in '%s'\n",
+							tname, s);
+				break;
+			}
 			if (isoctal(c)) {
 				for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
 					c <<= 3;
@@ -1472,7 +1561,7 @@ LOCAL char *
 quote(s)
 	char	*s;
 {
-static	char	out[TBUF];
+static	char	out[10*TBUF];
 	char	*p1;
 	char	*p2;
 	unsigned char	c;
@@ -1551,7 +1640,7 @@ LOCAL char *
 requote(s)
 	char	*s;
 {
-	char	buf[TBUF];
+	char	buf[5*TBUF];
 	char	*bp = buf;
 
 	tdecode(s, &bp);
@@ -1564,8 +1653,8 @@ compile_ent(tname, do_tc, obsolete_last)
 	BOOL	do_tc;
 	BOOL	obsolete_last;
 {
-	char	unknown[TBUF];	/* Buffer fuer "unknown" Entries */
-	char	disabled[TBUF];	/* Buffer fuer :..xx: Entries */
+	char	unknown[5*TBUF];	/* Buffer fuer "unknown" Entries */
+	char	disabled[5*TBUF];	/* Buffer fuer :..xx: Entries */
 
 	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE|TCF_NO_STRIP);
 	if (tgetent(NULL, tname) != 1)
@@ -1630,6 +1719,7 @@ read_names(fname, do_tc, obsolete_last)
 				close(tfd);
 				error("Found %d terminal entries.\n", nents);
 				error("TBuf size %d.\n", tbufsize);
+				free(tbuf);
 				return;
 			}
 			rbuf = rdbuf;

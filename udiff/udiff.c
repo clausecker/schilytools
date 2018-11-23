@@ -1,13 +1,13 @@
-/* @(#)udiff.c	1.28 11/08/13 Copyright 1985-2011 J. Schilling */
+/* @(#)udiff.c	1.29 18/11/17 Copyright 1985-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.28 11/08/13 Copyright 1985-2011 J. Schilling";
+	"@(#)udiff.c	1.29 18/11/17 Copyright 1985-2018 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
  *
- *	Copyright (c) 1985-2011 J. Schilling
+ *	Copyright (c) 1985-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,7 +41,7 @@ static	UConst char sccsid[] =
  *	in the 64 bit inode # range on ZFS.
  *
  *	If the code currently uses "long" for line numbers, which is sufficient
- *	It would be possible to have real large file mode in case that diff is
+ *	It would be possible to have real large file mode in case that udiff is
  *	compiled in 64 bit mode.
  *	In 32 bit mode, there is no need to check for an integer overflow
  *	as the process will run "out of memory" before.
@@ -49,7 +49,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
-#include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
+#include <schily/unistd.h>	/* Include sys/types.h, makes off_t available */
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/stat.h>
@@ -86,7 +86,8 @@ LOCAL	const char *filename	__PR((const char *name));
 LOCAL	off_t	readcommon	__PR((FILE *ofp, char *oname,
 				    FILE *nfp, char *nname));
 LOCAL	long	readfile	__PR((FILE *f, char *fname, line **hline));
-LOCAL	void	addline		__PR((char *s, off_t loff, long lc, line *hline));
+LOCAL	void	addline		__PR((char *s, off_t loff, long lc,
+				    line *hline));
 LOCAL	long	hash		__PR((char *s));
 LOCAL	BOOL	linecmp		__PR((line *olp, line *nlp));
 LOCAL	int	diff		__PR((void));
@@ -100,7 +101,7 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	error("Usage:	diff [options] file1 file2\n");
+	error("Usage:	udiff [options] file1 file2\n");
 	error("	-help	Print this help.\n");
 	error("	-version Print version number.\n");
 	error("	-posix	Print diffs in POSIX mode.\n");
@@ -117,7 +118,7 @@ main(ac, av)
 {
 	char	*options = "posix,nmatch#,help,version";
 	BOOL	help = FALSE;
-	BOOL prversion = FALSE;
+	BOOL	prversion = FALSE;
 	int	ret = 0;
 	int	fac;
 	char	* const *fav;
@@ -145,8 +146,8 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	if (prversion) {
-		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2011 Jörg Schilling\n",
-				"1.28",
+		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2018 Jörg Schilling\n",
+				"1.29", "2018/11/17",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

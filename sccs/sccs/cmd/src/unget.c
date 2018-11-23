@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)unget.c	1.29 18/04/29 J. Schilling
+ * @(#)unget.c	1.32 18/11/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.29 18/04/29 J. Schilling"
+#pragma ident "@(#)unget.c 1.32 18/11/20 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -76,6 +76,7 @@ static struct packet	gpkt;
 static struct sid	sid;
 static struct utsname 	un;
 static char *uuname;
+static Nparms	N;			/* Keep -N parameters		*/
 
 	int	main	__PR((int argc, char **argv));
 static void	unget	__PR((char *file));
@@ -148,7 +149,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-			c = getopt(argc, argv, "-r:snV(version)");
+			c = getopt(argc, argv, "()-r:snN:V(version)");
 
 				/*
 				 * This takes care of options given after
@@ -195,6 +196,15 @@ char *argv[];
 				}
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[i+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf("unget %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -204,7 +214,7 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: unget [-ns][-r SID] file.."));
+				fatal(gettext("Usage: unget [-ns][-r SID][-N[bulk-spec]] s.filename ..."));
 			}
 
 			if (testmore) {
@@ -236,6 +246,9 @@ char *argv[];
 
 	if (num_files == 0)
 		fatal(gettext("missing file arg (cm3)"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 
 	/*
 	 *	If envoked as "sact", set flag
@@ -246,11 +259,15 @@ char *argv[];
 	}
 
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i = 1; i < argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, unget, 1, 1);
+			do_file(p, unget, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -266,6 +283,22 @@ char *file;
 
 	if (setjmp(Fjmp))
 		return;
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
+			sid.s_rel = N.n_sid.s_rel;
+			sid.s_lev = N.n_sid.s_lev;
+			sid.s_br  = N.n_sid.s_br;
+			sid.s_seq = N.n_sid.s_seq;
+		}
+	}
 
 	/*
 	 * Initialize packet, but do not open SCCS file.

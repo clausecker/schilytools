@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.44 18/10/14 Copyright 1986-2018 J. Schilling */
+/* @(#)tgetent.c	1.47 18/11/21 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.44 18/10/14 Copyright 1986-2018 J. Schilling";
+	"@(#)tgetent.c	1.47 18/11/21 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -615,7 +615,8 @@ tgetstr(ent, array)
 	char	*array[];
 {
 	register	char	*ep = tbuf;
-			char	*np;
+			char	*np = NULL;
+			char	*ap = NULL;
 			char	buf[TMAX];
 
 	if (tbuf == NULL)
@@ -630,11 +631,20 @@ tgetstr(ent, array)
 		if (!ep || *ep == '@')
 			return ((char *)NULL);
 		if (*ep == '=') {
+			if (np && strlen(ep) >= sizeof (buf)) {
+				ap = np = tmalloc(strlen(ep));
+				if (np == NULL)
+					return (np);
+				array = &np;
+			}
 			ep = tdecode(++ep, array);
-			if (ep == buf) {
+			if (ep && np) {
+				np = ep;
 				ep = tmalloc(strlen(ep)+1);
 				if (ep != NULL)
-					strcpy(ep, buf);
+					strcpy(ep, np);
+				if (ap)
+					free(ap);
 			}
 			return (ep);
 		}
@@ -665,10 +675,13 @@ tdecode(pp, array)
 
 	for (; (c = *ep++) && c != ':'; *bp++ = c) {
 		if (c == '^') {
-			if (*ep == '?')
-				c = *ep++ | 0x40;
+			c = *ep++;
+			if (c == '\0')
+				break;
+			else if (c == '?')
+				c |= 0x40;
 			else
-				c = *ep++ & 0x1f;
+				c &= 0x1f;
 			continue;
 		} else if (c != '\\') {
 			continue;

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.48 18/03/15 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-admin.1	1.49 18/11/08 Copyright 2007-2018 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2018/03/15" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2018/11/08" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -812,7 +812,13 @@ implementations.
 .br
 .ne 3
 .TP
+.PD 0
 .B \-V
+.TP
+.B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B admin
 version number string and exists.

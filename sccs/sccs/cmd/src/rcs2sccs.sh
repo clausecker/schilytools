@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)rcs2sccs.sh	1.18 18/04/04 Copyright 2011 J. Schilling
+# @(#)rcs2sccs.sh	1.19 18/11/08 Copyright 2011-2018 J. Schilling
 #
 #
 # Id: rcs2sccs,v 1.12 90/10/04 20:52:23 kenc Exp Locker: kenc
@@ -27,7 +27,7 @@ while [ $# -ge 1 ]; do
 		do_rm=TRUE
 		shift
 		continue;;
-	-V)
+	-V | -version | --version)
 		echo "$0 PROVIDER-SCCS version VERSION VDATE (HOST_SUB)"
 		exit 0
 		;;

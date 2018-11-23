@@ -1,4 +1,4 @@
-/* @(#)format.c	1.72 18/09/10 Copyright 1985-2018 J. Schilling */
+/* @(#)format.c	1.73 18/11/21 Copyright 1985-2018 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -153,6 +153,7 @@ typedef struct f_args {
 	char	fillc;			/* Left fill char (' ' or '0')	*/
 	char	*prefix;		/* Prefix to print before buf	*/
 	int	prefixlen;		/* Len of prefix ('+','-','0x')	*/
+	ssize_t	maxlen;
 #ifdef	FORMAT_BUFFER
 					/* rarely used members last:	*/
 	char	iobuf[BFSIZ];		/* buffer for stdio		*/
@@ -250,9 +251,11 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 #endif
 {
 #ifdef	FORMAT_LOW_MEM
-	char buf[512];
+#define	FORMAT_BSIZE	512
+	char buf[512+1];
 #else
-	char buf[8192];
+#define	FORMAT_BSIZE	8192
+	char buf[8192+1];
 #endif
 	const char *sfmt;
 	register int unsflag;
@@ -328,6 +331,7 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 		fa.lzero = 0;
 		fa.fillc = ' ';
 		fa.prefixlen = 0;
+		fa.maxlen = -1;
 		sfmt = fmt;
 		unsflag = FALSE;
 		type = '\0';
@@ -1272,7 +1276,10 @@ prbuf(s, fa)
 	register int count;
 	register int lzero = 0;
 
-	count = strlen(s);
+	if (fa->maxlen < 0)
+		count = strlen(s);
+	else
+		count = fa->maxlen;
 
 	/*
 	 * lzero becomes the number of left fill chars needed to reach signific
@@ -1302,8 +1309,18 @@ prbuf(s, fa)
 		while (--lzero >= 0)
 			ofun(rfillc, arg);
 	}
-	while (*s != '\0')
-		ofun(*s++, arg);
+	if (fa->maxlen < 0) {
+		while (*s != '\0')
+			ofun(*s++, arg);
+	} else {
+		register	size_t	len = fa->maxlen;
+
+		if (len > 0) {
+			len++;
+			while (--len > 0)
+				ofun(*s++, arg);
+		}
+	}
 	if (fa->minusflag) {
 		rfillc = ' ';
 		while (--diff >= 0)
@@ -1366,23 +1383,14 @@ prstring(s, fa)
 	register const char	*s;
 	f_args *fa;
 {
-	register char	*bp;
-	register int	signific;
-
 	if (s == NULL)
 		return (prbuf("(NULL POINTER)", fa));
 
 	if (fa->signific < 0)
 		return (prbuf(s, fa));
 
-	bp = fa->buf;
-	signific = fa->signific;
-
-	while (--signific >= 0 && *s != '\0')
-		*bp++ = *s++;
-	*bp = '\0';
-
-	return (prbuf(fa->buf, fa));
+	fa->maxlen = strnlen(s, fa->signific);
+	return (prbuf(s, fa));
 }
 
 #ifdef	DEBUG
