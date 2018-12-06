@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)unget.c	1.32 18/11/20 J. Schilling
+ * @(#)unget.c	1.34 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.32 18/11/20 J. Schilling"
+#pragma ident "@(#)unget.c 1.34 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -206,7 +206,9 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("unget %s-SCCS version %s %s (%s-%s-%s)\n",
+				p = sname(argv[0]);
+				printf("%s %s-SCCS version %s %s (%s-%s-%s)\n",
+					p,
 					PROVIDER,
 					VERSION,
 					VDATE,
@@ -214,7 +216,11 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: unget [-ns][-r SID][-N[bulk-spec]] s.filename ..."));
+				p = sname(argv[0]);
+				if (equal(p,"sact"))
+					fatal(gettext("Usage: sact [-s][-N[bulk-spec]] s.filename ..."));
+				else
+					fatal(gettext("Usage: unget [-ns][-r SID][-N[bulk-spec]] s.filename ..."));
 			}
 
 			if (testmore) {
@@ -246,8 +252,14 @@ char *argv[];
 
 	if (num_files == 0)
 		fatal(gettext("missing file arg (cm3)"));
+
+	setsig();
+	xsethome(NULL);
 	if (HADUCN) {					/* Parse -N args  */
 		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
 	}
 
 	/*
@@ -257,11 +269,6 @@ char *argv[];
 	if (equal(sname(argv[0]), NOGETTEXT("sact"))) {
 		cmd = 1;
 	}
-
-	setsig();
-	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;

@@ -1,4 +1,8 @@
-h46873
+h15984
+s 00011/00000/00042
+d D 1.4 18/11/27 22:02:39 joerg 4 3
+c Neue Tests fuer -Xprepend
+e
 s 00004/00000/00038
 d D 1.3 16/08/18 22:20:29 joerg 3 2
 c touch -t fuer gtouch
@@ -82,6 +86,19 @@ else
 	fail "SCCS delta -o unsupported"
 fi
 
+I 4
+rm $s
+${admin} -n $s
+${get} -e $s 2>/dev/null > /dev/null
+echo "123 %M%" > $g
+docommand de10 "${delta} -Xprepend -ySomeComment $s" 0 IGNORE IGNORE
+docommand de11 "${get} -p $s" 0 "123 foo\n" IGNORE
+${get} -e $s 2>/dev/null > /dev/null
+echo "000" > $g
+docommand de12 "${delta} -Xprepend -ySomeComment $s" 0 IGNORE IGNORE
+docommand de13 "${get} -p $s" 0 "000\n123 foo\n" IGNORE
+
+E 4
 remove $z $s $p $g $output $error
 success
 E 1

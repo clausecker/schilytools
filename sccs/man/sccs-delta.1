@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.45 18/11/21 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-delta.1	1.48 18/12/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2018/11/21" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -296,7 +296,7 @@ when applying the delta.
 In NSE mode this is the default behavior.
 .sp
 This option is a
-.B SCHILY
+.B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
@@ -356,6 +356,12 @@ By default, the
 is searched for in the current directory (independent from
 the location of the 
 .BI s. file\fR.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .br
 .ne 3
@@ -371,6 +377,12 @@ on the previous file content and the current file content,
 but read the
 .I diff-file
 instead.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .sp
 .ne 3
@@ -405,6 +417,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -416,6 +431,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -473,7 +491,7 @@ Specify extended options. The argument
 may be a comma separated list of extended option names.
 .sp
 The following extended options are supported, they may be abbreviated as long
-ad the abbreviation is still unique:
+as the abbreviation is still unique:
 .sp
 .RS
 .TP
@@ -513,6 +531,12 @@ implementations.
 Prints the
 .B delta
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SH ENVIRONMENT VARIABLES
 .sp

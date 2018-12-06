@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prs.1	1.28 18/11/21 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-prs.1	1.31 18/12/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2018/11/21" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -281,6 +281,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -292,6 +295,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -353,6 +359,12 @@ implementations.
 Prints the
 .B prs
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SH USAGE
 
@@ -425,6 +437,8 @@ T}D\fB:Dn:/:Dx:/:Dg:\fRS
 \fB:FD:\fRfile descriptive textC\fItext\fRM
 \fB:FL:\fRflag listF\fItext\fRM
 \fB:GB:\fRgotten bodyB\fItext\fRM
+\fB:Gp:\fRinitial pathG\fItext\fRS
+\fB:Gr:\fRunified randomG\fItext\fRS
 \fB:I:\fRSCCS delta ID (SID)D\fB:R:.:L:.:B:.:S:\fRS
 \fB:J:\fRjoint edit flagF\fByes\fR or \fBno\fRS
 \fB:KF:\fRkeyword error/warning flagF\fByes\fR or \fBno\fRS
@@ -456,9 +470,9 @@ T}D\fB:Dn:/:Dx:/:Dg:\fRS
 .TE
 
 .LP
-	*B = body, D = delta table, F = flags, U = user names 	
+*B = body, D = delta table, F = flags, G = gl. metadata, U = user names
 .LP
-	**S = simple format, M = multi-line format
+**S = simple format, M = multi-line format
 .sp
 
 .SH EXAMPLES

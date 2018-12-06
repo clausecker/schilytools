@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)val.c	1.55 18/11/22 J. Schilling
+ * @(#)val.c	1.58 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.55 18/11/22 J. Schilling"
+#pragma ident "@(#)val.c 1.58 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -389,13 +389,13 @@ char	*argv[];
 	}
 	line_sw = 1;		/* print command line flag */
 
+	xsethome(NULL);
 	if (HADUCN) {					/* Parse -N args  */
 		parseN(&N);
-	}
 
-	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+	}
 
 	/*
 	loop through 'validate' for each file on command line.
@@ -649,6 +649,7 @@ char	*c_name;
 				;
 		}
 	sclose(&gpkt);		/* close file pointer */
+	sfree(&gpkt);		/* free line pointer */
 	get_close();		/* for SID checksums */
 	}
 	/* return to 'process' function */
@@ -676,7 +677,9 @@ struct packet *pkt;
 		del_ab(&lp[-2], &dt, pkt);	/* We are called with &lp[2] */
 
 		if (dt.d_dtime.dt_sec != 0 && odt.d_dtime.dt_sec != 0 &&
-		    dt.d_dtime.dt_sec > odt.d_dtime.dt_sec) {
+		    (dt.d_dtime.dt_sec > odt.d_dtime.dt_sec) ||
+		    ((dt.d_dtime.dt_sec == odt.d_dtime.dt_sec) &&
+		    (dt.d_dtime.dt_nsec > odt.d_dtime.dt_nsec))) {
 			sid_ba(&dt.d_sid, str);
 			sid_ba(&odt.d_sid, ostr);
 			printf(gettext(
@@ -1358,10 +1361,8 @@ get_setup(file)
 LOCAL void
 get_close()
 {
-	if (pk2.p_iop) {
-		fclose(pk2.p_iop);
-		pk2.p_iop = NULL;
-	}
+	sclose(&pk2);
+	sfree(&pk2);
 	xrm(&gpkt);
 	ffreeall();
 }

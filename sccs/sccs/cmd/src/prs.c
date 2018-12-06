@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prs.c	1.53 18/11/20 J. Schilling
+ * @(#)prs.c	1.57 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.53 18/11/20 J. Schilling"
+#pragma ident "@(#)prs.c 1.57 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -334,8 +334,14 @@ char *argv[];
 	if (!HADD)
 		HADD = 1;
 	*/
+
+	setsig();
+	xsethome(NULL);
 	if (HADUCN) {					/* Parse -N args  */
 		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
 	}
 
 	/*
@@ -343,11 +349,6 @@ char *argv[];
 	need be created
 	*/
 	ck_spec(dataspec);
-
-	setsig();
-	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -434,6 +435,8 @@ register	char	*file;
 	 * XXX In order to be able to print this data, we need to
 	 * XXX parse this block instead of just skipping it.
 	 */
+	donamedflags(&gpkt);
+	dometa(&gpkt);
 	if (gpkt.p_line != NULL &&
 	    gpkt.p_line[0] == CTLCHAR && gpkt.p_line[1] != BUSERTXT)
 		read_to(BUSERTXT, &gpkt);
@@ -953,18 +956,16 @@ struct	stats	*statp;
 				k += 3;
 				printf("%s", k);
 				break;
-#ifdef	FUTURE
-			case 256*'p'+'6':	/* :6p: V6 Initial Path */
+			case 256*'p'+'G':	/* :Gp: V6 Initial Path */
 				if (gpkt.p_init_path)
 					printf("%s", gpkt.p_init_path);
 				break;
-			case 256*'r'+'6': {	/* :6r: V6 Unified Random */
+			case 256*'r'+'G': {	/* :Gr: V6 Unified Random */
 				char	rbuf[64];
 				urand_ba(&gpkt.p_rand, rbuf, sizeof (rbuf));
 				printf("%s", rbuf);
 				break;
 				}
-#endif
 			default:
 				putchar(':');
 				lp -= 2;
@@ -1025,10 +1026,8 @@ struct	stats	*statp;
 static void
 clean_up()
 {
-	if (gpkt.p_iop) {	/* if SCCS file is open, close it */
-		fclose(gpkt.p_iop);
-		gpkt.p_iop = NULL;
-	}
+	sclose(&gpkt);	/* if SCCS file is open, close it */
+	sfree(&gpkt);	/* free line buffer			*/
 	xrm(&gpkt);	/* remove the 'packet' used for this SCCS file */
 	unlink(mrtmp);	/* remove all temporary files from /tmp */
 	unlink(cmtmp);	/*			"		*/

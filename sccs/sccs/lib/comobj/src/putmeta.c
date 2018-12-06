@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)putmeta.c	1.4 16/06/17 Copyright 2011-2016 J. Schilling
+ * @(#)putmeta.c	1.6 18/12/04 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putmeta.c	1.4 16/06/17 Copyright 2011-2016 J. Schilling"
+#pragma ident "@(#)putmeta.c	1.6 18/12/04 Copyright 2011-2018 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -23,18 +23,14 @@
 #include	<defines.h>
 
 void
-putmeta(pkt)
+putmeta(pkt, flags)
 	register struct packet	*pkt;
+		unsigned int	flags;
 {
 	char	line[max(8192, PATH_MAX+1)];
 	char	urbuf[20];
 
-	if (pkt->p_init_path) {
-		snprintf(line, sizeof (line), "%c%c %s %s\n",
-			CTLCHAR, GLOBALEXTENS, "p",
-			pkt->p_init_path);
-		putline(pkt, line);
-	}
+	if (flags & M_URAND)
 #ifdef	HAVE_LONG_LONG
 	if (pkt->p_rand != 0) {
 #else
@@ -43,6 +39,18 @@ putmeta(pkt)
 		urand_ba(&pkt->p_rand, urbuf, sizeof (urbuf));
 		snprintf(line, sizeof (line), "%c%c %s %s\n",
 			CTLCHAR, GLOBALEXTENS, "r", urbuf);
+		putline(pkt, line);
+	}
+
+	/*
+	 * We place this after urand because init_path is most likely to be
+	 * added later and thus will appear past urand in such a case anyway.
+	 * This way, we can better avoid disordered meta data.
+	 */
+	if (pkt->p_init_path && (flags & M_INIT_PATH)) {
+		snprintf(line, sizeof (line), "%c%c %s %s\n",
+			CTLCHAR, GLOBALEXTENS, "p",
+			pkt->p_init_path);
 		putline(pkt, line);
 	}
 }

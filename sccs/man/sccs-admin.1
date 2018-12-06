@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.49 18/11/08 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-admin.1	1.53 18/12/03 Copyright 2007-2018 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2018/11/08" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -430,7 +430,7 @@ is set to an empty string, the
 message will not be created even though no keyword was expanded.
 .sp
 This flag is a
-.BR \s-1SUN\s+1 / SCHILY
+.BR \s-1SUN\s+1 / \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs 
 implementations.
@@ -487,8 +487,12 @@ option altogether creates an empty
 You can only initialize one
 .BR s. file
 with text using
-.BR \-i .
-This option implies the
+.B \-i
+unless you use the bulk option
+.BR \-N .
+The
+.B \-i
+option implies the
 .B \-n
 option.
 .sp
@@ -496,7 +500,10 @@ If you like to initialize more than one
 .BR s. file
 in one call, use the
 .B \-N
-option.
+option and specify
+.B \-i.
+.RB ( \-i
+followed by a dot).
 
 .br
 .ne 3
@@ -616,6 +623,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -627,6 +637,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -812,6 +825,60 @@ implementations.
 .br
 .ne 3
 .TP
+.BI \-X extended\-options
+Specify extended options. The argument
+.I extended\-options
+may be a comma separated list of extended option names.
+.sp
+The following extended options are supported, they may be abbreviated as long
+ad the abbreviation is still unique. Options with parameter may not be
+abbreviated.
+.sp
+.RS
+.TP
+.BI Gp= initial_path
+Set the
+.I initial path
+meta data in the history file.
+If specified with an empty argument, no
+.I initial path
+meta data will appear in the history file.
+This option exists in order to permit
+.BR comb (1)
+to reatain the
+.I initial path
+from the original file.
+If this option was specified, only one file type argiment is permitted.
+.TP
+.BI Gr= urand
+Set the
+.I unified random
+meta data in the history file.
+If specified with an empty argument, no
+.I unified random
+meta data will appear in the history file.
+This option exists in order to permit
+.BR comb (1)
+to reatain the
+.I unified random
+from the original file.
+If this option was specified, only one file type argiment is permitted.
+.TP
+.B help
+Print a short online help for available options.
+.PP
+The
+.B \-X
+option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
+
+.br
+.ne 3
+.TP
 .PD 0
 .B \-V
 .TP
@@ -822,6 +889,12 @@ implementations.
 Prints the
 .B admin
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 .sp
 .ne 3
 .TP
@@ -841,6 +914,12 @@ history files are not understood by historic SCCS implementations.
 See
 .BR sccsfile (4)
 for more information on the new features.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 .sp
 .ne 3
 .TP
@@ -940,7 +1019,7 @@ and the SCCS history files will be put into SCCS sub directories:
 .nf
 example% \c
 .B
-find usr/src -type f | sccs admin -NSCCS
+find usr/src -type f | sccs admin -NSCCS -i.
 .fi
 .in -2
 .sp
@@ -965,7 +1044,7 @@ has been successfully put under SCCS control:
 .nf
 example% \c
 .B
-find usr/src -type f | sccs admin -N,SCCS
+find usr/src -type f | sccs admin -N,SCCS -i.
 .fi
 .in -2
 .sp
@@ -983,7 +1062,7 @@ under SCCS and the SCCS history files will be put into the SCCS sub directory:
 .nf
 example% \c
 .B
-sccs admin -NSCCS .
+sccs admin -NSCCS -i. .
 .fi
 .in -2
 .sp

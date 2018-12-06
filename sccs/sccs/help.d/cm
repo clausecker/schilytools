@@ -20,7 +20,7 @@
 *
 * Copyright 2006-2018 J. Schilling
 *
-* @(#)cm	1.7 18/11/07 J. Schilling
+* @(#)cm	1.8 18/11/27 J. Schilling
 *
 * @(#)cm 1.2 06/12/12
 *
@@ -123,3 +123,6 @@ Check directory permissions.
 -17
 "not in tree"
 The path name is not inside the tree below the change set home directory.
+-18
+"too many file args"
+The command or operation does not support more than one argument.

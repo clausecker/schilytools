@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-sact.1	1.20 18/11/08 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-sact.1	1.23 18/12/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-sact 1 "2018/11/08" "SunOS 5.11" "User Commands"
+.TH sccs-sact 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sact, sact \- show editing activity status of an SCCS file
 .SH SYNOPSIS
@@ -39,6 +39,8 @@ sccs-sact, sact \- show editing activity status of an SCCS file
 .nf
 .B "/usr/ccs/bin/sact \c
 .RB [ \-s "] \c
+.RB "[" -N\c
+.IR bulk-spec "] \c
 .IR s.filename...
 .fi
 
@@ -112,6 +114,100 @@ per line.
 .B \-s
 Suppresses the error message when a file is not currently edited.
 
+.sp
+.ne 3
+.TP
+.BI -N bulk-spec
+Processes a bulk of SCCS history files.
+This option allows to do an efficient mass processing of SCCS history files.
+.sp
+The
+.I bulk-spec
+parameter is composed from an optional list of
+.B flag
+parameters followed by an optional
+.B path
+specifier.
+.sp
+.ne 4
+The following flag types are supported:
+.RS
+.TP 10
+.B none
+.LP
+.ne 4
+The following path specifier types are supported:
+.TP 10
+.B \-N
+The file name parameters to the
+.B sccslog
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are automatically derived from the g-file names by prepending
+.B s.
+to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
+.TP
+.B \-Ns.
+The file name parameters to the
+.B sccslog
+command are
+.I s.filename
+files.
+The the g-files names are automatically derived by removing
+.B s.
+from the beginning of last path name component of the
+.IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
+.TP
+.BI \-N dir
+The file name parameters to the
+.B sccslog
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are put into directory
+.IR dir ,
+the names are automatically derived from the g-file names by prepending
+.IB dir /s.
+to the last path name component.
+.TP
+.BI \-N dir /s.
+The file name parameters to the
+.B sccslog
+command are
+.I s.filename
+files in directory
+.IR dir .
+The the g-files names are automatically derived by removing
+.IB dir /s.
+from the beginning of last path name component of the
+.IR s.filename.
+.PP
+A typical value for
+.I dir
+is
+.BR SCCS .
+.PP
+In order to overcome the limited number of
+.BR exec (2)
+arguments, it is recommended to use
+.RB ` \(mi \&'
+as the file name parameter for
+.BR sccslog (1)
+and to send a list of path names to
+.BR stdin .
+.RE
+
 .br
 .ne 2
 .TP
@@ -125,6 +221,12 @@ Suppresses the error message when a file is not currently edited.
 Prints the
 .B sact
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SH ENVIRONMENT VARIABLES
 .sp

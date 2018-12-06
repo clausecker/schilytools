@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# gentest @(#)gentest.sh	1.10 17/06/15 Copyright 2015-2017 J. Schilling
+# gentest @(#)gentest.sh	1.11 18/11/27 Copyright 2015-2017 J. Schilling
 #
 # Usage: gentest	---> runs 1000 test loops
 #	 gentest #	---> runs # test loops
@@ -13,6 +13,8 @@
 # The diff type is random, this allows to check the quality of the automated
 # diff type recognition.
 #
+
+[ "$NO_RANDOM" = TRUE ] && exit
 
 : ${AWK=/usr/bin/nawk}
 #$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk

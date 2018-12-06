@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.97 18/10/24 Copyright 2001-2018 J. Schilling */
+/* @(#)xheader.c	1.98 18/11/28 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.97 18/10/24 Copyright 2001-2018 J. Schilling";
+	"@(#)xheader.c	1.98 18/11/28 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -152,8 +152,7 @@ LOCAL	Uchar	dtab[] = "0123456789";
 					(val) = (val) / (unsigned)10;	      \
 				} while ((val) > 0)
 
-#define	scopy(to, from)		while ((*(to)++ = *(from)++) != '\0')	\
-					;
+#define	scopy(to, from)		while ((*(to)++ = *(from)++) != '\0')
 
 
 LOCAL	char	*xbuf;	/* Space used to prepare I/O from/to extended headers */

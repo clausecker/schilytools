@@ -1,8 +1,8 @@
-/* @(#)hole.c	1.66 18/10/23 Copyright 1993-2018 J. Schilling */
+/* @(#)hole.c	1.67 18/11/28 Copyright 1993-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.66 18/10/23 Copyright 1993-2018 J. Schilling";
+	"@(#)hole.c	1.67 18/11/28 Copyright 1993-2018 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
@@ -1196,6 +1196,7 @@ put_sparse(fp, info)
 			 * region of at least TBLOCK size.
 			 */
 			put_file(fp, info);
+			free(sparse);
 			return;
 		} else if (!silent) {
 			error("Treating '%s' as sparse\n", info->f_name);

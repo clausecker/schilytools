@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)dodelt.c	1.24 18/03/15 J. Schilling
+ * @(#)dodelt.c	1.25 18/11/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.24 18/03/15 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.25 18/11/28 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -66,12 +66,14 @@ char type;
 	int	lhash;
 	register char *p;
 	time_t	TN;
+	int	Tns;
 
 	pkt->p_idel = 0;
 	founddel = 0;
 
 	dtime(&Timenow);
 	TN = Timenow.dt_sec;
+	Tns = Timenow.dt_nsec;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	TN += Timenow.dt_zone;
 #else
@@ -82,7 +84,9 @@ char type;
 	lhash = pkt->p_clhash;
 	while (getadel(pkt,&dt) == BDELTAB) {
 		if (pkt->p_idel == 0) {
-			if (TN < dt.d_dtime.dt_sec)
+			if ((TN < dt.d_dtime.dt_sec) ||
+			    ((TN == dt.d_dtime.dt_sec) &&
+			    (Tns < dt.d_dtime.dt_nsec)))
 				fprintf(stderr,gettext("Time stamp later than current clock time (co10)\n"));
 			pkt->p_idel = (struct idel *)
 					fmalloc((unsigned) (n=((dt.d_serial+1)*

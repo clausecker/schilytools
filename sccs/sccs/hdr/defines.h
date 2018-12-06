@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)defines.h	1.101 18/11/22 J. Schilling
+ * @(#)defines.h	1.108 18/12/04 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.101 18/11/22 J. Schilling"
+#pragma ident "@(#)defines.h 1.108 18/12/04 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -265,6 +265,13 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 # define SCCS_CREAT_ATTEMPTS	4	/* maximum number of create attempts  */
 
 /*
+ * The second argument for the putmeta() function:
+ */
+#define	M_INIT_PATH		1
+#define	M_URAND			2
+#define	M_ALL			0xffffffff
+
+/*
  * The third argument for the function flushto() controls whether the data
  * is only read or whether is is copied. FLUSH_COPY copies all lines including
  * the matching final line. FLUSH_COPY_UNTIL does not copy the matching final
@@ -387,7 +394,34 @@ typedef struct Nparms {
 	char	*n_dir_name;		/* directory for -N		*/
 	struct sid	n_sid;		/* SID if n_get == 2		*/
 	struct timespec	n_mtime;	/* Timestamp for -i -o		*/
+	unsigned n_flags;		/* Various flags		*/
 } Nparms;
+
+/*
+ * Definitions for n_flags above
+ */
+#define	N_IFILE		0x0001		/* admin: -i has been specified  */
+#define	N_IDOT		0x0002		/* admin: -i. has been specified */
+#define	N_NFILE		0x0004		/* admin: -n has been specified  */
+#define	N_GETI		0x0008		/* get: -p has not been specified */
+
+/*
+ * Parameters for the -X option:
+ */
+typedef struct Xparms {
+	char	*x_parm;		/* -X argument			*/
+	char	*x_init_path;		/* -XGp Initial path		*/
+	urand_t	x_rand;			/* -XGr Unified random number	*/
+	unsigned x_opts;		/* Options seen			*/
+	unsigned x_flags;		/* Various flags		*/
+} Xparms;
+
+/*
+ * Definitions for x_opts / x_flags above
+ */
+#define	XO_PREPEND_FILE	0x01		/* Optimized mode for Changeset files */
+#define	XO_INIT_PATH	0x10		/* -XGp Initial path		*/
+#define	XO_URAND	0x20		/* -XGr Unified random number	*/
 
 
 struct	deltab {
@@ -623,6 +657,7 @@ extern	int	sethomestat;	/* sethome() status flags */
 extern	char	*auxf	__PR((char *, int));
 extern	void	sinit	__PR((struct packet *, char *, int));
 extern	void	sclose	__PR((struct packet *));
+extern	void	sfree	__PR((struct packet *));
 extern	char	*checkmagic __PR((struct packet *, char *));
 extern	void	setup	__PR((struct packet *, int));
 extern	void	finduser __PR((struct packet *));
@@ -653,6 +688,7 @@ extern	void	dolist	__PR((struct packet *, char *, int));
 extern	void	dohist	__PR((char *));
 extern	void	doie	__PR((struct packet *, char *, char *, char *));
 extern	void	doflags	__PR((struct packet *));
+extern	void	donamedflags	__PR((struct packet *));
 extern	void	dometa	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *,
 				struct stats *, struct sid *, int));
@@ -670,7 +706,7 @@ extern	void	putchr	__PR((struct packet *, int c));
 extern	void	putctl	__PR((struct packet *));
 extern	void	putctlnnl __PR((struct packet *));
 extern	void	putmagic __PR((struct packet *, char *));
-extern	void	putmeta	__PR((struct packet *));
+extern	void	putmeta	__PR((struct packet *, unsigned flags));
 extern	char	*logname	__PR((void));
 extern	char	*sccs_user	__PR((char *));
 extern	int	mystrptime __PR((char *, struct tm *, int));
@@ -721,12 +757,15 @@ extern	char *	getmodname __PR((void));
 extern	char *	urand_ab __PR((char *aurand, urand_t *urandp));
 extern	char *	urand_ba __PR((urand_t *urandp,
 					char *aurand, size_t aurandsize));
+extern	int	urand_valid __PR((urand_t *urandp));
 extern	void	change_ba __PR((struct packet *pkt,
 					char *cbuf, size_t cbuflen));
 extern	char *	change_ab __PR((char *cbuf, struct packet *pkt));
 extern	void	initN	__PR((Nparms *N));
+extern	void	freeN	__PR((Nparms *N));
 extern	void	parseN	__PR((Nparms *N));
 extern	char *	bulkprepare __PR((Nparms *N, char *afile));
+extern	int	parseX	__PR((Xparms *X));
 
 extern	int	opendirfd	__PR((const char *name));
 extern	int	closedirfd	__PR((int fd));
@@ -762,6 +801,7 @@ extern	char	*zero	__PR((char *, int));
 extern	void	*fmalloc __PR((unsigned));
 extern	void	ffree	__PR((void *));
 extern	void	ffreeall __PR((void));
+extern	void	*xmalloc __PR((size_t));
 extern	int	efatal	__PR((char *));
 extern	int	fatal	__PR((char *));
 extern	int	lockit	__PR((char *, int, pid_t, char *));

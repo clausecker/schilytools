@@ -2,8 +2,12 @@
 
 . ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
 
+#
+# This are the basic names for the utilities under test
+#
 admin=${dir-/usr/bin}/admin
 cdc=${dir-/usr/bin}/cdc
+comb=${dir-/usr/bin}/comb
 delta=${dir-/usr/bin}/delta
 get=${dir-/usr/bin}/get
 help=${dir-/usr/bin}/help
@@ -12,14 +16,20 @@ prt=${dir-/usr/bin}/prt
 rmdel=${dir-/usr/bin}/rmdel
 sact=${dir-/usr/bin}/sact
 sccs=${dir-/usr/bin}/sccs
+sccscvt=${dir-/usr/bin}/sccscvt
 sccsdiff=${dir-/usr/bin}/sccsdiff
 sccslog=${dir-/usr/bin}/sccslog
 unget=${dir-/usr/bin}/unget
 val=${dir-/usr/bin}/val
 what=${dir-/usr/bin}/what
 
+#
+# CSSC used these names for variants runing under valgrind.
+# Use e.g.: vg_admin="${VALGRIND} ${admin}"
+#
 vg_admin=${admin}
 vg_cdc=${cdc}
+vg_comb=${comb}
 vg_delta=${delta}
 vg_get=${get}
 vg_help=${help}
@@ -28,6 +38,7 @@ vg_prt=${prt}
 vg_rmdel=${rmdel}
 vg_sact=${sact}
 vg_sccs=${sccs}
+vg_sccscvt=${sccscvt}
 vg_sccsdiff=${sccsdiff}
 vg_sccslog=${sccslog}
 vg_unget=${unget}

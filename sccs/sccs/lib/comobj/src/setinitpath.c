@@ -10,23 +10,23 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)setinitpath.c	1.2 15/02/28 Copyright 2011-2015 J. Schilling
+ * @(#)setinitpath.c	1.4 18/12/04 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setinitpath.c 1.2 15/02/28 J. Schilling"
+#pragma ident "@(#)setinitpath.c 1.4 18/12/04 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)setinitpath.c"
 #pragma ident	"@(#)sccs:lib/comobj/setinitpath.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 EXPORT void
 set_init_path(pkt, file, dir)
 	register struct packet *pkt;
-	char	*file;
-	char	*dir;
+	char	*file;			/* The g-file name		    */
+	char	*dir;			/* chdir() part of path from "file" */
 {
 	char	line[max(8192, PATH_MAX+1)];
 
@@ -40,11 +40,13 @@ set_init_path(pkt, file, dir)
 	    !strstr(file, "/../")) {
 		char	*p;
 
+		if (dir == NULL)
+			dir = "";
 		snprintf(line, sizeof (line), "%s%s%s%s%s",
 		homedist > 0 ? cwdprefix:"",
 			homedist > 0 ? "/": "",
 			dir, *dir ? "/":"",
-			auxf(file, 'I'));
+			file);
 		p = fmalloc(size(line));
 		strcpy(p, line);
 		pkt->p_init_path = p;

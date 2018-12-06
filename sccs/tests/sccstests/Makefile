@@ -7,9 +7,9 @@ all-tests:      test-initial \
                 test-rmdel \
                 test-admin test-delta test-get test-prs test-prt \
 		test-random test-unget \
-                test-cdc test-sact test-val \
+                test-cdc test-comb test-sact test-val \
                 test-large test-sccsdiff test-binary test-sccs test-what \
-		test-help test-sccslog \
+		test-help test-sccscvt test-sccslog \
                 test-year-2000
 	echo Tests passed.
 
@@ -49,6 +49,9 @@ test-unget:
 test-cdc:
 	cd cdc && for i in *.sh; do echo Running test cdc/$$i; $(SHELL) $$i; done
 
+test-comb:
+	cd comb && for i in *.sh; do echo Running test comb/$$i; $(SHELL) $$i; done
+
 test-sact:
 	cd sact && for i in *.sh; do echo Running test sact/$$i; $(SHELL) $$i; done
 
@@ -57,6 +60,9 @@ test-val:
 
 test-large:
 	cd large && for i in *.sh; do echo Running test large/$$i; $(SHELL) $$i; done
+
+test-sccscvt:
+	cd sccscvt && for i in *.sh; do echo Running test sccscvt/$$i; $(SHELL) $$i; done
 
 test-sccsdiff:
 	cd sccsdiff && for i in *.sh; do echo Running test sccsdiff/$$i; $(SHELL) $$i; done

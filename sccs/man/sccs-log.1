@@ -1,4 +1,4 @@
-.\" @(#)sccs-log.1	1.24 18/11/20 Copyr 1997-2018 J. Schilling
+.\" @(#)sccs-log.1	1.26 18/12/03 Copyr 1997-2018 J. Schilling
 .\" Manual page for sccs-log
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-log 1 "2018/11/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-log 1 "2018/12/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-log, sccslog \- create changelog from SCCS history files
 .SH SYNOPSIS
@@ -39,6 +39,12 @@ creates a Changelog file from SCCS history files.
 .LP
 If a file argument refers to a directory, the directory is scanned
 for file names that start with ``s.'' and examines all these files.
+.LP
+This program is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 . \" .SH RETURNS
 . \" .SH ERRORS
 .SH OPTIONS
@@ -123,6 +129,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -134,6 +143,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -174,18 +186,16 @@ as the file name parameter for
 .BR sccslog (1)
 and to send a list of path names to
 .BR stdin .
-.PP
-This option is a
-.B \s-1SCHILY\s+1
-extension that does not exist in historic
-.B sccs
-implementations.
 .RE
 
 .TP
+.PD 0
 .B \-V
 .TP
 .B \-version
+.TP
+.B \-\-version
+.PD 0
 Prints the
 .B sccslog
 version number string and exists.

@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.20 18/11/20 Copyright 2011-2018 J. Schilling */
+/* @(#)sccscvt.c	1.23 18/12/04 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.20 18/11/20 Copyright 2011-2018 J. Schilling";
+	"@(#)sccscvt.c	1.23 18/12/04 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -210,6 +210,7 @@ convert(file)
 	struct stat sbuf;
 	char	hash[32];
 	char	*xf;
+	char	*dir_name = "";
 
 	/*
 	 * Set up exception handling for fatal().
@@ -225,6 +226,7 @@ convert(file)
 				ofile = N.n_ifile;
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
+		dir_name = N.n_dir_name;
 	}
 
 	if (!sccsfile(file)) {
@@ -255,10 +257,8 @@ convert(file)
 		if (gpkt.p_flags & PF_V6) {
 			errmsgno(EX_BAD, _("%s: already in SCCS v6 format.\n"),
 				file);
-			if (gpkt.p_iop) {
-				fclose(gpkt.p_iop);
-				gpkt.p_iop = NULL;
-			}
+			sclose(&gpkt);
+			sfree(&gpkt);
 			return;
 		}
 		gpkt.p_flags |= PF_V6;
@@ -266,10 +266,8 @@ convert(file)
 		if ((gpkt.p_flags & PF_V6) == 0) {
 			errmsgno(EX_BAD, _("%s: already in SCCS v4 format.\n"),
 				file);
-			if (gpkt.p_iop) {
-				fclose(gpkt.p_iop);
-				gpkt.p_iop = NULL;
-			}
+			sclose(&gpkt);
+			sfree(&gpkt);
 			return;
 		}
 		gpkt.p_flags &= ~PF_V6;	/* Make sure initial chksum is V4 */
@@ -287,6 +285,7 @@ convert(file)
 	/*
 	 * The main conversion work happens here.
 	 * Convert the delta table.
+	 * The conversion stops at BUSERNAM (the beginning of the user names).
 	 */
 	if (dov6)
 		cvtdelt2v6(&gpkt);
@@ -294,9 +293,74 @@ convert(file)
 		cvtdelt2v4(&gpkt);
 
 	/*
-	 * Copy user permissions, flags,
-	 * v6 flags, v6 extensions and
-	 * descriptive user text.
+	 * The next sections in the history file are:
+	 *
+	 * -	usernames	mandatory BUSERNAM .. EUSERNAM
+	 * -	v4 flags	optional
+	 * -	v6 flags	optional
+	 * -	v6 meta data	optional
+	 * -	future extens.	optional
+	 * -	comments	mandatory BUSERTXT .. EUSERTXT
+	 *
+	 * First copy user names...
+	 */
+	flushto(&gpkt, EUSERNAM, FLUSH_COPY);
+
+	/*
+	 * gpkt.p_line now points to EUSERNAM and this line has been written.
+	 *
+	 * Now copy SCCS v4 flags in case they are present.
+	 * Using the flag parser is a bit slower, but warns about unknown flags.
+	 */
+	doflags(&gpkt);
+
+	/*
+	 * gpkt.p_line now points to the first line past the SCCS v4 flags and
+	 * this line has not yet been written.
+	 *
+	 * Now copy SCCS v6 flags in case they are present.
+	 * Using the flag parser is a bit slower, but warns about unknown flags.
+	 */
+	donamedflags(&gpkt);
+
+	/*
+	 * gpkt.p_line now points to the first line past the SCCS v6 flags and
+	 * this line has not yet been written.
+	 *
+	 * Now copy SCCS v6 meta data extensions in case they are present.
+	 * Using the meta data parser is needed since we need to know whether
+	 * we already have SCCS v6 initial path and SCCS v6 unified random.
+	 */
+	dometa(&gpkt);
+
+	/*
+	 * gpkt.p_line now points to the first line past the SCCS v6 meta data
+	 * and this line has not yet been written.
+	 *
+	 * Check whether we need to add SCCS v6 initial path and SCCS v6 urand.
+	 */
+	if (dov6) {
+		unsigned	mflags = 0;
+
+		if (gpkt.p_init_path == NULL && N.n_parm) {
+			set_init_path(&gpkt, N.n_ifile, dir_name);
+			mflags |= M_INIT_PATH;
+		}
+		if (!urand_valid(&gpkt.p_rand)) {
+			urandom(&gpkt.p_rand);
+			mflags |= M_URAND;
+		}
+		if (mflags) {
+			putmeta(&gpkt, mflags);
+		}
+	}
+
+	/*
+	 * gpkt.p_line still points to the first line past the SCCS v6 meta data
+	 * and this line has still not yet been written.
+	 *
+	 * Copy user names, extensions and descriptive user text.
+	 * Before doing that, the unwritten line is flushed.
 	 */
 	flushto(&gpkt, EUSERTXT, FLUSH_COPY);
 
@@ -306,7 +370,7 @@ convert(file)
 	gpkt.p_chkeof = 1;		/* set EOF is ok */
 	while (getline(&gpkt))
 		;
-	putline(&gpkt, (char *)0);
+	putline(&gpkt, (char *)0);	/* flush final line */
 
 	/*
 	 * Write checksum.
@@ -351,6 +415,7 @@ LOCAL char	xcomment[] = { CTLCHAR, COMMENTS, '_', '\0' };	/* "^Ac_" */
 
 /*
  * Convert the delta table from a SCCS v6 history file to SCCS v4
+ * The conversion stops at BUSERNAM (the beginning of the user names).
  */
 LOCAL void
 cvtdelt2v4(pkt)
@@ -437,6 +502,7 @@ cvtdelt2v4(pkt)
 
 /*
  * Convert the delta table from a SCCS v4 history file to SCCS v6
+ * The conversion stops at BUSERNAM (the beginning of the user names).
  */
 LOCAL void
 cvtdelt2v6(pkt)
@@ -666,19 +732,15 @@ clean_up()
 	uname(&un);
 	uuname = un.nodename;
 	if (mylock(auxf(gpkt.p_file, 'z'), getpid(), uuname)) {
-		if (gpkt.p_iop) {
-			fclose(gpkt.p_iop);
-			gpkt.p_iop = NULL;
-		}
+		sclose(&gpkt);
+		sfree(&gpkt);
 		if (gpkt.p_xiop) {
 			fclose(gpkt.p_xiop);
 			gpkt.p_xiop = NULL;
 			unlink(auxf(gpkt.p_file, 'x'));
 		}
-		if (pk2.p_iop) {
-			fclose(pk2.p_iop);
-			pk2.p_iop = NULL;
-		}
+		sclose(&pk2);
+		sfree(&pk2);
 		xrm(&gpkt);
 		ffreeall();
 		unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);

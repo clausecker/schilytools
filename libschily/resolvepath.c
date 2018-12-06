@@ -1,9 +1,9 @@
-/* @(#)resolvepath.c	1.7 18/10/30 Copyright 2011-2015 J. Schilling */
+/* @(#)resolvepath.c	1.8 18/12/02 Copyright 2011-2018 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
  *
- *	Copyright (c) 2011-2015 J. Schilling
+ *	Copyright (c) 2011-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,6 +47,9 @@ LOCAL	int	shorten		__PR((char *path));
  * Warning: The Solaris system call "resolvepath()" does not null-terminate
  * the result in "buf". Code that used resolvepath() should manually
  * null-terminate the buffer.
+ *
+ * Warning: The Solaris system call "resolvepath()" works when "path" and "buf"
+ * are the same buffer but our implementation does not.
  *
  * Note: Path needs to exist.
  */

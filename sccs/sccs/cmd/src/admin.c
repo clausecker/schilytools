@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.108 18/11/08 J. Schilling
+ * @(#)admin.c	1.118 18/12/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.108 18/11/08 J. Schilling"
+#pragma ident "@(#)admin.c 1.118 18/12/05 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -106,6 +106,7 @@ static char	*tfile;			/* -t argument			*/
 static char	*dir_name;		/* directory for -N		*/
 static struct timespec	ifile_mtime;	/* Timestamp for -i -o		*/
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static char	*CMFAPPL;		/* CMF MODS			*/
 static char	*z;			/* for validation program name	*/
 static char	had_flag[NFLAGS];	/* -f seen list			*/
@@ -232,7 +233,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "()-i:t:m:y:d:f:r:nN:hzboqkw:a:e:V:(version)");
+		        c = getopt(argc, argv, "()-i:t:m:y:d:f:r:nN:hzboqkw:a:e:X:V:(version)");
 				/*
 				*  this takes care of options given after
 				*  file names.
@@ -261,8 +262,16 @@ char *argv[];
 				   ifile = "";
 				   break;
 				}
+				/*
+				 * Use -i. to tell admin to retrieve the ifile
+				 * name from the g-file name with -N
+				 * We cannot check for "." here as -N may have
+				 * been specified later on the cmd line.
+				 */
 				ifile = p;
-				if (*ifile && exists(ifile)) {
+				if (*ifile &&
+				    !(ifile[0] == '.' && ifile[1] == '\0') &&
+				    exists(ifile)) {
 				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 					direrror(ifile, c);
 				   } else {
@@ -521,6 +530,14 @@ char *argv[];
 				enames[esub++] = sccs_user(p);
 				break;
 
+			case 'X':
+				X.x_parm = optarg;
+				X.x_flags = XO_INIT_PATH|XO_URAND;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				if (optarg == argv[j+1]) {
 				doversion:
@@ -542,6 +559,7 @@ char *argv[];
 				}
 
 			default:
+			err:
 				/*
 				 * Check whether "-V" was last arg...
 				 */
@@ -550,7 +568,7 @@ char *argv[];
 				    argv[argc-1][1] == 'V' &&
 				    argv[argc-1][2] == '\0')
 					goto doversion;
-				fatal(gettext("Usage: admin [ -bhknoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]] [ -y[comment]] s.filename ..."));
+				fatal(gettext("Usage: admin [ -bhknoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]][ -Xxopts ] [ -y[comment]] s.filename ..."));
 			}
 			/*
 			 * Make sure that we only collect option letters from
@@ -575,23 +593,38 @@ char *argv[];
 
 	if (num_files == 0 && !HADUCN)
 		fatal(gettext("missing file arg (cm3)"));
+	if (num_files > 1 && (X.x_opts & (XO_INIT_PATH|XO_URAND)))
+		fatal(gettext("too many file args (cm18)"));
 
+	setsig();
+	xsethome(NULL);
 	if (HADUCN) {					/* Parse -N args  */
-		HADI = HADN = 1;
+		/*
+		 * initN() was already called while parsing options.
+		 */
+		if (HADI)
+			N.n_flags |= N_IFILE;
+		if (HADI && ifile[0] == '.' && ifile[1] == '\0')
+			N.n_flags |= N_IDOT;
+		if (HADN)
+			N.n_flags |= N_NFILE;
 		parseN(&N);
+		if (N.n_get)
+			N.n_flags |= N_GETI;
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+
+	} else if (HADI && ifile[0] == '.' && ifile[1] == '\0') {
+		direrror(ifile, 'i');
 	}
+
 	if ((HADY || HADM) && ! (HADI || HADN))
 		fatal(gettext("illegal use of 'y' or 'm' keyletter (ad30)"));
 	if (HADI && !HADUCN && num_files > 1) /* only one file allowed with `i' */
 		fatal(gettext("more than one file (ad15)"));
 	if ((HADI || HADN) && ! logname())
 		fatal(gettext("USER ID not in password file (cm9)"));
-
-	setsig();
-
-	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -612,7 +645,6 @@ char *argv[];
 
 	return (Fcnt ? 1 : 0);
 }
-
 
 /*
 	Routine that actually does admin's work on SCCS files.
@@ -684,7 +716,8 @@ char	*afile;
 		}
 		had_dir = 0;
 		dir_name = N.n_dir_name;
-		ifile = N.n_ifile;
+		if (N.n_flags & N_IDOT)
+			ifile = N.n_ifile;
 	}
 
 	if (HADI && had_dir) /* directory not allowed with `i' keyletter */
@@ -819,8 +852,23 @@ char	*afile;
 		 * Initialize global meta data
 		 */
 		if (versflag == 6) {
-			set_init_path(&gpkt, afile, dir_name);
-			urandom(&gpkt.p_rand);
+			if (X.x_opts & XO_INIT_PATH) {
+				gpkt.p_init_path = X.x_init_path;
+			} else if (HADUCN) {
+				/*
+				 * Only if we have been called with -N..., we
+				 * know the real g-file name. We cannot derive
+				 * the g-file name from the s.file name
+				 * otherwise, since we cannot know about sub
+				 * dirs like "SCCS" in the other cases.
+				 */
+				set_init_path(&gpkt, N.n_ifile, dir_name);
+			}
+
+			if (X.x_opts & XO_URAND)
+				gpkt.p_rand = X.x_rand;
+			else
+				urandom(&gpkt.p_rand);
 		}
 	}
 
@@ -1173,7 +1221,11 @@ char	*afile;
 		 * Writing out SCCS v6 flags belongs here.
 		 */
 
-		putmeta(&gpkt);
+		/*
+		 * Since we are creating a new history file, everything is from
+		 * us and every meta data needs to be written.
+		 */
+		putmeta(&gpkt, M_ALL);
 
 		/*
 		Beginning of descriptive (user) text.
@@ -1543,9 +1595,12 @@ char	*afile;
 		stdin_file_buf[0] = '\0';
 	}
 	if (gpkt.p_init_path) {
-		ffree(gpkt.p_init_path);
+		if (gpkt.p_init_path != X.x_init_path)
+			ffree(gpkt.p_init_path);
 		gpkt.p_init_path = NULL;
 	}
+	sclose(&gpkt);
+	sfree(&gpkt);
 }
 
 static int
@@ -1782,7 +1837,8 @@ clean_up()
 			unlink(gpkt.p_file);
 	}
 	if (gpkt.p_init_path) {
-		ffree(gpkt.p_init_path);
+		if (gpkt.p_init_path != X.x_init_path)
+			ffree(gpkt.p_init_path);
 		gpkt.p_init_path = NULL;
 	}
 	if (!HADH) {
@@ -2029,6 +2085,8 @@ aget(afile, gname, ser)
 		fmterr(&pk2);
 	finduser(&pk2);
 	doflags(&pk2);
+	donamedflags(&pk2);
+	dometa(&pk2);
 	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
 
 	pk2.p_chkeof = 1;

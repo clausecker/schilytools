@@ -11,6 +11,8 @@
 # Read test core functions
 . ../../common/test-common
 
+[ "$NO_RANDOM" = TRUE ] && exit
+
 cmd=admin		# for ../../common/optv
 ocmd=${admin}		# for ../../common/optv
 g=foo

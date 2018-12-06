@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.5 18/11/20 Copyright 2011-2018 J. Schilling
+ * @(#)bulk.c	1.13 18/12/05 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.5 18/11/20 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)bulk.c	1.13 18/12/05 Copyright 2011-2018 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -23,22 +23,46 @@
 #include	<defines.h>
 #include	<i18n.h>
 
+#ifdef	BULK_DEBUG
+static	void	Ndbg	__PR((Nparms *));
+#endif
+
+static	char	sdot[] = "s.";
+
 void
 initN(N)
 	Nparms	*N;
 {
-	N->n_comma = 0;
-	N->n_unlink = 0;
+	N->n_comma = 0;		/* admin: rename ifile to ,ifile */
+	N->n_unlink = 0;	/* admin: remove ifile		 */
 	N->n_get = 0;
-	N->n_sdot = 1;
-	N->n_subd = 0;
+	N->n_sdot = 1;		/* file name is s.file		 */
+	N->n_subd = 0;		/* s.file is in sub-directory	 */
 	N->n_prefix = NULL;
-	N->n_parm = "";
+	N->n_parm = "";		/* Parameter from -Nbulk option	 */
 	N->n_ifile = NULL;
 	N->n_dir_name = NULL;
 	N->n_sid.s_rel = N->n_sid.s_lev = N->n_sid.s_br = N->n_sid.s_seq = 0;
 	N->n_mtime.tv_sec = 0;
 	N->n_mtime.tv_nsec = 0;
+}
+
+void
+freeN(N)
+	Nparms	*N;
+{
+	if (N->n_prefix == NULL)
+		return;
+
+	if (N->n_prefix == sdot) {
+		;
+	} else if (N->n_prefix >= N->n_parm &&
+		N->n_prefix <= &N->n_parm[strlen(N->n_prefix)]) {
+		;
+	} else {
+		free(N->n_prefix);
+	}
+	N->n_prefix = NULL;
 }
 
 void
@@ -56,7 +80,7 @@ parseN(N)
 			if (N->n_get > 0)	/* -N++ used by get  */
 				N->n_get = 2;	/* for +sid+filename */
 			else
-				N->n_get = 1;	/* Get ifile	   */
+				N->n_get = 1;	/* admin: get ifile  */
 			parm++;
 		}
 		if (*parm == ',') {		/* admin only	   */
@@ -71,7 +95,7 @@ parseN(N)
 		N->n_prefix = parm;		/* -Ns. / -NSCCS/s. */
 		N->n_subd = parm != sname(parm);
 	} else if (*parm == '\0') {		/* Empty parm	*/
-		N->n_prefix = "s.";
+		N->n_prefix = sdot;		/* "s."		*/
 		N->n_subd = 0;
 	} else {				/* -NSCCS	*/
 		size_t	len = strlen(parm);
@@ -82,10 +106,13 @@ parseN(N)
 			len++;
 		}
 		len += 3;
-		N->n_prefix = fmalloc(len);
-		cat(N->n_prefix, parm, slseen?"":"/", "s.", (char *)0);
+		N->n_prefix = xmalloc(len);
+		cat(N->n_prefix, parm, slseen?"":"/", sdot, (char *)0);
 		N->n_subd = 1;
 	}
+#ifdef	BULK_DEBUG
+	Ndbg(N);
+#endif
 }
 
 /*
@@ -109,6 +136,7 @@ bulkprepare(N, afile)
 static int	dfd = -1;
 static char	Dir[FILESIZE];		/* The directory base of the g-file */
 static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
+	char	tmp[FILESIZE];		/* For resolvepath() from libschily */
 
 #ifdef	HAVE_FCHDIR
 	if (sethomestat & SETHOME_OFFTREE) {	/* Would need openat() */
@@ -123,11 +151,11 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 	if (N->n_get == 2 && *afile == '+') {
 		afile = sid_ab(++afile, &N->n_sid);
 		if (*afile++ != '+')
-			fatal(gettext("not a SID-tagged filename (co38)"));			
+			fatal(gettext("not a SID-tagged filename (co38)"));
 	} else {
-		N->n_sid.s_rel = 
-		N->n_sid.s_lev = 
-		N->n_sid.s_br = 
+		N->n_sid.s_rel =
+		N->n_sid.s_lev =
+		N->n_sid.s_br =
 		N->n_sid.s_seq = 0;
 	}
 
@@ -145,7 +173,10 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
-			xmsg(afile, NOGETTEXT("bulkprepare"));
+			N->n_mtime.tv_sec = 0;
+			N->n_mtime.tv_nsec = 0;
+			if (N->n_flags & N_IDOT)
+				xmsg(afile, NOGETTEXT("bulkprepare"));
 		}
 		if (sn == afile) {		/* No dir for short names */
 			Dir[0] = '\0';
@@ -160,8 +191,16 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			 * We need a path free of symlink components.
 			 * resolvepath() is available as syscall on Solaris,
 			 * or as user space implementation in libschily.
+			 * The base directory needs to exist in case we are
+			 * running something like "admin -N -i. file", then we
+			 * may use * resolvepath() that requires the existence.
+			 * resolvepath() from libschily does not support input
+			 * and output buffer to be the same storage.
 			 */
-			if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
+			strlcpy(tmp, Dir, sizeof (Dir));
+			if ((len = ((N->n_flags & N_IDOT) ?
+				    resolvepath(tmp, Dir, sizeof (Dir)):
+				    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1)
 				efatal(gettext("path conversion error (co28)"));
 			else if (len >= sizeof (Dir))
 				fatal(gettext("resolved path too long (co29)"));
@@ -182,6 +221,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 					N->n_prefix, sn, (char *)0);
 			}
 			N->n_ifile = afile;
+			N->n_dir_name = NULL;
 		} else {					/* Did chdir  */
 			Nhold[0] = '\0';
 			if (sethomestat & SETHOME_OFFTREE) {
@@ -226,7 +266,23 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				else
 					strlcpy(Dir, afile, sizeof (Dir));
 
-				if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
+				/*
+				 * The base directory needs to exist in case we
+				 * are running something like
+				 * "admin -Ns. -i. s.file" or any command that
+				 * is not something like "admin -Ns. -n s.file",
+				 * then we may use
+				 * resolvepath() that requires the existence.
+				 * resolvepath() from libschily does not support
+				 * input and output buffer to be the same
+				 * storage.
+				 */
+				strlcpy(tmp, Dir, sizeof (Dir));
+				if ((len =
+				    (((N->n_flags & (N_IFILE|N_NFILE)) == 0) ||
+				    (N->n_flags & N_IDOT) ?
+					    resolvepath(tmp, Dir, sizeof (Dir)):
+					    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1)
 					efatal(gettext("path conversion error (co28)"));
 				else if (len >= sizeof (Dir))
 					fatal(gettext("resolved path too long (co29)"));
@@ -234,19 +290,22 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 					Dir[len] = '\0'; /* Solaris syscall needs it */
 
 				if (chdir(Dir) < 0)
-					efatal("Chdir");
+					goto nochdir;
 				N->n_dir_name = Dir;
 				if (N->n_dir_name[0] == '.' && N->n_dir_name[1] == '/')
 					N->n_dir_name += 2;
 				afile = np;
 				strlcpy(Nhold, auxf(np, 'g'), sizeof (Nhold));
 			} else {
+			nochdir:
+				N->n_dir_name = NULL;
 				Nhold[0] = '\0';
 				strlcatl(Nhold, sizeof (Nhold),
 					afile, "/", auxf(np, 'g'), (char *)0);
 			}
 			np[-1] = '/';
 		} else {
+			N->n_dir_name = NULL;
 			strlcpy(Nhold, auxf(np, 'g'), sizeof (Nhold));
 		}
 		N->n_ifile = Nhold;
@@ -259,10 +318,14 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
-			xmsg(N->n_ifile, NOGETTEXT("bulkprepare"));
+			N->n_mtime.tv_sec = 0;
+			N->n_mtime.tv_nsec = 0;
+			if (N->n_flags & N_IDOT)
+				xmsg(N->n_ifile, NOGETTEXT("bulkprepare"));
 		}
 	}
-	if (N->n_subd) {		/* Want to put s.file in subdir */
+	if ((N->n_flags & (N_IFILE|N_IDOT|N_NFILE)) &&	/* Want to create new s.file */
+	    (N->n_subd || strchr(afile, '/'))) {	/* Want to put s.file in subdir */
 		char	dbuf[FILESIZE];
 
 					/* Copy as dname() modifies arg */
@@ -276,10 +339,44 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				xmsg(dbuf, NOGETTEXT("mkdirs"));
 		}
 	}
+	if (N->n_flags & N_GETI) {	/* get file, but dir may be missing */
+		char	dbuf[FILESIZE];
+
+					/* Copy as dname() modifies arg */
+		strlcpy(dbuf, N->n_ifile, sizeof (dbuf));
+		dname(dbuf);		/* Get directory name for g-file */
+		if (!exists(dbuf)) {
+			/*
+			 * Make sure that the path to the subdir is present.
+			 */
+			if (mkdirs(dbuf, 0777) < 0)
+				xmsg(dbuf, NOGETTEXT("mkdirs"));
+		}
+	}
 #ifdef	BULK_DEBUG
 	fprintf(stderr, "Dir '%s' %p\n", Dir, Dir);
 	fprintf(stderr, "Nhold '%s' %p\n", Nhold, Nhold);
 	fprintf(stderr, "afile '%s' %p\n", afile, afile);
+	fprintf(stderr, "ifile '%s' %p\n",
+				N->n_ifile?N->n_ifile:"NULL", N->n_ifile);
 #endif
 	return (afile);
 }
+
+#ifdef	BULK_DEBUG
+static void
+Ndbg(N)
+	Nparms	*N;
+{
+	fprintf(stderr, "n_comma %d\n", N->n_comma);
+	fprintf(stderr, "n_unlink %d\n", N->n_unlink);
+	fprintf(stderr, "n_get %d\n", N->n_get);
+	fprintf(stderr, "n_sdot %d\n", N->n_sdot);
+	fprintf(stderr, "n_subd %d\n", N->n_subd);
+	fprintf(stderr, "n_prefix '%s'\n", N->n_prefix?N->n_prefix:"NULL");
+	fprintf(stderr, "n_parm '%s'\n", N->n_parm);
+	fprintf(stderr, "n_ifile '%s'\n", N->n_ifile?N->n_ifile:"NULL");
+	fprintf(stderr, "n_dir_name '%s'\n",
+					N->n_dir_name?N->n_dir_name:"NULL");
+}
+#endif

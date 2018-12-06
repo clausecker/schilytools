@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2018 J. Schilling
 *
-* @(#)co	1.13 18/11/07 J. Schilling
+* @(#)co	1.14 18/12/04 J. Schilling
 *
 * @(#)co 1.3 06/12/12
 *
@@ -228,3 +228,7 @@ Cannot open the current working directory; check permissions.
 -40
 "cannot open project home directory"
 Cannot open the project set home directory; check permissions.
+-41
+"illegal Xopt"
+X options may be specified as a comma separated list. Available options
+are listed with 'sccs help Xopts'

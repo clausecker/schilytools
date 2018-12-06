@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-unget.1	1.22 18/11/21 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-unget.1	1.24 18/12/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1990, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-unget 1 "2018/11/21" "SunOS 5.11" "User Commands"
+.TH sccs-unget 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-unget, unget \- undo a previous get of an SCCS file
 .SH SYNOPSIS
@@ -177,6 +177,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -188,6 +191,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -249,6 +255,12 @@ implementations.
 Prints the
 .B unget
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SH ENVIRONMENT VARIABLES
 .sp

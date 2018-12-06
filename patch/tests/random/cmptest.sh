@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.13 17/07/21 Copyright 2015-2017 J. Schilling
+# cmptest @(#)cmptest.sh	1.14 18/11/27 Copyright 2015-2017 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -17,6 +17,8 @@
 #
 # The diff type is random, this allows to check all diff types.
 #
+
+[ "$NO_RANDOM" = TRUE ] && exit
 
 : ${AWK=/usr/bin/nawk}
 #$AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=/usr/bin/nawk

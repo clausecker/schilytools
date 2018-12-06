@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)get.c	1.78 18/11/18 J. Schilling
+ * @(#)get.c	1.82 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.78 18/11/18 J. Schilling"
+#pragma ident "@(#)get.c 1.82 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -344,13 +344,21 @@ register char *argv[];
 		HADK = 1;
 	if (HADE && !logname())
 		fatal(gettext("User ID not in password file (cm9)"));
-	if (HADUCN) {					/* Parse -N args  */
-		parseN(&N);
-	}
+
 	setsig();
 	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	if (HADUCN) {					/* Parse -N args  */
+		/*
+		 * initN() was already called while parsing options.
+		 */
+		if (!HADP && !HADG && !HADUCG)		/* Create g-file, so */
+			N.n_flags |= N_GETI;		/* create subdirs    */
+			
+		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+	}
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -478,6 +486,8 @@ get(pkt, file)
 		fmterr(pkt);
 	finduser(pkt);
 	doflags(pkt);
+	donamedflags(pkt);
+	dometa(pkt);
 
 	if (!HADA) {
 		ser = getser(pkt);
@@ -525,7 +535,7 @@ get(pkt, file)
 			gen_lfile(pkt);
 		if (HADG)
 			goto unlock;
-		flushto(pkt, EUSERTXT, 1);
+		flushto(pkt, EUSERTXT, FLUSH_NOCOPY);
 		idsetup(pkt, gfile);
 		pkt->p_chkeof = 1;
 		pkt->p_did_id = 0;
@@ -686,10 +696,6 @@ get(pkt, file)
 		setuid(holduid);
 		setgid(holdgid);
 	}
-	if (pkt->p_iop) {
-		fclose(pkt->p_iop);
-		pkt->p_iop = NULL;
-	}
 unlock:
 	if (HADE) {
 		struct utsname	un;
@@ -701,6 +707,8 @@ unlock:
 		uuname = un.nodename;
 		unlockit(auxf(pkt->p_file, 'z'), getpid(), uuname);
 	}
+	sclose(pkt);
+	sfree(pkt);
 	ffreeall();
 	if (HADUCA)				/* ffreeall() killed it	*/
 		lhash_destroy();		/* need to reset it	*/

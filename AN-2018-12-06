@@ -1,0 +1,393 @@
+New features with AN-2018-12-06:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+-	COPYING: updated the copyright date bor bsh.
+
+-	libfind: With the changes from 2018-11-22, the code did not compile
+		anymore on platforms without vfork(). This problem has been
+		fixed.
+
+-	patch: The patch unit test suite now allows to disable the random delta
+		tests that take a long time but verify whether patch is able
+		to deal with arbitrary changes in the files. To disable the
+		random tests call:
+
+			cd patch/tests
+			NO_RANDOM=TRUE smake tests
+
+-	smt: smt -wready now checks whether the last open really failed before
+		retrying the open operation.
+
+		Thanks to Pavel Raiskup for reporting this coverity result.
+
+-	star: hole.c: A memory leak in in hole.c::put_sparse() has been fixed.
+
+		Thanks to Pavel Raiskup for reporting this coverity result.
+
+-	star: xheader.c: the macro scopy() no longer has a semicolon at the end.
+
+		Thanks to Pavel Raiskup for reporting this coverity result.
+
+-	SCCS:	libcomobj: A parser for the SCCS v6 flags has been added.
+		Since there are currently no SCCS v6 flags, this parser prints
+		a warning for all SCCS v6 flags and thus will warn, when 
+		it sees SCCS history files created from newer SCCS versions. 
+
+-	SCCS:	libcomobj: A parser for SCCS v6 global meta data has been
+		added. It currently supports the inital path name and
+		the unified random number that is given to files to make them
+		unique.
+
+-	SCCS:	libcomobj: a new function sfree() frees the line buffer that
+		is used by getdelim()
+
+-	SCCS: all programs that call the SCCS v4 flag parser now also call
+		the SCCS v6 flag parser and the parser for SCCS v6 meta data.
+
+-	SCCS: prs: now prints the SCCS v6 initial path using the new keyword
+		:Gp:
+
+-	SCCS: prs: now prints the SCCS v6 unified random using the new keyword
+		:Gr:
+
+-	SCCS: The sccs unit test suite now allows to disable the random delta
+		tests that take a long time but verify whether sccs is able
+		to deal with arbitrary changes in the files. To disable the
+		random tests call:
+
+			cd sccs/tests
+			NO_RANDOM=TRUE smake tests
+
+-	SCCS: admin no longer has a file descriptor leak when is is used 
+		to modify more than one SCCS history file (e.g. by modifying
+		flag values).
+
+-	SCCS: All low level programs no call sfree() and thus avoid a memory
+		leak from the line buffer when they are used with more than 
+		one file.
+
+-	SCCS: admin now supports two new options:
+
+	-	-XGp	The initial SCCS v6 path
+			If specified as "-XGp=", no initial path is written
+			to the history file.
+
+	-	-XGr	The SCCS v6 unified random
+			If specified as "-XGr=", no unified random is written
+			to the history file.
+
+	Both options are oly honored when a new history file is created.
+
+	If one of these options is used, admin only supports one file type
+	argument. 
+
+-	SCCS: comb now supports to retain SCCS v6 initial path and SCCSv6 urand
+		to be retained in the new reduced history file.
+
+-	SCCS man pages: more hints on SCHILY specific options have been added.
+
+-	SCCS: val: the check for a back-going clock now also checks nanoseconds
+	from SCCS v6 history files.
+
+-	SCCS: libcomobj: the check for a back-going clock in dodelt() now also 
+	checks nanoseconds from SCCS v6 history files.
+
+-	SCCS: libcomobj: the bulk mode path handler bulkprepare() now permits
+	files that do not (yet) exist. This is needed for several reasons for
+	e.g. the new admin features and to permit get(1) to be able to extract
+	a g-file that has not yet been checked out.
+
+-	SCCS: admin: when the bulk option -N has been introduced in Summer 2011,
+	this has been done mainly to be able to verify whether SCCS is still
+	faster than other version control software. It was used to allow to test
+	the performance for importing large amounts of files into SCCS and thus
+	-N implied -n and -i and the SCCS history files have always been
+	intialized from the related g-files.
+
+	Now the -N option no longer implies -n or -i. If a new history file
+	should be created, "admin -N... -n ..." needs to be used and if the
+	history files should be initialized from the g-files, the command
+	"admin -N... -i. ..." needs to be used. The option -i followed by a dot
+	now tells admin to use the computed related g-file name to initialize
+	history files on bulk mode.
+
+	With this change, admin now allows to e.g. use the -N option to set
+	flags in a larger list of files by e.g. calling "admin -NSCCS -fx *.c".
+
+-	SCCS: sccscvt: When converting from SCCS v4 to SCCS v6, the initial path
+	and the unified random are now added if not yet present.
+
+-	SCCS: scat: the program now identifies itself as "sact" instead of "unget"
+	which was a result of being a single program with hard links.
+
+-	SCCS unit tests: New tests for checking the SCHILY SCCS specific new
+	val(1) options -v and -T have been added.
+
+-	SCCS unit tests: A new test checks whether delta -Xprepend works correctly
+
+-	SCCS: defines.h: New flags for the Nparms allow to tell the function
+	bulkprepate() from libcomobj to know whether a file or directory
+	needs to exist.
+
+-	SCCS: libcomobj::bulkprepare() The space for Nparms.n_prefix is no
+	longer allocated via fmalloc() but with malloc(), since the content
+	of Nparms must survice a call to ffreeall() that is called after working
+	on one file from the file list.
+
+-	SCCS: libcomobj::bulkprepare() in case that a new s.file should be
+	created, the directory for the s.file is auto created in case that it
+	is missing.
+
+-	SCCS: libcomobj::bulkprepare() in case that the N_GETI flag is set,
+	the directory for the g-file is auto created in case that it is
+	missing.
+
+-	SCCS: libcomobj::bulkprepare() use resolvenpath() instead of 
+	resolvepath() in case that the base directory of a file does not
+	need to exist.
+
+-	SCCS: libcomobj::bulkprepare() The program is aborted again in case
+	that the base directory of a file needs to exist but is missing.
+
+-	SCCS: libcomobj::bulkprepare() The libschily implementation for
+	resolvepath() does not allow to use the same space for the input
+	path and the output path name. We now copy the input path to a
+	temporary variable to allow it to work on platforms other that
+	Solaris.
+
+-	SCCS: libcomobj::bulkprepare() We now use fallback code in case that
+	the base directory of the s.file does not yet exist and chdir()
+	thus does not work.
+
+-	SCCS: libcomobj::bulkprepare() The struct member N->n_dir_name is now
+	set to NULL in case that we did not do a chdir().
+
+-	SCCS: libcomobj  New function freeN() allows to free Nparms.n_prefix
+
+-	SCCS: libcomobj  New function Ndbg() allows to to debug bulkprepare(),
+	e.g. the result from parseN().
+
+-	SCCS: libcomobj::set_init_path() fixed a bug that could cause a core
+	dump in SCCS v6 mode, when the dir parameter is a NULL pointer.
+
+-	SCCS: libmpw::sname() no longer addresses out of bound data from the
+	string parameter (s[-1]).
+
+-	SCCS: admin now marks the Nparms structure to indicate that in case of
+	"admin -N -n file", the s-file does not need to exist when running
+	bulkprepare().
+
+-	SCCS: admin now marks the Nparms structure to indicate that in case of
+	"admin -N+ -n file", the directory to place the g-file does not need to exist
+	while running bulkprepare().
+
+-	SCCS: get now marks the Nparms structure to indicate that in case of
+	"get -N file", the directory to place the g-file does not need to exist
+	while running bulkprepare().
+
+-	SCCS: comb no longer prints the PATH= line repeated in case that
+	more than one file type argument was used.
+
+-	SCCS: comb now prints a "cd" command in the script in cace that
+	comb(1) did chdir() while calling bulkprepare() for the -N bulk mode.
+
+-	SCCS: all commands: setsig() and xsethome(NULL) are now called before
+	calling parseN(). This helps to prevent core dumps from bad code in
+	parseN() and this allows parseN() to know whether a command runs in
+	"project off tree" mode.
+
+-	SCCS: admin & delta: the function parseX() has been moved to 
+	libcomobj.
+
+-	SCCS: admin & sccscvt: the Initial Path is now only created in case
+	that the -N option was used as otherwise, the program cannot know
+	the real g-file name. This is because up to now, the handling of the
+	"SCCS/" subdirectory is handled in the program sccs(1) and not
+	understood by the low end programs.
+
+-	SCCS: libcomobj::putmeta() now first prints the unified random and then
+	the initial path. This helps to keep the order even when the initial
+	path is added later.
+
+-	SCCS: libcomobj::set_init_path() now expects a g-file name instead of
+	an s.file name. This helps to have correct initial path names in the
+	history file.
+
+-	SCCS: libmpw: added a new xmalloc() that checks for NULL and aborts.
+
+-	SCCS: man pages: the man pages now explain that with "-N" and "-Ns",
+	the s.files are in the same directory as the g-files.
+
+-	SCCS unit tests: A new test for even longer lines now checks whether
+	sccs works with lines of 100000 bytes length.
+
+-	SCCS unit tests: New tests check whether admin(1) correctly deals with
+	all kind of -N parameters and more than file type argument.
+
+-	SCCS unit tests: New tests check whether delta(1) correctly deals with
+	all kind of -N parameters and more than file type argument.
+
+-	SCCS unit tests: New tests check whether get(1) correctly deals with
+	all kind of -N parameters and more than file type argument.
+
+-	SCCS unit tests: New tests check whether sccscvt(1) correctly deals with
+	all kind of -N parameters and more than file type argument.
+
+-	SCCS unit tests: New tests check whether cdc(1), prs(1), prt(1),
+	rmdel(1), sact(1), sccslog(1), unget(1), val(1)
+	deal with all kind of -N parameters and more than file type argument.
+	These tests are simpler than the tests for admin(1) and get(1).
+
+-	SCCS unit tests: A set of unit tests for sccscvt(1) have been added.
+
+-	SCCS unit tests: A set of unit tests for comb(1) have been added.
+
+-	SCCS unit tests: A set of unit tests for sccscvt(1) have been added
+	to check whether sccscvt adds the initial path while converting.
+
+-	SCCS is now in a state that is close before being ready with project
+	support. This means that SCCS soon will be able to deal with lists
+	of files as a whole and have a global locking for operations on file
+	lists.
+
+	The current state is that SCCS most likely is ready with all infra
+	structure enhancements for project support except for the code to
+	deal with the changeset file and the name cache.
+
+-	SCCS: The version has been bumped to 5.09 with date 2018/12/05.
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

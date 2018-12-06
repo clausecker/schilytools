@@ -1,4 +1,4 @@
-# @(#)COPYING	1.18 18/08/16 Copyright 2007-2018 J. Schilling
+# @(#)COPYING	1.19 18/11/22 Copyright 2007-2018 J. Schilling
 
 
 The software in this directory tree is free software and uses
@@ -16,7 +16,7 @@ law. Here is a list of sub-directories (works) and it's related licenses:
 autoconf/
 	The Schily Autoconf program (GPL)
 bsh/
-	A shell with cursor editable history (C) 1982-2009 J. Schilling (CDDL)
+	A shell with cursor editable history (C) 1982-2018 J. Schilling (CDDL)
 btcflash/
 	A firmwareflash program (CDDL),
 	parts from David Huang in btcflash.c are public domain

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-rcs2sccs.1	1.14 18/11/08 Copyright 2011-2018 J. Schilling
+.\" @(#)sccs-rcs2sccs.1	1.15 18/11/27 Copyright 2011-2018 J. Schilling
 .\" Manual page for sccscvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -26,7 +26,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-rcs2sccs 1 "2018/11/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-rcs2sccs 1 "2018/11/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-rcs2sccs, rcs2sccs \- convert RCS files into SCCS files
 .SH SYNOPSIS
@@ -47,6 +47,12 @@ history files.
 If a list of files is specified, this list is converted.
 If no file arguments are specified, all RCS files in the current directory
 are converted.
+.LP
+This program is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SH OPTIONS
 .LP

@@ -1,4 +1,4 @@
-.\" @(#)sccs-cvt.1	1.18 18/11/20 Copyright 2011-2018 J. Schilling
+.\" @(#)sccs-cvt.1	1.20 18/12/03 Copyright 2011-2018 J. Schilling
 .\" Manual page for sccs-cvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-cvt 1 "2018/11/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-cvt 1 "2018/12/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-cvt, sccscvt \- convert SCCS history files between v4/v6
 .SH SYNOPSIS
@@ -75,6 +75,12 @@ and retained by historic SCCS versions when a history file is modified.
 .LP
 If a file argument refers to a directory, the directory is scanned
 for file names that start with ``s.'' and examines all these files.
+.LP
+This program is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 . \" .SH RETURNS
 . \" .SH ERRORS
 .SH OPTIONS
@@ -151,6 +157,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -162,6 +171,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -201,19 +213,16 @@ arguments, it is recommended to use
 as the file name parameter for
 .BR sccscvt (1)
 and to send a list of path names to
-.BR stdin .
-.PP
-This option is a
-.B \s-1SCHILY\s+1
-extension that does not exist in historic
-.B sccs
-implementations.
 .RE
 
 .TP
+.PD 0
 .B \-V
 .TP
 .B \-version
+.TP
+.B \-\-version
+.PD
 Prints the
 .B sccscvt
 version number string and exists.

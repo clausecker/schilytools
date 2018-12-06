@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)delta.c	1.78 18/11/19 J. Schilling
+ * @(#)delta.c	1.83 18/12/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.78 18/11/19 J. Schilling"
+#pragma ident "@(#)delta.c 1.83 18/12/04 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -61,6 +61,7 @@
 
 static FILE	*Diffin, *Gin;
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static struct packet	gpkt;
 static struct utsname	un;
 static int	num_files;
@@ -96,16 +97,12 @@ static char	*Dfilename;
 static struct timespec	gfile_mtime;	/* Timestamp for -o		*/
 static	time_t	cutoff = MAX_TIME;
 
-#define	O_PREPEND_FILE	0x01		/* Optimized mode for Changeset files */
-static int	xopts;
-
 static struct sid sid;
 
 static	void    clean_up __PR((void));
 static	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 
 	int	main __PR((int argc, char **argv));
-static int	parseX __PR((char *opts));
 static void	delta __PR((char *file));
 static int	mkdelt __PR((struct packet *pkt, struct sid *sp, struct sid *osp,
 				int diffloop, int orig_nlines));
@@ -278,7 +275,9 @@ register char *argv[];
 				break;
 
 			case 'X':
-				if (!parseX(optarg))
+				X.x_parm = optarg;
+				X.x_flags = XO_PREPEND_FILE;
+				if (!parseX(&X))
 					goto err;
 				break;
 
@@ -322,13 +321,15 @@ register char *argv[];
  	   fatal(gettext("missing file arg (cm3)"));
  	   exit(2);
  	}
-	if (HADUCN) {					/* Parse -N args  */
-		parseN(&N);
-	}
+
 	setsig();
 	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+	}
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -337,57 +338,6 @@ register char *argv[];
 			do_file(p, delta, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
-}
-
-LOCAL int
-parseX(opts)
-	char	*opts;
-{
-	char	*ep;
-	char	*np;
-	int	optlen;
-	long	optflags = xopts;
-	BOOL	not = FALSE;
-
-	while (*opts) {
-		if ((ep = strchr(opts, ',')) != NULL) {
-			Intptr_t	pdiff = ep - opts;
-
-			optlen = (int)pdiff;
-			if (optlen != pdiff)	/* lint paranoia */
-				return (FALSE);
-			np = &ep[1];
-		} else {
-			optlen = strlen(opts);
-			np = &opts[optlen];
-		}
-		if (opts[0] == '!') {
-			opts++;
-			optlen--;
-			not = TRUE;
-		}
-		if (strncmp(opts, "not", optlen) == 0 ||
-				strncmp(opts, "!", optlen) == 0) {
-			not = TRUE;
-		} else if (strncmp(opts, "prepend", optlen) == 0) {
-			optflags |= O_PREPEND_FILE;
-		} else if (strncmp(opts, "help", optlen) == 0) {
-			sccshelp(stdout, "delta_Xopts");
-			exit(0);
-		} else {
-			Fflags &= ~FTLEXIT;
-			fatal(gettext("illegal Xopt (de21)"));
-			sccshelp(stdout, "delta_Xopts");
-			exit(1);
-		}
-		opts = np;
-	}
-	if (not)
-		optflags = ~optflags;
-
-	xopts = optflags;
-
-	return (TRUE);
 }
 
 /*
@@ -524,7 +474,9 @@ char *file;
 	finduser(&gpkt);
 	doflags(&gpkt);
 	permiss(&gpkt);
-	flushto(&gpkt,EUSERTXT,1);
+	donamedflags(&gpkt);
+	dometa(&gpkt);
+	flushto(&gpkt, EUSERTXT, FLUSH_NOCOPY);
 	gpkt.p_chkeof = 1;
 	/* if encode flag is set, encode the g-file before diffing it
 	 * with the s.file
@@ -545,7 +497,7 @@ char *file;
 	}
 
 	dfilename[0] = '\0';
-	if ((xopts & O_PREPEND_FILE) == 0) {
+	if ((X.x_opts & XO_PREPEND_FILE) == 0) {
 		copy(auxf(gpkt.p_file,'d'),dfilename);
 		gpkt.p_gout = xfcreat(dfilename,(mode_t)0444);
 #ifdef	USE_SETVBUF
@@ -617,7 +569,7 @@ char *file;
 	if (stat(gfilename, &Statbuf) == 0) {
 		size_of_file = Statbuf.st_size;
 	}
-	if ((xopts & O_PREPEND_FILE) == 0) {
+	if ((X.x_opts & XO_PREPEND_FILE) == 0) {
 		if (Gin)
 			fclose(Gin);
 		Gin = NULL;
@@ -659,7 +611,7 @@ char *file;
 	diffloop = 0;
 	ghash = gpkt.p_ghash;			/* Save ghash value */
 
-	if (xopts & O_PREPEND_FILE) {
+	if (X.x_opts & XO_PREPEND_FILE) {
 		int	oihash = gpkt.p_ihash;	/* Remember hash from sinit() */
 
 		grewind(&gpkt);
@@ -701,9 +653,9 @@ char *file;
 				diffloop, orig);
         	}
 		diffloop = 1;
-		flushto(&gpkt,EUSERTXT,0);
+		flushto(&gpkt, EUSERTXT, FLUSH_COPY);
 
-		if (xopts & O_PREPEND_FILE) {
+		if (X.x_opts & XO_PREPEND_FILE) {
 			/*
 			 * Since we do not call "diff", we come here only once.
 			 */
@@ -737,7 +689,7 @@ char *file;
 		if (gpkt.p_iop)
 			while (readmod(&gpkt))
 				;
-		if ((xopts & O_PREPEND_FILE) == 0)
+		if ((X.x_opts & XO_PREPEND_FILE) == 0)
 			wait(&status);
  		/*
  		 Check top byte (exit code of child).
@@ -1518,10 +1470,8 @@ clean_up()
 	uname(&un);
 	uuname = un.nodename;
 	if (mylock(auxf(gpkt.p_file,'z'), getpid(),uuname)) {
-		if (gpkt.p_iop) {
-			fclose(gpkt.p_iop);
-			gpkt.p_iop = NULL;
-		}
+		sclose(&gpkt);
+		sfree(&gpkt);
 		if (gpkt.p_xiop) {
 			fclose(gpkt.p_xiop);
 			gpkt.p_xiop = NULL;

@@ -1,4 +1,4 @@
-# @(#)Targets	1.22 18/11/13 Copyright 2006-2015 J. Schilling
+# @(#)Targets	1.24 18/12/04 Copyright 2006-2015 J. Schilling
 
 CFILES=	auxf.c \
 	bulk.c \
@@ -11,9 +11,10 @@ CFILES=	auxf.c \
 	help.c homesubs.c \
 	idsubst.c intree.c \
 	lhash.c logname.c newsid.c \
-	newstats.c permiss.c pf_ab.c putline.c putmeta.c \
+	namedflags.c \
+	newstats.c parsex.c permiss.c pf_ab.c putline.c putmeta.c \
 	rdmod.c \
-	sclose.c sethome.c setinitpath.c setup.c sid_ab.c \
+	sclose.c sethome.c setinitpath.c setup.c sfree.c sid_ab.c \
 	sid_ba.c sidext_ab.c sidext_ba.c sidtoser.c sinit.c stats_ab.c strptim.c \
 	ssum.c \
 	urand_ab.c urand_ba.c usum.c \

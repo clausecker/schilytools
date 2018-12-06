@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)comb.c	1.30 18/11/20 J. Schilling
+ * @(#)comb.c	1.35 18/12/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.30 18/11/20 J. Schilling"
+#pragma ident "@(#)comb.c 1.35 18/12/04 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -180,8 +180,8 @@ register char *argv[];
 			case 'N':	/* Bulk names */
 				initN(&N);
 				if (optarg == argv[i+1]) {
-				   no_arg = 1;
-				   break;
+					no_arg = 1;
+					break;
 				}
 				N.n_parm = p;
 				break;
@@ -230,13 +230,15 @@ register char *argv[];
 		fatal(gettext("missing file arg (cm3)"));
 	if (HADP && HADC)
 		fatal(gettext("can't have both -p and -c (cb2)"));
-	if (HADUCN) {					/* Parse -N args  */
-		parseN(&N);
-	}
+
 	setsig();
 	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+	}
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -257,11 +259,13 @@ char *file;
 	register int i, n;
 	register struct idel *rdp;
 	char *p;
+	char	*dir_name = NULL;
 	char rarg[SID_STRSIZE];
 	int succnt;
 	struct sid *sp;
 	extern char had_dir, had_standinp;
 	struct stats stats;
+static	int	idx;
 
 	if (setjmp(Fjmp))
 		return;
@@ -280,6 +284,7 @@ char *file;
 			sid.s_br  = N.n_sid.s_br;
 			sid.s_seq = N.n_sid.s_seq;
 		}
+		dir_name = N.n_dir_name;
 	}
 
 	sinit(&gpkt, file, SI_OPEN);
@@ -333,22 +338,30 @@ char *file;
 	}
 	finduser(&gpkt);
 	doflags(&gpkt);
-	if (gpkt.p_iop)
-		fclose(gpkt.p_iop);
-	gpkt.p_iop = 0;
+	donamedflags(&gpkt);
+	dometa(&gpkt);
+	sclose(&gpkt);
+	sfree(&gpkt);
 	if (!Cnt)
 		fatal(gettext("nothing to do (cb4)"));
 	rdp = gpkt.p_idel;
 	Do_prs = 0;
+	if (idx++ == 0) {
 #if defined(INS_BASE)
 #ifdef	PROTOTYPES
-	fprintf(iop, "PATH=%s/" SCCS_BIN_PRE "bin:$PATH\n", INS_BASE);
+		fprintf(iop, "PATH=%s/" SCCS_BIN_PRE "bin:$PATH\n", INS_BASE);
 #else
-	fprintf(iop, "PATH=%s/ccs/bin:$PATH\n", INS_BASE);
+		fprintf(iop, "PATH=%s/ccs/bin:$PATH\n", INS_BASE);
 #endif
-	fprintf(iop, "export PATH\n");
+		fprintf(iop, "export PATH\n");
 #endif
-	fprintf(iop, "trap \"rm -f COMB$$ comb$$ s.COMB$$; exit 2\" 1 2 3 15\n");
+		fprintf(iop, "trap \"rm -f COMB$$ comb$$ s.COMB$$; exit 2\" 1 2 3 15\n");
+		fprintf(iop, "set -e\n");
+		fprintf(iop, "wdir=`pwd`\n");
+	}
+	fprintf(iop, "\n");
+	if (dir_name)
+		fprintf(iop, "cd '%s'\n", dir_name);
 	sp = prtget(rdp, Cvec[0], iop, gpkt.p_file);
 	sid_ba(sp, rarg);
 	if ((Val_ptr = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
@@ -356,17 +369,23 @@ char *file;
 	fprintf(iop, "v=`prs -r%s -d:MR: %s`\n", rarg, gpkt.p_file);
 	fprintf(iop, "vs=`val -v %s`\n", gpkt.p_file);
 	fprintf(iop, "V6=\n");
+	fprintf(iop, "ip=\n");
+	fprintf(iop, "ur=\n");
 	fprintf(iop, "case \"$vs\" in\n");
 	fprintf(iop, "SCCS\\ V6*)\n");
-	fprintf(iop, "\tV6=-V6;;\n");
+	fprintf(iop, "\tV6=-V6\n");
+	fprintf(iop, "\tip=-XGp=`prs -d:Gp: %s`\n", gpkt.p_file);
+	fprintf(iop, "\tur=-XGr=`prs -d:Gr: %s`\n", gpkt.p_file);
+	fprintf(iop, "\t;;\n");
 	fprintf(iop, "esac\n");
 	fprintf(iop, "if test \"$v\"\n");
 	fprintf(iop, "then\n");
 	fprintf(iop,
-	"admin $V6 -iCOMB$$ -r%s -fv%s -m\"$v\" -y'This was COMBined' s.COMB$$\n",
+	"admin $V6 $ip $ur -iCOMB$$ -r%s -fv%s -m\"$v\" -y'This was COMBined' s.COMB$$\n",
 		rarg, Val_ptr);
 	fprintf(iop, "else\n");
-	fprintf(iop, "admin $V6 -iCOMB$$ -r%s -y'This was COMBined' s.COMB$$\n", rarg);
+	fprintf(iop, "admin $V6 $ip $ur -iCOMB$$ -r%s -y'This was COMBined' s.COMB$$\n",
+		rarg);
 	fprintf(iop, "fi\n");
 	Do_prs = 1;
 	fprintf(iop, "rm -f COMB$$\n");
@@ -448,6 +467,8 @@ char *file;
 		fprintf(iop, "echo '%s\t' ${c}'%%\t' $1/$3\n", gpkt.p_file);
 		fprintf(iop, "rm -f s.COMB$$\n");
 	}
+	if (dir_name)
+		fprintf(iop, "cd \"$wdir\"\n");
 }
 
 /*ARGSUSED*/

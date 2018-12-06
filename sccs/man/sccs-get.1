@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.43 18/11/10 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-get.1	1.45 18/12/03 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2018/11/10" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2018/12/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -196,7 +196,7 @@ the
 data specs.
 .sp
 This option is a
-.B SCHILY
+.B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
@@ -320,6 +320,12 @@ including the release ceiling, floor, and authorized user list, are honored by
 Enforce to retrieve the
 .BR g. file
 even if a SID specific checksum mismatch has been detected.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .br
 .ne 3
@@ -446,6 +452,9 @@ The
 names are automatically derived from the g-file names by prepending
 .B s.
 to the last path name component.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .B \-Ns.
 The file name parameters to the
@@ -457,6 +466,9 @@ The the g-files names are automatically derived by removing
 .B s.
 from the beginning of last path name component of the
 .IR s.filename.
+Both,
+.I s.filename
+and the g-file are in the same directory.
 .TP
 .BI \-N dir
 The file name parameters to the
@@ -541,7 +553,7 @@ to skip the compilation
 as the compilation result is already newer than the gotten file.
 .sp
 This option is a
-.B SCHILY
+.B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
@@ -645,6 +657,12 @@ By default, the
 is created in the current directory (independent from
 the location of the 
 .BI s. file\fR.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .br
 .ne 3
@@ -659,6 +677,12 @@ the location of the
 Prints the
 .B get
 version number string and exists.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .SS /usr/ccs/bin/get
 

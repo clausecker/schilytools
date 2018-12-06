@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)rmchg.c	1.46 18/11/20 J. Schilling
+ * @(#)rmchg.c	1.49 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.46 18/11/20 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.49 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -278,8 +278,14 @@ char *argv[];
 	}
 	if(num_files == 0)
 		fatal(gettext("missing file arg (cm3)"));
+
+	setsig();
+	xsethome(NULL);
 	if (HADUCN) {					/* Parse -N args  */
 		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
 	}
 
 	if (*(p = sname(argv[0])) == 'n')
@@ -295,11 +301,6 @@ char *argv[];
 	}
 	if (! logname())
 		fatal(gettext("User ID not in password file (cm9)"));
-
-	setsig();
-	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -452,6 +453,9 @@ char *file;
 	finduser(&gpkt);
 	doflags(&gpkt);
 	permiss(&gpkt);
+
+	donamedflags(&gpkt);
+	dometa(&gpkt);
 
 	/*
 	Check that user is either owner of file or
@@ -952,10 +956,8 @@ struct packet *pkt;
 static void
 clean_up()
 {
-	if(gpkt.p_iop) {
-		fclose(gpkt.p_iop);
-		gpkt.p_iop = NULL;
-	}
+	sclose(&gpkt);
+	sfree(&gpkt);
 	xrm(&gpkt);
 	if (gpkt.p_file[0]) {
 		if (exists(auxf(gpkt.p_file,'x')))

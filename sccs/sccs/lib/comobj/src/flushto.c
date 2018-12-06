@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)flushto.c	1.8 18/04/29 J. Schilling
+ * @(#)flushto.c	1.9 18/11/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)flushto.c 1.8 18/04/29 J. Schilling"
+#pragma ident "@(#)flushto.c 1.9 18/11/28 J. Schilling"
 #endif
 /*
  * @(#)flushto.c 1.3 06/12/12
@@ -53,7 +53,7 @@ flushto(pkt, ch, put)
 	register char *p;
 
 	while ((p = getline(pkt)) != NULL && !(*p++ == CTLCHAR && *p == ch))
-		pkt->p_wrttn = (char)(put & 1);
+		pkt->p_wrttn = (char)(put & FLUSH_NOCOPY);
 
 	if (p == NULL)
 		fmterr(pkt);

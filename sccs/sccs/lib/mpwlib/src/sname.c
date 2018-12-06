@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2018 J. Schilling
  *
- * @(#)sname.c	1.5 09/11/08 J. Schilling
+ * @(#)sname.c	1.6 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sname.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)sname.c 1.6 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)sname.c 1.3 06/12/12
@@ -57,7 +57,8 @@ char *s;
 	register int j;
 
 	n = strlen(s);
-	--n;
+	if (--n < 0)
+		return(s);
 	if (s[n] == '/') {
 		for (j=n; j >= 0; --j)
 			if (s[j] != '/') {

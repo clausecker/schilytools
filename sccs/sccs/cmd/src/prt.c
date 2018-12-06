@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prt.c	1.37 18/11/20 J. Schilling
+ * @(#)prt.c	1.38 18/12/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.37 18/11/20 J. Schilling"
+#pragma ident "@(#)prt.c 1.38 18/12/03 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -329,14 +329,15 @@ char *argv[];
 
 	if (HADC && HADR)
 		fatal(gettext("both 'c' and 'r' keyletters specified (pr2)"));
-	if (HADUCN) {					/* Parse -N args  */
-		parseN(&N);
-	}
 
 	setsig();
 	xsethome(NULL);
-	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
-		fatal(gettext("-Ns. not supported in off-tree project mode"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+
+		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+			fatal(gettext("-Ns. not supported in off-tree project mode"));
+	}
 
 	/*
 	Change flags for 'fatal' so that it will return to this

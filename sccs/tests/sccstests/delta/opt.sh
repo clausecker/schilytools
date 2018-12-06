@@ -38,5 +38,16 @@ else
 	fail "SCCS delta -o unsupported"
 fi
 
+rm $s
+${admin} -n $s
+${get} -e $s 2>/dev/null > /dev/null
+echo "123 %M%" > $g
+docommand de10 "${delta} -Xprepend -ySomeComment $s" 0 IGNORE IGNORE
+docommand de11 "${get} -p $s" 0 "123 foo\n" IGNORE
+${get} -e $s 2>/dev/null > /dev/null
+echo "000" > $g
+docommand de12 "${delta} -Xprepend -ySomeComment $s" 0 IGNORE IGNORE
+docommand de13 "${get} -p $s" 0 "000\n123 foo\n" IGNORE
+
 remove $z $s $p $g $output $error
 success

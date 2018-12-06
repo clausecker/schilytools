@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.115 18/11/12 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.116 18/11/27 Copyright 2004-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.115 18/11/12 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.116 18/11/27 Copyright 2004-2018 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -2274,13 +2274,16 @@ doexec(f, t, ac, av, state)
 					*pp = f;
 #endif
 			}
-			*pp2 = NULL;
 #ifdef	HAVE_VFORK
+			*pp2 = NULL;			/* NULL terminate */
 			if (aav)
 				pp = &aav[1];
 			else
 				pp = &xav[1];
 #else
+			/*
+			 * "pp" is already NULL terminated.
+			 */
 			pp = av;
 #endif
 		} else {
@@ -2306,6 +2309,8 @@ doexec(f, t, ac, av, state)
 
 #ifndef	HAVE_VFORK
 			if (f && ac >= 32) {	/* This is not exec + */
+				register char	**pp2;
+
 				/*
 				 * One NULL pointer and one index for "sh".
 				 */
