@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)prt.c	1.38 18/12/03 J. Schilling
+ * @(#)prt.c	1.39 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.38 18/12/03 J. Schilling"
+#pragma ident "@(#)prt.c 1.39 18/12/17 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -292,7 +292,8 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("prt %s-SCCS version %s %s (%s-%s-%s)\n",
+				printf(gettext(
+				    "prt %s-SCCS version %s %s (%s-%s-%s)\n"),
 					PROVIDER,
 					VERSION,
 					VDATE,
@@ -561,7 +562,7 @@ char *file;
 						    flagdesc[ENCODEFLAG - 'a']);
 				}
 			} else if (*p - 'a' < 0 || *p - 'a' >= NFLAGS) {
-				printf("\tUnknown flag '%c'\t", *p);
+				printf(gettext("\tUnknown flag '%c'\t"), *p);
 				if (*++p) {
 					NONBLANK(p);
 					printf("\t%s", p);

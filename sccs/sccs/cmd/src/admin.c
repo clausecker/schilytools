@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)admin.c	1.118 18/12/05 J. Schilling
+ * @(#)admin.c	1.120 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.118 18/12/05 J. Schilling"
+#pragma ident "@(#)admin.c 1.120 18/12/17 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -148,7 +148,6 @@ static	int	pos_ser __PR((char *s1, char *s2));
 static	int	range __PR((register char *line));
 static	FILE *	code __PR((FILE *iptr, char *afile, off_t offset, int thash, struct packet *pktp));
 static	void	direrror __PR((char *dir, int keylet));
-static	void 	aget	__PR((char *afile, char *gname, int ser));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -541,7 +540,8 @@ char *argv[];
 			case 'V':		/* version */
 				if (optarg == argv[j+1]) {
 				doversion:
-					printf("admin %s-SCCS version %s %s (%s-%s-%s)\n",
+					printf(gettext(
+					    "admin %s-SCCS version %s %s (%s-%s-%s)\n"),
 						PROVIDER,
 						VERSION,
 						VDATE,
@@ -1553,33 +1553,9 @@ char	*afile;
 				unlink(ifile);
 			} else if (N.n_get) {
 				unlink(ifile);
-				aget(gpkt.p_file, ifile, 1);
-				if (HADO) {
-					struct timespec	ts[2];
-					extern dtime_t	Timenow;
-
-					ts[0].tv_sec = Timenow.dt_sec;
-					ts[0].tv_nsec = Timenow.dt_nsec;
-					ts[1].tv_sec = ifile_mtime.tv_sec;
-					ts[1].tv_nsec = ifile_mtime.tv_nsec;
-
-					/*
-					 * As SunPro make and gmake call sccs
-					 * get when the time if s.file equals
-					 * the time stamp of the g-file, make
-					 * sure the g-file is a bit younger.
-					 */
-					if (!(gpkt.p_flags & PF_V6)) {
-						struct timespec	tn;
-
-						getnstimeofday(&tn);
-						ts[1].tv_nsec = tn.tv_nsec;
-					}
-					if (ts[1].tv_nsec <= 500000000)
-						ts[1].tv_nsec += 499999999;
-
-					utimensat(AT_FDCWD, ifile, ts, 0);
-				}
+				doget(gpkt.p_file, ifile, 1);
+				if (HADO)
+					dogtime(&gpkt, ifile, &ifile_mtime);
 			}
 		}
 		xrm(&gpkt);
@@ -2032,7 +2008,7 @@ struct packet *pktp;
 
 	/* issue a warning that file is non-text */
 	if (!HADB) {
-		fprintf(stderr, "WARNING [%s%s%s]: %s",
+		fprintf(stderr, gettext("WARNING [%s%s%s]: %s"),
 			dir_name,
 			*dir_name?"/":"",
 			ifile,
@@ -2064,79 +2040,4 @@ direrror(dir, keylet)
 	gettext("directory `%s' specified as `%c' keyletter value (ad29)"),
 		dir, (char)keylet);
 	fatal(SccsError);
-}
-
-static void
-aget(afile, gname, ser)
-	char		*afile;
-	char		*gname;
-	int		ser;
-{
-	struct packet	pk2;
-	struct stats	stats;
-	char		ohade;
-
-	sinit(&pk2, afile, SI_OPEN);
-
-	pk2.p_stdout = stderr;
-	pk2.p_cutoff = MAX_TIME;
-
-	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
-		fmterr(&pk2);
-	finduser(&pk2);
-	doflags(&pk2);
-	donamedflags(&pk2);
-	dometa(&pk2);
-	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
-
-	pk2.p_chkeof = 1;
-	pk2.p_gotsid = pk2.p_idel[ser].i_sid;
-	pk2.p_reqsid = pk2.p_gotsid;
-
-	setup(&pk2, ser);
-	ohade = HADE;
-	HADE = 0;
-	idsetup(&pk2, NULL);
-	HADE = ohade;
-
-	if (exists(afile) && (S_IEXEC & Statbuf.st_mode)) {
-		pk2.p_gout = xfcreat(gname, HADK ?
-			((mode_t)0755) : ((mode_t)0555));
-	} else {
-		pk2.p_gout = xfcreat(gname, HADK ?
-			((mode_t)0644) : ((mode_t)0444));
-	}
-
-#ifdef	USE_SETVBUF
-	setvbuf(pk2.p_gout, NULL, _IOFBF, VBUF_SIZE);
-#endif
-
-	pk2.p_ghash = 0;
-	if (pk2.p_encoding & EF_UUENCODE) {
-		while (readmod(&pk2)) {
-			decode(pk2.p_line, pk2.p_gout);
-		}
-	} else {
-		while (readmod(&pk2)) {
-			char	*p;
-
-			if (pk2.p_flags & PF_NONL)
-				pk2.p_line[pk2.p_line_length-1] = '\0';
-			p = idsubst(&pk2, pk2.p_lineptr);
-			if (fputs(p, pk2.p_gout) == EOF)
-				xmsg(gname, NOGETTEXT("get"));
-		}
-	}
-	if (fflush(pk2.p_gout) == EOF)
-		xmsg(gname, NOGETTEXT("get"));
-	/*
-	 * Force g-file to disk and verify
-	 * that it actually got there.
-	 */
-#ifdef	HAVE_FSYNC
-	if (fsync(fileno(pk2.p_gout)) < 0)
-		xmsg(gname, NOGETTEXT("get"));
-#endif
-	if (fclose(pk2.p_gout) == EOF)
-		xmsg(gname, NOGETTEXT("get"));
 }

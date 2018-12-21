@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2017 J. Schilling
 *
-* @(#)cmds	1.58 18/12/04 J. Schilling 
+* @(#)cmds	1.60 18/12/10 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -523,10 +523,12 @@ basic project oriented sub-commands:
 
 	(do 'help sccs'         for a full list of sccs options)
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
+	(do 'help project_subcmds' for a full list of project sccs subcommands)
 	(do 'help get_kywds'    for a description of recognized ID keywords)
 	(do 'help prs_kywds'    for a description of recognized data keywords)
 -intro
-      sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>] subcommand [opt ...] [file ...]
+      sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>]
+        subcommand [opt ...] [file ...]
 
 basic sub-commands:
 	sccs admin	create or administer SCCS history files
@@ -547,6 +549,7 @@ basic project oriented sub-commands:
 
 	(do 'help sccs'         for a full list of sccs options)
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
+	(do 'help project_subcmds' for a full list of project sccs subcommands)
 	(do 'help get_kywds'    for a description of recognized ID keywords)
 	(do 'help prs_kywds'    for a description of recognized data keywords)
 -sccs
@@ -599,6 +602,15 @@ options:
 	sccs unget	undo a previous get of an SCCS file
 	sccs val	validate an SCCS file
 	sccs what	extract SCCS version information from a file
+
+-project_subcmds
+	sccs add	add specified files on next commit
+	sccs commit	commit changes to project repository
+	sccs init	initialize empty project repository
+	sccs remove	remove specified files on next commit
+	sccs rename	rename specified files on next commit
+	sccs root	print project set home directory
+	sccs status	show changed files in the project
 
 -edit
 	edit [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
@@ -792,6 +804,13 @@ options:
 	rename source destination
 
 	Rename files in the project list for the next commit
+-root
+	root [-v] [file]
+
+options:
+	-v	Show project root state in verbose.
+
+	Show the project root directory
 -status
 	status [file...]
 

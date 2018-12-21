@@ -1,8 +1,8 @@
-/* @(#)utypes.h	1.36 13/09/14 Copyright 1997-2013 J. Schilling */
+/* @(#)utypes.h	1.37 18/12/19 Copyright 1997-2018 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
- *	Copyright (c) 1997-2013 J. Schilling
+ *	Copyright (c) 1997-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -58,6 +58,11 @@ typedef unsigned int	Ucbit;
 
 typedef unsigned char	Ucbit;
 
+#endif
+
+#ifdef	__BAD_CHAR_SIGNED__	/* From <schily/stdint.h>	*/
+#undef	CHAR_MIN		/* Solaris is wrong		*/
+#undef	CHAR_MAX
 #endif
 
 #ifndef	CHAR_MIN

@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)sccsdiff.sh	1.10 18/11/20 Copyright 2011-2018 J. Schilling
+# @(#)sccsdiff.sh	1.12 18/12/17 Copyright 2011-2018 J. Schilling
 #
 # CDDL HEADER START
 #
@@ -60,10 +60,10 @@ do
 		addflags=
 		continue
 	fi
-	case $i in
+	case "$i" in
 
 	-*)
-		case $i in
+		case "$i" in
 
 		-r*)
 			if [ ! "$sid1" ]
@@ -167,9 +167,13 @@ do
 	rm -f /tmp/get[abc]$$
 	# Good place to check if tmp-files are not deleted
 	# if [ -f /tmp/geta$$ ] ...
-	if $get $nseflag $Nflag -s -o -k -r$sid1 $i -G/tmp/geta$$
+
+	#
+	# $Nflag may contain spaces, so clear IFS for this command
+	#
+	if IFS= $get $nseflag $Nflag -s -o -k -r$sid1 $i -G/tmp/geta$$
 	then
-		if $get $nseflag $Nflag -s -o -k -r$sid2 $i -G/tmp/getb$$
+		if IFS= $get $nseflag $Nflag -s -o -k -r$sid2 $i -G/tmp/getb$$
 		then
 			diff $flags /tmp/geta$$ /tmp/getb$$ > /tmp/getc$$
 		else

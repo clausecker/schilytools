@@ -1,11 +1,12 @@
-# @(#)Targets	1.24 18/12/04 Copyright 2006-2015 J. Schilling
+# @(#)Targets	1.25 18/12/16 Copyright 2006-2015 J. Schilling
 
 CFILES=	auxf.c \
 	bulk.c \
 	cdata.c change_ab.c change_ba.c chkid.c chksid.c cmpdate.c \
 	date_ab.c date_ba.c date_bal.c \
 	del_ab.c \
-	del_ba.c dodelt.c dofile.c dohist.c doie.c dolist.c dometa.c \
+	del_ba.c \
+	dodelt.c dofile.c doget.c dogtime.c dohist.c doie.c dolist.c dometa.c \
 	dtime.c encode.c \
 	eqsid.c fdirsubs.c flushto.c fmterr.c getline.c getser.c \
 	help.c homesubs.c \

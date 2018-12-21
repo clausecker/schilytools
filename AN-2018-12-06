@@ -49,7 +49,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		these emulations have not yet been tested thoroughly.
 		Please report problems!
 
--	COPYING: updated the copyright date bor bsh.
+-	COPYING: updated the copyright date for bsh.
 
 -	libfind: With the changes from 2018-11-22, the code did not compile
 		anymore on platforms without vfork(). This problem has been
@@ -165,7 +165,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 -	SCCS: sccscvt: When converting from SCCS v4 to SCCS v6, the initial path
 	and the unified random are now added if not yet present.
 
--	SCCS: scat: the program now identifies itself as "sact" instead of "unget"
+-	SCCS: sact: the program now identifies itself as "sact" instead of "unget"
 	which was a result of being a single program with hard links.
 
 -	SCCS unit tests: New tests for checking the SCHILY SCCS specific new

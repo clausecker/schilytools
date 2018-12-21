@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.48 18/12/03 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-delta.1	1.51 18/12/18 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,14 +31,14 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2018/12/03" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2018/12/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
 .B /usr/ccs/bin/delta \c
-.RB [ -dfhnopsz "] \c
+.RB [ -dfhknopsz "] \c
 .RB [ "-g \c
 .I sid-list \c
 | \c
@@ -179,6 +179,26 @@ This option is an undocumented
 .B \s-1SUN\s+1
 extension that does not exist in historic
 .B sccs 
+implementations.
+
+.br
+.ne 3
+.TP
+.B -k
+Suppresses expansion of
+.B ID
+keywords when
+.BR delta (1)
+is doing an implicit
+.BR get (1)
+operation because
+.BI  -N+ ...
+was specified.
+.sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
 implementations.
 
 .br
@@ -402,7 +422,27 @@ specifier.
 The following flag types are supported:
 .RS
 .TP 10
-.B none
+.B +
+If
+.I bulk-spec
+is preceded by a
+.BR `+' ,
+.BR delta (1)
+removes the original g-files and replaces them by file content that is
+retrieved by a
+.BR get (1)
+operation on the related
+.BI s. file\fR.
+This option is ignored if
+.B \-n
+has been specified.
+.TP
+.B space
+This is a placeholder dummy flag that allows to use a prepared string for
+the 
+.B \-N
+option and to replace the space character by one of the supported flags
+on demand.
 .LP
 The following path specifier types are supported:
 .TP 10
@@ -823,3 +863,41 @@ was later maintained by various people at AT&T and Sun Microsystems.
 Since 2006, the
 .B SCCS
 suite is maintained by J\*org Schilling.
+
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B SCCS
+suite is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B SCCS
+suite is at:
+.LP
+.B
+    http://sourceforge.net/projects/sccs/files/
+.LP
+Separate project informations for the
+.B SCCS
+project may be retrieved from:
+.LP
+.B
+    http://sccs.sf.net
+.br

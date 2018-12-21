@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)diff.c	1.72 18/03/15 J. Schilling
+ * @(#)diff.c	1.73 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.72 18/03/15 J. Schilling"
+#pragma ident "@(#)diff.c 1.73 18/12/17 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -544,7 +544,8 @@ main(argc, argv)
 			break;
 
 		case 'V':		/* version */
-			printf("diff %s-%s version %s%s%s (%s-%s-%s)\n",
+			printf(gettext(
+			    "diff %s-%s version %s%s%s (%s-%s-%s)\n"),
 				PROVIDER,
 				SCCS_DIFF ? "SCCS":"diff",
 				VERSION,
@@ -759,7 +760,7 @@ same:
 	print_dstatus();
 
 #ifdef	DEBUG
-	fprintf(stderr, "Allocates space: %ld Bytes\n", (long)sbrk(0) - oe);
+	fprintf(stderr, "Allocated space: %ld Bytes\n", (long)sbrk(0) - oe);
 #endif
 	done();
 	/*NOTREACHED*/

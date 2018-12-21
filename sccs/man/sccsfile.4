@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.42 18/04/30 Copyright 2007-2018 J. Schilling */
+.\" @(#)sccsfile.4	1.44 18/12/18 Copyright 2007-2018 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2015 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2018/04/30" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2018/12/18" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -992,6 +992,183 @@ is extracted as
 .B "^Atext"
 without a need to add another quote.
 .RE
+
+.br
+.ne 5
+.SH FILES
+.br
+.ne 3
+.TP 12
+.B ``g-file''
+version retrieved by
+.B get
+
+.br
+.ne 2
+.TP
+.BI d. file
+temporary file created by the
+.BR delta (1)
+program with the content of the previous version, 
+used to compute differences to the current version
+
+.TP
+.BI e. file
+temporary file to hold an uuencoded version of the
+.B g-file
+in case of an encoded history file.
+Used by
+.BR admin (1)
+and
+.BR delta (1).
+
+.br
+.ne 3
+.TP
+.BI l. file
+file containing extracted delta table info
+
+.sp
+.ne 3
+.TP
+.BI o. file
+saved original version of the history file,
+created by
+.BR sccscvt (1).
+
+.br
+.ne 3
+.TP
+.BI p. file
+permissions (lock) file for checked-out versions.
+The
+.BR p. file
+has an arbitrary number of lines, each is related to a
+.B get \-e
+call. Each line has the following structure:
+.sp
+.ne 3
+.RS +15
+.I old-sid
+.I new-sid
+.I username
+.I date
+.IR time " \e
+.br
+[
+.BI -i i-arg
+][
+.BI -x x-arg
+][
+.BI -z z-arg
+]
+.RE
+.RS +12
+.LP
+The
+.I old-sid
+is the SID that was checked out with
+.BR "get \-e" ,
+the
+.I new-sid
+is the SID that will be used for the new version when
+.B delta
+is called. The
+.I username
+is the user-name corresponding to the real user ID at the time
+.B get \-e
+was called. The
+.I date
+and
+.I time
+fields are in the same format as used in the delta table of the
+.BI s. file
+as described in
+.BR sccsfile (4)
+for
+.B SCCS
+v4.
+In order to grant POSIX compatibility, a two digit year is used
+between 1969 and 2068. For years outside that range, a four digit
+year is used.
+The following fields are only present when one or more of the
+.B \-i
+.B \-x
+or
+.B \-z
+options have been specified on the command line, they refer to the
+list of included and excluded deltas or to the CMR list from the
+NSE enhancements.
+.RE
+
+.br
+.ne 3
+.TP
+.BI q. file
+temporary copy of the 
+.BR p. file; 
+renamed to the 
+.BR p. file 
+after completion 
+
+.br
+.ne 3
+.TP
+.BI s. file
+.B SCCS
+history file, see
+.BR sccsfile (4).
+
+.sp
+.ne 2
+.TP
+.BI SCCS/s. file
+history file in SCCS subdirectory
+
+.sp
+.ne 2
+.TP
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion.
+Used by
+.BR admin (1),
+.BR cdc (1),
+.BR delta (1),
+.BR rmdel (1),
+and
+.BR sccscvt (1).
+
+.br
+.ne 3
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order 
+followed by the host name
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
+
+.br
+.ne 3
+.TP
+.B /usr/ccs/include/
+If the environment
+.B SCCS_INCLUDEPATH
+does not exist, include files for the
+.BI %\&sccs.include. filename \&%
+keyword directive are searched in this directory.
+
 
 .br
 .ne 5

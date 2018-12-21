@@ -1,4 +1,4 @@
-/* @(#)stdint.h	1.38 18/07/19 Copyright 1997-2018 J. Schilling */
+/* @(#)stdint.h	1.39 18/12/19 Copyright 1997-2018 J. Schilling */
 /*
  *	Abstraction from stdint.h
  *
@@ -108,6 +108,24 @@
 #ifdef	__CHAR_UNSIGNED__	/* GNU GCC define (dynamic)	*/
 #ifndef CHAR_IS_UNSIGNED
 #define	CHAR_IS_UNSIGNED	/* Sing Schily define (static)	*/
+#endif
+#endif
+
+/*
+ * limits.h on Solaris is broken and always #defines _CHAR_IS_SIGNED
+ * SunPro c #defines _CHAR_IS_UNSIGNED in case it was called with -xchar=u
+ *
+ * Note that this still does not fix the values for CHAR_MIN and CHAR_MAX
+ * retrived from limits.h since these constants are #defined in an #ifdef
+ * that is evaluated before we fix _CHAR_IS_SIGNED / _CHAR_IS_UNSIGNED.
+ */
+#if	defined(CHAR_IS_UNSIGNED) || defined(_CHAR_IS_UNSIGNED)
+#ifdef	_CHAR_IS_SIGNED
+#define	__BAD_CHAR_SIGNED__
+#undef	_CHAR_IS_SIGNED
+#endif
+#ifndef	_CHAR_IS_UNSIGNED
+#define	_CHAR_IS_UNSIGNED
 #endif
 #endif
 

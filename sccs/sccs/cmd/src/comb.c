@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)comb.c	1.35 18/12/04 J. Schilling
+ * @(#)comb.c	1.36 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.35 18/12/04 J. Schilling"
+#pragma ident "@(#)comb.c 1.36 18/12/17 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -187,8 +187,8 @@ register char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf(
-				"comb %s-SCCS version %s %s (%s-%s-%s)\n",
+				printf(gettext(
+				"comb %s-SCCS version %s %s (%s-%s-%s)\n"),
 					PROVIDER,
 					VERSION,
 					VDATE,

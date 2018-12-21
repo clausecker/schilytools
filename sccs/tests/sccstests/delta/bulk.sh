@@ -63,5 +63,29 @@ echo a4 >> a/b/c/$g
 echo b4 >> a/b/c/$g2
 docommand de_bulk15 "${delta} -NXXXX/s. -ycomment4 a/b/c/XXXX/$s a/b/c/XXXX/$s2" 0 IGNORE ""
 
+remove a/b/c/$g a/b/c/$g2
+
+#
+# Test whether delta -N+XXXX does a correct implicit get(1)
+#
+docommand de_bulk20 "${get} -NXXXX  -e a/b/c/$g a/b/c/$g2" 0 IGNORE ""
+echo '%M%' >> a/b/c/$g
+echo '%M%' >> a/b/c/$g2
+docommand de_bulk21 "${admin} -NXXXX -dy a/b/c/$g a/b/c/$g2" 0 IGNORE ""
+docommand de_bulk22 "${delta} -N+XXXX -ycomment5 a/b/c/$g a/b/c/$g2" 0 IGNORE ""
+if wtest -w a/b/c/$g || wtest -w a/b/c/$g2; then
+	fail "a/b/c/$g a/b/c/$g2 writable"
+fi
+if grep "foo" a/b/c/$g > /dev/null 2>/dev/null; then
+	:
+else
+	fail "a/b/c/$g keywords not expanded"
+fi
+if grep "foo2" a/b/c/$g2 > /dev/null 2>/dev/null; then
+	:
+else
+	fail "a/b/c/$g2 keywords not expanded"
+fi
+
 remove $z $s $p $g $z2 $s2 $p2 $g2 XXXX a
 success

@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.43 18/11/22 Copyright 1997-2018 J. Schilling */
+/* @(#)sccslog.c	1.44 18/12/17 Copyright 1997-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.43 18/11/22 Copyright 1997-2018 J. Schilling";
+	"@(#)sccslog.c	1.44 18/12/17 Copyright 1997-2018 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2018 J. Schilling
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
 #include <schily/maxpath.h>
 #include <schily/schily.h>
 #include <version.h>
+#include <i18n.h>
 
 #define	streql(s1, s2)	(strcmp((s1), (s2)) == 0)
 #undef	fgetline			/* May be #defined by schily.h */
@@ -168,15 +169,15 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	fprintf(stderr, "Usage: sccslog [options] s.file1 .. s.filen\n");
-	fprintf(stderr, "	-help	Print this help.\n");
-	fprintf(stderr, "	-version Print version number.\n");
-	fprintf(stderr, "	-a	Print all deltas with times differing > 60s separately.\n");
-	fprintf(stderr, "	-aa	Print all deltas with different times separately.\n");
-	fprintf(stderr, "	-Cdir	Base dir for printed filenames.\n");
-	fprintf(stderr, "	-p subdir	Define SCCS subdir.\n");
-	fprintf(stderr, "	-x	Include all comment, even SCCSv6 metadata.\n");
-	fprintf(stderr, "	-Nbulk-spec Processes a bulk of SCCS history files.\n");
+	fprintf(stderr, _("Usage: sccslog [options] s.file1 .. s.filen\n"));
+	fprintf(stderr, _("	-help	Print this help.\n"));
+	fprintf(stderr, _("	-version Print version number.\n"));
+	fprintf(stderr, _("	-a	Print all deltas with times differing > 60s separately.\n"));
+	fprintf(stderr, _("	-aa	Print all deltas with different times separately.\n"));
+	fprintf(stderr, _("	-Cdir	Base dir for printed filenames.\n"));
+	fprintf(stderr, _("	-p subdir	Define SCCS subdir.\n"));
+	fprintf(stderr, _("	-x	Include all comment, even SCCSv6 metadata.\n"));
+	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
 	exit(exitcode);
 }
 
@@ -195,6 +196,26 @@ main(ac, av)
 	int	j;
 
 	save_args(ac, av);
+
+	/*
+	 * Set locale for all categories.
+	 */
+	setlocale(LC_ALL, "");
+
+	sccs_setinsbase(INS_BASE);
+
+	/*
+	 * Set directory to search for general l10n SCCS messages.
+	 */
+#ifdef	PROTOTYPES
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	    NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "lib/locale/"));
+#else
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	    NOGETTEXT("/usr/ccs/lib/locale/"));
+#endif
+
+	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 #ifdef	SCCS_FATALHELP
@@ -215,7 +236,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2018 Jörg Schilling\n",
+		printf(_(
+		"sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2018 Jörg Schilling\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,

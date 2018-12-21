@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.23 18/12/04 Copyright 2011-2018 J. Schilling */
+/* @(#)sccscvt.c	1.24 18/12/18 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.23 18/12/04 Copyright 2011-2018 J. Schilling";
+	"@(#)sccscvt.c	1.24 18/12/18 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -124,7 +124,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf(
-	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2015 %s\n"),
+	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2018 %s\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.53 18/12/03 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-admin.1	1.55 18/12/18 Copyright 2007-2018 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2018/12/03" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2018/12/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -600,6 +600,13 @@ It is recommended to let
 .BR admin (1)
 rename the original file as this file usually contains unexpanded keywords
 and as this file usually is writable.
+.TP
+.B space
+This is a placeholder dummy flag that allows to use a prepared string for
+the 
+.B \-N
+option and to replace the space character by one of the supported flags
+on demand.
 .LP
 If
 .B sccs
@@ -1322,3 +1329,41 @@ was later maintained by various people at AT&T and Sun Microsystems.
 Since 2006, the
 .B SCCS
 suite is maintained by J\*org Schilling.
+
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B SCCS
+suite is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B SCCS
+suite is at:
+.LP
+.B
+    http://sourceforge.net/projects/sccs/files/
+.LP
+Separate project informations for the
+.B SCCS
+project may be retrieved from:
+.LP
+.B
+    http://sccs.sf.net
+.br

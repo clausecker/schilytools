@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)defines.h	1.108 18/12/04 J. Schilling
+ * @(#)defines.h	1.110 18/12/16 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.108 18/12/04 J. Schilling"
+#pragma ident "@(#)defines.h 1.110 18/12/16 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -631,6 +631,7 @@ extern	char	*setrhome;	/* Relative path to the project set home dir */
 extern	char	*setahome;	/* Absolute path to the project set home dir */
 extern	char	*cwdprefix;	/* Prefix from project set home dir to cwd */
 extern	int	homedist;	/* The # of dirs to the project set home dir */
+extern	int	setphomelen;	/* strlen(setphome) */
 extern	int	setrhomelen;	/* strlen(setrhome) */
 extern	int	setahomelen;	/* strlen(setahome) */
 extern	int	cwdprefixlen;	/* strlen(cwdprefix) */
@@ -693,6 +694,9 @@ extern	void	dometa	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *,
 				struct stats *, struct sid *, int));
 extern	void	do_file __PR((char *, void (*func)(char *), int, int));
+extern	void	doget	__PR((char *afile, char *gname, int ser));
+extern	void	dogtime	__PR((struct packet *pkt, char *gfile,
+				struct timespec *mtime));
 extern	void	fmterr	__PR((struct packet *));
 /*
  * Deal with unfriendly and non POSIX compliant glibc that defines getline()

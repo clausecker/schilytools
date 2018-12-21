@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.11 18/11/07 Copyright 2011-2018 J. Schilling
+ * @(#)sethome.c	1.12 18/12/10 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.11 18/11/07 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)sethome.c	1.12 18/12/10 Copyright 2011-2018 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -39,6 +39,7 @@ char	*setrhome;	/* Relative path to the project set home directory */
 char	*setahome;	/* Absolute path to the project set home directory */
 char	*cwdprefix;	/* Prefix from project set home directory to cwd */
 int	homedist;	/* The # of directories to the project set home dir */
+int	setphomelen;	/* strlen(setphome) */
 int	setrhomelen;	/* strlen(setrhome) */
 int	setahomelen;	/* strlen(setahome) */
 int	cwdprefixlen;	/* strlen(cwdprefix) */
@@ -74,7 +75,8 @@ unsethome()
 		cwdprefix = NULL;
 	}
 	setphome = NULL;
-	homedist = setrhomelen = setahomelen = cwdprefixlen = sethomestat = 0;
+	homedist = setphomelen = setrhomelen = setahomelen =
+			cwdprefixlen = sethomestat = 0;
 	shinit = 0;
 }
 
@@ -160,8 +162,10 @@ sethome(path)
 	if (setahomelen > 0 && setahomelen < setrhomelen) {
 		sethomestat |= SETHOME_ABS;
 		setphome = setahome;
+		setphomelen = setahomelen;
 	} else {
 		setphome = setrhome;
+		setphomelen = setrhomelen;
 	}
 	sethomestat |= SETHOME_OK;
 	checkdotsccs(setrhome);
@@ -304,6 +308,7 @@ dorel(bp, len)
 	if (setrhome == NULL)				/* no mem */
 		return (-1);
 	setphome = setrhome;
+	setphomelen = setrhomelen;
 	sethomestat |= SETHOME_OK;
 	checkdotsccs(setrhome);
 	*p = '\0';					/* Cut off new text */

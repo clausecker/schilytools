@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.65 16/08/10 Copyright 1984-2016 J. Schilling */
+/* @(#)sdd.c	1.68 18/12/10 Copyright 1984-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.65 16/08/10 Copyright 1984-2016 J. Schilling";
+	"@(#)sdd.c	1.68 18/12/10 Copyright 1984-2018 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2016 J. Schilling
+ *	Copyright (c) 1984-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -143,6 +143,7 @@ LOCAL	long	ibs;
 LOCAL	long	obs;
 LOCAL	long	bs;
 LOCAL	long	cbs;
+LOCAL	long	sdd_bsize = SDD_BSIZE;	/* Sector size */
 LOCAL	Llong	count;
 LOCAL	off_t	iseek;
 LOCAL	off_t	oseek;
@@ -916,13 +917,15 @@ readbuf(buf, len)
 			(void) putc('\n', stderr);
 		errmsgno(err, "Error reading '%s'.\n", infile);
 #ifdef	ECONNRESET
-		if (noerror && err != EPIPE && err != ECONNRESET)
+		if (noerror && err != EPIPE && err != ECONNRESET) {
 #else
-		if (noerror && err != EPIPE)
+		if (noerror && err != EPIPE) {
 #endif
+			seterrno(err);
 			cnt = readblocks(buf, len);
-		else
+		} else {
 			term(err);
+		}
 	}
 	if (cnt == 0)
 		if (count != 0 && ivsize == 0) {
@@ -961,7 +964,8 @@ writebuf(buf, len)
 		}
 		cnt = len;
 	} else if ((cnt = rwrite(buf, len)) <= 0) {
-error("cnt %ld\n", cnt);
+		if (debug)
+			error("rwrite() -> cnt %ld\n", cnt);
 		if (cnt == 0)		/* EOF */
 			err = ENDOFFILE;
 		else if (cnt < 0)
@@ -971,13 +975,15 @@ error("cnt %ld\n", cnt);
 		errmsgno((int) err, "Error writing '%s'.\n", outfile);
 		if (noerror &&
 #ifdef	ECONNRESET
-		    err != ENDOFFILE && err != EPIPE && err != ECONNRESET)
+		    err != ENDOFFILE && err != EPIPE && err != ECONNRESET) {
 #else
-		    err != ENDOFFILE && err != EPIPE)
+		    err != ENDOFFILE && err != EPIPE) {
 #endif
+			seterrno(err);
 			cnt = writeblocks(buf, len);
-		else
+		} else {
 			term((int) err);
+		}
 	}
 	if (progress && !debug) {
 		(void) putc('.', stderr);
@@ -1008,9 +1014,13 @@ readblocks(buf, len)
 							len, (Llong)pos);
 		readerrs++;
 		return (len);
+	} else {
+		errmsgno(EX_BAD,
+			"Retrying to read %ld Bytes at %lld (Block %lld)\n",
+			len, (Llong)pos, (Llong)pos/(Llong)sdd_bsize);
 	}
 	while (len > 0) {
-		aktlen = min(SDD_BSIZE, len);
+		aktlen = min(sdd_bsize, len);
 		trys = 0;
 		do {
 			if (trys && !(trys & 15)) {
@@ -1018,7 +1028,7 @@ readblocks(buf, len)
 					(void) putc('+', stderr);
 					(void) fflush(stderr);
 				}
-				(void) riseek((off_t)(ifsize() - SDD_BSIZE));
+				(void) riseek((off_t)(ifsize() - sdd_bsize));
 				(void) rread(buf, aktlen);
 
 			} else if (trys > 0 && (trys == 2 || ! (trys & 7))) {
@@ -1054,7 +1064,7 @@ readblocks(buf, len)
 				(void) fflush(stderr);
 			}
 			errmsgno(EX_BAD, "Block %lld not read correctly.\n",
-						(Llong)pos/(Llong)SDD_BSIZE);
+						(Llong)pos/(Llong)sdd_bsize);
 			if (err != 0)
 				term((int) err);
 			cnt = aktlen;
@@ -1085,7 +1095,7 @@ writeblocks(buf, len)
 	register int	trys;
 	register off_t	pos = ovpos;
 	register long	total = 0;
-/*		char	rdbuf[SDD_BSIZE];*/
+/*		char	rdbuf[sdd_bsize];*/
 		int	err = 0;
 
 	if (noseek) {
@@ -1093,9 +1103,13 @@ writeblocks(buf, len)
 							len, (Llong)pos);
 		writeerrs++;
 		return (len);
+	} else {
+		errmsgno(EX_BAD,
+			"Retrying to write %ld Bytes at %lld (Block %lld)\n",
+			len, (Llong)pos, (Llong)pos/(Llong)sdd_bsize);
 	}
 	while (len > 0) {
-		aktlen = min(SDD_BSIZE, len);
+		aktlen = min(sdd_bsize, len);
 		trys = 0;
 		do {
 			if (trys && !(trys & 15)) {
@@ -1103,7 +1117,7 @@ writeblocks(buf, len)
 					(void) putc('>', stderr);
 					(void) fflush(stderr);
 				}
-				(void) roseek((off_t)(ifsize() - SDD_BSIZE));
+				(void) roseek((off_t)(ifsize() - sdd_bsize));
 /* XXX we would need to read the output file here - open with "r" ??? */
 /*				(void) rread(rdbuf, aktlen);*/
 
@@ -1139,7 +1153,7 @@ writeblocks(buf, len)
 				(void) fflush(stderr);
 			}
 			errmsgno(EX_BAD, "Block %lld not written correctly.\n",
-						(Llong)pos/(Llong)SDD_BSIZE);
+						(Llong)pos/(Llong)sdd_bsize);
 			if (err != 0)
 				term((int) err);
 			cnt = aktlen;
@@ -1389,7 +1403,8 @@ prstats()
 }
 
 LOCAL	char	opts[]	= "\
-if*,of*,ibs&,obs&,bs&,cbs&,count&,ivsize&,ovsize&,iseek&,oseek&,seek&,\
+if*,of*,ibs&,obs&,bs&,cbs&,secsize&,\
+count&,ivsize&,ovsize&,iseek&,oseek&,seek&,\
 iskip&,oskip&,skip&,ivseek&,ovseek&,\
 notrunc,pg,noerror,noerrwrite,noseek,try#,\
 fill,swab,block,unblock,lcase,ucase,ascii,ebcdic,ibm,\
@@ -1430,6 +1445,7 @@ getopts(ac, av)
 				&infile, &outfile,
 				getnum, &ibs, getnum, &obs, getnum, &bs,
 				getnum,	&cbs,
+				getnum,	&sdd_bsize,
 				getllnum, &count,
 				getllnum, &ivsize, getllnum, &ovsize,
 				getllnum, &lliseek,  getllnum, &lloseek,
@@ -1461,9 +1477,9 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.65",
+		printf("sdd %s %s (%s-%s-%s)\n\n", "1.68", "2018/12/10",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2016 Jörg Schilling\n");
+		printf("Copyright (C) 1984-2018 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
 		printf("conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or ");
@@ -1515,11 +1531,30 @@ getopts(ac, av)
 		usage(EX_BAD);
 	}
 	if (bs == 0)
-		bs = SDD_BSIZE;
+		bs = sdd_bsize;
 	if (ibs == 0)
 		ibs = bs;
 	if (obs == 0)
 		obs = bs;
+	if ((ibs == obs) &&
+	    (bs % sdd_bsize)) {
+		errmsgno(EX_BAD,
+			"Buffer size must be a multiple of %ld.\n",
+			sdd_bsize);
+		usage(EX_BAD);
+	}
+	if (ibs % sdd_bsize) {
+		errmsgno(EX_BAD,
+			"Input buffer size must be a multiple of %ld.\n",
+			sdd_bsize);
+		usage(EX_BAD);
+	}
+	if (obs % sdd_bsize) {
+		errmsgno(EX_BAD,
+			"Output buffer size must be a multiple of %ld.\n",
+			sdd_bsize);
+		usage(EX_BAD);
+	}
 	if (iskip == 0)
 		iskip = skip;
 	if (oskip == 0)
@@ -1599,13 +1634,15 @@ Options:\n\
 	-onull		  Do not write output to any file\n\
 	ibs=#,obs=#,bs=#  Set input/outbut buffersize or both to #\n\
 	cbs=#		  Set conversion buffersize to #\n\
+	secsize=#	  Set basic buffersize to # (default %ld)\n\
 	ivsize=#,ovsize=# Set input/output volume size to #\n\
 	count=#		  Transfer at most # input records\n\
 	iseek=#,iskip=#	  Seek/skip # bytes on input before starting\n\
 	oseek=#,oskip=#	  Seek/skip # bytes on output before starting\n\
 	seek=#,skip=#	  Seek/skip # bytes on input/output before starting\n\
 	ivseek=#,ovseek=# Seek # bytes on input/output volumes before starting\n\
-");
+",
+	sdd_bsize);
 	error("\
 	-notrunc	  Do not trunctate existing output file\n\
 	-pg		  Print a dot on each write to indicate progress\n\

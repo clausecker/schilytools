@@ -1,4 +1,4 @@
-#ident @(#)sccslog.mk	1.11 18/11/20 
+#ident @(#)sccslog.mk	1.12 18/12/17 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -17,6 +17,7 @@ CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
+CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		sccslog.c

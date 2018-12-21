@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)what.c	1.18 18/11/08 J. Schilling
+ * @(#)what.c	1.19 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.18 18/11/08 J. Schilling"
+#pragma ident "@(#)what.c 1.19 18/12/17 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -139,8 +139,8 @@ main(argc, argv)
 				break;
 
 			case 'V':		/* version */
-				printf(
-				"what %s-SCCS version %s %s (%s-%s-%s)\n",
+				printf(gettext(
+				"what %s-SCCS version %s %s (%s-%s-%s)\n"),
 					PROVIDER,
 					VERSION,
 					VDATE,

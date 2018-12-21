@@ -1,0 +1,236 @@
+New features with AN-2018-12-21:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+-	include/schily/stdint.h & include/schily/utypes.h: added a workarounf for a
+	Solaris _CHAR_IS_SIGNED / _CHAR_IS_UNSIGNED Bug
+
+-	Bourne Shell: make it exit the whole shell with set -e after a command
+		substitution failed on the right side of a variable assignment
+		that has no command. This is required by POSIX.
+
+-	Bourne Shell: added a unit tests for the above case.
+
+-	Bourne Shell: New version date set to 2018-12-08 the this change.
+
+-	sdd: added a new message in retry mode. Sdd now prints the offset of a
+	failed big read before retrying to read it in 512 byte block size.
+	This helps to see where a disk has problems that always fails with
+	big reads but never fails with the retries.
+
+-	sdd: added a new option seczize= that allows to specify a sector 
+	size != 512 bytes and makes sdd ready for recovering disks with larger
+	sector sizes.
+
+-	SCCS the prs man page now tries to make the table less wide.
+
+-	SCCS: libcomobj::bulkprepare() the current working directory inside the
+	project home directory tree now gets an appendet "/" before "SCCS" is
+	appended.
+
+-	SCCS: sccs: now has better comment in the function makefile() that 
+	usually prepends simple file names by "SCCS/s." before passing them
+	to the low level programs. This is the main place where future versions
+	of sccs.c need to be modified to be able to use the new -N option
+	from the low level programs. The -N option however is needed for
+	"off tree" repositories.
+
+-	SCCS: sccs now checks for SCCS/s. in the function makefile(). This
+	results in attempts to check for SCCS/SCCS/s.x.file, but previous
+	versions complained: "SCCS/x.file not an SCCS file" which is not
+	better. In order to prepare the future use of -NSCCS, the new method
+	is needed.
+
+-	SCCS: sccs now has a new variable "NewMode" that is set if the directory
+	".sccs" is seen in the project set home directory. This is the upcomming
+	switch between the old mode where "sccs" translates g-file names into
+	s.file names before calling the SCCS low level programs and the new mode
+	where g-files + the option -NSCCS are used as argument for the low level
+	SCCS prrograms.
+
+	This can be controlled via the environment "SCCS_NMODE". If present and
+	set to "FALSE", "NewMode" is disabled regardless of the presence of
+	".sccs" and otherwise "NewMode" is enabled regardless of the presence of
+	".sccs".
+
+	WARNING: currently you need to set the environment SCCS_NMODE=TRUE to
+	enable this test mode since there is a need to change a lot in the code
+	to make it work again this way.
+
+-	SCCS: sccs: Now using strdup() instead of malloc(strlen(buf) + 1) + strcpy()
+
+-	SCCS: sccs now has a new subcommand "root" that prints the project
+	set home directory in case it has been initialized via "sccs init".
+
+-	SCCS: libcomobj: the get(1) implementation from admin(1) has been
+	moved to libcomobj::doget()
+
+-	SCCS: libcomojb::doget() now calls sclose() and sfree().
+
+-	SCCS: libcomojb::parseN() now recognizes a space character as a
+	placeholder for a flag that is ignored. This allows to make sccs.c
+	simpler as it is now able to modify the behavor of called low level
+	programs, e.g. to use "-N SCCS" to get a vanilla delta(1) or to use
+	"-N+SCCS" to get the behavior of "sccs delget".
+
+-	SCCS: delta now supports new options -k and -N+... This permits
+	do do a "delget" operation with only using delta(1).
+
+-	SCCS: a test for the new implicit get(1) in dalta(1) with -N+SCCS
+	has been added.
+
+-	SCCS: sccsdiff shell script is now able to deal with a -N option that
+	contains space characters. This needs the use of IFS= and $Nflag as 
+	"$Nflag" would otherwise result in an unwanted empty argument.
+
+-	SCCS: all programs: added some more gettext() calls e.g. for the 
+	-version option.
+
+-	SCCS: sccslog: added support for setlocale()/gettext()
+
+-	SCCS: sccsfile man page now contains an overview of all files used by
+	all SCCS commands.
+
+-	SCCS: man pages now contain a hint on where to download the sourcecode.
+
+-	SCCS: sccslog man page fixed a bug with a typo that used .PD 0 instead of
+	just .PD
+
+-	SCCS: The version has been bumped to 5.09 with date 2018/12/18. 
+
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

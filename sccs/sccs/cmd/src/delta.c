@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)delta.c	1.83 18/12/04 J. Schilling
+ * @(#)delta.c	1.85 18/12/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.83 18/12/04 J. Schilling"
+#pragma ident "@(#)delta.c 1.85 18/12/17 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -188,7 +188,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "()-r:dpsnm:g:y:fhoqzC:D:N:X:V(version)");
+		        c = getopt(argc, argv, "()-r:dpsnm:g:y:fhoqkzC:D:N:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -245,6 +245,7 @@ register char *argv[];
 				}
 				break;
 			case 'h': /* allow diffh for large files (NSE only) */
+			case 'k': /* get(1) without keyword expand */
 			case 'o': /* use original file date */
                                 break;
                         case 'q': /* enable NSE mode */
@@ -282,7 +283,8 @@ register char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("delta %s-SCCS version %s %s (%s-%s-%s)\n",
+				printf(gettext(
+				    "delta %s-SCCS version %s %s (%s-%s-%s)\n"),
 					PROVIDER,
 					VERSION,
 					VDATE,
@@ -291,7 +293,7 @@ register char *argv[];
 
 			default:
 			err:
-				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ][ -N[bulk-spec]][ -Xxopts ] s.filename..."));
+				fatal(gettext("Usage: delta [ -dknops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ][ -N[bulk-spec]][ -Xxopts ] s.filename..."));
 			}
 
 			/*
@@ -825,6 +827,11 @@ command, to check the differences found between two files.
 		setuid(getuid());
 		setgid(getgid());
 		unlink(gfilename);
+		if (N.n_get) {
+			doget(gpkt.p_file, gfilename, newser);
+			if (HADO)
+				dogtime(&gpkt, gfilename, &gfile_mtime);
+		}
 		setuid(holduid);
 		setgid(holdgid);
 	}

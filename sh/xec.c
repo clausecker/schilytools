@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)xec.c	1.104 18/10/10 2008-2018 J. Schilling
+ * @(#)xec.c	1.105 18/12/06 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.104 18/10/10 2008-2018 J. Schilling";
+	"@(#)xec.c	1.105 18/12/06 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -480,6 +480,13 @@ execute(argt, xflags, errorflg, pf1, pf2)
 					}
 				} else if (t->treio == 0) {
 					chktrap();
+#ifdef	DO_POSIX_E
+					if (argn == 0 && errorflg &&
+					    (flags & errflg) &&
+					    exitval) {
+						done(0);
+					}
+#endif
 					break;
 				}
 

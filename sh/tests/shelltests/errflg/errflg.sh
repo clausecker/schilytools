@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)errflg.sh	1.4 18/10/10 Copyright 2016 J. Schilling
+# @(#)errflg.sh	1.5 18/12/06 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -37,5 +37,14 @@ docommand ef13 "$SHELL -ce 'f() { return \$1; }; { f 42; echo OK1; f 42; } && : 
 # eval makes builtins a bit more complex
 #
 docommand ef14 "$SHELL -ce 'f() { return \$1; }; eval f 42 || echo OK'" 0 "OK\n" ""
+
+#
+# The exit code of a command substitution becomes the total exit code
+# if there is no following command. So errexit is propagated (see ef22).
+#
+docommand ef20 "$SHELL -c 'a=\`false; echo 1\`; echo x \$a'" 0 "x 1\n" ""
+docommand ef21 "$SHELL -c 'a=\`false; echo 1\` : ; echo x \$a'" 0 "x 1\n" ""
+docommand ef22 "$SHELL -ce 'a=\`false; echo 1\`; echo x \$a'" "!=0" "" ""
+docommand ef23 "$SHELL -ce 'a=\`false; echo 1\` : ; echo x \$a'" 0 "x\n" ""
 
 success

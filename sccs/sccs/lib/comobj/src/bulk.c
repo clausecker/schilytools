@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.13 18/12/05 Copyright 2011-2018 J. Schilling
+ * @(#)bulk.c	1.15 18/12/16 Copyright 2011-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.13 18/12/05 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)bulk.c	1.15 18/12/16 Copyright 2011-2018 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -71,7 +71,10 @@ parseN(N)
 {
 	char	*parm = N->n_parm;
 
-	while (*parm && any(*parm, "+-,")) {
+	while (*parm && any(*parm, "+-, ")) {
+		if (*parm == ' ') {		/* Dummy flag	   */
+			parm++;
+		}
 		if (*parm == '-') {
 			N->n_unlink = 1;	/* Unlink ifile	   */
 			parm++;
@@ -213,6 +216,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				strlcatl(Nhold, sizeof (Nhold),
 					setrhome, "/.sccs/data/",
 					cwdprefix?cwdprefix:"",
+					cwdprefix?"/":"",
 					Dir, *Dir?"/":"",
 					N->n_prefix, sn, (char *)0);
 			} else {
@@ -228,6 +232,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				strlcatl(Nhold, sizeof (Nhold),
 					setrhome, "/.sccs/data/",
 					cwdprefix?cwdprefix:"",
+					cwdprefix?"/":"",
 					N->n_prefix, sn, (char *)0);
 			} else {				/* use short name */
 				strlcatl(Nhold, sizeof (Nhold),
