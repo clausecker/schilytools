@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.56 18/06/23 Copyright 2001-2018 J. Schilling */
+/* @(#)acl_unix.c	1.57 19/01/19 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.56 18/06/23 Copyright 2001-2018 J. Schilling";
+	"@(#)acl_unix.c	1.57 19/01/19 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  *
  *	There are currently two basic flavors of ACLs:
  *
@@ -59,8 +59,8 @@ static	UConst char sccsid[] =
  */
 #ifdef	OWN_ACLTEXT
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
-#	define	HAVE_SUN_ACL
-#	define	HAVE_ANY_ACL
+#define	HAVE_SUN_ACL
+#define	HAVE_ANY_ACL
 #endif
 #endif
 /*
@@ -71,9 +71,9 @@ static	UConst char sccsid[] =
  * star.h at all.
  * HAVE_HP_ACL is currently not included in HAVE_ANY_ACL.
  */
-#	ifndef	HAVE_ANY_ACL
-#	undef	USE_ACL		/* Do not try to get or set ACLs */
-#	endif
+#ifndef	HAVE_ANY_ACL
+#undef	USE_ACL			/* Do not try to get or set ACLs */
+#endif
 #endif
 
 #include <schily/stdio.h>
@@ -98,11 +98,11 @@ static	UConst char sccsid[] =
 #ifdef	USE_ACL
 
 #ifdef	HAVE_SYS_ACL_H
-#	include <sys/acl.h>
+#include <sys/acl.h>
 #endif
 #ifdef	HAVE_NFSV4_ACL
 #ifdef	HAVE_ACLUTILS_H
-#	include <aclutils.h>
+#include <aclutils.h>
 #else
 extern	char	*acl_strerror	__PR((int));
 extern	int	acl_type	__PR((acl_t *));

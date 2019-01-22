@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.163 18/10/25 Copyright 1985-2018 J. Schilling */
+/* @(#)extract.c	1.165 19/01/16 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.163 18/10/25 Copyright 1985-2018 J. Schilling";
+	"@(#)extract.c	1.165 19/01/16 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1752,7 +1752,7 @@ file_tmpname(info, path)
 	strcpy(dp, "XXXXXX");
 	seterrno(0);
 	lmktemp(path->ps_path);
-	if (path->ps_path == '\0') {
+	if (path->ps_path[0] == '\0') {
 		errmsg("Cannot make temporary name for '%s'.\n",
 				info->f_name);
 		return (FALSE);
@@ -1876,12 +1876,13 @@ get_file(info)
 		return (TRUE);
 	}
 
+	path.ps_path = xname;
+	xname[0] = '\0';
+
 	if (to_stdout) {
 		f = stdout;
 		goto ofile;
 	}
-	path.ps_path = xname;
-	xname[0] = '\0';
 	if (do_install && name_exists(name)) {
 		if (!file_tmpname(info, &path)) {
 			ret = FALSE;

@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.46 16/10/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling */
+/* @(#)apple.c	1.47 19/01/08 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.46 16/10/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling";
+	"@(#)apple.c	1.47 19/01/08 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2016 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2016 J. Schilling
+ *	Copyright (c) 2000-2019 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -377,6 +377,7 @@ hstrncpy(t, f, tlen)
 				slen -= 3;
 				continue;
 			}
+			/* FALLTHRU */
 		def:
 		default:
 			conv_charset(t, &tlen, (unsigned char *)f, &slen, in_nls, hfs_onls);

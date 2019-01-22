@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.16 18/06/21 Copyright 2001-2018 J. Schilling */
+/* @(#)unicode.c	1.17 19/01/13 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.16 18/06/21 Copyright 2001-2018 J. Schilling";
+	"@(#)unicode.c	1.17 19/01/13 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  *	handles ISO-8859-1 coding. There should be a better solution
  *	in the future.
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -223,10 +223,11 @@ _to_iconv(to, tolen, from, len)
 	size_t		tol = tolen;
 	size_t		ret;
 
+	seterrno(0);
 	ret = iconv(ic_to, &fp, &frl, &tp, &tol);
 	if (tol > 0)
 		*tp = '\0';
-	if (ret == (size_t)-1) {
+	if (ret != 0) {	/* Error (-1) or nonidentical translations (>0) */
 #ifdef	__STAR__
 		if (!errhidden(E_ICONV, (char *)from)) {
 			if (!errwarnonly(E_ICONV, (char *)from))
@@ -366,11 +367,12 @@ _from_iconv(to, tolen, from, len)
 	size_t		tol = tolen;
 	size_t		ret;
 
+	seterrno(0);
 	ret = iconv(ic_from, &fp, &frl, &tp, &tol);
 	if (tol > 0)
 		*tp = '\0';
 	*len = tolen - tol;
-	if (ret == (size_t)-1) {
+	if (ret != 0) {	/* Error (-1) or nonidentical translations (>0) */
 #ifdef	__STAR__
 		if (!errhidden(E_ICONV, (char *)from)) {
 			if (!errwarnonly(E_ICONV, (char *)from))

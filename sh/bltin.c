@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.135 18/10/23 2008-2018 J. Schilling
+ * @(#)bltin.c	1.136 19/01/09 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.135 18/10/23 2008-2018 J. Schilling";
+	"@(#)bltin.c	1.136 19/01/09 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -944,6 +944,8 @@ builtin(type, argc, argv, t, xflags)
 		exitval = 0;
 		n = lookup(UC "OPTIND");
 		optind = stoi(n->namval);
+		if (optind <= 0)		/* Paranoia */
+			optind = 1;
 		varnam = argv[2];
 		if (argc > 3) {
 			argv[2] = dolv[0];

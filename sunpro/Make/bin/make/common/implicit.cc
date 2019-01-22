@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)implicit.cc	1.64	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)implicit.cc	1.8 18/03/25 2017-2018 J. Schilling
+ * @(#)implicit.cc	1.9 19/01/07 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)implicit.cc	1.8 18/03/25 2017-2018 J. Schilling";
+	"@(#)implicit.cc	1.9 19/01/07 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -346,6 +346,7 @@ posix_attempts:
 					}
 					continue;
 				}
+				/* FALLTHRU */
 			case build_running:
 				if(!name_found) {
 					store_name(source);

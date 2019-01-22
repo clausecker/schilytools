@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)expand.c	1.25 18/07/14 2008-2018 J. Schilling
+ * @(#)expand.c	1.27 19/01/13 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.25 18/07/14 2008-2018 J. Schilling";
+	"@(#)expand.c	1.27 19/01/13 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -79,7 +79,6 @@ expand(as, rcnt)
 {
 	int	count;
 	DIR	*dirf;
-	BOOL	dir = 0;
 	unsigned char	*rescan = 0;
 	unsigned char	*slashsav = 0;
 	unsigned char	*s, *cs;
@@ -172,8 +171,7 @@ expand(as, rcnt)
 		}
 	}
 
-	if ((dirf = lopendir(*s ? (char *)s : (char *)".")) != 0)
-		dir++;
+	dirf = lopendir(*s ? (char *)s : (char *)".");
 
 	/* Let s point to original string because it will be trimmed later */
 	if (s2)
@@ -183,7 +181,7 @@ expand(as, rcnt)
 		slashsav = cs++; /* remember where first slash in as is */
 
 	/* check for rescan */
-	if (dir) {
+	if (dirf) {
 		unsigned char *rs;
 		struct dirent *e;
 
@@ -340,6 +338,8 @@ lopendir(name)
 		return (ret);
 
 	fd = sh_hop_dirs(name, &p);
+	if (fd < 0)
+		return ((DIR *)NULL);
 	if ((dfd = openat(fd, p, O_RDONLY|O_DIRECTORY|O_NDELAY)) < 0) {
 		close(fd);
 		return ((DIR *)NULL);

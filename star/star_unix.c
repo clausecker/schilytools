@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.116 18/11/03 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)star_unix.c	1.117 19/01/19 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.116 18/11/03 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)star_unix.c	1.117 19/01/19 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -117,8 +117,8 @@ LOCAL	int	dolchmodat	__PR((char *name, mode_t tarmode, int flag));
 
 #ifdef	OWN_ACLTEXT
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
-#	define	HAVE_SUN_ACL
-#	define	HAVE_ANY_ACL
+#define	HAVE_SUN_ACL
+#define	HAVE_ANY_ACL
 #endif
 #endif
 /*
@@ -129,9 +129,9 @@ LOCAL	int	dolchmodat	__PR((char *name, mode_t tarmode, int flag));
  * star.h at all.
  * HAVE_HP_ACL is currently not included in HAVE_ANY_ACL.
  */
-#	ifndef	HAVE_ANY_ACL
-#	undef	USE_ACL		/* Do not try to get or set ACLs */
-#	endif
+#ifndef	HAVE_ANY_ACL
+#undef	USE_ACL		/* Do not try to get or set ACLs */
+#endif
 #endif
 
 /*

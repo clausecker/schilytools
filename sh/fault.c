@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)fault.c	1.39 18/08/12 2008-2018 J. Schilling
+ * @(#)fault.c	1.40 19/01/10 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.39 18/08/12 2008-2018 J. Schilling";
+	"@(#)fault.c	1.40 19/01/10 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -384,8 +384,10 @@ handle(sig, func)
 		sigaction(sig, &act, &oact);
 	}
 
-	if (func == SIG_IGN)
-		trapflg[sig] |= SIGIGN;
+	if (sig >= MINTRAP && sig < MAXTRAP) {	/* Paranoia for Coverity */
+		if (func == SIG_IGN)
+			trapflg[sig] |= SIGIGN;
+	}
 
 	/*
 	 * Special case for signal zero, we can not obtain the previos

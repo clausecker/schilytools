@@ -1,0 +1,509 @@
+New features with AN-2019-01-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+-	Schily.Copyright: added new Copyright dates
+
+-	include/schily/values.h: new include file.
+
+-	include/schily/dbgmalloc.h: added more prototypes for libdbgmalloc.
+
+-	libdbgmalloc & bsh: alloc.c now also prints the caller information
+	in the function aprintlist()
+
+-	libstrar::unicode.c: Code has been aligned again with the same module
+	from star.
+
+-	libstrar & star unicode.c: iconv() may return > 0 if there are
+	characters that could not be converted into an identical meaning.
+	We therefore now check for ret != 0 instead of ret == -1.
+
+	Thanks to Christian Weisgerber for reporting
+
+-	libschily::match.c: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	libschily::fstream.c: Added a /* NOTREACHED */ comment to make coverity
+	quiet.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	libschily::fnmatch.c: added a forgotten fix (from last January) for 
+	a problem with missing brackets with if/then/else related to
+	[:upper:] and [:lower:]
+
+-	libschily::fnmatch.c:  added a forgotten _partial_ enhancement from
+	last January for [= ... =] and [. ... .] support.
+
+	Warning: this is not yet fully functional since the POSIX standard
+	does not include an interface to get this functionality from the
+	i18n part of libc.
+
+-	libfind::find.c: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	libshedit & bsh: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	calltree: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	calltree: made the lexer more robust against EOF in the middle of
+	a token.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	cdda2wav: replaced some strcat() calls by strlcat() calls.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	cdrecord: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	cdrecord: Copyright bumped to 2019
+
+-	cpp: cpypre.c the fallback file for platforms without "yacc" has been
+	modified to include schily/values.h instead of values.h. This is needed
+	for platforms without yacc and without values.h (e.g. Cygwin)
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	cdda2wav & ${SRCROOT}/Mcsw & ${SRCROOT}/Mocsw is now using
+		"$(MAKE)" instead of $(MAKE) to permit spaces in the path.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	mkisofs: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	mkisofs: the Message "'iconv -l' lists more available names.\n" is now
+	printed even when there is no locale support in the mkisofs specific
+	directory: $INS_BASE/share/lib/siconv as on platforms with iconv(1),
+	the iconv(1) specific translations are still possible.
+
+	Thanks to Jan Engelhardt for reporting.
+
+-	p: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	printf: Added a missing /* FALLTHROUGH */ comment.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: added support for auto detection of "zstd" compressed archives.
+
+-	star: added a new option -zstd to support compression and uncompression
+	using the program "zstd".
+
+-	star: Recently, star did hang in the FIFO code on Solaris. This did
+	not happen on Solaris over 20 years before...
+
+	On Linux - on fast multi CPU machines - the probability that a
+	child process from fork() starts up before the parent is 1000x higher
+	than on Solaris, where 10 million tries were needed to reproduce the
+	same problem.
+
+	As a result, the FIFO in star on Linux could in rare cases (1 of 
+	~ 10000 tries) even finish the 1st read() from the input file before
+	the "tar"-process starts with e.g. command lines like "star -tv" or 
+	"star -x". Since star introduced auto-byte-order detection and handling
+	in 1985, star needs a special start up sequence to do that.
+
+	Star introduced the FIFO in the late 1980s and the machines from that
+	time did always restart the parent before the fork()ed child starts.
+	The new OS behavior thus caused a situation that was not forseeable
+	when the FIFO has been designed. This new OS behavior caused a
+	deadlock in aprox. 1 of 10000 star calls on Linux and 1 of 10000000
+	star calls on Solaris.
+
+	Star now waits when entering the FIFO fill-process until the 
+	FIFO get-process did start up before trying to wake up a waiting
+	get process.
+
+-	star: On Linux, in 1 of 1.5 million tries, star did die from SIGPIPE.
+	Note that this did never happen on Solaris.
+
+	Star now ignores SIGPIPE and it seems that this fixed the problem
+	since it did not happen again after that change with even 100 million
+	tries.
+
+-	star: The debug printing for the FIFO has been enhanced to print more
+	information from the FIFO control structure to make it easier to debug
+	problems like the ones mentioned above.
+
+-	star: There seems to be a problem in pipe handling in the Linux kernel.
+	It seems that in rare cases, the read(2) on a pipe returns 0 even though
+	the write side did write(2) one byte to the pipe just before calling
+	exit(). Unfortunately, this problem is hard to debug as it happens only
+	once every ~30 million tries. Our workaround is to behave as if the
+	expected byte could be read and star currently prints something like:
+
+		star: Erfolg. Sync pipe read error pid 8141 ret 0
+		star: Erfolg. Ib 0 Ob 1 e 0 p 1 g 0 chan 5.
+		star: Erfolg. Trying to work around Kernel Pipe botch.
+
+	before it continues. Since the star exit code in such a case is 0,
+	we assume that this is a correct workaround and this case thus may
+	be made completely silent in the future.
+
+-	star: an even less frequent FIFO problem (occurs once every 50 million
+	tries on fast multi CPU machines) has been identified. Star reports a
+	hard EOF on input even though the complete file with logical EOF has
+	been read and there is still input to process. In order to debug this
+	problem a debug message has been added to the code.
+
+	With this debug message, it turned out, that this problem happened
+	because a context switch occurred in the FIFO read process after it did
+	see an empty FIFO and later, after the process was resumed, the
+	following check for the FIFO_MEOF flag did see EOF. We now first check
+	for the FIFO_MEOF flag and later for the amount of data inside as the
+	FIFO as FIFO_MEOF is set after the FIFO content has been updated and
+	thus a context switch is no longer able to cause a wrong assumption
+	about the content of the FIFO.
+
+	If you still see this, please send a report.
+
+-	star: added support to print debug malloc statistics to better debug
+	memory problems in star.
+
+-	star: pathname.c:: free_pspace() now only frees the path buffer if it
+	is != NULL
+
+-	star: fixed a bug in the file create.c that caused star to incorrectly
+	grow the path buffer by 2 bytes for every archived file. This caused
+	star to constantly grow if a larger amount of files are archived and
+	eat up all memory available to 32 bit processes if the archived
+	filesystem is larger than approx. 1 TB.
+
+-	star: If the path name now cannot be handled because of low memory,
+	we print a warning that includes the text "out of memory".
+
+-	star: Now checking whether open of /dev/null failed while running a
+	compress pipe. This avoids a core dump on defective OS installations.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: props.c: Added a missing /* FALLTHROUGH */ comment. 
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: create.c: Add more comment for the CPIO CRC format handler to
+	explain why the last instance if a series of hard links for a file
+	needs to archive the data.
+
+-	star: diff.c: added a filling fillbytes(&finfo, ...) to make sure that
+	ACL pointers are initialized.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: Several /* NOTREACHED */ comments have been added to tell
+	programs like coverity that after a NULL pointer check, there is no
+	continuation of the program
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: extract.c: A if (path->ps_path == '\0') has been corrected to
+	if (path->ps_path[0] == '\0') after a mktemp() call. This was a typo
+	introduced with the new support for extremely long path names.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: extract.c An initalization for a struct pathstore has been
+	moved to the front to verify that path.ps_path is always initialized.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: header.c: isgnumagic(&ptb->dbuf.t_vers) has been changed to
+	isgnumagic(ptb->ustar_dbuf.t_magic) as it is a "ustar" structure
+	that is going to be checked.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	star: some Cstyle changes
+
+-	ved: Added a missing /* FALLTHROUGH */ comment. 
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	bsh / Bourne Shell / star: the function hop_dirs() no longer checks
+	for p2 != NULL before calling *p2 = '/' as p2 has been granted
+	to be != NULL from a break with strchr(p, '/') == NULL
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Added a missing /* FALLTHROUGH */ comment. 
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: added a range check for $OPTIND to tge getopts(1)
+	implementation
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Removed a nonsense variable in expand() that caused
+	Coverity not to understand that a directory was correctly closed()
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Added a paranoia comparison to make Coverity quiet.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: avoid to call catpath() with a NULL pointer for path
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: check the write() return code in io.c
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Added a paranopia check for "test -o" to make Coperity
+	quiet.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Added (void) before fcntl() in hope to make Coverity
+	quiet.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Removed dead code from readwc()
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: Cstyle changes to xec.c
+
+-	Bourne Shell: "builtin -d ..." did access free()d memory.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: expand.c: added a check for fd == -1 to avoid calling
+	openat() with that fd.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: func.c: added a check for fd == -1 to avoid calling
+	read()/close() with that fd.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: jobs.c: enlarged a buffer to be of same size as
+	numbuf[] to avoid a potential buffer overflow.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: print.c::prt_cntl() had a very old (AT&T) bug with
+	printing byte sequences that get an error with mbtowc() and it
+	did not print byte sequences correctly that refer to legal but
+	"nonprintable" multi byte characters.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: xec.c: the reserved word "time" could cause to
+	access uninitialized memory if the string in $TIMEFORMAT contains
+	the format %J
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	Bourne Shell: xec.c: added a paranoia check on whether
+	findnam("funcname") returns NULL even though the existence of a
+	function with that name already has been verified via the hash service.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SunPro Make: Added a missing /* FALLTHROUGH */ comment. 
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: libcomobj: dodelt.c & idsubst.c: added a forgotten
+	/* FALLTHRU */
+
+-	SCCS: admin.c: added some /* NOTREACHED */ comments to tell Coverity
+	that fatal() does not return.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: admin.c: The function adjust() did call strlen() on a non-null
+	terminated string.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: admin.c: The function adjust() returned a local string array.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: bdiff.c: added some /* NOTREACHED */ comments to tell Coverity
+	that fatal() does not return.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: prs.c: The getopt() string did not contain 'q' for the expected
+	support to the -q option.
+
+-	SCCS: prs.c The code for handling the -d option was indented but curly
+	brackets have been missing.
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+-	SCCS: unget.c: The getopt() string did not contain 'q' for the expected
+	support to the -q option.
+
+-	SCCS: sccs.c Cstyle changes
+
+-	SCCS: sccs.c Added support for new separate macro string defintions
+	that apply to the "new mode".
+
+-	SCCS: sccs.c New code allows to specify -N options specific to
+	macro stgring defitions.
+
+-	SCCS: sccs.c New environment "SCCS_NOEXEC" allows to disable command
+	execution for debugging purposes.
+
+-	SCCS: New version timestamp for SCCS commands lists 2019
+
+-	ved: Added a missing /* FALLTHROUGH */ comment. 
+
+	Thanks to Pavel Raiskup for poiting to a related Coverity message.
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.103 18/09/25 Copyright 1982, 1984-2018 J. Schilling */
+/* @(#)inputc.c	1.104 19/01/08 Copyright 1982, 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.103 18/09/25 Copyright 1982, 1984-2018 J. Schilling";
+	"@(#)inputc.c	1.104 19/01/08 Copyright 1982, 1984-2019 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2018 J. Schilling
+ *	Copyright (c) 1982, 1984-2019 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -1668,6 +1668,7 @@ edit_line(cur_line)
 			    (towupper(c) < 0140) && c >= '@')
 				c &= 037;
 			}
+			/* FALLTHROUGH */
 		default:
 			multi = 0;
 			if (i_should_echo || !iswprint(c))

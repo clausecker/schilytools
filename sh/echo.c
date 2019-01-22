@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)echo.c	1.18 17/09/01 2008-2017 J. Schilling
+ * @(#)echo.c	1.19 19/01/08 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.18 17/09/01 2008-2017 J. Schilling";
+	"@(#)echo.c	1.19 19/01/08 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -203,7 +203,7 @@ escape_char(cp, res, echomode)
 			wd = (*cp - '0');
 			goto oct;
 		}
-
+		/* FALLTHRU */
 	default:
 	norm:
 		c = *--cp;

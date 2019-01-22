@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.116 18/11/27 Copyright 2004-2018 J. Schilling */
+/* @(#)find.c	1.118 19/01/08 Copyright 2004-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.116 18/11/27 Copyright 2004-2018 J. Schilling";
+	"@(#)find.c	1.118 19/01/08 Copyright 2004-2019 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -792,6 +792,7 @@ parseprim(fap)
 	case CMIN:
 	case MMIN:
 		n->val2.i = 1;
+		/* FALLTHROUGH */
 	case TIME:
 	case ATIME:
 	case CTIME:
@@ -1224,6 +1225,7 @@ parseprim(fap)
 		goto found_action;
 	case FLS:
 		fap->walkflags &= ~WALK_NOSTAT;
+		/* FALLTHROUGH */
 	case FPRINT:
 	case FPRINT0:
 	case FPRINTNNL:
@@ -1487,6 +1489,7 @@ find_expr(f, ff, fs, state, t)
 #ifdef	FNM_IGNORECASE
 		fnflags = FNM_IGNORECASE;
 #endif
+		/* FALLTHROUGH */
 	case LNAME: {
 		int	lsize;
 
@@ -1518,6 +1521,7 @@ find_expr(f, ff, fs, state, t)
 #ifdef	FNM_IGNORECASE
 		fnflags = FNM_IGNORECASE;
 #endif
+		/* FALLTHROUGH */
 	case PATH:
 		p = f;
 		goto nmatch;
@@ -1525,6 +1529,7 @@ find_expr(f, ff, fs, state, t)
 #ifdef	FNM_IGNORECASE
 		fnflags = FNM_IGNORECASE;
 #endif
+		/* FALLTHROUGH */
 	case NAME:
 		p = ff;
 	nmatch:

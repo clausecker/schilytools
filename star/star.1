@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.212 18/11/07 Copyr 1982-2018 J. Schilling
+. \" @(#)star.1	1.213 19/01/05 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2018/11/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/01/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -4240,6 +4240,13 @@ or
 .I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill ovsize=60m of=/dev/rmt/1bn
 .br
 if the tape can hold 60 MB.
+.TP
+.B \-zstd
+run the input or output through a
+.B zstd
+pipe - see option
+.B \-z
+above.
 .SH "INCREMENTAL BACKUPS
 .PP
 .B Star

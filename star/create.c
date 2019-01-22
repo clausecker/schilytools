@@ -1,11 +1,11 @@
-/* @(#)create.c	1.151 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)create.c	1.155 19/01/22 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.151 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)create.c	1.155 19/01/22 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -979,6 +979,9 @@ xcpio_link(info)
 
 /*
  * Archive all cpio CRC links.
+ *
+ * We are called if our caller believes that the last link for a specific file
+ * has been encountered.
  */
 LOCAL BOOL
 acpio_link(info)
@@ -990,13 +993,15 @@ acpio_link(info)
 		int	namelen = info->f_namelen;
 		char	*name = info->f_name;
 		char	*lname = info->f_lname;
-		off_t	size = info->f_size;
-		off_t	rsize = info->f_rsize;
+		off_t	size = info->f_size;	/* real size of file	    */
+#ifdef	__what_people_would_expect__
+		off_t	rsize = info->f_rsize;	/* size as archived on tape */
+#endif
 
 	if ((lp = find_link(info)) != NULL) {
 		/*
 		 * We come here if the link count increases and we need to
-		 * archive more "files" as expected.
+		 * archive more "files" than expected.
 		 */
 		if ((lp->l_flags & L_DATA) != 0)
 			return (FALSE);
@@ -1036,8 +1041,11 @@ acpio_link(info)
 	info->f_name  = name;
 	info->f_lname = lname;
 	info->f_size  = size;
+#ifdef	__what_people_would_expect__
 	info->f_rsize = rsize;
-	info->f_rsize = size;
+#else
+	info->f_rsize = size;	/* Achieve that the last link archives data */
+#endif
 	info->f_xftype = info->f_rxftype;
 
 	info->f_flags &= ~F_TCB_BUF;
@@ -1609,7 +1617,7 @@ put_dir(sname, dname, namlen, info, ptb, pathp, last)
 		if (namlen && pathp->ps_path[pathp->ps_tail - 1] != '/') {
 			char	*p;
 
-			if ((pathp->ps_tail+2) < pathp->ps_size) {
+			if ((pathp->ps_tail+2) > pathp->ps_size) {
 				if (incr_pspace(PS_STDERR, pathp, 2) < 0) {
 					toolong("", name, namlen);
 					goto out;
@@ -1785,6 +1793,9 @@ out:
 		put_tcb(ptb, info);
 }
 
+/*
+ * This is currently only called in case we did run out of memory.
+ */
 LOCAL void
 toolong(dname, name, len)
 	char	*dname;
@@ -1794,7 +1805,7 @@ toolong(dname, name, len)
 	if (!errhidden(E_NAMETOOLONG, name)) {
 		if (!errwarnonly(E_NAMETOOLONG, name))
 			xstats.s_toolong++;
-		errmsgno(EX_BAD, "%s%s: Name too long (%lu).\n",
+		errmsgno(EX_BAD, "%s%s: Name too long (%lu), out of memory.\n",
 			dname, name,
 			(unsigned long)len);
 		(void) errabort(E_NAMETOOLONG, name, TRUE);

@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)doname.cc	1.115	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)doname.cc	1.20 18/03/15 2017-2018 J. Schilling
+ * @(#)doname.cc	1.21 19/01/07 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.20 18/03/15 2017-2018 J. Schilling";
+	"@(#)doname.cc	1.21 19/01/07 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -2539,6 +2539,7 @@ do_assign(register Name line, register Name target)
 		fatal(gettext("= expected in rule `%s' for target `%s'"),
 		      line->string_mb,
 		      target->string_mb);
+		/* NOTREACHED */
 	case plus_char:
 		append = true;
 		equal++;
@@ -3222,6 +3223,7 @@ sccs_get(register Name target, register Property *command)
 	case DONT_KNOW_SCCS:
 		/* We dont know by now there is no SCCS/s.* */
 		target->stat.has_sccs = NO_SCCS;
+		/* FALLTHRU */
 	case NO_SCCS:
 		/*
 		 * If there is no SCCS/s.* but the plain file exists,

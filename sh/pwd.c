@@ -37,13 +37,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)pwd.c	1.38 18/08/31 2008-2018 J. Schilling
+ * @(#)pwd.c	1.39 19/01/14 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.38 18/08/31 2008-2018 J. Schilling";
+	"@(#)pwd.c	1.39 19/01/14 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -235,7 +235,7 @@ sh_hop_dirs(name, np)
 				break;
 			*p2 = '\0';
 		} else {
-			break;
+			break;	/* No slash remains, return the prefix fd */
 		}
 		if ((dfd = openat(fd, p, O_SEARCH|O_DIRECTORY|O_NDELAY)) < 0) {
 			err = errno;
@@ -250,9 +250,7 @@ sh_hop_dirs(name, np)
 		}
 		close(fd);	/* Don't care about AT_FDCWD, it is negative */
 		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
+		*p2++ = '/';	/* p2 is always != NULL here */
 		while (*p2 == '/')
 			p2++;
 		p = p2;

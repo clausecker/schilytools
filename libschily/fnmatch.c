@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.24 17/08/30 2005-2017 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.25 18/01/12 2005-2018 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.24 17/08/30 2005-2017 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.25 18/01/12 2005-2018 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * This code is derived from software contributed to Berkeley by
  * Guido van Rossum.
  *
- * Copyright (c) 2005-2017 J. Schilling
+ * Copyright (c) 2005-2018 J. Schilling
  * Copyright (c) 2011 The FreeBSD Foundation
  * All rights reserved.
  * Portions of this software were developed by David Chisnall
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.24 (Berkeley) 08/30/17";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.25 (Berkeley) 01/12/18";
 #endif /* LIBC_SCCS and not lint */
 /* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
@@ -299,9 +299,11 @@ rangematch(pattern, test, flags, newp, patmbs)
 	wchar_t	otest = test;
 	size_t pclen;
 	const char *origpat;
+/*#define	XXX_COLLATE*/
 #ifdef	XXX_COLLATE
+	locale_t	locale = __get_locale();
 	struct xlocale_collate *table = (struct xlocale_collate *)
-				    __get_locale()->components[XLC_COLLATE];
+				    locale->components[XLC_COLLATE];
 #endif
 
 	/*
@@ -343,11 +345,18 @@ rangematch(pattern, test, flags, newp, patmbs)
 			return (RANGE_NOMATCH);
 		pattern += pclen;
 
+		/*
+		 * "[" initiates a special expression
+		 *	[: :]	A character class like [:upper:]
+		 *	[= =]	An equivalence character class like [=o=] o-like
+		 *	[. .]	A collating symbol like [.ch.]
+		 */
 		if (!quoted && c == '[') {
-			if (pattern[0] == ':') {
+			const char	*p;
+
+			if (pattern[0] == ':') {	/* [: :] char class */
 				char	class[CL_SIZE+1];
 				char	*pc = class;
-				const char	*p;
 
 				p = pattern + 1;	/* Eat ':' */
 				for (;;) {
@@ -369,16 +378,40 @@ rangematch(pattern, test, flags, newp, patmbs)
 					/*
 					 * Convert to the other case
 					 */
-					if (strcmp(class, "upper") == 0)
+					if (strcmp(class, "upper") == 0) {
 						if (iswctype(otest,
 						    wctype("lower")))
 							ok = 1;
-					else if (strcmp(class, "lower") == 0)
+					} else if (strcmp(class, "lower") == 0) {
 						if (iswctype(otest,
 						    wctype("upper")))
 							ok = 1;
+					}
 				}
 				continue;
+			} else if (pattern[0] == '=') {	/* [= =] equ. class */
+				p = pattern + 1;	/* Eat '=' */
+
+				pclen = mbrtowc(&c, p, MB_LEN_MAX, patmbs);
+				if (pclen == (size_t)-1 || pclen == (size_t)-2)
+					return (RANGE_NOMATCH);
+				p += pclen;
+
+/*
+ * Wenn es hier nicht mit =] endet - also länger ist -, dann ist es ein Collating Symbol.
+ */
+				if (*p != '=')
+					goto is_coll;
+#ifdef	XXX_COLLATE
+				__collate_equiv_value(locale, &c, 1);
+#endif
+
+				pattern = p + 2;	/* Skip "=]" */
+			} else if (pattern[0] == '.') {	/* [. .] collate sym */
+				p = pattern + 1;	/* Eat '.' */
+is_coll:
+
+				pattern = p + 2;	/* Skip ".]" */
 			}
 		}
 

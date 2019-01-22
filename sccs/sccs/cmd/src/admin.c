@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)admin.c	1.120 18/12/17 J. Schilling
+ * @(#)admin.c	1.122 19/01/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.120 18/12/17 J. Schilling"
+#pragma ident "@(#)admin.c 1.122 19/01/17 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -515,8 +515,10 @@ char *argv[];
 				testklt = 0;
 				if (!(*p) || *p == '-')
 					fatal(gettext("bad a argument (ad8)"));
-				if (asub > MAXNAMES)
+				if (asub > MAXNAMES) {
 					fatal(gettext("too many 'a' keyletters (ad9)"));
+					/* NOTREACHED */
+				}
 				anames[asub++] = sccs_user(p);
 				break;
 
@@ -524,8 +526,10 @@ char *argv[];
 				testklt = 0;
 				if (!(*p) || *p == '-')
 					fatal(gettext("bad e argument (ad10)"));
-				if (esub > MAXNAMES)
+				if (esub > MAXNAMES) {
 					fatal(gettext("too many 'e' keyletters (ad11)"));
+					/* NOTREACHED */
+				}
 				enames[esub++] = sccs_user(p);
 				break;
 
@@ -1907,21 +1911,28 @@ char	*line;
 				else --i;
 			}
 			k = 0;
-			for(i = 0; i < (int) length(line); i++)
+			for(i = 0; i < (int) length(line); i++) {
 				if (line[i] == '+')
 					continue;
 				else if (k == 0 && line[i] == ' ')
 					continue;
 				else t_line[k++] = line[i];
-			if (t_line[(int) strlen(t_line) - 1] == ' ')
-				t_line[(int) strlen(t_line) - 1] = '\0';
+			}
 			t_line[k] = '\0';
+			if (k > 0 &&
+			    t_line[(int) strlen(t_line) - 1] == ' ')
+				t_line[(int) strlen(t_line) - 1] = '\0';
 			line = t_line;
 		}
 	}
-	if (length(line))
-		return(line);
-	else return(0);
+	if (length(line) == 0)
+		return (0);
+	if (line == t_line) {
+		t_unlock = fmalloc(size(line));
+		copy(line, t_unlock);
+		return (t_unlock);
+	}
+	return (line);
 }
 
 static char*

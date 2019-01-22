@@ -1,13 +1,13 @@
-/* @(#)p.c	1.71 18/10/29 Copyright 1985-2018 J. Schilling */
+/* @(#)p.c	1.72 19/01/07 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.71 18/10/29 Copyright 1985-2018 J. Schilling";
+	"@(#)p.c	1.72 19/01/07 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -332,8 +332,8 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2018/10/29", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2018 Jörg Schilling\n");
+		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2019/01/07", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2019 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */
@@ -779,6 +779,7 @@ get_action()
 		fflush(stdout);
 		if (!read_pattern())
 			return (-1);
+		/* FALLTHRU */
 	case 'r':
 	case 'R':
 		if (f == (FILE *)0)
@@ -808,6 +809,7 @@ get_action()
 			(void) system(buf);
 			return (-1);
 		}
+		/* FALLTHRU */
 	default:
 		if (!nobeep)
 			putchar('\007');

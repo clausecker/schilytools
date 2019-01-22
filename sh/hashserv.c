@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)hashserv.c	1.37 18/06/26 2008-2018 J. Schilling
+ * @(#)hashserv.c	1.38 19/01/09 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.37 18/06/26 2008-2018 J. Schilling";
+	"@(#)hashserv.c	1.38 19/01/09 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -599,10 +599,10 @@ findpath(name, oldpath)
 
 	if (oldpath) {
 		count = dotpath;
-		while (--count)
+		while (--count && path)
 			path = nextpath(path);
 
-		if (oldpath > dotpath) {
+		if (oldpath > dotpath && path) {
 			catpath(path, name);
 			p = curstak();
 			cost = 1;
@@ -722,6 +722,9 @@ pr_path(name, count)
 
 	while (--count && path)
 		path = nextpath(path);
+
+	if (path == NULL)	/* Paranoia for Coverity */
+		return;
 
 	catpath(path, name);
 	prs_buff(curstak());

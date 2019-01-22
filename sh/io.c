@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)io.c	1.38 18/10/07 2008-2018 J. Schilling
+ * @(#)io.c	1.42 19/01/12 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.38 18/10/07 2008-2018 J. Schilling";
+	"@(#)io.c	1.42 19/01/12 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -237,7 +237,7 @@ renamef(f1, f2)
 {
 #ifdef RES
 	if (f1 != f2) {
-		dup(f1 | DUPFLG, f2);
+		(void) dup(f1 | DUPFLG, f2);
 		close(f1);
 		if (f2 == 0)
 			ioset |= 1;
@@ -260,10 +260,10 @@ renamef(f1, f2)
 
 		fs = fcntl(f2, F_GETFD, 0);
 		close(f2);
-		fcntl(f1, F_DUPFD, f2);
+		(void) fcntl(f1, F_DUPFD, f2);
 		close(f1);
 		if (fs == 1)
-			fcntl(f2, F_SETFD, FD_CLOEXEC);
+			(void) fcntl(f2, F_SETFD, FD_CLOEXEC);
 		if (f2 == 0)
 			ioset |= 1;
 	}
@@ -381,9 +381,11 @@ tmpfil(tb)
 		return (fd);
 	} else {
 		failed(tmpout, badcreate);
-		/* NOTREACHED */
+		/*
+		 * Returns only if flags & noexit is set.
+		 */
 	}
-	return (-1);		/* Not reached, but keeps GCC happy */
+	return (-1);
 }
 
 /*
@@ -498,7 +500,8 @@ copy(ioparg)
 			}
 			if (eof || eq(cline, ends)) {
 				if ((i = cline - start) > 0)
-					write(fd, start, i);
+					if (write(fd, start, i) != i)
+						break;
 				break;
 			} else {
 				GROWSTAK2(clinep, poff);
@@ -513,7 +516,8 @@ copy(ioparg)
 			if ((i = clinep - start) < CPYSIZ) {
 				cline = clinep;
 			} else {
-				write(fd, start, i);
+				if (write(fd, start, i) != i)
+					break;
 				cline = clinep = start;
 			}
 		}
@@ -567,6 +571,7 @@ link_iodocs(i)
 			i = i->iolst;
 		} else {
 			failed(tmpout, badcreate);
+			/* NOTREACHED */
 		}
 
 	}

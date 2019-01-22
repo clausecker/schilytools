@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.77 18/10/23 Copyright 2003-2018 J. Schilling */
+/* @(#)restore.c	1.78 19/01/16 Copyright 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.77 18/10/23 Copyright 2003-2018 J. Schilling";
+	"@(#)restore.c	1.78 19/01/16 Copyright 2003-2019 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -15,7 +15,7 @@ static	UConst char sccsid[] =
  *	are first moved to "star-tmpdir" and finally removed from there
  *	when we decide to exit star.
  *
- *	Copyright (c) 2003-2018 J. Schilling
+ *	Copyright (c) 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -284,6 +284,7 @@ padd_node(name, oino, nino, flags)
 			return (imp);
 		}
 		comerrno(EX_BAD, "Panic no root to add '%s'.\n", name);
+		/* NOTREACHED */
 	}
 
 	while (*np) {
@@ -505,6 +506,7 @@ sym_addrec(info)
 		comerrno(EX_BAD,
 			"Panic: cannot add node '%s' in sym_addrec().\n",
 			info->f_name);
+		/* NOTREACHED */
 	}
 
 	if (is_dir(info)) {
@@ -586,6 +588,7 @@ sym_addstat(info, imp)
 		comerrno(EX_BAD,
 			"Panic: cannot add node '%s' in sym_addstat().\n",
 			info->f_name);
+		/* NOTREACHED */
 	}
 	if (imp->i_oino == 0) {
 		if (imp != iroot) {
@@ -678,6 +681,7 @@ sym_dirprepare(info, idir)
 		if (info->f_dev == curfs) {
 			lunlinkat(sym_lock, 0);
 			comerrno(EX_BAD, "Archive contains directory '%s' without name list\n", info->f_name);
+			/* NOTREACHED */
 		}
 		return (idir);
 	}
@@ -914,6 +918,7 @@ move2tmp(dir, name, oino, nino)
 		comerrno(EX_BAD,
 			"Panic: amnesia in inode data base for '%s'.\n",
 			pathp);
+		/* NOTREACHED */
 	}
 	nnp = nifind_node(itmp, nino);
 	if (nnp) {			/* inode is already in star-tmpdir */
@@ -1643,6 +1648,7 @@ sym_init(gp)
 	if (f == NULL) {
 		comerr("Cannot create '%s', restore is already running.\n",
 			sym_lock);
+		/* NOTREACHED */
 	}
 	fclose(f);
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');

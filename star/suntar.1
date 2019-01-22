@@ -1,4 +1,4 @@
-. \" @(#)suntar.1	1.13 18/09/01 Copyr 2004-2018 J. Schilling
+. \" @(#)suntar.1	1.14 19/01/05 Copyr 2004-2019 J. Schilling
 . \"  Manual Seite fuer suntar
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STUNAR 1 "2018/09/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STUNAR 1 "2019/01/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 suntar \- create tape archives and add or extract files
 .SH SYNOPSIS
@@ -132,13 +132,29 @@ don't use a fifo to optimize data flow from/to tape
 don't use user/group name from tape
 .TP
 .B \-\-lzo
-pipe input/output through lzop, does not work on tapes
+pipe input/output through
+.BR lzop ,
+does not work on tapes
+.TP
+.B \-\-lzip
+pipe input/output through
+.BR lzip ,
+does not work on tapes
 .TP
 .B \-z
-pipe input/output through gzip, does not work on tapes
+pipe input/output through
+.BR gzip ,
+does not work on tapes
 .TP
 .B \-\-bz
-pipe input/output through bzip2, does not work on tapes
+pipe input/output through
+.BR bzip2 ,
+does not work on tapes
+.TP
+.B \-\-zstd
+pipe input/output through
+.BR zstd ,
+does not work on tapes
 .PP
 The options above are not defined by Sun tar.
 .PP

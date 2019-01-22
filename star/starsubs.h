@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.132 18/10/24 Copyright 1996-2018 J. Schilling */
+/* @(#)starsubs.h	1.133 19/01/19 Copyright 1996-2019 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2018 J. Schilling
+ *	Copyright (c) 1996-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -204,6 +204,7 @@ extern	void	skip_slash	__PR((FINFO *info));
 extern	void	initfifo	__PR((void));
 extern	void	fifo_ibs_shrink	__PR((int newsize));
 extern	void	runfifo		__PR((int ac, char *const *av));
+extern	void	fifo_prmp	__PR((int sig));
 extern	void	fifo_stats	__PR((void));
 extern	int	fifo_amount	__PR((void));
 extern	int	fifo_iwait	__PR((int amount));

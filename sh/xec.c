@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)xec.c	1.105 18/12/06 2008-2018 J. Schilling
+ * @(#)xec.c	1.108 19/01/14 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.105 18/12/06 2008-2018 J. Schilling";
+	"@(#)xec.c	1.108 19/01/14 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -189,6 +189,8 @@ execute(argt, xflags, errorflg, pf1, pf2)
 				exitval = 0;
 				exval_clear();
 
+				memset(&j, 0, sizeof (j));
+				j.j_cmd = "";		/* could be better */
 				gettimeofday(&j.j_start, NULL);
 				ruget(&j.j_rustart);
 				flags2 |= systime;
@@ -408,7 +410,7 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						unsigned long	oflags = flags;
 						struct dolnod *olddolh;
 						struct namnod *n;
-						struct fndnod *f;
+						struct fndnod *f = NULL;
 						short idx;
 						unsigned char **olddolv = dolv;
 						int olddolc = dolc;
@@ -417,7 +419,8 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						int odotcnt = dotcnt;
 
 						n = findnam(com[0]);
-						f = fndptr(n->funcval);
+						if (n)	/* paranoia */
+							f = fndptr(n->funcval);
 						/* just in case */
 						if (f == NULL)
 							break;
@@ -1170,7 +1173,8 @@ script:
 						 * See AT&T hack in _macro() and
 						 * quoted nul removal in trims()
 						 */
-						if (s[0] == '\\' && s[1] == '\0')
+						if (s[0] == '\\' &&
+						    s[1] == '\0')
 							s++;
 #ifdef	CASE_XPRINT
 						if (flags & execpr)

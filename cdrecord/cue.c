@@ -1,13 +1,13 @@
-/* @(#)cue.c	1.57 13/12/21 Copyright 2001-2013 J. Schilling */
+/* @(#)cue.c	1.58 19/01/08 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.57 13/12/21 Copyright 2001-2013 J. Schilling";
+	"@(#)cue.c	1.58 19/01/08 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
  *
- *	Copyright (c) 2001-2013 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1080,6 +1080,7 @@ parse_track(trackp, sp)
 	case K_CDG:
 		if (secsize < 0)
 			secsize = 2448;
+		/* FALLTHROUGH */
 	case K_AUDIO:
 		if (secsize < 0)
 			secsize = 2352;

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)prs.c	1.58 18/12/17 J. Schilling
+ * @(#)prs.c	1.59 19/01/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.58 18/12/17 J. Schilling"
+#pragma ident "@(#)prs.c 1.59 19/01/17 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -217,7 +217,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "()-d:r:c:ealN:V(version)");
+			c = getopt(argc, argv, "()-d:r:c:ealqN:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -270,12 +270,13 @@ char *argv[];
 				}
 				break;
 			case 'd':	/* dataspec line */
-				if (*p)
+				if (*p) {
 				    strlength = strlen(p);
 				    if ((p[strlength-2] == '\\') &&
 					(p[strlength-1] == 'n'))
 						p[strlength-2] = '\0';
 				    dataspec = p;
+				}
 				break;
 			case 'q': /* enable NSE mode */
 				if (p) {

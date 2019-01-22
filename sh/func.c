@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)func.c	1.35 18/06/30 2008-2018 J. Schilling
+ * @(#)func.c	1.36 19/01/13 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.35 18/06/30 2008-2018 J. Schilling";
+	"@(#)func.c	1.36 19/01/13 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -779,11 +779,14 @@ prio(iop)
 				int		fd = chkopen(ion, O_RDONLY);
 
 				prc_buff(NL);
-				while ((amt = read(fd, buf, IO_BLK_SZ)) > 0) {
-					buf[amt] = 0;
-					prs_buff(buf);
+				if (fd >= 0) {		/* Paranoia */
+					while ((amt =
+					    read(fd, buf, IO_BLK_SZ)) > 0) {
+						buf[amt] = 0;
+						prs_buff(buf);
+					}
+					close(fd);
 				}
-				close(fd);
 				prs_buff(ion);
 				prc_buff(NL);
 				didnl++;

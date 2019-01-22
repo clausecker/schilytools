@@ -1,14 +1,14 @@
-/* @(#)header.c	1.176 18/10/23 Copyright 1985, 1994-2018 J. Schilling */
+/* @(#)header.c	1.180 19/01/22 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.176 18/10/23 Copyright 1985, 1994-2018 J. Schilling";
+	"@(#)header.c	1.180 19/01/22 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2018 J. Schilling
+ *	Copyright (c) 1985, 1994-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -584,7 +584,7 @@ get_hdrtype(ptb, isrecurse)
 		if (debug) print_hdrtype(stderr, ret);
 		return (ret);
 	}
-	if (isgnumagic(&ptb->dbuf.t_vers)) {	/* 'ustar  ' GNU magic */
+	if (isgnumagic(ptb->ustar_dbuf.t_magic)) { /* 'ustar  ' GNU magic */
 		ret = H_GNUTAR;
 		if (debug) print_hdrtype(stderr, ret);
 		return (ret);
@@ -835,6 +835,10 @@ get_compression(ptb)
 	    ((p[5] & 0x1f) > 12 || (p[5] & 0x1f) == 0 || p[5] == 12))
 		return (C_LZIP);
 
+	if (p[0] == (char) 0x28 && p[1] == (char) 0xB5 &&
+	    p[2] == (char) 0x2F && p[3] == (char) 0xFD)
+		return (C_ZSTD);
+
 	return (C_NONE);
 }
 
@@ -880,6 +884,8 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
+				if (use_fifo)	/* Debug a rare Linuxproblem */
+					fifo_prmp(1);
 				xstats.s_hardeof++;
 				return (EOF);
 			}
@@ -996,6 +1002,8 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
+				if (use_fifo)	/* Debug a rare Linuxproblem */
+					fifo_prmp(1);
 				xstats.s_hardeof++;
 				return (EOF);
 			}
@@ -1197,7 +1205,6 @@ info->f_namelen, ptb->dbuf.t_prefix, info->f_lnamelen);
 			size = 0L;
 						/* file + tcb + EOF */
 		if (left < (tarblocks(size)+1+2)) {
-extern	BOOL	use_fifo;
 			if ((info->f_flags & F_TCB_BUF) != 0) {
 				movetcb(ptb, &tb);
 				ptb = &tb;

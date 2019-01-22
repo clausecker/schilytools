@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)dodelt.c	1.25 18/11/28 J. Schilling
+ * @(#)dodelt.c	1.26 19/01/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.25 18/11/28 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.26 19/01/08 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -174,6 +174,7 @@ char type;
 				case COMMENTS:
 					if (pkt->p_line[2] == '_')
 						sidext_v4compat_ab(pkt, &dt);
+					/* FALLTHRU */
 				case MRNUM:
 					if (founddel)
 					{
@@ -190,6 +191,7 @@ char type;
 						sidext_ab(pkt, &dt, &pkt->p_line[2]);
 						continue;
 					}
+					/* FALLTHRU */
 				default:
 					fmterr(pkt);
 				/*FALLTHRU*/

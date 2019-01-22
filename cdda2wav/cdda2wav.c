@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.171 18/04/03 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2018 J. Schilling */
+/* @(#)cdda2wav.c	1.172 19/01/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.171 18/04/03 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2018 J. Schilling";
+"@(#)cdda2wav.c	1.172 19/01/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004,2015,2017	(C) Heiko Eissfeldt
- * Copright 2004-2018		(C) J. Schilling
+ * Copright 2004-2019		(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -4060,7 +4060,7 @@ gargs(argc, argv)
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s %s (%s-%s-%s) Copyright (C) 1993-2004,2015,2017 %s (C) 2004-2018 %s\n"),
+		printf(_("cdda2wav %s %s (%s-%s-%s) Copyright (C) 1993-2004,2015,2017 %s (C) 2004-2019 %s\n"),
 					VERSION,
 					VERSION_DATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
@@ -4420,8 +4420,8 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		global.fname_base[0] = '\0';
 
 	if (!bulk) {
-		strcat(global.fname_base, ".");
-		strcat(global.fname_base, audio_type);
+		strlcat(global.fname_base, ".", sizeof (global.fname_base));
+		strlcat(global.fname_base, audio_type, sizeof (global.fname_base));
 	}
 
 	/*

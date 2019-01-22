@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.31 18/08/14 
+#ident @(#)Makefile	1.32 18/12/23 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -62,8 +62,8 @@ count:	$(CFILES) $(HFILES)
 ###########################################################################
 
 scripts:
-		@$(MAKE) -f cdda2ogg.mk all
-		@$(MAKE) -f cdda2mp3.mk all
+		@"$(MAKE)" -f cdda2ogg.mk all
+		@"$(MAKE)" -f cdda2mp3.mk all
 
 _ARCH_=		$(_UNIQ)$(O_ARCH)
 _HAVE_LINUX=	$(_ARCH_:$(_UNIQ)linux=1)

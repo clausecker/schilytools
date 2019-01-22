@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)idsubst.c	1.73 18/04/04 J. Schilling
+ * @(#)idsubst.c	1.74 19/01/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)idsubst.c 1.73 18/04/04 J. Schilling"
+#pragma ident "@(#)idsubst.c 1.74 19/01/07 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -392,7 +392,7 @@ char line[];
 			case 'Y':
 				tp = trans(tp, Type);
 				break;
-			/*FALLTHRU*/
+				/* FALLTHRU */
 			case 'W':
 				if ((Whatstr != NULL) && (recursive == 0)) {
 					recursive = 1;
@@ -417,6 +417,7 @@ char line[];
 				tp = trans(tp, Zkeywd);
 				tp = trans(tp, Mod);
 				tp = trans(tp, "\t");
+				/* FALLTHRU */
 			case 'I':
 				tp = trans(tp, Sid);
 				break;

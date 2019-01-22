@@ -28,12 +28,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)bdiff.c	1.24 18/06/14 J. Schilling
+ * @(#)bdiff.c	1.25 19/01/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.24 18/06/14 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.25 19/01/17 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -185,6 +185,7 @@ main(argc, argv)
 			(void) snprintf(Error, sizeof (Error),
 				"Can not open '%s'", argv[1]);
 			fatal(Error);
+			/* NOTREACHED */
 		}
 	if (strcmp(argv[2], "-") == 0)
 		pnewfile = stdin;
@@ -193,6 +194,7 @@ main(argc, argv)
 			(void) snprintf(Error, sizeof (Error),
 				"Can not open '%s'", argv[2]);
 			fatal(Error);
+			/* NOTREACHED */
 		}
 
 	seglim = 3500;
@@ -223,8 +225,10 @@ main(argc, argv)
 
 	if ((oline = (char *)malloc(obufsiz)) == NULL ||
 	    (nline = (char *)malloc(nbufsiz)) == NULL ||
-	    (diffline = (char *)malloc(dbufsiz)) == NULL)
+	    (diffline = (char *)malloc(dbufsiz)) == NULL) {
 		fatal("Out of memory");
+		/* NOTREACHED */
+	}
 
 	/*
 	 * The following while-loop will prevent any lines

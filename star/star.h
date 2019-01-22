@@ -1,6 +1,6 @@
-/* @(#)star.h	1.141 18/10/23 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)star.h	1.142 19/01/05 Copyright 1985, 1995-2019 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2018 J. Schilling
+ *	Copyright (c) 1985, 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,7 +101,8 @@ extern "C" {
 #define	C_7Z		9	/* Compr. with 'p7zip', unpack with 'p7zip' */
 #define	C_XZ		10	/* Compr. with 'xz', unpack with 'xz'	    */
 #define	C_LZIP		11	/* Compr. with 'lzip', unpack with 'lzip'   */
-#define	C_MAX		11
+#define	C_ZSTD		12	/* Compr. with 'zstd', unpack with 'zstd'   */
+#define	C_MAX		12
 
 /*
  * Transfer direction types for utf8_init()

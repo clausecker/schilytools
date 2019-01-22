@@ -1,8 +1,8 @@
-/* @(#)props.c	1.64 18/07/23 Copyright 1994-2018 J. Schilling */
+/* @(#)props.c	1.65 19/01/07 Copyright 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.64 18/07/23 Copyright 1994-2018 J. Schilling";
+	"@(#)props.c	1.65 19/01/07 Copyright 1994-2019 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	UConst char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2018 J. Schilling
+ *	Copyright (c) 1994-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -283,7 +283,7 @@ setprops(htype)
 		errmsgno(EX_BAD, "setprops: defaulting to '%s' (%s).\n",
 						hdr_name(H_OTAR),
 						hdr_text(H_OTAR));
-
+		/* FALLTHRU */
 	case H_UNDEF:				/* from star main read mode  */
 	case H_TAR:				/* tar with unknown format   */
 	case H_V7TAR:				/* tar old UNIX V7 format    */

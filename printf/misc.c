@@ -1,9 +1,9 @@
-/* @(#)misc.c	1.3 18/09/11 Copyright 2017-2018 J. Schilling */
+/* @(#)misc.c	1.4 19/01/07 Copyright 2017-2019 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	Functions for using the printf Bourne Shell builtin as standalone
  *
- *	Copyright (c) 2017-2018 J. Schilling
+ *	Copyright (c) 2017-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,7 +20,7 @@
  */
 
 static	UConst char sccsid[] =
-	"@(#)misc.c	1.3 18/09/11 Copyright 2017-2018 J. Schilling";
+	"@(#)misc.c	1.4 19/01/07 Copyright 2017-2019 J. Schilling";
 
 #include "defs.h"
 
@@ -72,7 +72,7 @@ escape_char(cp, res, echomode)
 			wd = (*cp - '0');
 			goto oct;
 		}
-
+		/* FALLTHRU */
 	default:
 	norm:
 		c = *--cp;

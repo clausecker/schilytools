@@ -1,13 +1,13 @@
-/* @(#)suntar.c	1.41 18/09/01 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)suntar.c	1.42 19/01/05 Copyright 1989, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.41 18/09/01 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)suntar.c	1.42 19/01/05 Copyright 1989, 2003-2019 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2018 J. Schilling
+ *	Copyright (c) 1989, 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -69,7 +69,7 @@ LOCAL	void	suntar_setopts	__PR((char *o));
  * Solaris TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,lzip,zstd,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -148,7 +148,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				gethdr, &chdrtype,
 				&oldtar,
 				&zflag, &bzflag, &lzoflag,
-				&p7zflag, &xzflag, &lzipflag,
+				&p7zflag, &xzflag, &lzipflag, &zstdflag,
 
 				&cflag,
 				&rflag,
@@ -325,6 +325,7 @@ usage(ret)
 	error("\t--7z\t\t(*) pipe input/output through p7zip, does not work on tapes\n");
 	error("\t--xz\t\t(*) pipe input/output through xz, does not work on tapes\n");
 	error("\t--lzip\t\t(*) pipe input/output through lzip, does not work on tapes\n");
+	error("\t--zstd\t\t(*) pipe input/output through zstd, does not work on tapes\n");
 #ifdef	FIFO
 	error("\t--no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif

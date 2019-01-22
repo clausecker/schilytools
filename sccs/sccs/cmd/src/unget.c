@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)unget.c	1.35 18/12/17 J. Schilling
+ * @(#)unget.c	1.36 19/01/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.35 18/12/17 J. Schilling"
+#pragma ident "@(#)unget.c 1.36 19/01/17 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -149,7 +149,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-			c = getopt(argc, argv, "()-r:snN:V(version)");
+			c = getopt(argc, argv, "()-r:snqN:V(version)");
 
 				/*
 				 * This takes care of options given after

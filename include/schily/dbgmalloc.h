@@ -1,8 +1,8 @@
-/* @(#)dbgmalloc.h	1.7 15/08/14 Copyright 2009-2015 J. Schilling */
+/* @(#)dbgmalloc.h	1.8 19/01/07 Copyright 2009-2019 J. Schilling */
 /*
  *	Definitions for libdmalloc
  *
- *	Copyright (c) 2009-2015 J. Schilling
+ *	Copyright (c) 2009-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -67,6 +67,20 @@ extern	BOOL	acheckdamage		__PR((void));
 extern	void	freechecking		__PR((BOOL val));
 extern	void	nomemraising		__PR((BOOL val));
 #endif
+
+#ifdef	_SCHILY_STDIO_H
+extern	void	aprintfree		__PR((FILE *f));
+extern	void	aprintlist		__PR((FILE *f, long l));
+extern	void	aprintchunk		__PR((FILE *f, long l));
+#else
+extern	void	aprintfree		__PR((void *f));
+extern	void	aprintlist		__PR((void *f, long l));
+extern	void	aprintchunk		__PR((void *f, long l));
+#endif
+
+extern	size_t	psize			__PR((char *t));
+extern	void	*get_heapbeg		__PR((void));
+extern	void	*get_heapend		__PR((void));
 
 #ifdef	USE_JS_BOOL			/* If in workaround mode, */
 #undef	BOOL				/* revert to default BOOL */

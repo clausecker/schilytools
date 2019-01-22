@@ -1,12 +1,12 @@
-/* @(#)builtin.c	1.12 18/01/13 Copyright 2015-2018 J. Schilling */
+/* @(#)builtin.c	1.13 19/01/13 Copyright 2015-2019 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.12 18/01/13 Copyright 2015-2018 J. Schilling";
+	"@(#)builtin.c	1.13 19/01/13 Copyright 2015-2019 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
  *
- *	Copyright (c) 2015-2018 J. Schilling
+ *	Copyright (c) 2015-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -145,10 +145,13 @@ sysbuiltin(argc, argv)
 			failure(name, notfound);
 			continue;
 		}
-		if (del)
+		if (del) {
 			sh_rmbuiltin(name);
-		else
+		} else {
+			if (sh_findbuiltin(name))
+				failure(name, &notfound[4]);
 			sh_addbuiltin(name, (bftype) func);
+		}
 	}
 #endif
 }
@@ -210,7 +213,12 @@ sh_rmbuiltin(name)
 		else
 			obp->snext = bp->snext;
 		free(bp->sysnam);
-		free(bp);
+		free(bp);		/* invalidates use of bp->snext */
+		/*
+		 * We only allow one element with the same name and we
+		 * would need a different method than using obp.
+		 */
+		break;
 	}
 }
 

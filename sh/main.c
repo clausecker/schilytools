@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)main.c	1.74 18/10/15 2008-2018 J. Schilling
+ * @(#)main.c	1.75 19/01/11 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.74 18/10/15 2008-2018 J. Schilling";
+	"@(#)main.c	1.75 19/01/11 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -847,10 +847,10 @@ Ldup(fa, fb)
 	if (fa >= 0) {
 		if (fa != fb) {
 			close(fb);
-			fcntl(fa, F_DUPFD, fb); /* normal dup */
+			(void) fcntl(fa, F_DUPFD, fb);	/* normal dup */
 			close(fa);
 		}
-		fcntl(fb, F_SETFD, FD_CLOEXEC);	/* autoclose for fb */
+		(void) fcntl(fb, F_SETFD, FD_CLOEXEC);	/* autoclose for fb */
 	}
 
 #endif

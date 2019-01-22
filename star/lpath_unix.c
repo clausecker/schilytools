@@ -1,13 +1,13 @@
-/* @(#)lpath_unix.c	1.12 18/08/31 Copyright 2018 J. Schilling */
+/* @(#)lpath_unix.c	1.13 19/01/14 Copyright 2018-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lpath_unix.c	1.12 18/08/31 Copyright 2018 J. Schilling";
+	"@(#)lpath_unix.c	1.13 19/01/14 Copyright 2018-2019 J. Schilling";
 #endif
 /*
  *	Routines for long path names on unix like operating systems
  *
- *	Copyright (c) 2018 J. Schilling
+ *	Copyright (c) 2018-2018 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -825,7 +825,7 @@ hop_dirs(name, np)
 				break;
 			*p2 = '\0';
 		} else {
-			break;
+			break;	/* No slash remains, return the prefix fd */
 		}
 		if ((dfd = openat(fd, p, O_SEARCH|O_DIRECTORY|O_NDELAY)) < 0) {
 			err = geterrno();
@@ -840,9 +840,7 @@ hop_dirs(name, np)
 		}
 		close(fd);	/* Don't care about AT_FDCWD, it is negative */
 		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
+		*p2++ = '/';	/* p2 is always != NULL here */
 		while (*p2 == '/')
 			p2++;
 		p = p2;

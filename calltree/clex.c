@@ -1,15 +1,15 @@
-/* @(#)clex.c	1.23 18/06/10 Copyright 1985, 1999-2018 J. Schilling */
+/* @(#)clex.c	1.24 19/01/16 Copyright 1985, 1999-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)clex.c	1.23 18/06/10 Copyright 1985, 1999-2018 J. Schilling";
+	"@(#)clex.c	1.24 19/01/16 Copyright 1985, 1999-2019 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *
  *	lexicalical section
  *
- *	Copyright (c) 1985, 1999-2018 J. Schilling
+ *	Copyright (c) 1985, 1999-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -301,7 +301,10 @@ again:
 		}
 	}
 out:
-	lnextc = *bp;
+	if (c == EOF)
+		lnextc = c;
+	else
+		lnextc = *bp;
 	*bp = '\0';
 	if (bp >= lexbend)
 		sympanic("");

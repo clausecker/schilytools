@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.93 18/10/08 2008-2018 J. Schilling
+ * @(#)word.c	1.95 19/01/09 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.93 18/10/08 2008-2018 J. Schilling";
+	"@(#)word.c	1.95 19/01/09 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -719,8 +719,6 @@ retry:
 				c = SPACE;
 			if ((flags & readpr) && standin->fstak == 0)
 				prc(c);
-			if (c == NL)
-				f->flin++;
 			return (c);
 		}
 
@@ -867,14 +865,14 @@ retry:
 		    (flags & stdflg))) &&
 		    ((fflags = fcntl(f->fdes, F_GETFL, 0)) & O_NDELAY)) {
 			fflags &= ~O_NDELAY;
-			fcntl(f->fdes, F_SETFL, fflags);
+			(void) fcntl(f->fdes, F_SETFL, fflags);
 			goto retry;
 		}
 	} else if (len < 0) {
 		if (errno == EAGAIN) {
 			fflags = fcntl(f->fdes, F_GETFL, 0);
 			fflags &= ~O_NONBLOCK;
-			fcntl(f->fdes, F_SETFL, fflags);
+			(void) fcntl(f->fdes, F_SETFL, fflags);
 			goto retry;
 		}
 		len = 0;

@@ -1,11 +1,11 @@
-/* @(#)dumpdate.c	1.30 18/10/21 Copyright 2003-2018 J. Schilling */
+/* @(#)dumpdate.c	1.32 19/01/19 Copyright 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.30 18/10/21 Copyright 2003-2018 J. Schilling";
+	"@(#)dumpdate.c	1.32 19/01/19 Copyright 2003-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2018 J. Schilling
+ *	Copyright (c) 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,12 +43,12 @@ static	UConst char sccsid[] =
  * XXX we know a secure way to let autoconf ckeck for fseeko()/ftello()
  * XXX without defining FILE_OFFSETBITS to 64 in confdefs.h
  */
-#	define	fseek	fseeko
-#	define	ftell	ftello
+#define	fseek	fseeko
+#define	ftell	ftello
 #endif
 
 #if	defined(HAVE_FLOCK) || defined(HAVE_LOCKF) || defined(HAVE_FCNTL_LOCKF)
-#	define	HAVE_LOCKING
+#define	HAVE_LOCKING
 #endif
 
 #ifndef	HAVE_FLOCK
@@ -114,6 +114,7 @@ initdumpdates(fname, doupdate)
 			return;
 		}
 		comerr("Cannot open %s.\n", fname);
+		/* NOTREACHED */
 	}
 	if (doupdate && laccess(fname, W_OK) < 0)
 		comerr("Cannot access '%s' for update\n", fname);

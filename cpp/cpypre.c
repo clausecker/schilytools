@@ -87,8 +87,13 @@ static	char y_sccsid[] =
 # define OROR 267
 # define UMINUS 268
 
-#include <inttypes.h>
+#include <schily/inttypes.h>
 
+#ifdef	IS_SCHILY
+#include <schily/stdlib.h>
+#include <schily/string.h>
+#define	YYCONST	const
+#else
 #ifdef __STDC__
 #include <stdlib.h>
 #include <string.h>
@@ -98,8 +103,9 @@ static	char y_sccsid[] =
 #include <memory.h>
 #define	YYCONST
 #endif
+#endif
 
-#include <values.h>
+#include <schily/values.h>
 
 #if defined(__cplusplus) || defined(__STDC__)
 
@@ -382,7 +388,7 @@ char * yyreds[] =
 /* Copyright (c) 1988 AT&T */
 /* All Rights Reserved */
 
-#pragma ident	"@(#)cpypre.c	1.2	18/06/17 SMI"
+#pragma ident	"@(#)cpypre.c	1.3	18/12/30 SMI"
 
 /*
 ** Skeleton parser driver for yacc output

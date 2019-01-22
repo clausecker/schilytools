@@ -1,4 +1,4 @@
-#ident "@(#)Mocsw	1.4 13/06/19 "
+#ident "@(#)Mocsw	1.5 18/12/23 "
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -13,7 +13,7 @@ DATE		:sh=	date '+%Y%m%d%H%M%S'
 
 
 deftgt $(ALLTARGETS):
-	$(MAKE) -f Mcsw DEFAULTSDIR=DEFAULTS_CSW EMAIL=joerg@opencsw.org \
+	"$(MAKE)" -f Mcsw DEFAULTSDIR=DEFAULTS_CSW EMAIL=joerg@opencsw.org \
 			HOTLINE=http://www.opencsw.org/bugtrack/ 	\
 			PKG_TYPE=OCSW \
 			PKGOPTX=PSTAMP=$(USER_NAME)@$(HOST_NAME)-$(DATE) \

@@ -1,11 +1,11 @@
-/* @(#)alloc.c	1.58 18/03/21 Copyright 1985,1988,1991,1995-2018 J. Schilling */
+/* @(#)alloc.c	1.59 19/01/08 Copyright 1985,1988,1991,1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.58 18/03/21 Copyright 1985,1988,1991,1995-2018 J. Schilling";
+	"@(#)alloc.c	1.59 19/01/08 Copyright 1985,1988,1991,1995-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2018 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1131,6 +1131,8 @@ aprintlist(f, l)
 		while (!ctlc && s < fr) {
 			aprints(f, s, "BUSY");
 #ifdef	XADEBUG
+			js_error(" caller: file %s line %d ",
+						s->file, s->line);
 			aprdamaged(f, s);
 #endif
 			if (l)

@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.99 18/08/07 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.c	1.100 19/01/16 Copyright 1993-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.99 18/08/07 Copyright 1993-2018 J. Schilling";
+	"@(#)diff.c	1.100 19/01/16 Copyright 1993-2019 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2018 J. Schilling
+ *	Copyright (c) 1993-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -186,6 +186,8 @@ diff_tcb(info)
 		BOOL	do_void = FALSE;	/* Make GCC happy */
 
 	f = tarf == stdout ? stderr : stdout; /* XXX FILE *vpr is the same */
+
+	fillbytes((char *)&finfo, sizeof (finfo), '\0');
 
 	finfo.f_lname = lname;
 	finfo.f_lnamelen = 0;

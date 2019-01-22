@@ -1,13 +1,13 @@
-/* @(#)filesubs.c	1.64 13/04/29 Copyright 1984-2013 J. Schilling */
+/* @(#)filesubs.c	1.65 19/01/07 Copyright 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)filesubs.c	1.64 13/04/29 Copyright 1984-2013 J. Schilling";
+	"@(#)filesubs.c	1.65 19/01/07 Copyright 1984-2019 J. Schilling";
 #endif
 /*
  *	Commands that deal with non i/o file subroutines
  *
- *	Copyright (c) 1984-2013 J. Schilling
+ *	Copyright (c) 1984-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -73,6 +73,7 @@ lockfile(wp, filename)
 
 	case LOCK_LOCAL:
 		wp->eflags |= FLOCKLOCAL;
+		/* FALLTHRU */
 	case LOCK_OK:
 		wp->curfd = f;
 		break;

@@ -37,13 +37,13 @@
 #include "jobs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)jobs.c	1.104 18/06/07 2008-2018 J. Schilling
+ * @(#)jobs.c	1.105 19/01/10 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.104 18/06/07 2008-2018 J. Schilling";
+	"@(#)jobs.c	1.105 19/01/10 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -1605,7 +1605,7 @@ listsigs()
 	int maxtrap = MAXTRAP;
 	int cnt = 0;
 	char sep = 0;
-	char buf[12];
+	char buf[22];	/* Large enough for SIG* names, large enough for num */
 
 #ifdef	SIGRTMAX
 	i = SIGRTMAX + 1;

@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)files.cc	1.37	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)files.cc	1.8 18/03/15 2017-2018 J. Schilling
+ * @(#)files.cc	1.9 19/01/07 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)files.cc	1.8 18/03/15 2017-2018 J. Schilling";
+	"@(#)files.cc	1.9 19/01/07 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -724,6 +724,7 @@ top:
 					k |= (lower_bound <= string_ch) &&
 					     (string_ch <=
 					      (pattern_ch = pattern[1]));
+					/* FALLTHRU */
 				default:
 					if (string_ch ==
 					    (lower_bound = pattern_ch)) {

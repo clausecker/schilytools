@@ -1,4 +1,4 @@
-. \" @(#)scpio.1	1.8 18/06/10 Copyright (C) 1997 by The Open Group, Copyright (C) 2004-2018 J. Schilling
+. \" @(#)scpio.1	1.9 19/01/05 Copyright (C) 1997 by The Open Group, Copyright (C) 2004-2019 J. Schilling
 . \" Manual page for scpio
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SCPIO 1L "2018/06/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SCPIO 1L "2019/01/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 scpio \- copy file archives in and out (LEGACY)
 .SH SYNOPSIS
@@ -526,6 +526,13 @@ inside a plain file,
 .B scpio
 will auto detect compression and choose the right
 decompression option to extract.
+.TP
+.B \-zstd
+run the input or output through a
+.B zstd
+pipe - see option
+.B \-z
+above.
 
 .SH OPERANDS
 .PP

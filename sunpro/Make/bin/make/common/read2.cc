@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)read2.cc	1.53	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)read2.cc	1.11 18/03/15 2017-2018 J. Schilling
+ * @(#)read2.cc	1.12 19/01/07 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.11 18/03/15 2017-2018 J. Schilling";
+	"@(#)read2.cc	1.12 19/01/07 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -804,6 +804,7 @@ enter_dependencies(register Name target, Chain target_group, register Name_vecto
 		built_last_make_run_seen = false;
 		command_changed = true;
 		target->ran_command = true;
+		/* FALLTHRU */
 	case reading_statefile:
 		/* Reading the statefile for the first time. Enter the rules */
 		/* as "Commands used" not "templates to use" */
@@ -815,6 +816,7 @@ enter_dependencies(register Name target, Chain target_group, register Name_vecto
 			}
 			line->body.line.command_used = command;
 		}
+		/* FALLTHRU */
 	case reading_cpp_file:
 		/* Reading report file from programs that reports */
 		/* dependencies. If this is the first time the target is */

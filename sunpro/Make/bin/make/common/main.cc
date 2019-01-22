@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)main.cc	1.158	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)main.cc	1.41 18/10/05 2017-2018 J. Schilling
+ * @(#)main.cc	1.42 19/01/07 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.41 18/10/05 2017-2018 J. Schilling";
+	"@(#)main.cc	1.42 19/01/07 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -2033,7 +2033,7 @@ parse_command_option(register char ch)
 				argv_zero_base, verstring);
 			fprintf(stdout, "\n");
 			fprintf(stdout, "Copyright (C) 1987-2006 Sun Microsystems\n");
-			fprintf(stdout, "Copyright (C) 2017-2018 Joerg Schilling\n");
+			fprintf(stdout, "Copyright (C) 2017-2019 Joerg Schilling\n");
 			exit_status = 0;
 			exit(0);
 #else

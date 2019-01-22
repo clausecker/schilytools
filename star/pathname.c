@@ -1,11 +1,11 @@
-/* @(#)pathname.c	1.9 18/07/22 Copyright 2004-2018 J. Schilling */
+/* @(#)pathname.c	1.10 19/01/07 Copyright 2004-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pathname.c	1.9 18/07/22 Copyright 2004-2018 J. Schilling";
+	"@(#)pathname.c	1.10 19/01/07 Copyright 2004-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -212,7 +212,8 @@ EXPORT void
 free_pspace(pathp)
 	pathstore_t	*pathp;
 {
-	free(pathp->ps_path);
+	if (pathp->ps_path)
+		free(pathp->ps_path);
 
 	pathp->ps_path = NULL;
 	pathp->ps_size = 0;

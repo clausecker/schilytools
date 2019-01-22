@@ -1,13 +1,13 @@
-/* @(#)pax.c	1.39 18/09/18 Copyright 1989, 2003-2018 J. Schilling */
+/* @(#)pax.c	1.40 19/01/05 Copyright 1989, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.39 18/09/18 Copyright 1989, 2003-2018 J. Schilling";
+	"@(#)pax.c	1.40 19/01/05 Copyright 1989, 2003-2019 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2018 J. Schilling
+ *	Copyright (c) 1989, 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -84,10 +84,10 @@ LOCAL	void	pax_setopts	__PR((char *o));
 /*
  * PAX related options
  *
- * The official POSIX options start after the -bz/-lzo/-7z/-xz/-lzip option.
+ * The official POSIX options start after the -bz/-lzo/-7z/-xz/-lzip/-zstd option.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
+char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,no-secure-links%0,acl,xfflags,z,bz,lzo,7z,xz,lzip,zstd,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
 /* END CSTYLED */
 char	*opts = _opts;
 #ifdef	NO_STAR_MAIN
@@ -148,7 +148,7 @@ gargs(ac, av)
 				&secure_links, &secure_links,
 				&doacl, &dofflags,
 				&zflag, &bzflag, &lzoflag,
-				&p7zflag, &xzflag, &lzipflag,
+				&p7zflag, &xzflag, &lzipflag, &zstdflag,
 				&paxrflag,
 				&paxwflag,
 				&paxaflag,
@@ -292,6 +292,7 @@ usage(ret)
 	error("\t-7z\t\t(*) pipe input/output through p7zip, does not work on tapes\n");
 	error("\t-xz\t\t(*) pipe input/output through xz, does not work on tapes\n");
 	error("\t-lzip\t\t(*) pipe input/output through lzip, does not work on tapes\n");
+	error("\t-zstd\t\t(*) pipe input/output through zstd, does not work on tapes\n");
 #ifdef	FIFO
 	error("\t-no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif

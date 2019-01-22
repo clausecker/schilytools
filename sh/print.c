@@ -34,16 +34,16 @@
 #endif
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)print.c	1.41 17/11/25 2008-2017 J. Schilling
+ * @(#)print.c	1.42 19/01/13 2008-2019 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.41 17/11/25 2008-2017 J. Schilling";
+	"@(#)print.c	1.42 19/01/13 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -504,17 +504,21 @@ prs_cntl(s)
 	unsigned char *olds = s;
 	unsigned char *ptr = cbuf;
 	wchar_t c;
+	BOOL	err = FALSE;
 
 	(void) mbtowc(NULL, NULL, 0);
-	if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) <= 0) {
+	if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) < 0) {
 		(void) mbtowc(NULL, NULL, 0);
-		n = 0;
+		n = 1;
+		wc = *s;
+		err++;
 	}
 	if (wc == 0)
 		n = 0;
 	while (n != 0) {
-		if (n < 0) {
+		if (err) {
 			ptr = octal(*s++, ptr);
+			err = FALSE;
 		} else {
 			c = wc;
 			s += n;
@@ -538,7 +542,9 @@ prs_cntl(s)
 					 * sequences are
 					 * printable
 					 */
-					ptr = octal(*olds, ptr);
+					while (n--) {
+						ptr = octal(*olds++, ptr);
+					}
 				}
 			} else {
 				while (n--) {
@@ -552,9 +558,11 @@ prs_cntl(s)
 			ptr = cbuf;
 		}
 		olds = s;
-		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) <= 0) {
+		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) < 0) {
 			(void) mbtowc(NULL, NULL, 0);
-			n = 0;
+			n = 1;
+			wc = *s;
+			err++;
 		}
 		if (wc == 0)
 			n = 0;

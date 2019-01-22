@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)test.c	1.41 18/07/01 2008-2018 J. Schilling
+ * @(#)test.c	1.42 19/01/09 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.41 18/07/01 2008-2018 J. Schilling";
+	"@(#)test.c	1.42 19/01/09 2008-2019 J. Schilling";
 #endif
 
 
@@ -574,7 +574,9 @@ test_unary(op, arg)
 			if (arg && *arg == '?') {
 				return (lookopt(++arg) != NULL);
 			}
-			return (optval(lookopt(arg)));
+			if (arg)
+				return (optval(lookopt(arg)));
+			return (0);	/* should never happen */
 #endif
 	case 'p':
 			return (filtyp(arg, S_IFIFO));

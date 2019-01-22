@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.88 18/10/23 Copyright 1989, 1994-2018 J. Schilling */
+/* @(#)fifo.c	1.95 19/01/22 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.88 18/10/23 Copyright 1989, 1994-2018 J. Schilling";
+	"@(#)fifo.c	1.95 19/01/22 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  *		kill -RTMAX <pid2>
  *	and then to report the output (from stderr).
  *
- *	Copyright (c) 1989, 1994-2018 J. Schilling
+ *	Copyright (c) 1989, 1994-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -144,7 +144,7 @@ EXPORT	void	initfifo	__PR((void));
 LOCAL	void	fifo_setparams	__PR((void));
 EXPORT	void	fifo_ibs_shrink	__PR((int newsize));
 EXPORT	void	runfifo		__PR((int ac, char *const *av));
-LOCAL	void	prmp		__PR((int sig));
+EXPORT	void	fifo_prmp	__PR((int sig));
 EXPORT	void	fifo_stats	__PR((void));
 LOCAL	int	swait		__PR((int f, int chan));
 LOCAL	int	swakeup		__PR((int f, int c));
@@ -319,7 +319,7 @@ extern	BOOL	cflag;
 #endif
 
 	mp->putptr = mp->getptr = mp->base;
-	prmp(0);
+	fifo_prmp(0);
 	{
 		/* Temporary until all modules know about mp->xxx */
 		extern int	bufsize;
@@ -332,7 +332,7 @@ extern	BOOL	cflag;
 #ifdef	HANG_DEBUG
 #ifdef	SIGRTMAX
 	if (signal(SIGRTMAX, SIG_IGN) != SIG_IGN)
-		set_signal(SIGRTMAX, prmp);
+		set_signal(SIGRTMAX, fifo_prmp);
 #endif
 #endif
 }
@@ -398,6 +398,8 @@ runfifo(ac, av)
 	char	*const *av;
 {
 	extern	BOOL	cflag;
+
+	signal(SIGPIPE, SIG_IGN);
 
 	if ((pid = fork()) < 0)
 		comerr("Cannot fork.\n");
@@ -470,8 +472,8 @@ runfifo(ac, av)
 	}
 }
 
-LOCAL void
-prmp(sig)
+EXPORT void
+fifo_prmp(sig)
 	int	sig;
 {
 #ifdef	HANG_DEBUG
@@ -492,6 +494,8 @@ extern	BOOL	cflag;
 	error("ibs:      %d\n", mp->ibs);
 	error("obs:      %d\n", mp->obs);
 	error("amt:      %ld\n", FIFO_AMOUNT(mp));
+	error("icnt:     %ld\n", mp->icnt);
+	error("ocnt:     %ld\n", mp->ocnt);
 	error("iblocked: %d\n", mp->iblocked);
 	error("oblocked: %d\n", mp->oblocked);
 	error("m1:       %d\n", mp->m1);
@@ -503,6 +507,12 @@ extern	BOOL	cflag;
 	error("flags:    %2.2X\n", mp->flags);
 	error("hiw:      %d\n", mp->hiw);
 	error("low:      %d\n", mp->low);
+	error("puts:     %d\n", mp->puts);
+	error("gets:     %d\n", mp->gets);
+	error("empty:    %d\n", mp->empty);
+	error("full:     %d\n", mp->full);
+	error("maxfill:  %d\n", mp->maxfill);
+	error("moves:    %d\n", mp->moves);
 #ifdef	TEST
 	error("wpin:     %d\n", mp->wpin);
 	error("wpout:    %d\n", mp->wpout);
@@ -547,7 +557,7 @@ swait(f, chan)
 	int	chan;
 {
 		int	ret;
-	unsigned char	c;
+	unsigned char	c = 0;
 
 	waitchan = chan;
 	seterrno(0);
@@ -562,8 +572,24 @@ swait(f, chan)
 		 */
 		if ((mp->eflags & FIFO_EXIT) == 0) {
 			errmsg(
-			"Sync pipe read error pid %d e %X p %X g %X chan %d.\n",
-				pid, mp->eflags, mp->pflags, mp->flags, chan);
+			"Sync pipe read error pid %d ret %d\n",
+				pid, ret);
+			errmsg("Ib %d Ob %d e %X p %X g %X chan %d.\n",
+				mp->iblocked, mp->oblocked,
+				mp->eflags, mp->pflags, mp->flags,
+				chan);
+		}
+		if ((mp->pflags & FIFO_MEOF) && (ret == 0 && pid)) {
+			/*
+			 * Try to work around a rare Linux kernel bug where
+			 * read() returns 0 even though the other side of the
+			 * pipe wrote a byte to the pipe before calling exit().
+			 *
+			 * If this has been fully verified, move this code up
+			 * past the read loop above to get a "silent" return.
+			 */
+			errmsg("Trying to work around Kernel Pipe botch.\n");
+			return ((int)c);
 		}
 		if ((mp->eflags & FIFO_EXERRNO) != 0)
 			ret = mp->ferrno;
@@ -753,9 +779,19 @@ fifo_owait(amount)
 	register m_head *rmp = mp;
 
 again:
+	/*
+	 * We need to check rmp->pflags & FIFO_MEOF first, because FIFO_AMOUNT()
+	 * gets updated before FIFO_MEOF.
+	 * If we did first check FIFO_AMOUNT(), we could get 0 and a context
+	 * switch after that and after being continued we could get FIFO_MEOF,
+	 * failing to notice that there was a content update meanwhile.
+	 */
+	if (rmp->pflags & FIFO_MEOF) {
+		cnt = FIFO_AMOUNT(rmp);
+		if (cnt == 0)
+			return (cnt);
+	}
 	cnt = FIFO_AMOUNT(rmp);
-	if (cnt == 0 && (rmp->pflags & FIFO_MEOF))
-		return (cnt);
 
 	if (cnt < amount && (rmp->pflags & (FIFO_MEOF|FIFO_O_CHREEL)) == 0) {
 		rmp->empty++;
@@ -1041,7 +1077,7 @@ fifo_chotape()
 }
 
 /*
- * Tape -> FIFO (Put side)
+ * Tape -> FIFO (Put/Input side)
  *
  * Tape input process for the FIFO.
  * This process runs in background and fills the FIFO with data from the TAPE.
@@ -1053,10 +1089,25 @@ do_in()
 	int	amt;
 	int	cnt;
 
+	/*
+	 * First start reading to reduce total startup time.
+	 */
+	cnt = fifo_iwait(mp->ibs);
+	amt = readtape(mp->putptr, cnt);
+	/*
+	 * Wait until the foregound Get/Output process did start to read.
+	 * usleep(1000) will usually not wait at all but may yield
+	 * to a context switch.
+	 */
+	for (cnt = 0; cnt < 5000 && mp->oblocked == FALSE; cnt++)
+		usleep(1000);
+	goto owake;
+
 nextread:
 	do {
 		cnt = fifo_iwait(mp->ibs);
 		amt = readtape(mp->putptr, cnt);
+owake:
 		fifo_owake(amt);
 	} while (amt > 0);
 
@@ -1089,7 +1140,7 @@ nextread:
 }
 
 /*
- * FIFO -> Tape (Get side)
+ * FIFO -> Tape (Get/Output side)
  *
  * Tape output process for the FIFO.
  * This process runs in background and writes to the TAPE using

@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.34 18/10/07 Copyright 1985-2018 J. Schilling */
+/* @(#)fstream.c	1.35 19/01/16 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.34 18/10/07 Copyright 1985-2018 J. Schilling";
+	"@(#)fstream.c	1.35 19/01/16 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -244,8 +244,10 @@ fspushstr(fsp, ss)
 	for (tp = fsp->fstr_bp; *tp; tp++);	/* Wide char strlen() */
 	len = tp - fsp->fstr_bp + strlen(ss);
 	if (len > STR_SBUF_SIZE) {			/* realloc !!! */
-		if ((ts = (CHAR *)malloc(sizeof (*ts)*(len+1))) == NULL)
+		if ((ts = (CHAR *)malloc(sizeof (*ts)*(len+1))) == NULL) {
 			raisecond("fspushstr", (long)NULL);
+			/* NOTREACHED */
+		}
 #ifdef	WSTRINGS
 		s_ccpy(ts, (unsigned char *)ss);
 		s_scat(ts, fsp->fstr_bp);

@@ -1,13 +1,13 @@
-/* @(#)calltree.c	1.47 18/09/27 Copyright 1985, 1999-2018 J. Schilling */
+/* @(#)calltree.c	1.48 19/01/08 Copyright 1985, 1999-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calltree.c	1.47 18/09/27 Copyright 1985, 1999-2018 J. Schilling";
+	"@(#)calltree.c	1.48 19/01/08 Copyright 1985, 1999-2019 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *
- *	Copyright (c) 1985, 1999-2018 J. Schilling
+ *	Copyright (c) 1985, 1999-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -190,7 +190,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (version) {
-		printf("Calltree release %s %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2018 Jörg Schilling\n",
+		printf("Calltree release %s %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2019 Jörg Schilling\n",
 				ct_version, VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -641,6 +641,7 @@ findfname(fp, fname)
 			return;
 		if (tktype != T_NUMBER)
 			return;
+		/* FALLTHROUGH */
 	case T_NUMBER:
 		astoi((char *)lexbuf, &line);
 		lexline = line-1;

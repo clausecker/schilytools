@@ -83,3 +83,7 @@ If you like to test other implementations or installations, run e.g.:
 	dir=/usr/ccs/bin smake
 
 to run all the tests against the SVr4 default install directory for SCCS.
+
+If you like to ruin the tests without the lengthy random diff compare tests, run:
+
+	NO_RANDOM=TRUE smake tests

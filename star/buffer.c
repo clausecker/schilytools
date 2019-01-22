@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.185 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling */
+/* @(#)buffer.c	1.188 19/01/07 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.185 18/10/23 Copyright 1985, 1995, 2001-2018 J. Schilling";
+	"@(#)buffer.c	1.188 19/01/07 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2018 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -143,6 +143,7 @@ extern	BOOL	lzoflag;
 extern	BOOL	p7zflag;
 extern	BOOL	xzflag;
 extern	BOOL	lzipflag;
+extern	BOOL	zstdflag;
 extern	char	*compress_prg;
 extern	BOOL	multblk;
 extern	BOOL	partial;
@@ -433,6 +434,11 @@ opentape()
 					"WARNING: Archive is 'lzip' compressed, trying to use the -lzip option.\n");
 				lzipflag = TRUE;
 				break;
+			case C_ZSTD:
+				if (!silent) errmsgno(EX_BAD,
+					"WARNING: Archive is 'zstd' compressed, trying to use the -zstd option.\n");
+				zstdflag = TRUE;
+				break;
 			default:
 				if (!silent) errmsgno(EX_BAD,
 					"WARNING: Unknown compression type %d.\n", cmptype);
@@ -442,7 +448,7 @@ opentape()
 		mtseek((off_t)0, SEEK_SET);
 	}
 	if (Zflag || zflag || bzflag || lzoflag ||
-	    p7zflag || xzflag || lzipflag ||
+	    p7zflag || xzflag || lzipflag || zstdflag ||
 	    compress_prg) {
 		if (isremote)
 			comerrno(EX_BAD, "Cannot compress remote archives (yet).\n");
@@ -1774,6 +1780,9 @@ prstats()
 				sec, nsec/1000000, kbs);
 	}
 #endif
+#ifdef	DBG_MALLOC
+	aprintlist(stdout, 1);
+#endif
 }
 
 EXPORT BOOL
@@ -2016,6 +2025,8 @@ compressopen()
 		zip_prog = "xz";
 	else if (lzipflag)
 		zip_prog = "lzip";
+	else if (zstdflag)
+		zip_prog = "zstd";
 
 	multblk = TRUE;
 
@@ -2090,11 +2101,16 @@ compressopen()
 
 		/* We don't want to see errors */
 		null = lfilemopen("/dev/null", "rw", S_IRWALL);
+		if (null == NULL) {
+			errmsg("Cannot open '%s'.\n", "/dev/null");
+			goto err;
+		}
 
 		if (cflag)
 			fexecl(zip_prog, pp[0], tarf, null, zip_prog, flg, (char *)NULL);
 		else
 			fexecl(zip_prog, tarf, pp[1], null, zip_prog, "-d", (char *)NULL);
+err:
 		errmsg("Compress: exec of '%s' failed\n", zip_prog);
 		_exit(-1);
 	} else {
@@ -2142,6 +2158,8 @@ compressclose()
 				zip_prog = "xz";
 			else if (lzipflag)
 				zip_prog = "lzip";
+			else if (zstdflag)
+				zip_prog = "zstd";
 
 			js_snprintf(zip_cmd, sizeof (zip_cmd), "%s.exe", zip_prog);
 

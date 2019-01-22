@@ -1,13 +1,13 @@
-/* @(#)expand.c	1.54 18/08/06 Copyright 1985-2018 J. Schilling */
+/* @(#)expand.c	1.55 19/01/14 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.54 18/08/06 Copyright 1985-2018 J. Schilling";
+	"@(#)expand.c	1.55 19/01/14 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -449,7 +449,7 @@ bsh_hop_dirs(name, np)
 				break;
 			*p2 = '\0';
 		} else {
-			break;
+			break;	/* No slash remains, return the prefix fd */
 		}
 		if ((dfd = openat(fd, p, O_SEARCH|O_DIRECTORY|O_NDELAY)) < 0) {
 			err = geterrno();
@@ -464,9 +464,7 @@ bsh_hop_dirs(name, np)
 		}
 		close(fd);	/* Don't care about AT_FDCWD, it is negative */
 		fd = dfd;
-		if (p2 == NULL)
-			break;
-		*p2++ = '/';
+		*p2++ = '/';	/* p2 is always != NULL here */
 		while (*p2 == '/')
 			p2++;
 		p = p2;

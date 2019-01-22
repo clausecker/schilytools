@@ -1,4 +1,4 @@
-/* @(#)match.c	1.32 18/09/30 Copyright 1985, 1995-2018 J. Schilling */
+/* @(#)match.c	1.33 19/01/08 Copyright 1985, 1995-2019 J. Schilling */
 #include <schily/utypes.h>	/* For Uchar			*/
 #include <schily/standard.h>
 #include <schily/patmatch.h>
@@ -13,7 +13,7 @@
 /*
  *	Pattern matching functions
  *
- *	Copyright (c) 1985, 1995-2018 J. Schilling
+ *	Copyright (c) 1985, 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -354,6 +354,7 @@ for (; soff <= slen; soff++) {
 				continue;
 			case QUOTE:
 				k = pat[p+1];
+				/* FALLTHRU */
 			default:
 				if (k != c)
 					continue;
