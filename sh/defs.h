@@ -37,9 +37,9 @@
 #endif
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.195 18/11/11 2008-2018 J. Schilling
+ * @(#)defs.h	1.196 19/02/05 2008-2019 J. Schilling
  */
 
 /*
@@ -83,7 +83,7 @@ extern "C" {
 #else
 #define		ETEST		ERROR	/* historical test(1) error exit code */
 #endif
-#define		SIGFAIL 	2000
+#define		SIGFAIL 	2000	/* Default shell exit code on signal */
 #define		SIGFLG		0200	/* $? == SIGFLG + signo */
 #define		C_NOEXEC	126	/* Shell error/exit for exec error */
 #define		C_NOTFOUND	127	/* Shell error/exit for exec notfound */
@@ -1227,10 +1227,11 @@ extern unsigned			brkincr;
 #define		MINTRAP		0
 #define		MAXTRAP		NSIG
 
-#define		TRAPSET		2
-#define		SIGSET		4
-#define		SIGMOD		8
-#define		SIGIGN		16
+#define		TRAPSET		2		/* Mark incoming signal/fault */
+#define		SIGSET		4		/* Mark fault w. no trapcmd */
+#define		SIGMOD		8		/* Signal with trap(1) set */
+#define		SIGIGN		16		/* Signal is ignored	*/
+#define		SIGCLR		32		/* From oldsigs() w. vfork() */
 
 extern BOOL			trapnote;
 extern int			traprecurse;

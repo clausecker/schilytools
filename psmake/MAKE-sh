@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.24 18/10/29 "
+#ident "@(#)MAKE-sh	1.25 19/02/10 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -245,6 +245,7 @@ $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   seterrno.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strcatl.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strlcpy.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strncpy.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strnlen.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   streql.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   getargs.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   geterrno.c
@@ -267,4 +268,4 @@ $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileread.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileseek.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niread.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niwrite.c
-$CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o job.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o eaccess.$o format.$o getexecpath.$o getnstimeofday.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o ovstrcpy.$o raisecond.$o rename.$o searchinpath.$o uname.$o file_raise.$o fileopen.$o fcons.$o cvmod.$o flag.$o flush.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o
+$CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o job.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o eaccess.$o format.$o getexecpath.$o getnstimeofday.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o strnlen.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o ovstrcpy.$o raisecond.$o rename.$o searchinpath.$o uname.$o file_raise.$o fileopen.$o fcons.$o cvmod.$o flag.$o flush.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o

@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.95 19/01/22 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.98 19/02/12 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.95 19/01/22 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.98 19/02/12 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -152,6 +152,7 @@ EXPORT	int	fifo_amount	__PR((void));
 EXPORT	int	fifo_iwait	__PR((int amount));
 EXPORT	void	fifo_owake	__PR((int amount));
 EXPORT	void	fifo_oflush	__PR((void));
+EXPORT	void	fifo_oclose	__PR((void));
 EXPORT	int	fifo_owait	__PR((int amount));
 EXPORT	void	fifo_iwake	__PR((int amt));
 EXPORT	void	fifo_reelwake	__PR((void));
@@ -416,13 +417,13 @@ runfifo(ac, av)
 	if ((pid != 0) ^ cflag) {
 		EDEBUG(("Get prozess: cflag: %d pid: %d\n", cflag, pid));
 		/* Get Prozess */
-		close(mp->gpout);
-		close(mp->ppin);
+		(void) close(mp->gpout);
+		(void) close(mp->ppin);
 	} else {
 		EDEBUG(("Put prozess: cflag: %d pid: %d\n", cflag, pid));
 		/* Put Prozess */
-		close(mp->gpin);
-		close(mp->ppout);
+		(void) close(mp->gpin);
+		(void) close(mp->ppout);
 	}
 
 	if (pid == 0) {
@@ -513,6 +514,7 @@ extern	BOOL	cflag;
 	error("full:     %d\n", mp->full);
 	error("maxfill:  %d\n", mp->maxfill);
 	error("moves:    %d\n", mp->moves);
+	error("mbytes:   %lld\n", mp->mbytes);
 #ifdef	TEST
 	error("wpin:     %d\n", mp->wpin);
 	error("wpout:    %d\n", mp->wpout);
@@ -557,6 +559,7 @@ swait(f, chan)
 	int	chan;
 {
 		int	ret;
+		int	err = 0;
 	unsigned char	c = 0;
 
 	waitchan = chan;
@@ -565,12 +568,30 @@ swait(f, chan)
 		ret = read(f, &c, 1);
 	} while (ret < 0 && geterrno() == EINTR);
 	waitchan = 0;
+	if (ret < 0)
+		err = geterrno();
 
-	if (ret < 0 || (ret == 0 && pid)) {
+	if ((mp->pflags & FIFO_MEOF) && (ret == 0)) {
+		/*
+		 * We come here in case that the other process that should send
+		 * a wakeup died without sending the wakeup because a context
+		 * switch on the waiting process (us) prevented us to set the
+		 * wait flag in time. This is not a problem since we wake up
+		 * from the EOF condition on the sync pipe. We behave as if we
+		 * received a normal wakeup byte.
+		 */
+#ifdef	FIFO_EOF_DEBUG
+extern	BOOL	cflag;
+		errmsg("Emulate received EOF wakeup on %s side.\n",
+			((pid != 0) ^ cflag)? "get": "put");
+#endif
+		return ((int)c);
+	}
+	if (ret <= 0) {
 		/*
 		 * If pid != 0, this is the foreground process
 		 */
-		if ((mp->eflags & FIFO_EXIT) == 0) {
+		if (ret < 0 || (mp->eflags & FIFO_EXIT) == 0) {
 			errmsg(
 			"Sync pipe read error pid %d ret %d\n",
 				pid, ret);
@@ -579,30 +600,30 @@ swait(f, chan)
 				mp->eflags, mp->pflags, mp->flags,
 				chan);
 		}
-		if ((mp->pflags & FIFO_MEOF) && (ret == 0 && pid)) {
+		if ((mp->eflags & FIFO_EXERRNO) != 0) {
 			/*
-			 * Try to work around a rare Linux kernel bug where
-			 * read() returns 0 even though the other side of the
-			 * pipe wrote a byte to the pipe before calling exit().
-			 *
-			 * If this has been fully verified, move this code up
-			 * past the read loop above to get a "silent" return.
+			 * A previous error was seen, keep it.
 			 */
-			errmsg("Trying to work around Kernel Pipe botch.\n");
-			return ((int)c);
-		}
-		if ((mp->eflags & FIFO_EXERRNO) != 0)
 			ret = mp->ferrno;
-		else
-			ret = 1;
+		} else {
+			/*
+			 * Recent sync pipe read error.
+			 * Signal error to forground process.
+			 */
+			mp->eflags |= FIFO_EXERRNO;
+			if (ret == 0) {
+				errmsgno(err,
+					"Sync pipe EOF error pid %d ret %d\n",
+					pid, ret);
+			}
+			if (err)
+				ret = err;
+			else
+				ret = EX_BAD;
+			mp->ferrno = ret;
+		}
 		exprstats(ret);
 		/* NOTREACHED */
-	}
-	if (ret == 0) {
-		/*
-		 * this is the background process!
-		 */
-		exit(0);
 	}
 	return ((int)c);
 }
@@ -762,6 +783,25 @@ fifo_oflush()
 	}
 }
 
+
+/*
+ * Data -> FIFO (Put side)
+ *
+ * final close of sync pipe
+ */
+EXPORT void
+fifo_oclose()
+{
+	/*
+	 * Close the pipe that is used to wakeup the Get side that might be
+	 * waiting but we did not notice that mp->oblocked was set because
+	 * it happened too late for us.
+	 * Closing the pipe is an alternate way to wake up the Get side.
+	 */
+	fifo_exit(0);
+}
+
+
 /*
  * FIFO -> Data (Get side)
  *
@@ -788,25 +828,44 @@ again:
 	 */
 	if (rmp->pflags & FIFO_MEOF) {
 		cnt = FIFO_AMOUNT(rmp);
-		if (cnt == 0)
+		if (cnt == 0) {
 			return (cnt);
+		}
+	}
+
+	/*
+	 * We need to check rmp->pflags & FIFO_MEOF first, because FIFO_AMOUNT()
+	 * gets updated before FIFO_MEOF.
+	 */
+	if ((rmp->pflags & (FIFO_MEOF|FIFO_O_CHREEL)) == 0) {
+		cnt = FIFO_AMOUNT(rmp);
+		if (cnt < amount) {
+			/*
+			 * If a context switch happens here, we may get a EOF
+			 * condition while reading from the sync pipe because
+			 * the other process did already fill up the last chunk
+			 * into the FIFO and called exit(). There may be no way
+			 * to detect that we expect a wakeup as rmp->oblocked
+			 * may be set after the Put process exited.
+			 */
+			rmp->empty++;
+			rmp->oblocked = TRUE;
+			EDEBUG(("o"));
+			c = sgetwait(rmp, 5);
+		}
+	}
+
+	if (rmp->pflags & FIFO_O_CHREEL) {
+		cnt = FIFO_AMOUNT(rmp);
+		if (cnt == 0) {
+			changetape(TRUE);
+			rmp->pflags &= ~FIFO_O_CHREEL;
+			EDEBUG(("T"));
+			sputwakeup(mp, 'T');
+			goto again;
+		}
 	}
 	cnt = FIFO_AMOUNT(rmp);
-
-	if (cnt < amount && (rmp->pflags & (FIFO_MEOF|FIFO_O_CHREEL)) == 0) {
-		rmp->empty++;
-		rmp->oblocked = TRUE;
-		EDEBUG(("o"));
-		c = sgetwait(rmp, 5);
-		cnt = FIFO_AMOUNT(rmp);
-	}
-	if (cnt == 0 && (rmp->pflags & FIFO_O_CHREEL)) {
-		changetape(TRUE);
-		rmp->pflags &= ~FIFO_O_CHREEL;
-		EDEBUG(("T"));
-		sputwakeup(mp, 'T');
-		goto again;
-	}
 
 	if (rmp->maxfill < cnt)
 		rmp->maxfill = cnt;
@@ -814,7 +873,7 @@ again:
 	if (cnt > rmp->obs)
 		cnt = rmp->obs;
 
-	c = rmp->end - rmp->getptr;
+	c = rmp->end - rmp->getptr;	/* Compute max. contig. content */
 #ifdef	CPIO_ONLY
 	if (c < TBLOCK && c < cnt) {	/* XXX Check for c < amount too? */
 #else
@@ -837,6 +896,11 @@ again:
 		rmp->getptr = p;
 		c = rmp->end - rmp->getptr;
 	}
+	/*
+	 * If there is more data in the FIFO than from the get ptr to the end
+	 * of the FIFO and this is still more than the requested data, reduce
+	 * "cnt" to what can be read in a single transfer.
+	 */
 	if (cnt > c && c >= amount)
 		cnt = c;
 
@@ -878,7 +942,7 @@ fifo_iwake(amt)
 	if (rmp->getptr >= rmp->end)
 		rmp->getptr = rmp->base;
 
-	if ((FIFO_AMOUNT(rmp) <= rmp->hiw) && rmp->iblocked) {
+	if (rmp->iblocked && (FIFO_AMOUNT(rmp) <= rmp->hiw)) {
 		/*
 		 * Reset iblocked to make sure we send just one single
 		 * weakup event
@@ -1010,13 +1074,13 @@ fifo_exit(err)
 	if ((pid != 0) ^ cflag) {
 		EDEBUG(("Fifo_exit() from get prozess: cflag: %d pid: %d\n", cflag, pid));
 		/* Get Prozess */
-		close(mp->gpin);
-		close(mp->ppout);
+		(void) close(mp->gpin);
+		(void) close(mp->ppout);
 	} else {
 		EDEBUG(("Fifo_exit() from put prozess: cflag: %d pid: %d\n", cflag, pid));
 		/* Put Prozess */
-		close(mp->gpout);
-		close(mp->ppin);
+		(void) close(mp->gpout);
+		(void) close(mp->ppin);
 	}
 }
 

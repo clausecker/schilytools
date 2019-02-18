@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)trap.sh	1.2 17/06/28 Copyright 2017 J. Schilling
+# @(#)trap.sh	1.3 19/02/05 Copyright 2017-2019 J. Schilling
 #
 
 # Read test core functions
@@ -25,5 +25,12 @@ else
 #
 docommand trap03 "$SHELL -c '(trap \"echo exited\" EXIT; $ECHO bla)'" 0 "bla\nexited\n" ""
 fi
+
+#
+# Check whether EXIT trap is not called with a non-existing command.
+# This problem occurred with previous versions of the Bourne Shell
+# when vfork() was used.
+#
+docommand trap04 "$SHELL -c 'trap \"echo TRAP\" EXIT; /dev/null/ne; trap - EXIT; echo end'" 0 "end\n" NONEMPTY
 
 success

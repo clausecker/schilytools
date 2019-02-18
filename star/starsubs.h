@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.133 19/01/19 Copyright 1996-2019 J. Schilling */
+/* @(#)starsubs.h	1.134 19/02/11 Copyright 1996-2019 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -210,6 +210,7 @@ extern	int	fifo_amount	__PR((void));
 extern	int	fifo_iwait	__PR((int amount));
 extern	void	fifo_owake	__PR((int amount));
 extern	void	fifo_oflush	__PR((void));
+extern	void	fifo_oclose	__PR((void));
 extern	int	fifo_owait	__PR((int amount));
 extern	void	fifo_iwake	__PR((int amt));
 extern	void	fifo_reelwake	__PR((void));

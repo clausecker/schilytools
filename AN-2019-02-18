@@ -1,0 +1,243 @@
+New features with AN-2019-02-18:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+-	smake (psmake): a missing link to libschily/strnlen.c has been added.
+
+	Thanks to Rolf Dietze for reporting.
+
+-	star: another similar has been fixed similat to what has been fixed
+	already in the 2019-01-22 release:
+
+	An even less frequent FIFO problem (occurs once every 50 million
+	tries on fast multi CPU machines) has been identified. Star reports a
+	hard EOF on input even though the complete file with logical EOF has
+	been read and there is still input to process. In order to debug this
+	problem a debug message has been added to the code.
+
+	With this debug message, it turned out, that this problem happened
+	because a context switch occurred in the FIFO read process after it did
+	see an empty FIFO and later, after the process was resumed, the
+	following check for the FIFO_MEOF flag did see EOF. We now first check
+	for the FIFO_MEOF flag and later for the amount of data inside as the
+	FIFO as FIFO_MEOF is set after the FIFO content has been updated and
+	thus a context switch is no longer able to cause a wrong assumption
+	about the content of the FIFO.
+
+	We now did run 250 million tests without seeing another problem.
+
+	If you still see this, please send a report.
+
+-	star: Note that the debug output for this problem now has been
+	disabled. If you need to debug this, call:
+
+		smake clean COPTX=-DFIFO_EOF_DEBUG all
+
+	in the star directory.
+
+-	star: The message "Sync pipe read error" is no longer printed when
+	the FIFO background process dies instead of sending a final wakeup.
+	This is needed since there is a possibility for a context switch in
+	the foreground process that can make it later wait for a wakeup while
+	the background process misses to see the wait flag and just exits.
+
+-	star: In rare conditions (once every 2 million tries), a hang could 
+	occur with "star -c" if the tar process fills the FIFO and sets the
+	EOF flag and then calls wait() to wait for the FIFO tape output
+	process. This happens in case that the tape output did not see the
+	EOF flag because it has undergone a context switch after it checked
+	for the not yet existing EOF flag and before waiting for a wakeup
+	from the tar FIFO fill process.
+
+	Star now closes the sync pipes before calling wait() as this always
+	wakes up the waiting other side.
+
+	We did run another 300 million tests for this condition and did not
+	see any problem now.
+
+-	star: The version is now 1.6
+
+	Short overview for what changed since the last "stable" version:
+
+	-	Support for "infinitely" long path names has been added.
+
+	-	Support for comparing timestamps with nanosecond granularity
+
+	-	-secure-links has been made the default when extracting
+		archived (except when doing an incremental restore).
+
+	-	Added Support for NFSv4 ACLs on FreeBSD. Solaris has been
+		supported since 2013.
+
+	-	Added Support to archive SELinix attributes.
+
+	-	Allow to configure whether "star -fsync" is the default in
+		order to support filesystems that are slow with granted
+		transactions (like ZFS) or platforms that are genrally
+		slow with fsync() (like Linux).
+
+	-	Full UNICODE support has been added for tar headers.
+
+	-	Support for -zstd compression has been added.
+
+	-	Some rare FIFO problems have been fixed.
+		Note that we did recently run more than a billion tests to
+		verify the FIFO after we identified a method to trigger the
+		problem on Linux.
+
+-	Bourne Shell: Another vfork() problem has been fixed. "trap cmd EXIT"
+	has incorrectly called "cmd" after a non-existing command was 
+	called by the shell. This was a result of the shared data from vfork().
+
+	Thanks to Martijn Dekker for reporting.
+
+-	Bourne Shell: A unit test case for the above bug has been added.
+
+-	Bourne Shell: __growstak() now always uses realloc() on modern
+	platforms. This may speed up things up to 15%.
+
+	Thanks to Jan Engelhardt for reporting.
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

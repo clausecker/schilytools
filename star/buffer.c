@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.188 19/01/07 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)buffer.c	1.189 19/02/10 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.188 19/01/07 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)buffer.c	1.189 19/02/10 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -1451,7 +1451,8 @@ buf_drain()
 {
 #ifdef	FIFO
 	if (use_fifo) {
-		fifo_oflush();
+		fifo_oflush();	/* Set FIFO_MEOF flag and wake other side */
+		fifo_oclose();	/* Close sync pipe to finally wake other side */
 		wait(0);
 	}
 #endif

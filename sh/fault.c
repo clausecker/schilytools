@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)fault.c	1.40 19/01/10 2008-2019 J. Schilling
+ * @(#)fault.c	1.41 19/02/05 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.40 19/01/10 2008-2019 J. Schilling";
+	"@(#)fault.c	1.41 19/02/05 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -267,7 +267,7 @@ done(sig)
 	struct excode savex;
 	struct excode savrex;
 
-	if ((t = trapcom[0]) != NULL) {
+	if ((t = trapcom[0]) != NULL && (trapflg[0] & SIGCLR) == 0) {
 		trapcom[0] = 0;
 		/* Save exit value so trap handler will not change its val */
 		savxit = exitval;
@@ -347,7 +347,7 @@ fault(sig)
 #endif
 	}
 
-	if (trapcom[sig])
+	if (trapcom[sig] && (trapflg[0] & SIGCLR) == 0)
 		flag = TRAPSET;
 	else if (flags & subsh)
 		done(sig);
@@ -470,8 +470,13 @@ oldsigs(dofree)
 	while (i--) {
 		t = trapcom[i];
 		f = trapflg[i];
-		if (t == 0 || *t)
+		if (t == 0 || *t) {
 			clrsig(i, dofree);
+#ifdef	HAVE_VFORK
+			if ((f & SIGMOD) && !dofree)
+				f |= SIGCLR;
+#endif
+		}
 		if (dofree)
 			trapflg[i] = 0;
 		else
@@ -503,7 +508,7 @@ restoresigs()
 		} else {
 			handle(i, sigval[i]);
 		}
-		trapflg[i] = f;
+		trapflg[i] = f & ~SIGCLR;
 	}
 }
 #endif

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.32 18/10/29 Copyright 1999-2018 J. Schilling
+# @(#)cpfiles	1.33 19/02/10 Copyright 1999-2019 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -122,6 +122,7 @@ $cp ${incsrc}/${lib}/seterrno.c		seterrno.c
 $cp ${incsrc}/${lib}/strcatl.c		strcatl.c
 $cp ${incsrc}/${lib}/strlcpy.c		strlcpy.c
 $cp ${incsrc}/${lib}/strncpy.c		strncpy.c
+$cp ${incsrc}/${lib}/strnlen.c		strnlen.c
 $cp ${incsrc}/${lib}/streql.c		streql.c
 $cp ${incsrc}/${lib}/fillbytes.c		fillbytes.c
 $cp ${incsrc}/${lib}/getargs.c		getargs.c

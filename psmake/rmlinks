@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.29 18/10/29 Copyright 1999-2018 J. Schilling
+# @(#)rmlinks	1.30 19/02/10 Copyright 1999-2019 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -95,6 +95,7 @@ rm -f seterrno.c
 rm -f strcatl.c
 rm -f strlcpy.c
 rm -f strncpy.c
+rm -f strnlen.c
 rm -f streql.c
 rm -f fillbytes.c
 rm -f getargs.c

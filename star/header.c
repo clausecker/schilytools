@@ -1,8 +1,8 @@
-/* @(#)header.c	1.180 19/01/22 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.181 19/02/05 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.180 19/01/22 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.181 19/02/05 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -884,8 +884,10 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
-				if (use_fifo)	/* Debug a rare Linuxproblem */
+#ifdef	FIFO_EOF_DEBUG
+				if (use_fifo)	/* Debug a rare EOF problem */
 					fifo_prmp(1);
+#endif
 				xstats.s_hardeof++;
 				return (EOF);
 			}
@@ -1002,8 +1004,10 @@ get_tcb(ptb)
 				errmsgno(EX_BAD,
 				"Hard EOF on input, first EOF block is missing at %lld.\n",
 				tblocks());
-				if (use_fifo)	/* Debug a rare Linuxproblem */
+#ifdef	FIFO_EOF_DEBUG
+				if (use_fifo)	/* Debug a rare EOF problem */
 					fifo_prmp(1);
+#endif
 				xstats.s_hardeof++;
 				return (EOF);
 			}

@@ -1,4 +1,4 @@
-# @(#)Makefile	1.9 18/01/15 Copyright 1999-2018 J. Schilling
+# @(#)Makefile	1.10 19/02/10 Copyright 1999-2019 J. Schilling
 
 #CFLAGS=	-Iinclude -I. -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO -DNO_SYSINFO $(CDEFS)
 
@@ -12,7 +12,7 @@ OFILES=make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o job.$o memory
 	format.$o \
 	getexecpath.$o \
 	jsprintf.$o jssnprintf.$o \
-	saveargs.$o strcatl.$o strlcpy.$o strncpy.$o \
+	saveargs.$o strcatl.$o strlcpy.$o strncpy.$o strnlen.$o \
 	streql.$o getargs.$o geterrno.$o seterrno.$o \
 	movebytes.$o fillbytes.$o raisecond.$o rename.$o \
 	searchinpath.$o file_raise.$o \

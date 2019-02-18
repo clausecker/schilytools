@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.22 18/03/14	Copyright 2010-2018 J. Schilling
+ * @(#)stak.c	2.23 19/02/10	Copyright 2010-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.22 18/03/14 Copyright 2010-2018 J. Schilling";
+	"@(#)stak.c	2.23 19/02/10 Copyright 2010-2019 J. Schilling";
 #endif
 
 
@@ -598,6 +598,7 @@ __growstak(incr)
 	TPRN(stakend - oldbsy);
 	TPRS(" bytes; ");
 
+#if	!defined(HAVE_REALLOC_NULL) || defined(pdp11)
 	if (incr < 0) {
 		/*
 		 * V7 realloc wastes the memory given back when
@@ -609,7 +610,7 @@ __growstak(incr)
 
 		if (new == (unsigned char *)NIL)
 			error(nostack);
-		if (staklen > 16) {
+		if (staklen >= 16) {
 			memcpy(new, oldbsy, staklen);
 		} else {
 			register int		amt = staklen;
@@ -621,14 +622,17 @@ __growstak(incr)
 		}
 		free(oldbsy);
 		oldbsy = new;
-	} else {
+	} else
+#endif
 		/*
 		 * get realloc to grow the stack to match the stack top
 		 */
 		if ((oldbsy = realloc(oldbsy, (unsigned)staklen)) ==
-						    (unsigned char *)NIL)
+						    (unsigned char *)NIL) {
 			error(nostack);
-	}
+		}
+
+#ifdef	STAK_DEBUG
 	TPRS("now @ ");
 	TPRN((long)oldbsy);
 	TPRS(" of ");
@@ -644,6 +648,7 @@ __growstak(incr)
 		TPRS(" bigger");
 	}
 	TPRS(")\n");
+#endif
 
 	stakend = oldbsy + staklen;	/* see? points at the last byte */
 	staktop = oldbsy + topoff;

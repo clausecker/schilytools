@@ -237,6 +237,7 @@
 ./psmake/streql.c
 ./psmake/strlcpy.c
 ./psmake/strncpy.c
+./psmake/strnlen.c
 ./psmake/uname.c
 ./psmake/update.c
 ./psmake/version.h
