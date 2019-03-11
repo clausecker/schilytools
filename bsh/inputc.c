@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.104 19/01/08 Copyright 1982, 1984-2019 J. Schilling */
+/* @(#)inputc.c	1.106 19/03/09 Copyright 1982, 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.104 19/01/08 Copyright 1982, 1984-2019 J. Schilling";
+	"@(#)inputc.c	1.106 19/03/09 Copyright 1982, 1984-2019 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1764,7 +1764,7 @@ strwchr(s, c)
  * the '%' has been checked before in the shell parser charracter set.
  * The string quoting charcters '"' and '\''.
  */
-LOCAL char xchars[] = " \t\"'<>%|;()&!#*?\\{}[]^$"; /* Chars that need quoting */
+LOCAL char xchars[] = " \t\"'<>%|;()&-!#*?\\{}[]^$"; /* Chars that need quoting */
 
 /*
  * Expand a wide char string and return a malloc()ed copy.

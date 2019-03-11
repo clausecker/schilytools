@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.30 19/02/10 Copyright 1999-2019 J. Schilling
+# @(#)rmlinks	1.31 19/02/28 Copyright 1999-2019 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -52,6 +52,7 @@ rm -f include/schily/unistd.h
 rm -f include/schily/utime.h
 rm -f include/schily/utsname.h
 rm -f include/schily/utypes.h
+rm -f include/schily/type_val.h
 rm -f include/schily/types.h
 rm -f include/schily/param.h
 rm -f include/schily/varargs.h

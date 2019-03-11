@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.136 19/01/09 2008-2019 J. Schilling
+ * @(#)bltin.c	1.137 19/02/20 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.136 19/01/09 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.137 19/02/20 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -798,7 +798,7 @@ builtin(type, argc, argv, t, xflags)
 
 	case SYSHASH:
 		{
-#ifdef	DO_GETOPT_UTILS
+#ifdef	DO_GETOPT_UTILS		/* For all builtins that support -- */
 			struct optv	optv;
 			int		c;
 
@@ -869,7 +869,7 @@ builtin(type, argc, argv, t, xflags)
 
 	case SYSTYPE:
 		if (a1) {
-#ifdef	DO_GETOPT_UTILS
+#ifdef	DO_GETOPT_UTILS		/* For all builtins that support -- */
 			struct optv	optv;
 			int		c;
 
@@ -929,7 +929,7 @@ builtin(type, argc, argv, t, xflags)
 		unsigned char c[2];
 		unsigned char *cmdp = *argv;
 
-#ifdef	DO_GETOPT_UTILS
+#ifdef	DO_GETOPT_UTILS		/* For all builtins that support -- */
 		ind = optskip(argc, argv,
 					"getopts optstring name [arg ...]");
 		if (ind-- < 0)
@@ -989,6 +989,11 @@ builtin(type, argc, argv, t, xflags)
 		n = lookup(UC "OPTARG");
 		assign(n, UC optarg);
 #ifdef	DO_GETOPT_POSIX
+		/*
+		 * In case that the option string starts with ':',
+		 * POSIX requires to set OPTARG to the option
+		 * character that causes getopt() to return '?'/':'.
+		 */
 		if (optarg == NULL && argv[1][0] == ':' &&
 		    (getoptval == '?' || getoptval == ':')) {
 			c[0] = optopt;

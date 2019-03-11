@@ -1,10 +1,12 @@
 #! /bin/sh
 #
-# @(#)bugs.sh	1.3 17/10/04 2017 J. Schilling
+# @(#)bugs.sh	1.4 19/02/18 2017 J. Schilling
 #
 
 # Read test core functions
 . ../../common/test-common
+
+echo is_bosh: $is_bosh is_osh: $is_osh is_bourne: $is_bourne
 
 #
 # Basic tests to check for regression bugs
@@ -21,7 +23,7 @@ $ECHO 'bla' < /dev/null > /dev/null 2> /dev/null || ECHO=/bin/does-not-exist
 $ECHO 'bla' < /dev/null > /dev/null 2> /dev/null || ECHO=echo
 XEOF
 
-docommand -noremove bug01 "LC_ALL=C $SHELL -x ./x" 0 IGNORE NONEMPTY
+docommand -noremove bug01 "LC_ALL=C PS4=\"+ \" $SHELL -x ./x" 0 IGNORE NONEMPTY
 
 #
 # Bash adds stray spaces in the output :-(
@@ -76,10 +78,18 @@ remove x
 # related problem on Solaris.
 #
 docommand bug03 "$SHELL -c 'expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+if $is_bourne || $is_osh; then
+	echo skipping bug04
+else
 docommand bug04 "$SHELL -c 'command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+fi
 
-docommand bug05 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
-docommand bug06 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+docommand bug05 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+if $is_bourne || $is_osh; then
+	echo skipping bug06
+else
+docommand bug06 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" command expr a \">\" b >/dev/null; echo \$?'" 0 "1\n" ""
+fi
 
 remove b
 
@@ -88,21 +98,29 @@ expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
 fi
+if $is_bourne || $is_osh; then
+	echo skipping bug08
+else
 docommand -noremove bug08 "$SHELL -c 'command expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
 fi
+fi
 
-docommand -noremove bug09 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
+docommand -noremove bug09 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
 fi
-docommand -noremove bug10 "$SHELL -c 'PATH=\$PATH:/usr/bin:/bin command expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
+if $is_bourne || $is_osh; then
+	echo skipping bug10
+else
+docommand -noremove bug10 "$SHELL -c 'PATH=\"\$PATH:/usr/bin:/bin\" command expr  2>/dev/null; echo \$?'" 0 NONEMPTY ""
 expr `cat got.stdout` ">=" 2 > /dev/null
 if [ $? -ne 0 ]; then
 	fail "Test $cmd_label failed: wrong exit code"
+fi
 fi
 
 

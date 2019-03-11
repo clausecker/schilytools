@@ -26,10 +26,10 @@
 /*
  * Copyright 2006-2017 J. Schilling
  *
- * @(#)getopt.c	1.18 18/11/11 J. Schilling
+ * @(#)getopt.c	1.19 19/02/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.18 18/11/11 J. Schilling"
+#pragma ident "@(#)getopt.c 1.19 19/02/21 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -70,8 +70,19 @@
 #define	snprintf	js_snprintf
 #endif
 
+#ifndef	__CYGWIN__
+/*
+ *	Cygwin uses a nonstandard:
+ *
+ *		__declspec(dllexport)
+ *	or
+ *		__declspec(dllimport)
+ *
+ *	that is in conflict with our standard definition.
+ */
 extern int optind, opterr, optopt;
 extern char *optarg;
+#endif
 
 static char *parseshort __PR((const char *optstring, const int c));
 #ifdef	DO_GETOPT_LONGONLY

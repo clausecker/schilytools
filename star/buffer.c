@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.189 19/02/10 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)buffer.c	1.194 19/03/10 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.189 19/02/10 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)buffer.c	1.194 19/03/10 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -657,15 +657,17 @@ extern	m_head	*mp;
 		"Panic: trying to write more than bs (%d > %d)!\n",
 		amount, bigsize);
 	}
-	mp->chreel = TRUE;
 #ifdef	FIFO
 	if (use_fifo) {
+		mp->chreel = TRUE;
+
 		/*
 		 * Make sure the put side of the FIFO is waiting either on
 		 * mp->iblocked (because the FIFO is full) or on mp->reelwait
 		 * before temporary disabling the FIFO during media change.
 		 */
-		while (mp->iblocked == FALSE && mp->reelwait == FALSE) {
+		while ((mp->eflags & FIFO_EXIT) == 0 &&
+		    mp->iblocked == FALSE && mp->reelwait == FALSE) {
 			usleep(100000);
 		}
 	}
@@ -705,9 +707,9 @@ extern	m_head	*mp;
 	bigcnt = ocnt;
 	use_fifo = ofifo;
 	active = FALSE;
-	mp->chreel = FALSE;
 #ifdef	FIFO
 	if (use_fifo) {
+		mp->chreel = FALSE;
 		fifo_reelwake();
 	}
 #endif
@@ -1802,6 +1804,8 @@ checkerrs()
 	    xstats.s_sizeerrs	||
 	    xstats.s_chdir	||
 	    xstats.s_iconv	||
+	    xstats.s_id		||
+	    xstats.s_time	||
 
 	    xstats.s_settime	||
 	    xstats.s_security	||
@@ -1831,6 +1835,9 @@ checkerrs()
 				xstats.s_rwerrs,
 				xstats.s_chdir,
 				xstats.s_iconv);
+		if (xstats.s_id || xstats.s_time)
+			errmsgno(EX_BAD, "Range errors: uid/gid %d, time: %d.\n",
+				xstats.s_id, xstats.s_time);
 		errmsgno(EX_BAD, "Size changed %d.\n",
 				xstats.s_sizeerrs);
 		errmsgno(EX_BAD, "Missing links %d, Name too long %d, File too big %d, Not dumped %d.\n",
@@ -1892,6 +1899,8 @@ exprstats(ret)
 {
 	prstats();
 	checkerrs();
+	if (use_fifo)
+		fifo_exit(ret);
 	exit(ret);
 }
 

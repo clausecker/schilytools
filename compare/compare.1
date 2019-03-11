@@ -1,4 +1,4 @@
-. \" @(#)compare.1	1.6 18/09/27 Copyr 1982-2018 J. Schilling
+. \" @(#)compare.1	1.7 19/03/05 Copyr 1982-2019 J. Schilling
 . \"  Manual page for compare
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH COMPARE 1L "2018/09/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH COMPARE 1L "2019/03/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 compare \- fast binary comparison of two files
 .SH SYNOPSIS
@@ -41,15 +41,21 @@ This is a deviation from the UNIX
 utility, which counts byte offsets beginning from 1.
 .SH OPTIONS
 Note all options can be abbreviated to their first letter.
+.br
+.ne 3
 .TP
 .B "\-all, \-a, \-long, \-l
 Do not stop comparing the files if the first difference is found.
+.br
+.ne 3
 .TP
 .BR \-lines , -L
 Count lines while comparing data.
 This slows down the process of comparison by a factor of two.
 The line count starts after the optional initial skip on a file.
 .PD 0
+.br
+.ne 5
 .TP
 .BR b= "#
 .TP
@@ -57,36 +63,46 @@ The line count starts after the optional initial skip on a file.
 .PD
 Start comparing at byte n, otherwise at byte 0.
 .PD 0
+.br
+.ne 5
 .TP
 .BR b1= "#
-.TP
 .TP
 .BR begin1= "#
 .PD
 Start comparing file 1 at byte n, otherwise at byte 0.
 .PD 0
+.br
+.ne 5
 .TP
 .BR b2= "#
-.TP
 .TP
 .BR begin2= "#
 .PD
 Start comparing fle 2 at byte n, otherwise at byte 0.
 .PD 0
+.br
+.ne 5
 .TP
 .BR c= "#
 .TP
 .BR count= "#
 .PD
 Stops after comparing n bytes, otherwise if the first files encounters EOF.
+.br
+.ne 3
 .TP
 .B \-silent
 Does not print messages, just returns the exit code.
+.br
+.ne 3
 .TP
 .B \-help
 Prints a short summary of the 
 .B compare
 options and exists.
+.br
+.ne 3
 .TP
 .B \-version
 Prints the 
@@ -98,7 +114,7 @@ numbers in the options
 .BI begin1= #\fR,
 .BI begin2= #\fR,
 and
-.BO count= #
+.BI count= #
 are assumed to be
 bytes. However typing the character
 .RB ' b '

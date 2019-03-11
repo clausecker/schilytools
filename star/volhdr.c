@@ -1,13 +1,13 @@
-/* @(#)volhdr.c	1.44 18/07/17 Copyright 1994, 2003-2018 J. Schilling */
+/* @(#)volhdr.c	1.45 19/03/09 Copyright 1994, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.44 18/07/17 Copyright 1994, 2003-2018 J. Schilling";
+	"@(#)volhdr.c	1.45 19/03/09 Copyright 1994, 2003-2019 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
  *
- *	Copyright (c) 1994, 2003-2018 J. Schilling
+ *	Copyright (c) 1994, 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -740,7 +740,8 @@ extern	BOOL dodump;
 	finfo.f_contoffset = off;
 	finfo.f_xftype = XT_MULTIVOL;
 	finfo.f_rxftype = XT_MULTIVOL;
-	finfo.f_xflags = XF_NOTIME|XF_REALSIZE|XF_OFFSET;
+	if (props.pr_flags & PR_XHDR)
+		finfo.f_xflags |= XF_NOTIME|XF_REALSIZE|XF_OFFSET;
 
 	info_to_tcb(&finfo, mptb);
 

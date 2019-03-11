@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.213 19/01/05 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.215 19/03/08 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/01/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/03/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2127,6 +2127,12 @@ Suppress warnings about
 errors.
 These error happen, when text is converted from or to POSIX.1-2001 extended tar
 headers.
+.TP
+.B ID
+Suppress warnings about
+.BR uid / gid
+range errors.
+These errors happen when the archive format does not support the actual value.
 .TP
 .B SETTIME
 Suppress warnings about files on that
@@ -5671,8 +5677,19 @@ be prepared that terminal generated signals may interrupt the
 remote connection.
 
 .SH HISTORY
+A
+.B tar
+command appeared in Seventh Edition Unix, which was released in
+January, 1979. It replaced the
+.B tp
+program from Fourth Edition Unix which replaced the
+.B tap
+program from First Edition Unix. 
+.LP
 .B Star
-was first created in 1982 to extract tapes on a UNIX clone that had no
+was first created in 1982 to extract tapes on a UNIX clone
+.RB ( UNOS )
+that had no
 .B tar
 command.
 In 1985 the first fully functional version has been released as 

@@ -1,4 +1,4 @@
-/* @(#)star.h	1.142 19/01/05 Copyright 1985, 1995-2019 J. Schilling */
+/* @(#)star.h	1.145 19/02/28 Copyright 1985, 1995-2019 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2019 J. Schilling
  */
@@ -22,6 +22,7 @@
 #include <schily/utypes.h>
 #include <schily/time.h>
 #include <schily/types.h>
+#include <schily/limits.h>
 #include "pathname.h"
 
 #ifdef	__cplusplus
@@ -873,6 +874,8 @@ struct star_stats {
 #endif
 	int	s_chdir;	/* chdir() failed			  */
 	int	s_iconv;	/* iconv() failed			  */
+	int	s_id;		/* uid/gid range error			  */
+	int	s_time;		/* time range error			  */
 	/*
 	 * Extract only....
 	 */

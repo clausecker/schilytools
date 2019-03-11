@@ -1,0 +1,344 @@
+New features with AN-2019-03-11:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+-	makefile system: A new file include/schily/type_val.h has been added to
+	allow to use TYPE_MINVAL(), ... without a need to
+	#include <schily/inttypes.h>
+
+-	makefile system: include/schily/limits.h now contains some
+	XXX_MAX/XXX_MIN fallbacks in case the related defintions are missing
+	in the system include file of the current OS.
+
+-	psmake: cpfiles/lnfiles/rmlinks now contain a line for the new
+	include/schily/type_val.h
+
+-	bsh/libshedit: the "TAB filename expansion" added the character '-'
+	to the list of characters that need quoting as this character was 
+	recently added to the POSIX list of characters that may need quoting.
+
+-	obosh: Some of the unit tests that use "command" have been removed as
+	they do not work in a non-POSIX shell. The tests worked on Solaris
+	because it is POSIX compliant and offers a separate "command" binary.
+
+-	libgetopt/Bourne Shell: added an #ifndef __CYGWIN__ in order to avoid
+	overwriting non-standard definitions by standard definitions on Cygwin
+	for the global getopt() variables.
+
+	Thanks to Heiko Eißfeldt for proposing this fix.
+
+-	Bourne Shell: better comment in bltin.c
+
+-	compare: The man page from September last year had typos that caused
+	parts of the text to become invisible.
+
+-	mkisofs: Fixed a typo in the man page related to the option "-sectype"
+
+-	star: Support for base-256 numbers in timestams and uid/gid has been
+	added. This has been planned in the 1990s already, when star invented
+	the base-256 coding, but it has been forgotten in favor of the
+	POSIX.1-2001 enhanded archive headers. Now it seems that GNU tar 
+	that copied the format from star uses it for timestamps and uid/gid
+	and we need to implement it in order to get archive compatibility.
+
+	Thanks to Michal Górny (mgorny@gentoo.org) for detecting the missing
+	feature.
+
+-	star: The t_rdev field in the old star header now may use base-256
+	as well.
+
+-	star: The function stoli() added a new parameter "fieldwidth" that
+	allows to configure when a "unterminated octal number" warning is
+	printed. This is needed since this function is used for 8 byte and
+	for 12 byte fields.
+
+-	star: star did print archives with illegal 32 byte user/group 
+	names (where the nul terminator is missing) "correctly", when in 
+	list mode but it used only the first 31 bytes when extractig 
+	such archives
+
+-	star: a new function istarnumber() is used to do better heuristics on
+	what a valid TAR archive is. We have some special handling to work 
+	around the non-compliance of GNU tar in some known cases. If you
+	discover other GNU tar archives that are not detected as TAR archive,
+	please report them to help to make th eheuristics better.
+
+	The background is to make star better in detecting fool archives.
+
+-	star: The directory testscripts added new files:
+
+	testscripts/not_a_tar_file1 and testscripts/not_a_tar_file3
+
+	with correct checksums that fool tar implementations that use too
+	few heuristics to identify tar archives.
+
+-	star: fixed a bug in the FIFO related to extracting multi-volume
+	archives. The bug was introduced with release 2019-02-18 and the
+	effect was that the FIFO complained at the end of the last volume.
+
+-	star/libschily: Added new error checking codes:
+
+	"ID"	allows to control error behaviour with range errors in uid_t
+		and gid_t values.
+
+	"TIME"	allows to control error behaviour with range errors in time_t
+
+-	star: Creating multi volume archives without using the FIFO did dump
+	core. We thus no longer set mp->chreel = TRUE; when the FIFO has 
+	been disabled. The related bug has been introduced in January 2012.
+
+-	star: Creating multi volume archives with a very small volume size
+	could cause a hang at the end as the function startvol() did not
+	check whether the TAR process did already decide to exit while
+	waiting for the TAR process to calm down (stop) before writing the
+	next multi volume header. We no longer wait in this case.
+
+-	star: exprstats() now calls fifo_exit(ret) in order to avoid a
+	FIFO Sync pipe read error message in case that star was terminated
+	with an error.
+
+-	star: Since we added better Unicode support in May 2018, star did
+	dump core when a multi volume header with POSIX.1-2001 extensions
+	was written in multi volume create mode. We now check for NULL
+	pointers before we call nameascii() to decide whether the file 
+	name needs a UTF-8 translation.
+
+-	star: Creating multi volume archives without POSIX.1-2001 support
+	no longer sets POSIX.1-2001 extension flags for the volume header.
+
+-	star: The flag XF_NOTIME now works when creating POSIX.1-2001
+	extended headers and thus the 'x'-header with time stamps for the
+	volume header tar header is no longer created. This avoids
+	to write atime=1 for the volume number 1 since we encode the
+	volume number in the otherwise useless atime of the volume header
+	when in POSIX.1-1988 TAR mode.
+
+-	star: the star.1 man page now mentions that the first tar program
+	appeared in 1979 (3 years before star has been started as a project).
+
+-	star: the star.4 man page now has a "SEE ALSO", a HISTORY and
+	a AUTHOR section.
+
+-	star: the star.4 man page now has a MULTI VOLUME ARCHIVE HANDLING
+	section.
+
+-	star: the star.4 man page added a new "BASIC TAR STRUCTURE" section.
+
+-	star: The ACL reference test archives (formerly available from e.g.:
+		http://sf.net/projects/s-tar/files/alpha/) have been added
+	to the directory star/testscripts/. The files 
+
+	acl-test.tar.gz
+	acl-test2.tar.gz
+	acl-test3.tar.gz
+	acl-test4.tar.gz
+	acl-test5.tar.gz
+
+	contain ACLs that use the obsolete method from a POSIX proposal
+	from around 1993 that was withdrawn in 1997 and never has become
+	part of a standard. This method has been implemented in 1993 for
+	UFS on Solaris.
+
+	GNU tar claims to support this format but really does not support
+	it at all. GNU tar fails to extract the reference tar archives from
+	above and it fails to create a compliant tar archive in create mode.
+	It is strange to see that GNU tar never has been tested against the
+	reference archives that have been created in collaboration with
+	SuSE in 2001 already.
+
+	The files
+
+	acl-nfsv4-test.tar.gz
+	acl-nfsv4-test2.tar.gz
+	acl-nfsv4-test3.tar.gz
+	acl-nfsv4-test4.tar.gz
+	acl-nfsv4-test5.tar.gz
+
+	contain ACLs that have become part of the NFSv4 standard and that 
+	are also used on NTFS and ZFS. This format is completely unsupported
+	by GNU tar.
+
+-	star TODO: create unit tests in order to avoid future problems
+	with multi volume archives similar to the problems we recently
+	fixed.
+
+-	star: Updated version 1.6 (not yet published in separate tarball)
+
+	Short overview for what changed since the last "stable" version:
+
+	-	Support for "infinitely" long path names has been added.
+
+	-	Support for base-256 numbers in timestams and uid/gid
+		has been added. This has been planned in the 1990s already,
+		when star invented the base-256 coding, but it has been
+		forgotten in favor of the POSIX.1-2001 enhanded archive
+		headers.
+
+	-	Support for comparing timestamps with nanosecond granularity
+
+	-	-secure-links has been made the default when extracting
+		archived (except when doing an incremental restore).
+
+	-	Added Support for NFSv4 ACLs on FreeBSD. Solaris has been
+		supported since 2013.
+
+	-	Added Support to archive SELinix attributes.
+
+	-	Allow to configure whether "star -fsync" is the default in
+		order to support filesystems that are slow with granted
+		transactions (like ZFS) or platforms that are genrally
+		slow with fsync() (like Linux).
+
+	-	Full UNICODE support has been added for tar headers.
+
+	-	Support for -zstd compression has been added.
+
+	-	Some rare FIFO problems have been fixed.
+		Note that we did recently run more than a billion tests to
+		verify the FIFO after we identified a method to trigger the
+		problem on Linux.
+
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

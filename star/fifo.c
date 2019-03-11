@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.98 19/02/12 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.100 19/03/02 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.98 19/02/12 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.100 19/03/02 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -678,7 +678,11 @@ fifo_iwait(amount)
 	if (rmp->pflags & FIFO_MEOF) {
 		EDEBUG(("E"));
 		cnt = sputwait(rmp, 2);
-		if (cnt != 'n') {
+		/*
+		 * 'n' is from fifo_chitape(), '\0' is the final FIFO shutdown.
+		 */
+		if (cnt != 'n' &&
+		    !((rmp->eflags & FIFO_EXIT) && cnt == '\0')) {
 			errmsgno(EX_BAD,
 			"Implementation botch: with FIFO_MEOF\n");
 			comerrno(EX_BAD,

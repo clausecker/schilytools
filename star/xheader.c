@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.98 18/11/28 Copyright 2001-2018 J. Schilling */
+/* @(#)xheader.c	1.99 19/03/09 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.98 18/11/28 Copyright 2001-2018 J. Schilling";
+	"@(#)xheader.c	1.99 19/03/09 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -406,6 +406,8 @@ extern	BOOL	dodump;
 	 */
 	if ((xflags & (XF_ATIME|XF_CTIME|XF_MTIME|XF_NOTIME)) == 0)
 		xflags |= (XF_ATIME|XF_CTIME|XF_MTIME);
+	else if (xflags & XF_NOTIME)
+		xflags &= ~(XF_ATIME|XF_CTIME|XF_MTIME);
 
 #ifdef	DEBUG_XHDR
 	xflags = 0xffffffff;

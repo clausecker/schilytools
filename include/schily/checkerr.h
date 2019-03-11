@@ -1,4 +1,4 @@
-/* @(#)checkerr.h	1.15 18/05/15 Copyright 2003-2018 J. Schilling */
+/* @(#)checkerr.h	1.17 19/02/28 Copyright 2003-2019 J. Schilling */
 /*
  *	Generic error control for programs that do file i/o.
  *	The error control is usually used by archiving programs.
@@ -9,7 +9,7 @@
  *	an official stable and "library-compliant" interface, be careful
  *	and watch for changes.
  *
- *	Copyright (c) 2003-2018 J. Schilling
+ *	Copyright (c) 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,9 +60,11 @@ extern "C" {
 #define	E_GETXATTR	0x1000		/* Could not get xattr		   */
 #define	E_CHDIR		0x2000		/* Could not chdir()		   */
 #define	E_ICONV		0x4000		/* Could not convert via iconv()   */
+#define	E_ID		0x8000		/* Could not write numeric uid/gid */
+#define	E_TIME		(0x0001|E_FL1)	/* Could not convert time_t	   */
 
 /*
- * Currently unused: 0x8000 .. 0x8000
+ * Currently unused: none
  */
 
 #define	E_SETTIME	0x10000		/* Could not set file times	   */
@@ -75,8 +77,26 @@ extern "C" {
 #define	E_SETXATTR	0x800000	/* Could not set xattr		   */
 
 /*
- * Currently unused: 0x1000000 .. 0x8000000
+ * Unused for flag array index: 0x1000000 .. 0x8000000
  */
+#define	E_FL1		0x1000000	/* 1st enhancement bit		   */
+#define	E_FL2		0x2000000	/* 2nd enhancement bit		   */
+#define	E_FL3		0x3000000	/* 3rd enhancement index	   */
+#define	E_FL4		0x4000000	/* 3rd enhancement bit		   */
+#define	E_FL5		0x5000000	/* 5th enhancement index	   */
+#define	E_FL6		0x6000000	/* 6th enhancement index	   */
+#define	E_FL7		0x7000000	/* 7th enhancement index	   */
+#define	E_FL8		0x8000000	/* 4th enhancement bit		   */
+#define	E_FL9		0x9000000	/* 9th enhancement index	   */
+#define	E_FL10		0xA000000	/* 10th enhancement index	   */
+#define	E_FL11		0xB000000	/* 11th enhancement index	   */
+#define	E_FL12		0xC000000	/* 12th enhancement index	   */
+#define	E_FL13		0xD000000	/* 13th enhancement index	   */
+#define	E_FL14		0xE000000	/* 14th enhancement index	   */
+#define	E_FL15		0xF000000	/* 15th enhancement index	   */
+#define	E_EMASK		0xF000000	/* Enhancement mask		   */
+#define	E_NFL		16		/* Number of flag array elements   */
+#define	E_SHIFT		24		/* Sift to get index		   */
 
 #define	E_DIFF		0x10000000	/* Diffs encountered		   */
 #define	E_WARN		0x20000000	/* Print this error but do exit(0) */

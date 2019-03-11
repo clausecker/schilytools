@@ -200,6 +200,7 @@
 ./psmake/include/schily/systeminfo.h
 ./psmake/include/schily/time.h
 ./psmake/include/schily/times.h
+./psmake/include/schily/type_val.h
 ./psmake/include/schily/types.h
 ./psmake/include/schily/unistd.h
 ./psmake/include/schily/utime.h

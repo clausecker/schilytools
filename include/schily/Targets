@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.26 18/12/30 
+#ident @(#)Targets	1.27 19/02/28 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -30,7 +30,7 @@ X_MK_LIST=	\
 		sunos4_proto.mk \
 		sysexits.mk syslog.mk systeminfo.mk \
 		termcap.mk termios.mk time.mk timeb.mk times.mk \
-		types.mk unistd.mk utime.mk utsname.mk utypes.mk \
+		type_val.mk types.mk unistd.mk utime.mk utsname.mk utypes.mk \
 		values.mk varargs.mk vfork.mk \
 		walk.mk wchar.mk wctype.mk wait.mk \
 		windows.mk \

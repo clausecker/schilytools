@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.30 18/08/31 Copyr 2003-2018 J. Schilling
+. \" @(#)star.4	1.34 19/03/09 Copyr 2003-2018 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2018/08/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2019/03/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -34,6 +34,48 @@ of extended header keywords and associated values. The header keywords are
 documented in the
 .B "EXTENDED TAR (PAX) HEADER KEYWORDS
 section below.
+.SH "BASIC TAR STRUCTURE
+.PP
+A
+.B tar
+archive consists of a series of 512 byte
+.RB ( TBLOCK )
+records that are grouped to blocks
+of typically 20 records (10240 bytes).
+.LP
+A number of TBLOCK sizes records are grouped together to a tape block for physical I/O
+operations. Each block of 
+.I n
+records is written with a single
+.BR write (2)
+operation.
+On magnetic tapes, this results in a single
+.B tape record
+in case the tape drive is in
+.BR "variable length record mode" .
+.LP
+The block structure is only visible on blocked tapes.
+A larger block size results in higher throughput.
+Tapes that use a block size larger than
+.B 63 kB
+however may not be readable with any hardware and need to be avoided if 
+read compatibility is important.
+Older tar implementations do not support block sizes larger than 10240 bytes.
+.LP
+For fast backups, it is recommended to use block sizes of at least
+.B 256\ kB
+and to verify throughput and readability on available hardware.
+.LP
+Note that the terms
+.B block
+and
+.B record
+are frequently used inconsistently (starting in the historical documentation
+from 1979 already) and that the term
+.B block
+is typically used for 512 bytes if the tape block size if not relevant in a
+specific context.
+
 .SH "BASIC TAR HEADER DESCRIPTION
 .PP
 Physically, a POSIX.1-1988
@@ -42,17 +84,8 @@ archive consists of a series of fixed sized blocks of TBLOCK (512) characters.
 It contains a series of file entries terminated by a logical
 end\-of\-archive marker, which consists of two blocks of 512 bytes of binary zeroes.
 Each file entry is represented by a header block that describes the file followed by
-one or more blocks with the content of the file. The length of each file is rounded up
+zero or more blocks with the content of the file. The length of each file is rounded up
 to a multiple of 512 bytes.
-.PP
-A number of TBLOCK sizes blocks are grouped together to a tape record for physical I/O
-operations. Each record of 
-.I n
-blocks is written with a single
-.BR write (2)
-operation.
-On magnetic tapes, this results in a single tape record in case the tape drive is in
-.BR "variable length record mode" .
 .PP
 The header block is defined in star.h as follows:
 .nf
@@ -329,7 +362,7 @@ bit is set and all other bits are cleared).
 The rightmost character in a 8 or 12 character field contains the least
 significant base 256 number.
 .sp
-Recent GNU tar versions implement the same extension.
+Recent GNU tar and BSD libarchive versions implement the same extension.
 .PP
 While the POSIX standard makes it obvious that the fields
 .IR "mode" , " uid" , " gid" ,
@@ -1890,8 +1923,117 @@ infinity. An implementation should be able to handle at least 31 bit
 unsigned values.
 .SH "MULTI VOLUME ARCHIVE HANDLING
 .PP
-To be documented in the future.
+Multi volume archives always use volume headers. Starting with the second
+volume, there is a multi volume header that helps to skip the rest of the
+file that was split at the end of the previous volume.
+.LP
+.B Star
+is able to work with arbitrary unknown volume sizes by detecting the end of
+the current media via a
+.BR write ()
+call that returns
+.BR 0 .
+A fixed media size is used, when the option
+.BI tsize= #
+has been specified.
+.LP
+Since
+.B star
+uses a
+.B fifo
+for optimizing the I/O,
+except when called with the option
+.BR \-no\-fifo ,
+it is not possible to know the name of the file that is split at a volume limit
+nor to know the offset in that file.
+Unless
+.B POSIX.1-2001
+extensions are used,
+.B star 
+does not verify whether a follow up volume is the right follow up volume.
+For this reason, it is recommended to create multi volume archives only 
+with archive formats that support
+.B POSIX.1-2001 
+extensions.
+.LP
+The following 
+.B POSIX.1-2001 
+extensions are used together with multi volume archives:
+.TP
+.B SCHILY.volhdr.label
+the volume lavel is used to help to identify a set of volumes.
+.TP
+.B SCHILY.volhdr.dumpdate
+The start of the dump with nanosecond precision is used to identify
+the correct follow up volume.
+.TP
+.B SCHILY.volhdr.volno
+The volume number counts starting with 1 and is used to identify
+the correct follow up volume.
+.TP
+.B SCHILY.volhdr.blockoff
+The number of blocks read with all previous volumes.
+.TP
+.B SCHILY.volhdr.tapesize
+The tape size in case that the
+.BI tsize= #
+option was used.
+
 .SH "SEE ALSO"
+.BR spax (1), 
+.BR suntar (1), 
+.BR scpio (1), 
+.BR tar (1), 
+.BR cpio (1), 
+.BR pax (1), 
+.BR star_sym (1),
+.BR tartest (1),
+.BR star (1)
 .SH NOTES
 .SH BUGS
+.SH HISTORY
+A
+.B tar
+command appeared in Seventh Edition Unix, which was released in
+January, 1979. It replaced the
+.B tp
+program from Fourth Edition Unix which replaced the
+.B tap
+program from First Edition Unix. 
+.LP
+.B Star
+was first created in 1982 to extract tapes on a UNIX clone
+.RB ( UNOS )
+that had no
+.B tar
+command.
+In 1985 the first fully functional version has been released as 
+.B mtar.
+.PP
+When the old 
+.B star 
+format extensions have been introduced in 1985, it was renamed to 
+.B star
+(Schily tar).
+In 1994, Posix 1003.1\-1988 extensions were added and 
+.B star 
+was renamed to 
+.B star
+(Standard tar).
+
 .SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+joerg.schilling@fokus.fraunhofer.de
+or
+.B
+joerg@schily.net
+

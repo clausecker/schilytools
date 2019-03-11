@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.196 19/02/05 2008-2019 J. Schilling
+ * @(#)defs.h	1.197 19/02/21 2008-2019 J. Schilling
  */
 
 /*
@@ -403,10 +403,21 @@ extern pid_t	mypgid;
 extern pid_t	mysid;
 
 /* getopt */
+#define	_sp		opt_sp	/* Use variable name from new getopt() */
+#ifndef	__CYGWIN__
+/*
+ *	Cygwin uses a nonstandard:
+ *
+ *		__declspec(dllexport)
+ *	or
+ *		__declspec(dllimport)
+ *
+ *	that is in conflict with our standard definition.
+ */
 extern int		optind;
 extern int		opterr;
-#define	_sp		opt_sp	/* Use variable name from new getopt() */
 extern char 		*optarg;
+#endif
 
 #ifdef	STAK_DEBUG
 #ifndef	DO_SYSALLOC

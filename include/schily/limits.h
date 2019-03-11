@@ -1,6 +1,6 @@
-/* @(#)limits.h	1.7 11/08/13 Copyright 2011 J. Schilling */
+/* @(#)limits.h	1.8 19/02/28 Copyright 2011-2019 J. Schilling */
 /*
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,5 +52,51 @@
 #define	PIPE_BUF		512
 #endif
 #endif	/* PIPE_BUF */
+
+/*
+ * For definitions of TYPE_MINVAL() ...
+ */
+#ifndef	_SCHILY_TYPE_VAL_H
+#include <schily/type_val.h>
+#endif
+
+#ifndef	INT_MIN
+#define	INT_MIN		TYPE_MINVAL(int)
+#endif
+#ifndef	INT_MAX
+#define	INT_MAX		TYPE_MAXVAL(int)
+#endif
+#ifndef	UINT_MIN
+#define	UINT_MIN	TYPE_MINVAL(unsigned int)
+#endif
+#ifndef	UINT_MAX
+#define	UINT_MAX	TYPE_MAXVAL(unsigned int)
+#endif
+
+#ifndef	LONG_MIN
+#define	LONG_MIN	TYPE_MINVAL(long)
+#endif
+#ifndef	LONG_MAX
+#define	LONG_MAX	TYPE_MAXVAL(long)
+#endif
+#ifndef	ULONG_MIN
+#define	ULONG_MIN	TYPE_MINVAL(unsigned long)
+#endif
+#ifndef	ULONG_MAX
+#define	ULONG_MAX	TYPE_MAXVAL(unsigned long)
+#endif
+
+#ifndef	LLONG_MIN
+#define	LLONG_MIN	TYPE_MINVAL(long)
+#endif
+#ifndef	LLONG_MAX
+#define	LLONG_MAX	TYPE_MAXVAL(long long)
+#endif
+#ifndef	ULLONG_MIN
+#define	ULLONG_MIN	TYPE_MINVAL(unsigned long long)
+#endif
+#ifndef	ULLONG_MAX
+#define	ULLONG_MAX	TYPE_MAXVAL(unsigned long long)
+#endif
 
 #endif	/* _SCHILY_LIMITS_H */

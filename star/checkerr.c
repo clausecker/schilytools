@@ -1,13 +1,13 @@
-/* @(#)checkerr.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling */
+/* @(#)checkerr.c	1.28 19/02/28 Copyright 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)checkerr.c	1.26 18/06/16 Copyright 2003-2018 J. Schilling";
+	"@(#)checkerr.c	1.28 19/02/28 Copyright 2003-2019 J. Schilling";
 #endif
 /*
  *	Error control for star.
  *
- *	Copyright (c) 2003-2018 J. Schilling
+ *	Copyright (c) 2003-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,7 +41,7 @@ typedef struct errconf {
 	int		*ec_aux;	/* Aux array from pattern compiler  */
 	int		ec_alt;		/* Alt return from pattern compiler */
 	int		ec_plen;	/* String length of pattern	    */
-	UInt32_t	ec_flags;	/* Error condition flags	    */
+	UInt32_t	ec_flags[E_NFL]; /* Error condition flags	    */
 } ec_t;
 
 LOCAL	int	*ec_state;		/* State array for pattern compiler */
@@ -52,7 +52,7 @@ LOCAL	int	maxplen;
 EXPORT	int	errconfig	__PR((char *name));
 LOCAL	char	*_endword	__PR((char *p));
 LOCAL	void	parse_errctl	__PR((char *line));
-LOCAL	UInt32_t errflags	__PR((char *eflag, BOOL doexit));
+LOCAL	UInt32_t errflags	__PR((char *eflag, BOOL doexit, UInt32_t fla[E_NFL]));
 LOCAL	ec_t	*_errptr	__PR((int etype, const char *fname));
 EXPORT	BOOL	errhidden	__PR((int etype, const char *fname));
 EXPORT	BOOL	errwarnonly	__PR((int etype, const char *fname));
@@ -70,7 +70,7 @@ errconfig(name)
 	int	omaxplen = maxplen;
 
 	if ((f = fileopen(name, "r")) == NULL) {
-		if (errflags(name, FALSE) != 0)
+		if (errflags(name, FALSE, NULL) != 0)
 			parse_errctl(name);
 		else
 			comerr("Cannot open '%s'.\n", name);
@@ -131,7 +131,7 @@ parse_errctl(line)
 		/* LINTED */
 	}
 	ep = ___malloc(sizeof (ec_t), "errcheck node");
-	ep->ec_flags = errflags(line, TRUE);
+	errflags(line, TRUE, ep->ec_flags);
 	ep->ec_plen = plen = strlen(pattern);
 	if (ep->ec_plen > maxplen)
 		maxplen = ep->ec_plen;
@@ -165,6 +165,8 @@ LOCAL struct eflags {
 	{ "GETXATTR",		E_GETXATTR },
 	{ "CHDIR",		E_CHDIR },
 	{ "ICONV",		E_ICONV },
+	{ "ID",			E_ID },
+	{ "TIME",		E_TIME },
 
 	{ "SETTIME",		E_SETTIME },
 	{ "SETMODE",		E_SETMODE },
@@ -188,9 +190,10 @@ LOCAL struct eflags {
  * Convert error condition string into flag word
  */
 LOCAL UInt32_t
-errflags(eflag, doexit)
+errflags(eflag, doexit, fla)
 	char	*eflag;
 	BOOL	doexit;
+	UInt32_t fla[E_NFL];
 {
 	register char		*p = eflag;
 		char		*ef = _endword(eflag);
@@ -204,7 +207,14 @@ errflags(eflag, doexit)
 			if ((strncmp(ep->fname, p, slen) == 0) &&
 			    (p[slen] == '|' || p[slen] == ' ' ||
 			    p[slen] == '\0')) {
-				nflags |= ep->fval;
+				UInt32_t nfl = ep->fval;
+
+				nflags |= nfl;
+				if (fla) {
+					int	idx = (nfl & E_EMASK) >> E_SHIFT;
+
+					fla[idx] |= nfl;
+				}
 				break;
 			}
 		}
@@ -233,6 +243,7 @@ _errptr(etype, fname)
 	char		*ret;
 	const Uchar	*name = (const Uchar *)fname;
 	int		nlen;
+	int		idx = (etype & E_EMASK) >> E_SHIFT;
 
 	if (fname == NULL) {
 		errmsgno(EX_BAD,
@@ -243,8 +254,9 @@ _errptr(etype, fname)
 		return ((ec_t *)NULL);
 	}
 	nlen  = strlen(fname);
+	etype &= ~E_EMASK;
 	while (ep) {
-		if ((ep->ec_flags & etype) != 0) {
+		if ((ep->ec_flags[idx] & etype) != 0) {
 			ret = (char *)patmatch(ep->ec_pat, ep->ec_aux,
 					name, 0,
 					nlen, ep->ec_alt, ec_state);
@@ -267,7 +279,7 @@ errhidden(etype, fname)
 	ec_t		*ep;
 
 	if ((ep = _errptr(etype, fname)) != NULL) {
-		if ((ep->ec_flags & (E_ABORT|E_WARN)) != 0)
+		if ((ep->ec_flags[0] & (E_ABORT|E_WARN)) != 0)
 			return (FALSE);
 		return (TRUE);
 	}
@@ -285,7 +297,7 @@ errwarnonly(etype, fname)
 	ec_t		*ep;
 
 	if ((ep = _errptr(etype, fname)) != NULL) {
-		if ((ep->ec_flags & E_WARN) != 0)
+		if ((ep->ec_flags[0] & E_WARN) != 0)
 			return (TRUE);
 		return (FALSE);
 	}
@@ -309,7 +321,7 @@ extern	int	intr;
 	if ((ep = _errptr(etype, fname)) == NULL) {
 		if (!errflag)
 			return (FALSE);
-	} else if ((ep->ec_flags & E_ABORT) == 0)
+	} else if ((ep->ec_flags[0] & E_ABORT) == 0)
 		return (FALSE);
 
 	if (doexit) {
