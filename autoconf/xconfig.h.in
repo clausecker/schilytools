@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.274 18/07/12 Copyright 1998-2018 J. Schilling */
+/* @(#)xconfig.h.in	1.275 19/03/18 Copyright 1998-2019 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2018 J. Schilling
+ *	Copyright (c) 1998-2019 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -161,6 +161,7 @@
 #undef HAVE_OS2_H		/* if we have the OS/2 definitions in os2.h */
 #undef HAVE_OS2ME_H		/* if we have the OS/2 definitions in os2me.h */
 #undef HAVE_WINDOWS_H		/* if we have the MS-Win definitions in windows.h */
+#undef HAVE_LINUX_FS_H		/* if we have the Linux moving target linux/fs.h */
 #undef HAVE_EXT2FS_EXT2_FS_H	/* if we have the Linux moving target ext2fs/ext2_fs.h */
 #undef HAVE_SYS_XATTR_H		/* if we have the Linux Extended File Attr definitions in sys/xattr.h */
 #undef HAVE_ATTR_XATTR_H	/* if we have the Linux Extended File Attr definitions in attr/xattr.h */

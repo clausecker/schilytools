@@ -1,8 +1,8 @@
-/* @(#)suntar.c	1.42 19/01/05 Copyright 1989, 2003-2019 J. Schilling */
+/* @(#)suntar.c	1.43 19/03/27 Copyright 1989, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.42 19/01/05 Copyright 1989, 2003-2019 J. Schilling";
+	"@(#)suntar.c	1.43 19/03/27 Copyright 1989, 2003-2019 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
@@ -130,6 +130,9 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	 *	One problem with -remove-first is that it slows down extraction
 	 */
 
+	if (pname) {				/* cli=xxx seen as argv[1] */
+		--ac, av++;
+	}
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
 	if (getlallargs(&ac, &av, &gaprops, opts,
@@ -257,8 +260,10 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 LOCAL void
 suntar_info()
 {
+	const	char	*n = pname ? pname : get_progname();
+
 	error("\nFor a more complete user interface use the tar type command interface.\n");
-	error("See 'man star'. The %s command is more or less limited to the\n", get_progname());
+	error("See 'man star'. The %s command is more or less limited to the\n", n);
 	error("Solaris tar command line interface.\n");
 }
 
@@ -269,9 +274,11 @@ LOCAL void
 susage(ret)
 	int	ret;
 {
-	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
-	error("\nUse\t%s --help\n", get_progname());
-	error("and\t%s --xhelp\n", get_progname());
+	const	char	*n = pname ? pname : get_progname();
+
+	error("Usage:\t%s cmd [options] file1 ... filen\n", n);
+	error("\nUse\t%s --help\n", n);
+	error("and\t%s --xhelp\n", n);
 	error("to get a list of valid cmds and options.\n");
 	suntar_info();
 	exit(ret);
@@ -282,7 +289,9 @@ LOCAL void
 usage(ret)
 	int	ret;
 {
-	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
+	const	char	*n = pname ? pname : get_progname();
+
+	error("Usage:\t%s cmd [options] file1 ... filen\n", n);
 	error("Cmd:\n");
 	error("\t-c/-u/-r\tcreate/update/replace archive with named files to tape\n");
 	error("\t-x/-t\t\textract/list named files from tape\n");
@@ -339,7 +348,9 @@ LOCAL void
 xusage(ret)
 	int	ret;
 {
-	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
+	const	char	*n = pname ? pname : get_progname();
+
+	error("Usage:\t%s cmd [options] file1 ... filen\n", n);
 	error("Extended options:\n");
 	error("\t--debug\t\tprint additional debug messages\n");
 	error("\txdebug=#,xd=#\tset extended debug level\n");

@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.215 19/03/08 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.218 19/03/27 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/03/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/03/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -59,6 +59,11 @@ directory
 [\fIoptions\fP] 
 .B -C
 .I "from_directory . to_directory
+.br
+.B "star\ "
+.ie n .B "cli=\fIname\ \ "
+.el .B "cli=\fIname\ \ \ \ "
+.I ...
 .SH DESCRIPTION
 .B Star
 is a very fast
@@ -90,6 +95,16 @@ may overwrite existing files.
 See
 .B SECURITY NOTES
 for more information.
+.PP
+If the first argument is in the form
+.BI cli= name\fR,
+the
+.B command line interface
+is selected to match
+.IR name .
+See section
+.B CLI\ SELECTION
+below.
 .SH FEATURES
 .B Star
 includes the first free implementation of
@@ -284,6 +299,63 @@ files.
 is able to archive and restore 
 .B "Access Control Lists
 for files using POSIX.1\-2001 extended headers.
+.SH CLI SELECTION
+.PP
+If the first argument is in the form
+.BI cli= name\fR,
+the
+.B command line interface
+is selected to match one of the supported
+.B CLI
+variants.
+The following interfaces are supported:
+.br
+.ne 4
+.TP 15
+.B star
+The
+.B star
+interface selects the command line interface described in this manual page.
+.br
+.ne 4
+.TP
+.B suntar
+The
+.B suntar
+interface selects the command line interface of the classical UNIX
+.B tar
+command as described in
+.BR suntar (1).
+.br
+.ne 4
+.TP
+.B gnutar
+The
+.B gnutar
+interface selects the command line interface of the
+.B GNU tar
+command as described in
+.BR gnutar (1).
+.br
+.ne 4
+.TP
+.B pax
+The
+.B pax
+interface selects the command line interface of the
+.B POSIX pax
+command as described in
+.BR spax (1).
+.br
+.ne 4
+.TP
+.B cpio
+The
+.B cpio
+interface selects the command line interface of the classical UNIX
+.B cpio
+command as described in
+.BR scpio (1).
 .SH COMMAND
 .PP
 In native mode, 
@@ -2597,6 +2669,13 @@ and
 .B "INCREMENTAL RESTORES
 for more information.
 .TP
+.B \-freeze
+run the input or output through a
+.B freeze
+pipe - see option
+.B \-z
+below.
+.TP
 .BI fs= #
 Set fifo size to #.
 See 
@@ -2918,6 +2997,13 @@ will fail.
 .B \-lzip
 run the input or output through a
 .B lzip
+pipe - see option
+.B \-z
+below.
+.TP
+.B \-lzma
+run the input or output through a
+.B lzma
 pipe - see option
 .B \-z
 below.

@@ -1,4 +1,4 @@
-#ident @(#)star.mk	1.55 18/03/12 
+#ident @(#)star.mk	1.56 19/03/27 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -25,15 +25,16 @@ CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		star.c header.c cpiohdr.c xheader.c xattr.c \
 		list.c extract.c create.c append.c diff.c restore.c \
-		remove.c star_unix.c acl_unix.c acltext.c fflags.c \
+		remove.c star_unix.c lpath_unix.c \
+		acl_unix.c acltext.c fflags.c \
 		buffer.c dirtime.c lhash.c \
 		hole.c longnames.c \
 		movearch.c table.c props.c \
 		unicode.c \
 		subst.c volhdr.c \
 		chdir.c match.c defaults.c dumpdate.c \
-		fifo.c device.c checkerr.c \
-		findinfo.c pathname.c
+		fifo.c device.c checkerr.c paxopts.c \
+		findinfo.c pathname.c version.c
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h restore.h \
 		checkerr.h dumpdate.h bitstring.h

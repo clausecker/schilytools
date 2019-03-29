@@ -1,4 +1,4 @@
-# @(#)README.compile	1.40 18/09/17 Copyright 1997-2018 J. Schilling
+# @(#)README.compile	1.41 19/03/28 Copyright 1997-2019 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -52,7 +52,7 @@ Short overview for those who don't read manuals:
 		4)	GNU make		(this is the last resort)
 
 	Important notice: "smake" that comes with SGI/IRIX will not work!!!
-	This is not the Schily "smake" but a dumb make program from SGI.
+	This is not the Schily "smake" but rather a dumb make program from SGI.
 
 	***** If you are on a platform that is not yet known by the	 *****
 	***** Schily makefilesystem you cannot use GNU make.		 *****
@@ -60,7 +60,9 @@ Short overview for those who don't read manuals:
 
 	Note that GNU make has major bugs on various platforms and thus cannot
 	be used at all on VMS and OS/2. GNU make on Cygwin causes problems
-	because it does not deal with spaces and newlines correctly.
+	because it does not deal with spaces and newlines correctly. Given that
+	GNU make did not fix accepted bugs reported more than 20 years ago,
+	GNU make is not recommended.
 
 	Please read the README's for your operating system too.
 
@@ -184,6 +186,21 @@ How to compile in parallel mode:
 	confused by the mixture of the output. Recent gmake versions added
 	an option to separate the output from various jobs. Have a look
 	at the man page.
+
+
+How to run unit tests:
+
+	First call "smake" or "dmake" to compile everything and then run:
+
+		smake tests
+
+	at the top level directory or in any project sub-directory that
+	implements unit tests.
+
+	If you like to avoid the expensive random tests for programs like
+	"patch" or "sccs", you may disable the random tests by calling:
+
+		NO_RANDOM=TRUE smake tests
 
 
 How to install results:

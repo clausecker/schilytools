@@ -1,11 +1,11 @@
-/* @(#)gethostname.c	1.21 11/08/04 Copyright 1995-2011 J. Schilling */
+/* @(#)gethostname.c	1.22 19/03/26 Copyright 1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gethostname.c	1.21 11/08/04 Copyright 1995-2011 J. Schilling";
+	"@(#)gethostname.c	1.22 19/03/26 Copyright 1995-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2011 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -78,11 +78,7 @@ gethostname(name, namelen)
 	char		nbuf[MAX_COMPUTERNAME_LENGTH+1];
 
 	if (namelen < 0) {
-#ifdef	ENOSYS
-		seterrno(ENOSYS);
-#else
 		seterrno(EINVAL);
-#endif
 		return (-1);
 	}
 	if (namelen == 0)
@@ -111,11 +107,7 @@ gethostname(name, namelen)
 	int	namelen;
 {
 	if (namelen < 0) {
-#ifdef	ENOSYS
-		seterrno(ENOSYS);
-#else
 		seterrno(EINVAL);
-#endif
 		return (-1);
 	}
 	if (namelen > 0)

@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.117 19/01/19 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)star_unix.c	1.118 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.117 19/01/19 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)star_unix.c	1.118 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -91,7 +91,7 @@ EXPORT	BOOL	getinfo		__PR((char *name, FINFO *info));
 #ifdef	HAVE_FSTATAT
 EXPORT	BOOL	getinfoat	__PR((int fd, char *name, FINFO *info));
 #endif
-EXPORT	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
+EXPORT	BOOL	stat_to_info	__PR((int fd, struct stat *sp, FINFO *info));
 LOCAL	void	print_badnsec	__PR((FINFO *info, char *name, long val));
 EXPORT	void	checkarch	__PR((FILE *f));
 EXPORT	BOOL	archisnull	__PR((const char *name));
@@ -208,7 +208,7 @@ newstat:
 		return (FALSE);
 	}
 	info->f_sname = info->f_name = name;
-	return (stat_to_info(&stbuf, info));
+	return (stat_to_info(AT_FDCWD, &stbuf, info));
 }
 
 #ifdef	HAVE_FSTATAT
@@ -240,12 +240,13 @@ newstat:
 		return (FALSE);
 	}
 	info->f_sname = info->f_name = name;
-	return (stat_to_info(&stbuf, info));
+	return (stat_to_info(fd, &stbuf, info));
 }
 #endif
 
 EXPORT BOOL
-stat_to_info(sp, info)
+stat_to_info(fd, sp, info)
+	int	fd;
 	struct stat *sp;
 	FINFO	*info;
 {
@@ -513,8 +514,17 @@ again:
 
 	if (first && pr_unsuptype(info)) {
 		first = FALSE;
-		if (lstatat(info->f_name, sp, AT_SYMLINK_NOFOLLOW) < 0)
-			return (FALSE);
+		if (fd == AT_FDCWD) {
+			/*
+			 * Cannot use fstatat() as this may be a very long
+			 * path name.
+			 */
+			if (lstatat(info->f_sname, sp, AT_SYMLINK_NOFOLLOW) < 0)
+				return (FALSE);
+		} else {
+			if (fstatat(fd, info->f_sname, sp, AT_SYMLINK_NOFOLLOW) < 0)
+				return (FALSE);
+		}
 		goto again;
 	}
 

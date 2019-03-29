@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.34 19/03/09 Copyr 2003-2018 J. Schilling
+. \" @(#)star.4	1.39 19/03/19 Copyr 2003-2018 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2019/03/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2019/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -346,11 +346,22 @@ into the numeric fields. This is done by using a
 coding.
 The top bit of the first character in the appropriate 8 character or
 12 character field is set to flag non octal coding.
-If base 256 coding is in use, then all remaining characters are used to code
-the number. This results in 7 base 256 digits in 8 character fields and in
-11 base 256 digits in 12 character fields.
-All base 256 numbers are two's complement numbers. A base 256 number in a
-8 character field may hold 56 bits, a base 256 number in a 12 character
+If
+.B base 256
+coding is in use, then all remaining characters are used to code
+the number. This results in 7
+.B base 256
+digits in 8 character fields and in 11
+.B base 256
+digits in 12 character fields.
+All
+.B base 256
+numbers are two's complement numbers. A
+.B base 256
+number in a
+8 character field may hold 56 bits, a
+.B base 256
+number in a 12 character
 field may hold 88 bits.
 .sp
 This may be extended to 63 bits for 8 character fields
@@ -360,7 +371,9 @@ For a positive number, the first character currently is set to 128 (the top
 bit is set and all other bits are cleared).
 .sp
 The rightmost character in a 8 or 12 character field contains the least
-significant base 256 number.
+significant
+.B base 256
+number.
 .sp
 Recent GNU tar and BSD libarchive versions implement the same extension.
 .PP
@@ -381,7 +394,10 @@ The
 .I uid
 and
 .I gid
-fields contain the numerical user id of the file.
+fields contain the numerical user id and group id of the file.
+These fields may use a
+.B base 256
+encoding.
 .PP
 The
 .I size
@@ -390,6 +406,9 @@ If the
 .I tar header
 is followed by file data, then the amount of data that follows is computed by
 .IR "(size + 511) / 512" .
+This field may use a
+.B base 256
+encoding.
 .PP
 The
 .I mtime
@@ -405,6 +424,9 @@ is 2106 Feb  7 06:28:15 GMT. This is because POSIX does not mention whether
 the time has to be a signed or unsigned number and thus no more than 32 bits
 may be used for a positive value if applications care about
 portability.
+This field may use a
+.B base 256
+encoding.
 .PP
 The
 .I chksum
@@ -478,7 +500,7 @@ The fields
 .I devmajor
 and
 .I devminor
-contain information that defines the file.
+contain information that defines the device id of the file.
 The meaning of the
 .I size
 field is unspecified by the POSIX standard.
@@ -490,7 +512,7 @@ The fields
 .I devmajor
 and
 .I devminor
-contain information that defines the file.
+contain information that defines the device id of the file.
 The meaning of the
 .I size
 field is unspecified by the POSIX standard.
@@ -735,6 +757,23 @@ See also the
 \&'x' header type.
 .B Star
 is able to read and write this type of header.
+.PP
+The
+.I devmajor
+and
+.I devminor
+fields contain the numerical 
+.B major()
+and
+.B minor()
+information that defines the device id of the file from the member
+.B st_rdev
+in
+.BR "struct stat" .
+These fields may use a
+.B base 256
+encoding.
+.br
 .ne 10
 .SH "EXTENDED TAR (PAX) HEADER STRUCTURE
 .PP
@@ -1170,13 +1209,22 @@ operating systems still support it with some filesystems.
 .sp
 To each named user 
 .B ACL
-entry a fourth colon separated field field containing the
+entry a fourth colon separated field, containing the
 .I "user identifier (UID)
-of the associated user is appended.
+of the associated user, is appended.
 To each named group entry a fourth colon separated field containing the
 .I "group identifier (GID)
 of the associated group is appended.
 (POSIX 1003.1e draft standard 17 allows to add fields to ACL entries.) 
+.sp
+If the
+.B user name
+or
+.B group name
+field is numeric because the related user has no entry in the
+.BR passwd / "group database
+at the time the archive is created,
+the additional numeric field may be omitted.
 .sp
 .ne 7
 This is an example of the format used for
@@ -1190,9 +1238,36 @@ SCHILY.acl.access= user::rwx,user:lisa:r\-x:\fB502\fP,\ \e
                    mask::rwx,other::r\-\-x
 .fi
 .sp
-The numerical user and group identifiers are essential when restoring a system completely
-from a backup, as initially the name-to-identifier mappings may not be available,
+If and only if the
+.B user ID 502
+and
+.B group ID 102
+have no passwd/group entry, our example acl entry looks this way:
+.sp
+.nf
+SCHILY.acl.access= user::rwx,user:502:r\-x,\ \e
+                   group::r\-x,group:102:rwx:,\ \e
+                   mask::rwx,other::r\-\-x
+.fi
+.sp
+The added numerical user and group identifiers are essential when
+restoring a system completely from a backup,
+as initially the name-to-identifier mappings may not be available,
 and then file ownership restoration would not work.
+.sp
+When the archive is unpacked and the
+.B ACL 
+entries for the files are restored, first the additional numeric fields
+are removed and an attempt is made to restore the resulting
+.B ACL 
+data.
+If that fails, the numeric fields are extracted and the related
+.B user name
+and
+.B group name
+fields are replaced by the numeric fields, before the
+.B ACL 
+restore is retried.
 .sp
 As the archive format that is used for backing up access control lists is compatible
 with the
@@ -1475,21 +1550,73 @@ mode.
 .B SCHILY.fflags
 A textual version of the BSD or Linux extended file flags.
 .sp
-The following flags are defined by star:
+The following flags are defined by star, the bold names are the names
+that are generated and the other names are accepted on input as well:
 .RS
 .TP 15
 .B arch
-set the archived flag (super-user only).
+set the
+.B archived
+flag (super-user only).
 .TP
 archived
 Alias for
 .BR arch .
 .TP
+.B compressed
+set the
+.B compressed
+flag (Mac OS only).
+.TP
+ucompressed
+Alias for
+.BR compressed .
+.TP
+.B hidden
+Set the
+.B file is hidden
+flag.
+.TP
+uhidden
+Alias for
+.BR hidden .
+.TP
 .B nodump
 set the nodump flag (owner or super-user).
 .TP
+.B offline
+Set the
+.B file is offline
+flag.
+.TP
+uoffline
+Alias for
+.BR offline .
+.TP
 .B opaque
 set the opaque flag (owner or super-user).
+.TP
+.B rdonly
+Set the
+.B readonly
+flag.
+.TP
+urdonly
+Alias for
+.BR rdonly .
+.TP
+readonly
+Alias for
+.BR rdonly .
+.TP
+.B reparse
+Set the
+.B reparse
+flag.
+.TP
+ureparse
+Alias for
+.BR reparse .
 .TP
 .B sappnd
 set the system append-only flag (super-user only).
@@ -1509,12 +1636,30 @@ simmutable
 Alias for
 .BR schg .
 .TP
+.B sparse
+Set the
+.B sparse
+flag.
+.TP
+usparse
+Alias for
+.BR sparse .
+.TP
 .B sunlnk
 set the system undeletable flag (super-user only).
 .TP
 sunlink
 Alias for
 .BR sunlnk .
+.TP
+.B system
+Set the
+.B system
+flag.
+.TP
+usystem
+Alias for
+.BR system .
 .TP
 .B uappnd
 set the user append-only flag (owner or super-user).
@@ -1546,22 +1691,60 @@ Alias for
 The following flags are only available on Linux:
 .TP 15
 .B compress
-Set the Linux ext3 journal data flag (owner or super-user).
+Set the Linux
+.B compress
+flag (owner or super-user).
+.TP
+.B dirsync
+Set the Linux
+.B dirsync
+flag (owner or super-user)
+that causes synchronous writes for directories.
 .TP
 .B journal-data
-Set the Linux ext3 journal data flag (super-user only).
+Set the Linux
+.B journal data
+flag (super-user only).
 .TP
 .B noatime
-Set the Linux ext3 no access time flag (owner or super-user).
+Set the Linux
+.B no access time
+flag (owner or super-user).
+.TP
+.B nocow
+Set the Linux
+.B no copy on write
+flag (owner or super-user).
+.TP
+.B notail
+Set the Linux
+.B no tail merging
+flag (owner or super-user).
+.TP
+.B projinherit
+Set the Linux
+.B project inherit
+flag (owner or super-user).
 .TP
 .B secdel
-Set the Linux ext3 secure deletion (purge before delete) flag (owner or super-user).
+Set the Linux
+.B secure deletion
+(purge before delete) flag (owner or super-user).
 .TP
 .B sync
-Set the Linux ext3 sync flag (owner or super-user).
+Set the Linux
+.B sync
+flag (owner or super-user).
+.TP
+.B topdir
+Set the Linux
+.B top of directory hierarchies
+flag (owner or super-user).
 .TP
 .B undel
-Set the Linux ext3 "allow unrm" flag (owner or super-user).
+Set the Linux
+.B "allow unrm"
+flag (owner or super-user).
 .RE
 .TP
 .B SCHILY.filetype

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.197 19/02/21 2008-2019 J. Schilling
+ * @(#)defs.h	1.198 19/03/25 2008-2019 J. Schilling
  */
 
 /*
@@ -942,6 +942,7 @@ extern	unsigned int	skipwc	__PR((void));
 extern	unsigned int	nextwc	__PR((void));
 extern	unsigned char	*readw	__PR((wchar_t d));
 extern	unsigned int	readwc	__PR((void));
+extern	unsigned char	*do_tilde __PR((unsigned char *arg));
 
 /*
  * xec.c

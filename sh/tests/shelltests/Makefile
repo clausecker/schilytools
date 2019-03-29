@@ -26,6 +26,7 @@ all-tests:	test-bugs	\
 		test-set	\
 		test-syntax	\
 		test-test	\
+		test-tilde	\
 		test-trap
 	echo Tests passed.
 
@@ -112,6 +113,9 @@ test-syntax:
 
 test-test:
 	[ -d test ] || exit 0 && cd test && for i in *.sh; do echo Running test test/$$i; $(SHELL) $$i; done
+
+test-tilde:
+	[ -d tilde ] || exit 0 && cd tilde && for i in *.sh; do echo Running test tilde/$$i; $(SHELL) $$i; done
 
 test-trap:
 	[ -d trap ] || exit 0 && cd trap && for i in *.sh; do echo Running test trap/$$i; $(SHELL) $$i; done

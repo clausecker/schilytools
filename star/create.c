@@ -1,8 +1,8 @@
-/* @(#)create.c	1.155 19/01/22 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)create.c	1.156 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.155 19/01/22 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)create.c	1.156 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/idcache.h>
 #include "restore.h"
 #ifdef	USE_FIND
+#include <schily/fcntl.h>	/* For AT_FDCWD */
 #include <schily/stat.h>	/* Fuer stat_to_info() in starsubs.h */
 #include <schily/walk.h>
 #include <schily/find.h>
@@ -1964,7 +1965,7 @@ walkfunc(nm, fs, type, state)
 
 		finfo.f_sname = nm + state->base;
 		finfo.f_name = nm;
-		stat_to_info(fs, &finfo);
+		stat_to_info(AT_FDCWD, fs, &finfo);
 		createi(nm + state->base, nm, strlen(nm), &finfo,
 			(pathstore_t *)0, (struct pdirs *)0);
 	}

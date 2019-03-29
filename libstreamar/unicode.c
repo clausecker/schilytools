@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.18 19/01/13 Copyright 2001-2019 J. Schilling */
+/* @(#)unicode.c	1.19 19/03/23 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.18 19/01/13 Copyright 2001-2019 J. Schilling";
+	"@(#)unicode.c	1.19 19/03/23 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/iconv.h>
 #include <schily/standard.h>
+#include <schily/errno.h>
 #define	GT_COMERR		/* #define comerr gtcomerr */
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
@@ -366,13 +367,21 @@ _from_iconv(to, tolen, from, len)
 	size_t		frl = *len;
 	size_t		tol = tolen;
 	size_t		ret;
+	BOOL		rc = TRUE;
 
 	seterrno(0);
 	ret = iconv(ic_from, &fp, &frl, &tp, &tol);
 	if (tol > 0)
 		*tp = '\0';
 	*len = tolen - tol;
-	if (ret != 0) {	/* Error (-1) or nonidentical translations (>0) */
+	if (ret == -1 && geterrno() == E2BIG) {
+		/*
+		 * in case of an overflow signal this via *len,
+		 * even if on Linux where "tol" is 0 in such a case.
+		 */
+		*len = tolen;
+		rc = FALSE;
+	} else if (ret != 0) {	/* -1 or # of nonidentical translations (>0) */
 #ifdef	__STAR__
 		if (!errhidden(E_ICONV, (char *)from)) {
 			if (!errwarnonly(E_ICONV, (char *)from))
@@ -383,13 +392,13 @@ _from_iconv(to, tolen, from, len)
 			(void) errabort(E_ICONV, (char *)from, TRUE);
 		}
 #endif
-		return (FALSE);
+		rc = FALSE;
 	}
 	/*
 	 * Reset shift state
 	 */
 	(void) iconv(ic_from, NULL, NULL, NULL, NULL);
-	return (TRUE);
+	return (rc);
 }
 #endif
 

@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.17 17/06/27 Copyright 1998-2017 J. Schilling
+dnl @(#)acspecific.m4	1.18 19/03/14 Copyright 1998-2017 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -352,7 +352,7 @@ if test -z "`${CC-cc} -g -c conftest.c 2>&1`"; then
 else
   ac_cv_prog_cc_g=no
 fi
-rm -f conftest*
+rm -rf conftest*
 ])])
 
 AC_DEFUN(AC_PROG_CXX_G,
@@ -363,7 +363,7 @@ if test -z "`${CXX-g++} -g -c conftest.cc 2>&1`"; then
 else
   ac_cv_prog_cxx_g=no
 fi
-rm -f conftest*
+rm -rf conftest*
 ])])
 
 dnl Test whether the Fortran 77 compiler can accept the `-g' option to
@@ -381,7 +381,7 @@ if test -z "`$F77 -g -c conftest.f 2>&1`"; then
 else
   ac_cv_prog_f77_g=no
 fi
-rm -f conftest*
+rm -rf conftest*
 ])])
 
 AC_DEFUN(AC_PROG_GCC_TRADITIONAL,
@@ -444,7 +444,7 @@ then
 else
   eval ac_cv_prog_cc_${ac_cc}_c_o=no
 fi
-rm -f conftest*
+rm -rf conftest*
 ])dnl
 if eval "test \"`echo '$ac_cv_prog_cc_'${ac_cc}_c_o`\" = yes"; then
   AC_MSG_RESULT(yes)
@@ -483,7 +483,7 @@ if AC_TRY_EVAL(ac_try) && test -f conftest.o && AC_TRY_EVAL(ac_try); then
 else
   eval ac_cv_prog_f77_${ac_f77}_c_o=no
 fi
-rm -f conftest*
+rm -rf conftest*
 ])dnl
 if eval "test \"`echo '$ac_cv_prog_f77_'${ac_f77}_c_o`\" = yes"; then
   AC_MSG_RESULT(yes)
@@ -2083,19 +2083,20 @@ dnl determined by ac_objext.
 AC_DEFUN(AC_OBJEXT,
 [AC_MSG_CHECKING([for object suffix])
 AC_CACHE_VAL(ac_cv_objext,
-[rm -f conftest*
+[rm -rf conftest*
 echo 'int i = 1;' > conftest.$ac_ext
 if AC_TRY_EVAL(ac_compile); then
   for ac_file in conftest.*; do
     case $ac_file in
     *.c) ;;
+    *.dSYM) ;;	# Ignore strange directory found on Mac OS X with cc -g
     *) ac_cv_objext=`echo $ac_file | sed -e s/conftest.//` ;;
     esac
   done
 else
   AC_MSG_ERROR([installation or configuration problem; compiler does not work])
 fi
-rm -f conftest*])
+rm -rf conftest*])
 AC_MSG_RESULT($ac_cv_objext)
 OBJEXT=$ac_cv_objext
 ac_objext=$ac_cv_objext
@@ -2733,7 +2734,7 @@ AC_DEFUN(AC_CYGWIN,
 #endif
 return __CYGWIN__;],
 ac_cv_cygwin=yes, ac_cv_cygwin=no)
-rm -f conftest*])
+rm -rf conftest*])
 CYGWIN=
 test "$ac_cv_cygwin" = yes && CYGWIN=yes])
 
@@ -2743,7 +2744,7 @@ AC_DEFUN(AC_MINGW32,
 [AC_CACHE_CHECK(for mingw32 environment, ac_cv_mingw32,
 [AC_TRY_COMPILE(,[return __MINGW32__;],
 ac_cv_mingw32=yes, ac_cv_mingw32=no)
-rm -f conftest*])
+rm -rf conftest*])
 MINGW32=
 test "$ac_cv_mingw32" = yes && MINGW32=yes])
 
@@ -2753,7 +2754,7 @@ AC_DEFUN(AC_EMXOS2,
 [AC_CACHE_CHECK(for EMX/OS2 environment, ac_cv_emxos2,
 [AC_TRY_COMPILE(,[return __EMX__;],
 ac_cv_emxos2=yes, ac_cv_emxos2=no)
-rm -f conftest*])
+rm -rf conftest*])
 AC_CACHE_VAL(ac_cv_libpre,
 if test "$ac_cv_emxos2" = yes ; then
   ac_cv_libpre=
@@ -2782,7 +2783,7 @@ AC_CACHE_VAL(ac_cv_exeext,
   ac_cv_exeext=.exe
   ac_cv_xexeext=""
 else
-  rm -f conftest*
+  rm -rf conftest*
   echo 'int main () { return 0; }' > conftest.$ac_ext
   ac_cv_exeext=
   if AC_TRY_EVAL(ac_link); then
@@ -2813,7 +2814,7 @@ else
 		ac_cv_xexeext=""
 	fi
   fi
-  rm -f conftest*
+  rm -rf conftest*
   test x"${ac_cv_exeext}" = x && ac_cv_exeext=no
   test x"${ac_cv_xexeext}" = x && ac_cv_xexeext=no
 fi])

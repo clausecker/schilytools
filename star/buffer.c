@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.194 19/03/10 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)buffer.c	1.196 19/03/26 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.194 19/03/10 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)buffer.c	1.196 19/03/26 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -144,6 +144,8 @@ extern	BOOL	p7zflag;
 extern	BOOL	xzflag;
 extern	BOOL	lzipflag;
 extern	BOOL	zstdflag;
+extern	BOOL	lzmaflag;
+extern	BOOL	freezeflag;
 extern	char	*compress_prg;
 extern	BOOL	multblk;
 extern	BOOL	partial;
@@ -385,7 +387,9 @@ opentape()
 	 */
 	if (stats->volno == 1 &&
 	    tape_isreg && !cflag && (!Zflag && !zflag && !bzflag && !lzoflag &&
-	    !p7zflag && !xzflag && !compress_prg)) {
+	    !p7zflag && !xzflag && !lzipflag && !zstdflag && !lzmaflag &&
+	    !freezeflag &&
+	    !compress_prg)) {
 		long	htype;
 		TCB	*ptb;
 
@@ -415,29 +419,39 @@ opentape()
 				bzflag = TRUE;
 				break;
 			case C_LZO:
-				if (!silent) errmsgno(EX_BAD,
+				if (!silent && !print_artype) errmsgno(EX_BAD,
 					"WARNING: Archive is 'lzop' compressed, trying to use the -lzo option.\n");
 				lzoflag = TRUE;
 				break;
 			case C_7Z:
-				if (!silent) errmsgno(EX_BAD,
+				if (!silent && !print_artype) errmsgno(EX_BAD,
 					"WARNING: Archive is '7z' compressed, trying to use the -7z option.\n");
 				p7zflag = TRUE;
 				break;
 			case C_XZ:
-				if (!silent) errmsgno(EX_BAD,
+				if (!silent && !print_artype) errmsgno(EX_BAD,
 					"WARNING: Archive is 'xz' compressed, trying to use the -xz option.\n");
 				xzflag = TRUE;
 				break;
 			case C_LZIP:
-				if (!silent) errmsgno(EX_BAD,
+				if (!silent && !print_artype) errmsgno(EX_BAD,
 					"WARNING: Archive is 'lzip' compressed, trying to use the -lzip option.\n");
 				lzipflag = TRUE;
 				break;
 			case C_ZSTD:
-				if (!silent) errmsgno(EX_BAD,
+				if (!silent && !print_artype) errmsgno(EX_BAD,
 					"WARNING: Archive is 'zstd' compressed, trying to use the -zstd option.\n");
 				zstdflag = TRUE;
+				break;
+			case C_LZMA:
+				if (!silent && !print_artype) errmsgno(EX_BAD,
+					"WARNING: Archive is 'lzma' compressed, trying to use the -lzma option.\n");
+				lzmaflag = TRUE;
+				break;
+			case C_FREEZE2:
+				if (!silent && !print_artype) errmsgno(EX_BAD,
+					"WARNING: Archive is 'freeze2' compressed, trying to use the -freeze option.\n");
+				freezeflag = TRUE;
 				break;
 			default:
 				if (!silent) errmsgno(EX_BAD,
@@ -448,7 +462,7 @@ opentape()
 		mtseek((off_t)0, SEEK_SET);
 	}
 	if (Zflag || zflag || bzflag || lzoflag ||
-	    p7zflag || xzflag || lzipflag || zstdflag ||
+	    p7zflag || xzflag || lzipflag || zstdflag || lzmaflag || freezeflag ||
 	    compress_prg) {
 		if (isremote)
 			comerrno(EX_BAD, "Cannot compress remote archives (yet).\n");
@@ -2037,6 +2051,10 @@ compressopen()
 		zip_prog = "lzip";
 	else if (zstdflag)
 		zip_prog = "zstd";
+	else if (lzmaflag)
+		zip_prog = "lzma";
+	else if (freezeflag)
+		zip_prog = "freeze";
 
 	multblk = TRUE;
 
@@ -2170,6 +2188,10 @@ compressclose()
 				zip_prog = "lzip";
 			else if (zstdflag)
 				zip_prog = "zstd";
+			else if (lzmaflag)
+				zip_prog = "lzma";
+			else if (freezeflag)
+				zip_prog = "freeze";
 
 			js_snprintf(zip_cmd, sizeof (zip_cmd), "%s.exe", zip_prog);
 

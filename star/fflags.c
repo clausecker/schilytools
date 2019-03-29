@@ -1,13 +1,13 @@
-/* @(#)fflags.c	1.26 18/06/16 Copyright 2001-2018 J. Schilling */
+/* @(#)fflags.c	1.27 19/03/19 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fflags.c	1.26 18/06/16 Copyright 2001-2018 J. Schilling";
+	"@(#)fflags.c	1.27 19/03/19 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,6 +40,9 @@ static	UConst char sccsid[] =
 #include "starsubs.h"
 #ifdef	__linux__
 #include <schily/fcntl.h>
+#ifdef	HAVE_LINUX_FS_H
+#include <linux/fs.h>
+#endif
 #ifdef	HAVE_EXT2FS_EXT2_FS_H
 /*
  * The Linux Kernel appears to be unplanned and full of moving targets :-(
@@ -78,6 +81,61 @@ static	UConst char sccsid[] =
 #endif	/* defined(HAVE_USABLE_EXT2_FS_H) || defined(TRY_EXT2_FS) */
 #endif	/* HAVE_EXT2FS_EXT2_FS_H */
 #include <schily/ioctl.h>
+
+#if	!defined(FS_IOC_GETFLAGS) && defined(EXT2_IOC_GETFLAGS)
+#define	FS_IOC_GETFLAGS	EXT2_IOC_GETFLAGS
+#endif
+#if	!defined(FS_IOC_SETFLAGS) && defined(EXT2_IOC_SETFLAGS)
+#define	FS_IOC_SETFLAGS	EXT2_IOC_SETFLAGS
+#endif
+
+#if	!defined(FS_APPEND_FL) && defined(EXT2_APPEND_FL)
+#define	FS_APPEND_FL	EXT2_APPEND_FL
+#endif
+#if	!defined(FS_COMPR_FL) && defined(EXT2_COMPR_FL)
+#define	FS_COMPR_FL	EXT2_COMPR_FL
+#endif
+#if	!defined(FS_IMMUTABLE_FL) && defined(EXT2_IMMUTABLE_FL)
+#define	FS_IMMUTABLE_FL	EXT2_IMMUTABLE_FL
+#endif
+#if	!defined(FS_NOATIME_FL) && defined(EXT2_NOATIME_FL)
+#define	FS_NOATIME_FL	EXT2_NOATIME_FL
+#endif
+#if	!defined(FS_NODUMP_FL) && defined(EXT2_NODUMP_FL)
+#define	FS_NODUMP_FL	EXT2_NODUMP_FL
+#endif
+#if	!defined(FS_SECRM_FL) && defined(EXT2_SECRM_FL)
+#define	FS_SECRM_FL	EXT2_SECRM_FL
+#endif
+#if	!defined(FS_SYNC_FL) && defined(EXT2_SYNC_FL)
+#define	FS_SYNC_FL	EXT2_SYNC_FL
+#endif
+#if	!defined(FS_UNRM_FL) && defined(EXT2_UNRM_FL)
+#define	FS_UNRM_FL	EXT2_UNRM_FL
+#endif
+
+#if	!defined(FS_DIRSYNC_FL) && defined(EXT2_DIRSYNC_FL)
+#define	FS_DIRSYNC_FL	EXT2_DIRSYNC_FL
+#endif
+#if	!defined(FS_JOURNAL_DATA_FL) && defined(EXT3_JOURNAL_DATA_FL)
+#define	FS_JOURNAL_DATA_FL	EXT3_JOURNAL_DATA_FL
+#endif
+#if	!defined(FS_NOCOW_FL) && defined(EXT2_NOCOW_FL)
+#define	FS_NOCOW_FL	EXT2_NOCOW_FL
+#endif
+#if	!defined(FS_NOCOW_FL) && defined(EXT2_NOCOW_FL)
+#define	FS_NOCOW_FL	EXT2_NOCOW_FL
+#endif
+#if	!defined(FS_NOTAIL_FL) && defined(EXT2_NOTAIL_FL)
+#define	FS_NOTAIL_FL	EXT2_NOTAIL_FL
+#endif
+#if	!defined(FS_PROJINHERIT_FL) && defined(EXT2_PROJINHERIT_FL)
+#define	FS_PROJINHERIT_FL	EXT22_PROJINHERIT_FL
+#endif
+#if	!defined(FS_TOPDIR_FL) && defined(EXT2_TOPDIR_FL)
+#define	FS_TOPDIR_FL	EXT2_TOPDIR_FL
+#endif
+
 #endif	/* __linux__ */
 
 EXPORT	void	opt_fflags	__PR((void));
@@ -90,7 +148,7 @@ EXPORT void
 opt_fflags()
 {
 	/*	Linux							*BSD */
-#if (defined(__linux__) && defined(EXT2_IOC_GETFLAGS)) || defined(HAVE_ST_FLAGS)
+#if (defined(__linux__) && defined(FS_IOC_GETFLAGS)) || defined(HAVE_ST_FLAGS)
 	printf(" fflags");
 #endif
 }
@@ -99,14 +157,14 @@ EXPORT void
 get_fflags(info)
 	register FINFO	*info;
 {
-#if defined(__linux__) && defined(EXT2_IOC_GETFLAGS)
+#if defined(__linux__) && defined(FS_IOC_GETFLAGS)
 	int	f;
 	long	l = 0L;
 
 	if ((f = open(info->f_name, O_RDONLY|O_NDELAY)) >= 0) {
-		if (ioctl(f, EXT2_IOC_GETFLAGS, &l) >= 0) {
+		if (ioctl(f, FS_IOC_GETFLAGS, &l) >= 0) {
 			info->f_fflags = l;
-			if ((l & EXT2_NODUMP_FL) != 0)
+			if ((l & FS_NODUMP_FL) != 0)
 				info->f_flags |= F_NODUMP;
 			if (info->f_fflags != 0)
 				info->f_xflags |= XF_FFLAGS;
@@ -147,7 +205,7 @@ set_fflags(info)
 		errmsg("Cannot set file flags '%s' for '%s'.\n",
 				textfromflags(info, buf), info->f_name);
 #else
-#if defined(__linux__) && defined(EXT2_IOC_GETFLAGS)
+#if defined(__linux__) && defined(FS_IOC_GETFLAGS)
 	char	buf[512];
 	int	f;
 	Ulong	flags;
@@ -157,23 +215,23 @@ set_fflags(info)
 	 * Linux bites again! There is no define for the flags that are only
 	 * settable by the root user.
 	 */
-#ifdef	EXT3_JOURNAL_DATA_FL			/* 'j' */
-#define	SF_MASK		(EXT2_IMMUTABLE_FL|EXT2_APPEND_FL|EXT3_JOURNAL_DATA_FL)
+#ifdef	FS_JOURNAL_DATA_FL			/* 'j' */
+#define	SF_MASK		(FS_IMMUTABLE_FL|FS_APPEND_FL|FS_JOURNAL_DATA_FL)
 #else
-#define	SF_MASK		(EXT2_IMMUTABLE_FL|EXT2_APPEND_FL)
+#define	SF_MASK		(FS_IMMUTABLE_FL|FS_APPEND_FL)
 #endif
 
 	if ((f = open(info->f_name, O_RDONLY|O_NONBLOCK)) >= 0) {
-		if (ioctl(f, EXT2_IOC_SETFLAGS, &info->f_fflags) >= 0) {
+		if (ioctl(f, FS_IOC_SETFLAGS, &info->f_fflags) >= 0) {
 			err = FALSE;
 
 		} else if (geterrno() == EPERM) {
-			if (ioctl(f, EXT2_IOC_GETFLAGS, &oldflags) >= 0) {
+			if (ioctl(f, FS_IOC_GETFLAGS, &oldflags) >= 0) {
 
 				flags	 =  info->f_fflags & ~SF_MASK;
 				oldflags &= SF_MASK;
 				flags	 |= oldflags;
-				if (ioctl(f, EXT2_IOC_SETFLAGS, &flags) >= 0)
+				if (ioctl(f, FS_IOC_SETFLAGS, &flags) >= 0)
 					err = FALSE;
 			}
 		}
@@ -189,9 +247,12 @@ set_fflags(info)
 
 
 /*
+ * The first entry for a specific flag is used as output for the TAR archive.
+ * Other entries with the same flag are recognized as aliases.
+ *
  * UF_* flags are flags settable by any user, defied by *BSD
  * SF_* flags are *BSD flags settable obly be the super user
- * EXT_* flags are Linux specific.
+ * FS_* flags are Linux specific.
  */
 LOCAL struct {
 	char	*name;
@@ -204,9 +265,9 @@ LOCAL struct {
 	{ "sappend",		SF_APPEND },
 #endif
 
-#ifdef	EXT2_APPEND_FL				/* 'a' */
-	{ "sappnd",		EXT2_APPEND_FL },
-	{ "sappend",		EXT2_APPEND_FL },
+#ifdef	FS_APPEND_FL				/* 'a' */
+	{ "sappnd",		FS_APPEND_FL },
+	{ "sappend",		FS_APPEND_FL },
 #endif
 
 #ifdef	SF_ARCHIVED
@@ -219,10 +280,10 @@ LOCAL struct {
 	{ "schange",		SF_IMMUTABLE },
 	{ "simmutable",		SF_IMMUTABLE },
 #endif
-#ifdef	EXT2_IMMUTABLE_FL			/* 'i' */
-	{ "schg",		EXT2_IMMUTABLE_FL },
-	{ "schange",		EXT2_IMMUTABLE_FL },
-	{ "simmutable",		EXT2_IMMUTABLE_FL },
+#ifdef	FS_IMMUTABLE_FL			/* 'i' */
+	{ "schg",		FS_IMMUTABLE_FL },
+	{ "schange",		FS_IMMUTABLE_FL },
+	{ "simmutable",		FS_IMMUTABLE_FL },
 #endif
 
 #ifdef	SF_NOUNLINK
@@ -230,8 +291,9 @@ LOCAL struct {
 	{ "sunlink",		SF_NOUNLINK },
 #endif
 
-#ifdef	EXT3_JOURNAL_DATA_FL			/* 'j' */
-	{ "journal-data",	EXT3_JOURNAL_DATA_FL },
+#ifdef	FS_JOURNAL_DATA_FL			/* 'j' */
+	{ "journal-data",	FS_JOURNAL_DATA_FL },
+	{ "journal",		FS_JOURNAL_DATA_FL }, /* undoc libarchive al. */
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -248,41 +310,89 @@ LOCAL struct {
 	{ "uimmutable",		UF_IMMUTABLE },
 #endif
 
-#ifdef	EXT2_COMPR_FL				/* 'c' */
-	{ "compress",		EXT2_COMPR_FL },
+#ifdef	FS_COMPR_FL				/* 'c' */
+	{ "compress",		FS_COMPR_FL },
 #endif
 
-#ifdef	EXT2_NOATIME_FL				/* 'A' */
-	{ "noatime",		EXT2_NOATIME_FL },
+#ifdef	FS_NOATIME_FL				/* 'A' */
+	{ "noatime",		FS_NOATIME_FL },
 #endif
 
 #ifdef	UF_NODUMP
 	{ "nodump",		UF_NODUMP },
 #endif
-#ifdef	EXT2_NODUMP_FL				/* 'd' */
-	{ "nodump",		EXT2_NODUMP_FL },
+#ifdef	FS_NODUMP_FL				/* 'd' */
+	{ "nodump",		FS_NODUMP_FL },
 #endif
 
 #ifdef	UF_OPAQUE
 	{ "opaque",		UF_OPAQUE },
 #endif
 
-#ifdef	EXT2_SECRM_FL				/* 's' Purge before unlink */
-	{ "secdel",		EXT2_SECRM_FL },
+#ifdef	FS_SECRM_FL				/* 's' Purge before unlink */
+	{ "secdel",		FS_SECRM_FL },
+	{ "securedeletion",	FS_SECRM_FL },	/* undoc'd libarchive alias */
 #endif
 
-#ifdef	EXT2_SYNC_FL				/* 'S' */
-	{ "sync",		EXT2_SYNC_FL },
+#ifdef	FS_SYNC_FL				/* 'S' */
+	{ "sync",		FS_SYNC_FL },
 #endif
 
-#ifdef	EXT2_UNRM_FL				/* 'u' Allow to 'unrm' file the */
-	{ "undel",		EXT2_UNRM_FL },
+#ifdef	FS_UNRM_FL				/* 'u' Allow to 'unrm' file the */
+	{ "undel",		FS_UNRM_FL },
 #endif
 
 #ifdef	UF_NOUNLINK
 	{ "uunlnk",		UF_NOUNLINK },
 	{ "uunlink",		UF_NOUNLINK },
 #endif
+
+#ifdef	UF_COMPRESSED
+	{ "compressed",		UF_COMPRESSED },
+	{ "ucompressed",	UF_COMPRESSED },
+#endif
+#ifdef	UF_HIDDEN
+	{ "hidden",		UF_HIDDEN },
+	{ "uhidden",		UF_HIDDEN },
+#endif
+#ifdef	UF_OFFLINE
+	{ "offline",		UF_OFFLINE },
+	{ "uoffline",		UF_OFFLINE },
+#endif
+#ifdef	UF_READONLY
+	{ "rdonly",		UF_READONLY },
+	{ "urdonly",		UF_READONLY },
+	{ "readonly",		UF_READONLY },
+#endif
+#ifdef	UF_REPARSE
+	{ "reparse",		UF_REPARSE },
+	{ "ureparse",		UF_REPARSE },
+#endif
+#ifdef	UF_SPARSE
+	{ "sparse",		UF_SPARSE },
+	{ "usparse",		UF_SPARSE },
+#endif
+#ifdef	UF_SYSTEM
+	{ "system",		UF_SYSTEM },
+	{ "usystem",		UF_SYSTEM },
+#endif
+
+#ifdef	FS_DIRSYNC_FL				/* 'D' */
+	{ "dirsync",		FS_DIRSYNC_FL },
+#endif
+#ifdef	FS_NOCOW_FL				/* 'C' */
+	{ "nocow",		FS_NOCOW_FL },
+#endif
+#ifdef	FS_NOTAIL_FL				/* 't' */
+	{ "notail",		FS_NOTAIL_FL },
+#endif
+#ifdef	FS_PROJINHERIT_FL			/* 'P' */
+	{ "projinherit",	FS_PROJINHERIT_FL },
+#endif
+#ifdef	FS_TOPDIR_FL				/* 'T' */
+	{ "topdir",		FS_TOPDIR_FL },
+#endif
+
 	{ NULL,			0 }
 };
 #define	nflagnames	((sizeof (flagnames) / sizeof (flagnames[0])) -1)

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.293 18/09/20 Copyright 1998-2018 J. Schilling
+dnl @(#)configure.in	1.294 19/03/18 Copyright 1998-2019 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.293)dnl
+AC_REVISION(1.294)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -123,7 +123,7 @@ AC_CHECK_HEADERS(os2me.h)
 dnl Check for MS-Win's junkyard
 AC_CHECK_HEADERS(windows.h)
 dnl Check for moving Linux targets caused by missing concepts
-AC_CHECK_HEADERS(ext2fs/ext2_fs.h)
+AC_CHECK_HEADERS(linux/fs.h ext2fs/ext2_fs.h)
 dnl Check for Linux Extended File Attributes definitions
 AC_CHECK_HEADERS(sys/xattr.h)
 AC_CHECK_HEADERS(attr/xattr.h)

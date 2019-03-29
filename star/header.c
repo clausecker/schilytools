@@ -1,8 +1,8 @@
-/* @(#)header.c	1.191 19/03/09 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.198 19/03/26 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.191 19/03/09 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.198 19/03/26 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -104,6 +104,9 @@ LOCAL	char	*cnames[] = {
 	"7z",			/*  9 C_7Z	*/
 	"xz",			/* 10 C_XZ	*/
 	"lzip",			/* 11 C_LZIP	*/
+	"zstd",			/* 12 C_ZSTD	*/
+	"lzma",			/* 13 C_LZMA	*/
+	"freeze2",		/* 14 C_FREEZE2	*/
 };
 
 extern	FILE	*tty;
@@ -861,6 +864,8 @@ extern	GINFO	*grip;				/* Global read info pointer */
 	 */
 	finfo.f_name = NULL;
 	finfo.f_lname = NULL;
+	finfo.f_devminorbits = 0;
+	finfo.f_xflags = 0;
 
 	grip->archtype = H_UNDEF;
 	xhparse(&finfo, xhp, xhp+xhsiz);
@@ -897,6 +902,8 @@ get_compression(ptb)
 			return (C_LZW);
 		if (p[1] == '\236')	/* Freezed		*/
 			return (C_FREEZE);
+		if (p[1] == '\237')	/* Freeze-2		*/
+			return (C_FREEZE2);
 		if (p[1] == '\240')	/* SCO LZH compressed	*/
 			return (C_LZH);
 	}
@@ -937,6 +944,13 @@ get_compression(ptb)
 	    p[2] == (char) 0x2F && p[3] == (char) 0xFD)
 		return (C_ZSTD);
 
+	/*
+	 * There is no grant that this is true, but it seems to be OK from the
+	 * magic used by file(1) from Christos Zoulas <christos@zoulas.com>
+	 */
+	if (p[0] == ']' && p[1] == 0 && p[2] == 0)
+		return (C_LZMA);
+
 	return (C_NONE);
 }
 
@@ -945,6 +959,12 @@ get_cmpname(type)
 	int	type;
 {
 	if (type < 0 || type > C_MAX)
+		type = C_NONE;
+
+	/*
+	 * Paranoia for incomplete cnames[] entries.
+	 */
+	if (type >= (sizeof (cnames) / sizeof (cnames[0])))
 		type = C_NONE;
 
 	return (cnames[type]);
@@ -1049,6 +1069,18 @@ get_tcb(ptb)
 					break;
 				case C_XZ:
 					comerrno(EX_BAD, "Archive is 'xz' compressed, try to use the -xz option.\n");
+					break;
+				case C_LZIP:
+					comerrno(EX_BAD, "Archive is 'lzip' compressed, try to use the -lzip option.\n");
+					break;
+				case C_ZSTD:
+					comerrno(EX_BAD, "Archive is 'zstd' compressed, try to use the -zstd option.\n");
+					break;
+				case C_LZMA:
+					comerrno(EX_BAD, "Archive is 'lzma' compressed, try to use the -lzma option.\n");
+					break;
+				case C_FREEZE2:
+					comerrno(EX_BAD, "Archive is 'freeze2' compressed, try to use the -freeze option.\n");
 					break;
 				default:
 					errmsgno(EX_BAD, "WARNING: Unknown compression type %d.\n", t);
@@ -1742,11 +1774,19 @@ info_to_ustar(info, ptb)
 			info->f_gmaxlen = TGNMLEN;
 		}
 	}
-	if (info->f_rdevmaj > MAXOCTAL7 && (props.pr_flags & PR_XHDR)) {
-		info->f_xflags |= XF_DEVMAJOR;
-	}
+	if (info->f_rdevmaj > MAXOCTAL7) {
+		if (props.pr_flags & PR_XHDR)
+			info->f_xflags |= XF_DEVMAJOR;
+		/*
+		 * XXX If we ever need to write more than a long into
+		 * XXX devmajor, we need to change llitos() to check
+		 * XXX for 7 char limits too.
+		 */
 /* XXX */
-	litos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 7);
+		btos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 7);
+	} else {
+		litos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 7);
+	}
 #if	DEV_MINOR_BITS > 21		/* XXX */
 	/*
 	 * XXX The DEV_MINOR_BITS autoconf macro is only tested with 32 bit
@@ -1773,7 +1813,7 @@ info_to_ustar(info, ptb)
 		} else {
 			/*
 			 * XXX If we ever need to write more than a long into
-			 * XXX devmajor, we need to change llitos() to check
+			 * XXX devmainor, we need to change llitos() to check
 			 * XXX for 7 char limits too.
 			 */
 /* XXX */
@@ -1884,8 +1924,16 @@ info_to_gnutar(info, ptb)
 		}
 	}
 	if (info->f_xftype == XT_CHR || info->f_xftype == XT_BLK) {
-		litos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 6);	/* XXX -> 7 ??? */
-		litos(ptb->ustar_dbuf.t_devminor, info->f_rdevmin, 6);	/* XXX -> 7 ??? */
+		if (info->f_rdevmaj > MAXOCTAL7) {
+			btos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 7);
+		} else {
+			litos(ptb->ustar_dbuf.t_devmajor, info->f_rdevmaj, 7);
+		}
+		if (info->f_rdevmin > MAXOCTAL7) {
+			btos(ptb->ustar_dbuf.t_devminor, info->f_rdevmin, 7);
+		} else {
+			litos(ptb->ustar_dbuf.t_devminor, info->f_rdevmin, 7);
+		}
 	}
 
 	/*
@@ -2263,7 +2311,7 @@ star_to_info(ptb, info)
 		}
 		if (mbits == 0) {
 			static	BOOL	dwarned = FALSE;
-			if (!dwarned) {
+			if (!dwarned && is_dev(info)) {	/* Only warn for devices */
 #ifdef	DEV_MINOR_NONCONTIG
 				errmsgno(EX_BAD,
 				"WARNING: Minor device numbers are non contiguous.\n");

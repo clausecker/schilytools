@@ -1,9 +1,9 @@
-/* @(#)lutimens.c	1.2 13/10/30 Copyright 2013 J. Schilling */
+/* @(#)lutimens.c	1.3 19/03/26 Copyright 2013-2019 J. Schilling */
 /*
  *	Emulate the behavior of lutimens(const char *name,
  *					const struct timespec times[2])
  *
- *	Copyright (c) 2013 J. Schilling
+ *	Copyright (c) 2013-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -65,11 +65,19 @@ lutimens(name, times)
 
 	return (lutime(name, &ut));
 #else
+	/*
+	 * Without lstat(), we expect that there are no symlinks either.
+	 */
 	struct stat	sb;
 
 	if (lstat(name, &sb) >= 0) {
 		if (!S_ISLNK(sb.st_mode))
 			return (utimens(name, times));
+	} else {
+		/*
+		 * Keep errno (e.g. ENAMETOOLONG)
+		 */
+		return (-1);
 	}
 #ifdef	ENOSYS
 	seterrno(ENOSYS);

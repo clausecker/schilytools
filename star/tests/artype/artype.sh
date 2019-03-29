@@ -6,7 +6,7 @@
 # Import common functions & definitions.
 . ../common/test-common
 
-LC_ALL=C
+LC_ALL=C export LC_ALL
 
 #d=`../testutils/realpwd`
 

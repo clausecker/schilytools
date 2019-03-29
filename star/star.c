@@ -1,8 +1,8 @@
-/* @(#)star.c	1.388 19/01/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
+/* @(#)star.c	1.391 19/03/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.388 19/01/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
+	"@(#)star.c	1.391 19/03/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling
@@ -102,6 +102,8 @@ LOCAL	void	sighup		__PR((int sig));
 LOCAL	void	sigintr		__PR((int sig));
 LOCAL	void	sigquit		__PR((int sig));
 LOCAL	void	getstamp	__PR((void));
+LOCAL	const char *has_cli	__PR((int ac, char *const *av));
+LOCAL	int	get_ptype	__PR((const char *p));
 LOCAL	void	set_ptype	__PR((int *pac, char *const **pav));
 LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 EXPORT	BOOL	ttyerr		__PR((FILE *f));
@@ -177,6 +179,7 @@ long	chdrtype  = H_UNDEF;		/* command line hdrtype		*/
 int	cmptype	  = C_NONE;		/* compression type		*/
 int	iftype	  = I_TAR;		/* command line interface type	*/
 int	ptype	  = P_STAR;		/* program interface type	*/
+const char *pname = NULL;		/* program name with cli=	*/
 BOOL	paxls	  = FALSE;		/* create PAX type listing	*/
 int	version	  = 0;			/* Version from POSIX TAR  hdr	*/
 int	swapflg	  = -1;			/* Whether to swap input	*/
@@ -218,6 +221,8 @@ BOOL	p7zflag	  = FALSE;		/* -7z has been specified	*/
 BOOL	xzflag	  = FALSE;		/* -xz has been specified	*/
 BOOL	lzipflag  = FALSE;		/* -lzip has been specified	*/
 BOOL	zstdflag  = FALSE;		/* -zstd has been specified	*/
+BOOL	lzmaflag  = FALSE;		/* -lzma has been specified	*/
+BOOL	freezeflag  = FALSE;		/* -freeze has been specified	*/
 char	*compress_prg = NULL;		/* -compress-program specified	*/
 BOOL	multblk	  = FALSE;		/* -B has been specified	*/
 BOOL	ignoreerr = FALSE;		/* -i has been specified	*/
@@ -355,7 +360,7 @@ struct ga_props	gaprops;
  * werden wird bei Falschschreibung von -fifo evt. eine Datei angelegt wird.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,partial,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,zstd,compress-program*,rmt*,rsh*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-o*,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-secure-links%0,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync%1,do-fsync%0,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
+char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,partial,force-restore,freeze,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,zstd,lzma,compress-program*,rmt*,rsh*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-o*,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-secure-links%0,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync%1,do-fsync%0,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #else
@@ -408,6 +413,9 @@ main(ac, av)
 	docompat(&cac, &cav);
 
 	gargs(cac, cav);
+	if (pname) {			/* cli=xxx seen as argv[1] */
+		--cac, cav++;
+	}
 	--cac, cav++;
 	oac = cac;
 	oav = cav;
@@ -1084,6 +1092,7 @@ susage(ret)
 #else
 	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
 #endif
+	error("\t%s cli=name ...\n", get_progname());
 	error("\nUse\t%s -help\n", get_progname());
 	error("and\t%s -xhelp\n", get_progname());
 	error("to get a list of valid cmds and options.\n");
@@ -1117,6 +1126,7 @@ usage(ret)
 #else
 	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
 #endif
+	error("\t%s cli=name ...\n", get_progname());
 	error("Cmd:\n");
 	error("\t-c/-u/-r\tcreate/update/replace archive with named files to tape\n");
 	error("\t-x/-t/-n\textract/list/trace named files from tape\n");
@@ -1156,6 +1166,8 @@ usage(ret)
 	error("\t-xz\t\tpipe input/output through xz, does not work on tapes\n");
 	error("\t-lzip\t\tpipe input/output through lzip, does not work on tapes\n");
 	error("\t-zstd\t\tpipe input/output through zstd, does not work on tapes\n");
+	error("\t-lzma\t\tpipe input/output through lzma, does not work on tapes\n");
+	error("\t-freeze\t\tpipe input/output through freeze, does not work on tapes\n");
 	error("\tcompress-program=name\tpipe input/output through program 'name', does not work on tapes\n");
 	error("\t-B\t\tperform multiple reads (needed on pipes)\n");
 	error("\t-i\t\tignore checksum errors\n");
@@ -1207,6 +1219,7 @@ xusage(ret)
 #else
 	error("Usage:\t%s cmd [options] file1 ... filen\n", get_progname());
 #endif
+	error("\t%s cli=name ...\n", get_progname());
 	error("Extended options:\n");
 	error("\tdiffopts=optlst\tcomma separated list of diffopts (see diffopts=help)\n");
 	error("\t-debug\t\tprint additional debug messages\n");
@@ -1417,7 +1430,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 BOOL	Ointeractive	 = FALSE;
 
 /* BEGIN CSTYLED */
-/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,partial,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,zstd,compress-program*,rmt*,rsh*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-o*,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-secure-links%0,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync%1,do-fsync%0,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
+/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,partial,force-restore,freeze,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,zstd,lzma,compress-program*,rmt*,rsh*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-o*,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-secure-links%0,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync%1,do-fsync%0,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
 /* END CSTYLED */
 
 	getarginit(&gaprops, GAF_DEFAULT);	/* Set default behavior	  */
@@ -1468,6 +1481,9 @@ BOOL	Ointeractive	 = FALSE;
 	iftype = I_TAR;		/* command line interface */
 	ptype  = P_STAR;	/* program interface type */
 
+	if (pname) {		/* cli=xxx seen as argv[1] */
+		--ac, av++;
+	}
 	--ac, ++av;
 	files = getfilecount(ac, av, opts);
 	if (getlallargs(&ac, &av, &gaprops, opts,
@@ -1503,6 +1519,7 @@ BOOL	Ointeractive	 = FALSE;
 				&multivol, &newvol_script,
 				&force_noremote,
 				&dorestore, &dopartial, &forcerestore,
+				&freezeflag,
 				/*
 				 * All options starting with -f need to appear
 				 * before this line.
@@ -1511,7 +1528,7 @@ BOOL	Ointeractive	 = FALSE;
 				addtarfile, NULL,
 				&usetape,
 				&Zflag, &zflag, &bzflag, &bzflag, &lzoflag,
-				&p7zflag, &xzflag, &lzipflag, &zstdflag,
+				&p7zflag, &xzflag, &lzipflag, &zstdflag, &lzmaflag,
 				&compress_prg,
 				&rmt, &rsh,
 				getenum, &bs,
@@ -2654,16 +2671,74 @@ getstamp()
 	Newer.tv_nsec = finfo.f_mnsec;
 }
 
+LOCAL const char *
+has_cli(ac, av)
+	int	ac;
+	char	*const *av;
+{
+	if (ac > 1) {
+		const char	*p = av[1];
+
+		if (p[0] == 'c' && p[1] == 'l' && p[2] == 'i' && p[3] == '=')
+			return (&p[4]);
+	}
+	return (NULL);
+}
+
+LOCAL struct clis {
+	char	*name;
+	int	type;
+} clis[] = {
+	{ "star",	P_STAR },
+	{ "suntar",	P_SUNTAR },
+	{ "tar",	P_SUNTAR },
+	{ "gnutar",	P_GNUTAR },
+	{ "gtar",	P_GNUTAR },
+	{ "pax",	P_PAX },
+	{ "cpio",	P_CPIO },
+	{ NULL,		C_NONE },
+};
+
+LOCAL int
+get_ptype(p)
+	const char	*p;
+{
+	struct	clis	*clp = clis;
+
+	while (clp->name) {
+		if (streql(clp->name, p))
+			return (clp->type);
+		clp++;
+	}
+
+	return (C_NONE);
+}
+
 LOCAL void
 set_ptype(pac, pav)
 	int	*pac;
 	char	*const **pav;
 {
-#ifdef	__needed__
 	int	ac		= *pac;
-#endif
 	char	*const *av	= *pav;
 const	char	*p;
+
+	if ((p = has_cli(ac, av)) != NULL) {
+		ptype = get_ptype(p);
+		if (ptype == C_NONE) {
+			struct	clis	*clp = clis;
+		
+			errmsgno(EX_BAD, "Illegal cli name '%s'.\n", p);
+			errmsgno(EX_BAD, "Use one of:");
+			while (clp->name) {
+				error(" %s", (clp++)->name);
+			}
+			error(".\n\n");
+			susage(EX_BAD);
+		}
+		pname = p;
+		return;
+	}
 
 	p = filename(av[0]);
 
@@ -2811,6 +2886,7 @@ const	char	*p;
 	char	c;
 	char	*const *oa;
 	char	**na;
+	int	coff = 1;
 
 	set_ptype(pac, pav);
 	switch (ptype) {
@@ -2847,39 +2923,47 @@ const	char	*p;
 	    streql(p, "suntar") || streql(p, "gnutar") || streql(p, "gtar"))
 		tcompat = TRUE;
 
-	if (ac <= 1)
+	if (pname)				/* cli=xxx seen as argv[1] */
+		coff++;
+
+	if (ac <= coff)
 		return;
 	if (iftype != I_TAR)
 		return;
 
-	if (ptype != P_SUNTAR && ptype != P_GNUTAR)
+
 	/*
-	 * For "suntar" & "gnutar" the first option string may start with '-',
-	 * else only convert to new syntax if the first arg is a non '-' arg.
+	 * If we come here, this is for a tar type CLI.
 	 */
-	if (av[1][0] == '-')			/* Do not convert new syntax */
-		return;
-	if (av[1][0] == '-' && av[1][1] == '-')	/* Do not convert new syntax */
+	if (ptype != P_SUNTAR && ptype != P_GNUTAR) {
+		/*
+		 * For "suntar" & "gnutar" the first option string may start
+		 * with '-', and still may need a conversion, else only convert
+		 * to new syntax if the first arg is a non '-' arg.
+		 */
+		if (av[1][0] == '-')		/* Do not convert new syntax */
+			return;
+	}
+	if (av[coff][0] == '-' && av[coff][1] == '-')	/* Do not convert new syntax */
 		return;
 
-	if (strchr(av[1], '=') != NULL)		/* Do not try to convert bs= */
+	if (strchr(av[coff], '=') != NULL)		/* Do not try to convert bs= */
 		return;
 
-	if (strstr(p, "tar") == NULL)		/* Do not try to it for pax */
-		return;
-
-	nac = ac + strlen(av[1]);
+	nac = ac + strlen(av[coff]);
 	nav = ___malloc(nac-- * sizeof (char *), /* keep space for NULL ptr */
 				"compat argv");
 	oa = av;				/* remember old arg pointer */
 	na = nav;				/* set up new arg pointer */
 	*na++ = *oa++;				/* copy over av[0] */
-	oa++;					/* Skip over av[1] */
+	if (coff > 1)				/* If we have a cli= argument */
+		*na++ = *oa++;			/* copy over av[1] (cli=...) */
+	oa++;					/* Skip over av[coff] */
 
 	nopt[0] = '-';
 	nopt[2] = '\0';
 
-	for (p = av[1]; (c = *p) != '\0'; p++) {
+	for (p = av[coff]; (c = *p) != '\0'; p++) {
 		if (c == '-') {
 			nac--;
 			continue;

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.95 19/01/09 2008-2019 J. Schilling
+ * @(#)word.c	1.96 19/03/25 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.95 19/01/09 2008-2019 J. Schilling";
+	"@(#)word.c	1.96 19/03/25 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -91,7 +91,7 @@ static	BOOL		chk_igneof __PR((void));
 static	int		xread	__PR((int f, char *buf, int n));
 #endif
 #ifdef	DO_TILDE
-static unsigned char	*do_tilde __PR((unsigned char *arg));
+	unsigned char	*do_tilde __PR((unsigned char *arg));
 #endif
 
 /* ========	character handling for command lines	======== */
@@ -951,7 +951,7 @@ xread(f, buf, n)
 #endif
 
 #ifdef	DO_TILDE
-static unsigned char *
+unsigned char *
 do_tilde(arg)
 	unsigned char	*arg;
 {
@@ -961,7 +961,7 @@ do_tilde(arg)
 
 	if (*u++ != '~')
 		return (NULL);
-	for (p = u; *p && *p != '/'; p++)
+	for (p = u; *p && *p != '/' && *p != ':'; p++)
 		;
 	if (p == u) {
 		val = homenod.namval;

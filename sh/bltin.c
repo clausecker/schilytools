@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.137 19/02/20 2008-2019 J. Schilling
+ * @(#)bltin.c	1.139 19/03/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.137 19/02/20 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.139 19/03/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -82,6 +82,9 @@ static	void	syscommand __PR((int argc, unsigned char **argv,
 #if	defined(INTERACTIVE) || defined(DO_SYSFC)
 static	void	syshist	__PR((int argc, unsigned char **argv,
 					struct trenod *t, int xflags));
+#endif
+#ifdef	DO_TILDE
+static unsigned char *etilde	__PR((unsigned char *arg, unsigned char *s));
 #endif
 
 #define	no_pipe	(int *)0
@@ -565,14 +568,21 @@ builtin(type, argc, argv, t, xflags)
 
 			if (argv[1]) {
 				while (*++argv) {
-					char *p = strchr((char *)*argv, '=');
+					unsigned char *p;
 
+					p = UC strchr((char *)*argv, '=');
 					if (p)
 						*p = '\0';
 					pushval(lookup(*argv), localp);
 					if (p) {
 						*p = '=';
-						setname(*argv, 0);
+#ifdef	DO_TILDE
+						if (strchr(C p, '~') != NULL)
+							p = etilde(*argv, p);
+						else
+#endif
+							p = *argv;
+						setname(p, 0);
 					}
 					localcnt++;
 				}
@@ -606,8 +616,17 @@ builtin(type, argc, argv, t, xflags)
 			if (argv[1]) {
 				while (*++argv) {
 #ifdef	DO_POSIX_EXPORT
-					if (strchr((char *)*argv, '=')) {
-						setname(*argv, N_RDONLY);
+					unsigned char	*p;
+
+					p = UC strchr((char *)*argv, '=');
+					if (p) {
+#ifdef	DO_TILDE
+						if (strchr(C p, '~') != NULL)
+							p = etilde(*argv, p);
+						else
+#endif
+							p = *argv;
+						setname(p, N_RDONLY);
 						continue;
 					}
 #endif
@@ -646,8 +665,17 @@ builtin(type, argc, argv, t, xflags)
 			if (argv[1]) {
 				while (*++argv) {
 #ifdef	DO_POSIX_EXPORT
-					if (strchr((char *)*argv, '=')) {
-						setname(*argv, N_EXPORT);
+					unsigned char	*p;
+
+					p = UC strchr((char *)*argv, '=');
+					if (p) {
+#ifdef	DO_TILDE
+						if (strchr(C p, '~') != NULL)
+							p = etilde(*argv, p);
+						else
+#endif
+							p = *argv;
+						setname(p, N_EXPORT);
 						continue;
 					}
 #endif
@@ -1603,3 +1631,52 @@ syshist(argc, argv, t, xflags)
 	close(fd);
 }
 #endif	/* defined(INTERACTIVE) || defined(DO_SYSFC) */
+
+#ifdef	DO_TILDE
+static unsigned char *
+etilde(arg, s)
+	unsigned char	*arg;		/* complete encironment entry	*/
+	unsigned char	*s;		/* points to '='		*/
+{
+	UIntptr_t	b = relstak();
+	unsigned char	*p;
+
+	++s;				/* Point to 1st char of value	*/
+	while (arg < s) {		/* Copy parts up to '='		*/
+		GROWSTAKTOP();
+		pushstak(*arg++);
+	}
+	while (*arg) {
+		p = UC strchr(C arg, '~');
+		if (p == NULL)
+			break;
+		while (arg < p) {	/* Copy up to '~'		*/
+			GROWSTAKTOP();
+			pushstak(*arg++);
+		}
+		if (p > s && p[-1] != ':') {
+			/* EMPTY */
+			;
+		} else if ((p = do_tilde(arg)) != NULL) {
+			unsigned char	c;
+
+			while (*p) {	/* Copy expanded directory	*/
+				GROWSTAKTOP();
+				pushstak(*p++);
+			}
+			do {		/* Skip unexpanded input	*/
+				c = *++arg;
+			} while (c && c != '/' && c != ':');
+			continue;
+		}
+		GROWSTAKTOP();
+		pushstak(*arg++);	/* Copy '~'			*/
+	}
+	while (*arg) {			/* Copy rest			*/
+		GROWSTAKTOP();
+		pushstak(*arg++);
+	}
+	zerostak();
+	return (absstak(b));
+}
+#endif

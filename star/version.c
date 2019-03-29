@@ -1,8 +1,8 @@
-/* @(#)version.c	1.5 19/03/05 Copyright 2018-2019 J. Schilling */
+/* @(#)version.c	1.7 19/03/20 Copyright 2018-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)version.c	1.5 19/03/05 Copyright 2018-2019 J. Schilling";
+	"@(#)version.c	1.7 19/03/20 Copyright 2018-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2018-2019 J. Schilling
@@ -22,4 +22,4 @@ static	UConst char sccsid[] =
  */
 
 char	strvers[] = "1.6";		/* The pure version string	*/
-char	dvers[]	  = "2019/03/05";	/* Version date			*/
+char	dvers[]	  = "2019/03/20";	/* Version date			*/

@@ -1,4 +1,4 @@
-#ident "@(#)rules.htm	1.6 16/01/27 "
+#ident "@(#)rules.htm	1.7 18/12/10 "
 ###########################################################################
 # Written 2007 by J. Schilling
 ###########################################################################
@@ -22,28 +22,33 @@
 ###########################################################################
 
 html:	$(MANFILE)
-	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -man - | col -x | \
+	soelim $(MANFILE) | tbl | nroff -rh1 -u1 -Tlp -man - | col -x | \
 		man2html  -cgiurl '$$title.$$section.html' -compress -nodepage \
 		> $(MANFILE).html
 
 htmlxn:	$(MANFILE).html
 
+#
+# -rh1 sets number register 'h' to 1 to signal that we use man2html and
+# thus cannot reduce indentation in order to prevent man2html to make
+# related test big and bold as it thinks this are headlines.
+#
 $(MANFILE).html: $(MANFILE)
-	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -man - | col -x | \
+	soelim $(MANFILE) | tbl | nroff -rh1 -u1 -Tlp -man - | col -x | \
 			(sed -e 's/XXX/$(MANFILE)/g' $(SRCROOT)/conf/pre.html; \
 			man2html  -cgiurl '../man$$section$$subsection/$$title.$$section$$subsection.html' -compress -nodepage; \
 			cat $(SRCROOT)/conf/post.html) | \
 			egrep -v 'HTML|BODY'> $(MANFILE).html
 
 $(MANFILE).dhtml: $(MANFILE)
-	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -mdoc - | col -x | \
+	soelim $(MANFILE) | tbl | nroff -rh1 -u1 -Tlp -mdoc - | col -x | \
 			(sed -e 's/XXX/$(MANFILE)/g' $(SRCROOT)/conf/pre.html; \
 			man2html  -cgiurl '../man$$section$$subsection/$$title.$$section$$subsection.html' -compress -nodepage; \
 			cat $(SRCROOT)/conf/post.html) | \
 			egrep -v 'HTML|BODY'> $(MANFILE).html
 
 htmlx:	$(MANFILE)
-	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -man - | col -x | \
+	soelim $(MANFILE) | tbl | nroff -rh1 -u1 -Tlp -man - | col -x | \
 			(sed -e 's/XXX/$(MANFILE)/g' $(SRCROOT)/conf/pre.html; \
 			man2html  -cgiurl '$$title.$$section.html' -compress -nodepage; \
 			cat $(SRCROOT)/conf/post.html) | \

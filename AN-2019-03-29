@@ -1,0 +1,377 @@
+New features with AN-2019-03-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+-	The AN-2018-* files have been moved to the directory ANNOUNCEMENTS/
+	to give more order in the tp level directory.
+
+-	autoconf/configure: Added a workaround for a Mac OS X linker bug.
+	configure now always uses "rm -rf conftest*" instead of just
+	"rm -f conftest*" to avoid error messages from the stray *.dSYM
+	and sometimes persistent directories created by the Apple linker.
+
+-	Makefile system: The rules for creating HTML files from man pages
+	now set the troff variable "h" to 1. This is used by the SCCS
+	man pages (e.g sccs-prs.1) to be able to let a wide table start
+	at column 1 without letting man2html(1) result this in making the
+	table entries a header (big letters).
+
+-	Makefile system: "make tests" now implies a "make all".
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	Makefile system: The files sccs/tests/Makefile, sh/tests/Makefile
+	and obosh/tests/Makefile now have a "tests" target initially in the
+	Makefile and no longer let the target "all" have the same commands
+	as "tests", since this caused the tests to be run twice with
+	the change from above.
+
+-	Makefile system: README.compile now explains how to run unit tests
+	and how to avoid lengthy random tests by calling:
+
+		NO_RANDOM=TRUE smake tests
+
+-	libschily: The gethostname() emulation no longer returns ENOSYS
+	if namelen is < 0. The error code now is EINVAL.
+
+-	libschily: the lutimens() emulation no longer returns ENOSYS in case
+	that the lstat() call fails, since this error code may e.g. be
+	ENAMETOOLONG and used as an important indicator for long path name
+	handling.
+
+	This bug caused incorrect behavior when star extracted long pathnames
+	on a platform without utimensat().
+
+-	Bourne Shell: local(1), export(1) and readonly(1) now all support to 
+	expand the '~' character in environment variables like e.g. PATH.
+
+-	Bourne Shell: Added unit tests for the tilde expansion and the related
+	changes.
+
+-	star: The code restructuring to openat() from Summer 2018 did not
+	only cause a noticeable speed up even when not using -find, it at
+	the same time resulted in a wrong error message when a file type
+	was seen that is not archivable (e.g. a socket while using the USTAR
+	format). The correct message was something like "Unsupported filetype",
+	while the bug caused a "file not found " message. This has been fixed
+	by adding a new parameter "fd" to the function stat_to_info().
+
+-	star: header.c::get_xhtype() we did forgot to initialize:
+
+		finfo.f_devminorbits
+	and
+		finfo.f_xflags
+
+	This is now done.
+
+-	star: The USTAR format now is able to create base-256 values in
+	the field "t_devmajor". "t_devminor" did already support base-256.
+
+-	star: The GNU tar format now is able to create base-256 values in
+	the fields "t_devmajor" and "t_devminor".
+
+-	star: The man page star.4 now mentions which fileds may have
+	base-256 numbers.
+
+-	star: The man page star.4 now longer contains the doubled "field field"
+	in the explanation of the added UID/GID number for ACLs.
+
+-	star: The man page star.4 now has a better description for the additional
+	numeric fields in the ACL entries to prevent GNU tar from continuing
+	with it's incompatible ACL implementation.
+
+-	star: New ACL reference archives for the ultra compact format, that has
+	been defined together with the libachive people, have been added to the
+	directory testscripts/:
+
+	acl-nfsv4-compact-test.tar.gz
+	acl-nfsv4-compact-test2.tar.gz
+	acl-nfsv4-compact-test3.tar.gz
+	acl-nfsv4-compact-test4.tar.gz
+	acl-nfsv4-compact-test5.tar.gz
+
+-	star: Linux now uses the new <linux/fs.h> instead of <ext2/ext2_fs.h>
+	to retrieve file flags.
+
+	Thanks to a hint from Martin Matuska <martin@matuska.org> from the
+	libarchive team.
+
+-	star: Support for the following new BSD Flags:
+
+		compressed hidden offline rdonly reparse sparse system
+
+	has been added.
+
+	Thanks to a hint from Martin Matuska <martin@matuska.org> from the
+	libarchive team.
+
+-	star: Support for the following new Linux flags:
+
+		dirsync nocow notail projinherit topdir
+
+	has been added.
+
+	Thanks to a hint from Martin Matuska <martin@matuska.org> from the
+	libarchive team.
+
+-	star: Support for reading non-comliant libarchive tarballs that use 
+
+		"securedeletion" or "journal"
+
+	instead of the documented text has been added. This was used by
+	libarchive until March 20, when libarchive has been fixed. We introduce
+	the above names for compatibility with old TARs created by libarchive.
+
+-	star: When an "old star" archive is read and this archive is from a system
+	like FreeBSD with non-continous minor bits, star no longer warns unless
+	there is a device file in the archive.
+
+-	star: unit tests: the scripts now contain
+
+		LC_ALL=C export LC_ALL
+
+	instead of just LC_ALL=C to make the environment exported.
+
+-	star/libstrar: The case where iconv() returns -1 and sets errno to E2BIG
+	is now handled correctly.
+
+-	star: The testscripts/ directory now contains the tar test archives
+	from the portability tests from Michal Górny. Check
+
+		http://cdrtools.sourceforge.net/private/portability-of-tar-features.html
+
+	for an updated (to match star-1.6) variant of the results from the portability
+	tests from Michal Górny.
+
+-	star: older versions of star did not print the messages:
+
+		"WARNING: Archive is 'xxx' compressed, trying to use the -xxx option.\n"
+
+	in case that the option -print-artype was in use. Later versions that
+	added support for more than "gzip" and "bzip2" forgot to add the same
+	exception for the new compression methods. We now ommit this message
+	for all compression types.
+
+-	star: older versions of star did not print the messages:
+
+		"WARNING: Archive is 'xxx' compressed, trying to use the -xxx option.\n"
+
+	in case that an expplicit decompression option was in use. Later
+	versions that added support for more than "gzip" and "bzip2" forgot to
+	add the same exception for the new compression methods. We now ommit
+	this message for all compression types.
+
+-	star: Support for the "lzma" compression has been added.
+
+-	star: Support for the "freeze2" compression has been added.
+
+-	star: The compression method name list did not include the text "zstd".
+	We added the missing text.
+
+-	star: The hint messages that are printed when a compressed input archive
+	is not seekable did forgot to mention "lzip" and "zstd". We added the
+	forgotten messages.
+
+-	star: New unit tests check whether star is able to auto-detect and auto
+	decompress various compression formats.
+
+-	star: The unit tests now include the portability tests from Michal Górny
+
+-	A new option cli=name (must be argv[1]) allows to select all
+	supported command line interfaces (star, suntar, gnutar,
+	pax, cpio) when called as star.
+
+	This is needed to be able to test all command line interfaces from
+	out unit tests since star is not installed in this case and a selection
+	from argv[0] would not work.
+
+-	star: The version date is now "2019/03/20"
+
+-	star: Updated version 1.6 (not yet published in separate tarball)
+
+	Short overview for what changed since the last "stable" version:
+
+	-	Support for "infinitely" long path names has been added.
+
+	-	Support for base-256 numbers in timestams and uid/gid
+		has been added. This has been planned in the 1990s already,
+		when star invented the base-256 coding, but it has been
+		forgotten in favor of the POSIX.1-2001 enhanded archive
+		headers.
+
+	-	Support for comparing timestamps with nanosecond granularity
+
+	-	-secure-links has been made the default when extracting
+		archived (except when doing an incremental restore).
+
+	-	Added Support for NFSv4 ACLs on FreeBSD. Solaris has been
+		supported since 2013.
+
+	-	Added Support to archive SELinix attributes.
+
+	-	Allow to configure whether "star -fsync" is the default in
+		order to support filesystems that are slow with granted
+		transactions (like ZFS) or platforms that are genrally
+		slow with fsync() (like Linux).
+
+	-	Full UNICODE support has been added for tar headers.
+
+	-	A new option cli=name (must be argv[1]) allows to select all
+		supported command line interfaces (star, suntar, gnutar,
+		pax, cpio) when called as star.
+
+	-	Support for -zstd compression has been added.
+
+	-	Support for -lzma compression has been added.
+
+	-	Support for -freeze compression has been added.
+
+	-	Some rare FIFO problems have been fixed.
+		Note that we did recently run more than a billion tests to
+		verify the FIFO after we identified a method to trigger the
+		problem on Linux.
+
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

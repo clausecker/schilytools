@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.134 19/02/11 Copyright 1996-2019 J. Schilling */
+/* @(#)starsubs.h	1.135 19/03/11 Copyright 1996-2019 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -394,7 +394,7 @@ extern	BOOL	getinfo		__PR((char *name, FINFO *info));
 extern	BOOL	getinfoat	__PR((int fd, char *name, FINFO *info));
 #endif
 #ifdef	_SCHILY_STAT_H
-extern	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
+extern	BOOL	stat_to_info	__PR((int fd, struct stat *sp, FINFO *info));
 #endif
 #ifdef	EOF
 extern	void	checkarch	__PR((FILE *f));

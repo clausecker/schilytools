@@ -1,0 +1,6 @@
+The programs 'smake and 'star' are of strategic importance for portability.
+
+At least for these programs, getfp.c should be a copy rather than a link.
+
+Once you have star running on a system with no symlinks, you may use star
+to create copies rather than links.

@@ -1,4 +1,6 @@
-#ident "@(#)Makefile	1.8 18/04/03 "
+#ident "@(#)Makefile	1.10 19/03/28 "
+###########################################################################
+tests:		# Make "tests" the default target
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
@@ -7,12 +9,12 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 SCCS_BIN_PRE=	ccs/
 
-all tests: /tmp/SCCSTEST all-tests all-v6-tests
+tests: /tmp/SCCSTEST all-tests all-v6-tests
 	@echo "Don't forget to remove /tmp/SCCSTEST in case you don't like to repeat the test"
 
 all-tests: /tmp/SCCSTEST cssc-tests sccs-tests
 
-all-v6-tests: /tmp/SCCSTEST all-tests cssc-v6-tests sccs-v6-tests
+all-v6-tests: /tmp/SCCSTEST cssc-v6-tests sccs-v6-tests
 
 #
 # ksh yields in an exit code of 1 for unset in case that SCCS_V6 has not been set before.
