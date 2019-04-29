@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.39 18/07/15 Copyright 2006-2018 J. Schilling */
+/* @(#)edit.c	1.40 19/04/27 Copyright 2006-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.39 18/07/15 Copyright 2006-2018 J. Schilling";
+	"@(#)edit.c	1.40 19/04/27 Copyright 2006-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2018 J. Schilling
+ *	Copyright (c) 2006-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -447,8 +447,27 @@ shedit_setprompts(promptidx, nprompts, newprompts)
 
 	prompt = promptidx;
 
+	if (nprompts > SHEDIT_NPROMPTS)
+		nprompts = SHEDIT_NPROMPTS;
+
 	for (i = 0; i < nprompts; i++)
 		prompts[i] = newprompts[i];
+}
+
+EXPORT void
+shedit_spromptidx(promptidx)
+	int	promptidx;
+{
+	prompt = promptidx;
+
+	if (prompt >= SHEDIT_NPROMPTS)
+		prompt = SHEDIT_NPROMPTS-1;
+}
+
+EXPORT int
+shedit_gpromptidx()
+{
+	return (prompt);
 }
 
 LOCAL int

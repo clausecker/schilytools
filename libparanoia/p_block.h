@@ -1,8 +1,8 @@
-/* @(#)p_block.h	1.21 15/09/20 J.^ Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.h	1.22 19/04/02 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2015 by J. Schilling
+ * Copyright (C) 2002-2019 by J. Schilling
  */
 
 #ifndef	_P_BLOCK_H
@@ -58,10 +58,10 @@ extern linked_list	*copy_list	__PR((linked_list * list));	/* shallow; doesn't co
 									/* contained structures */
 
 typedef struct c_block {
-	/* The buffer */
-	Int16_t		*vector;
+	Int16_t		*vector; /* The buffer */
 	long		begin;	/* Begin diskoff, multiples of 16bit samples */
 	long		size;	/* Size, multiples of 16bit samples */
+	long		fsize;	/* # bytes in flags, # Int16_t in vector */
 
 	/* auxiliary support structures */
 	unsigned char 	*flags;
@@ -69,7 +69,7 @@ typedef struct c_block {
 				 * 1    known boundaries in read data
 				 * 2    known blanked data
 				 * 4    matched sample
-				 * 8    reserved
+				 * 8    C2 error in sample
 				 * 16   reserved
 				 * 32   reserved
 				 * 64   reserved

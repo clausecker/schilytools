@@ -1,8 +1,8 @@
-/* @(#)shedit.h	1.15 17/12/30 Copyright 2006-2017 J. Schilling */
+/* @(#)shedit.h	1.16 19/04/27 Copyright 2006-2019 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
- *	Copyright (c) 2006-2017 J. Schilling
+ *	Copyright (c) 2006-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,6 +72,10 @@ extern	void	shedit_putenv	__PR((void (*penv) (char *name)));
 extern	void	shedit_igneof	__PR((BOOL (*ieof) (void)));
 extern	void	shedit_setprompts __PR((int promptidx, int nprompts,
 							char *newprompts[]));
+extern	void	shedit_spromptidx __PR((int promptidx));
+extern	int	shedit_gpromptidx __PR((void));
+
+#define	SHEDIT_NPROMPTS	2	/* Number of supported prompts		*/
 
 /*
  * Keep #defines in sync with bsh/bsh.h

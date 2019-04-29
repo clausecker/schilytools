@@ -1,4 +1,4 @@
-/* @(#)waitid.c	1.2 18/06/10 Copyright 2015-2018 J. Schilling */
+/* @(#)waitid.c	1.3 19/04/28 Copyright 2015-2018 J. Schilling */
 /*
  *	Emulate the waitid() syscall in case it is missing or disfunctional
  *
@@ -100,7 +100,11 @@ waitid(idtype, id, infop, opts)
 		infop->si_status = WSTOPSIG(exstat);
 	} else if (WIFCONTINUED(exstat)) {
 		infop->si_code = CLD_CONTINUED;
+#ifdef	SIGCONT
+		infop->si_status = SIGCONT;
+#else
 		infop->si_status = 0;
+#endif
 	}
 
 	return (0);

@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.56 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)scsi_cmds.c	1.57 19/04/02 Copyright 1998-2002,2015,2019 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.56 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)scsi_cmds.c	1.57 19/04/02 Copyright 1998-2002,2015,2019 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -109,7 +109,7 @@ heiko_mmc(scgp)
 }
 
 
-int		accepts_fua_bit;
+int		accepts_fua_bit;	/* Use the Force Unit Access bit */
 unsigned char	density = 0;
 unsigned char	orgmode4 = 0;
 unsigned char	orgmode10, orgmode11;
@@ -1595,8 +1595,9 @@ ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal)
 		/*
 		 * if the command is not available, disable this method
 		 * by setting the ReadCdRom_C2 pointer to NULL.
+		 * 0x05 0x24 0x00 is invalid field in cdb
 		 */
-		if (scg_sense_key(scgp) == 0x05 &&
+		if (scg_sense_key(scgp) == SC_ILLEGAL_REQUEST &&
 			scg_sense_code(scgp) == 0x24 &&
 			scg_sense_qual(scgp) == 0x00) {
 			ReadCdRom_C2 = NULL;
@@ -1631,7 +1632,7 @@ static int	ReadCdda12_unknown = 0;
 		 * if the command is not available, use the regular
 		 * MMC ReadCd
 		 */
-		if (retval <= 0 && scg_sense_key(scgp) == 0x05) {
+		if (retval <= 0 && scg_sense_key(scgp) == SC_ILLEGAL_REQUEST) {
 			ReadCdda12_unknown = 1;
 		}
 		scgp->silent--;
@@ -1660,7 +1661,7 @@ static int	ReadCdda12_C2_unknown = 0;
 		 * if the command is not available, use the regular
 		 * MMC ReadCd
 		 */
-		if (retval <= 0 && scg_sense_key(scgp) == 0x05) {
+		if (retval <= 0 && scg_sense_key(scgp) == SC_ILLEGAL_REQUEST) {
 			ReadCdda12_C2_unknown = 1;
 		}
 		scgp->silent--;
@@ -1687,8 +1688,9 @@ static int	ReadCdda12_C2_unknown = 0;
 		/*
 		 * if the command is not available, disable this method
 		 * by setting the ReadCdRom_C2 pointer to NULL.
+		 * 0x05 0x24 0x00 is invalid field in cdb
 		 */
-		if (retval <= 0 && scg_sense_key(scgp) == 0x05 &&
+		if (retval <= 0 && scg_sense_key(scgp) == SC_ILLEGAL_REQUEST &&
 			scg_sense_code(scgp) == 0x24 &&
 			scg_sense_qual(scgp) == 0x00) {
 			ReadCdda12_C2_unknown = 1;
@@ -2014,10 +2016,11 @@ static int		ReadSubSony_unknown = 0;
 		 * if the command is not available, use the regular
 		 * MMC ReadCd
 		 */
-		if (retval == NULL && scg_sense_key(scgp) == 0x05) {
+		if (retval == NULL && scg_sense_key(scgp) == SC_ILLEGAL_REQUEST) {
 			ReadSubSony_unknown = 1;
 		}
 		scgp->silent--;
+		ReadSubChannels = ReadSubChannelsMMC;
 		return (ReadSubChannelsMMC(scgp, lSector));
 	}
 	scgp->silent--;
@@ -2231,11 +2234,12 @@ SpeedSelectSCSIMMC(scgp, speed)
 
 	scgp->silent++;
 	if (scg_cmd(scgp) < 0) {
-		if (scg_sense_key(scgp) == 0x05 &&
+		if (scg_sense_key(scgp) == SC_ILLEGAL_REQUEST &&
 		    scg_sense_code(scgp) == 0x20 &&
 		    scg_sense_qual(scgp) == 0x00) {
 			/*
 			 * this optional command is not implemented
+			 * 0x05 0x20 0x00 is invalid command operation code
 			 */
 		} else {
 			scg_printerr(scgp);

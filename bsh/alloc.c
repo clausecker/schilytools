@@ -1,8 +1,9 @@
-/* @(#)alloc.c	1.59 19/01/08 Copyright 1985,1988,1991,1995-2019 J. Schilling */
+/* @(#)alloc.c	1.62 19/04/03 Copyright 1985,1988,1991,1995-2019 J. Schilling */
+#undef	DBG_MALLOC
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.59 19/01/08 Copyright 1985,1988,1991,1995-2019 J. Schilling";
+	"@(#)alloc.c	1.62 19/04/03 Copyright 1985,1988,1991,1995-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2019 J. Schilling
@@ -220,6 +221,13 @@ typedef struct space {
 #endif
 } SPACE;
 
+/*
+ * chunksize(this) returns the full size of the block
+ * storesize(this) returns the storage part size that is returned to the caller
+ *
+ * Note that when in debug mode,  there are 2 additional pointers at the end of
+ * storesize(this) that have not been requested by the malloc() call.
+ */
 #undef	max
 #define	max(a, b)	((a) > (b) ? (a) : (b))
 #undef	roundup
@@ -277,13 +285,14 @@ LOCAL	void	dbg_enter	__PR((int dtype, size_t size, char *file, int line));
 EXPORT	void	*dbg_malloc	__PR((size_t size, char *file, int line));
 EXPORT	void	*dbg_calloc	__PR((size_t nelem, size_t elsize, char *file, int line));
 EXPORT	void	*dbg_realloc	__PR((void *t, size_t size, char *file, int line));
+EXPORT	void	dbg_mark_alloc	__PR((void *t, char *file, int line));
 #endif
 EXPORT	void	*malloc		__PR((size_t size));
 EXPORT	void	*calloc		__PR((size_t nelem, size_t elsize));
 EXPORT	void	cfree		__PR((void *t));
 EXPORT	void	*realloc	__PR((void *t, size_t size));
 #ifndef	BSH
-EXPORT	size_t	psize		__PR((char *t));
+EXPORT	size_t	apsize		__PR((char *t));
 EXPORT	void	freechecking	__PR((BOOL val));
 EXPORT	void	nomemraising	__PR((BOOL val));
 #endif	/* BSH */
@@ -538,11 +547,13 @@ frext(size)
 #define	DBG_MALLOC	1
 #define	DBG_CALLOC	2
 #define	DBG_REALLOC	3
-char	*dbg_type[4] = {
+#define	DBG_MARK	4
+char	*dbg_type[5] = {
 	"NULL",
 	"malloc",
 	"calloc",
-	"reallloc"
+	"reallloc",
+	"mark_alloc"
 };
 
 #define	MS_WHICH_SIZE	100
@@ -571,8 +582,9 @@ dbg_stat()
 			dbg_type[mstat[i].ms_type],
 			mstat[i].ms_which);
 	}
-	js_error("%d entries max size: %zd\n",
-			i, (char *)heapend - (char *)heapbeg);
+	js_error("%d entries max size: %zd, pid %lld\n",
+			i, (char *)heapend - (char *)heapbeg,
+			(Llong)getpid());
 #ifdef	XADEBUG
 	(void) acheckdamage();
 #endif
@@ -672,6 +684,30 @@ dbg_realloc(t, size, file, line)
 
 	dbg_enter(DBG_REALLOC, size, file, line);
 	return (ret);
+}
+
+EXPORT void
+dbg_mark_alloc(t, file, line)
+			void	*t;
+			char	*file;
+			int	line;
+{
+	register	SPACE	*this;
+	register	SPACE	*new;
+	register	size_t	size;
+
+	if (t == 0)
+		return;
+
+	this = chunkaddr(t);	/* zeigt auf Blockstart */
+	this->file = file;
+	this->line = line;
+
+	new = (struct space *)((char *)this->snext-2*sizeof (struct space *));
+	size = (size_t)new->sfree;
+
+	dbg_enter(DBG_MARK, size, file, line);
+	return;
 }
 #endif
 
@@ -876,7 +912,7 @@ realloc(t, size)
 |
 +---------------------------------------------------------------------------*/
 EXPORT size_t
-psize(t)
+apsize(t)
 	char	*t;
 {
 	return (storesize(chunkaddr(t)));

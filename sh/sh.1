@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.239 18/09/12 Copyright 2012-2018 J. Schilling
+.\" @(#)sh.1	1.241 19/04/18 Copyright 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2018/09/12" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2019/04/18" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4794,6 +4794,37 @@ exit values that refer to a program terminated by a signal.
 (See
 .BR kill (1)).
 .sp
+Signal numbers are not portable across platforms, except for the
+following:
+.sp
+.RS
+.PD 0
+.TP
+.B 0
+No signal
+.TP
+.B 1
+.B HUP
+.TP
+.B 2
+.B INT
+.TP
+.B 3
+.B QUIT
+.TP
+.B 6
+.B ABRT
+.TP
+.B 9
+.B KILL
+.TP
+.B 14
+.B ALRM
+.TP
+.B 15
+.B TERM
+.PD
+.LP
 The
 .B kill
 option
@@ -4802,6 +4833,7 @@ and
 .B "kill \-l"
 with arguments was not supported in older versions of
 .BR sh .
+.RE
 
 .br
 .ne 3
@@ -6720,8 +6752,12 @@ lists the children's user and system times.
 
 .br
 .ne 3
+.PD 0
 .TP
 \fB+ trap\fR [ [\fIargument\fR] \fIn\fR [ \fIn2\fR .\|.\|. ]]
+.TP
+\fB+ trap\fR -p [ \fIn\fR [ \fIn2\fR .\|.\|. ]]
+.PD
 .sp .6
 The command
 .I argument
@@ -6731,7 +6767,7 @@ receives numeric or symbolic signal(s)
 .RB ( Note:
 .I argument
 is scanned once when the trap is set and once when the trap
-is taken.) Trap commands are executed in order of signal number or
+is taken.) Trap commands are executed in order of signal numbers of the
 corresponding symbolic names. Any attempt to set a trap on a signal that was
 ignored on entry to the current shell is ineffective.
 .sp
@@ -6739,11 +6775,15 @@ If
 .I argument
 is absent, all trap(s)
 .I n
-are reset to their original values. If
+are reset to their original values.
+.sp
+If
 .I argument
 is the
 null string, this signal is ignored by the shell and by the commands it
-invokes. If
+invokes.
+.sp
+If
 .I n
 is
 .B 0
@@ -6752,7 +6792,9 @@ or
 the command
 .I argument
 is executed on exit
-from the shell. The
+from the shell.
+.sp
+The
 .B trap
 command with no arguments prints a list of
 commands associated with each signal number.
@@ -6765,9 +6807,38 @@ all trap(s)
 .I n
 are reset to their original values.
 .sp
+If the option
+.B \-p
+is present, all signals from the argument list (or all signals
+if further arguments are absent) are printed even when they are currently
+set to the default.
+This permits to restore the whole trap state by using:
+.sp
+.in +2
+.nf
+.B old_traps=$(trap \-p)
+.B
+trap "some commands" INT QUIT
+\&...
+.B
+eval "$old_traps"
+.fi
+.in -2
+.sp
+The shell does not produce a diagnostic message in case that a command
+is set up for uncatchable signals like
+.B SIGKILL
+or
+.BR SIGSTOP .
+.sp
 The
-.B -
+.B \-
 argument was not supported in older versions of
+.BR sh .
+.sp
+The option
+.B \-p
+was not supported in older versions of
 .BR sh .
 
 .br

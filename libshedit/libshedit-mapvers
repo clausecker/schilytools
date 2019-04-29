@@ -1,4 +1,10 @@
-# /* @(#)libshedit-mapvers	1.11 17/12/30 Copyright 2006-2017 J. Schilling */
+# /* @(#)libshedit-mapvers	1.12 19/04/27 Copyright 2006-2019 J. Schilling */
+
+SCHILY_1.3 {			# Added support to manage prompt index
+global:
+	shedit_gpromptidx;	# get prompt index
+	shedit_spromptidx;	# set prompt index
+} SCHILY_1.1;
 
 SCHILY_1.2 {			# Added support to know ow many chars to read with shedit_egetc()
 global:

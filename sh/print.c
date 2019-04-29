@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)print.c	1.42 19/01/13 2008-2019 J. Schilling
+ * @(#)print.c	1.43 19/04/08 2008-2019 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.42 19/01/13 2008-2019 J. Schilling";
+	"@(#)print.c	1.43 19/04/08 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -68,6 +68,10 @@ static	UConst char sccsid[] =
 
 #define		BUFLEN		256
 #define		NUMBUFLEN	21	/* big enough for 64 bits */
+#if	NUMBUFLEN < SIG2STR_MAX
+#undef		NUMBUFLEN
+#define		NUMBUFLEN	(SIG2STR_MAX-1)
+#endif
 unsigned char numbuf[NUMBUFLEN+1];	/* Add one for sign */
 
 static unsigned char buffer[BUFLEN];

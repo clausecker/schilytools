@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.106 19/03/09 Copyright 1982, 1984-2019 J. Schilling */
+/* @(#)inputc.c	1.110 19/04/07 Copyright 1982, 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.106 19/03/09 Copyright 1982, 1984-2019 J. Schilling";
+	"@(#)inputc.c	1.110 19/04/07 Copyright 1982, 1984-2019 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -236,7 +236,7 @@ LOCAL	wchar_t	*insert		__PR((wchar_t *cp, wchar_t *s,
 LOCAL	wchar_t	*undo_del	__PR((wchar_t *lp, wchar_t *cp,
 						unsigned int *lenp));
 LOCAL	char	*strwchr	__PR((char *s, wchar_t c));
-LOCAL	wchar_t	*xpwcs		__PR((wchar_t *cp));
+LOCAL	wchar_t	*xpwcs		__PR((wchar_t *cp, int qoff));
 LOCAL	wchar_t *xp_tilde	__PR((char *ns, int *delp));
 LOCAL	wchar_t	*xp_files	__PR((wchar_t *lp, wchar_t *cp, BOOL show,
 						int *multip, int *delp));
@@ -1771,13 +1771,17 @@ LOCAL char xchars[] = " \t\"'<>%|;()&-!#*?\\{}[]^$"; /* Chars that need quoting 
  * Any character that needs quoting is prepended with a '\\'.
  */
 LOCAL wchar_t *
-xpwcs(cp)
+xpwcs(cp, qoff)
 	wchar_t	*cp;
+	int	qoff;
 {
 	wchar_t	*ret;
-	wchar_t	*p = cp;
-	int	len = 0;
+	wchar_t	*p = &cp[qoff];
+	int	len = qoff;
 
+	/*
+	 * Count characters past "qoff" twice if they need quoting.
+	 */
 	while (*p) {
 		len++;
 		if (strwchr(xchars, *p++))
@@ -1786,7 +1790,16 @@ xpwcs(cp)
 	ret = malloc((len+1) * sizeof (wchar_t));
 	if (ret == NULL)
 		return (ret);
-	for (p = ret; *cp; ) {
+	/*
+	 * First copy over the pre quoting offset characters literarily.
+	 */
+	for (p = ret; --qoff >= 0; ) {
+		*p++ = *cp++;
+	}
+	/*
+	 * Now qoute all needed characters from the input string.
+	 */
+	while (*cp) {
 		if (strwchr(xchars, *cp))
 			*p++ = '\\';
 		*p++ = *cp++;
@@ -1920,8 +1933,16 @@ again:
 	wcsncpy(tp, wp, len);
 	tp[len] = '\0';
 	if (tp[0] != '~') {
-		tp[len] = '*';
-		tp[len+1] = '\0';
+		for (wp = tp; *wp; wp++) {
+			if (wp[0] == '\\' && wp[1] != '\0') {
+				wchar_t	*w1 = wp++;
+				wchar_t	*w2 = wp;
+				while (*w2)
+					*w1++ = *w2++;
+				*w1 = '\0';
+				len--;
+			}
+		}
 	}
 	ns = tombs(NULL, 0, tp, -1);
 	free(tp);
@@ -1937,7 +1958,7 @@ again:
 	 * XXX: If the characters to the left of the cursor contain pattern meta
 	 * XXX: characters that are not escaped, this will cause false matches.
 	 */
-	np = expand(ns);
+	np = bexpand(ns);
 	free(ns);
 	if (np == NULL) {
 #ifdef	__do_beep_when_expand_to_null__
@@ -1956,7 +1977,7 @@ again:
 	if (wp == NULL)
 		goto out;
 	p2 = wp;
-	wp = xpwcs(wp);			/* Insert '\\' if needed */
+	wp = xpwcs(wp, len);		/* Insert '\\' if needed */
 	free(p2);
 	p2 = NULL;
 	if (wp == NULL)
@@ -1990,7 +2011,7 @@ again:
 	if (multi) {
 		if (p2 == NULL)	/* towcs() in for() loop returned NULL */
 			goto out;
-		wp2 = xpwcs(p2);
+		wp2 = xpwcs(p2, len);
 		free(p2);
 		p2 = NULL;
 		if (wp2 == NULL)
@@ -2599,7 +2620,7 @@ put_history(f, flg, first, last, subst)
 			}
 #endif
 			/*
-			 * XXX could be fprintf(f, "%ws\n", p->h_line);
+			 * XXX could be fprintf(f, "%ls\n", p->h_line);
 			 */
 			fprintf(f, "%s\n", lp2);
 			if (lp != line)
@@ -2913,7 +2934,11 @@ cdbg(fmt, va_alist)
 #else
 	va_start(args);
 #endif
+#ifdef	HAVE_VSNPRINTF
+	len = vsnprintf(lbuf, sizeof (lbuf), fmt, args);
+#else
 	len = snprintf(lbuf, sizeof (lbuf), "%r", fmt, args);
+#endif
 	va_end(args);
 
 	if (f == 0) {

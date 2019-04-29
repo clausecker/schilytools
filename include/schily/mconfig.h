@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.72 18/03/21 Copyright 1995-2018 J. Schilling */
+/* @(#)mconfig.h	1.73 19/04/03 Copyright 1995-2019 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2018 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -571,6 +571,9 @@ extern "C" {
  * in case that we specify -DDBG_MALLOC
  */
 #include <schily/dbgmalloc.h>
+#else
+#undef	DBG_MALLOC_MARK
+#define	DBG_MALLOC_MARK(a)
 #endif
 
 #ifdef __cplusplus

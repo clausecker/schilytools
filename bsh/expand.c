@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.55 19/01/14 Copyright 1985-2019 J. Schilling */
+/* @(#)expand.c	1.56 19/04/07 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.55 19/01/14 Copyright 1985-2019 J. Schilling";
+	"@(#)expand.c	1.56 19/04/07 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -50,8 +50,9 @@ EXPORT	BOOL	any_match	__PR((char *s));
 LOCAL	Tnode	*mklist		__PR((Tnode *l));
 LOCAL	int	xcmp		__PR((char *s1, char *s2));
 LOCAL	void	xsort		__PR((char **from, char **to));
-LOCAL	Tnode	*exp		__PR((char *n, int i, Tnode * l));
+LOCAL	Tnode	*exp		__PR((char *n, int i, Tnode * l, BOOL patm));
 EXPORT	Tnode	*expand		__PR((char *s));
+EXPORT	Tnode	*bexpand	__PR((char *s));
 EXPORT	int	bsh_hop_dirs	__PR((char *name, char **np));
 LOCAL	DIR	*lopendir	__PR((char *name));
 
@@ -278,10 +279,11 @@ xsort(from, to)
 #endif
 
 LOCAL Tnode *
-exp(n, i, l)
+exp(n, i, l, patm)
 		char	*n;		/* name to rescan */
 		int	i;		/* index in name to start rescan */
 		Tnode	*l;		/* list of Tnodes already found */
+		BOOL	patm;		/* use pattern matching not strbeg */
 {
 	register char	*cp;
 	register char	*dp;		/* pointer past end of current dir */
@@ -301,31 +303,45 @@ exp(n, i, l)
 
 	EDEBUG(("name: '%s' i: %d dp: '%s'\n", n, i, dp));
 
-	while (*cp && !strchr(mchars, *cp)) /* go past non glob parts */
-		if (*cp++ == '/')
-			dp = cp;
+	if (patm) {
+		while (*cp && !strchr(mchars, *cp)) /* go past non glob parts */
+			if (*cp++ == '/')
+				dp = cp;
 
-	while (*cp && *cp != '/')	/* find end of name component */
-		cp++;
+		while (*cp && *cp != '/') /* find end of name component */
+			cp++;
 
-	patlen = cp-dp;
-	i = dp - n;			/* make &n[i] == dp (pattern start) */
+		patlen = cp-dp;
+		i = dp - n;		/* make &n[i] == dp (pattern start) */
 
-	/*
-	 * Prepare to use the pattern matcher.
-	 */
-	EDEBUG(("patlen: %d pattern: '%.*s'\n", patlen, patlen, dp));
+		/*
+		 * Prepare to use the pattern matcher.
+		 */
+		EDEBUG(("patlen: %d pattern: '%.*s'\n", patlen, patlen, dp));
 
-	aux = malloc((size_t)patlen*(sizeof (int)));
-	state = malloc((size_t)(patlen+1)*(sizeof (int)));
-	if (aux == (int *)NULL || state == (int *)NULL)
-		goto cannot;
-	if ((alt = patcompile((unsigned char *)dp, patlen, aux)) == 0 &&
-	    patlen != 0) {
-		EDEBUG(("Bad pattern\n"));
-		free((char *)aux);
-		free((char *)state);
-		return (l1);
+		aux = malloc((size_t)patlen*(sizeof (int)));
+		state = malloc((size_t)(patlen+1)*(sizeof (int)));
+		if (aux == (int *)NULL || state == (int *)NULL)
+			goto cannot;
+		if ((alt = patcompile((unsigned char *)dp, patlen, aux)) == 0 &&
+		    patlen != 0) {
+			EDEBUG(("Bad pattern\n"));
+			free((char *)aux);
+			free((char *)state);
+			return (l1);
+		}
+	} else {			/* Non-pattern matching variant */
+		alt = 0;
+		aux = NULL;
+		state = NULL;
+
+		while (*cp) {		/* go past directory parts */
+			if (*cp++ == '/')
+				dp = cp;
+		}
+
+		patlen = cp-dp;
+		i = dp - n;		/* make &n[i] == dp (pattern start) */
 	}
 
 	dir = save_base(n, dp);		/* get dirname part */
@@ -334,10 +350,12 @@ exp(n, i, l)
 		goto cannot;
 
 	EDEBUG(("dir: '%s' match: '%.*s'\n", dp == n?".":dir, patlen, dp));
-	if (patlen == 0) {
+	if (patlen == 0 && patm) {
 		/*
 		 * match auf /pattern/ Daher kein Match wenn keine
 		 * Directory! opendir() Test ist daher notwendig.
+		 * Fuer libshedit (ohne patm) wird aber die Directory
+		 * komplett expandiert.
 		 */
 		l1 = allocnode(STRING, (Tnode *)makestr(dir), l1);
 
@@ -350,8 +368,16 @@ exp(n, i, l)
 		if (dent->d_name[0] == '.' && *dp != '.')
 			continue;
 		namlen = DIR_NAMELEN(dent);
-		tmp = (char *)patmatch((unsigned char *)dp, aux,
-			(unsigned char *)dent->d_name, 0, namlen, alt, state);
+		if (patm) {
+			tmp = (char *)patmatch((unsigned char *)dp, aux,
+				(unsigned char *)dent->d_name, 0, namlen,
+				alt, state);
+		} else {
+			if (strstr(dent->d_name, dp) == dent->d_name)
+				tmp = "";
+			else
+				tmp = NULL;
+		}
 
 #ifdef	DEBUG
 		if (tmp != NULL || (dent->d_name[0] == dp[0] &&
@@ -402,7 +428,7 @@ cannot:
 		for (alt = rescan; --alt >= 0; ) {
 			register Tnode	*l2;
 
-			l = exp(l1->tn_left.tn_str, nlen(l1), l);
+			l = exp(l1->tn_left.tn_str, nlen(l1), l, patm);
 			free(l1->tn_left.tn_str);
 			l2 = l1->tn_right.tn_node;
 			free(l1);
@@ -414,6 +440,9 @@ cannot:
 	return (l1);
 }
 
+/*
+ * The expand function used for globbing
+ */
 EXPORT Tnode *
 expand(s)
 	char	*s;
@@ -421,7 +450,17 @@ expand(s)
 	if (!any_match(s))
 		return ((Tnode *)NULL);
 	else
-		return (mklist(exp(s, 0, (Tnode *)NULL)));
+		return (mklist(exp(s, 0, (Tnode *)NULL, TRUE)));
+}
+
+/*
+ * Begin expand, used for file name completion
+ */
+EXPORT Tnode *
+bexpand(s)
+	char	*s;
+{
+	return (mklist(exp(s, 0, (Tnode *)NULL, FALSE)));
 }
 
 #ifdef	HAVE_FCHDIR

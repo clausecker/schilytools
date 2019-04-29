@@ -1,0 +1,311 @@
+New features with AN-2019-04-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+-	Schily.Copyright: several projects have been updated for a
+	Copyright 2019
+
+-	libschily/waitid.c & sh/jobs.c: waitid() emulation now returns
+	SIGCONT in si_status in case of WIFCONTINUED()
+
+-	libdbgmalloc: A new macro DBG_MALLOC_MARK() allows to mark allocated
+	memory from libdbgmalloc with the current filename and line number.
+
+-	libdbgmalloc/bsh: alloc.c now includes a #undef DBG_MALLOC to allow
+	to compile everything with
+
+		smake COPTX=-DDBG_MALLOC
+
+-	bsh/bsh.h: psize() from bsh/alloc.c incorretly used a return type of 
+	int instead of size_t. The name of the function also has been changed
+	to apsize() to avoid a clash with p/p.c and smake/update.c.
+
+-	bsh/bsh.h: some definifions for alloc.c are now prevented in case that
+	include/schily/dbgmalloc.h has been included before. This is done to
+	avoid clashes.
+
+-	include/schily/dbgmalloc.h: The check for stdio.h was wrong in case that
+	include/schily/dbgmalloc.h is included from include/schily/mconfig.h
+	that was included from include/schily/stdio.h
+
+	We now use:
+			#if defined(_SCHILY_STDIO_H) && defined(EOF)
+
+-	libshedit/bsh/Bourne Shell: The TAB file name expansion now uses a new
+	expansion funtion that is not based on pattern matching but on strstr()
+	and thus is no longer fooled by file names that contain pattern matching
+	meta characters.
+
+-	libparanoia: Added some code that makes it easier to debug a problem
+	that may cause core dumps.
+
+-	libparanoia: Many DBG_MALLOC_MARK() calls have been added in order to
+	make debugging memory problems easier.
+
+-	libparanoia: The file README.interface has been made up to date to
+	match the library release SCHILY_1.1 from December 2013.
+
+-	libshedit: New functions shedit_gpromptidx() and shedit_spromptidx()
+	allow to get and set the prompt index separately from the already
+	existing interface shedit_setprompts(). This interface is not yet
+	used.
+
+-	calc: The program now prints an error message when it is aborted
+	with a read error on stdin.
+
+	When compiling with: COPTX=-DFERR_DEBUG is can be used to debug
+	jobcontrol problems in shells.
+
+-	cdda2wav: The read Fallback-C2 funcion that tries to read with the
+	better Sony SCSI commands did not correctly fall back to the MMC-C2
+	read function. This has been fixed by Heiko Eißfeldt.
+
+-	cdda2wav: Some numerical constants have been replaced by names that 
+	help to make the code easier readable
+
+-	cdda2wav: avoid a strncpy() for a string to itself in toc.c
+
+-	cdda2wav: The Copyright message for Heiko Eißfeldt now mentions 2019.
+
+-	cdda2wav: The cdda2wav version strings printed on other locations
+	than cdda2wav -version now also mention the version date of cdda2wav.
+
+-	readcd: a new option spt=# allows to limit the number of secters
+	per transfer for testing purposes.
+
+-	libfind/star: the verbose listing code has ben restructured to have
+		the file permissions in the same string as the file type.
+		This is needed to implement the POSIX pax listformat interpreter
+		format %M in future.
+
+-	libfind/star: the verbose listing no longer prints "l" for mandatory
+		record locking for non-directory type file, but rather only
+		for plain files.
+
+-	star:	The "gnutar" emulation now prints the --help output to stdout as
+		GNU tar does.
+
+-	star:	The gnutar.1 man page now mentions that the GNU tar
+		options -g / -G did never work and it thus makes no sense to
+		implement them.
+
+-	star: very outdated code in list.c has been removed.
+
+-	star: Added new unit tests for incremental backups and restores.
+		This in special include tests that always fail with GNU tar
+		as GNU tar is not usable and never was usable for incremental
+		restores in case that the differences are more than trivial.
+
+-	star: new version date 2019-04-01
+
+-	Bourne Shell: "trap -- ..." now correctly handles "--" even if the next
+	argument is "-".
+
+-	Bourne Shell: trap now supports a new option -p that allows to restore
+	the whole trap state using the following commands:
+
+		old_traps=$(trap -p)
+		trap "some commands" INT QUIT
+		...
+		eval "$old_traps"
+
+	This is possible because "trap -p" outputs the state for all signals
+	and not only for those signals that are not in the default state.
+
+	The new trap interfase was agreed on in the 2019-04-11 POSIX
+	teleconference.
+
+-	Bourne Shell: The exception for "while true; do date; done | uniq -c"
+	in job control handling that has been introduced in November 2015 has
+	been refined to prevent it from causing "(bosh)" to stop from SIGTTIN.
+
+	Thanks to Robert Elz <kre@munnari.OZ.AU> for reporting.
+
+-	Bourne Shell: A new #define JOB_DEBUG has been added.
+
+-	Bourne Shell: The command:
+
+		(trap '' SEGV; $SHELL -c 'kill -s SEGV $$; echo survived')
+
+	caused the shell not to print "survived" because a previous exception
+	for SIGSEGV from the 1977 Bourne Shell version had not been removed
+	for the POSIX variant of the shell. The problem occured because it
+	was possible to unignore an ignored (at startup) SIGSEGV.
+
+	Thanks to Robert Elz <kre@munnari.OZ.AU> for reporting.
+
+-	Bourne Shell: The code now uses SIG2STR_MAX for the size of the
+	sig2str() output buffer.
+
+-	Bourne Shell: the behavior related to SIGINT on the command line
+	in the case that the history editor is enabled has been changed to
+	match the behavior of ksh. The Bourne Shell now calls trap commands
+	for SIGINT when ^C is typed on the command line.
+
+	Note that the classical Bourne Shell behavior (which is still active
+	in case the history editor has been disabled via "set +o ved") is that
+	the trap command is called after ^C is followed by a CR if both are
+	typed on a PS1 prompt.
+
+	Note: The behavior for "trap" in this area is currently not specified
+	in POSIX.
+
+-	Bourne Shell: After jobcontrol has been introduced into the Bourne
+	Shell: When in jobcontrol mode, the shell could no longer get
+	signals at the same time as foreground jobs because when using
+	jobcontrol, the shell is in a different process group than the
+	foreground job.
+
+	The Bourne Shell now derives the information about a delivered signal
+	from the waitid() return data and thus is now able to work the same
+	way as it has been designed in 1977. This is the same way as ksh works.
+
+	If a foreground program catches such signals, the shell is still not
+	able to detect the signal, but it is now closer to the original
+	behavior from 1977.
+
+-	Bourne Shell: new version date 2019-04-17
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

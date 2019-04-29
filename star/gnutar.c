@@ -1,8 +1,8 @@
-/* @(#)gnutar.c	1.35 19/03/27 Copyright 1989, 2003-2019 J. Schilling */
+/* @(#)gnutar.c	1.37 19/03/31 Copyright 1989, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _g_sccsid[] =
-	"@(#)gnutar.c	1.35 19/03/27 Copyright 1989, 2003-2019 J. Schilling";
+	"@(#)gnutar.c	1.37 19/03/31 Copyright 1989, 2003-2019 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -352,7 +352,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	}
 	star_helpvers("gnutar", help, xhelp, prvers);
 
-	if (gnuconcat) {
+	if (gnuconcat) {	/* -A */
 		errmsgno(EX_BAD, "The --concatenate option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
@@ -360,7 +360,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 		errmsgno(EX_BAD, "The --delete option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
-	if (gnuveri) {
+	if (gnuveri) {		/* -W */
 		errmsgno(EX_BAD, "The --verify option is not implemented.\n");
 		errmsgno(EX_BAD, "Use the rewind and -diff from star instead.\n");
 		susage(EX_BAD);
@@ -369,12 +369,12 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 		errmsgno(EX_BAD, "The --remove-files option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
-	if (gnuincrem) {
+	if (gnuincrem) {	/* -G */
 		errmsgno(EX_BAD, "The --incremental option is not implemented.\n");
 		errmsgno(EX_BAD, "Use the true incremental dump feature from star instead.\n");
 		susage(EX_BAD);
 	}
-	if (gnulinc) {
+	if (gnulinc) {		/* -g */
 		errmsgno(EX_BAD, "The --listed-incremental option is not implemented.\n");
 		errmsgno(EX_BAD, "Use the true incremental dump feature from star instead.\n");
 		susage(EX_BAD);
@@ -397,7 +397,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	}
 	if (gnuchown)
 		nochown = FALSE;
-	if (gnuorder) {
+	if (gnuorder) {		/* -s */
 		errmsgno(EX_BAD, "The --same-order option is completely useless.\n");
 		errmsgno(EX_BAD, "It is not needed as star uses hash tables.\n");
 		susage(EX_BAD);
@@ -455,11 +455,11 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 		errmsgno(EX_BAD, "The --no-wildcards-match-slash option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
-	if (gnustartf) {
+	if (gnustartf) {	/* -K */
 		errmsgno(EX_BAD, "The --starting-file option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
-	if (gnunewer) {
+	if (gnunewer) {		/* -N */
 		errmsgno(EX_BAD, "The --newer option is not implemented.\n");
 		errmsgno(EX_BAD, "Use the -newer option from star with -ctime instead.\n");
 		susage(EX_BAD);
@@ -540,27 +540,27 @@ usage(ret)
 {
 	const	char	*n = pname ? pname : get_progname();
 
-	error("Usage:\t%s cmd [options] file1 ... filen\n", n);
-	error("Cmd:\n");
-	error("\t-c/-u/-r\tcreate/update/replace archive with named files to tape\n");
-	error("\t-x/-t\t\textract/list named files from tape\n");
-	error("\t--copy\t\t(*) copy named files to destination directory\n");
-	error("\t--diff\t\tdiff archive against file system (see -xhelp)\n");
-	error("Options:\n");
-	error("\t--help\t\t(*) print this help\n");
-	error("\t--xhelp\t\tprint extended help\n");
-	error("\t--version\tprint version information and exit\n");
+	gtprintf("Usage:\t%s cmd [options] file1 ... filen\n", n);
+	gtprintf("Cmd:\n");
+	gtprintf("\t-c/-u/-r\tcreate/update/replace archive with named files to tape\n");
+	gtprintf("\t-x/-t\t\textract/list named files from tape\n");
+	gtprintf("\t--copy\t\t(*) copy named files to destination directory\n");
+	gtprintf("\t--diff\t\tdiff archive against file system (see -xhelp)\n");
+	gtprintf("Options:\n");
+	gtprintf("\t--help\t\t(*) print this help\n");
+	gtprintf("\t--xhelp\t\tprint extended help\n");
+	gtprintf("\t--version\tprint version information and exit\n");
 
-	error("\tH=header\tgenerate 'header' type archive (see H=help)\n");
-	error("\t-z\t\tpipe input/output through gzip, does not work on tapes\n");
-	error("\t--bz\t\t(*) pipe input/output through bzip2, does not work on tapes\n");
+	gtprintf("\tH=header\tgenerate 'header' type archive (see H=help)\n");
+	gtprintf("\t-z\t\tpipe input/output through gzip, does not work on tapes\n");
+	gtprintf("\t--bz\t\t(*) pipe input/output through bzip2, does not work on tapes\n");
 #ifdef	FIFO
-	error("\t--no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
+	gtprintf("\t--no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif
-	error("\nAll options marked with (*) are not defined by GNU tar.\n");
+	gtprintf("\nAll options marked with (*) are not defined by GNU tar.\n");
 
 	/* BEGIN CSTYLED */
-	error("\n\
+	gtprintf("\n\
 GNU tar help:\n\
 Main operation mode:\n\
   -t, --list              list the contents of an archive\n\
@@ -573,7 +573,7 @@ Main operation mode:\n\
       --concatenate       same as -A\n\
       --delete            delete from the archive (not on mag tapes!)\n");
 
-	error("\n\
+	gtprintf("\n\
 Operation modifiers:\n\
   -W, --verify               attempt to verify the archive after writing it\n\
       --remove-files         remove files after adding them to the archive\n\
@@ -589,7 +589,7 @@ Operation modifiers:\n\
                              handle new GNU-format incremental backup\n\
       --ignore-failed-read   do not exit with nonzero on unreadable files\n");
 
-	error("\n\
+	gtprintf("\n\
 Handling of file attributes:\n\
       --owner=NAME             force NAME as owner for added files\n\
       --group=NAME             force NAME as group for added files\n\
@@ -606,7 +606,7 @@ Handling of file attributes:\n\
       --preserve-order         same as -s\n\
       --preserve               same as both -p and -s\n");
 
-	error("\n\
+	gtprintf("\n\
 Device selection and switching:\n\
   -f, --file=ARCHIVE             use archive file or device ARCHIVE\n\
       --force-local              archive file is local even if has a colon\n\
@@ -618,14 +618,14 @@ Device selection and switching:\n\
       --new-volume-script=FILE   same as -F FILE\n\
       --volno-file=FILE          use/update the volume number in FILE\n");
 
-	error("\n\
+	gtprintf("\n\
 Device blocking:\n\
   -b, --blocking-factor=BLOCKS   BLOCKS x 512 bytes per record\n\
       --record-size=SIZE         SIZE bytes per record, multiple of 512\n\
   -i, --ignore-zeros             ignore zeroed blocks in archive (means EOF)\n\
   -B, --read-full-records        reblock as we read (for 4.2BSD pipes)\n");
 
-	error("\n\
+	gtprintf("\n\
 Archive format selection:\n\
   -H, --format=FORMAT                create archive of the given format\n\
   -V, --label=NAME                   create archive with volume name NAME\n\
@@ -637,7 +637,7 @@ Archive format selection:\n\
   -Z, --compress, --uncompress       filter the archive through compress\n\
       --use-compress-program=PROG    filter through PROG (must accept -d)\n");
 
-	error("\n\
+	gtprintf("\n\
 Local file selection:\n\
   -C, --directory=DIR          change to directory DIR\n\
   -T, --files-from=NAME        get names to extract or create from file NAME\n\
@@ -658,16 +658,16 @@ Local file selection:\n\
   -l, --one-file-system        stay in local file system when creating archive\n\
   -K, --starting-file=NAME     begin at file NAME in the archive\n");
 
-	error("\
+	gtprintf("\
   -N, --newer=DATE             only store files newer than DATE\n\
       --newer-mtime=DATE       compare date and time when data changed only\n\
       --after-date=DATE        same as -N\n");
 
-	error("\
+	gtprintf("\
       --backup[=CONTROL]       backup before removal, choose version control\n\
       --suffix=SUFFIX          backup before removal, override usual suffix\n");
 
-	error("\n\
+	gtprintf("\n\
 Informative output:\n\
       --help            print this help, then exit\n\
       --version         print tar program version number, then exit\n\

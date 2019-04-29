@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.96 19/03/25 2008-2019 J. Schilling
+ * @(#)word.c	1.97 19/04/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.96 19/03/25 2008-2019 J. Schilling";
+	"@(#)word.c	1.97 19/04/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -842,10 +842,25 @@ retry:
 		if (trapnote & SIGSET) {
 			newline();
 			sigchk();
-		} else if ((trapnote & TRAPSET) && (rwait > 0)) {
+		} else if ((trapnote & SIGINP) ||
+			  ((trapnote & TRAPSET) && (rwait > 0))) {
+#ifdef	INTERACTIVE
+			int	inp = trapnote & SIGINP; /* Reset by chktrap */
+#endif
+
 			newline();
 			chktrap();
 			clearup();
+#ifdef	INTERACTIVE
+			if (inp) {
+				/*
+				 * Do a longjmp() to the next prompt, similar
+				 * to sigchk().
+				 */
+				exval_sig();
+				exitsh(exitval ? exitval : SIGFAIL);
+			}
+#endif
 		}
 #ifdef	INTERACTIVE
 	} while ((len = xread(f->fdes,
@@ -929,7 +944,8 @@ xread(f, buf, n)
 				return (0);
 			}
 			if (c == CTLC && shedit_getdelim() == CTLC) {
-				trapnote |= SIGSET;
+				fault(SIGINT);
+				trapnote |= SIGINP;
 				return (-1);
 			}
 			*buf++ = c;

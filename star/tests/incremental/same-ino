@@ -1,0 +1,47 @@
+#!/bin/sh
+set -e
+
+tar=${tar-star}
+if grep / ${tar} > /dev/null; then
+	tar=`pwd`/${tar}
+fi
+echo tar installed as $tar 1>&2
+
+mkdir /tmp/test.$$
+cp ino-full.tar.gz /tmp/test.$$
+cp ino-incremental.tar.gz /tmp/test.$$
+cp ino-full2.tar.gz /tmp/test.$$
+
+
+mkdir /tmp/test.$$/test
+cd /tmp/test.$$/test
+
+set -x
+
+$tar -xpU -restore -partial f=/tmp/test.$$/ino-full2.tar.gz
+
+cd ..
+mv test orig
+
+mkdir test
+cd /tmp/test.$$/test
+
+$tar -xpU -restore -partial f=/tmp/test.$$/ino-full.tar.gz
+$tar -xpU -restore -partial f=/tmp/test.$$/ino-incremental.tar.gz
+
+rm -f  star-symtable
+rm -rf star-tmpdir
+cd /tmp/test.$$/
+
+#
+# Cannot user "diff" here as both "diff" and "gdiff" complain about
+# the different inode numbers in original and copy.
+#
+$tar -diff  -C test/ -V pat=./ diffopts=!ctime,atime < ino-full2.tar.gz  2> /dev/null
+ret=$?
+
+cd /
+if [ "$ret" = 0 ]; then
+	rm -rf /tmp/test.$$
+fi
+exit $ret

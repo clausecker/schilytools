@@ -2,6 +2,7 @@ all-tests tests:	test-artype \
 			test-basic \
 			test-compress \
 			test-port \
+			test-incr \
 		
 	echo Tests passed.
 
@@ -13,3 +14,5 @@ test-compress:
 	cd compress && for i in *.sh; do echo Running test compress/$$i; $(SHELL) $$i; done
 test-port:
 	cd port && for i in *.sh; do echo Running test port/$$i; $(SHELL) $$i; done
+test-incr:
+	cd incremental && for i in *.sh; do echo Running test incremental/$$i; $(SHELL) $$i; done

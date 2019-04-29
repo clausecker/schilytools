@@ -1,14 +1,14 @@
-/* @(#)isort.c	1.19 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)isort.c	1.20 19/04/03 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)isort.c	1.19 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)isort.c	1.20 19/04/03 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2009 by J. Schilling
+ * Copyright (C) 2002-2019 by J. Schilling
  *
  * sorted vector abstraction for paranoia
  *
@@ -65,14 +65,18 @@ sort_alloc(size)
 {
 	sort_info	*ret = _pcalloc(1, sizeof (sort_info));
 
+	DBG_MALLOC_MARK(ret);
 	ret->vector = NULL;
 	ret->sortbegin = -1;
 	ret->size = -1;
 	ret->maxsize = size;
 
 	ret->head = _pcalloc(65536, sizeof (sort_link *));
+	DBG_MALLOC_MARK(ret->head);
 	ret->bucketusage = _pmalloc(65536 * sizeof (long));
+	DBG_MALLOC_MARK(ret->bucketusage);
 	ret->revindex = _pcalloc(size, sizeof (sort_link));
+	DBG_MALLOC_MARK(ret->revindex);
 	ret->lastbucket = 0;
 
 	return (ret);

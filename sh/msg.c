@@ -37,13 +37,13 @@
 #include <schily/errno.h>
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)msg.c	1.78 18/10/15 2008-2018 J. Schilling
+ * @(#)msg.c	1.80 19/04/17 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.78 18/10/15 2008-2018 J. Schilling";
+	"@(#)msg.c	1.80 19/04/17 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -162,7 +162,7 @@ const char	builtinuse[]	=
 #endif
 const char	stopuse[]	= "stop id ...";
 #ifdef	DO_POSIX_TRAP
-const char	trapuse[]	= "trap [action condition ...]";
+const char	trapuse[]	= "trap -p [ [action] condition ...]";
 #endif
 const char	ulimuse[]	=
 		"ulimit [ -HSakcdefiklmnoqrstuvwLMPR ] [ limit ]";

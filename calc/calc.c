@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.23 18/09/27 Copyright 1985-2018 J. Schilling */
+/* @(#)calc.c	1.24 19/04/28 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.23 18/09/27 Copyright 1985-2018 J. Schilling";
+	"@(#)calc.c	1.24 19/04/28 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,9 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
+#ifdef	FERR_DEBUG
+#include <schily/termios.h>
+#endif
 
 #define	LLEN	100
 
@@ -87,8 +90,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2018 Jörg Schilling\n",
-				"1.23", "2018/09/27",
+		printf("Calc release %s %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2019 Jörg Schilling\n",
+				"1.24", "2019/04/28",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -276,6 +279,16 @@ print:
 		putchar('\n');
 
 		putchar('?'); flush();
+	}
+	if (ferror(stdin)) {
+#ifdef	FERR_DEBUG
+		pid_t	pgrp;
+		ioctl(STDIN_FILENO, TIOCGPGRP, (char *)&pgrp);
+		errmsg("Read error on stdin. pid %ld pgrp %ld tty pgrp %ld\n",
+			(long)getpid(), (long)getpgid(0), (long)pgrp);
+#else
+		errmsg("Read error on stdin.\n");
+#endif
 	}
 	return (0);
 }

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)fault.c	1.41 19/02/05 2008-2019 J. Schilling
+ * @(#)fault.c	1.46 19/04/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.41 19/02/05 2008-2019 J. Schilling";
+	"@(#)fault.c	1.46 19/04/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -110,7 +110,7 @@ static	char sigsegv_stack[SIGSTKSZ];
 static int	ignoring	__PR((int i));
 static void	clrsig		__PR((int i, int dofree));
 	void	done		__PR((int sig));
-static void	fault		__PR((int sig));
+	void	fault		__PR((int sig));
 	int	handle		__PR((int sig, sigtype func));
 	void	stdsigs		__PR((void));
 	void	oldsigs		__PR((int dofree));
@@ -118,6 +118,7 @@ static void	fault		__PR((int sig));
 	void	restoresigs	__PR((void));
 #endif
 	void	chktrap		__PR((void));
+static	void	prtrap		__PR((int sig));
 	void	systrap		__PR((int argc, char **argv));
 	void	sh_sleep	__PR((unsigned int ticks));
 static void	sigsegv		__PR((int sig, siginfo_t *sip,
@@ -325,7 +326,7 @@ done(sig)
 	exit(exitval);
 }
 
-static void
+void
 fault(sig)
 	int	sig;
 {
@@ -436,7 +437,11 @@ stdsigs()
 		}
 		if (sigval[i] == 0)
 			continue;
+#ifndef	DO_POSIX_TRAP
 		if (i != SIGSEGV && ignoring(i))
+#else
+		if (ignoring(i))
+#endif
 			continue;
 		handle(i, sigval[i]);
 	}
@@ -545,12 +550,54 @@ chktrap()
 	}
 }
 
+static void
+prtrap(sig)
+	int	sig;
+{
+#ifdef	DO_POSIX_TRAP
+	char	buf[SIG2STR_MAX];
+
+	prs_buff(UC "trap -- '");
+	if (trapcom[sig])
+		prs_buff(trapcom[sig]);
+	else if (!ignoring(sig))
+		prs_buff(UC "-");
+	prs_buff(UC "' ");
+	if (sig2str(sig, buf) < 0)
+		prn_buff(sig);
+	else
+		prs_buff(UC buf);
+#else
+	prn_buff(sig);
+	prs_buff((unsigned char *)colon);
+	prs_buff(trapcom[sig]);
+#endif
+	prc_buff(NL);
+}
+
 void
 systrap(argc, argv)
 	int	argc;
 	char	**argv;
 {
 	int sig;
+	int		hasp = 0;
+#ifdef	DO_POSIX_TRAP
+	struct optv	optv;
+	int		c;
+
+	optinit(&optv);
+	optv.optflag |= OPT_SPC;
+
+	while ((c = optnext(argc, UCP argv, &optv, "p", trapuse)) != -1) {
+		if (c == 0)	/* Was -help */
+			return;
+		else if (c == 'p')
+			hasp++;
+	}
+	argv += --optv.optind;
+	argc -= optv.optind;
+#endif
 
 	if (argc == 1) {
 		/*
@@ -559,24 +606,8 @@ systrap(argc, argv)
 		 *
 		 */
 		for (sig = 0; sig < MAXTRAP; sig++) {
-			if (trapcom[sig]) {
-#ifdef	DO_POSIX_TRAP
-				char	buf[12];
-
-				prs_buff(UC "trap -- '");
-				prs_buff(trapcom[sig]);
-				prs_buff(UC "' ");
-				if (sig2str(sig, buf) < 0)
-					prn_buff(sig);
-				else
-					prs_buff(UC buf);
-#else
-				prn_buff(sig);
-				prs_buff((unsigned char *)colon);
-				prs_buff(trapcom[sig]);
-#endif
-				prc_buff(NL);
-			}
+			if (trapcom[sig] || hasp)
+				prtrap(sig);
 		}
 	} else {
 		/*
@@ -588,15 +619,8 @@ systrap(argc, argv)
 		BOOL noa1 = FALSE;
 
 #ifdef	DO_POSIX_TRAP
-		if (a1[0] == '-') {
-			if (a1[1] == '\0') {
-				noa1++;
-			} else if (a1[1] == '-' && a1[2] == '\0') {
-				a1 = *(++argv + 1);
-			} else {
-				gfailure(UC usage, trapuse);
-				return;
-			}
+		if (a1[0] == '-' && a1[1] == '\0') {
+			noa1++;
 			++argv;
 		} else
 #endif
@@ -615,6 +639,11 @@ systrap(argc, argv)
 #endif
 				failure((unsigned char *)cmdp, badtrap);
 			} else if (noa1) {
+#ifdef	DO_POSIX_TRAP
+				if (hasp)
+					prtrap(sig);
+				else
+#endif
 				/*
 				 * no action specifed so reset the signal
 				 * to its default disposition

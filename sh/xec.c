@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)xec.c	1.108 19/01/14 2008-2019 J. Schilling
+ * @(#)xec.c	1.109 19/04/17 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.108 19/01/14 2008-2019 J. Schilling";
+	"@(#)xec.c	1.109 19/04/17 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -719,7 +719,7 @@ script:
 
 					/*
 					 * The first process in this command
-					 * Remember the id as process group.
+					 * Remember it's id as process group.
 					 *
 					 * In special when using vfork together
 					 * with the new pipe setup, we need to
@@ -728,6 +728,13 @@ script:
 					 * parent as the parent process is
 					 * blocked until the child called exec()
 					 */
+#ifdef	JOB_DEBUG
+					fprintf(stderr,
+	"pgid %ld mypgid %ld type %X treeflags %X mypid %ld ppid %ld\n",
+					(long)pgid, (long)mypgid,
+					type, treeflgs,
+					(long)mypid, (long)getppid());
+#endif
 					if (pgid == 0) {
 						pgid = mypid;
 						setjobpgid(pgid);
@@ -741,10 +748,15 @@ script:
 						 * assignment to mypgid used to
 						 * be in makejob().
 						 */
-						if (type == TFORK)
+						if ((type == TFORK) &&
+						    (treeflgs & FPOU)) {
 							mypgid = pgid;
+						}
 					}
 					setpgid(mypid, pgid);
+#ifdef	JOB_DEBUG
+					close(-10);	/* truss(1) marker */
+#endif
 					if (!(treeflgs & FAMP))
 						settgid(pgid, mypgid);
 				}

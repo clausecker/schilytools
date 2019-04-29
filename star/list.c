@@ -1,13 +1,13 @@
-/* @(#)list.c	1.81 18/06/21 Copyright 1985, 1995, 2000-2018 J. Schilling */
+/* @(#)list.c	1.83 19/04/07 Copyright 1985, 1995, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.81 18/06/21 Copyright 1985, 1995, 2000-2018 J. Schilling";
+	"@(#)list.c	1.83 19/04/07 Copyright 1985, 1995, 2000-2019 J. Schilling";
 #endif
 /*
  *	List the content of an archive
  *
- *	Copyright (c) 1985, 1995, 2000-2018 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -230,6 +230,7 @@ modstr(info, s, mode)
 	register char	*str = s;
 	register int	i;
 
+	*str++ = '?';				/* Unknown file type */
 	for (i = 9; --i >= 0; ) {
 		if (mode & (1 << i))
 			*str++ = mstr[i];
@@ -246,28 +247,28 @@ modstr(info, s, mode)
 	str = s;
 	if (mode & TSVTX) {
 		if (mode & TOEXEC) {
-			str[8] = 't';		/* Sticky & exec. by others  */
+			str[9] = 't';		/* Sticky & exec. by others  */
 		} else {
-			str[8] = 'T';		/* Sticky but !exec. by oth  */
+			str[9] = 'T';		/* Sticky but !exec. by oth  */
 		}
 	}
 	if (mode & TSGID) {
 		if (mode & TGEXEC) {
-			str[5] = 's';		/* Sgid & executable by grp  */
+			str[6] = 's';		/* Sgid & executable by grp  */
 		} else {
-			if (is_dir(info))
-				str[5] = 'S';	/* Sgid directory	    */
+			if (!is_file(info))
+				str[6] = 'S';	/* Sgid directory, or other  */
 			else
-				str[5] = 'l';	/* Mandatory lock file	    */
+				str[6] = 'l';	/* Mandatory lock file	    */
 		}
 	}
 	if (mode & TSUID) {
 		if (mode & TUEXEC)
-			str[2] = 's';		/* Suid & executable by own. */
+			str[3] = 's';		/* Suid & executable by own. */
 		else
-			str[2] = 'S';		/* Suid but not executable   */
+			str[3] = 'S';		/* Suid but not executable   */
 	}
-	i = 9;
+	i = 10;
 #ifdef	USE_ACL
 	if ((info->f_xflags & (XF_ACL_ACCESS|XF_ACL_DEFAULT|XF_ACL_ACE)) != 0)
 		str[i++] = '+';
@@ -286,7 +287,7 @@ list_file(info)
 		FILE	*f;
 		time_t	*tp;
 		char	*tstr;
-		char	mstr[12]; /* 9 UNIX chars + ACL '+' XATTR '@' + nul */
+		char	mstr[13]; /* 10 UNIX chars + ACL '+' XATTR '@' + nul */
 		char	lstr[22]; /* ' ' + link count as string - 64 bits */
 	static	char	nuid[21]; /* uid as 64 bit long */
 	static	char	ngid[21]; /* gid as 64 bit long */
@@ -358,14 +359,15 @@ if (xft == 0 || xft == XT_BAD) {
 }
 		if (xft == XT_LINK)
 			xft = info->f_rxftype;
+		{
+			char	*p = XTTOSTR(xft);
+
+			if (p)
+				mstr[0] = *p;
+		}
 		if (!paxls) {
 			fprintf(f,
-				" %s%s%s %3.*s/%-3.*s %.12s %4.4s ",
-#ifdef	OLD
-				typetab[info->f_filetype & 07],
-#else
-				XTTOSTR(xft),
-#endif
+				" %s%s %3.*s/%-3.*s %.12s %4.4s ",
 				mstr,
 				lstr,
 				(int)info->f_umaxlen, info->f_uname,
@@ -373,12 +375,7 @@ if (xft == 0 || xft == XT_BAD) {
 				&tstr[4], &tstr[20]);
 		} else {
 			fprintf(f,
-				"%s%s%s %-8.*s %-8.*s ",
-#ifdef	OLD
-				typetab[info->f_filetype & 07],
-#else
-				XTTOSTR(xft),
-#endif
+				"%s%s %-8.*s %-8.*s ",
 				mstr,
 				lstr,
 				(int)info->f_umaxlen, info->f_uname,

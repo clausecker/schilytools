@@ -1,14 +1,14 @@
-/* @(#)paranoia.c	1.48 15/11/17 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.50 19/04/03 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)paranoia.c	1.48 15/11/17 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.50 19/04/03 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2015 by J. Schilling
+ * Copyright (C) 2002-2019 by J. Schilling
  *
  * Toplevel file for the paranoia abstraction over the cdda lib
  *
@@ -1276,6 +1276,8 @@ i_silence_match(root, v, callback)
 		Int16_t		*avec = alloca(addto * sizeof (Int16_t));
 #else
 		Int16_t		*avec = _pmalloc(addto * sizeof (Int16_t));
+
+		DBG_MALLOC_MARK(avec);
 #endif
 #endif
 
@@ -1574,7 +1576,9 @@ i_stage2_each(root, v, callback)
 				if (l == NULL) {
 					Int16_t	*buff = _pmalloc(fs(v) * sizeof (Int16_t));
 
+					DBG_MALLOC_MARK(buff);
 					l = c_alloc(buff, fb(v), fs(v));
+					DBG_MALLOC_MARK(l);
 					memcpy(buff, fv(v), fs(v) * sizeof (Int16_t));
 				}
 
@@ -1840,7 +1844,9 @@ i_stage2_each(root, v, callback)
 				if (l == NULL) {
 					Int16_t	*buff = _pmalloc(fs(v) * sizeof (Int16_t));
 
+					DBG_MALLOC_MARK(buff);
 					l = c_alloc(buff, fb(v), fs(v));
+					DBG_MALLOC_MARK(l);
 					memcpy(buff, fv(v), fs(v) * sizeof (Int16_t));
 				}
 
@@ -2206,8 +2212,10 @@ i_init_root(root, v, begin, callback)
 		{
 			Int16_t		*buff = _pmalloc(fs(v) * sizeof (Int16_t));
 
+			DBG_MALLOC_MARK(buff);
 			memcpy(buff, fv(v), fs(v) * sizeof (Int16_t));
 			root->vector = c_alloc(buff, fb(v), fs(v));
+			DBG_MALLOC_MARK(root->vector);
 		}
 
 		/*
@@ -2294,6 +2302,8 @@ i_stage2(p, beginword, endword, callback)
 		v_fragment	*list[active];
 #else
 		v_fragment	**list = _pmalloc(active * sizeof (v_fragment *));
+
+		DBG_MALLOC_MARK(list);
 #endif
 
 		while (first) {
@@ -2466,6 +2476,7 @@ i_end_case(p, endword, callback)
 		long		addto = endword - re(root);
 		char		*temp = _pcalloc(addto, sizeof (char) * 2);
 
+		DBG_MALLOC_MARK(temp);
 		c_append(rc(root), (void *) temp, addto);
 		_pfree(temp);
 
@@ -2572,8 +2583,10 @@ verify_skip_case(p, callback)
 			if (rv(root) == NULL) {
 				Int16_t	*buff = _pmalloc(cs(graft));
 
+				DBG_MALLOC_MARK(buff);
 				memcpy(buff, cv(graft), cs(graft));
 				rc(root) = c_alloc(buff, cb(graft), cs(graft));
+				DBG_MALLOC_MARK(rc(root));
 			} else {
 				c_append(rc(root), cv(graft) + post - cbegin,
 					gend - post);
@@ -2590,8 +2603,10 @@ verify_skip_case(p, callback)
 	{
 		void	*temp = _pcalloc(CD_FRAMESIZE_RAW, sizeof (Int16_t));
 
+		DBG_MALLOC_MARK(temp);
 		if (rv(root) == NULL) {
 			rc(root) = c_alloc(temp, post, CD_FRAMESIZE_RAW);
+			DBG_MALLOC_MARK(rc(root));
 		} else {
 			c_append(rc(root), temp, CD_FRAMESIZE_RAW);
 			_pfree(temp);
@@ -2644,6 +2659,7 @@ paranoia_set_readahead(p, readahead)
 	p->readahead = readahead;
 	sort_free(p->sortcache);
 	p->sortcache = sort_alloc(p->readahead * CD_FRAMEWORDS);
+	DBG_MALLOC_MARK(p->sortcache);
 }
 
 EXPORT int
@@ -2845,6 +2861,7 @@ i_read_c_block(p, beginword, endword, callback)
 	Int16_t		*buffer = NULL;
 	void		*bufbase = NULL;
 	Uchar		*flags = NULL;
+	long		fsize = 0;
 	long		sofar;
 	long		dynoverlap = (p->dynoverlap + CD_FRAMEWORDS - 1) / CD_FRAMEWORDS;
 	long		anyflag = 0;
@@ -2905,6 +2922,8 @@ static	int		pagesize = -1;
 	 */
 	if (p->enable & (PARANOIA_MODE_OVERLAP | PARANOIA_MODE_VERIFY)) {
 		flags = _pcalloc(totaltoread * CD_FRAMEWORDS, 1);
+		DBG_MALLOC_MARK(flags);
+		fsize = totaltoread * CD_FRAMEWORDS;
 		new = new_c_block(p);
 		recover_cache(p);
 	} else {
@@ -2930,6 +2949,7 @@ static	int		pagesize = -1;
 	}
 	reduce = pagesize / p->sectsize;
 	bufbase = _pmalloc(totaltoread * p->sectsize + pagesize);
+	DBG_MALLOC_MARK(bufbase);
 	buffer = (Int16_t *)valign(bufbase, pagesize);
 	sofar = 0;
 	firstread = -1;
@@ -3099,6 +3119,7 @@ static	int		pagesize = -1;
 	 */
 	if (anyflag) {
 		new->vector = _pmalloc(totaltoread * CD_FRAMESIZE_RAW);
+		DBG_MALLOC_MARK(new->vector);
 		if (p->enable & PARANOIA_MODE_C2CHECK) {
 			c2_audiocopy(new->vector, buffer, totaltoread);
 		} else {
@@ -3109,6 +3130,7 @@ static	int		pagesize = -1;
 		new->begin = firstread * CD_FRAMEWORDS - p->dyndrift;
 		new->size = sofar * CD_FRAMEWORDS;
 		new->flags = flags;
+		new->fsize = fsize;
 	} else {
 		if (new)
 			free_c_block(new);

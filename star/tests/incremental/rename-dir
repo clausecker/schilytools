@@ -1,0 +1,56 @@
+#!/bin/sh
+set -e
+
+tar=${tar-star}
+if grep / ${tar} > /dev/null; then
+	tar=`pwd`/${tar}
+fi
+echo tar installed as $tar 1>&2
+
+#
+# This is where GNU tar always fails as GNU tar is unable to hndle renamed
+# directories with incremental restores.
+#
+
+mkdir /tmp/test.$$
+cd /tmp/test.$$
+
+set -x
+
+mkdir test
+mkdir test/dir1
+mkdir test/dir2
+
+echo dir1-file > test/dir1/dir1-file
+echo dir2-file > test/dir2/dir2-file
+
+$tar -c -xdev -sparse -acl -link-dirs level=0 \
+	tardumps=/tmp/test.$$/tardumps -wtardumps \
+	f=/tmp/test.$$/full.tar -C /tmp/test.$$/test .
+
+
+rm -rf test/dir2
+mv test/dir1 test/dir2
+
+$tar -c -xdev -sparse -acl -link-dirs level=1 \
+	tardumps=/tmp/test.$$/tardumps -wtardumps \
+	f=/tmp/test.$$/incremental.tar -C /tmp/test.$$/test .
+
+mv test orig
+mkdir test
+cd /tmp/test.$$/test
+
+$tar -xpU -restore -partial f=/tmp/test.$$/full.tar
+$tar -xpU -restore -partial f=/tmp/test.$$/incremental.tar
+
+rm star-symtable
+rm -rf star-tmpdir
+cd /tmp/test.$$/
+diff -r orig test > diff.out
+ret=$?
+
+cd /
+if [ "$ret" = 0 ]; then
+	rm -rf /tmp/test.$$
+fi
+exit $ret

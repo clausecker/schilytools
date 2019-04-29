@@ -1,14 +1,14 @@
-/* @(#)p_block.c	1.29 13/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.c	1.30 19/04/03 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)p_block.c	1.29 13/12/22 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)p_block.c	1.30 19/04/03 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2013 by J. Schilling
+ * Copyright (C) 2002-2019 by J. Schilling
  */
 #include <schily/stdlib.h>
 #include <schily/standard.h>
@@ -79,6 +79,7 @@ new_list(newp, freep)
 {
 	linked_list	*ret = _pcalloc(1, sizeof (linked_list));
 
+	DBG_MALLOC_MARK(ret);
 	ret->new_poly = newp;
 	ret->free_poly = freep;
 	return (ret);
@@ -92,6 +93,7 @@ add_elem(l, elem)
 
 	linked_element	*ret = _pcalloc(1, sizeof (linked_element));
 
+	DBG_MALLOC_MARK(ret);
 	ret->stamp = l->current++;
 	ret->ptr = elem;
 	ret->list = l;
@@ -180,6 +182,7 @@ i_cblock_constructor()
 {
 	c_block		*ret = _pcalloc(1, sizeof (c_block));
 
+	DBG_MALLOC_MARK(ret);
 	return (ret);
 }
 
@@ -236,6 +239,7 @@ i_vfragment_constructor()
 {
 	v_fragment	*ret = _pcalloc(1, sizeof (v_fragment));
 
+	DBG_MALLOC_MARK(ret);
 	return (ret);
 }
 
@@ -390,6 +394,7 @@ c_alloc(vector, begin, size)
 {
 	c_block		*c = _pcalloc(1, sizeof (c_block));
 
+	DBG_MALLOC_MARK(c);
 	c->vector = vector;
 	c->begin = begin;
 	c->size = size;
@@ -424,6 +429,7 @@ c_insert(v, pos, b, size)
 	else
 		v->vector = _pmalloc(sizeof (Int16_t) * size);
 
+	DBG_MALLOC_MARK(v->vector);
 	if (pos < vs)
 		memmove(v->vector + pos + size, v->vector + pos,
 			(vs - pos) * sizeof (Int16_t));
@@ -487,6 +493,7 @@ c_append(v, vector, size)
 		v->vector = _prealloc(v->vector, sizeof (Int16_t) * (size + vs));
 	else
 		v->vector = _pmalloc(sizeof (Int16_t) * size);
+	DBG_MALLOC_MARK(v->vector);
 	memcpy(v->vector + vs, vector, sizeof (Int16_t) * size);
 
 	v->size += size;
@@ -562,6 +569,7 @@ paranoia_init(d, nsectors,
 {
 	cdrom_paranoia	*p = _pcalloc(1, sizeof (cdrom_paranoia));
 
+	DBG_MALLOC_MARK(p);
 	p->d_read		= d_read;
 	p->d_disc_firstsector	= d_disc_firstsector;
 	p->d_disc_lastsector	= d_disc_lastsector;
@@ -582,6 +590,7 @@ paranoia_init(d, nsectors,
 	p->sectwords  = CD_FRAMESIZE_RAW/2;
 	p->readahead = CD_READAHEAD;
 	p->sortcache = sort_alloc(p->readahead * CD_FRAMEWORDS);
+	DBG_MALLOC_MARK(p->sortcache);
 	p->d = d;
 	p->mindynoverlap = MIN_SECTOR_EPSILON;
 	p->maxdynoverlap = MAX_SECTOR_OVERLAP * CD_FRAMEWORDS;

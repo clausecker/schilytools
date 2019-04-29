@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.128 18/09/27 Copyright 1987, 1995-2018 J. Schilling */
+/* @(#)readcd.c	1.129 19/04/11 Copyright 1987, 1995-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.128 18/09/27 Copyright 1987, 1995-2018 J. Schilling";
+	"@(#)readcd.c	1.129 19/04/11 Copyright 1987, 1995-2018 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -238,6 +238,7 @@ int	exsig;
 
 char	*Sbuf;
 long	Sbufsize = -1L;
+int	spt = 0;
 
 /*#define	MAX_RETRY	32*/
 #define	MAX_RETRY	128
@@ -286,6 +287,7 @@ usage(ret)
 	error(_("\tsectors=range	Range of sectors to read/write\n"));
 	error(_("\tspeed=#		set speed of drive (MMC only)\n"));
 	error(_("\tts=#		set maximum transfer size for a single SCSI command\n"));
+	error(_("\tspt=#		set maximum nuber of sectors for a single SCSI command\n"));
 	error(_("\t-w		Switch to write mode\n"));
 	error(_("\t-c2scan		Do a C2 error scan\n"));
 	error(_("\t-cxscan		Do a C1/C2/CU scan (only available on a few drives)\n"));
@@ -320,7 +322,7 @@ usage(ret)
 }
 
 /* CSTYLED */
-char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,scgopts*,sectors*,w,c2scan,cxscan,pi8scan,pifscan,plot,fulltoc,clone,edc-corr,noerror,nocorr,notrunc,retries#,factor,f*,speed#,ts&,overhead,meshpoints#";
+char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,scgopts*,sectors*,w,c2scan,cxscan,pi8scan,pifscan,plot,fulltoc,clone,edc-corr,noerror,nocorr,notrunc,retries#,factor,f*,speed#,ts&,spt#,overhead,meshpoints#";
 
 EXPORT int
 main(ac, av)
@@ -401,7 +403,7 @@ main(ac, av)
 			&edc_corr,
 			&noerror, &nocorr,
 			&notrunc, &retries, &do_factor, &filename,
-			&speed, getnum, &Sbufsize,
+			&speed, getnum, &Sbufsize, &spt,
 			&dooverhead, &meshpoints) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
@@ -2182,6 +2184,8 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		 */
 		if (edc_corr)
 			cnt = Sbufsize / rp->isecsize;
+		if (cnt > spt && spt > 0)
+			cnt = spt;
 	}
 
 	if (defname == NULL) {
@@ -2213,6 +2217,8 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		 */
 		if (edc_corr)
 			cnt = Sbufsize / rp->isecsize;
+		if (cnt > spt && spt > 0)
+			cnt = spt;
 		getlong(_("Enter number of sectors per copy:"), &cnt, 1L, cnt);
 	}
 
@@ -2372,6 +2378,8 @@ write_disk(scgp, parmp)
 		if (parmp->end != -1 && parmp->end < end)
 			end = parmp->end;
 		cnt = Sbufsize / scgp->cap->c_bsize;
+		if (cnt > spt && spt > 0)
+			cnt = spt;
 	} else {
 		error(_("Copy from file to SCSI (%d,%d,%d) disk\n"),
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
@@ -2386,6 +2394,8 @@ write_disk(scgp, parmp)
 		end = addr + cnt;
 
 		cnt = Sbufsize / scgp->cap->c_bsize;
+		if (cnt > spt && spt > 0)
+			cnt = spt;
 		getlong(_("Enter number of sectors per copy:"), &cnt, 1L, cnt);
 /*		error("end:  %8ld\n", end);*/
 	}
@@ -2527,6 +2537,8 @@ read_sectors(scgp, p, addr, cnt)
 		cnt = scgp->cap->c_baddr + 1 - addr;
 
 	csize = Sbufsize / (2352 + 294);
+	if (csize > spt && spt > 0)
+		csize = spt;
 	clusters = cnt / csize;
 	rest = cnt % csize;
 	pos = addr;
@@ -2559,6 +2571,8 @@ read_dvd_sectors(scgp, p, addr, cnt)
 		cnt = scgp->cap->c_baddr + 1 - addr;
 
 	csize = Sbufsize / 2048;
+	if (csize > spt && spt > 0)
+		csize = spt;
 	clusters = cnt / csize;
 	rest = cnt % csize;
 	pos = addr;

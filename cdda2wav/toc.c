@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.104 17/07/19 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
+/* @(#)toc.c	1.105 19/04/04 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.104 17/07/19 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
+"@(#)toc.c	1.105 19/04/04 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -3948,7 +3948,7 @@ toc_entry(nr, flag, tr, ISRC, lba, m, s, f)
 
 	g_toc[nr].bFlags = flag;
 	g_toc[nr].bTrack = tr;
-	if (ISRC) {
+	if (ISRC && (char *)g_toc[nr].ISRC != (char *)ISRC) {
 		strncpy((char *)g_toc[nr].ISRC, (char *)ISRC,
 			sizeof (g_toc[nr].ISRC) -1);
 		g_toc[nr].ISRC[sizeof (g_toc[nr].ISRC) -1] = '\0';

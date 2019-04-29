@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.71 18/07/15 Copyright 1985-2018 J. Schilling */
+/* @(#)bsh.h	1.75 19/04/07 Copyright 1985-2019 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -309,6 +309,7 @@ extern	void	rusageadd	__PR((struct rusage *pru1,
  */
 extern	BOOL	any_match	__PR((char *s));
 extern	Tnode	*expand		__PR((char *s));
+extern	Tnode	*bexpand	__PR((char *s));
 extern	int	bsh_hop_dirs	__PR((char *name, char **np));
 
 /*
@@ -402,6 +403,7 @@ extern	BOOL	ev_set_locked	__PR((char *val));
  * alloc.c
  */
 extern	void	*Jfree		__PR((void *t, void *chain));
+#ifndef	_SCHILY_DBGMALLOC_H
 #ifdef	D_MALLOC
 extern	void	*dbg_malloc		__PR((size_t size,
 							char *file, int line));
@@ -413,12 +415,13 @@ extern	void	*dbg_realloc		__PR((void *t, size_t size,
 #define	calloc(n, s)			dbg_calloc(n, s, __FILE__, __LINE__)
 #define	realloc(t, s)			dbg_realloc(t, s, __FILE__, __LINE__)
 #endif
-extern	int	psize		__PR((char *t));
+extern	size_t	apsize		__PR((char *t));
 extern	void	freechecking	__PR((BOOL val));
 extern	void	nomemraising	__PR((BOOL val));
 extern	void	aprintfree	__PR((FILE *f));
 extern	void	aprintlist	__PR((FILE *f, long l));
 extern	void	aprintchunk	__PR((FILE *f, long l));
+#endif	/* _SCHILY_DBGMALLOC_H */
 
 extern	void	balloc		__PR((Argvec *vp, FILE **std, int flag));
 

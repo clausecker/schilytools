@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.198 19/03/25 2008-2019 J. Schilling
+ * @(#)defs.h	1.200 19/04/27 2008-2019 J. Schilling
  */
 
 /*
@@ -537,6 +537,7 @@ extern	void	makearg		__PR((struct argnod *));
  * fault.c
  */
 extern	void	done		__PR((int sig)) __NORETURN;
+extern	void	fault		__PR((int sig));
 extern	int	handle		__PR((int sig, sigtype func));
 extern	void	stdsigs		__PR((void));
 extern	void	oldsigs		__PR((int dofree));
@@ -874,6 +875,9 @@ extern	int	str2sig		__PR((const char *s, int *sigp));
 #endif
 #ifndef	HAVE_SIG2STR
 extern	int	sig2str		__PR((int sig, char *s));
+#endif
+#ifndef	SIG2STR_MAX		/* From Solaris signal.h */
+#define	SIG2STR_MAX	32
 #endif
 
 /*
@@ -1244,6 +1248,7 @@ extern unsigned			brkincr;
 #define		SIGMOD		8		/* Signal with trap(1) set */
 #define		SIGIGN		16		/* Signal is ignored	*/
 #define		SIGCLR		32		/* From oldsigs() w. vfork() */
+#define		SIGINP		64		/* Signal in line editor inp */
 
 extern BOOL			trapnote;
 extern int			traprecurse;

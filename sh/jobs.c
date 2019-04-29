@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)jobs.c	1.105 19/01/10 2008-2019 J. Schilling
+ * @(#)jobs.c	1.108 19/04/28 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.105 19/01/10 2008-2019 J. Schilling";
+	"@(#)jobs.c	1.108 19/04/28 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -261,6 +261,10 @@ static	void	ruadd		__PR((struct rusage *ru, struct rusage *ru2));
 static	int	waitid		__PR((idtype_t idtype, id_t id,
 					siginfo_t *infop, int opts));
 #endif
+#ifdef	DO_TRAP_FROM_WAITID
+static int	didsignal	__PR((siginfo_t	*infop));
+static void	checksigs	__PR((siginfo_t	*infop));
+#endif
 
 #if	!defined(HAVE_TCGETPGRP) && defined(TIOCGPGRP)
 pid_t
@@ -436,6 +440,9 @@ collect_fg_job()
 		errno = 0;
 		si.si_pid = 0;
 		err = waitid(P_PID, jp->j_pid, &si, (WEXITED|WTRAPPED));
+#ifdef	DO_TRAP_FROM_WAITID
+		checksigs(&si);			/* fault() with jobcontrol */
+#endif
 		if (si.si_pid == jp->j_pid || (err == -1 && errno == ECHILD))
 			break;
 	}
@@ -603,6 +610,9 @@ collectjobs(wnohang)
 	for (n = jobcnt - jobdone; n > 0; n--) {
 		if (waitid(P_ALL, 0, &si, wnohang|wflags) < 0)
 			break;
+#ifdef	DO_TRAP_FROM_WAITID
+		checksigs(&si);			/* fault() with jobcontrol */
+#endif
 		pid = si.si_pid;
 		if (pid == 0)
 			break;
@@ -689,6 +699,10 @@ waitjob(jp)
 		/*
 		 * si.si_pid == 0: no status is available for pid
 		 */
+
+#ifdef	DO_TRAP_FROM_WAITID
+		checksigs(&si);			/* fault() with jobcontrol */
+#endif
 	} while (si.si_pid != pid);
 
 #if	WNOWAIT != 0
@@ -746,6 +760,9 @@ waitjob(jp)
 		err = waitid(P_ALL, 0, &si, wflags|WCONTINUED|WNOHANG);
 		if (si.si_pid == 0 || (err == -1 && errno == ECHILD))
 			break;
+#ifdef	DO_TRAP_FROM_WAITID
+		checksigs(&si);			/* fault() with jobcontrol */
+#endif
 	}
 #endif
 
@@ -776,6 +793,10 @@ settgid(new, expected)
 	int	fd = STDIN_FILENO;
 	pid_t	current = tcgetpgrp(fd);
 
+#ifdef	JOB_DEBUG
+	fprintf(stderr, "settgid(new %ld, expected %ld) current %ld\n",
+		(long)new, (long)expected, (long)current);
+#endif
 	/*
 	 * "current" may be -1 in case that STDIN_FILENO was a renamed pipe,
 	 * and errno in this case will be ENOTTY or EINVAL.
@@ -1066,7 +1087,7 @@ curpgid()
 }
 
 /*
- * Set up "pgid" as process group id in case this has noe been done already.
+ * Set up "pgid" as process group id in case this has not been done already.
  */
 void
 setjobpgid(pgid)
@@ -1444,6 +1465,9 @@ syswait(argc, argv)
 			continue;
 		if (waitid(P_PID, jp->j_pid, &si, wflags) < 0)
 			break;
+#ifdef	DO_TRAP_FROM_WAITID
+		checksigs(&si);			/* fault() with jobcontrol */
+#endif
 		(void) statjob(jp, &si, 0, 1);
 	}
 }
@@ -1605,7 +1629,12 @@ listsigs()
 	int maxtrap = MAXTRAP;
 	int cnt = 0;
 	char sep = 0;
-	char buf[22];	/* Large enough for SIG* names, large enough for num */
+#if	SIG2STR_MAX < 22
+#define	SIG_BLEN	22	/* Enough for 64 bits */
+#else
+#define	SIG_BLEN	SIG2STR_MAX
+#endif
+	char buf[SIG_BLEN]; /* Large enough for SIG* names, enough for num */
 
 #ifdef	SIGRTMAX
 	i = SIGRTMAX + 1;
@@ -1640,7 +1669,7 @@ namesigs(argv)
 	char	*argv[];
 {
 	int sig;
-	char buf[12];
+	char buf[SIG2STR_MAX];
 
 	while (*++argv) {
 		sig = stoi((unsigned char *)*argv) & 0x7F;
@@ -2236,9 +2265,57 @@ waitid(idtype, id, infop, opts)
 		infop->si_status = WSTOPSIG(exstat);
 	} else if (WIFCONTINUED(exstat)) {
 		infop->si_code = CLD_CONTINUED;
+#ifdef	SIGCONT
+		infop->si_status = SIGCONT;
+#else
 		infop->si_status = 0;
+#endif
 	}
 
 	return (0);
+}
+#endif
+
+#ifdef	DO_TRAP_FROM_WAITID
+static int
+didsignal(infop)
+	siginfo_t	*infop;
+{
+	if (infop->si_pid == 0)
+		return (FALSE);
+
+	switch (infop->si_code) {
+
+#ifdef	CLD_KILLED
+	case CLD_KILLED:
+#endif
+#ifdef	CLD_DUMPED
+	case CLD_DUMPED:
+#endif
+#ifdef	CLD_TRAPPED
+	case CLD_TRAPPED:
+#endif
+#ifdef	CLD_STOPPED
+	case CLD_STOPPED:
+#endif
+#ifdef	CLD_CONTINUED
+	case CLD_CONTINUED:
+#endif
+		return (TRUE);
+
+	default:
+		return (FALSE);
+	}
+}
+
+static void
+checksigs(infop)
+	siginfo_t	*infop;
+{
+	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg)) {
+		if (didsignal(infop) && infop->si_status) {
+			fault(infop->si_status);
+		}
+	}
 }
 #endif

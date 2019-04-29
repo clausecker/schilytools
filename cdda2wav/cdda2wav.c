@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.172 19/01/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling */
+/* @(#)cdda2wav.c	1.173 19/04/26 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.172 19/01/08 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling";
+"@(#)cdda2wav.c	1.173 19/04/26 Copyright 1993-2004,2015,2017 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -429,7 +429,8 @@ write_info_file(fname_baseval, track, SamplesDone, numbered)
 	} else {
 		strncpy(datetime, "unknown", sizeof (datetime));
 	}
-	fprintf(info_fp, "#created by cdda2wav %s%s %s\n#\n",
+	fprintf(info_fp, "#created by cdda2wav %s %s%s %s\n#\n",
+								VERSION_DATE,
 								VERSION,
 								VERSION_OS,
 								datetime);
@@ -611,7 +612,8 @@ write_cue_global(cuef, fname_baseval)
 
 	get_datetime(datetime, sizeof (datetime));
 
-	fprintf(cuef, "REM created by cdda2wav %s%s %s\n",
+	fprintf(cuef, "REM created by cdda2wav %s %s%s %s\n",
+								VERSION_DATE,
 								VERSION,
 								VERSION_OS,
 								datetime);
@@ -1203,6 +1205,8 @@ parameters: (optional) one or more file names or - for standard output.\n\
 	/* END CSTYLED */
 
 	fputs(_("Version "), stderr);
+	fputs(VERSION_DATE, outfp);
+	fputs(" ", outfp);
 	fputs(VERSION, stderr);
 	fputs(VERSION_OS, stderr);
 	prdefaults(stderr);
@@ -3257,6 +3261,8 @@ main(argc, argv)
 
 	if (global.verbose != 0) {
 		fputs(_("#Cdda2wav version "), outfp);
+		fputs(VERSION_DATE, outfp);
+		fputs(" ", outfp);
 		fputs(VERSION, outfp);
 		fputs(VERSION_OS, outfp);
 #if defined USE_POSIX_PRIORITY_SCHEDULING || defined HAVE_SYS_PRIOCNTL_H
@@ -4053,6 +4059,8 @@ gargs(argc, argv)
 	if (version) {
 #ifdef	OLD_VERSION_PRINT
 		fputs(_("cdda2wav version "), outfp);
+		fputs(VERSION_DATE, outfp);
+		fputs(" ", outfp);
 		fputs(VERSION, outfp);
 		fputs(VERSION_OS, outfp);
 		fputs("\n", outfp);
@@ -4060,7 +4068,7 @@ gargs(argc, argv)
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s %s (%s-%s-%s) Copyright (C) 1993-2004,2015,2017 %s (C) 2004-2019 %s\n"),
+		printf(_("cdda2wav %s %s (%s-%s-%s) Copyright (C) 1993-2004,2015,2017,2019 %s (C) 2004-2019 %s\n"),
 					VERSION,
 					VERSION_DATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
