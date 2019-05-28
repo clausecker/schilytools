@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)date_bal.c	1.14 18/04/29 J. Schilling
+ * @(#)date_bal.c	1.15 19/05/15 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.14 18/04/29 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.15 19/05/15 J. Schilling"
 #endif
 #include	<defines.h>
 
@@ -88,6 +88,8 @@ int	flags;
 		zone = DT_NO_ZONE;
 	}
 #endif
+	if (lcltm == NULL)
+		fatal(gettext("time stamp conversion error (cm19)"));
 	/*
 	 * We may be called in SCCSv4 mode, when the year is < 1969 or > 2038.
 	 * In SCCSv4 mode, we are hoewever not allowed to output nanoseconds.

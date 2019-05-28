@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.98 19/04/28  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.99 19/05/19  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -50,6 +50,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 #CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 #CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
+#CPPOPTS +=	-DDO_CHECKBINARY	# Check scripts for binary (\0 before \n)
 #CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
 #CPPOPTS +=	-DDO_GETOPT_POSIX	# Fail: $OPTARG has optopt for optstr[0] = ':'
 #CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins

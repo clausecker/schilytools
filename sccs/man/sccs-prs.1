@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prs.1	1.36 18/12/18 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-prs.1	1.37 19/05/16 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2018/12/18" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2019/05/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -63,6 +63,10 @@ utility displays part or all of the
 file (see 
 .BR sccsfile (4))
 in a user supplied format.
+.LP
+The output is based on data from the
+.BR s. files
+that is first converted into a binary format and later converted back into text.
 
 .LP
 If a directory name is used in place of the

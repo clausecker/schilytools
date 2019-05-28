@@ -12,10 +12,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)dtime.c	1.2 13/10/31 Copyright 2006-2013 J. Schilling
+ * @(#)dtime.c	1.3 19/05/15 Copyright 2006-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dtime.c 1.2 13/10/31 J. Schilling"
+#pragma ident "@(#)dtime.c 1.3 19/05/15 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -59,9 +59,17 @@ gmtoff(crtime)
 {
 	struct tm	local;
 	struct tm	gmt;
+	struct tm	*tp;
 
-	local = *localtime(&crtime);
-	gmt   = *gmtime(&crtime);
+	tp    = localtime(&crtime);
+	if (tp == NULL)
+		fatal(gettext("time stamp conversion error (cm19)"));
+	local = *tp;
+
+	tp    = gmtime(&crtime);
+	if (tp == NULL)
+		fatal(gettext("time stamp conversion error (cm19)"));
+	gmt   = *tp;
 
 	local.tm_sec  -= gmt.tm_sec;
 	local.tm_min  -= gmt.tm_min;

@@ -1,12 +1,12 @@
-/* @(#)patch.c	1.48 18/04/10 2011-2018 J. Schilling */
+/* @(#)patch.c	1.49 19/05/15 2011-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.48 18/04/10 2011-2018 J. Schilling";
+	"@(#)patch.c	1.49 19/05/15 2011-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -692,7 +692,7 @@ _("Argument to -D not an identifier.\n"));
 					wall_plus ? "Wall+":"");
 				printf(
 				_("Copyright (C) 1984 - 1988 Larry Wall\n"));
-				printf(_("Copyright (C) 2011 - 2018 %s\n"),
+				printf(_("Copyright (C) 2011 - 2019 %s\n"),
 					_("Joerg Schilling"));
 				printf(_(
 "This is free software; see the source for copying conditions.  There is NO\n"

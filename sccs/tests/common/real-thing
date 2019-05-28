@@ -4,10 +4,19 @@
 
 . ${SRCROOT}/sccs/tests/common/command-names
 
+TESTING_SCCS_V5=false		# Sun SCCS with auto-binary, y2k, ... extensions
 TESTING_CSSC=false		# Relict from CSSC tests, also applies to SCCS
 TESTING_REAL_CSSC=false		# Don't test real CSSC 4-digit year extensions
-TESTING_REAL_SCCS=false		# Don't test real SCCS 4 digit year extensions
+TESTING_REAL_SCCS=false		# Don't test Schily SCCS 4 digit year extensions
 TESTING_SCCS_V6=false		# Don't test SCCSv6 features
+
+# TESTING_CSSC
+# Currently used for:
+#	-	whether admin -rxxx works when creating new history files
+#	-	whether admin -ycomment works when creating new history files
+#	-	whether	admin supports auto-binary mode
+#	-	whether admin supports auto-no-newline mode
+#	-	whether SCCS is y2k safe
 
 if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep CSSC >/dev/null
 then
@@ -16,6 +25,15 @@ then
 	#
 	TESTING_CSSC=true	# Run CSSC test extensions as well
 	TESTING_REAL_CSSC=true	# Run tests for non-compliant CSSC year ext.
+fi
+
+if ( ${admin} -? 2>&1 ; echo xxx ) 2>/dev/null | grep Usage: >/dev/null
+then
+	#
+	# Found "Usage:" in "$cmd -?" output
+	#
+	TESTING_SCCS_V5=true	# Run SCCS_V5 test extensions as well
+	TESTING_CSSC=true	# Run CSSC test extensions as well
 fi
 
 if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep SCCS >/dev/null

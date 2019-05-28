@@ -5,6 +5,12 @@
 . ../../common/test-common
 . ../../common/real-thing
 
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+
 remove command.log log log.stdout log.stderr
 mkdir test 2>/dev/null
 
@@ -150,7 +156,7 @@ docommand E26 "test -w $g" 1 "" ""
 # %A as the last two characters of the file to be checked in 
 # should not cause the world to end. 
 remove $s
-if ${TESTING_CSSC}
+if ${TESTING_REAL_CSSC} || ${TESTING_REAL_SCCS}
 then
     docommand E28 "${admin} -b -n $s" 0 IGNORE IGNORE 
     

@@ -4,6 +4,13 @@
 
 # Import common functions & definitions.
 . ../../common/test-common
+. ../../common/real-thing
+
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
 
 cleanup () {
     remove command.log
@@ -36,20 +43,47 @@ NO_STDERR=IGNORE
 docommand n1 "${prs} -d':I: :Dn:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
 docommand x1 "${prs} -d':I: :Dx:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
 docommand g1 "${prs} -d':I: :Dg:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I1 "${prs} -d':I: :DI:' -r1.1 s.delta_ixg" 0 "1.1 //\n"    "${NO_STDERR}"
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I1-nonPOSIX "${prs} -d':I: :DI:' -r1.1 s.delta_ixg" 0 "1.1 \n"    "${NO_STDERR}"
+fi
 
 # Simple example: ignores (--g).
 # Delta 1.5 (seq 5) ignores 1.3 (seq 3).
 docommand n5 "${prs} -d':I: :Dn:' -r1.5 s.delta_ixg" 0 "1.5 \n"      "${NO_STDERR}"
 docommand x5 "${prs} -d':I: :Dx:' -r1.5 s.delta_ixg" 0 "1.5 \n"      "${NO_STDERR}"
 docommand g5 "${prs} -d':I: :Dg:' -r1.5 s.delta_ixg" 0 "1.5 3\n"     "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I5 "${prs} -d':I: :DI:' -r1.5 s.delta_ixg" 0 "1.5 //3\n"   "${NO_STDERR}"
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I5-nonPOSIX "${prs} -d':I: :DI:' -r1.5 s.delta_ixg" 0 "1.5 /3\n"   "${NO_STDERR}"
+fi
 
 # Exclude (-x-): 1.2.1.1 (seq 10) excludes 1.1 (seq 1)
 docommand n10 "${prs} -d':I: :Dn:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 \n"      "${NO_STDERR}"
 docommand x10 "${prs} -d':I: :Dx:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 1\n"     "${NO_STDERR}"
 docommand g10 "${prs} -d':I: :Dg:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 \n"      "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I10 "${prs} -d':I: :DI:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 /1/\n"   "${NO_STDERR}"
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I10-nonPOSIX "${prs} -d':I: :DI:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 /1\n"   "${NO_STDERR}"
+fi
 
 # -xg    1.1.1.2 (seq 11) excludes 1.2 (seq 2) and ignores 1.1 (seq 1)
 docommand n11 "${prs} -d':I: :Dn:' -r1.1.1.2 s.delta_ixg" 0 "1.1.1.2 \n"      "${NO_STDERR}"
@@ -61,21 +95,46 @@ docommand I11 "${prs} -d':I: :DI:' -r1.1.1.2 s.delta_ixg" 0 "1.1.1.2 /2/1\n"  "$
 docommand n7 "${prs} -d':I: :Dn:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2\n"      "${NO_STDERR}"
 docommand x7 "${prs} -d':I: :Dx:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 \n"       "${NO_STDERR}"
 docommand g7 "${prs} -d':I: :Dg:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 \n"       "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I7 "${prs} -d':I: :DI:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2//\n"    "${NO_STDERR}"
-
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I7-nonPOSIX "${prs} -d':I: :DI:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2\n"    "${NO_STDERR}"
+fi
 
 # i-g    1.3.1.1 (seq 9) includes 1.4 (seq 4) and ignores 1.2 (seq 2)
 docommand n9 "${prs} -d':I: :Dn:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4\n"      "${NO_STDERR}"
 docommand x9 "${prs} -d':I: :Dx:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 \n"       "${NO_STDERR}"
 docommand g9 "${prs} -d':I: :Dg:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 2\n"      "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I9 "${prs} -d':I: :DI:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4//2\n"   "${NO_STDERR}"
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I9-nonPOSIX "${prs} -d':I: :DI:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4/2\n"   "${NO_STDERR}"
+fi
 
 # ix-    1.2.2.1 (seq 12) includes 1.3 (seq 3) and excludes 1.1 (seq 1)
 docommand n12 "${prs} -d':I: :Dn:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3\n"     "${NO_STDERR}"
 docommand x12 "${prs} -d':I: :Dx:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 1\n"     "${NO_STDERR}"
 docommand g12 "${prs} -d':I: :Dg:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 \n"      "${NO_STDERR}"
+if $TESTING_REAL_SCCS
+then
 docommand I12 "${prs} -d':I: :DI:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3/1/\n"  "${NO_STDERR}"
-
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand I12-nonPOSIX "${prs} -d':I: :DI:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3/1\n"  "${NO_STDERR}"
+fi
 
 # All of them (ixg)
 # Delta 1.6 (seq 6) includes 1.3 (seq 3), excludes 1.1 (seq 1) and ignores 1.2 (seq 2).

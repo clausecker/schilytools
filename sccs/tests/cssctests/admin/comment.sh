@@ -8,6 +8,12 @@
 # Import function which tells us if we're testing CSSC, or something else.
 . ../../common/real-thing
 
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+
 s=s.new.txt
 remove foo new.txt [xzs].new.txt [xzs].1 [xzs].2 command.log
 
@@ -64,6 +70,9 @@ docommand C8 "${vg_admin} -n -yMyComment $s" 0 "" IGNORE
 # Can we create multiple files if we don't use -i ?
 docommand C9 "${vg_admin} -n s.1 s.2" 0 "" ""
 
+if $TESTING_REAL_SCCS
+then
+
 # Check both generated files.
 for n in 1 2
 do
@@ -75,6 +84,22 @@ do
   ""
 done
 
+else
+
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+# Check both generated files.
+for n in 1 2
+do
+    stage=C`expr 9 + $n`
+    docommand $stage-nonPOSIX "${prs} \
+  -d':B:\n:BF:\n:DI:\n:DL:\n:DT:\n:I:\n:J:\n:LK:\n:MF:\n:MP:\n:MR:\n:Z:' s.1" \
+  0                                                                           \
+  "\nno\n\n00000/00000/00000\nD\n1.1\nno\nnone\nno\nnone\n\n@(#)\n"       \
+  ""
+done
+
+fi
 docommand C12 "${vg_prs} -d':M:\n' s.1 s.2" 0 "1
 2
 " ""

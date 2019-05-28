@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.55 18/12/18 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-admin.1	1.56 19/05/12 Copyright 2007-2019 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2018/12/18" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2019/05/12" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -419,13 +419,15 @@ If the letters
 .BR d ", " e ", " g
 or
 .B h
-are present, the related keywords are expanded even though the
+are present, the related extended keywords are expanded even though the
 .RB ` x '
-flag was not set.
+flag was not set, see
+.RB ` x '
+flag above.
 .sp
 If
 .I value
-is set to an empty string, the
+is set to an empty string, no keywords will be expanded and the
 .RB ` "No id keywords (cm7)" '
 message will not be created even though no keyword was expanded.
 .sp
@@ -434,6 +436,12 @@ This flag is a
 extension that does not exist in historic
 .B sccs 
 implementations.
+.sp
+The suppressed
+.RB ` "No id keywords (cm7)" '
+message is a 
+.BR \s-1SCHILY\s+1
+extension.
 .br
 .ne 4
 .TP

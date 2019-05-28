@@ -10,17 +10,17 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)xlocaltime.c	1.1 11/05/26 Copyright 2007-2011 J. Schilling
+ * @(#)xlocaltime.c	1.2 19/05/15 Copyright 2007-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xlocaltime.c 1.1 11/05/26 J. Schilling"
+#pragma ident "@(#)xlocaltime.c 1.2 19/05/15 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)xlocaltime.c"
 #pragma ident	"@(#)sccs:lib/comobj/xlocaltime.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 #ifdef	localtime	/* Only defined if this is a 32 bit compilation */
 #undef	localtime
@@ -62,10 +62,14 @@ xlocaltime(t)
 	if (tim >= ((time_t)0xb4aadc80)) { /* 0x80000000 + 883612800 */
 		tim -= 1767225600;	/* 56 years */
 		tm = localtime(&tim);
+		if (tm == NULL)
+			fatal(gettext("time stamp conversion error (cm19)"));
 		tm->tm_year += 56;	/* 2 * 4 * 7 */
 	} else {
 		tim -= 883612800;	/* 28 years */
 		tm = localtime(&tim);
+		if (tm == NULL)
+			fatal(gettext("time stamp conversion error (cm19)"));
 		tm->tm_year += 28;	/* 1 * 4 * 7 */
 	}
 	return (tm);

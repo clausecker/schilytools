@@ -4,6 +4,13 @@
 
 # Import common functions & definitions.
 . ../../common/test-common
+. ../../common/real-thing
+
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
 
 
 sid=1.1
@@ -38,7 +45,16 @@ expands_to X1l :L:      "1\n"
 expands_to X1b :B:      "\n"
 expands_to X1s :S:      "\n"
 expands_to X2  :BF:     "no\n"
+if $TESTING_REAL_SCCS
+then
 expands_to X3  :DI:     "//\n"
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+expands_to X3-nonPOSIX  :DI:     "\n"
+fi
 expands_to X4  :DL:     "00000/00000/00000\n"
 expands_to X5  :DT:     "D\n"
 expands_to X7  :J:      "no\n"
@@ -118,11 +134,29 @@ expands_to K13 ':LK:'   '1\n'
 expands_to K14 ':Q:'   'QFLAG\n'
 
 
+if $TESTING_REAL_SCCS
+then
 expands_to K15 ':DI:'   '/2 1/\n'
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+expands_to K15-nonPOSIX ':DI:'   '/2 1\n'
+fi
 
 sid=1.6
 
+if $TESTING_REAL_SCCS
+then
 expands_to K16 ':DI:'   '3/2 1/\n'
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+expands_to K16-nonPOSIX ':DI:'   '3/2 1\n'
+fi
 
 ## 
 ## 

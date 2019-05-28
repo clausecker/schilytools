@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)date_ab.c	1.21 18/04/29 J. Schilling
+ * @(#)date_ab.c	1.22 19/05/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ab.c 1.21 18/04/29 J. Schilling"
+#pragma ident "@(#)date_ab.c 1.22 19/05/15 J. Schilling"
 #endif
 /*
  * @(#)date_ab.c 1.8 06/12/12
@@ -44,6 +44,9 @@
 #endif
 #include	<defines.h>
 
+#ifndef	EOVERFLOW
+#define	EOVERFLOW	EINVAL
+#endif
 
 #define	dysize(A) (((A)%4)? 365 : (((A)%100) == 0 && ((A)%400)) ? 365 : 366)
 
@@ -89,8 +92,10 @@ int	flags;			/* Flags from packet		*/
 	NONBLANK(Datep);
 
 	tm.tm_year = gNp(Datep, &Datep, 4, &dn, &cn);
-	if (tm.tm_year < 0)
+	if (tm.tm_year < 0) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if ((dn != 2 && dn != 4) || cn != dn || *Datep != '/') warn = 1;
 	if (dn <= 2) {
 		if (tm.tm_year < 69) {
@@ -99,6 +104,7 @@ int	flags;			/* Flags from packet		*/
 	} else {
 #if SIZEOF_TIME_T == 4
 		if (tm.tm_year < 1933) {
+			errno = EOVERFLOW;
 			return (-1);
 		}
 #endif
@@ -107,30 +113,40 @@ int	flags;			/* Flags from packet		*/
 	y = tm.tm_year + 1900;			/* For Gregorian leap year */
 
 	tm.tm_mon = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_mon < 1 || tm.tm_mon > 12)
+	if (tm.tm_mon < 1 || tm.tm_mon > 12) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if (dn != 2 || cn != dn+1 || *Datep != '/') warn = 1;
 
 	tm.tm_mday = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon))
+	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon)) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if (dn != 2 || cn != dn+1) warn = 1;
 
 	NONBLANK(Datep);
 
 	tm.tm_hour = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_hour < 0 || tm.tm_hour > 23)
+	if (tm.tm_hour < 0 || tm.tm_hour > 23) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if (dn != 2 || cn != dn || *Datep != ':') warn = 1;
 
 	tm.tm_min = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_min < 0 || tm.tm_min > 59)
+	if (tm.tm_min < 0 || tm.tm_min > 59) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if (dn != 2 || cn != dn+1 || *Datep != ':') warn = 1;
 
 	tm.tm_sec = gNp(Datep, &Datep, 2, &dn, &cn);
-	if (tm.tm_sec < 0 || tm.tm_sec > 59)
+	if (tm.tm_sec < 0 || tm.tm_sec > 59) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 	if (dn != 2 || cn != dn+1) warn = 1;
 
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
@@ -142,16 +158,26 @@ int	flags;			/* Flags from packet		*/
 		tz = gtz(Datep, &Datep);
 
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
+	/*
+	 * This is the code used by default.
+	 */
 	if (tz != DT_NO_ZONE && (flags & PF_V6)) {
-		tim = mklgmtime(&tm);
+		tim = mklgmtime(&tm);	/* Never "fails" */
 		tim -= tz;
 	} else if (flags & PF_GMT) {
-		tim = mklgmtime(&tm);
+		tim = mklgmtime(&tm);	/* Never "fails" */
 	} else {
+		int	oerr = errno;
+
+		errno = 0;
 		tim = mktime(&tm);
+		if (errno)
+			fatal(gettext("time stamp conversion error (cm19)"));
+		else
+			errno = oerr;
 	}
 #else
-	tim = mklgmtime(&tm);
+	tim = mklgmtime(&tm);		/* Never "fails" */
 #endif
 	bdt->dt_sec = tim;
 	bdt->dt_nsec = ns;
@@ -191,6 +217,7 @@ int	flags;
 		adt++;				/* Skip '/'		*/
 #if SIZEOF_TIME_T == 4
 		if (tm.tm_year < 1933) {	/* Unsupported in 32bit mode */
+			errno = EOVERFLOW;
 			return (-1);		/* see xlocaltime.c	*/
 		}
 #endif
@@ -205,36 +232,54 @@ int	flags;
 
 	if ((tm.tm_mon = gN(adt, &adt, 2, NULL, NULL)) == -2)
 		tm.tm_mon = 12;
-	if (tm.tm_mon < 1 || tm.tm_mon > 12)
+	if (tm.tm_mon < 1 || tm.tm_mon > 12) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 
 	if ((tm.tm_mday = gN(adt, &adt, 2, NULL, NULL)) == -2)
 		tm.tm_mday = mosize(y, tm.tm_mon);
-	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon))
+	if (tm.tm_mday < 1 || tm.tm_mday > mosize(y, tm.tm_mon)) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 
 	if ((tm.tm_hour = gN(adt, &adt, 2, NULL, NULL)) == -2)
 		tm.tm_hour = 23;
-	if (tm.tm_hour < 0 || tm.tm_hour > 23)
+	if (tm.tm_hour < 0 || tm.tm_hour > 23) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 
 	if ((tm.tm_min = gN(adt, &adt, 2, NULL, NULL)) == -2)
 		tm.tm_min = 59;
-	if (tm.tm_min < 0 || tm.tm_min > 59)
+	if (tm.tm_min < 0 || tm.tm_min > 59) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 
 	if ((tm.tm_sec = gN(adt, &adt, 2, NULL, NULL)) == -2)
 		tm.tm_sec = 59;
-	if (tm.tm_sec < 0 || tm.tm_sec > 59)
+	if (tm.tm_sec < 0 || tm.tm_sec > 59) {
+		errno = EOVERFLOW;
 		return (-1);
+	}
 
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
 	tm.tm_isdst = -1;	/* let mktime() find out */
 
-	if (flags & PF_GMT)
-		tim = mklgmtime(&tm);
-	else
+	if (flags & PF_GMT) {
+		tim = mklgmtime(&tm);	/* Never "fails" */
+	} else {
+		int	oerr = errno;
+
+		errno = 0;
 		tim = mktime(&tm);
+		if (errno)
+			fatal(gettext("time stamp conversion error (cm19)"));
+		else
+			errno = oerr;
+	}
 
 	*bdt = tim;
 	return (0);

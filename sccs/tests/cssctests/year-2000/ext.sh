@@ -12,6 +12,11 @@
 . ../../common/test-common
 . ../../common/real-thing
 
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
 
 s=s.y2k.txt
 
@@ -28,6 +33,10 @@ allrevs="${r1_5}${r1_4}${r1_3}${r1_2}${r1_1}"
 
 if "$TESTING_REAL_CSSC"
 then
+    # Sine CSSC does not use time stamps internally, there is no reason
+    # why CSSC should fail with dates that are unsupportd by the current
+    # platform.
+    #
     echo Testing the CSSC century specifier.
     ## Tests for the century field.
 
@@ -53,6 +62,14 @@ fi
 
 if "$TESTING_REAL_SCCS"
 then
+    # SCCS uses UNIX based time stamps internally. Since 32 Bit UNIX versions
+    # support the time range between 1901..2038 but 32 Bit SCCS should support
+    # the time range between 1969..2068, we definitely need a calendar
+    # implementation that supports a negative time_t. Some platforms implement
+    # bugs for time stamps before 1970 and for this reason, we can only grant
+    # to support the range between 1970 and 2038. This is why we need to be
+    # prepared to fail with the following tests.
+    #
     echo "Testing the SCCS century specifier."
     echo "This may fail for times before January 1 1970 on some platforms."
     expect_fail=true

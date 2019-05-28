@@ -1,4 +1,13 @@
-h06909
+h38830
+s 00016/00000/00116
+d D 1.5 19/05/17 11:05:16 joerg 5 4
+c Hinweis auf date probleme in betriebssystemen
+e
+s 00006/00001/00110
+d D 1.4 19/05/12 14:12:21 joerg 4 3
+c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
+c Kommentar verbessert
+e
 s 00002/00002/00109
 d D 1.3 15/06/03 00:06:44 joerg 3 2
 c ../common/test-common -> ../../common/test-common
@@ -34,6 +43,13 @@
 . ../../common/real-thing
 E 3
 
+I 4
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+E 4
 
 s=s.y2k.txt
 
@@ -53,7 +69,12 @@ docommand ez3 "${vg_prs} ${brief} -r1.3  $s" 0 "${r1_3}" ""
 docommand ez4 "${vg_prs} ${brief} -r1.4  $s" 0 "${r1_4}" ""
 
 
+D 4
 if "$TESTING_CSSC"
+E 4
+I 4
+if ${TESTING_REAL_CSSC} || ${TESTING_REAL_SCCS}
+E 4
 then
     expect_fail=false
 I 2
@@ -66,6 +87,24 @@ then
     then
 	expect_fail=true
     fi
+I 5
+    if test .$OS = .Haiku
+    then
+	expect_fail=true
+    fi
+    # SCCS uses UNIX based time stamps internally. Since 32 Bit UNIX versions
+    # support the time range between 1901..2038 but 32 Bit SCCS should support
+    # the time range between 1969..2068, we definitely need a calendar
+    # implementation that supports a negative time_t. Some platforms implement
+    # bugs for time stamps before 1970 and for this reason, we can only grant
+    # to support the range between 1970 and 2038. This is why we need to be
+    # prepared to fail with the following tests.
+    #
+    if ${TESTING_REAL_SCCS}
+    then
+	expect_fail=true
+    fi
+E 5
 E 2
 else
     # Many versions of SCCS are y2k-safe, but don't work right out to

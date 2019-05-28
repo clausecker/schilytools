@@ -1,4 +1,13 @@
-h49899
+h02169
+s 00012/00000/00152
+d D 1.7 19/05/12 14:28:12 joerg 7 6
+c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
+e
+s 00022/00000/00130
+d D 1.6 19/05/12 14:12:21 joerg 6 5
+c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
+c Kommentar verbessert
+e
 s 00001/00001/00129
 d D 1.5 18/04/30 13:07:11 joerg 5 4
 c Pfadnamen quoten, damit SPACE darin sein kann
@@ -36,9 +45,22 @@
 E 4
 I 4
 . ../../common/test-common
+I 6
+. ../../common/real-thing
+E 6
 E 4
 
+I 6
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+E 6
 
+I 6
+
+E 6
 sid=1.1
 
 expands_to () {
@@ -81,11 +103,26 @@ expands_to X1l :L:      "1\n"
 expands_to X1b :B:      "\n"
 expands_to X1s :S:      "\n"
 expands_to X2  :BF:     "no\n"
+I 6
+if $TESTING_REAL_SCCS
+then
+E 6
 D 2
 expands_to X3  :DI:     "\n"
 E 2
 I 2
 expands_to X3  :DI:     "//\n"
+I 6
+else
+I 7
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+E 7
+expands_to X3-nonPOSIX  :DI:     "\n"
+fi
+E 6
 E 2
 expands_to X4  :DL:     "00000/00000/00000\n"
 expands_to X5  :DT:     "D\n"
@@ -166,20 +203,50 @@ expands_to K13 ':LK:'   '1\n'
 expands_to K14 ':Q:'   'QFLAG\n'
 
 
+I 6
+if $TESTING_REAL_SCCS
+then
+E 6
 D 2
 expands_to K15 ':DI:'   '/2 1\n'
 E 2
 I 2
 expands_to K15 ':DI:'   '/2 1/\n'
+I 6
+else
+I 7
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+E 7
+expands_to K15-nonPOSIX ':DI:'   '/2 1\n'
+fi
+E 6
 E 2
 
 sid=1.6
 
+I 6
+if $TESTING_REAL_SCCS
+then
+E 6
 D 2
 expands_to K16 ':DI:'   '3/2 1\n'
 E 2
 I 2
 expands_to K16 ':DI:'   '3/2 1/\n'
+I 6
+else
+I 7
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+E 7
+expands_to K16-nonPOSIX ':DI:'   '3/2 1\n'
+fi
+E 6
 E 2
 
 ## 

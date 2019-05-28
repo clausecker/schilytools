@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prt.1	1.24 18/12/18 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-prt.1	1.25 19/05/16 Copyright 2007-2018 J. Schilling
 .\" Copyright (c) 1990, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prt 1 "2018/12/18" "SunOS 5.11" "User Commands"
+.TH sccs-prt 1 "2019/05/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prt, prt \- display delta table information from an SCCS file
 .SH SYNOPSIS
@@ -57,6 +57,10 @@ sccs-prt, prt \- display delta table information from an SCCS file
 prints selected portions of an
 .B SCCS
 file.  By default, it prints the delta table (version log).
+.LP
+The output is directly based on text data from the
+.BR s. files
+without conversion.
 
 .LP
 If a directory name is used in place of the

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)help.c	1.21 18/04/29 J. Schilling
+ * @(#)help.c	1.22 19/05/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.21 18/04/29 J. Schilling"
+#pragma ident "@(#)help.c 1.22 19/05/12 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -122,6 +122,12 @@ sccsfatalhelp(msg)
 	p = msg;
 	while (*p)
 		p++;
+
+	/*
+	 * Step back in case the message ends in a new line.
+	 */
+	while (p > msg && p[-1] == '\n')
+		p--;
 	/*
 	 * If the string does not end in ')', this message does not contain a
 	 * SCCS error code - just return and do nothing.

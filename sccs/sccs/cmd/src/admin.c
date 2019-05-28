@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)admin.c	1.122 19/01/17 J. Schilling
+ * @(#)admin.c	1.123 19/05/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.122 19/01/17 J. Schilling"
+#pragma ident "@(#)admin.c 1.123 19/05/12 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -1437,6 +1437,7 @@ char	*afile;
 						fatal(gettext("invalid id keywords (cm10)"));
 				} else {
 					fprintf(stderr, gettext("No id keywords (cm7)\n"));
+					(void) sccsfatalhelp("(cm7)");
 				}
 			}
 
@@ -1773,6 +1774,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 				dir_name,
 				*dir_name?"/":"",
 				file);
+			(void) sccsfatalhelp("(ad31)");
 			return (nline);
 		}
 
@@ -2024,6 +2026,7 @@ struct packet *pktp;
 			*dir_name?"/":"",
 			ifile,
 			gettext("Not a text file (ad32)\n"));
+			(void) sccsfatalhelp("(ad32)");
 	}
 	rewind(iptr);
 	eptr = fopen(auxf(afile,'e'), "wb");

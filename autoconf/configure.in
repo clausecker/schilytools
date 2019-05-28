@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.294 19/03/18 Copyright 1998-2019 J. Schilling
+dnl @(#)configure.in	1.295 19/05/15 Copyright 1998-2019 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.294)dnl
+AC_REVISION(1.295)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -56,6 +56,19 @@ else
 		LORDER=echo
 	fi
 fi
+
+#
+# patch(1) needs the PATH to ed(1) and red(1)
+#
+AC_PATH_PROG(path_ed, ed, false, $PATH)
+AC_PATH_PROG(path_red, red, $path_ed, $PATH)
+if test "$cross_compiling" = remote ; then
+path_ed=/bin/ed
+path_red=/bin/red
+AC_MSG_RESULT(cross compiling is not yet supported using /bin/ed and /bin/red)
+fi
+AC_DEFINE_UNQUOTED_STRING(CNF_PATH_ED,$path_ed)
+AC_DEFINE_UNQUOTED_STRING(CNF_PATH_RED,$path_red)
 
 dnl Checks for header files.
 AC_HEADER_STDC

@@ -10,17 +10,17 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)xmktime.c	1.1 11/05/26 Copyright 2007-2011 J. Schilling
+ * @(#)xmktime.c	1.2 19/05/15 Copyright 2007-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xmktime.c 1.1 11/05/26 J. Schilling"
+#pragma ident "@(#)xmktime.c 1.2 19/05/15 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)xmktime.c"
 #pragma ident	"@(#)sccs:lib/comobj/xmktime.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 #ifdef	mktime	/* Only defined if this is a 32 bit compilation */
 #undef	mktime
@@ -54,7 +54,9 @@ xmktime(tm)
 	struct tm *tm;
 {
 	time_t	t;
+	int	oerr = errno;
 
+	errno = 0;
 	if (tm->tm_year >= 166) {	/* 2066 */
 		tm->tm_year -= 56;	/* 2 * 4 * 7 */
 		t = mktime(tm);
@@ -70,6 +72,10 @@ xmktime(tm)
 	} else {
 		t = mktime(tm);
 	}
+	if (errno)
+		fatal(gettext("time stamp conversion error (cm19)"));
+	else
+		errno = oerr;
 	return (t);
 }
 #endif

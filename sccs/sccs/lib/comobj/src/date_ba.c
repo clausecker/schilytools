@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2011 J. Schilling
+ * Copyright 2011-2019 J. Schilling
  *
- * @(#)date_ba.c	1.5 11/06/27 J. Schilling
+ * @(#)date_ba.c	1.6 19/05/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ba.c 1.5 11/06/27 J. Schilling"
+#pragma ident "@(#)date_ba.c 1.6 19/05/15 J. Schilling"
 #endif
 /*
  * @(#)date_ba.c 1.5 06/12/12
@@ -40,9 +40,10 @@
 #pragma ident	"@(#)date_ba.c"
 #pragma ident	"@(#)sccs:lib/comobj/date_ba.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
-# define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
+#define	DO2(p, n, c)	*p++ = ((char) ((n)/10) + '0');			\
+			*p++ = ((char) ((n)%10) + '0'); *p++ = c;
 
 
 char *
@@ -62,16 +63,18 @@ int	flags;
 	else
 		lcltm = localtime(bdt);
 #endif
+	if (lcltm == NULL)
+		fatal(gettext("time stamp conversion error (cm19)"));
 	p = adt;
 	if (lcltm->tm_year >= 100) {
-	   lcltm->tm_year %= 100;
+		lcltm->tm_year %= 100;
 	}
-	
-	DO2(p,lcltm->tm_year,'/');
-	DO2(p,lcltm->tm_mon + 1,'/');
-	DO2(p,lcltm->tm_mday,' ');
-	DO2(p,lcltm->tm_hour,':');
-	DO2(p,lcltm->tm_min,':');
-	DO2(p,lcltm->tm_sec,0);
-	return(adt);
+
+	DO2(p, lcltm->tm_year, '/');
+	DO2(p, lcltm->tm_mon + 1, '/');
+	DO2(p, lcltm->tm_mday, ' ');
+	DO2(p, lcltm->tm_hour, ':');
+	DO2(p, lcltm->tm_min, ':');
+	DO2(p, lcltm->tm_sec, 0);
+	return (adt);
 }

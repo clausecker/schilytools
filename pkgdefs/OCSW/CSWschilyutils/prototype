@@ -12,6 +12,7 @@ s none bin/pfsh=sh
 s none bin/bosh=sh
 s none bin/jsh=sh
 f none bin/btcflash 0755 root bin
+f none bin/cal 0755 root bin
 f none bin/calc 0755 root bin
 f none bin/calltree 0755 root bin
 f none bin/change 0755 root bin
@@ -26,8 +27,9 @@ f none bin/lndir 0755 root bin
 f none bin/match 0755 root bin
 f none bin/mdigest 0755 root bin
 l none bin/od=hdump
-f none bin/osh 0755 root bin
+f none bin/obosh 0755 root bin
 f none bin/p 0755 root bin
+f none bin/pbosh 0755 root bin
 f none bin/scut 0755 root bin
 f none bin/sdd 4711 root bin
 f none bin/sfind 0755 root bin
@@ -53,7 +55,9 @@ f none share/man/man1/bosh.1 0444 root bin
 f none share/man/man1/bsh.1 0444 root bin
 f none share/man/man1/cpp.1 0444 root bin
 f none share/man/man1/sh.1 0444 root bin
+f none share/man/man1/obosh.1 0444 root bin
 f none share/man/man1/btcflash.1 0444 root bin
+f none share/man/man1/cal.1 0444 root bin
 f none share/man/man1/calc.1 0444 root bin
 f none share/man/man1/calltree.1 0444 root bin
 f none share/man/man1/change.1 0444 root bin

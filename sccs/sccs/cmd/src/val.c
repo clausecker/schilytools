@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)val.c	1.59 18/12/17 J. Schilling
+ * @(#)val.c	1.60 19/05/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.59 18/12/17 J. Schilling"
+#pragma ident "@(#)val.c 1.60 19/05/15 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -677,8 +677,8 @@ struct packet *pkt;
 
 		del_ab(&lp[-2], &dt, pkt);	/* We are called with &lp[2] */
 
-		if (dt.d_dtime.dt_sec != 0 && odt.d_dtime.dt_sec != 0 &&
-		    (dt.d_dtime.dt_sec > odt.d_dtime.dt_sec) ||
+		if ((dt.d_dtime.dt_sec != 0 && odt.d_dtime.dt_sec != 0 &&
+		    (dt.d_dtime.dt_sec > odt.d_dtime.dt_sec)) ||
 		    ((dt.d_dtime.dt_sec == odt.d_dtime.dt_sec) &&
 		    (dt.d_dtime.dt_nsec > odt.d_dtime.dt_nsec))) {
 			sid_ba(&dt.d_sid, str);

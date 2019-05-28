@@ -1,4 +1,8 @@
-h34487
+h33094
+s 00019/00001/00047
+d D 1.4 19/05/12 13:59:30 joerg 4 3
+c TESTING_SCCS_V5 neu und mehr Kommentar
+e
 s 00002/00003/00046
 d D 1.3 15/06/03 00:16:41 joerg 3 2
 c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
@@ -35,6 +39,9 @@ SRCROOT=`../../../../conf/srcroot.sh`
 . ${SRCROOT}/sccs/tests/common/command-names
 E 3
 
+I 4
+TESTING_SCCS_V5=false		# Sun SCCS with auto-binary, y2k, ... extensions
+E 4
 D 2
 TESTING_CSSC=false
 TESTING_REAL_CSSC=false
@@ -43,10 +50,25 @@ TESTING_REAL_SCCS=false
 I 2
 TESTING_CSSC=false		# Relict from CSSC tests, also applies to SCCS
 TESTING_REAL_CSSC=false		# Don't test real CSSC 4-digit year extensions
+D 4
 TESTING_REAL_SCCS=false		# Don't test real SCCS 4 digit year extensions
+E 4
+I 4
+TESTING_REAL_SCCS=false		# Don't test Schily SCCS 4 digit year extensions
+E 4
 TESTING_SCCS_V6=false		# Don't test SCCSv6 features
 E 2
 
+I 4
+# TESTING_CSSC
+# Currently used for:
+#	-	whether admin -rxxx works when creating new history files
+#	-	whether admin -ycomment works when creating new history files
+#	-	whether	admin supports auto-binary mode
+#	-	whether admin supports auto-no-newline mode
+#	-	whether SCCS is y2k safe
+
+E 4
 if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep CSSC >/dev/null
 then
 D 2
@@ -62,6 +84,17 @@ then
 E 2
 fi
 
+I 4
+if ( ${admin} -? 2>&1 ; echo xxx ) 2>/dev/null | grep Usage: >/dev/null
+then
+	#
+	# Found "Usage:" in "$cmd -?" output
+	#
+	TESTING_SCCS_V5=true	# Run SCCS_V5 test extensions as well
+	TESTING_CSSC=true	# Run CSSC test extensions as well
+fi
+
+E 4
 if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep SCCS >/dev/null
 then
 I 2

@@ -1,4 +1,13 @@
-h64030
+h07723
+s 00001/00000/00110
+d D 1.7 19/05/12 14:28:12 joerg 7 6
+c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
+e
+s 00024/00000/00086
+d D 1.6 19/05/12 14:12:22 joerg 6 5
+c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
+c Kommentar verbessert
+e
 s 00002/00002/00084
 d D 1.5 15/06/03 00:06:43 joerg 5 4
 c ../common/test-common -> ../../common/test-common
@@ -47,6 +56,14 @@
 . ../../common/real-thing
 E 5
 
+I 6
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+
+E 6
 E 4
 s=s.new.txt
 remove foo new.txt [xzs].new.txt [xzs].1 [xzs].2 command.log
@@ -126,6 +143,11 @@ docommand C8 "${vg_admin} -n -yMyComment $s" 0 "" IGNORE
 # Can we create multiple files if we don't use -i ?
 docommand C9 "${vg_admin} -n s.1 s.2" 0 "" ""
 
+I 6
+if $TESTING_REAL_SCCS
+then
+
+E 6
 # Check both generated files.
 for n in 1 2
 do
@@ -142,6 +164,26 @@ do
   ""
 done
 
+I 6
+else
+
+# Not POSIX compliant for -d:DI
+I 7
+# This applies to AT&T SCCS past 1984 and to CSSC
+E 7
+# Check both generated files.
+for n in 1 2
+do
+    stage=C`expr 9 + $n`
+    docommand $stage-nonPOSIX "${prs} \
+  -d':B:\n:BF:\n:DI:\n:DL:\n:DT:\n:I:\n:J:\n:LK:\n:MF:\n:MP:\n:MR:\n:Z:' s.1" \
+  0                                                                           \
+  "\nno\n\n00000/00000/00000\nD\n1.1\nno\nnone\nno\nnone\n\n@(#)\n"       \
+  ""
+done
+
+fi
+E 6
 docommand C12 "${vg_prs} -d':M:\n' s.1 s.2" 0 "1
 2
 " ""

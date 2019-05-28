@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.275 19/03/18 Copyright 1998-2019 J. Schilling */
+/* @(#)xconfig.h.in	1.276 19/05/15 Copyright 1998-2019 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -734,6 +734,8 @@
 #undef	BIN_SHELL_CE_IS_BROKEN	/* /bin/sh -ce is broken */
 #undef	BIN_SHELL_BOSH		/* /bin/bosh is a working Bourne Shell */
 #undef	OPT_SCHILY_BIN_SHELL_BOSH /* /opt/schily/bin/bosh is a working Bourne Shell */
+#undef	CNF_PATH_ED		/* e.g. "/bin/ed" */
+#undef	CNF_PATH_RED		/* e.g. "/bin/red" */
 
 /*
  * OS madness

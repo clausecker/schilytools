@@ -11,17 +11,27 @@
  */
 /*
  *
- * @(#)xtzset.c	1.6 13/04/29  Copyright 2006-2013 J. Schilling
+ * @(#)xtzset.c	1.7 19/05/15  Copyright 2006-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xtzset.c 1.6 13/04/29 J. Schilling"
+#pragma ident "@(#)xtzset.c 1.7 19/05/15 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)xtzset.c"
 #pragma ident	"@(#)sccs:lib/comobj/xtzset.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
+
+#define	TMCHK()	{ if (tm == NULL)					\
+		fatal(gettext("time stamp conversion error (cm19)")); }
+
+#ifdef	MAIN
+#undef	localtime
+#undef	gmtime
+#undef	mktime
+#define	fatal	printf
+#endif
 
 time_t	Y2069;
 time_t	Y2038;
@@ -37,6 +47,7 @@ xtzset()
 #ifdef	HAVE_FTIME
 	struct timeb timeb;
 #endif
+	int	oerr = errno;
 
 #ifdef	HAVE_TZSET
 #undef	tzset
@@ -61,22 +72,33 @@ xtzset()
 
 	t = time((time_t *)0);	/* Current time in GMT since Jan 1 1970 */
 
+	errno = 0;
 #if	defined(HAVE_GMTIME) && defined(HAVE_LOCALTIME) && defined(HAVE_MKTIME)
 	tm = gmtime(&t);	/* struct tm from current time in GMT */
+	TMCHK();
 	t -= tm->tm_mon * 30 * 24 * 3600;	/* shift to aprox. winter */
 	tm = gmtime(&t);	/* struct tm from last winter time in GMT */
+	TMCHK();
 	t2 = mktime(tm);	/* GMT assuming tm is local time */
 	tm = localtime(&t);
+	TMCHK();
 	t3 = mktime(tm);	/* t3 should be == t */
 #else
 #if	defined(HAVE_GMTIME) && defined(HAVE_TIMELOCAL) && defined(HAVE_TIMEGM)
 	tm = gmtime(&t);	/* struct tm from current time in GMT */
+	TMCHK();
 	t -= tm->tm_mon * 30 * 24 * 3600;	/* shift to aprox. winter */
 	tm = gmtime(&t);	/* struct tm from last winter time in GMT */
+	TMCHK();
 	t2 = timelocal(tm);	/* GMT assuming tm is local time */
 	t3 = timegm(tm);	/* GMT assuming tm is GMT	 */
 #endif
 #endif
+	if (errno)
+		fatal(gettext("time stamp conversion error (cm19)"));
+	else
+		errno = oerr;
+
 	timezone = t2 - t3;
 
 #ifdef	HAVE_FTIME
@@ -97,3 +119,12 @@ xtzset()
 #endif
 	}
 }
+
+#ifdef	MAIN
+main()
+{
+	xtzset();
+
+	printf("timezone: %ld\n", (long)timezone);
+}
+#endif

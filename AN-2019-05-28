@@ -1,0 +1,321 @@
+New features with AN-2019-05-28:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+
+-	Schily Makefilesystem: configure now checks for the presence of
+	"ed" and "red".
+
+	Note that this does not yet work when doing cross compilations.
+
+	This test is needed as OpenBSD does not provide "red" and "patch"
+	would otherwise fail.
+
+-	Unit test subsystem: The environment variables "expect_fail" and
+	"EXPECT_FAIL" are now documented
+
+-	Unit test subsystem: The environment variable "EXPECT_FAIL" now walways
+	overwrites the variable "expect_fail" if set to "true.
+
+-	cal: The UNIX calendar program has been added.
+
+-	cal: The UNIX calendar program is now able to deal with all switch
+	dates from the Julian to the Gregorian calendar. The switch date is
+	controlled with the GREGORIAN environment variable that holds the
+	first day that uses the Gregorian calendar, but written in the
+	Julian calendar notation.
+
+	The switch date in general depends on how much people distrust the pope.
+	So catholic areas did switch earlier to the new calendar then the
+	areas with a reformed church.
+
+	Note that this switch date cannot be derived from the locale of a user
+	since e.g. Germany did use at least four different switch dates.
+
+		GREGORIAN=1582/10/5 cal
+
+	tells cal(1) to use the date that was used to switch to the
+	Gregorian calendar in the catholic parts of the Holy Roman Empire.
+	This is the correct date for e.g. Cologne and Rome.
+
+		GREGORIAN=1612/8/23 cal
+
+	tells cal(1) to use the date that was used to switch to the
+	Gregorian calendar in Prussia. This is the correct date for e.g. Berlin
+	and the switch affects two months.
+
+	In the C locale and when there is no GREGORIAN environment, cal(1)
+	still uses the date for England and it's colonies (e.g. the USA)
+	as this is required by POSIX. In our notation, this is 1752/9/3.
+
+	Here are interesting switch dates that for the definitions for
+	GREGORIAN:
+
+	1582/10/5	Catholic parts of the HRE
+			This includes Venice, Spain, Portugal and the eastern
+			parts of today's Poland and colonies, and Lithuania
+
+	1582/12/10	Kingdom of France and colonies
+
+	1582/12/21	Spanish Netherlands (today, this is a part of Belgium)
+
+	1583/1/2	United republic of the Netherlands
+
+	1584/1/7	Kingdom of Bohemia (Böhmen), Kanton Unterwalden
+
+	1584/1/13	Silesia (Schlesien)
+
+	1584/10/4	Moravia (Mähren)
+
+	1585/12/22	Lithuania
+
+	1587/10/22	Hungaria
+
+	1590/12/15	Transsilvania
+
+	1612/8/23	Prussia
+
+	1656/3/1	Wallis
+
+	1700/2/19	Danmark-Norway and protestantic parts of the HRE
+
+	1700/12/1	Northeast Netherlands
+
+	1701/1/1	reformed parts of Switzerland
+
+	1752/9/3	Kingdom of England and colonies (USA)
+
+	1753/2/18	Sweden
+
+	1760/2/17	Lorraine (Lothringen)
+
+	1872/12/20	Japan
+
+	1915/5/12	Kurland
+
+	1916/4/1	Bulgaria
+
+	1917/2/16	Osmanic Empire
+
+	1918/2/1	Russia, Estaland
+
+	1918/2/16	Ukrainia
+
+	1918/4/18	Transcausasia
+
+	1919/1/15	Serbia, Croatia Slowenia
+
+	1923/2/16	Greece
+
+	1911/12/19	China, also 1928/12/19, 1949/9/18
+
+	To explain how complex this swich is, both William Shakespeare and 
+	Miguel de Cervantes died 23. April 1616 but Shakespeare survived 
+	Cervantes by 10 days.
+
+-	The binary package CSWschilybase now includes "cal".
+
+-	patch: In order to make patch useful with "ed" type patches on OpenBSD,
+	it now uses the test results for ed/red and falls back to ed in case
+	that red is missing. This is not a problem for the currently known
+	attacks like "beep", since POSIX requires ed to abort when stdin is
+	not a TTY and a command fails, but there may be other attacks that
+	cannot be prevented on OpenBSD because of the missing "red" binary.
+
+-	Bourne Shell: Similar to what ksh88 does, scripts are now checked
+		before they are run. If there is a nul byte before a newline
+		in the first 256 bytes, a file is rejected as alien binary
+		instead of trying to interpret it as a script.
+
+-	SCCS: The admin man page now better documents how to suppress the
+		"No id keywords (cm7)" warning.
+
+-	SCCS: The "sccs help cm7" text now includes a hint on how to suppress 
+		the "No id keywords (cm7)" warning.
+
+-	SCCS: The help function sccsfatalhelp() now tolerates new lines at the
+		end of the string when scanning for the SCCS help ID (something
+		like "(cm7)").
+
+-	SCCS: The unit tests added a new variable TESTING_SCCS_V5 that is set
+		to true, when a SCCS implementation is compatible to SCCS v5
+		which is true for e.g. the Solaris SCCS variant.
+
+-	SCCS: The unit test scripts now have better comment for the various
+		SCCS version specific variables.
+
+-	SCCS: The unit tests now distinct between POSIX compliant SCCS versions
+		like the Schily SCCS and nonPOSIX variants like Solaris SCCS
+		or CSSC. This is important when checking "prs -d:DI:" as AT&T
+		did introduce a bug around 1984 related to the "/" separators
+		for the :DI: output.
+
+-	SCCS: Some unit tests for prs now allow a failure since not all platform
+		come with correctly working date conversion routines in libc.
+
+-	SCCS: The "non text file" warnings in admin(1) that only use
+		fprintf(stderr, ... now also call sccsfatalhelp() to include a
+		more helpful detailed explanation. Since these warnings
+		also appear frequently with get(1) and delta(1), the related
+		similar messages from get(1) and delta(1) have not been
+		enhanced in order to avoid unneeded output.
+
+-	SCCS: libcomobj now checks all calls to localtime()/gmtime()/mktime()
+		for errors and aborts the programs with the new error text:
+
+			"time stamp conversion error (cm19)"
+
+-	SCCS The man pages for prt and prs now mention that prt only does a
+		textual scan for the delta table while prs first converts
+		everything to binary data and later back to text. This is
+		important for platforms with defective date conversion
+		routines.
+
+-	SCCS: prt.c now has a better comment for a #ifdef part that helps
+		to understand that binary conversion only happens when SCCS
+		has been compiled for the (Sun) GMT mode.
+
+-	SCCS: val.c now avoids a GCC warning.
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

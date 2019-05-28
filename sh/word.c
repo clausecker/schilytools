@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.97 19/04/27 2008-2019 J. Schilling
+ * @(#)word.c	1.98 19/05/19 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.97 19/04/27 2008-2019 J. Schilling";
+	"@(#)word.c	1.98 19/05/19 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -86,6 +86,7 @@ static	unsigned char	*match_block __PR((unsigned char *argp,
 	unsigned char	*readw	__PR((wchar_t d));
 	unsigned int	readwc	__PR((void));
 static int		readb	__PR((struct fileblk *, int, int));
+	int		isbinary __PR((struct fileblk *f));
 #ifdef	INTERACTIVE
 static	BOOL		chk_igneof __PR((void));
 static	int		xread	__PR((int f, char *buf, int n));
@@ -898,6 +899,41 @@ retry:
 	f->endoff = len + rest;
 	return (len + rest);
 }
+
+#ifdef	DO_CHECKBINARY
+/*
+ * Check wether a script may be a binary file, e.g. from a different
+ * architecture and caused a ENOEXEC error.
+ */
+int
+isbinary(f)
+	struct fileblk	*f;
+{
+	unsigned char	*p;
+	unsigned char	c;
+
+	if (f->fend > f->fnxt)		/* The buffer is not empty */
+		return (FALSE);
+	if (f->feof || f->fdes < 0)	/* Not a fresh new fileblk */
+		return (FALSE);
+	if (isatty(f->fdes))		/* Not a plain file */
+		return (FALSE);
+
+	readb(f, f->fsiz, 0);		/* Fill buffer */
+
+	/*
+	 * Scan the buffer but keep it intcact.
+	 */
+	for (p = f->fnxt; p <= f->fend; p++) {
+		c = *p;
+		if (c == '\0')
+			return (TRUE);
+		if (c == '\n')
+			return (FALSE);
+	}
+	return (FALSE);
+}
+#endif	/* DO_CHECKBINARY */
 
 #ifdef	INTERACTIVE
 static BOOL

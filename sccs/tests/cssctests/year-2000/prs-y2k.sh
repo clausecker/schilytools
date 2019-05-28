@@ -8,6 +8,11 @@
 . ../../common/test-common
 . ../../common/real-thing
 
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
 
 s=s.y2k.txt
 
@@ -27,7 +32,7 @@ docommand ez3 "${vg_prs} ${brief} -r1.3  $s" 0 "${r1_3}" ""
 docommand ez4 "${vg_prs} ${brief} -r1.4  $s" 0 "${r1_4}" ""
 
 
-if "$TESTING_CSSC"
+if ${TESTING_REAL_CSSC} || ${TESTING_REAL_SCCS}
 then
     expect_fail=false
     OS=`uname`
@@ -36,6 +41,22 @@ then
     # time functions in libc
     #
     if test .$OS = .AIX
+    then
+	expect_fail=true
+    fi
+    if test .$OS = .Haiku
+    then
+	expect_fail=true
+    fi
+    # SCCS uses UNIX based time stamps internally. Since 32 Bit UNIX versions
+    # support the time range between 1901..2038 but 32 Bit SCCS should support
+    # the time range between 1969..2068, we definitely need a calendar
+    # implementation that supports a negative time_t. Some platforms implement
+    # bugs for time stamps before 1970 and for this reason, we can only grant
+    # to support the range between 1970 and 2038. This is why we need to be
+    # prepared to fail with the following tests.
+    #
+    if ${TESTING_REAL_SCCS}
     then
 	expect_fail=true
     fi

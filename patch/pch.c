@@ -1,13 +1,13 @@
-/* @(#)pch.c	1.36 18/10/14 2011-2018 J. Schilling */
+/* @(#)pch.c	1.37 19/05/15 2011-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.36 18/10/14 2011-2018 J. Schilling";
+	"@(#)pch.c	1.37 19/05/15 2011-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
  *	Copyright (c) 1990 Wayne Davison
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -1407,21 +1407,29 @@ do_ed_script()
 		/*
 		 * Warning: "ed" stays in command mode in case there is e.g.
 		 * a wrong line number before an "append" command.
+		 *
 		 * Using this "feature" could allow to hide a shell command
-		 * from the command filter. To avoid related problems, we
+		 * from the command filter. However in correctly implemented
+		 * "ed" versions, an error while reading from a file must
+		 * result in e non-zero exit. This was not true for older
+		 * GNU ed versions and resulted in the "beep" attack.
+		 *
+		 * To avoid related other probably unknown problems, we
 		 * use the "red" command instead and start "red" from /tmp
 		 * as it does not accept filenames with a '/' inside.
 		 */
 		if (verbose) {
-			Snprintf(buf, bufsize, "cd %s && /bin/red %s",
+			Snprintf(buf, bufsize, "cd %s && %s %s",
+						CNF_PATH_RED,
 						TMPDIR, TMPOUTNAME + TMPDLEN);
 		} else {
-			Snprintf(buf, bufsize, "cd %s && /bin/red - %s",
+			Snprintf(buf, bufsize, "cd %s && %s - %s",
+						CNF_PATH_RED,
 						TMPDIR, TMPOUTNAME + TMPDLEN);
 		}
 		pipefp = popen(buf, "w");
 #ifdef	__unsafe__
-		if (pipef == NULL {
+		if (pipefp == NULL) {
 			if (verbose)
 				Snprintf(buf, bufsize, "/bin/ed %s", TMPOUTNAME);
 			else

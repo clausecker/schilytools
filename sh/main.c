@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)main.c	1.75 19/01/11 2008-2019 J. Schilling
+ * @(#)main.c	1.76 19/05/19 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.75 19/01/11 2008-2019 J. Schilling";
+	"@(#)main.c	1.76 19/05/19 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -658,6 +658,16 @@ exfile(prof)
 	 */
 	if (input >= 0)
 		initf(input);
+
+#ifdef	DO_CHECKBINARY
+	/*
+	 * Check wether the script may be a binary file, e.g. from a different
+	 * architecture and caused a ENOEXEC error.
+	 */
+	if (isbinary(standin))
+		failedx(ERR_NOEXEC, cmdadr, badexec);
+#endif
+
 	/*
 	 * command loop
 	 */

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)prt.c	1.39 18/12/17 J. Schilling
+ * @(#)prt.c	1.40 19/05/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.39 18/12/17 J. Schilling"
+#pragma ident "@(#)prt.c 1.40 19/05/16 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -373,7 +373,7 @@ char *file;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	time_t	tim;
 	struct tm *tmp;
-#endif
+#endif	/* defined(BUG_1205145) || defined(GMT_TIME) */
 
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of prt */
@@ -420,6 +420,7 @@ char *file;
 
 			p = lineread(NOEOF);
 			getdel(&del, p);
+
 #if defined(BUG_1205145) || defined(GMT_TIME)
 			date_ab(del.datetime, &bindate, 0);
 			/*
@@ -440,7 +441,8 @@ char *file;
 				date_bal(&tim, del.datetime, 0); /* 4 digit year */
 			else
 				date_ba(&tim, del.datetime, 0);	/* 2 digit year */
-#endif
+
+#endif	/* defined(BUG_1205145) || defined(GMT_TIME) */
 
 			if (!HADA && del.type != 'D') {
 				(void) read_to(EDELTAB);

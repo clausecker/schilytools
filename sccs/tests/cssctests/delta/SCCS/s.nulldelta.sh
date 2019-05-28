@@ -1,4 +1,13 @@
-h09951
+h06428
+s 00004/00000/00072
+d D 1.5 19/05/12 14:28:12 joerg 5 4
+c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
+e
+s 00014/00000/00058
+d D 1.4 19/05/12 14:12:22 joerg 4 3
+c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
+c Kommentar verbessert
+e
 s 00001/00001/00057
 d D 1.3 15/06/03 00:06:44 joerg 3 2
 c ../common/test-common -> ../../common/test-common
@@ -28,8 +37,19 @@
 E 3
 I 3
 . ../../common/test-common
+I 4
+. ../../common/real-thing
+E 4
 E 3
 
+I 4
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+
+E 4
 g=new.txt
 s=s.$g
 p=p.$g
@@ -71,12 +91,29 @@ docommand n6 "${prs} -r3.1 -d:I: $s" 0 "3.1\n" IGNORE
 # one delta was ignored; the predecessor sequence number must be 1; 
 # the sequence number of this delta must be 2, and the type must be 'D',
 # that is, a normal delta.
+I 4
+
+if $TESTING_REAL_SCCS
+then
+E 4
 docommand n7 "${prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
 D 2
   'AUTO NULL DELTA\n||1|2|D\n' IGNORE
 E 2
 I 2
   'AUTO NULL DELTA\n|//|1|2|D\n' IGNORE
+I 4
+else
+I 5
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+E 5
+docommand n7-non-POSIX "${prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
+  'AUTO NULL DELTA\n||1|2|D\n' IGNORE
+fi
+E 4
 E 2
 
 ###

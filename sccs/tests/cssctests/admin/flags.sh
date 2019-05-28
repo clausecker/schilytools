@@ -5,6 +5,15 @@
 # Import common functions & definitions.
 . ../../common/test-common
 
+# Import function which tells us if we're testing CSSC, or something else.
+. ../../common/real-thing
+
+# $TESTING_SCCS_V5	Test SCCSv5 features from SunOS
+# $TESTING_CSSC		Relict from CSSC tests, also applies to SCCS
+# $TESTING_REAL_CSSC	Test real CSSC 4-digit year extensions
+# $TESTING_REAL_SCCS	Test real Schily SCCS 4 digit year extensions
+# $TESTING_SCCS_V6	Test SCCSv6 features
+
 g=new.txt
 s=s.$g
 p=p.$g
@@ -93,9 +102,18 @@ docommand b11 "${prs} -r2.1 -d:I: $s" 0 "2.1\n" IGNORE
 # one delta was ignored; the predecessor sequence number must be 1; 
 # the sequence number of this delta must be 2, and the type must be 'D',
 # that is, a normal delta.
+if $TESTING_REAL_SCCS
+then
 docommand b12 "${vg_prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
   'AUTO NULL DELTA\n|//|1|2|D\n' IGNORE
-
+else
+#
+# Not POSIX compliant for -d:DI
+# This applies to AT&T SCCS past 1984 and to CSSC
+#
+docommand b12-nonPOSIX "${vg_prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
+  'AUTO NULL DELTA\n||1|2|D\n' IGNORE
+fi
 
 ###
 ### Tests for the d flag

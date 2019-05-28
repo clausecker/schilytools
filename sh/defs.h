@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.200 19/04/27 2008-2019 J. Schilling
+ * @(#)defs.h	1.201 19/05/19 2008-2019 J. Schilling
  */
 
 /*
@@ -946,6 +946,7 @@ extern	unsigned int	skipwc	__PR((void));
 extern	unsigned int	nextwc	__PR((void));
 extern	unsigned char	*readw	__PR((wchar_t d));
 extern	unsigned int	readwc	__PR((void));
+extern	int		isbinary __PR((struct fileblk *f));
 extern	unsigned char	*do_tilde __PR((unsigned char *arg));
 
 /*
