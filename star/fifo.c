@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.100 19/03/02 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.104 19/06/09 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.100 19/03/02 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.104 19/06/09 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -103,6 +103,9 @@ static	UConst char sccsid[] =
 #else
 #define	EDEBUG(a)
 #endif
+#ifdef	HANG_DEBUG
+#include <schily/string.h>
+#endif
 
 	/*
 	 * roundup(x, y), x needs to be unsigned or x+y non-negative.
@@ -138,12 +141,17 @@ long	obs;
 int	hiw;
 int	low;
 
-LOCAL	int	waitchan;
+LOCAL	int	waitchan;	/* Current waiting channel for debugging */
 
 EXPORT	void	initfifo	__PR((void));
 LOCAL	void	fifo_setparams	__PR((void));
 EXPORT	void	fifo_ibs_shrink	__PR((int newsize));
 EXPORT	void	runfifo		__PR((int ac, char *const *av));
+#ifdef	HANG_DEBUG
+LOCAL	char	*prgflags	__PR((int f, char *fbuf));
+LOCAL	char	*preflags	__PR((int f, char *fbuf));
+LOCAL	char	*prpflags	__PR((int f, char *fbuf));
+#endif
 EXPORT	void	fifo_prmp	__PR((int sig));
 EXPORT	void	fifo_stats	__PR((void));
 LOCAL	int	swait		__PR((int f, int chan));
@@ -281,6 +289,7 @@ extern	BOOL	cflag;
 	mp->base = &buf[addsize];
 	mp->iblocked = FALSE;
 	mp->oblocked = FALSE;
+	mp->mayoblock = FALSE;
 	/*
 	 * Note that R'est'size is used to store shareable strings from the
 	 * 'g'lobal P-1.2001 headers.
@@ -320,7 +329,7 @@ extern	BOOL	cflag;
 #endif
 
 	mp->putptr = mp->getptr = mp->base;
-	fifo_prmp(0);
+	fifo_prmp(0);			/* Print FIFO information with -debug */
 	{
 		/* Temporary until all modules know about mp->xxx */
 		extern int	bufsize;
@@ -446,7 +455,7 @@ runfifo(ac, av)
 			/*
 			 * Tape -> FIFO (Put side)
 			 */
-			mp->flags |= FIFO_IWAIT;
+			mp->gflags |= FIFO_IWAIT;
 			mp->ibs = bs;
 			mp->obs = mp->size;
 			do_in();	/* Extract mode: read archive in bg. */
@@ -473,11 +482,89 @@ runfifo(ac, av)
 	}
 }
 
+#ifdef	HANG_DEBUG
+LOCAL char *
+prgflags(f, fbuf)
+	int	f;
+	char	*fbuf;
+{
+	char	*p = fbuf;
+
+	*p = '\0';
+	if (f)
+		*p++ = '\t';
+
+	if (f & FIFO_MERROR) {
+		strcpy(p, "FIFO_MERROR");
+		p += 11;
+	}
+	if (f & FIFO_IWAIT) {
+		if (p > &fbuf[1])
+			*p++ = '|';
+		strcpy(p, "FIFO_IWAIT");
+		p += 10;
+	}
+	if (f & FIFO_I_CHREEL) {
+		if (p > &fbuf[1])
+			*p++ = '|';
+		strcpy(p, "FIFO_I_CHREEL");
+	}
+	return (fbuf);
+}
+
+LOCAL char *
+preflags(f, fbuf)
+	int	f;
+	char	*fbuf;
+{
+	char	*p = fbuf;
+
+	*p = '\0';
+	if (f)
+		*p++ = '\t';
+
+	if (f & FIFO_EXIT) {
+		strcpy(p, "FIFO_EXIT");
+		p += 9;
+	}
+	if (f & FIFO_EXERRNO) {
+		if (p > &fbuf[1])
+			*p++ = '|';
+		strcpy(p, "FIFO_EXERRNO");
+	}
+	return (fbuf);
+}
+
+LOCAL char *
+prpflags(f, fbuf)
+	int	f;
+	char	*fbuf;
+{
+	char	*p = fbuf;
+
+	*p = '\0';
+	if (f)
+		*p++ = '\t';
+
+	if (f & FIFO_MEOF) {
+		strcpy(p, "FIFO_MEOF");
+		p += 9;
+	}
+	if (f & FIFO_O_CHREEL) {
+		if (p > &fbuf[1])
+			*p++ = '|';
+		strcpy(p, "FIFO_O_CHREEL");
+	}
+	return (fbuf);
+}
+#endif
+
 EXPORT void
 fifo_prmp(sig)
 	int	sig;
 {
 #ifdef	HANG_DEBUG
+	char	fbuf[100];
 extern	BOOL	cflag;
 
 	if (sig == 0 && !debug)
@@ -499,13 +586,14 @@ extern	BOOL	cflag;
 	error("ocnt:     %ld\n", mp->ocnt);
 	error("iblocked: %d\n", mp->iblocked);
 	error("oblocked: %d\n", mp->oblocked);
+	error("mayoblock:%d\n", mp->mayoblock);
 	error("m1:       %d\n", mp->m1);
 	error("m2:       %d\n", mp->m2);
 	error("chreel:   %d\n", mp->chreel);
 	error("reelwait: %d\n", mp->reelwait);
-	error("eflags:   %2.2X\n", mp->eflags);
-	error("pflags:   %2.2X\n", mp->pflags);
-	error("flags:    %2.2X\n", mp->flags);
+	error("eflags:   %2.2X%s\n", mp->eflags, preflags(mp->eflags, fbuf));
+	error("pflags:   %2.2X%s\n", mp->pflags, prpflags(mp->pflags, fbuf));
+	error("flags:    %2.2X%s\n", mp->gflags, prgflags(mp->gflags, fbuf));
 	error("hiw:      %d\n", mp->hiw);
 	error("low:      %d\n", mp->low);
 	error("puts:     %d\n", mp->puts);
@@ -597,7 +685,7 @@ extern	BOOL	cflag;
 				pid, ret);
 			errmsg("Ib %d Ob %d e %X p %X g %X chan %d.\n",
 				mp->iblocked, mp->oblocked,
-				mp->eflags, mp->pflags, mp->flags,
+				mp->eflags, mp->pflags, mp->gflags,
 				chan);
 		}
 		if ((mp->eflags & FIFO_EXERRNO) != 0) {
@@ -639,11 +727,11 @@ swakeup(f, c)
 	return (write(f, &c, 1));
 }
 
-#define	sgetwait(m, w)		swait((m)->gpin, w)
-#define	sgetwakeup(m, c)	swakeup((m)->gpout, (c))
+#define	sgetwait(m, w)		swait((m)->gpin, w)	/* Wait in get side */
+#define	sgetwakeup(m, c)	swakeup((m)->gpout, (c)) /* Wakeup get side */
 
-#define	sputwait(m, w)		swait((m)->ppin, w)
-#define	sputwakeup(m, c)	swakeup((m)->ppout, (c))
+#define	sputwait(m, w)		swait((m)->ppin, w)	/* Wait in put side */
+#define	sputwakeup(m, c)	swakeup((m)->ppout, (c)) /* Wakeup put side */
 
 /*
  * Return the amount of data from the FIFO available to the reader process.
@@ -685,13 +773,20 @@ fifo_iwait(amount)
 		    !((rmp->eflags & FIFO_EXIT) && cnt == '\0')) {
 			errmsgno(EX_BAD,
 			"Implementation botch: with FIFO_MEOF\n");
+#ifdef	HANG_DEBUG
+			errmsgno(EX_BAD,
+			    "Pid %ld expect 'n' eflags %x pflags %x gflags %x\n",
+			    (long)getpid(),
+			    rmp->eflags, rmp->pflags, rmp->gflags);
+			fifo_prmp(-1);
+#endif
 			comerrno(EX_BAD,
 			"Did not wake up from fifo_chitape() - got '%c'.\n",
 				cnt);
 		}
-		if (rmp->flags & FIFO_I_CHREEL) {
+		if (rmp->gflags & FIFO_I_CHREEL) {
 			changetape(TRUE);
-			rmp->flags &= ~FIFO_I_CHREEL;
+			rmp->gflags &= ~FIFO_I_CHREEL;
 			rmp->pflags &= ~FIFO_MEOF;
 			EDEBUG(("t"));
 			sgetwakeup(rmp, 't');
@@ -700,12 +795,15 @@ fifo_iwait(amount)
 		}
 	}
 	while ((cnt = rmp->size - FIFO_AMOUNT(rmp)) < amount) {
-		if (rmp->flags & FIFO_MERROR) {
+		/*
+		 * Wait until "amount" data fits into the fifo.
+		 */
+		if (rmp->gflags & FIFO_MERROR) {
 			fifo_stats();
 			exit(1);
 		}
 		rmp->full++;
-		rmp->iblocked = TRUE;
+		rmp->iblocked = TRUE;	/* Wait for space to become free */
 		EDEBUG(("i"));
 		sputwait(rmp, 3);
 	}
@@ -736,6 +834,7 @@ fifo_owake(amount)
 	int	amount;
 {
 	register m_head *rmp = mp;
+	register int	iwait;
 
 	if (amount <= 0)
 		return;
@@ -745,9 +844,13 @@ fifo_owake(amount)
 	if (rmp->putptr >= rmp->end)
 		rmp->putptr = rmp->base;
 
-	if (rmp->oblocked &&
-			((rmp->flags & FIFO_IWAIT) ||
-					(FIFO_AMOUNT(rmp) >= rmp->low))) {
+	/*
+	 * If FIFO_IWAIT was set, we always need to call sputwait(rmp, 4); as we
+	 * always get a related wakeup. Since fifo_resume() clears that flag
+	 * before sending the wakeup, we need to evaluate FIFO_IWAIT only once.
+	 */
+	iwait = rmp->gflags & FIFO_IWAIT;
+	if (rmp->oblocked && (iwait || (FIFO_AMOUNT(rmp) >= rmp->low))) {
 		/*
 		 * Reset oblocked to make sure we send just one single
 		 * weakup event
@@ -756,7 +859,13 @@ fifo_owake(amount)
 		EDEBUG(("d"));
 		sgetwakeup(rmp, 'd');
 	}
-	if ((rmp->flags & FIFO_IWAIT)) {
+	/*
+	 * This is when the get side of the FIFO examins the data to decide
+	 * e.g. whether the data needs to be swapped. If we did send the
+	 * wakeup above, we always need to wait for a related wakup that
+	 * permits us to continue.
+	 */
+	if (iwait) {
 		EDEBUG(("I"));
 		sputwait(rmp, 4);
 		/*
@@ -776,6 +885,14 @@ EXPORT void
 fifo_oflush()
 {
 	mp->pflags |= FIFO_MEOF;
+	/*
+	 * Make us immune gainst against delays caused by a context switch at
+	 * the other side. usleep(1000) will usually not wait at all but may
+	 * yield to a context switch.
+	 */
+	while (mp->mayoblock && !mp->oblocked)
+		usleep(1000);
+
 	if (mp->oblocked) {
 		/*
 		 * Reset oblocked to make sure we send just one single
@@ -840,7 +957,9 @@ again:
 	/*
 	 * We need to check rmp->pflags & FIFO_MEOF first, because FIFO_AMOUNT()
 	 * gets updated before FIFO_MEOF.
+	 * rmp->mayoblock is used to mark this block to avoid deadlocks.
 	 */
+	rmp->mayoblock = TRUE;
 	if ((rmp->pflags & (FIFO_MEOF|FIFO_O_CHREEL)) == 0) {
 		cnt = FIFO_AMOUNT(rmp);
 		if (cnt < amount) {
@@ -852,12 +971,23 @@ again:
 			 * to detect that we expect a wakeup as rmp->oblocked
 			 * may be set after the Put process exited.
 			 */
+			if (rmp->pflags & (FIFO_MEOF|FIFO_O_CHREEL)) {
+				/*
+				 * There was a context switch between the flag
+				 * check and the amount comutation. The related
+				 * delay changed the state.
+				 */
+				rmp->mayoblock = FALSE;
+				goto again;
+			}
 			rmp->empty++;
 			rmp->oblocked = TRUE;
+			rmp->mayoblock = FALSE;
 			EDEBUG(("o"));
 			c = sgetwait(rmp, 5);
 		}
 	}
+	rmp->mayoblock = FALSE;
 
 	if (rmp->pflags & FIFO_O_CHREEL) {
 		cnt = FIFO_AMOUNT(rmp);
@@ -935,7 +1065,7 @@ fifo_iwake(amt)
 	register m_head *rmp = mp;
 
 	if (amt <= 0) {
-		rmp->flags |= FIFO_MERROR;
+		rmp->gflags |= FIFO_MERROR;
 		exit(1);
 	}
 
@@ -946,6 +1076,9 @@ fifo_iwake(amt)
 	if (rmp->getptr >= rmp->end)
 		rmp->getptr = rmp->base;
 
+	/*
+	 * If rmp->iblocked is TRUE, the put side definitely waits for space.
+	 */
 	if (rmp->iblocked && (FIFO_AMOUNT(rmp) <= rmp->hiw)) {
 		/*
 		 * Reset iblocked to make sure we send just one single
@@ -988,8 +1121,8 @@ fifo_resume()
 {
 	register m_head *rmp = mp;
 
-	if ((rmp->flags & FIFO_IWAIT) != 0) {
-		rmp->flags &= ~FIFO_IWAIT;
+	if ((rmp->gflags & FIFO_IWAIT) != 0) {
+		rmp->gflags &= ~FIFO_IWAIT;
 		EDEBUG(("S"));
 		sputwakeup(rmp, 'S');
 	}
@@ -1098,7 +1231,7 @@ fifo_chitape()
 {
 	char	c;
 
-	mp->flags |= FIFO_I_CHREEL;
+	mp->gflags |= FIFO_I_CHREEL;
 	if (mp->pflags & FIFO_MEOF) {
 		EDEBUG(("n"));
 		sputwakeup(mp, 'n');
@@ -1110,6 +1243,13 @@ fifo_chitape()
 	c = sgetwait(mp, 6);
 	if (c != 't') {
 		errmsgno(EX_BAD, "Implementation botch: with FIFO_I_CHREEL\n");
+#ifdef	HANG_DEBUG
+		errmsgno(EX_BAD,
+		    "Pid %ld expect 't' eflags %x pflags %x gflags %x\n",
+		    (long)getpid(),
+		    mp->eflags, mp->pflags, mp->gflags);
+		fifo_prmp(-1);
+#endif
 		comerrno(EX_BAD,
 			"Did not wake up from fifo_iwait() - got '%c'.\n", c);
 	}
@@ -1126,6 +1266,14 @@ fifo_chotape()
 	char	c;
 
 	mp->pflags |= FIFO_O_CHREEL;
+	/*
+	 * Make us immune gainst against delays caused by a context switch at
+	 * the other side. usleep(1000) will usually not wait at all but may
+	 * yield to a context switch.
+	 */
+	while (mp->mayoblock && !mp->oblocked)
+		usleep(1000);
+
 	if (mp->oblocked) {
 		/*
 		 * Reset oblocked to make sure we send just one single
@@ -1139,6 +1287,13 @@ fifo_chotape()
 	c = sputwait(mp, 7);
 	if (c != 'T') {
 		errmsgno(EX_BAD, "Implementation botch: with FIFO_O_CHREEL\n");
+#ifdef	HANG_DEBUG
+		errmsgno(EX_BAD,
+		    "Pid %ld expect 'T' eflags %x pflags %x gflags %x\n",
+		    (long)getpid(),
+		    mp->eflags, mp->pflags, mp->gflags);
+		fifo_prmp(-1);
+#endif
 		comerrno(EX_BAD,
 			"Did not wake up from fifo_owait() - got '%c'.\n", c);
 	}

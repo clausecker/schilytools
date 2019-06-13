@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)args.c	1.91 19/01/09 2008-2019 J. Schilling
+ * @(#)args.c	1.92 19/06/10 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.91 19/01/09 2008-2019 J. Schilling";
+	"@(#)args.c	1.92 19/06/10 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -111,10 +111,13 @@ unsigned char	flagchar[] =
 	0,			/* set -o fdpipe */
 #endif
 #ifdef	DO_FULLEXCODE
-	0,			/* set -o fullexcode */
+	0,			/* set -o fullexitcode */
 #endif
 #if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	0,			/* set -o globalaliases */
+#endif
+#ifdef	DO_GLOBSKIPDOT
+	0,			/* set -o globskipdot */
 #endif
 	'h',
 #ifdef	DO_HASHCMDS
@@ -189,6 +192,9 @@ char	*flagname[] =
 #if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	"globalaliases",
 #endif
+#ifdef	DO_GLOBSKIPDOT
+	"globskipdot",
+#endif
 	"hashall",		/* -h bash name (ksh93 uses "trackall") */
 #ifdef	DO_HASHCMDS
 	"hashcmds",		/* -o hashcmds, enable # commands */
@@ -260,6 +266,9 @@ unsigned long	flagval[]  =
 #endif
 #if	defined(DO_SYSALIAS) && defined(DO_GLOBALALIASES)
 	fl2 | globalaliasflg,	/* -o globalaliases */
+#endif
+#ifdef	DO_GLOBSKIPDOT
+	fl2 | globskipdot,	/* -o globskipdot */
 #endif
 	hashflg,		/* -h / -o hashall */
 #ifdef	DO_HASHCMDS

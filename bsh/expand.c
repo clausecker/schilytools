@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.56 19/04/07 Copyright 1985-2019 J. Schilling */
+/* @(#)expand.c	1.57 19/06/12 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.56 19/04/07 Copyright 1985-2019 J. Schilling";
+	"@(#)expand.c	1.57 19/06/12 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -361,28 +361,35 @@ exp(n, i, l, patm)
 
 	} else while ((dent = readdir(dirp)) != 0 && !ctlc) {
 		int	namlen;
+		char	*name = dent->d_name;
+
+		/*
+		 * Skip the following names: "", ".", "..".
+		 */
+		if (name[name[0] != '.' ? 0 : name[1] != '.' ? 1 : 2] == '\0')
+			continue;
 
 		/*
 		 * Are we interested in files starting with '.'?
 		 */
-		if (dent->d_name[0] == '.' && *dp != '.')
+		if (name[0] == '.' && *dp != '.')
 			continue;
 		namlen = DIR_NAMELEN(dent);
 		if (patm) {
 			tmp = (char *)patmatch((unsigned char *)dp, aux,
-				(unsigned char *)dent->d_name, 0, namlen,
+				(unsigned char *)name, 0, namlen,
 				alt, state);
 		} else {
-			if (strstr(dent->d_name, dp) == dent->d_name)
+			if (strstr(name, dp) == name)
 				tmp = "";
 			else
 				tmp = NULL;
 		}
 
 #ifdef	DEBUG
-		if (tmp != NULL || (dent->d_name[0] == dp[0] &&
+		if (tmp != NULL || (name[0] == dp[0] &&
 		    patlen == namlen))
-			EDEBUG(("match? '%s' end: '%s'\n", dent->d_name, tmp));
+			EDEBUG(("match? '%s' end: '%s'\n", name, tmp));
 #endif
 		/*
 		 * *tmp == '\0' is a result of an exact pattern match.
@@ -396,11 +403,11 @@ exp(n, i, l, patm)
 
 		if ((tmp != NULL && *tmp == '\0') ||
 		    (patlen == namlen &&
-		    dent->d_name[0] == dp[0] &&
-		    dncmp(dent->d_name, dp) == 0)) {
-			EDEBUG(("found: '%s'\n", dent->d_name));
+		    name[0] == dp[0] &&
+		    dncmp(name, dp) == 0)) {
+			EDEBUG(("found: '%s'\n", name));
 
-			cname = concat(dir, dent->d_name, cp, (char *)NULL);
+			cname = concat(dir, name, cp, (char *)NULL);
 			if (*cp == '/') {
 				EDEBUG(("rescan: '%s'\n", cname));
 				rescan++;
@@ -410,7 +417,7 @@ exp(n, i, l, patm)
 						(Tnode *)cname, l1);
 			} else {
 				EDEBUG(("cannot concat: '%s%s%s'\n",
-				/* EDEBUG */	dir, dent->d_name, cp));
+				/* EDEBUG */	dir, name, cp));
 				break;
 			}
 		}

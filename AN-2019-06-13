@@ -1,0 +1,232 @@
+New features with AN-2019-06-13:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+-	cal: The code now correctly deals with a switch date that affects
+	December and January. This allows to verify switch dates that become
+	effective with January 1st and need to have all skipped days in
+	December.
+
+-	cdrecord: The man page now lists all supported media types and which
+	media types are preferred over others. This is aimed to tell people
+	to use DVD+R/DL instead of DVD-R/DL, while using DVD-R and DVD-RW
+	in favor of DVD+R...
+
+-	patch: #ifdef HAVE_RENAME has been removed. We now use the rename()
+	emulation from libschily in case rename() does not exists on a specific
+	platform.
+
+-	star: fixed a bug in the FIFO code that mainly happened on Linux (with
+	a 1000x higher probability than it happens on Solaris). The bug was 
+	caused, as a check for a flag has been done twice instead of only once
+	where it could change it's value between both locations. As a 
+	result, star reported "star: Implementation botch: with FIFO_MEOF"
+	as the tar side of the FIFO did sometimes not wait for the FIFO_IWAIT
+	state when called as "star -multivolume -tv f=... f=... ...
+	For this reason, star incorrectly got a wakeup at the wrong location.
+
+	The bug appeared in case that star -x/-t -multivol f=.. f=.. ....
+	has been called with very small tar archives.
+
+	Thanks to Heiko Eißfeldt for reporting.
+
+-	star: The FIFO code renamed the "flag" member of the "m_head" structure
+	to "gflag" for better readability.
+
+-	star: The debugging code in the FIFO has been enhanced to print the
+	names of the flag bits in addition to the hex values.
+
+-	star: A deadlock situation that happens once every 500000 tries on
+	Linux with multi-volume archives has been fixed.
+
+	The problem was caused by a complex condition where the get side
+	of the FIFO needs to check the EOF FIFO flag and the amount of data
+	available in the FIFO and then decide whether to wait for a wakeup or
+	not.
+
+	Since the EOF flag needs to be checked first, a context switch in
+	the get side of the FIFO could allow the put side to set the EOF flag
+	before the get side did check the fill ratio of the FIFO. This
+	caused both the get side and the put side to wait for a wakeup.
+
+	The new code introduced a new variable mp->mayoblock that is set by
+	the get side before checking for EOF. This new flags allows the
+	put side to know that the get side is just in a critical situation
+	and lets the put side wait until mp->mayoblock is no longer set,
+	which signals a stable state in the get side. This permits to
+	avoid the deadlock.
+
+-	star: Note that the FIFO has been initially written as a lock free
+	design in the late 1980's. This is to allow high portability to even
+	older UNIX versions. The star FIFO works on all UNIX variants that
+	support pipes and shared memory, which is e.g. the case for
+	SunOS-4.0 from 1988. At the time the FIFO has been designed, the
+	target OS did not support multi-CPU systems and problems in the
+	FIFO first appeared with massively faster multi-CPU systems around
+	y2000. The recently detected problems all have been triggered by a
+	different context switch behavior on Linux, even though they could
+	have appeared on any OS in case that many million tries are
+	attempted.
+
+-	star: bumped version to 1.6.1
+
+-	Bourne Shell: A new option "set -o globskipdot" has been added.
+	If set, the entries "."  and ".." are skipped and not shown in globbing
+	results. If not set, the entries "."  and ".." are always returned,
+	even when they are not part of the readdir(3) results.
+
+-	Bourne Shell: The option "set -o globskipdot" has been made the
+	new dfault behavior for "bosh", but not for "pbosh"
+
+	Note that this new shell option has been introduced as a result
+	of a related BUG discussion in the Austin Group telephone conference.
+	The background is to permit shell scripts to check whether a shell
+	grants to hide the "."  and ".." for all filesystems.
+
+-	bsh: When expanding file names, the directory entries . and ..
+	are now skipped and not part of the results. This is to make bsh
+	to behave similar to the Bourne Shell with respect to globbing.
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

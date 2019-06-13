@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.153 19/05/19  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.155 19/06/11  Copyright (c) 2006-2018 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -68,6 +68,8 @@ CPPOPTS +=	-DDO_SETIO_NOFORK	# Avoid to fork w. redir. IO in compound cmd
 CPPOPTS +=	-DDO_ALLEXPORT		# Bugfix for set -a; read VAR / getopts
 CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
 CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
+CPPOPTS +=	-DDO_GLOBSKIPDOT	# Implement set -o globskipdot, skip . ..
+CPPOPTS +=	-DDO_GLOBSKIPDOT_DEF	# Implement set -o globskipdot as default
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parameters
 CPPOPTS +=	-DDO_U_DOLAT_NOFAIL	# set -u; echo "$@" does not fail

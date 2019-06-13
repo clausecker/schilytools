@@ -1,4 +1,4 @@
-/* @(#)fifo.h	1.36 18/10/22 Copyright 1989-2018 J. Schilling */
+/* @(#)fifo.h	1.38 19/06/06 Copyright 1989-2018 J. Schilling */
 /*
  *	Definitions for a "fifo" that uses
  *	shared memory between two processes
@@ -81,7 +81,7 @@ typedef	struct	{
  *
  * In order to avoid the need for semaphores to control the change of values
  * in this structure, members marked with "P", are only modified by the
- * put side of the FIFO and members marked with "G" are only marked by the
+ * put side of the FIFO and members marked with "G" are only modified by the
  * get side of the FIFO.
  *
  * Members marked with "P-" are set by the put side and reset by the get side.
@@ -104,13 +104,15 @@ typedef struct {
 	V unsigned long	ocnt;	/* G  output count (incremented on each get) */
 	V char	iblocked;	/* P- input  (put side) is blocked	    */
 	V char	oblocked;	/* G- output (get side) is blocked	    */
+	V char	mayoblock;	/* G output (get side) may set oblocked	    */
 	V char	m1;		/*    Semaphore claimed by newvolhdr()	    */
 	V char	m2;		/*    Semaphore claimed by cr_file()	    */
 	V char	chreel;		/*    Semaphore claimed by startvol()	    */
 	V char	reelwait;	/* P- input (put side) is blocked on "chreel" */
 	V char	eflags;		/*    fifo exit flags			    */
 	V char	pflags;		/*    fifo put flags			    */
-	V int	flags;		/*    fifo flags			    */
+	V char	gflags;		/*    fifo get flags			    */
+				/*    2 or 6 bytes of padding		    */
 	V int	ferrno;		/*    errno from fifo background process    */
 	int	hiw;		/*    highwater mark			    */
 	int	low;		/*    lowwater mark			    */
@@ -140,6 +142,7 @@ typedef struct {
 /*
  * The FIFO flags are used only inside fifo.c
  *
+ * gflags:
  * FIFO_MERROR	 set by the get side
  * FIFO_IWAIT	 set by the put side before startup, reset by the get side
  * FIFO_I_CHREEL set by the get side, reset by the put side with get waiting
@@ -151,6 +154,8 @@ typedef struct {
  * eflags:
  * FIFO_EXIT	 set by the side that decided to abort the program
  * FIFO_EXERRNO	 set by the side that decided to abort the program
+ *
+ * If we ever need more than 8 bits, we need to use a larger data type.
  */
 #define	FIFO_MERROR	0x001	/* G error on input (get side)	*/
 

@@ -30,7 +30,7 @@
 /*
  * Copyright 2019 J. Schilling
  *
- * @(#)cal.c       1.4 19/05/27 J. Schilling
+ * @(#)cal.c       1.5 19/05/30 J. Schilling
  *
  * From @(#)cal.c      1.14    05/06/08 SMI
  */
@@ -351,8 +351,8 @@ cal(const int m, const int y, char *p, const int w)
 	}
 	if (y == yg) {
 		/*
-		 * If we are in year that is a Julian leap year but not in the
-		 * Gregorian calendar, we need to use a non-leap February,
+		 * If we are in a year that is a Julian leap year but not in
+		 * the Gregorian calendar, we need to use a non-leap February,
 		 * if the calendar switch is active already at the end of
 		 * February or if the skipped days include the leap day.
 		 */
@@ -365,13 +365,21 @@ cal(const int m, const int y, char *p, const int w)
 			int	l = mon[mg];
 
 			mon[mg] = dg-1;
-			skip = sg - l +  mon[mg];
+			skip = sg - l + mon[mg];
 		}
+	} else if (((y-1) == yg) && (mg == 12) && (dg+sg) > 32) {
+		/*
+		 * Compute the number of days to skip in January.
+		 */
+		skip = (dg+sg) - 32;
 	}
 	for (i = 1; i < m; i++)
 		d += mon[i];
-	if (y == yg && m > (mg+1))	/* Need tp correct wday if skipped */
-		d -= skip;		/* days span two months		   */
+	if (y == yg && m > (mg+1))	/* Correct wday a month after next */
+		d -= skip;		/* if skipped days span two months */
+	else if (((y-1) == yg) && m == 1) /* January after switch year and */
+		d += skip;		/* skipped days span year start	   */
+
 	d %= 7;
 	s += 3*d;
 	for (i = 1; i <= mon[m]; i++) {
@@ -382,6 +390,10 @@ cal(const int m, const int y, char *p, const int w)
 			}
 			if (i == 1 && m == (mg+1))
 				i += skip;
+		} else if (((y-1) == yg) && m == 1) {
+			if (i == 1)
+				i += skip;
+			
 		}
 		if (i > 9)
 			*s = i/10+'0';

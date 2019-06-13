@@ -36,11 +36,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)expand.c	1.27 19/01/13 2008-2019 J. Schilling
+ * @(#)expand.c	1.28 19/06/10 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.27 19/01/13 2008-2019 J. Schilling";
+	"@(#)expand.c	1.28 19/06/10 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -71,6 +71,10 @@ static void	addg	__PR((unsigned char *, unsigned char *, unsigned char *,
 			    unsigned char *));
 	void	makearg	__PR((struct argnod *));
 static	DIR	*lopendir __PR((char *name));
+
+#ifdef	DO_GLOBSKIPDOT
+static char	*dots[] = { ".", ".." };
+#endif
 
 int
 expand(as, rcnt)
@@ -208,16 +212,41 @@ expand(as, rcnt)
 			count++;
 		} else
 #endif
+		{
+#ifdef	DO_GLOBSKIPDOT
+		if ((flags2 & globskipdot) == 0 && *cs == '.') {
+			/*
+			 * Synthesize "." and ".." to make sure they are present
+			 * even if the current filesystem does not have them.
+			 */
+			for (len = 0; len < 2; len++) {
+				if (gmatch(dots[len], (char *)cs)) {
+					addg(s, (unsigned char *)dots[len],
+					    rescan, slashsav);
+					count++;
+				}
+			}
+		}
+#endif
 		while ((e = readdir(dirf)) != 0 && (trapnote & SIGSET) == 0) {
-			if (e->d_name[0] == '.' && *cs != '.')
+			char	*name = e->d_name;
+
+#ifdef	DO_GLOBSKIPDOT
+			/*
+			 * Skip the following names: "", ".", "..".
+			 */
+			if (name[name[0] != '.' ? 0 : name[1] != '.' ? 1 : 2] == '\0')
+				continue;
+#endif
+			if (name[0] == '.' && *cs != '.')
 				continue;
 
-			if (gmatch(e->d_name, (char *)cs)) {
-				addg(s, (unsigned char *)e->d_name, rescan,
+			if (gmatch(name, (char *)cs)) {
+				addg(s, (unsigned char *)name, rescan,
 				    slashsav);
 				count++;
 			}
-		}
+		}}
 		(void) closedir(dirf);
 
 		if (rescan) {

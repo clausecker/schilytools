@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.201 19/05/19 2008-2019 J. Schilling
+ * @(#)defs.h	1.202 19/06/10 2008-2019 J. Schilling
  */
 
 /*
@@ -1225,6 +1225,7 @@ extern const char		devnull[];
 #define		vedflg		0100000		/* set -o ved VED cmdln. edit */
 #define		posixflg	0200000		/* set -o posix		*/
 #define		promptcmdsubst	0400000		/* set -o promptcmdsubst */
+#define		globskipdot	01000000	/* set -o globskipdot	*/
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */

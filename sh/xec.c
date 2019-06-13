@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)xec.c	1.109 19/04/17 2008-2019 J. Schilling
+ * @(#)xec.c	1.110 19/06/12 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.109 19/04/17 2008-2019 J. Schilling";
+	"@(#)xec.c	1.110 19/06/12 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -982,7 +982,8 @@ script:
 
 		case TLST:		/* ";" separated command list */
 			execute(lstptr(t)->lstlef,
-				xflags&XEC_NOSTOP, errorflg,
+				xflags&XEC_NOSTOP,
+				errorflg,
 				no_pipe, no_pipe);
 			/*
 			 * When not in POSIX mode, be compatible to the Solaris
@@ -992,10 +993,11 @@ script:
 			 * Update errorflg if set -e is invoked in the sub-sh
 			 */
 			execute(lstptr(t)->lstrit,
+				xflags,
 #ifdef	DO_POSIX_E
-				xflags, errorflg,
+				errorflg,
 #else
-				xflags, (errorflg | (eflag & errflg)),
+				(errorflg | (eflag & errflg)),
 #endif
 				no_pipe, no_pipe);
 			break;

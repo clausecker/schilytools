@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.241 19/04/18 Copyright 2012-2019 J. Schilling
+.\" @(#)sh.1	1.244 19/06/11 Copyright 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2019/04/18" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2019/06/11" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5762,6 +5762,27 @@ Changing the state for this option first removes all current global aliases.
 If the new state is
 .BR on ,
 the persistent global aliases are loaded.
+.TP
+.B globskipdot
+If set, the entries
+.B
+"."
+and
+.B
+".."
+are skipped and not shown in globbing results.
+If not set, the entries
+.B
+"."
+and
+.B
+".."
+are always returned, even when they are not part of the
+.BR readdir (3)
+results.
+The shell flag
+.B globskipdot
+is enabled by default.
 .TP
 .B hashall
 Equivalent to

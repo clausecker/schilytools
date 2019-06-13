@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)main.c	1.76 19/05/19 2008-2019 J. Schilling
+ * @(#)main.c	1.77 19/06/11 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.76 19/05/19 2008-2019 J. Schilling";
+	"@(#)main.c	1.77 19/06/11 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -254,6 +254,9 @@ main(c, v, e)
 	    eq("-jbosh", simple((unsigned char *)*v)))
 		flags |= monitorflg;
 
+#ifdef	DO_GLOBSKIPDOT_DEF
+	flags2 |= globskipdot;
+#endif
 #ifdef	DO_ALWAYS_POSIX_SH
 	flags2 |= posixflg;
 #else
@@ -383,6 +386,9 @@ main(c, v, e)
 #endif
 		flags |= subsh;
 		flags2 |= posix;	/* restore "auto-posix" value */
+#ifdef	DO_GLOBSKIPDOT_DEF
+		flags2 |= globskipdot;
+#endif
 
 		mypgid = getpgid(0);	/* get process group of script */
 	}
