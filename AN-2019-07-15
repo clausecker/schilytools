@@ -1,0 +1,238 @@
+New features with AN-2019-07-15:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+
+-	star: the compress unit test no longer fails on Cygwin because the
+	gzip binary is compiled incorrectly and does not support LZW.
+	The related test is now skipped.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: some new unit tests failed if the schilytools source tree has
+	been installed in a directory with spaces in it's name.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: The unit tests for incremental backups include archives that
+	include userid/groupid and username/groupname that may not be
+	restorable on a different computer. We now ignore these ID meta 
+	data when comparing the results.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: When comparing nanoseconds in time stamps, star now has a mode
+	that treats time stamps as equal in case that tv_nsec % 100 == 0
+	and the rest of the nano seconds is equal. This is needd on Cygwin
+	since NTFS counts in 1/10 microseconds since Januar 1 1601.
+
+	This applies to both star -diff and the "newer" check while extracting
+	files.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: a new option diffopts=dnlink has been implemented to support
+	filesystems that do not follow the historic UNIX model for hard links
+	on directories.
+
+	Since Cygwin usually has a linkcount of 1 on directories, you need
+	to use "star -diff diffopts=!dnlink ..." if you like to diff the
+	meta data from a historical UNIX filesystem.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: The incremental backup/restore tests now use 
+	"star -diff diffopts=!dnlink ..." to make them work on Cygwin.
+
+	Thanks to Heiko Eißfeldt for reporting
+
+-	star: star -c -H exustar -acl -xattr-linux .
+	did cause file not found messages from the attempt to archive the
+	Linux xattrs. This was caused by a change from July 2018 when trying to
+	optimize directory access in (non-find) create mode. The call to read
+	the Linux xattrs has now been moved to the location where in former
+	times the ACL code has already been moved.
+
+	The move is needed because there is no ACL/XATTR related function
+	that is similar to openat().
+
+-	star: A similar problem with get_xattr() did exist with star -diff
+
+-	star: star -diff did not compare ACLs since getinfo() no longer
+	includes a call to get_acl(). We now call get_xattr() and get_acl()
+	in diff.c
+
+-	star: The Solaris ACL interface now implelements lacl() / lacl_get() /
+	lacl_set() to support very long pathnames with ACLs.
+
+-	star: The Linux ACL interface now implelements lacl_get_file() /
+	lacl_set_file() to support very long pathnames with ACLs on platforms
+	that implement the withdrawn POSIX ACL draft.
+
+-	star: The Linux xattr interface now implelements 
+	llgetxattr() / llsetxattr() / lllistxattr() to support very long
+	pathnames with Linux xattrs.
+
+-	star: New version date
+
+-	Bourne Shell: If OPTIND is set to a new value, the getopt() internal
+	variable "_sp" is now reset to 1. This is needed in order to make sure
+	that a combined option string can be parsed correctly.
+
+-	Bourne Shell/libshedit/bsh: The TAB expander now again gives .. as a 
+	result if the pattern is ..
+
+	This is needed in order to let ..TAB result in ../ on the command
+	line editor.
+
+-	ved: When opening /dev/tty, there is a fallback to stderr, if that
+	open does not succeed.
+
+-	SunPro Make: "include" and other new directives now correctly deal with
+	the "#" comment sign. This was a problem introduced with permitting
+	more than one filename past "include" in 2017. That change was not
+	aligned with the previous (idiosyncratic) parsers features.
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

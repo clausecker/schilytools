@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.165 19/01/16 Copyright 1985-2019 J. Schilling */
+/* @(#)extract.c	1.166 19/06/16 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.165 19/01/16 Copyright 1985-2019 J. Schilling";
+	"@(#)extract.c	1.166 19/06/16 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -671,9 +671,18 @@ newer(info, cinfo)
 		 * the resolution in the archive is nanoseconds, we need to
 		 * check based on microseconds to prevent extracting the
 		 * file from the archive again and again.
+		 * This is the UFS variant.
 		 */
 		if ((cinfo->f_mnsec % 1000 == 0) &&
 		    ((cinfo->f_mnsec / 1000) >= (info->f_mnsec / 1000)))
+			goto isnewer;
+
+		/*
+		 * This is the NTFS (Win-DOS) variant that is based on
+		 * 1/10 microseconds since 1601.
+		 */
+		if ((cinfo->f_mnsec % 100 == 0) &&
+		    ((cinfo->f_mnsec / 100) >= (info->f_mnsec / 100)))
 			goto isnewer;
 	} else if ((cinfo->f_mtime % 2) == 0 && (cinfo->f_mtime + 1) == info->f_mtime) {
 		/*

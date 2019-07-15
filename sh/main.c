@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)main.c	1.77 19/06/11 2008-2019 J. Schilling
+ * @(#)main.c	1.78 19/06/18 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.77 19/06/11 2008-2019 J. Schilling";
+	"@(#)main.c	1.78 19/06/18 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -445,6 +445,9 @@ main(c, v, e)
 	/* initialize OPTIND for getopt */
 
 	n = lookup((unsigned char *)"OPTIND");
+#ifdef	DO_GETOPT_POSIX
+	optindnodep = n;
+#endif
 	assign(n, (unsigned char *)"1");
 	/*
 	 * make sure that option parsing starts

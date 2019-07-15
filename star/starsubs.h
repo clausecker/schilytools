@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.135 19/03/11 Copyright 1996-2019 J. Schilling */
+/* @(#)starsubs.h	1.136 19/07/07 Copyright 1996-2019 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -440,7 +440,8 @@ extern	int	_lfileopen	__PR((char *name, char *mode));
 #ifdef	_SCHILY_DIRENT_H
 EXPORT	DIR	*lopendir	__PR((char *name));
 #endif
-#endif
+#endif	/* _STAR_H */
+EXPORT	int	hop_dirs	__PR((char *name, char **np));
 
 /*
  * acl_unix.c

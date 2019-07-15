@@ -1,13 +1,13 @@
-/* @(#)terminal.c	1.44 15/11/17 Copyright 1984-2015 J. Schilling */
+/* @(#)terminal.c	1.45 19/06/25 Copyright 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)terminal.c	1.44 15/11/17 Copyright 1984-2015 J. Schilling";
+	"@(#)terminal.c	1.45 19/06/25 Copyright 1984-2019 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP
  *
- *	Copyright (c) 1984-2015 J. Schilling
+ *	Copyright (c) 1984-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -110,7 +110,7 @@ winch(signo)
 {
 #if	defined(TIOCGWINSZ) || defined(TIOCGSIZE)
 		extern	ewin_t	rootwin;
-			int	tty;
+			int	tty = -1;
 			int	opsize = rootwin.psize;
 			int	ollen  = rootwin.llen;
 	register	int	lines = 0;
@@ -126,9 +126,10 @@ winch(signo)
 
 #ifdef	HAVE__DEV_TTY
 	tty = open("/dev/tty", 0);
-#else
-	tty = fileno(stderr);
 #endif
+	if (tty == -1)
+		tty = fileno(stderr);
+
 #ifdef	TIOCGWINSZ
 	if (ioctl(tty, TIOCGWINSZ, (char *)&ws) >= 0) {
 		lines = ws.ws_row;
@@ -141,7 +142,7 @@ winch(signo)
 	}
 #endif
 #ifdef	HAVE__DEV_TTY
-	if (tty >= 0)
+	if (tty >= 0 && tty != fileno(stderr))
 		close(tty);
 #endif
 

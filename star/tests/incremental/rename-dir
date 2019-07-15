@@ -2,10 +2,14 @@
 set -e
 
 tar=${tar-star}
-if grep / ${tar} > /dev/null; then
-	tar=`pwd`/${tar}
+if echo "${tar}" | grep / > /dev/null; then
+	if echo "${tar}" | grep '^/' > /dev/null; then
+		:
+	else
+		tar=`pwd`/${tar}
+	fi
 fi
-echo tar installed as $tar 1>&2
+echo tar installed as "$tar" 1>&2
 
 #
 # This is where GNU tar always fails as GNU tar is unable to hndle renamed
@@ -24,7 +28,7 @@ mkdir test/dir2
 echo dir1-file > test/dir1/dir1-file
 echo dir2-file > test/dir2/dir2-file
 
-$tar -c -xdev -sparse -acl -link-dirs level=0 \
+"$tar" -c -xdev -sparse -acl -link-dirs level=0 \
 	tardumps=/tmp/test.$$/tardumps -wtardumps \
 	f=/tmp/test.$$/full.tar -C /tmp/test.$$/test .
 
@@ -32,7 +36,7 @@ $tar -c -xdev -sparse -acl -link-dirs level=0 \
 rm -rf test/dir2
 mv test/dir1 test/dir2
 
-$tar -c -xdev -sparse -acl -link-dirs level=1 \
+"$tar" -c -xdev -sparse -acl -link-dirs level=1 \
 	tardumps=/tmp/test.$$/tardumps -wtardumps \
 	f=/tmp/test.$$/incremental.tar -C /tmp/test.$$/test .
 
@@ -40,8 +44,8 @@ mv test orig
 mkdir test
 cd /tmp/test.$$/test
 
-$tar -xpU -restore -partial f=/tmp/test.$$/full.tar
-$tar -xpU -restore -partial f=/tmp/test.$$/incremental.tar
+"$tar" -xpU -restore -partial f=/tmp/test.$$/full.tar
+"$tar" -xpU -restore -partial f=/tmp/test.$$/incremental.tar
 
 rm star-symtable
 rm -rf star-tmpdir

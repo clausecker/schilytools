@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.218 19/03/27 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.219 19/06/16 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/03/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/06/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -1656,7 +1656,25 @@ Note that
 cannot compare the file type in case of a hard link.
 .TP 10
 .B nlink
-Compare link count on hardlinks.
+Compare link count on hardlinks for all types of files.
+This only works if the archive is in
+.B exustar
+format and contains
+.B star's
+dump extensions.
+.TP 10
+.B dnlink
+Compare link count on hardlinks for directories.
+If comparing 
+.B dnlink
+is excluded but
+.B nlink
+is not excluded, this allows to deal with filesystems that differ
+in their directory implementation.
+The link count of directories in POSIX is equal to the number of manually
+created additional hard links + 1 (as with other file types), while on
+historical UNIX filesystems it is equal to the number of 
+sub-directories + 2 + number of manually created additional hard links.
 This only works if the archive is in
 .B exustar
 format and contains

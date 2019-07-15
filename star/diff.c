@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.100 19/01/16 Copyright 1993-2019 J. Schilling */
+/* @(#)diff.c	1.104 19/07/04 Copyright 1993-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.100 19/01/16 Copyright 1993-2019 J. Schilling";
+	"@(#)diff.c	1.104 19/07/04 Copyright 1993-2019 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -78,6 +78,7 @@ extern	BOOL	doacl;
 #endif
 #ifdef USE_XATTR
 extern	BOOL	doxattr;
+extern	BOOL	dolxattr;
 #else
 #define	doxattr	FALSE
 #endif
@@ -200,11 +201,8 @@ diff_tcb(info)
 		void_file(info);
 		return;
 	}
-	/*
-	 * Use getinfo() if we like to compare ACLs/xattr too.
-	 */
-	if (((doacl || doxattr)? !getinfo(info->f_name, &finfo):
-				!_getinfo(info->f_name, &finfo))) {
+
+	if (!_getinfo(info->f_name, &finfo)) {
 		if (!errhidden(E_STAT, info->f_name)) {
 			if (!errwarnonly(E_STAT, info->f_name))
 				xstats.s_staterrs++;
@@ -214,6 +212,15 @@ diff_tcb(info)
 		void_file(info);
 		return;
 	}
+#ifdef	USE_ACL
+	if (doacl)
+		(void) get_acls(&finfo);
+#endif  /* USE_ACL */
+#ifdef	USE_XATTR
+	if (dolxattr)
+		(void) get_xattr(&finfo);
+#endif
+
 	/*
 	 * We cannot compare the link count if this is a CPIO archive
 	 * and the link count is < 2. Even if the link count is >= 2, it
@@ -239,9 +246,12 @@ diff_tcb(info)
 
 	}
 
-	if ((diffopts & D_NLINK) && info->f_nlink > 0 &&
+	if ((diffopts & (D_NLINK|D_DNLINK)) && info->f_nlink > 0 &&
 			info->f_nlink != finfo.f_nlink) {
-		diffs |= D_NLINK;
+		if ((diffopts & D_DNLINK) && is_dir(info))
+			diffs |= D_DNLINK;
+		else if ((diffopts & D_NLINK) && !is_dir(info))
+			diffs |= D_NLINK;
 	}
 
 	if ((diffopts & D_UID) && info->f_uid != finfo.f_uid) {
@@ -303,10 +313,15 @@ diff_tcb(info)
 			    (finfo.f_flags & F_NSECS) &&
 			    info->f_ansec != finfo.f_ansec) {
 				diffs |= D_ANTIME;
-				if ((info->f_ansec % 1000 == 0 ||
+				if ((info->f_ansec % 1000 == 0 || /* UFS */
 				    finfo.f_ansec % 1000 == 0) &&
 				    (info->f_ansec / 1000 ==
 				    finfo.f_ansec / 1000))
+					diffs &= ~D_ANTIME;
+				else if ((info->f_ansec % 100 == 0 || /* NTFS */
+				    finfo.f_ansec % 100 == 0) &&
+				    (info->f_ansec / 100 ==
+				    finfo.f_ansec / 100))
 					diffs &= ~D_ANTIME;
 			}
 		}
@@ -324,7 +339,12 @@ diff_tcb(info)
 					    finfo.f_mnsec % 1000 == 0) &&
 					    (info->f_mnsec / 1000 ==
 					    finfo.f_mnsec / 1000))
-					diffs &= ~D_MNTIME;
+						diffs &= ~D_MNTIME;
+					else if ((info->f_mnsec % 100 == 0 ||
+					    finfo.f_mnsec % 100 == 0) &&
+					    (info->f_mnsec / 100 ==
+					    finfo.f_mnsec / 100))
+						diffs &= ~D_MNTIME;
 				}
 			}
 		}
@@ -337,11 +357,16 @@ diff_tcb(info)
 			    (finfo.f_flags & F_NSECS) &&
 			    info->f_cnsec != finfo.f_cnsec) {
 				diffs |= D_CNTIME;
-				if ((info->f_cnsec % 1000 == 0 ||
+				if ((info->f_cnsec % 1000 == 0 || /* UFS */
 				    finfo.f_cnsec % 1000 == 0) &&
 				    (info->f_cnsec / 1000 ==
 				    finfo.f_cnsec / 1000))
-				diffs &= ~D_CNTIME;
+					diffs &= ~D_CNTIME;
+				else if ((info->f_cnsec % 100 == 0 || /* NTFS */
+				    finfo.f_cnsec % 100 == 0) &&
+				    (info->f_cnsec / 100 ==
+				    finfo.f_cnsec / 100))
+					diffs &= ~D_CNTIME;
 			}
 		}
 	}
@@ -500,7 +525,7 @@ diff_tcb(info)
 #endif
 
 #ifdef USE_XATTR
-	if (doxattr && (diffopts & D_XATTR)) {
+	if (dolxattr && (diffopts & D_XATTR)) {
 		if ((info->f_xflags & XF_XATTR) !=
 		    (finfo.f_xflags & XF_XATTR)) {
 			diffs |= D_XATTR;
@@ -805,6 +830,8 @@ prdiffopts(f, label, flags)
 		prdopt(f, "type", printed++);
 	if (flags & D_NLINK)
 		prdopt(f, "nlink", printed++);
+	if (flags & D_DNLINK)
+		prdopt(f, "dnlink", printed++);
 	if (flags & D_UID)
 		prdopt(f, "uid", printed++);
 	if (flags & D_GID)

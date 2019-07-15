@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.118 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)star_unix.c	1.119 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.118 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)star_unix.c	1.119 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -590,8 +590,10 @@ again:
 #endif  /* USE_ACL */
 
 #ifdef	USE_XATTR
-	if (dolxattr)
-		(void) get_xattr(info);
+	/*
+	 * Note: Linux xattr check/fetch has been moved to create.c::take_file()
+	 * for performance reasons.
+	 */
 #endif
 
 	return (TRUE);

@@ -1,8 +1,8 @@
-/* @(#)diff.h	1.16 18/04/24 Copyright 1993-2018 J. Schilling */
+/* @(#)diff.h	1.17 19/06/16 Copyright 1993-2019 J. Schilling */
 /*
  *	Definitions for the taylorable diff command
  *
- *	Copyright (c) 1993-2018 J. Schilling
+ *	Copyright (c) 1993-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,6 +57,7 @@ extern "C" {
 #define	D_ANTIME	0x1000000
 #define	D_MNTIME	0x2000000
 #define	D_CNTIME	0x4000000
+#define	D_DNLINK	0x8000000
 #define	D_MAX		0x80000000
 
 /*

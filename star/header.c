@@ -1,8 +1,8 @@
-/* @(#)header.c	1.198 19/03/26 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.199 19/07/08 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.198 19/03/26 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.199 19/07/08 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1437,7 +1437,7 @@ info_to_tcb(info, ptb)
 						"Uid %lld for '%s' out of range.\n",
 						(Ullong)info->f_uid, info->f_name);
 					(void) errabort(E_ID, info->f_name, TRUE);
-				} 
+				}
 			}
 		} else {
 			litos(ptb->dbuf.t_uid, info->f_uid, 7);
@@ -1467,7 +1467,7 @@ info_to_tcb(info, ptb)
 						"Gid %lld for '%s' out of range.\n",
 						(Ullong)info->f_gid, info->f_name);
 					(void) errabort(E_ID, info->f_name, TRUE);
-				} 
+				}
 			}
 		} else {
 			litos(ptb->dbuf.t_gid, info->f_gid, 7);
@@ -1507,7 +1507,7 @@ info_to_tcb(info, ptb)
 						"Uid %lld for '%s' out of range.\n",
 						(Ullong)info->f_uid, info->f_name);
 					(void) errabort(E_ID, info->f_name, TRUE);
-				} 
+				}
 			}
 		} else {
 			litos(ptb->dbuf.t_uid, info->f_uid, 6);
@@ -1537,7 +1537,7 @@ info_to_tcb(info, ptb)
 						"Gid %lld for '%s' out of range.\n",
 						(Ullong)info->f_gid, info->f_name);
 					(void) errabort(E_ID, info->f_name, TRUE);
-				} 
+				}
 			}
 		} else {
 			litos(ptb->dbuf.t_gid, info->f_gid, 6);
@@ -1578,8 +1578,8 @@ info_to_tcb(info, ptb)
 					"Time %lld for '%s' out of range.\n",
 					(Ullong)info->f_mtime, info->f_name);
 				(void) errabort(E_TIME, info->f_name, TRUE);
-			} 
-		}	
+			}
+		}
 	} else {
 		if (props.pr_flags & PR_XHDR) {
 			if (info->f_mnsec != 0)

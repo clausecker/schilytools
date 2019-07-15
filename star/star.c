@@ -1,8 +1,8 @@
-/* @(#)star.c	1.391 19/03/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
+/* @(#)star.c	1.393 19/07/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.391 19/03/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
+	"@(#)star.c	1.393 19/07/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling
@@ -1350,7 +1350,8 @@ dusage(ret)
 	error("\tmode\t\tcompare file permissions\n");
 	error("\tsymperm\t\tcompare symlink permissions\n");
 	error("\ttype\t\tcompare file type\n");
-	error("\tnlink\t\tcompare linkcount (star dump mode only)\n");
+	error("\tnlink\t\tcompare all linkcounts (star dump mode only)\n");
+	error("\tdnlink\t\tcompare directory linkcounts (star dump mode only)\n");
 	error("\tuid\t\tcompare owner of file\n");
 	error("\tgid\t\tcompare group of file\n");
 	error("\tuname\t\tcompare name of owner of file\n");
@@ -2418,7 +2419,9 @@ add_diffopt(optstr, flagp)
 		} else if (strncmp(optstr, "type", optlen) == 0) {
 			optflags |= D_TYPE;
 		} else if (strncmp(optstr, "nlink", optlen) == 0) {
-			optflags |= D_NLINK;
+			optflags |= D_NLINK|D_DNLINK;
+		} else if (strncmp(optstr, "dnlink", optlen) == 0) {
+			optflags |= D_DNLINK;
 		} else if (strncmp(optstr, "uid", optlen) == 0) {
 			optflags |= D_UID;
 		} else if (strncmp(optstr, "gid", optlen) == 0) {
@@ -2727,7 +2730,7 @@ const	char	*p;
 		ptype = get_ptype(p);
 		if (ptype == C_NONE) {
 			struct	clis	*clp = clis;
-		
+
 			errmsgno(EX_BAD, "Illegal cli name '%s'.\n", p);
 			errmsgno(EX_BAD, "Use one of:");
 			while (clp->name) {

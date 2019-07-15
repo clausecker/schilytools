@@ -1,13 +1,13 @@
-/* @(#)xattr.c	1.22 18/08/06 Copyright 2003-2018 J. Schilling */
+/* @(#)xattr.c	1.23 19/07/09 Copyright 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.22 18/08/06 Copyright 2003-2018 J. Schilling";
+	"@(#)xattr.c	1.23 19/07/09 Copyright 2003-2019 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2018 J. Schilling
+ *	Copyright (c) 2003-2019 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
+#include <schily/errno.h>
 #include <schily/string.h>
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
@@ -38,11 +39,25 @@ static	UConst char sccsid[] =
 #include "star.h"
 #include <schily/standard.h>
 #include <schily/unistd.h>
+#include <schily/fcntl.h>	/* For open() with hop_dirs() */
 #define	GT_COMERR		/* #define comerr gtcomerr */
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include "starsubs.h"
 #include "checkerr.h"
+
+#if defined(USE_XATTR) && \
+	(defined(HAVE_LISTXATTR) || defined(HAVE_LLISTXATTR)) && \
+	(defined(HAVE_GETXATTR) || defined(HAVE_LGETXATTR))
+
+LOCAL	ssize_t	llgetxattr	__PR((char *path, const char *name,
+					void *value, size_t size));
+LOCAL	int	llsetxattr	__PR((char *path, const char *name,
+					const void *value, size_t size,
+					int flags));
+LOCAL	ssize_t	lllistxattr	__PR((char *path, char *list,
+					size_t size));
+#endif	/* USE_XATTR */
 
 #if defined(USE_XATTR) && defined(HAVE_LISTXATTR) && defined(HAVE_GETXATTR)
 /*
@@ -53,7 +68,7 @@ static	UConst char sccsid[] =
  * It bad to see new global variables while we are working on a star library.
  */
 LOCAL star_xattr_t	*static_xattr;
-#endif
+#endif	/* USE_XATTR && HAVE_LISTXATTR && HAVE_GETXATTR */
 
 #ifdef	USE_SELINUX
 extern	BOOL		selinux_enabled;
@@ -125,7 +140,7 @@ get_xattr(info)
 	info->f_xflags &= ~XF_XATTR;
 	info->f_xattr = NULL;
 
-	list_len = llistxattr(info->f_sname, NULL, 0);
+	list_len = lllistxattr(info->f_sname, NULL, 0);
 	if (list_len < 0) {
 		if (!errhidden(E_GETXATTR, info->f_name)) {
 			if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -138,7 +153,7 @@ get_xattr(info)
 		return (FALSE);
 	}
 	alist = ___malloc(list_len+2, "extended attribute");
-	list_len = llistxattr(info->f_sname, alist, list_len);
+	list_len = lllistxattr(info->f_sname, alist, list_len);
 	if (list_len < 0) {
 		if (!errhidden(E_GETXATTR, info->f_name)) {
 			if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -183,7 +198,7 @@ get_xattr(info)
 		static_xattr[i].value = NULL;
 		strcpy(static_xattr[i].name, lp);
 
-		len = lgetxattr(info->f_sname, lp, NULL, 0);
+		len = llgetxattr(info->f_sname, lp, NULL, 0);
 		if (len < 0) {
 			if (!errhidden(E_GETXATTR, info->f_name)) {
 				if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -197,7 +212,7 @@ get_xattr(info)
 		}
 		static_xattr[i].value_len = len;
 		static_xattr[i].value = ___malloc(len, "extended attribute");
-		len = lgetxattr(info->f_sname, lp, static_xattr[i].value, len);
+		len = llgetxattr(info->f_sname, lp, static_xattr[i].value, len);
 		if (len < 0) {
 			if (!errhidden(E_GETXATTR, info->f_name)) {
 				if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -251,7 +266,7 @@ set_xattr(info)
 		    (strcmp(xap->name, "security.selinux") == 0))
 			continue;
 #endif
-		if (lsetxattr(info->f_name, xap->name, xap->value,
+		if (llsetxattr(info->f_name, xap->name, xap->value,
 		    xap->value_len, 0) != 0) {
 			if (!errhidden(E_SETXATTR, info->f_name)) {
 				if (!errwarnonly(E_SETXATTR, info->f_name))
@@ -320,3 +335,138 @@ free_xattr(xattr)
 
 #endif  /* USE_XATTR */
 }
+
+#if defined(USE_XATTR) && \
+	(defined(HAVE_LISTXATTR) || defined(HAVE_LLISTXATTR)) && \
+	(defined(HAVE_GETXATTR) || defined(HAVE_LGETXATTR))
+
+LOCAL ssize_t
+llgetxattr(path, name, value, size)
+	char		*path;
+	const char	*name;
+	void		*value;
+	size_t		size;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	ssize_t	ret;
+
+	if ((ret = lgetxattr(path, name, value, size)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(path, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = lgetxattr(path, name, value, size);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+
+
+LOCAL int
+llsetxattr(path, name, value, size, flags)
+	char		*path;
+	const char	*name;
+	const void	*value;
+	size_t		size;
+	int		flags;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	int	ret;
+
+	if ((ret = lsetxattr(path, name, value, size, flags)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(path, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = lsetxattr(path, name, value, size, flags);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+
+LOCAL ssize_t
+lllistxattr(path, list, size)
+	char		*path;
+	char		*list;
+	size_t		size;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	ssize_t	ret;
+
+	if ((ret = llistxattr(path, list, size)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(path, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = llistxattr(path, list, size);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+#endif	/* USE_XATTR */

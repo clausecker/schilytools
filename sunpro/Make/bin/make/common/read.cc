@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)read.cc	1.64	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)read.cc	1.21 18/04/04 2017-2018 J. Schilling
+ * @(#)read.cc	1.22 19/07/01 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.21 18/04/04 2017-2018 J. Schilling";
+	"@(#)read.cc	1.22 19/07/01 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -857,6 +857,8 @@ start_new_line_no_skip:
 		source_p += directive_len;
 	try_next_include:	/* More than one include name on the line? */
 
+		if (!sunpro_compat && *source_p == numbersign_char)
+			goto start_new_line;
 		if (iswspace(*source_p)) {
 			Makefile_type save_makefile_type;
 			wchar_t		*name_start;
@@ -908,12 +910,20 @@ start_new_line_no_skip:
 					}
 					break;
 
+			    	case numbersign_char:
+					if (!sunpro_compat) {
+						if (source_p == string_start)
+							goto start_new_line;
+						goto string_end;
+					}
+
 				default:
 					source_p++;
 					break;
 				}
 			}
 
+	string_end:
 			source->string.text.p = source_p;
 			if (macro_seen_in_string) {
 				append_string(string_start,

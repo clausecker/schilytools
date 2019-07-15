@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)compress.sh	1.3 19/03/27 Copyright 2019 J. Schilling
+# @(#)compress.sh	1.4 19/06/14 Copyright 2019 J. Schilling
 #
 
 # compress.sh:	Tests to check whether all compression types work
@@ -33,7 +33,7 @@ LC_ALL=C export LC_ALL
 #
 # pack	1 C_PACK
 #
-if type gzip > /dev/null; then
+if type gzip > /dev/null; then		# XXX See gzip related "fi" below
 
 if gzip -d < tar.tar.z > /dev/null; then
 s=tar.tar.z
@@ -74,6 +74,7 @@ star: Blocksize = 3 records.
 #
 # lzw	3 C_LZW	(compress)
 #
+if gzip -d < tar.tar.Z > /dev/null; then
 s=tar.tar.Z
 docommand COMP-lzw-compress "${tar} -t f=${s}" 0 "file
 " "\
@@ -86,6 +87,12 @@ tar.tar.Z: lzw compressed ustar archive.
 " "\
 star: Blocksize = 3 records.
 "
+else
+	#
+	# This is a bug seen on Cygwin
+	#
+	echo "FAIL: gzip program is unable to decompress compressed data: Skipping related test"
+fi
 
 #
 # freeze 4 C_FREEZE
@@ -100,7 +107,7 @@ star: Blocksize = 3 records.
 #
 else
 	echo "gzip missing: Skipping related compression tests"
-fi
+fi				# XXX This is the gzip related "fi"
 
 #
 # bzip2	7 C_BZIP2

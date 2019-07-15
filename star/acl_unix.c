@@ -1,8 +1,8 @@
-/* @(#)acl_unix.c	1.57 19/01/19 Copyright 2001-2019 J. Schilling */
+/* @(#)acl_unix.c	1.59 19/07/09 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.57 19/01/19 Copyright 2001-2019 J. Schilling";
+	"@(#)acl_unix.c	1.59 19/07/09 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -85,6 +85,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>	/* Needed for Solaris ACL code (malloc/free) */
 #include <schily/unistd.h>
 #include <schily/dirent.h>
+#include <schily/fcntl.h>	/* For open() with hop_dirs() */
 #include <schily/string.h>
 #include <schily/stat.h>
 #define	GT_COMERR		/* #define comerr gtcomerr */
@@ -171,6 +172,8 @@ EXPORT	void	set_acls	__PR((FINFO *info));
 #ifdef	HAVE_POSIX_ACL
 LOCAL	BOOL	acl_to_info	__PR((char *name, int type, pathstore_t *acltext));
 LOCAL	BOOL	acl_add_ids	__PR((char *name, pathstore_t *infopath, char *acltext));
+LOCAL	acl_t	lacl_get_file	__PR((char *name, acl_type_t type));
+LOCAL	int	lacl_set_file	__PR((char *name, acl_type_t type, acl_t acl));
 #endif
 
 /*
@@ -179,6 +182,11 @@ LOCAL	BOOL	acl_add_ids	__PR((char *name, pathstore_t *infopath, char *acltext));
 #ifdef	HAVE_SUN_ACL
 #ifndef	HAVE_NFSV4_ACL
 LOCAL	BOOL	get_ufs_acl	__PR((FINFO *info, aclent_t **aclpp, int *aclcountp));
+LOCAL	int	lacl		__PR((char *name, int cmd,
+					int nentries, void *aclbufp));
+#else
+LOCAL	int	lacl_get	__PR((char *name, int flag, acl_t **aclp));
+LOCAL	int	lacl_set	__PR((char *name, acl_t *aclp));
 #endif
 LOCAL	char	*acl_add_ids	__PR((char *dst, char *from, char *end, int *sizep));
 #endif
@@ -267,7 +275,7 @@ acl_to_info(name, type, acltext)
 	if (acltext->ps_size == 0)
 		init_pspace(PS_EXIT, acltext);
 	acltext->ps_path[0] = '\0';
-	if ((acl = acl_get_file(name, type)) == NULL) {
+	if ((acl = lacl_get_file(name, type)) == NULL) {
 		register int err = geterrno();
 #ifdef	ENOTSUP
 		/*
@@ -524,7 +532,7 @@ set_acls(info)
 				(void) errabort(E_BADACL, info->f_name, TRUE);
 			}
 		} else {
-			if (acl_set_file(info->f_name, ACL_TYPE_NFS4,
+			if (lacl_set_file(info->f_name, ACL_TYPE_NFS4,
 			    acl) < 0) {
 				/*
 				 * XXX What should we do if errno is
@@ -576,7 +584,7 @@ set_acls(info)
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
-		if (acl_set_file(info->f_name, ACL_TYPE_ACCESS, acl) < 0) {
+		if (lacl_set_file(info->f_name, ACL_TYPE_ACCESS, acl) < 0) {
 			/*
 			 * XXX What should we do if errno is ENOTSUP/ENOSYS?
 			 */
@@ -653,7 +661,7 @@ set_acls(info)
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
-		if (acl_set_file(info->f_name, ACL_TYPE_DEFAULT, acl) < 0) {
+		if (lacl_set_file(info->f_name, ACL_TYPE_DEFAULT, acl) < 0) {
 			/*
 			 * XXX What should we do if errno is ENOTSUP/ENOSYS?
 			 */
@@ -669,6 +677,89 @@ set_acls(info)
 	}
 	if (aclps.ps_path != acltext)
 		free_pspace(&aclps);
+}
+
+LOCAL acl_t
+lacl_get_file(name, type)
+	char		*name;
+	acl_type_t	type;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	acl_t	ret;
+
+	if ((ret = acl_get_file(name, type)) == NULL &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret != NULL)
+		return (ret);
+
+	fd = hop_dirs(name, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = acl_get_file(name, type);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+
+LOCAL int
+lacl_set_file(name, type, acl)
+	char		*name;
+	acl_type_t	type;
+	acl_t		acl;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	int	ret;
+
+	if ((ret = acl_set_file(name, type, acl)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(name, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = acl_set_file(name, type, acl);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
 }
 
 #endif  /* HAVE_POSIX_ACL The withdrawn POSIX.1e draft */
@@ -728,7 +819,7 @@ get_acls(info)
 		return (TRUE);
 
 #ifdef	HAVE_NFSV4_ACL
-	if (acl_get(info->f_name, ACL_NO_TRIVIAL, &aclp) < 0) {
+	if (lacl_get(info->f_name, ACL_NO_TRIVIAL, &aclp) < 0) {
 		if (!errhidden(E_GETACL, info->f_name)) {
 			if (!errwarnonly(E_GETACL, info->f_name))
 				xstats.s_getaclerrs++;
@@ -874,7 +965,7 @@ get_ufs_acl(info, aclpp, aclcountp)
 #ifdef	HAVE_ST_ACLCNT
 	aclcount = info->f_aclcnt;	/* UnixWare */
 #else
-	if ((aclcount = acl(info->f_sname, GETACLCNT, 0, NULL)) < 0) {
+	if ((aclcount = lacl(info->f_sname, GETACLCNT, 0, NULL)) < 0) {
 #ifdef	ENOSYS
 		if (geterrno() == ENOSYS)
 			return (TRUE);
@@ -910,7 +1001,7 @@ get_ufs_acl(info, aclpp, aclcountp)
 		}
 		return (FALSE);
 	}
-	if (acl(info->f_sname, GETACL, aclcount, aclp) < 0) {
+	if (lacl(info->f_sname, GETACL, aclcount, aclp) < 0) {
 		if (!errhidden(E_GETACL, info->f_name)) {
 			if (!errwarnonly(E_GETACL, info->f_name))
 				xstats.s_getaclerrs++;
@@ -923,6 +1014,134 @@ get_ufs_acl(info, aclpp, aclcountp)
 	*aclpp = aclp;
 	*aclcountp = aclcount;
 	return (TRUE);
+}
+
+LOCAL int
+lacl(name, cmd, nentries, aclbufp)
+	char	*name;
+	int	cmd;
+	int	nentries;
+	void	*aclbufp;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	int	ret;
+
+	if ((ret = acl(name, cmd, nentries, aclbufp)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(name, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = acl(name, cmd, nentries, aclbufp);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+
+
+#else
+LOCAL int
+lacl_get(name, flag, aclp)
+	char	*name;
+	int	flag;
+	acl_t	**aclp;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	int	ret;
+
+	if ((ret = acl_get(name, flag, aclp)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(name, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = acl_get(name, flag, aclp);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
+}
+
+LOCAL int
+lacl_set(name, aclp)
+	char	*name;
+	acl_t	*aclp;
+{
+#ifdef	HAVE_FCHDIR
+	char	*p;
+	int	fd;
+	int	fdh;
+	int	err = 0;
+#endif
+	int	ret;
+
+	if ((ret = acl_set(name, aclp)) < 0 &&
+	    geterrno() != ENAMETOOLONG) {
+		return (ret);
+	}
+
+#ifdef	HAVE_FCHDIR
+	if (ret >= 0)
+		return (ret);
+
+	fd = hop_dirs(name, &p);
+	if (fd >= 0) {
+		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
+		if (fdh >= 0) {
+			(void) fchdir(fd);
+			ret = acl_set(name, aclp);
+			err = geterrno();
+			(void) fchdir(fdh);
+			close(fdh);
+		}
+		close(fd);
+	}
+	close(fd);
+	if (err)
+		seterrno(err);
+#endif
+	return (ret);
 }
 #endif	/* HAVE_NFSV4_ACL */
 
@@ -1230,7 +1449,7 @@ set_acls(info)
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
-		if (acl_set(info->f_name, aclp) < 0) {
+		if (lacl_set(info->f_name, aclp) < 0) {
 			BOOL	no_error = FALSE;
 
 			if (no_acl) {
@@ -1240,7 +1459,7 @@ set_acls(info)
 				 * This should catch the ENOSYS case which
 				 * happens e.g. if the target is a socket.
 				 */
-				if (acl_get(info->f_name,
+				if (lacl_get(info->f_name,
 					    ACL_NO_TRIVIAL, &xaclp) >= 0) {
 					if (xaclp == NULL)
 						no_error = TRUE;
@@ -1271,7 +1490,7 @@ set_acls(info)
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
-		if (acl(info->f_name, SETACL, aclcount, aclp) < 0) {
+		if (lacl(info->f_name, SETACL, aclcount, aclp) < 0) {
 			BOOL	no_error = FALSE;
 			/*
 			 * XXX What should we do if errno is ENOSYS?
@@ -1283,7 +1502,7 @@ set_acls(info)
 				 * This should catch the ENOSYS case which
 				 * happens e.g. if the target is a socket.
 				 */
-				aclcnt = acl(info->f_name, GETACLCNT, 0, NULL);
+				aclcnt = lacl(info->f_name, GETACLCNT, 0, NULL);
 				if (aclcnt <= MIN_ACL_ENTRIES)
 					no_error = TRUE;
 			}

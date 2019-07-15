@@ -2,10 +2,14 @@
 set -e
 
 tar=${tar-star}
-if grep / ${tar} > /dev/null; then
-	tar=`pwd`/${tar}
+if echo "${tar}" | grep / > /dev/null; then
+	if echo "${tar}" | grep '^/' > /dev/null; then
+		:
+	else
+		tar=`pwd`/${tar}
+	fi
 fi
-echo tar installed as $tar 1>&2
+echo tar installed as "$tar" 1>&2
 
 mkdir /tmp/test.$$
 cp ino-full.tar.gz /tmp/test.$$
@@ -18,7 +22,7 @@ cd /tmp/test.$$/test
 
 set -x
 
-$tar -xpU -restore -partial f=/tmp/test.$$/ino-full2.tar.gz
+"$tar" -xpU -restore -partial f=/tmp/test.$$/ino-full2.tar.gz
 
 cd ..
 mv test orig
@@ -26,8 +30,8 @@ mv test orig
 mkdir test
 cd /tmp/test.$$/test
 
-$tar -xpU -restore -partial f=/tmp/test.$$/ino-full.tar.gz
-$tar -xpU -restore -partial f=/tmp/test.$$/ino-incremental.tar.gz
+"$tar" -xpU -restore -partial f=/tmp/test.$$/ino-full.tar.gz
+"$tar" -xpU -restore -partial f=/tmp/test.$$/ino-incremental.tar.gz
 
 rm -f  star-symtable
 rm -rf star-tmpdir
@@ -37,7 +41,7 @@ cd /tmp/test.$$/
 # Cannot user "diff" here as both "diff" and "gdiff" complain about
 # the different inode numbers in original and copy.
 #
-$tar -diff  -C test/ -V pat=./ diffopts=!ctime,atime < ino-full2.tar.gz  2> /dev/null
+"$tar" -diff  -C test/ -V pat=./ diffopts=!ctime,atime,id,dnlink < ino-full2.tar.gz  2> /dev/null
 ret=$?
 
 cd /

@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.57 19/06/12 Copyright 1985-2019 J. Schilling */
+/* @(#)expand.c	1.58 19/06/26 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.57 19/06/12 Copyright 1985-2019 J. Schilling";
+	"@(#)expand.c	1.58 19/06/26 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -366,8 +366,21 @@ exp(n, i, l, patm)
 		/*
 		 * Skip the following names: "", ".", "..".
 		 */
-		if (name[name[0] != '.' ? 0 : name[1] != '.' ? 1 : 2] == '\0')
-			continue;
+		if (name[name[0] != '.' ? 0 : name[1] != '.' ? 1 : 2] == '\0') {
+			/*
+			 * Do not skip . and .. if there is a plain match.
+			 * We need this to let ..TAB expand to ../ in the
+			 * command line editor.
+			 */
+			if ((name[0] == '.' && dp[0] == '.') &&
+			    ((name[1] == '\0' && dp[1] == '\0') ||
+			    ((name[1] == '.' && dp[1] == '.') &&
+			     (name[2] == '\0' && dp[2] =='\0')))) {
+				/* EMPTY */;
+			} else {
+				continue;
+			}
+		}
 
 		/*
 		 * Are we interested in files starting with '.'?

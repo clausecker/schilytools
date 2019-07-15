@@ -1,8 +1,8 @@
-/* @(#)create.c	1.156 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)create.c	1.157 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.156 19/03/11 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)create.c	1.157 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
@@ -134,6 +134,8 @@ extern	BOOL	acctime;
 extern	BOOL	dirmode;
 extern	BOOL	paxfollow;
 extern	BOOL	doacl;
+extern	BOOL	doxattr;
+extern	BOOL	dolxattr;
 extern	BOOL	nodesc;
 extern	BOOL	nomount;
 extern	BOOL	interactive;
@@ -399,6 +401,10 @@ take_file(name, info)
 	if (doacl)
 		(void) get_acls(info);
 #endif  /* USE_ACL */
+#ifdef	USE_XATTR
+	if (dolxattr)
+		(void) get_xattr(info);
+#endif
 	return (TRUE);
 }
 

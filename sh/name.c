@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)name.c	1.77 18/06/26 2008-2018 J. Schilling
+ * @(#)name.c	1.78 19/06/18 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.77 18/06/26 2008-2018 J. Schilling";
+	"@(#)name.c	1.78 19/06/18 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -258,6 +258,9 @@ struct namnod mailpnod =		/* MAILPATH= */
 	(struct namnod *)NIL,
 	(unsigned char *)mailpname
 };
+#ifdef	DO_GETOPT_POSIX
+struct namnod *optindnodep;		/* OPTIND= */
+#endif
 
 
 struct namnod *namep = &mchknod;
@@ -379,6 +382,14 @@ setname(argi, xp)
 			attrib(n, xp);	/* readonly attrib after assignement */
 
 			dolocale((char *)n->namid);
+#ifdef	DO_GETOPT_POSIX
+			/*
+			 * make sure that option parsing starts
+			 * at first character
+			 */
+			if (n == optindnodep)
+				_sp = 1;
+#endif
 			return;
 		}
 	}

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.202 19/06/10 2008-2019 J. Schilling
+ * @(#)defs.h	1.203 19/06/18 2008-2019 J. Schilling
  */
 
 /*
@@ -1115,6 +1115,7 @@ extern struct namnod		repnod;
 extern struct namnod		acctnod;
 extern struct namnod		mailpnod;
 extern struct namnod		timefmtnod;
+extern struct namnod		*optindnodep;
 
 /* special names */
 extern unsigned char		flagadr[];
