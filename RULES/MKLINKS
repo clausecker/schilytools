@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.131 18/11/15 "
+#ident "@(#)MKLINKS	1.133 19/07/22 "
 ###########################################################################
-# Written 1996-2015 by J. Schilling
+# Written 1996-2019 by J. Schilling
 ###########################################################################
-# Copyright (c) 1996-2015 J. Schilling
+# Copyright (c) 1996-2019 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -166,8 +166,22 @@ $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang.rul
 $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang32.rul
 $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang64.rul
 $symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc.rul
+$symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc32.rul
+$symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc64.rul
 $symlink	i386-freebsd-cc.rul	amd64-freebsd-cc.rul
 $symlink	i386-freebsd-gcc.rul	amd64-freebsd-gcc.rul
+$symlink	i386-freebsd-gcc.rul	amd64-freebsd-gcc32.rul
+$symlink	i386-freebsd-gcc.rul	amd64-freebsd-gcc64.rul
+$symlink	i386-freebsd-cc.rul	powerpc-freebsd-cc.rul
+$symlink	i386-freebsd-gcc.rul	powerpc-freebsd-gcc.rul
+$symlink	i386-freebsd-cc.rul	powerpc-freebsd-cc32.rul
+$symlink	i386-freebsd-gcc.rul	powerpc-freebsd-gcc32.rul
+$symlink	i386-freebsd-cc.rul	powerpc-freebsd-cc64.rul
+$symlink	i386-freebsd-gcc.rul	powerpc-freebsd-gcc64.rul
+$symlink	i386-freebsd-clang.rul	powerpc-freebsd-clang.rul
+$symlink	i386-freebsd-clang.rul	powerpc-freebsd-clang32.rul
+$symlink	i386-freebsd-clang.rul	powerpc-freebsd-clang64.rul
+
 $symlink	i386-freebsd-cc.rul	i386-dragonfly-cc.rul
 $symlink	i386-freebsd-gcc.rul	i386-dragonfly-gcc.rul
 $symlink	i386-freebsd-cc.rul	x86_64-dragonfly-cc.rul

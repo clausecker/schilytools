@@ -1,6 +1,6 @@
-#ident "@(#)i386-freebsd-gcc.rul	1.9 18/04/11 "
+#ident "@(#)i386-freebsd-gcc.rul	1.10 19/07/22 "
 ###########################################################################
-# Written 1997-2018 by J. Schilling
+# Written 1997-2019 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for FreeBSD
@@ -22,7 +22,7 @@
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
 
 OSDEFS +=
 

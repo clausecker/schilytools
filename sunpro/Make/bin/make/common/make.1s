@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.22 18/05/02 Copyr 2012-2018 J. Schilling
+. \" @(#)make.1s	1.29 19/07/22 Copyr 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,22 +61,22 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2018/05/02" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2019/07/22" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/bin/make\fR [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR] [\fB-i\fR] [\fB-k\fR] [\fB-n\fR]
-     [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
+\fB/usr/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR] [\fB-i\fR]
+     [\fB-k\fR] [\fB-n\fR] [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
      [\fB-f\fR \fImakefile\fR].\|.\|. [\fB-K\fR \fIstatefile\fR].\|.\|. [\fItarget\fR].\|.\|.
      [\fImacro\fR = \fIvalue\fR.\|.\|.]
 .fi
 
 .LP
 .nf
-\fB/usr/xpg4/bin/make\fR [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR] [\fB-i\fR] [\fB-k\fR]
-     [\fB-n\fR] [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
+\fB/usr/xpg4/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR]
+     [\fB-i\fR] [\fB-k\fR] [\fB-n\fR] [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
      [\fB-f\fR \fImakefile\fR].\|.\|. [\fItarget\fR].\|.\|. [\fImacro\fR = \fIvalue\fR.\|.\|.]
 .fi
 
@@ -210,12 +210,29 @@ an error message and halts.
 The following options are supported:
 .sp
 .ne 2
-.mk
-.na
-.B -d
-.ad
-.RS 16n
-.rt
+.PD 0
+.TP 16n
+.BI \-C directory
+.TP
+.BI \-C " directory
+.PD
+Changes the current working directory to the directory
+.I directory
+before attempting to open and process the makefiles or run any targets.
+This option may
+be specified more than once, each subsequent occurrence of the option is
+dependent on those that came before it.
+.sp
+This option is not added to the 
+.B MAKEFLAGS
+environment variable and it is not read from that variable even when
+.B MAKEFLAGS
+contains this option.
+
+.sp
+.ne 2
+.TP
+.B \-d
 Displays the reasons why
 .B make
 .RB "chooses to rebuild a target." " make"
@@ -223,64 +240,38 @@ Displays the reasons why
 displays options read in from the
 .B MAKEFLAGS
 environment variable.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -dd
-.ad
-.RS 16n
-.rt
+.TP
+.B \-dd
 Displays the dependency check and processing in vast detail.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -D
-.ad
-.RS 16n
-.rt
+.TP
+.B \-D
 Displays the text of the makefiles read in.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -DD
-.ad
-.RS 16n
-.rt
+.TP
+.B \-DD
 Displays the text of the makefiles,
 .B make.rules
 file, the state file,
 and all hidden-dependency reports.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -e
-.ad
-.RS 16n
-.rt
+.TP
+.B \-e
 Environment variables override assignments within makefiles.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -f
-.I makefile
-.ad
-.RS 16n
-.rt
+.TP
+.BI \-f " makefile
 Uses the description file
 .IR makefile .
 A
@@ -306,7 +297,7 @@ is specified,
 tries the
 following in sequence, except when in POSIX mode (see \fB\&.POSIX\fR in
 Usage):
-.RS +4
+.RS
 .TP
 .ie t \(bu
 .el o
@@ -319,8 +310,6 @@ uses that file. If, however, there is an
 history file
 .RB ( SCCS/s.makefile ") which is newer, " make " attempts to retrieve and"
 use the most recent version.
-.RE
-.RS +4
 .TP
 .ie t \(bu
 .el o
@@ -337,7 +326,7 @@ history file
 that is newer,
 .B make
 attempts to retrieve and use the most recent version.
-.RE
+.PP
 When no
 .I makefile
 is specified,
@@ -345,63 +334,57 @@ is specified,
 in POSIX mode and
 .B /usr/xpg4/bin/make
 try the following files in sequence:
-.RS +4
 .TP
 .ie t \(bu
 .el o
 \fB\&./makefile\fR, \fB\&./Makefile\fR
-.RE
-.RS +4
 .TP
 .ie t \(bu
 .el o
 .BR s.makefile ,
 .B SCCS/s.makefile
-.RE
-.RS +4
 .TP
 .ie t \(bu
 .el o
 .BR s.Makefile ,
 .B SCCS/s.Makefile
 .RE
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -i
-.ad
-.RS 16n
-.rt
+.TP
+.B \-i
 Ignores error codes returned by commands.  Equivalent to the
 special-function target
 .BR \&.IGNORE: .
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -k
-.ad
-.RS 16n
-.rt
+.PD 0
+.TP
+.BI \-j make-max-jobs
+.TP
+.BI \-j\  make-max-jobs
+.PD
+Specifies the maximum total number of jobs that are
+run in parallel.
+.sp
+This option is not available in case that
+.B make
+as not been compiled with support for parallel make features.
+
+.sp
+.ne 2
+.TP
+.B \-k
 .RB "When a nonzero error status is returned by a rule, or when" " make"
 cannot find a rule, abandons work on the current target, but continues with
 other dependency branches that do not depend on it.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -K
-.I statefile
-.ad
-.RS 16n
-.rt
+.TP
+.BI \-K " statefile
 Uses the state file
 .IR statefile .
 A \fB\(mi\fR as the \fIstatefile\fR
@@ -417,16 +400,40 @@ argument pair appears,
 uses the concatenation of those files, in order of appearance.
 (See also \fB\&.KEEP_STATE\fR  and \fB\&.KEEP_STATE_FILE\fR in the
 Special-Function Targets section).
+
+.sp
+.ne 10
+.TP
+.BR \-m\  { serial " | " parallel }
+Allows to specify one of the following key words:
+.RS
+.br
+.ne 4
+.TP 10
+.B serial
+Causes
+.B make
+to behave like the standard serial version of
+.BR make .
+.br
+.ne 4
+.TP
+.B parallel
+Causes
+.B make
+to run several jobs in parallel on the
+.B make
+host.
+.PP
+This option is not available in case that
+.B make
+as not been compiled with support for parallel make features.
 .RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -n
-.ad
-.RS 16n
-.rt
+.TP
+.B \-n
 No execution mode. Prints commands, but does not execute them. Even lines
 beginning with an
 .B @
@@ -438,92 +445,75 @@ discussion of
 .B MAKEFLAGS
 in Reading Makefiles and the Environment).
 When in POSIX mode, lines beginning with a "\fB+\fR" are executed.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -p
-.ad
-.RS 16n
-.rt
+.TP
+.B \-N
+Reverse the effect of the
+.B \-n
+(No execution mode) option.
+
+.sp
+.ne 2
+.TP
+.B \-p
 Prints out the complete set of macro definitions and target descriptions.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -P
-.ad
-.RS 16n
-.rt
+.TP
+.B \-P
 Merely reports dependencies, rather than building them.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -q
-.ad
-.RS 16n
-.rt
+.TP
+.B \-q
 Question mode.
 .B make
 returns a zero or nonzero status code depending
 on whether or not the target file is up to date. When in POSIX mode, lines
 beginning with a "\fB+\fR" are executed.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -r
-.ad
-.RS 16n
-.rt
+.TP
+.B \-r
 Does not read in the default makefile
 .BR /usr/share/lib/make/make.rules .
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -s
-.ad
-.RS 16n
-.rt
+.TP
+.B \-R
+Do not run in parallel mode.
+.sp
+This option is not available in case that
+.B make
+as not been compiled with support for parallel make features.
+
+.sp
+.ne 2
+.TP
+.B \-s
 Silent mode. Does not print command lines before executing them. Equivalent
 to the special-function target
 .BR \&.SILENT: .
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -S
-.ad
-.RS 16n
-.rt
+.TP
+.B \-S
 Undoes the effect of the
 .B -k
 option. Stops processing when a non-zero
 exit status is returned by a command.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -t
-.ad
-.RS 16n
-.rt
+.TP
+.B \-t
 Touches the target files (bringing them up to date) rather than performing
 their rules.
 .B Warning:
@@ -534,23 +524,45 @@ maintained by more than one person. When the \fB\&.KEEP_STATE:\fR target
 appears in the makefile, this option updates the state file just as if the
 rules had been performed. When in POSIX mode, lines beginning with a
 "\fB+\fR" are executed.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-.B -V
-.ad
-.RS 16n
-.rt
+.TP
+.B \-T
+Print a list of known targets.
+This includes targets from all explicit and implicit makefiles,
+e.g. the default makefile mentioned with in the description for the
+.B \-r
+option above.
+
+.sp
+.ne 2
+.TP
+.B \-u
+Unconditionally build the target and all its dependencies.
+This may result in targets being remade more than once since every target
+is rebuilt every time it appears in a dependency list.
+
+.sp
+.ne 2
+.TP
+.B \-V
 Puts
 .B make
 into SysV mode. Refer to
 .BR sysV-make (1)
 for respective
 details.
-.RE
+
+.sp
+.ne 2
+.TP
+.B \-w
+Print a message containing the working directory before and after processing
+targets.
+This may be useful for tracking down errors from complex nests of recursive
+.B make
+calls.
 
 .SH OPERANDS
 .sp
@@ -558,27 +570,17 @@ details.
 The following operands are supported:
 .sp
 .ne 2
-.mk
-.na
+.TP 16n
 .I target
-.ad
-.RS 15n
-.rt
 Target names, as defined in Usage.
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fImacro\fB=\fIvalue\fR
-.ad
-.RS 15n
-.rt
+.TP
+.IB macro = value
 Macro definition. This definition overrides any regular definition for the
 specified macro within the makefile itself, or in the environment. However,
 this definition can still be overridden by conditional macro assignments.
-.RE
 
 .SH USAGE
 .sp
@@ -602,13 +604,17 @@ value:
 .BR -i ,
 .BR -k ,
 .BR -n ,
+.BR -N ,
 .BR -p ,
 .BR -q ,
 .BR -r ,
 .BR -s ,
 .BR -S ,
+.BR -t ,
+.BR -T ,
+.BR -u ,
 or
-.BR -t .
+.BR -w .
 Due to the
 implementation of POSIX.2 (see
 .BR POSIX.2 (5),
@@ -2129,6 +2135,27 @@ The machine architecture of the target system. By default, this is the output
 of the
 .BR arch (1)
 command, prepended with \fB\(mi\fR\&.
+
+.sp
+.LP
+The following macros are provided for compatibility with GNU make:
+.br
+.ne 2
+.TP 15n
+.B CURDIR
+After
+.B make
+has processed all
+.B \-C
+options (if any), it sets the variable
+.I CURDIR
+to the absolute pathname of the current working directory.
+This value is never touched by
+.B make
+again.
+An environment variable will not overwrite it, but a makefile may.
+Setting this variable has no effect on the operation of
+.BR make .
 
 .SS "Dynamic Macros"
 .sp

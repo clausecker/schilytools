@@ -1,13 +1,13 @@
-/* @(#)make.c	1.213 18/10/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)make.c	1.214 19/07/18 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.213 18/10/14 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)make.c	1.214 19/07/18 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2018 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2019 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,6 +56,7 @@ LOCAL	void	setup_env	__PR((void));
 #endif
 EXPORT	void	usage		__PR((int exitcode));
 LOCAL	void	initmakefiles	__PR((void));
+LOCAL	int	dochdir		__PR((char *name));
 LOCAL	int	addmakefile	__PR((char *name));
 LOCAL	void	read_defs	__PR((void));
 LOCAL	void	read_makefiles	__PR((void));
@@ -262,6 +263,19 @@ initmakefiles()
 	addmakefile(Envdefs);		/* Environment strings		*/
 	addmakefile(Makefile);		/* Default make file		*/
 	Mfilecount--;			/* -f name overwrites Makefile	*/
+}
+
+/*
+ * Called by getargs() if a -C option was found.
+ */
+LOCAL int
+dochdir(name)
+	char	*name;
+{
+	if (chdir(name) < 0)
+		comerr("Cannot change directory to '%s'\n", name);
+
+	return (1);
 }
 
 /*
@@ -758,6 +772,8 @@ read_environ()
 		p = strchr(ev, EQUAL);
 		if (p == NULL)
 			continue;
+		if (strncmp(ev, "CURDIR=", 7) == 0)
+			continue;	/* Never import CURDIR */
 		if (strncmp(ev, "SHELL=", 6) == 0)
 			continue;	/* Never import SHELL */
 		if (strncmp(ev, "FORCE_SHELL=", 12) == 0) {
@@ -786,8 +802,7 @@ main(ac, av)
 		int	i;
 		int	cac = ac;
 		char	* const *cav = av;
-		char	*newdir = NULL;
-	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C*,mf&,f&,&";
+	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
 
 	save_args(ac, av);
 
@@ -815,7 +830,8 @@ main(ac, av)
 			&Eflag, &Iflag, &Kflag, &Nflag, &NSflag, &Print,
 			&Qflag, &Rflag, &Sflag, &Stopflag, &Tflag,
 			&No_Warn, &Do_Warn,
-			&Debug, &Dmake, &Prdep, &XDebug, &Pr_obj, &newdir,
+			&Debug, &Dmake, &Prdep, &XDebug, &Pr_obj,
+			dochdir, NULL,
 			addmakefile, NULL,
 			addmakefile, NULL,
 			addcommandline, NULL) < 0) {
@@ -825,15 +841,12 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2018 Jörg Schilling\n",
+		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2019 Jörg Schilling\n",
 				make_version, VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
-	if (newdir) {
-		if (chdir(newdir) < 0)
-			comerr("Cannot change directory to '%s'\n", newdir);
-	}
+
 	/*
 	 * XXX Is this the right place to set the options and cmd line macros
 	 * XXX to the exported environment?
@@ -2104,6 +2117,7 @@ curwdir()
 	if (wdir == NULL)
 		comerr("Cannot malloc working dir.\n");
 	strcpy(wdir, wd);
+	define_var("CURDIR", wdir);
 	return (wdir);
 }
 

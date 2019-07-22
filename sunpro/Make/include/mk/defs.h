@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.61	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)defs.h	1.9 17/12/06 2017 J. Schilling
+ * @(#)defs.h	1.10 19/07/19 2017-2019 J. Schilling
  */
 
 /*
@@ -337,6 +337,7 @@ extern	wchar_t		wcs_buffer2[];
 extern	wchar_t		*wcs_ptr;
 extern	wchar_t		*wcs_ptr2;
 extern	long int	hostid;
+extern	Boolean		current_path_reset;
 
 /*
  * Declarations of system defined variables

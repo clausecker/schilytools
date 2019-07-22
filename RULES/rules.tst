@@ -1,4 +1,4 @@
-#ident "@(#)rules.tst	1.1 16/06/16 "
+#ident "@(#)rules.tst	1.2 19/07/20 "
 ###########################################################################
 # Written 2016 by J. Schilling
 ###########################################################################
@@ -24,7 +24,7 @@
 tests:
 	@DIR=tests;							\
 	if [ -d ./$$DIR -a -r ./$$DIR/Makefile ] ; then			\
-		cd ./$$DIR && "$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURDIR)/$$DIR $@;	\
+		cd ./$$DIR && "$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURWDIR)/$$DIR $@;	\
 	else								\
-		echo "NOTICE: Partial source ($(CURDIR)/$$DIR) missing";\
+		echo "NOTICE: Partial source ($(CURWDIR)/$$DIR) missing";\
 	fi								\

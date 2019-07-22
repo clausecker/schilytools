@@ -1,8 +1,8 @@
-/* @(#)avoffset.c	1.35 17/08/01 Copyright 1987, 1995-2017 J. Schilling */
+/* @(#)avoffset.c	1.36 19/07/16 Copyright 1987, 1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)avoffset.c	1.35 17/08/01 Copyright 1987, 1995-2017 J. Schilling";
+	"@(#)avoffset.c	1.36 19/07/16 Copyright 1987, 1995-2019 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -13,21 +13,9 @@ static	UConst char sccsid[] =
  *	FP_INDIR	- number of stack frames above main()
  *			  before encountering a NULL pointer.
  *
- *	Copyright (c) 1987, 1995-2017 J. Schilling
+ *	Copyright (c) 1987, 1995-2019 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- * A copy of the CDDL is also available via the Internet at
- * http://www.opensource.org/licenses/cddl1.txt
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
@@ -48,6 +36,7 @@ handler(signo)
 	int	signo;
 {
 	fprintf(stderr, "Warning: Cannot scan stack on this environment.\n");
+	fprintf(stderr, "This is not an error, we just disable stack scannig.\n");
 
 	printf("\n#endif	/* __AVOFFSET_H */\n");
 	fflush(stdout);

@@ -1,7 +1,7 @@
-/* @(#)version.h	1.1 18/10/03 Copyright 2018 J. Schilling */
+/* @(#)version.h	1.2 19/07/18 Copyright 2018 J. Schilling */
 
 /*
  * The version for smake
  */
 #define	VERSION		"1.3"
-#define	VERSION_DATE	"2018/10/03"
+#define	VERSION_DATE	"2019/07/18"

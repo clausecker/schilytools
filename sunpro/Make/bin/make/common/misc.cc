@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)misc.cc	1.34	95/10/04"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)misc.cc	1.13 18/03/25 2017-2018 J. Schilling
+ * @(#)misc.cc	1.14 19/07/19 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.13 18/03/25 2017-2018 J. Schilling";
+	"@(#)misc.cc	1.14 19/07/19 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -298,9 +298,14 @@ get_current_path(void)
 	char			pwd[(MAXPATHLEN * MB_LEN_MAX)];
 	static char		*current_path;
 
-	if (current_path == NULL) {
+	if (current_path == NULL || current_path_reset == true) {
+		Name		name;
+		Name		value;
+
 		pwd[0] = (int) nul_char;
 
+		if (current_path != NULL)
+			free(current_path);
 		if (getcwd(pwd, sizeof(pwd)) == NULL ||
 		    pwd[0] == (int) nul_char) {
 			pwd[0] = (int) slash_char;
@@ -316,6 +321,12 @@ get_current_path(void)
 		}
 		current_path = strdup(pwd);
 #endif
+		current_path_reset = false;
+		MBSTOWCS(wcs_buffer, NOCATGETS("CURDIR"));
+		name = GETNAME(wcs_buffer, FIND_LENGTH);
+		MBSTOWCS(wcs_buffer, current_path);
+		value = GETNAME(wcs_buffer, FIND_LENGTH);
+		SETVAR(name, value, false); 
 	}
 	return current_path;
 }

@@ -342,6 +342,8 @@
 ./RULES/amd64-freebsd-clang32.rul
 ./RULES/amd64-freebsd-clang64.rul
 ./RULES/amd64-freebsd-gcc.rul
+./RULES/amd64-freebsd-gcc32.rul
+./RULES/amd64-freebsd-gcc64.rul
 ./RULES/amd64-gnu-kfreebsd-cc.rul
 ./RULES/amd64-gnu-kfreebsd-gcc.rul
 ./RULES/amd64-gnu-kfreebsd-gcc32.rul
@@ -557,6 +559,15 @@
 ./RULES/power-macintosh-darwin-gcc64.rul
 ./RULES/power-macintosh-mac-os10-cc.rul
 ./RULES/power-macintosh-mac-os10-gcc.rul
+./RULES/powerpc-freebsd-cc.rul
+./RULES/powerpc-freebsd-cc32.rul
+./RULES/powerpc-freebsd-cc64.rul
+./RULES/powerpc-freebsd-clang.rul
+./RULES/powerpc-freebsd-clang32.rul
+./RULES/powerpc-freebsd-clang64.rul
+./RULES/powerpc-freebsd-gcc.rul
+./RULES/powerpc-freebsd-gcc32.rul
+./RULES/powerpc-freebsd-gcc64.rul
 ./RULES/ppc-linux-cc.rul
 ./RULES/ppc-linux-gcc.rul
 ./RULES/ppc64-linux-cc.rul
@@ -595,6 +606,8 @@
 ./RULES/sparc-nextstep-gcc.rul
 ./RULES/sparc64-freebsd-cc.rul
 ./RULES/sparc64-freebsd-gcc.rul
+./RULES/sparc64-freebsd-gcc32.rul
+./RULES/sparc64-freebsd-gcc64.rul
 ./RULES/sparc64-linux-cc.rul
 ./RULES/sparc64-linux-gcc.rul
 ./RULES/sparc64-linux-gcc32.rul

@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.48 18/05/24 Copyright 1985-2018 J. Schilling
+. \" @(#)smake.1	1.49 19/07/18 Copyright 1985-2019 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2018/05/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2019/07/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -94,6 +94,9 @@ features that allow to implement portable, layered, object oriented makefiles.
 Change the working directory to
 .I dir
 before starting work.
+.sp
+This option may be specified more than once, each subsequent occurrence of the
+option is dependent on those that came before it.
 .TP
 .B \-e
 Environment variables override macro definition in Makefile(s).
@@ -1294,6 +1297,21 @@ Reserved for future use.
 Reserved for future use.
 
 .SH "Special Macros"
+.TP
+.B CURDIR
+After
+.B smake
+has processed all
+.B \-C 
+options (if any), it sets the variable
+.I CURDIR
+to the absolute pathname of the current working directory.
+This value is never touched by
+.B smake 
+again.
+An environment variable will not overwrite it, but a makefile may.
+Setting this variable has no effect on the operation of
+.BR smake .
 .TP
 .B MAKE
 This macro contains a path name that is sufficient to recursively

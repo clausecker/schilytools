@@ -1,4 +1,4 @@
-#ident "@(#)sub.htm	1.5 11/09/18 "
+#ident "@(#)sub.htm	1.6 19/07/20 "
 ###########################################################################
 # Written 2007 by J. Schilling
 ###########################################################################
@@ -26,7 +26,7 @@ html htmlx htmlxn:
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
-				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURDIR)/$$XMK_F\""; \
+				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURWDIR)/$$XMK_F\""; \
 				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) $@; \
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\

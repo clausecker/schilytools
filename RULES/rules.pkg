@@ -1,4 +1,4 @@
-#ident "@(#)rules.pkg	1.6 17/08/04 "
+#ident "@(#)rules.pkg	1.7 19/07/20 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -72,7 +72,7 @@ PKGDEF_DIR=	$(__PKGDEF_DIR:$(_UNIQ)%=%)
 
 package:
 	echo PKGDEF_DIR $(PKGDEF_DIR)
-	echo DIRNAME: $(DIRNAME) CURDIR: $(CURDIR)
+	echo DIRNAME: $(DIRNAME) CURWDIR: $(CURWDIR)
 	#pkgmk -o -b `pwd`/$(PROTODIR)/ -d `pwd`/PKGS -f SV-pkglist
 	#star -C $(PROTODIR)/ pkglist=pkglist -cP > $(TARGETAR).tar
 	#bzip2 -9f $(TARGETAR).tar
@@ -85,11 +85,11 @@ package:
 	for DIR in $${list} ;							\
 	do									\
 		(								\
-		echo "	==> MAKING \"$@\" ON SUBDIRECTORY \"$(CURDIR)/$$DIR\"";\
+		echo "	==> MAKING \"$@\" ON SUBDIRECTORY \"$(CURWDIR)/$$DIR\"";\
 		if [ -d ./$$DIR -a -r ./$$DIR/Makefile ] ; then			\
-			cd ./$$DIR && "$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURDIR)/$$DIR all;		\
+			cd ./$$DIR && "$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURWDIR)/$$DIR all;	\
 		else								\
-			echo "NOTICE: Partial source ($(CURDIR)/$$DIR) missing";\
+			echo "NOTICE: Partial source ($(CURWDIR)/$$DIR) missing";\
 		fi								\
 		);								\
 	done

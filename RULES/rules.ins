@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.29 18/05/03 
+#ident @(#)rules.ins	1.30 19/07/20 
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -60,7 +60,7 @@ xinstall: finstall
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
-				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURDIR)/$$XMK_F\""; \
+				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURWDIR)/$$XMK_F\""; \
 				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) install;	\
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\
@@ -76,7 +76,7 @@ xuninstall:
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
-				echo "	==> MAKING \"uninstall\" ON SUBCOMPONENT \"$(CURDIR)/$$XMK_F\""; \
+				echo "	==> MAKING \"uninstall\" ON SUBCOMPONENT \"$(CURWDIR)/$$XMK_F\""; \
 				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) uninstall;	\
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\
@@ -92,7 +92,7 @@ man installman:
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
-				echo "	==> MAKING \"$@\" ON SUBCOMPONENT \"$(CURDIR)/$$XMK_F\""; \
+				echo "	==> MAKING \"$@\" ON SUBCOMPONENT \"$(CURWDIR)/$$XMK_F\""; \
 				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) $@;	\
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\

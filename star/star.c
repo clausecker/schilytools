@@ -1,8 +1,8 @@
-/* @(#)star.c	1.393 19/07/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
+/* @(#)star.c	1.394 19/07/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.393 19/07/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
+	"@(#)star.c	1.394 19/07/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling
@@ -2122,6 +2122,9 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 		comerrno(EX_BAD,
 		"-xattr is reserved for NFSv4 extended attributes, for Linux use -xattr-linux\n");
 #else
+		/*
+		 * XXX: see getpaxpriv() "pax -pe": doxattr commented out.
+		 */
 		comerrno(EX_BAD,
 		"NFSv4 extended attribute files are not yet supported.\n");
 #endif
@@ -2277,7 +2280,14 @@ getpaxpriv(arg, valp)
 		case 'e':	/* preserve everything */
 			pflag = TRUE;
 			doacl = TRUE;
+#if 0
+			/*
+			 * XXX: see doxattr check above.
+			 * XXX: We disable this to pass a solaris-ON compilation
+			 * XXX: "NFSv4 extended attribute files are not yet..."
+			 */
 			doxattr = TRUE;
+#endif
 			dolxattr = TRUE;
 			dofflags = TRUE;
 			noatime = FALSE;

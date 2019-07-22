@@ -1,4 +1,4 @@
-#ident "@(#)rules.mks	1.13 08/04/19 "
+#ident "@(#)rules.mks	1.14 19/07/20 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -26,9 +26,9 @@ $(ALLTARGETS):
 	do								\
 		(							\
 		if [ -r ./$$MK ] ; then					\
-			echo "	==> MAKING \"$@\" ON SUBCOMPONENT \"$(CURDIR)/$$MK\""; "$(MAKE)" -f $$MK $(MAKEMACS) XARCH=$(XARCH) $@;\
+			echo "	==> MAKING \"$@\" ON SUBCOMPONENT \"$(CURWDIR)/$$MK\""; "$(MAKE)" -f $$MK $(MAKEMACS) XARCH=$(XARCH) $@;\
 		else							\
-			echo "NOTICE: Partial source ($(CURDIR)/$$MK) missing";\
+			echo "NOTICE: Partial source ($(CURWDIR)/$$MK) missing";\
 		fi							\
 		);							\
 	done

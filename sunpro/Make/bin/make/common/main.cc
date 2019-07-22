@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)main.cc	1.158	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)main.cc	1.42 19/01/07 2017-2019 J. Schilling
+ * @(#)main.cc	1.45 19/07/21 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.42 19/01/07 2017-2019 J. Schilling";
+	"@(#)main.cc	1.45 19/07/21 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -213,6 +213,7 @@ static	void		report_recursion(Name);
 static	void		set_sgs_support(void);
 static	void		setup_for_projectdir(void);
 static	void		setup_makeflags_argv(void);
+static	void		dir_enter_leave(Boolean entering);
 static	void		report_dir_enter_leave(Boolean entering);
 
 extern void expand_value(Name, register String , Boolean);
@@ -374,6 +375,9 @@ main(int argc, char *argv[])
 		/*
 		 * argv[0] contains at least one slash,
 		 * but doesn't start with a slash
+		 * so it is relative to the current working directory.
+		 * Build an absolute path name for argv[0] to the called make
+		 * binary path before we may do a chdir() from a -C option.
 		 */
 		char	*tmp_current_path;
 		char	*tmp_string;
@@ -513,8 +517,6 @@ main(int argc, char *argv[])
 
 	setup_char_semantics();
 
-	setup_for_projectdir();
-
 	/*
 	 * If running with .KEEP_STATE, curdir will be set with
 	 * the connected directory.
@@ -529,6 +531,9 @@ main(int argc, char *argv[])
 
 /*
  *	Set command line flags
+ *
+ *	Warning: Do not keep pointers from get_current_path() calls while
+ *	parsing the options as they could become invalid from a -C option.
  */
 	setup_makeflags_argv();
 	read_command_options(mf_argc, mf_argv);
@@ -538,6 +543,13 @@ main(int argc, char *argv[])
 		(void) printf(gettext("MAKEFLAGS value: %s\n"), cp == NULL ? "" : cp);
 	}
 
+	/*
+	 * Need to set this up after parsing options and after a
+	 * possible -C option has been processed.
+	 */
+	setup_for_projectdir();
+
+	dir_enter_leave(true);			/* Must be before next call */
 	setup_interrupt(handle_interrupt);
 
 	read_files_and_state(argc, argv);
@@ -867,6 +879,7 @@ main(int argc, char *argv[])
 	make_targets(argc, argv, parallel_flag);
 
 	report_dir_enter_leave(false);
+	dir_enter_leave(false);
 
 #ifdef NSE
         exit(nse_exit_status());
@@ -1342,12 +1355,12 @@ read_command_options(register int argc, register char **argv)
 	extern char		*optarg;
 	extern int		optind, opterr, optopt;
 
-#define SUNPRO_CMD_OPTS	"-~Bbc:Ddef:g:ij:K:kM:m:NnO:o:PpqRrSsTtuVvwx:"
+#define SUNPRO_CMD_OPTS	"-~BbC:c:Ddef:g:ij:K:kM:m:NnO:o:PpqRrSsTtuVvwx:"
 
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
-#	define SVR4_CMD_OPTS   "-c:ef:g:ij:km:nO:o:pqrsTtVv"
+#	define SVR4_CMD_OPTS   "-C:c:ef:g:ij:km:nO:o:pqrsTtVv"
 #else
-#	define SVR4_CMD_OPTS   "-ef:iknpqrstV"
+#	define SVR4_CMD_OPTS   "-C:ef:iknpqrstV"
 #endif
 
 	/*
@@ -1427,7 +1440,7 @@ read_command_options(register int argc, register char **argv)
 			if (svr4) {
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 				fprintf(stderr,
-					gettext("Usage : dmake [ -f makefile ][ -c dmake_rcfile ][ -g dmake_group ]\n"));
+					gettext("Usage : dmake [ -f makefile ][ -c dmake_rcfile ][ -g dmake_group ][ -C directory ]\n"));
 				fprintf(stderr,
 					gettext("              [ -j dmake_max_jobs ][ -m dmake_mode ][ -o dmake_odir ]...\n"));
 				fprintf(stderr,
@@ -1443,7 +1456,7 @@ read_command_options(register int argc, register char **argv)
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 				if (IS_EQUAL(argv_zero_base, NOCATGETS("dmake"))) {
 				fprintf(stderr,
-					gettext("Usage : dmake [ -f makefile ][ -c dmake_rcfile ][ -g dmake_group ]\n"));
+					gettext("Usage : dmake [ -f makefile ][ -c dmake_rcfile ][ -g dmake_group ][ -C directory ]\n"));
 				fprintf(stderr,
 					gettext("              [ -j dmake_max_jobs ][ -K statefile ][ -m dmake_mode ][ -x MODE_NAME=VALUE ][ -o dmake_odir ]...\n"));
 				fprintf(stderr,
@@ -1455,6 +1468,8 @@ read_command_options(register int argc, register char **argv)
 				{
 				fprintf(stderr,
 					gettext("Usage : make [ -f makefile ][ -K statefile ]... [ -d ][ -dd ][ -D ][ -DD ]\n"));
+				fprintf(stderr,
+					gettext("             [ -C directory]\n"));
 				fprintf(stderr,
 					gettext("             [ -e ][ -i ][ -k ][ -n ][ -p ][ -P ][ -q ][ -r ][ -s ][ -S ][ -t ]\n"));
 				fprintf(stderr,
@@ -1557,6 +1572,8 @@ read_command_options(register int argc, register char **argv)
 #ifndef TEAMWARE_MAKE_CMN
 				warning(gettext("Ignoring DistributedMake -x option"));
 #endif
+				break;
+			case 2048:
 				break;
 			default: /* > 1 of -c, f, g, j, K, M, m, O, o, x seen */
 				fatal(gettext("Illegal command line. More than one option requiring\nan argument given in the same argument group"));
@@ -1743,6 +1760,14 @@ setup_makeflags_argv()
 				unquote_str(cp_orig, mf_argv[i]);
 			}
 			*cp = tmp_char;
+			if (strcmp(mf_argv[i-1], NOCATGETS("-C")) == 0) {
+				/*
+				 * Ignore -C and argument.
+				 */
+				i -= 2;
+			}
+		} else {
+			mf_argv[i] = NULL;
 		}
 	}
 	mf_argv[i] = NULL;
@@ -1811,6 +1836,8 @@ parse_command_option(register char ch)
 			dmake_rcfile_specified = true;
 		}
 		return 2;
+	case 'C':			/* Change directory */
+		return 2048;
 	case 'D':			 /* Show lines read */
 		if (invert_this) {
 			read_trace_level--;
@@ -2042,7 +2069,7 @@ parse_command_option(register char ch)
 #endif
 		}
 		return 0;
-	case 'w':			 /* Unconditional flag */
+	case 'w':			 /* Report working directory flag */
 		if (invert_this) {
 			report_cwd = false;
 		} else {
@@ -2499,6 +2526,14 @@ read_files_and_state(int argc, char **argv)
 	makeflags_and_macro.size = 0;
 	enter_argv_values(mf_argc, mf_argv, &makeflags_and_macro);
 	enter_argv_values(argc, argv, &makeflags_and_macro);
+	/*
+	 * If there have been -C options, they have been evaluated
+	 * with the last call and we thus may need to re-initialize
+	 * CURDIR before we read the Makefiles in order to let them
+	 * overwrite CURDIR if they like.
+	 */
+	if (current_path_reset)
+		(void) get_current_path();
 
 /*
  *	Set MFLAGS and MAKEFLAGS
@@ -2765,7 +2800,8 @@ read_files_and_state(int argc, char **argv)
 			makefile_read = true;
 		} else if (argv[i] &&
 			   (argv[i][0] == (int) hyphen_char) &&
-			   (argv[i][1] == 'c' ||
+			   (argv[i][1] == 'C' ||
+			    argv[i][1] == 'c' ||
 			    argv[i][1] == 'g' ||
 			    argv[i][1] == 'j' ||
 			    argv[i][1] == 'K' ||
@@ -3164,6 +3200,21 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 					continue;
 				}
 				break;
+			case 2048: /* -C seen */
+				if (argv[i][2])		/* e.g. -Cdir */
+					ap = &argv[i][2];
+				else
+					argv[i+1] = NULL;
+				if (ap == NULL) {
+					fatal(gettext("No argument after -C flag"));
+				}
+				if (chdir(ap) != 0) {
+					fatal(gettext("Failed to change to directory %s: %s"),
+					    ap, strerror(errno));
+				}
+				argv[i] = NULL;
+				current_path_reset = true;
+				continue;
 			default: /* Shouldn't reach here */
 				argv[i] = NULL;
 				continue;
@@ -3936,31 +3987,48 @@ get_dmake_odir_specified(void)
 #endif
 
 static void
-report_dir_enter_leave(Boolean entering)
+dir_enter_leave(Boolean entering)
 {
-	char	rcwd[MAXPATHLEN];
 static	char *	mlev = NULL;
 	char *	make_level_str = NULL;
 	int	make_level_val = 0;
 
 	make_level_str = getenv(NOCATGETS("MAKELEVEL"));
-	if(make_level_str) {
+	if (make_level_str) {
 		make_level_val = atoi(make_level_str);
 	}
-	if(mlev == NULL) {
+	if (mlev == NULL) {
 		mlev = (char*) malloc(MAXPATHLEN);
 	}
-	if(entering) {
+	if (entering) {
 		sprintf(mlev, NOCATGETS("MAKELEVEL=%d"), make_level_val + 1);
 	} else {
 		make_level_val--;
 		sprintf(mlev, NOCATGETS("MAKELEVEL=%d"), make_level_val);
 	}
 	putenv(mlev);
+}
 
-	if(report_cwd) {
-		if(make_level_val <= 0) {
-			if(entering) {
+static void
+report_dir_enter_leave(Boolean entering)
+{
+	char	rcwd[MAXPATHLEN];
+	char *	make_level_str = NULL;
+	int	make_level_val = 0;
+
+	make_level_str = getenv(NOCATGETS("MAKELEVEL"));
+	if (make_level_str) {
+		make_level_val = atoi(make_level_str);
+	}
+	/*
+	 * We previously did increment our environment, so we need to
+	 * correct this to get the correct value for this level.
+	 */
+	make_level_val--;
+
+	if (report_cwd) {
+		if (make_level_val <= 0) {
+			if (entering) {
 #ifdef TEAMWARE_MAKE_CMN
 				sprintf( rcwd
 				       , gettext("dmake: Entering directory `%s'\n")
@@ -3982,7 +4050,7 @@ static	char *	mlev = NULL;
 #endif
 			}
 		} else {
-			if(entering) {
+			if (entering) {
 #ifdef TEAMWARE_MAKE_CMN
 				sprintf( rcwd
 				       , gettext("dmake[%d]: Entering directory `%s'\n")

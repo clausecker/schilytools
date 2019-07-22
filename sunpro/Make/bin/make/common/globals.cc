@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)globals.cc	1.42	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)globals.cc	1.10 18/03/15 2017-2018 J. Schilling
+ * @(#)globals.cc	1.11 19/07/19 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.10 18/03/15 2017-2018 J. Schilling";
+	"@(#)globals.cc	1.11 19/07/19 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -222,6 +222,7 @@ static	UConst char sccsid[] =
 	wchar_t		*wcs_ptr;
 	wchar_t		*wcs_ptr2;
 	long int	hostid;
+	Boolean		current_path_reset = false;
 
 /*
  * File table of contents

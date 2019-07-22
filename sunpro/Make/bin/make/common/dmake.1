@@ -1,4 +1,4 @@
-. \" @(#)dmake.1	1.6 18/05/02 Copyr 2017 J. Schilling
+. \" @(#)dmake.1	1.7 19/07/20 Copyr 2017-2019 J. Schilling
 . \"  Manual Seite fuer dmake
 .\"
 .\" CDDL HEADER START
@@ -35,7 +35,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH DMAKE 1 "2018/05/02" "SunOS 5.11" "SunOS Specific Commands"
+.TH DMAKE 1 "2019/07/20" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 dmake \- parallel make from Distributed Make
 .SH SYNOPSIS
@@ -117,6 +117,14 @@ This version of
 .B dmake
 does not support to set a common physical directory via the
 .B \-o
+option.
+.TP
+.BI \-O\  filedesc
+This version of
+.B dmake
+does not support to set a file descriptor to send job start
+and result messages to using the
+.B \-O
 option.
 .TP
 .B \-R
