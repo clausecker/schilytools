@@ -1,17 +1,6 @@
-#ident @(#)Makefile	1.47 16/12/13 
+#ident @(#)Makefile	1.48 19/08/11 
 ###########################################################################
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2
-# as published by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; see the file COPYING.  If not, write to the Free Software
-# Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#@@C@@
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -34,6 +23,7 @@ CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libscgcmd
 CPPOPTS +=	-I../libhfs_iso
 CPPOPTS +=	-I../libcdrdeflt
+#CPPOPTS +=	-DAPPLE_PEARSON_OLD	# Use old struct attrinfo from apple.h
 CPPOPTS	+=	-DUSE_SCG \
 		'-DAPPID_DEFAULT="MKISOFS ISO9660/HFS/UDF FILESYSTEM BUILDER & CDRECORD CD/DVD/BluRay CREATOR (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"'
 CPPOPTS +=	-DSCHILY_PRINT

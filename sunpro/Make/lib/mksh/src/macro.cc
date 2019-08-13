@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)macro.cc	1.22	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)macro.cc	1.9 18/01/12 2017-2018 J. Schilling
+ * @(#)macro.cc	1.10 19/08/12 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.cc	1.9 18/01/12 2017-2018 J. Schilling";
+	"@(#)macro.cc	1.10 19/08/12 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -61,8 +61,12 @@ static	UConst char sccsid[] =
 /*
  * We cannot use "using std::wcsdup" as wcsdup() is not always
  * in the std namespace.
+ * The Sun CC compiler in version 4 does not suport using namespace std;
+ * so be careful.
  */
+#if !defined(__SUNPRO_CC_COMPAT) || __SUNPRO_CC_COMPAT >= 5
 using namespace std;		/* needed for wcsdup() */
+#endif
 
 /*
  * File table of contents

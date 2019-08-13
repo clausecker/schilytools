@@ -1,6 +1,6 @@
-#ident "@(#)i386-openbsd-gcc.rul	1.11 18/04/11 "
+#ident "@(#)i386-openbsd-gcc.rul	1.12 19/08/13 "
 ###########################################################################
-# Written 1997-2018 by J. Schilling
+# Written 1997-2019 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for OpenBSD
@@ -22,7 +22,7 @@
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
 
 OSDEFS +=
 

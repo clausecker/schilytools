@@ -1,4 +1,4 @@
-/* @(#)lutimens.c	1.3 19/03/26 Copyright 2013-2019 J. Schilling */
+/* @(#)lutimens.c	1.4 19/07/31 Copyright 2013-2019 J. Schilling */
 /*
  *	Emulate the behavior of lutimens(const char *name,
  *					const struct timespec times[2])
@@ -18,6 +18,13 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+/*
+ * If we neither have utimensat() nor lutimes()/lutime(), we need to call
+ * lstat() and since this is not a predictable call, we always compile this
+ * module in largefile mode.
+ */
+#define	USE_LARGEFILES
 
 #include <schily/unistd.h>
 #include <schily/types.h>

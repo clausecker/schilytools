@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.104 19/07/04 Copyright 1993-2019 J. Schilling */
+/* @(#)diff.c	1.105 19/07/30 Copyright 1993-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.104 19/07/04 Copyright 1993-2019 J. Schilling";
+	"@(#)diff.c	1.105 19/07/30 Copyright 1993-2019 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -47,6 +47,27 @@ static	UConst char sccsid[] =
 #endif
 
 #include <schily/nlsdefs.h>
+
+#ifdef	USE_ACL
+
+#ifdef	OWN_ACLTEXT
+#if	defined(UNIXWARE) && defined(HAVE_ACL)
+#define	HAVE_SUN_ACL
+#define	HAVE_ANY_ACL
+#endif
+#endif
+/*
+ * HAVE_ANY_ACL currently includes HAVE_POSIX_ACL and HAVE_SUN_ACL.
+ * This definition must be in sync with the definition in acl_unix.c
+ * As USE_ACL is used in star.h, we are not allowed to change the
+ * value of USE_ACL before we did include star.h or we may not include
+ * star.h at all.
+ * HAVE_HP_ACL is currently not included in HAVE_ANY_ACL.
+ */
+#ifndef	HAVE_ANY_ACL
+#undef	USE_ACL		/* Do not try to get or set ACLs */
+#endif
+#endif
 
 typedef	struct {
 	FILE	*cmp_file;

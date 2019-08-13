@@ -1,14 +1,15 @@
-/* @(#)searchinpath.c	1.6 18/02/04 Copyright 1999-2018 J. Schilling */
+/* @(#)searchinpath.c	1.7 19/07/31 Copyright 1999-2019 J. Schilling */
+#define	USE_LARGEFILES
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)searchinpath.c	1.6 18/02/04 Copyright 1999-2018 J. Schilling";
+	"@(#)searchinpath.c	1.7 19/07/31 Copyright 1999-2019 J. Schilling";
 #endif
 /*
  *	Search a file name in the PATH of the current exeecutable.
  *	Return the path to the file name in allocated space.
  *
- *	Copyright (c) 1999-2018 J. Schilling
+ *	Copyright (c) 1999-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,6 +23,12 @@ static	UConst char sccsid[] =
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
+ */
+
+/*
+ * Since we need to call stat() and since this is not a predictable call,
+ * we always compile this module in largefile mode.
+ * See #define USE_LARGEFILES before #include <schily/mconfig.h>
  */
 
 #include <schily/mconfig.h>

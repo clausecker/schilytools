@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.133 19/07/22 "
+#ident "@(#)MKLINKS	1.134 19/08/13 "
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -222,6 +222,8 @@ $symlink	i386-netbsd-clang.rul	sparc-netbsd-clang32.rul
 $symlink	i386-netbsd-clang.rul	sparc-netbsd-clang64.rul
 $symlink	i386-openbsd-cc.rul	amd64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	amd64-openbsd-gcc.rul
+$symlink	i386-openbsd-cc.rul	sparc64-openbsd-cc.rul
+$symlink	i386-openbsd-gcc.rul	sparc64-openbsd-gcc.rul
 $symlink	amd64-bitrig-clang.rul	amd64-bitrig-clang32.rul
 $symlink	amd64-bitrig-clang.rul	amd64-bitrig-clang64.rul
 $symlink	amd64-bitrig-clang.rul	i386-bitrig-clang.rul

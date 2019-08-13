@@ -351,6 +351,8 @@
 ./RULES/amd64-netbsd-gcc.rul
 ./RULES/amd64-openbsd-cc.rul
 ./RULES/amd64-openbsd-gcc.rul
+./RULES/sparc64-openbsd-cc.rul
+./RULES/sparc64-openbsd-gcc.rul
 ./RULES/amiga-netbsd-cc.rul
 ./RULES/amiga-netbsd-gcc.rul
 ./RULES/aranym-freemint-gcc.rul

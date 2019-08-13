@@ -1,9 +1,9 @@
-/* @(#)resolvepath.c	1.8 18/12/02 Copyright 2011-2018 J. Schilling */
+/* @(#)resolvepath.c	1.9 19/07/31 Copyright 2011-2019 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
  *
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,12 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+/*
+ * Since we need to call stat()/lstat() and since this is not a predictable call,
+ * we always compile this module in largefile mode.
+ */
+#define	USE_LARGEFILES
 
 #include <schily/types.h>
 #include <schily/stat.h>

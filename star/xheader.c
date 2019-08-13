@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.99 19/03/09 Copyright 2001-2019 J. Schilling */
+/* @(#)xheader.c	1.100 19/08/07 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.99 19/03/09 Copyright 2001-2019 J. Schilling";
+	"@(#)xheader.c	1.100 19/08/07 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -2150,11 +2150,17 @@ get_dev(info, keyword, klen, arg, len)
 			/*
 			 * Check whether the device from the archive
 			 * can be represented on the local system.
+			 * We only need info->f_dev to detect a mount point
+			 * so there is no problem that some platforms with
+			 * non-contiguous minor bits cannot be used to compute
+			 * info->f_devmaj and info->f_devmin.
+			 * So do not warn for related problems when minorbits
+			 * is 0.
 			 */
 			if (geterrno() ||
 			    info->f_devmaj != major(info->f_dev) ||
 			    info->f_devmin != minor(info->f_dev) ||
-			    (Ullong)info->f_dev != ull) {
+			    (minorbits != 0 && (Ullong)info->f_dev != ull)) {
 				xh_rangeerr(keyword, arg, len);
 				info->f_dev = 0;
 				info->f_devmaj = 0;

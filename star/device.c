@@ -1,13 +1,13 @@
-/* @(#)device.c	1.17 18/06/16 Copyright 1996-2018 J. Schilling */
+/* @(#)device.c	1.19 19/08/07 Copyright 1996-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)device.c	1.17 18/06/16 Copyright 1996-2018 J. Schilling";
+	"@(#)device.c	1.19 19/08/07 Copyright 1996-2019 J. Schilling";
 #endif
 /*
  *	Handle local and remote device major/minor mappings
  *
- *	Copyright (c) 1996-2018 J. Schilling
+ *	Copyright (c) 1996-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -184,12 +184,16 @@ EXPORT void
 dev_init(debug)
 	BOOL	debug;
 {
+#ifdef	DEV_MINOR_NONCONTIG
+	int	i = 0;
+#else
 	int	i;
 	dev_t	x;
 
 	for (i = 0, x = 1; minor(x) == x; i++, x <<= 1)
 		/* LINTED */
 		;
+#endif
 
 	minorbits = i;
 	minormask = _dev_mask[i];
@@ -240,6 +244,8 @@ dev_make(majo, mino)
 	XDEV_T	majo;
 	XDEV_T	mino;
 {
+	if (minorbits == 0)
+		return ((XDEV_T)-1);
 	return ((majo << minorbits) | mino);
 }
 
@@ -250,6 +256,8 @@ _dev_make(mbits, majo, mino)
 	XDEV_T	majo;
 	XDEV_T	mino;
 {
+	if (mino == 0)
+		return ((XDEV_T)-1);
 	return ((majo << mbits) | mino);
 }
 #endif	/* IS_LIBRARY */

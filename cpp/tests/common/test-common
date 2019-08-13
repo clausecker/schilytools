@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SRCROOT=`../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+
+#. ../common/command-names
+cpp="${star:-../../OBJ/"`../../../conf/oarch.sh`"/cpp}"
+
+miscarry() {
+	xfail "$@"
+}

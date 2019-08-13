@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)read2.cc	1.12 19/01/07 2017-2019 J. Schilling
+ * @(#)read2.cc	1.13 19/08/12 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.12 19/01/07 2017-2019 J. Schilling";
+	"@(#)read2.cc	1.13 19/08/12 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -63,8 +63,12 @@ static	UConst char sccsid[] =
 /*
  * We cannot use "using std::wcsdup" as wcsdup() is not always
  * in the std namespace.
+ * The Sun CC compiler in version 4 does not suport using namespace std;
+ * so be careful.
  */
+#if !defined(__SUNPRO_CC_COMPAT) || __SUNPRO_CC_COMPAT >= 5
 using namespace std;		/* needed for wcsdup() */
+#endif
 
 /*
  * Defined macros

@@ -1,8 +1,8 @@
-/* @(#)lchmod.c	1.1 14/06/03 Copyright 2014 J. Schilling */
+/* @(#)lchmod.c	1.2 19/07/31 Copyright 2014-2019 J. Schilling */
 /*
  *	Emulate the behavior of lchmod(const char *name, mode_t mode)
  *
- *	Copyright (c) 2014 J. Schilling
+ *	Copyright (c) 2014-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,12 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+/*
+ * Since we need to call fstatat() and since this is not a predictable call,
+ * we always compile this module in largefile mode.
+ */
+#define	USE_LARGEFILES
 
 #include <schily/unistd.h>
 #include <schily/types.h>

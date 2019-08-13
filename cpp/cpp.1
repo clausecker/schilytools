@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.7 17/10/08 Copyright 2010-2017 J. Schilling
+.\" @(#)cpp.1	1.12 19/08/07 Copyright 2010-2019 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,15 +13,14 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "17/10/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "19/08/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
 .B
 cpp
 [
-'\".B \-BCHMpPRT
-.B \-CHPRT
+.B \-BCHMpPRT
 ] [
 .B \-undef
 ] [
@@ -63,6 +62,13 @@ are used to specify a different input or output for the preprocessor.
 . \" .SH ERRORS
 .SH OPTIONS
 .TP
+.B \-B
+Support the C++ comment indicator
+.RB ` /\|/ '.
+With this indicator, everything on the line after the
+.B /\|/
+is treated as a comment.
+.TP
 .B \-C
 Pass all comments (except those that appear on lines with 
 .B cpp
@@ -79,6 +85,11 @@ write them to the output.
 This list is in makefile format and indicates that the related
 .B .o
 file depends on the input file and the used include files.
+.TP
+.B \-p
+Only check for the first eight characters in macro names
+and issue a warning if extra tokens appear at the end of
+a line containing a directive.
 .TP
 .B \-P
 Do not include line control information in the preprocessor output.
@@ -149,10 +160,233 @@ Uses
 .I directory
 instead of the standard system include directory.
 
+.SH USAGE
+.SS Directives
+.LP
+All
+.B cpp
+directives start with a hash character
+.RB ( # )
+as the first character on a line.
+White space
+.RB ( SPACE
+or
+.B TAB
+characters) can appear after the initial
+.B #
+for indentation.
+.LP
+.TP 10
+.BI #define " name value"
+Replace subsequent instances of the text
+.I name
+with
+.IR value .
+.TP
+.BI #define " name\fB(\fPargument \fR[,\fP argument\fR] ...\fP\fB )\fP value
+Replaces each instance of
+.I name
+followed by a parenthesized list of arguments with
+.IR value ,
+where each occurrence of an
+.I argument
+in
+.I value
+is replaced by the corresponding token from the comma separated list of
+the actual parameters.
+.sp
+A space between
+.I name
+and the
+.RB ` ( '
+is not possible.
+.TP
+.BI #undef " name
+Remove any definition for the symbol
+.IR name .
+.TP
+.BI #ident " text
+Forwards the line to the output.
+This is intended to be used by the compiler that usually puts the arguments
+into the
+.B comment section
+of the
+.B ELF
+binary.
+.HP
+.B #line \c
+.I line-number
+.B
+"\fIfilename\fP"
+.br
+Create control information for reading programs.
+The
+.I line-number
+must be an integer constant and is interpreted as the line number of the
+next line.
+.I filename
+is interpreted as the related filename. If
+.B
+"\fIfilename\fP"
+is omitted, the current filename is not changed.
+.HP
+.B #include \c
+.B
+"\fIfilename\fP"
+.PD 0
+.HP
+.B #include \c
+.B
+<\fIfilename\fP>
+.PD
+.br
+Reads the content of
+.I filename
+and handles it as if it was part of the current file.
+With the
+.BI < filename >
+notation,
+.I filename
+is only searched in the list of standard include directories.
+.TP
+.BI #if " constant-expression
+If the 
+.I constant-expression
+yields a non-zero expression, subsequent lines up to a matching
+.BR #else ,
+.B #elif
+or
+.B #endif
+appear in the output.
+.TP
+.BI #ifdef " name
+If
+.I name
+has been defined, subsequent lines up to a matching
+.BR #else ,
+.B #elif
+or
+.B #endif
+appear in the output.
+.TP
+.BI #ifndef " name
+If
+.I name
+has not been been defined, subsequent lines up to a matching
+.BR #else ,
+.B #elif
+or
+.B #endif
+appear in the output.
+.TP
+.BI #elif " constant-expression
+If the preceding
+.BR #if ,
+.BR #ifdef ,
+.BR #ifndef
+or
+.B #elif
+directive did not include its block in the output and the
+.I constant-expression
+yields a non-zero expression, the following block of text is included
+in the output.
+.TP
+.B #else
+If the preceding conditional would include lines in the output, 
+then lines between the
+.B #else
+and the matching
+.B #endif
+are ignored.
+If the preceding conditional would ignore lines, then
+lines between the 
+.B #else
+and the matching
+.B #endif
+are included in the output.
+Conditional directives and  corresponding
+.B #else
+directives can be nested.
+.TP
+.B #endif
+Marks the end of a section of lines begun by one of the conditional
+directives
+.BR #if ,
+.B #ifdef
+or
+.BR #ifndef .
+Each such directive must have a matching
+.BR #endif .
+.TP
+.BI #pragma " text
+Forwards the line to the output.
+This is intended to be used by the compiler that uses the related line as
+a way to forward directives.
+.TP
+.BI #error " text
+Prints
+.I text
+on
+.B stderr
+and exits with a non-zero exit status.
+If the
+.B #error
+directive is not inside a conditional active block, no error message is printed
+and the processing is not terminated.
+
 .SH EXAMPLES
 .SH ENVIRONMENT
+.LP
+.TP 10
+.B SUNPRO_DEPENDENCIES
+The argument of this environment is used as a filename to output a
+.B make
+compatible dependency list.
+The output format is the same as with the
+.B \-M
+option.
+.SH "EXIT STATUS
+.LP
+.ne 4
+The following exit codes are returned:
+.LP
+.br
+.ne 4
+.TP 10
+.B 0
+Successful completion.
+.br
+.ne 4
+.TP
+.B 1
+An error occurred.
+.br
+.ne 4
+.TP
+.B 8
+A command line syntax error occurred.
 .SH FILES
+.SH ATTRIBUTES
+.sp
+.LP
+See
+.BR attributes (5)
+for descriptions of the following attributes:
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i) 
+lw(2.75i) |lw(2.75i) 
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySUNWsprot
+.TE
+
 .SH "SEE ALSO"
+.LP
+.BR m4 (1),
+.BR mcs (1).
 .SH DIAGNOSTICS
 .SH NOTES
 ANSI C preprocessors replace an escaped NEWLINE (a backslash that

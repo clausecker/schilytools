@@ -1,6 +1,7 @@
-/* @(#)apple.h	1.7 04/03/02 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.h	1.8 04/03/02 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004 J. Schilling */
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
+ *	Copyright (c) 2004 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -364,9 +365,16 @@ typedef struct {
 
 typedef struct {
 	unsigned long	info_length;
+#ifndef	APPLE_PEARSON_OLD
+	unsigned long	objid_low;
+	unsigned long	objid_high;
+#endif
 	struct timespec	ctime;
 	struct timespec	mtime;
 	byte		info[32];
+#ifndef	APPLE_PEARSON_OLD
+	off_t		rsrc_length;
+#endif
 } attrinfo;
 
 #endif /* IS_MACOS_X */

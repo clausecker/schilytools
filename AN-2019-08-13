@@ -1,0 +1,261 @@
+New features with AN-2019-08-13:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. If your smake is too old and aborts, ensure this
+	*** by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2014-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs to Linux distributions as they
+		usually do not forward these bug reports upstream and as the
+		Linux distributions typically do not let skilled people check
+		the bugs. We did not hear about a FIFO problem in star for a
+		long time and since the problem that (on Linux) occurred once
+		every 6000-10000 tries did not happen on Solaris after
+		10 million tries, it was not known otherwise.
+
+
+-	Makefilesystem: a new link RULES/sparc64-openbsd-gcc.rul has been
+	introduced.
+
+-	Makefilesystem: The files RULES/*-openbsd-*cc.rul now use automatic
+	bittness setup.
+
+-	include/schily/nlsdefs.h now casts the dummy gettext() to char *
+	in order to avoid a compiler warning.
+
+-	libschily: Various functions and *at() emulation functions call stat()
+	even though the caller does not know about that call.
+
+	This could cause a missbehavior in case that a file returns EOVERFLOW
+	with a normal stat(). We now compile these functions in unconditional
+	large file mode to overcome that problem.
+
+	The affected files are:
+
+	diropen.c lutimens.c findinpath.c linkat.c mkdirs.c searchinpath.c
+	resolvepath.c  lchmod.c renameat.c 
+
+	Note that this problem affected star(1) on platforms that do not
+	fully implement all *at() interfaces, since star started to support
+	really long path names in July 2018.
+
+-	cpp: A new option -B allows to honor C++ comment.
+
+	This option was available in the Closed Source Solaris implementation
+	as well, but it was missing from the Reiser original source.
+
+-	cpp: The man page now mentions the cpp directives and documents the
+	environment variable SUNPRO_DEPENDENCIES.
+
+-	cpp: The exit code is no longer incremented on each error but rather
+	set to 1.
+
+	The old method could result in an apparent exit(0) since the historic
+	wait() interface only supports the low 8 bits of the exit() parameter,
+	many programs do not use waitid() and Linux even implements a
+	completely broken waitid() that does not return all 32 bits from
+	eht exit() call.
+
+-	cpp: #error now prints an error message on stderr and immediately
+	exits. This exit(1) only happens in case that #error is in 
+	conditional active code like:
+
+		#if 1
+		#error abort
+		#endif
+
+-	cpp: A new option -p is similar to -T but in addition also checks
+	for extra text after directives and gives the warning:
+
+		"extra tokens (ignored) after directive"
+
+	if such text was found.
+
+	This option was available in the Closed Source Solaris implementation
+	as well, but it was missing from the Reiser original source.
+
+	We now support all documented options from the Closed Source Solaris
+	cpp and some undocumented options in addition.
+
+-	cpp: A fix from June 2018 for the warn character 0xFE that allowed
+	
+		#define	foo	þ
+
+	to work caused a problem that prevented cpp from working correctly
+	while compiling OpenSolaris-ON. The bug was to check the wrong 
+	offset for the second warn character 0xFE, when 0xFE is escaped.
+
+	This new version has been verified by being used in a "nightly" 
+	compilation of OpenSolaris-ON.
+
+	We definitely need a conformance test suite for cpp...
+
+-	cpp: a basic set of conformance tests has been added.
+
+-	cpp: New version -> 2.3
+
+-	star: Star did not compile on platforms without ACLs anymore since
+	we did rearrange the code with schilytools 2019-07-15.
+
+	We now have the needed #undef USE_ACL in diff.c as well.
+
+	Thanks to Dennis Clarke for reporting.
+
+-	star: Avoid a warning when a star -dump archive is unpacked on FreeBSD
+	or Linux with non-contiguous minor bits. The warning is not needed
+	since we only use SCHILY.dev in order to detect mount points but
+	not to compute the major/minor parts.
+
+-	mkisofs: The struct attrinfo in apple.h has been enhanced by the
+	struct members objid_low, objid_high, rsrc_length. This is what
+	other projects in the net use since a while.
+
+	If you get problems with the Apple extensions of mkisofs and like
+	to use the old version of struct attrinfo, compile mkisofs with 
+
+		smake COPTX=-DAPPLE_PEARSON_OLD
+
+-	SunPro Make: The statement "using namespace std;" has been made conditional
+	in order to support a compilation using the pre ANSI mode from the old
+	Sun C++ compiler that does not support "using namespace std;".
+
+	This mode is needed in order to support a compilation using the
+	build environment from OpenSolaris-ON. It is enabled with the Sun CC
+	compiler by using the option -compat=4 instead of the default -compat=5
+
+-	smake: Added some code to trick out GCC that warns on a so called
+	bit loss while enlarging the fastalloc() size parameter for alignment
+	purposes.
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

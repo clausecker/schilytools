@@ -1,4 +1,4 @@
-/* @(#)mkdirs.c	1.4 14/01/02 Copyright 2011-2014 J. Schilling */
+/* @(#)mkdirs.c	1.5 19/07/31 Copyright 2011-2019 J. Schilling */
 /*
  *	mkdirs() is the equivalent to "mkdir -p path"
  *	makedirs() allows to create missing direcories before a final
@@ -6,7 +6,7 @@
  *
  *	"name" must be a modifyable string.
  *
- *	Copyright (c) 2011-2014 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,12 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+/*
+ * Since we need to call stat() and since this is not a predictable call,
+ * we always compile this module in largefile mode.
+ */
+#define	USE_LARGEFILES
 
 #include <schily/types.h>
 #include <schily/stat.h>

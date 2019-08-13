@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.19 18/09/27 "
+#ident "@(#)Makefile	1.22 19/08/05 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,7 @@ CPPOPTS +=	-I.
 CPPOPTS +=	-Dunix=1		# Compile for UNIX environment
 CPPOPTS +=	-DFLEXNAMES		# Allow long identifier names
 CPPOPTS +=	-DSUN_SAYLINE		# Add enter/leave note to # line
+CPPOPTS +=	-DEXIT_ON_ERROR		# exit() on #error directive
 CPPOPTS +=	-DUSE_LARGEFILES
 #CPPOPTS +=	-DSCHILY_PRINT
 
@@ -47,6 +48,7 @@ CLEAN_FILEX +=	$(ARCHDIR)/cpy.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.tst
 ###########################################################################
 
 count:	$(CFILES) $(HFILES)

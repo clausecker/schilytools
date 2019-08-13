@@ -1,8 +1,8 @@
-/* @(#)nlsdefs.h	1.5 10/12/19 Copyright 2004-2010 J. Schilling */
+/* @(#)nlsdefs.h	1.6 19/08/13 Copyright 2004-2019 J. Schilling */
 /*
  *	Native language support
  *
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -70,11 +70,11 @@
 
 #ifndef	USE_NLS
 #undef	gettext
-#define	gettext(s)			s
+#define	gettext(s)			((char *)s)
 #undef	dgettext
-#define	dgettext(d, s)			s
+#define	dgettext(d, s)			((char *)s)
 #undef	dcgettext
-#define	dcgettext(d, s, c)		s
+#define	dcgettext(d, s, c)		((char *)s)
 
 #undef	textdomain
 #define	textdomain(a)			((char *)0)

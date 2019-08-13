@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.44 18/09/27 2010-2018 J. Schilling */
+/* @(#)cpp.c	1.52 19/08/07 2010-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.44 18/09/27 2010-2018 J. Schilling";
+	"@(#)cpp.c	1.52 19/08/07 2010-2019 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2018 J. Schilling
+ * Copyright (c) 2010-2019 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -256,7 +256,9 @@ STATIC	FILE	*fout;			/* Init in main(), Mac OS is nonPOSIX */
 STATIC	FILE	*mout;			/* Output for -M */
 STATIC	FILE	*dout;			/* Output for "SUNPRO_DEPENDENCIES" */
 STATIC	int	nd	= 1;
+STATIC	int	extrawarn;	/* warn on extra tokens */
 STATIC	int	pflag;	/* don't put out lines "# 12 foo.c" */
+STATIC	int	cppflag;	/* Support C++ comment */
 STATIC	int	passcom;	/* don't delete comments */
 STATIC	int rflag;	/* allow macro recursion */
 STATIC	int	hflag;	/* Print included filenames */
@@ -284,6 +286,7 @@ LOCAL	char		*doincl	__PR((char *));
 LOCAL	int		equfrm	__PR((char *, char *, char *));
 LOCAL	char		*dodef	__PR((char *));
 LOCAL	void		control __PR((char *));
+LOCAL	int		iscomment __PR((char *));
 LOCAL	struct symtab	*stsym	__PR((char *));
 LOCAL	struct symtab	*ppsym	__PR((char *));
 EXPORT	void		pperror	__PR((char *fmt, ...));
@@ -511,6 +514,7 @@ refill(p) register char *p; {
 STATIC char *
 cotoken(p) register char *p; {
 	register int c,i; char quoc;
+	int	cppcom = 0;
 	static int state = BEG;
 
 	if (state!=BEG) goto prevlf;
@@ -543,10 +547,16 @@ again:
 		else {++p; break;}
 	} break;
 	case '/': for (;;) {
-		if (*p++=='*') {/* comment */
+		if (*p == '*' || (cppflag && *p == '/')) { /* comment */
+			if (*p++ == '/')		/* A C++ comment */
+				cppcom++;
 			if (!passcom) {inptr=p-2; dump(); ++flslvl;}
 			for (;;) {
 				while (!iscom(*p++));
+				if (cppcom && p[-1] == '\n') {
+					p--;
+					goto endcom;
+				}
 				if (p[-1]=='*') for (;;) {
 					if (*p++=='/') goto endcom;
 					if (eob(--p)) {
@@ -570,8 +580,11 @@ again:
 				} else ++p; /* ignore null byte */
 			}
 		endcom:
+			cppcom = 0;
 			if (!passcom) {outptr=inptr=p; --flslvl; goto again;}
 			break;
+		} else {				/* no comment, skip */
+			p++;
 		}
 		if (eob(--p)) p=refill(p);
 		else break;
@@ -918,6 +931,7 @@ dodef(p) char *p; {/* process '#define' */
 STATIC void
 control(p) register char *p; {/* find and handle preprocessor control lines */
 	register struct symtab *np;
+	int	didwarn;
 for (;;) {
 	fasscan(); p=cotoken(p); if (*inptr=='\n') ++inptr; dump();
 	sloscan(); p=skipbl(p);
@@ -1002,7 +1016,11 @@ for (;;) {
 			p = cotoken(p);
 	} else if (np == errorloc) {		/* error */
 #ifdef	EXIT_ON_ERROR
-		if (trulvl > 0) {
+		/*
+		 * Write a message to stderr and exit immediately, but only
+		 * if #error was in a conditional "active" part of the code.
+		 */
+		if (flslvl == 0) {
 			char ebuf[BUFFERSIZ];
 
 			p = ebuf;
@@ -1020,10 +1038,9 @@ for (;;) {
 			pperror(ebuf);
 			exit(exfail);
 		}
-#else
+#endif
 		while (*inptr != '\n')		/* pass text */
 			p = cotoken(p);
-#endif
 	} else if (np == lneloc) {		/* line */
 		if (flslvl == 0 && pflag == 0) {
 			register char	*s;
@@ -1119,8 +1136,32 @@ for (;;) {
 		goto was_line;
 	} else pperror("undefined control",0);
 	/* flush to lf */
-	++flslvl; while (*inptr!='\n') {outptr=inptr=p; p=cotoken(p);} --flslvl;
+	didwarn = 0;
+	++flslvl;
+	while (*inptr != '\n') {
+		outptr = inptr = p;
+		p = cotoken(p); 
+		if (extrawarn && !didwarn &&
+		    *inptr != '\n' && *p != '\n' &&
+		    (toktyp+COFF)[(int)*p] != BLANK &&
+		    !iscomment(p)) {
+			ppwarn("extra tokens (ignored) after directive");
+			didwarn++;
+		}
+	}
+	--flslvl;
 }
+}
+
+STATIC int
+iscomment(s)
+	register char *s;
+{
+	if (*s++ == '/') {
+		if (*s == '*' || (cppflag && *s == '/'))
+			return (1);
+	}
+	return (0);
 }
 
 STATIC struct symtab *
@@ -1172,7 +1213,16 @@ pperror(fmt, va_alist)
 #endif
 	(void)js_fprintf(stderr, "%r\n", fmt, args);
 	va_end(args);
+#ifdef	INCR_EXCODE
+	/*
+	 * The historical behavior could cause the impression of exit(0)
+	 * since the historical wait() makes only the low 8 bits of the
+	 * exit code visible.
+	 */
 	++exfail;
+#else
+	exfail = 1;
+#endif
 }
 
 #ifdef	PROTOTYPES
@@ -1383,7 +1433,7 @@ subst(p,sp) register char *p; struct symtab *sp; {
 			*--p= *vp;
 		}
 		if (*vp==warnc) {/* insert actual param */
-			if (*vp == warnc) {
+			if (vp[-1] == warnc) {
 				*--p = *--vp;
 				continue;
 			}
@@ -1518,6 +1568,7 @@ main(argc,argv)
 				case 'P': pflag++;
 				case 'E': continue;
 				case 'R': ++rflag; continue;
+				case 'B': cppflag++; continue;
 				case 'C': passcom++; continue;
 				case 'D':
 					if (predef>prespc+NPREDEF) {
@@ -1554,7 +1605,7 @@ main(argc,argv)
 						    HOST_CPU, HOST_VENDOR, HOST_OS);
 						printf("\n");
 						printf("Copyright (C) 1978 AT&T (John F. Reiser)\n");
-						printf("Copyright (C) 2010-2018 Joerg Schilling\n");	
+						printf("Copyright (C) 2010-2019 Joerg Schilling\n");	
 						exit(0);
 					}
 					goto unknown;
@@ -1570,6 +1621,8 @@ main(argc,argv)
 					if (nd>=MAXIDIRS) pperror("excessive -I file (%s) ignored",argv[i]);
 					else dirs[nd++] = argv[i]+2;
 					continue;
+				case 'p':		/* -T + extra tokens warn */
+					extrawarn++;
 				case 'T':
 					symlen = 8;	/* Compatibility with V7 */
 					continue;

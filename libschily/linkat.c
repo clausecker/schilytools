@@ -1,4 +1,4 @@
-/* @(#)linkat.c	1.4 16/08/10 Copyright 2011-2016 J. Schilling */
+/* @(#)linkat.c	1.5 19/07/31 Copyright 2011-2019 J. Schilling */
 /*
  *	Emulate the behavior of linkat(int fd1, const char *name1, int fd2,
  *						const char *name2, int flag)
@@ -12,7 +12,7 @@
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,12 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+/*
+ * Since we need to call fstat() and since this is not a predictable call,
+ * we always compile this module in largefile mode.
+ */
+#define	USE_LARGEFILES
 
 #include <schily/unistd.h>
 #include <schily/types.h>

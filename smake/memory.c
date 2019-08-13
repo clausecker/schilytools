@@ -1,14 +1,14 @@
-/* @(#)memory.c	1.24 18/10/01 Copyright 1985-2012 J. Schilling */
+/* @(#)memory.c	1.25 19/08/13 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)memory.c	1.24 18/10/01 Copyright 1985-2012 J. Schilling";
+	"@(#)memory.c	1.25 19/08/13 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	Make program
  *	Memory allocation routines
  *
- *	Copyright (c) 1985-2012 by J. Schilling
+ *	Copyright (c) 1985-2019 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -165,6 +165,7 @@ EXPORT char *
 fastalloc(size)
 	unsigned	size;
 {
+	UIntptr_t	psize	= size;
 	static	char	*spc	= NULL;
 	static	char	*spcend = NULL;
 	register char	*result	= spc;
@@ -176,12 +177,16 @@ fastalloc(size)
 	 * XXX macros.
 	 */
 #ifdef	LL_DATE_T
-#define	round_up(x)		(unsigned) llalign(x)
+#define	round_up(x)		(UIntptr_t) llalign(x)
 #else
-#define	round_up(x)		(unsigned) palign(x)
+#define	round_up(x)		(UIntptr_t) palign(x)
 #endif
-
-	size = round_up(size);
+	/*
+	 * Use the UIntptr_t typed psize to trick up silly compilers that like
+	 * to warn us for so called bit loss.
+	 */
+	psize = round_up(psize);
+	size = psize;
 
 	if (ffstack && size == sizeof (list_t)) {
 		result = (char *)ffstack;
