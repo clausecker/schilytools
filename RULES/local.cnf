@@ -1,6 +1,6 @@
-#ident @(#)local.cnf	1.13 18/08/16 
+#ident @(#)local.cnf	1.14 19/09/07 
 ###########################################################################
-# Written 1998-2014 by J. Schilling
+# Written 1998-2019 by J. Schilling
 ###########################################################################
 #
 # Make Rules for local dynamic configuration
@@ -41,7 +41,8 @@ RUL_LCONF=	@echo "	==> CONFIGURING LOCAL RULES \"$@\""; \
 		cd $(ARCHDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS) $(CPPFLAGS)" \
-		LDFLAGS="$(LDOPTS)" sh $(INVERSE_SUBARCHDIR)../../configure $(CONFFLAGS)
+		LDFLAGS="$(LDOPTS)" CONFIG_SHELL=$(SHELL) \
+		$(SHELL) $(INVERSE_SUBARCHDIR)../../configure $(CONFFLAGS)
 ###########################################################################
 include $(ARCHDIR)/Inull
 include $(ARCHDIR)/local.cnf

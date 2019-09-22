@@ -1,4 +1,4 @@
-/* @(#)match.c	1.33 19/01/08 Copyright 1985, 1995-2019 J. Schilling */
+/* @(#)match.c	1.36 19/09/21 Copyright 1985, 1995-2019 J. Schilling */
 #include <schily/utypes.h>	/* For Uchar			*/
 #include <schily/standard.h>
 #include <schily/patmatch.h>
@@ -125,38 +125,36 @@
  *	the POSIX class code.
  */
 #ifdef	POSIX_CLASS
-#define	CHK_POSIX_CLASS						\
-	if (*lpat == LCLASS) {					\
-		if (lpat[1] == ':') {				\
-			char	class[CL_SIZE+1];		\
-			char	*pc = class;			\
-								\
-			lpat += 2;	/* Eat ':' */		\
-			for (;;) {				\
-				if (*lpat == '\0') {		\
-					ok = FALSE;		\
-					goto out;		\
-				}				\
-				if (*lpat == ':' && lpat[1] == RCLASS) \
-					break;			\
-				if (pc >= &class[CL_SIZE]) {	\
-					ok = FALSE;		\
-					goto out;		\
-				}				\
-				*pc++ = *lpat++;		\
-			}					\
-			if (pc == class) {			\
-				ok = FALSE;			\
-				goto out;			\
-			}					\
-			*pc = '\0';				\
-			lpat += 2;	/* Skip ":]" */		\
-			if (iswctype(lc, wctype(class))) {	\
-				ok = !ok;			\
-				goto out;			\
-			}					\
-			continue;				\
-		}						\
+#define	CHK_POSIX_CLASS					\
+	if (*lpat == LCLASS && lpat[1] == ':') {	\
+		char	class[CL_SIZE+1];		\
+		char	*pc = class;			\
+							\
+		lpat += 2;	/* Eat ':' */		\
+		for (;;) {				\
+			if (*lpat == '\0') {		\
+				ok = FALSE;		\
+				goto out;		\
+			}				\
+			if (*lpat == ':' && lpat[1] == RCLASS) \
+				break;			\
+			if (pc >= &class[CL_SIZE]) {	\
+				ok = FALSE;		\
+				goto out;		\
+			}				\
+			*pc++ = *lpat++;		\
+		}					\
+		if (pc == class) {			\
+			ok = FALSE;			\
+			goto out;			\
+		}					\
+		*pc = '\0';				\
+		lpat += 2;	/* Skip ":]" */		\
+		if (iswctype(lc, wctype(class))) {	\
+			ok = !ok;			\
+			goto out;			\
+		}					\
+		continue;				\
 	} else
 #else
 #define	CHK_POSIX_CLASS
@@ -172,7 +170,7 @@
 		lpat++;					\
 		ok = TRUE;				\
 	}						\
-	while (*lpat != RCLASS) {			\
+	do {						\
 		if (*lpat == '\0') {			\
 			ok = FALSE;			\
 			goto out;			\
@@ -193,7 +191,7 @@
 			ok = !ok;			\
 			goto out;			\
 		}					\
-	}						\
+	} while (*lpat != RCLASS);			\
 out:							\
 	found = ok;					\
 }
@@ -445,7 +443,7 @@ prim(ap)
 	int	op = ap->Ch;
 	int	t;
 
-	nextitem(ap);
+	nextitem(ap);			/* Eat '[' */
 	switch (op) {
 
 	case '\0':
@@ -455,18 +453,18 @@ prim(ap)
 	case LCLASS:
 		if (ap->Ch == NOT)
 			nextitem(ap);	/* Eat '^' at first position */
-		if (ap->Ch != LCLASS)
-			nextitem(ap);	/* Eat char at first position */
 
-		while (ap->Ch != RCLASS && ap->Ch != '\0') {
+		t = TRUE;		/* Allow ] as first character */
+		while ((t || ap->Ch != RCLASS) && ap->Ch != '\0') {
+			t = FALSE;
 #ifdef	POSIX_CLASS
 			if (ap->Ch == LCLASS) {
 				if (pch(ap) == ':') {	/* [:alpha:] */
 					char	class[CL_SIZE+1];
 					char	*pc = class;
 
-					nextitem(ap);
-					nextitem(ap);
+					nextitem(ap);		/* eat '[' */
+					nextitem(ap);		/* eat ':' */
 					while (ap->Ch != ':' &&
 					    ap->Ch != '\0') {
 						if (pc >= &class[CL_SIZE])
@@ -484,9 +482,9 @@ prim(ap)
 					if (wctype(class) == 0)
 						return (ENDSTATE);
 					nextitem(ap);
+					if (ap->Ch != RCLASS)
+						return (ENDSTATE);
 				}
-				if (ap->Ch != RCLASS)
-					return (ENDSTATE);
 			}
 #endif
 			/*

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)io.c	1.42 19/01/12 2008-2019 J. Schilling
+ * @(#)io.c	1.43 19/08/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.42 19/01/12 2008-2019 J. Schilling";
+	"@(#)io.c	1.43 19/08/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -250,7 +250,7 @@ renamef(f1, f2)
 		 * This is a hack to work around a bug triggered by
 		 * DO_PIPE_PARENT that causes fd #10 to be renamed to fd #1
 		 * twice with the result of loosing fd #1 completely.
-		 * We currently only have a highly compley testcase that
+		 * We currently only have a highly complex testcase that
 		 * does not allow to trace for the reason. So it seems to
 		 * be the best way to avoid the results of the bug until
 		 * we can fix the real reason.

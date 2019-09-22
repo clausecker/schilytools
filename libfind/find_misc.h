@@ -1,6 +1,6 @@
-/* @(#)find_misc.h	1.8 18/08/20 Copyright 2004-2018 J. Schilling */
+/* @(#)find_misc.h	1.9 19/09/14 Copyright 2004-2019 J. Schilling */
 /*
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,9 @@
 #endif
 #ifndef _SCHILY_STDIO_H
 #include <schily/stdio.h>
+#endif
+#ifndef _SCHILY_TIME_H
+#include <schily/time.h>
 #endif
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>

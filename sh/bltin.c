@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.139 19/03/27 2008-2019 J. Schilling
+ * @(#)bltin.c	1.140 19/08/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.139 19/03/27 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.140 19/08/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -1279,7 +1279,7 @@ opt_LP(argc, argv, opts, use)
 	/*
 	 * POSIX decided in 1992 to introduce an incompatible default for "cd".
 	 * Even though this is incompatible with the Bourne Shell behavior, it
-	 * may be to late to go back.
+	 * may be too late to go back.
 	 */
 	if ((flags2 & posixflg) && *opts == 0)
 		*opts = CHDIR_L;

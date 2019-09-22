@@ -1,8 +1,8 @@
-/* @(#)create.c	1.157 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)create.c	1.158 19/08/20 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.157 19/07/04 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)create.c	1.158 19/08/20 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
@@ -1972,6 +1972,8 @@ walkfunc(nm, fs, type, state)
 		finfo.f_sname = nm + state->base;
 		finfo.f_name = nm;
 		stat_to_info(AT_FDCWD, fs, &finfo);
+		if (nomount && newfs(&finfo))
+			return (0);
 		createi(nm + state->base, nm, strlen(nm), &finfo,
 			(pathstore_t *)0, (struct pdirs *)0);
 	}

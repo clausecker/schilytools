@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)sidext_ab.c	1.1 11/09/02 Copyright 2011 J. Schilling
+ * @(#)sidext_ab.c	1.2 19/09/01 Copyright 2011-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sidext_ab.c	1.1 11/09/02 Copyright 2011 J. Schilling"
+#pragma ident "@(#)sidext_ab.c	1.2 19/09/01 Copyright 2011-2019 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -33,9 +33,9 @@ sidext_ab(pkt, dt, asx)
 	NONBLANK(asx);
 	if (asx[0] == 's' && asx[1] == ' ') {
 		if (pkt->p_hash == 0) {
-			pkt->p_hash = (uint16_t *)
+			pkt->p_hash = (UInt16_t *)
 				fmalloc((unsigned) (n=((dt->d_serial+1)*
-				sizeof(uint16_t))));
+				sizeof(UInt16_t))));
 			zero((char *) pkt->p_hash, n);
 		}
 		asx++;

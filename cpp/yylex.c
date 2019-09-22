@@ -1,13 +1,14 @@
-/* @(#)yylex.c	1.8 15/02/19 2010-2015 J. Schilling */
+/* @(#)yylex.c	1.9 19/08/29 2010-2019 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)yylex.c	1.8 15/02/19 2010-2015 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)yylex.c	1.9 19/08/29 2010-2019 J. Schilling";
 #endif
 /*
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2015 J. Schilling
+ * Copyright (c) 2010-2019 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)print.c	1.43 19/04/08 2008-2019 J. Schilling
+ * @(#)print.c	1.44 19/08/27 2008-2019 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.43 19/04/08 2008-2019 J. Schilling";
+	"@(#)print.c	1.44 19/08/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -515,7 +515,7 @@ prs_cntl(s)
 		(void) mbtowc(NULL, NULL, 0);
 		n = 1;
 		wc = *s;
-		err++;
+		err = TRUE;
 	}
 	if (wc == 0)
 		n = 0;
@@ -566,7 +566,7 @@ prs_cntl(s)
 			(void) mbtowc(NULL, NULL, 0);
 			n = 1;
 			wc = *s;
-			err++;
+			err = TRUE;
 		}
 		if (wc == 0)
 			n = 0;

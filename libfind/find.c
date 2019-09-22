@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.118 19/01/08 Copyright 2004-2019 J. Schilling */
+/* @(#)find.c	1.119 19/09/07 Copyright 2004-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.118 19/01/08 Copyright 2004-2019 J. Schilling";
+	"@(#)find.c	1.119 19/09/07 Copyright 2004-2019 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -50,6 +50,7 @@ static	UConst char sccsid[] =
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
 #include <schily/errno.h>
+#include <schily/libgen.h>	/* Past string.h, avoid Linux basename() bug */
 
 #include <schily/nlsdefs.h>
 
@@ -1532,6 +1533,13 @@ find_expr(f, ff, fs, state, t)
 		/* FALLTHROUGH */
 	case NAME:
 		p = ff;
+		if (p[walknlen(state)-1] == '/') {
+			/*
+			 * Remove trailing slashes
+			 */
+			strlcpy(lname, p, sizeof (lname));
+			p = basename(lname);
+		}
 	nmatch:
 #if	defined(HAVE_FNMATCH)
 		return (!fnmatch(t->this, p, fnflags));
@@ -1571,6 +1579,13 @@ find_expr(f, ff, fs, state, t)
 		goto pattern;
 	case PAT:
 		p = ff;
+		if (p[walknlen(state)-1] == '/') {
+			/*
+			 * Remove trailing slashes
+			 */
+			strlcpy(lname, p, sizeof (lname));
+			p = basename(lname);
+		}
 	pattern: {
 		Uchar	*pr;		/* patmatch() return */
 

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.98 19/05/19 2008-2019 J. Schilling
+ * @(#)word.c	1.101 19/08/25 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.98 19/05/19 2008-2019 J. Schilling";
+	"@(#)word.c	1.101 19/08/25 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -102,7 +102,9 @@ int
 word()
 {
 	unsigned int	c, d;
+#ifdef	DO_SYSALIAS
 	void		*seen;
+#endif
 
 	wdnum = 0;
 	wdset &= ~KEYFLAG;
@@ -130,6 +132,7 @@ word()
 		}
 	}
 
+#ifdef	DO_SYSALIAS
 	/*
 	 * We skipped the white space...
 	 * Now remember the alias state from the beginning of this word as we
@@ -138,6 +141,7 @@ word()
 	 * replacement to be popped already at the end of the word.
 	 */
 	seen = standin->alias;
+#endif
 
 	if (!eofmeta(c) || (c == '^' && (flags2 & posixflg))) {
 		struct argnod	*arg = (struct argnod *)locstak();
@@ -750,7 +754,7 @@ retry:
 				len = readb(f,
 				    (f->fsiz == 1) ? 1 : (f->fsiz - rest),
 				    rest);
-				if (len == 0)
+				if (len <= 0)
 					break;
 			}
 			mlen = mbtowc(&cc, (char *)f->fnxt, i);
@@ -816,7 +820,7 @@ readb(f, toread, rest)
 	int		toread;
 	int		rest;
 {
-	int	len;
+	int	len = 0;
 	int	fflags;
 
 	if (rest) {
@@ -832,14 +836,22 @@ readb(f, toread, rest)
 		if (f->fbuf[rest - 1] == '\n') {
 			/*
 			 * if '\n' found, it should be
-			 * a bondary of multibyte char.
+			 * a boundary of multibyte char.
 			 */
 			return (rest);
 		}
 	}
 
 retry:
+	errno = 0;
 	do {
+		if (len < 0 && errno != EINTR) {
+			/*
+			 * Avoid a loop on EIO and similar read errors.
+			 * This may happen afte a shut down TCP/IP connection.
+			 */
+			break;
+		}
 		if (trapnote & SIGSET) {
 			newline();
 			sigchk();
@@ -904,6 +916,12 @@ retry:
 /*
  * Check wether a script may be a binary file, e.g. from a different
  * architecture and caused a ENOEXEC error.
+ * We only check for a binary file if the fileblk seems to be just
+ * initialized as we do not want to repeat the test in case that
+ * exfile() is called again with the same file. Since a shut down TCP/IP
+ * conection first sends a SIGTERM and then causes EIO on stdin, we need
+ * to be careful not to go into a longjmp() loop from inside readb() to
+ * exfile().
  */
 int
 isbinary(f)
@@ -911,20 +929,24 @@ isbinary(f)
 {
 	unsigned char	*p;
 	unsigned char	c;
+	BOOL		trapsav;
 
 	if (f->fend > f->fnxt)		/* The buffer is not empty */
-		return (FALSE);
+		return (FALSE);		/* so this is not the first read */
 	if (f->feof || f->fdes < 0)	/* Not a fresh new fileblk */
 		return (FALSE);
 	if (isatty(f->fdes))		/* Not a plain file */
 		return (FALSE);
 
+	trapsav = trapnote;
+	trapnote = 0;			/* Avoid endless longjmp() loop */
 	readb(f, f->fsiz, 0);		/* Fill buffer */
+	trapnote |= trapsav;		/* Keep signals just seen */
 
 	/*
 	 * Scan the buffer but keep it intcact.
 	 */
-	for (p = f->fnxt; p <= f->fend; p++) {
+	for (p = f->fnxt; p < f->fend; p++) {
 		c = *p;
 		if (c == '\0')
 			return (TRUE);
@@ -982,6 +1004,7 @@ xread(f, buf, n)
 			if (c == CTLC && shedit_getdelim() == CTLC) {
 				fault(SIGINT);
 				trapnote |= SIGINP;
+				errno = EINTR;		/* Mark for readb() */
 				return (-1);
 			}
 			*buf++ = c;

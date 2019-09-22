@@ -1,8 +1,8 @@
-/* @(#)wctype.h	1.11 18/05/17 Copyright 2009-2018 J. Schilling */
+/* @(#)wctype.h	1.14 19/08/17 Copyright 2009-2019 J. Schilling */
 /*
  *	Abstraction from wctype.h
  *
- *	Copyright (c) 2009-2018 J. Schilling
+ *	Copyright (c) 2009-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -105,11 +105,19 @@
 
 #endif	/* !USE_WCTYPE */
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #ifndef	HAVE_WCTYPE
 extern	wctype_t	wctype		__PR((const char *));
 #endif
 #ifndef	HAVE_ISWCTYPE
-extern	int		iswctype	__PR((wint_t , wctype_t));
+extern	int		iswctype	__PR((wint_t, wctype_t));
+#endif
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif	/* _SCHILY_WCTYPE_H */

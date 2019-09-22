@@ -1,22 +1,12 @@
 #!/bin/sh
-# @(#)cc-config.sh	1.14 18/04/04 Copyright 2002-2018 J. Schilling
+# @(#)cc-config.sh	1.15 19/09/07 Copyright 2002-2019 J. Schilling
 ###########################################################################
-# Written 2002-2018 by J. Schilling
+# Written 2002-2019 by J. Schilling
 ###########################################################################
 # Configuration script called to verify system default C-compiler.
 # It tries to fall back to GCC if the system default could not be found.
 ###########################################################################
-# The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only
-# (the "License").  You may not use this file except in compliance
-# with the License.
-#
-# See the file CDDL.Schily.txt in this distribution for details.
-# A copy of the CDDL is also available via the Internet at
-# http://www.opensource.org/licenses/cddl1.txt
-#
-# When distributing Covered Code, include this CDDL HEADER in each
-# file and include the License file CDDL.Schily.txt from this distribution.
+#@@C@@
 ###########################################################################
 
 #
@@ -44,6 +34,8 @@ fi
 #
 LC_ALL=C
 LANG=C
+export LC_ALL
+export LANG
 
 CC=$1			# Working copy of discovered C-compiler
 CCOM=$1			# Remembered value of $CC
@@ -102,7 +94,10 @@ fi
 #
 # First try to run the default C-compiler without args
 #
-eval "$CC > /dev/null 2>&1" 2> /dev/null
+# eval needs a subshell to support the V7 Shell that does not do IO redirection
+# for builtins like eval.
+#
+(eval "$CC > /dev/null 2>&1") 2> /dev/null
 if [ "$?" = 0 ]; then
 	CC_FOUND=TRUE
 else
@@ -116,7 +111,7 @@ else
 	# the output from the command. As there may no output if there is no
 	# binary, this proves the existence of the default compiler.
 	#
-	ccout=`eval "$CC 2>&1" 2>/dev/null`
+	ccout=`(eval "$CC 2>&1") 2>/dev/null`
 	ret=$?
 
 	nf=`echo "$ccout" | grep 'not found' `
@@ -142,16 +137,16 @@ if [ "$CC_FOUND" = TRUE ]; then
 	#
 	# Call $CC and try to find out whether it might be "gcc" or "clang".
 	#
-	CC_V=`eval "$CC -v > /dev/null" 2>&1`
+	CC_V=`(eval "$CC -v > /dev/null") 2>&1`
 	GCC_V=`echo "$CC_V" | grep -i 'gcc.*version' `
 	CLANG_V=`echo "$CC_V" | grep -i clang `
 
 	if [ ".$GCC_V" != . ]; then
-		if eval "gcc -v 2> /dev/null" 2>/dev/null; then
+		if (eval "gcc -v 2> /dev/null") 2>/dev/null; then
 			CC="gcc"
 		fi
 	elif [ ".$CLANG_V" != . ]; then
-		if eval "clang -v 2> /dev/null" 2>/dev/null; then
+		if (eval "clang -v 2> /dev/null") 2>/dev/null; then
 			CC="clang"
 		fi
 	fi
@@ -190,7 +185,7 @@ fi
 XCC=cc
 if [ ".$CC" = ".gcc" -o ".$CC" != ".cc" ]; then
 	${echo} "Trying to find $XCC"
-	ccout=`eval "$XCC -c tt.$$.c 2>&1" 2> /dev/null`
+	ccout=`(eval "$XCC -c tt.$$.c 2>&1") 2> /dev/null`
 	ret=$?
 	nf=`echo "$ccout" | grep 'not found' `
 	if [ "$ret" = 127 -a -n "$nf" ]; then
@@ -235,23 +230,23 @@ if [ "$CC_FOUND" = FALSE -a ".$CC" = ".$ARG_CC" ]; then
 	#
 	XCC=gcc
 	${echo} 'Trying to find $XCC'
-	eval "gcc -v" 2> /dev/null && CC=gcc CC_FOUND=TRUE
+	(eval "gcc -v") 2> /dev/null && CC=gcc CC_FOUND=TRUE
 fi
 
 #
 # Call $CC and try to find out whether it might be "gcc" or "clang".
 #
-CC_V=`eval "$CC -v > /dev/null" 2>&1`
+CC_V=`(eval "$CC -v > /dev/null") 2>&1`
 GCC_V=`echo "$CC_V" | grep -i gcc-version `
 CLANG_V=`echo "$CC_V" | grep -i clang `
 
 if [ ".$GCC_V" != . ]; then
-	if eval "gcc -v 2> /dev/null" 2>/dev/null; then
+	if (eval "gcc -v 2> /dev/null") 2>/dev/null; then
 		CC="gcc"
 		CC_FOUND=TRUE
 	fi
 elif [ ".$CLANG_V" != . ]; then
-	if eval "clang -v 2> /dev/null" 2>/dev/null; then
+	if (eval "clang -v 2> /dev/null") 2>/dev/null; then
 		CC="clang"
 		CC_FOUND=TRUE
 	fi

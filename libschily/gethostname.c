@@ -1,8 +1,8 @@
-/* @(#)gethostname.c	1.22 19/03/26 Copyright 1995-2019 J. Schilling */
+/* @(#)gethostname.c	1.23 19/09/01 Copyright 1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gethostname.c	1.22 19/03/26 Copyright 1995-2019 J. Schilling";
+	"@(#)gethostname.c	1.23 19/09/01 Copyright 1995-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1995-2019 J. Schilling
@@ -74,7 +74,7 @@ gethostname(name, namelen)
 	char	*name;
 	int	namelen;
 {
-	uint32_t	len = namelen;
+	UInt32_t	len = namelen;
 	char		nbuf[MAX_COMPUTERNAME_LENGTH+1];
 
 	if (namelen < 0) {

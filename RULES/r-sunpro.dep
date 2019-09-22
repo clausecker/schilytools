@@ -1,6 +1,6 @@
-#ident "@(#)r-sunpro.dep	1.18 18/08/16 "
+#ident "@(#)r-sunpro.dep	1.19 19/09/14 "
 ###########################################################################
-# Written 1996-2017 by J. Schilling
+# Written 1996-2019 by J. Schilling
 ###########################################################################
 #
 # Dependency building rules for SunPro Make (Schilytools version)
@@ -84,6 +84,8 @@ $(DEP_DEP):
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)/man\""; \
 		$(_MKDIR) -p $(ARCHDIR)/man;		\
 		echo > $@;				\
+	else						\
+		: work around v7 shell bug;		\
 	fi
 
 ###########################################################################

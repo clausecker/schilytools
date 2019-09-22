@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.203 19/06/18 2008-2019 J. Schilling
+ * @(#)defs.h	1.204 19/09/16 2008-2019 J. Schilling
  */
 
 /*
@@ -416,6 +416,7 @@ extern pid_t	mysid;
  */
 extern int		optind;
 extern int		opterr;
+extern int		optopt;
 extern char 		*optarg;
 #endif
 

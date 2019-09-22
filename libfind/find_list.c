@@ -1,8 +1,8 @@
-/* @(#)find_list.c	1.29 19/04/07 Copyright 1985, 1995, 2000-2019 J. Schilling */
+/* @(#)find_list.c	1.30 19/09/16 Copyright 1985, 1995, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_list.c	1.29 19/04/07 Copyright 1985, 1995, 2000-2019 J. Schilling";
+	"@(#)find_list.c	1.30 19/09/16 Copyright 1985, 1995, 2000-2019 J. Schilling";
 #endif
 /*
  *	List a file
@@ -255,7 +255,7 @@ char	*lnamep = lname;
 #ifdef	S_IFSOCK
 		case S_IFSOCK:	ft = 's'; break;
 #endif
-#ifdef	S_IFPORT
+#if defined(S_IFPORT) && S_IFPORT != S_IFIFO	/* Do not use it on Ultrix */
 		case S_IFPORT:	ft = 'P'; break;
 #endif
 #ifdef	S_IFNAM

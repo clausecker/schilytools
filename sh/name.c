@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)name.c	1.78 19/06/18 2008-2019 J. Schilling
+ * @(#)name.c	1.79 19/08/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.78 19/06/18 2008-2019 J. Schilling";
+	"@(#)name.c	1.79 19/08/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -628,7 +628,7 @@ readvar(namec, names)
 
 	/*
 	 * Read first character and
-	 * strip leading IFS white characters
+	 * strip leading IFS white space characters
 	 */
 	c[0] = '\0';
 	do {
@@ -1225,7 +1225,7 @@ pushnam(n)
 
 /*
  * Prepare the environ for a new external command.
- * The allocated memory is free()d before starting the mext command.
+ * The allocated memory is free()d before starting the next command.
  */
 unsigned char **
 local_setenv(flg)

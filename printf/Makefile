@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.3 17/11/16 
+#ident @(#)Makefile	1.4 19/08/29 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,6 +7,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		printf
+OINCSDIR +=	-I.			# Use local defs.h
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 

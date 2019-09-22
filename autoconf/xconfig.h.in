@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.276 19/05/15 Copyright 1998-2019 J. Schilling */
+/* @(#)xconfig.h.in	1.277 19/09/05 Copyright 1998-2019 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -954,6 +954,15 @@
 #undef	HAVE_TYPE_INTMAX_T	/* if <stdint.h> defines intmax_t */
 #undef	HAVE_TYPE_UINTMAX_T	/* if <stdint.h> defines uintmax_t */
 
+#ifndef	NEED_INTTYPES
+#define	NO_INTTYPES
+#endif
+#if	defined(ultrix)		/* Ultrix has these types somewhere else */
+#ifndef	NO_INTTYPES		/* so we cannot define them here	*/
+#define	NO_INTTYPES
+#endif
+#endif
+#ifndef	NO_INTTYPES
 #undef int8_t			/* To be used if int8_t is not present */
 #undef int16_t			/* To be used if int16_t is not present */
 #undef int32_t			/* To be used if int32_t is not present */
@@ -968,6 +977,7 @@
 #undef uint64_t			/* To be used if uint64_t is not present */
 #endif
 #undef uintmax_t		/* To be used if uintmax_t is not present */
+#endif	/* NO_INTTYPES */
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
 

@@ -1,10 +1,10 @@
-/* @(#)resource.h	1.11 15/08/14 Copyright 1995-2015 J. Schilling */
+/* @(#)resource.h	1.13 19/09/16 Copyright 1995-2019 J. Schilling */
 /*
  *	Abstraction from resource limits
  *
  *	Missing parts for wait3() taken from SunOS
  *
- *	Copyright (c) 1995-2015 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,10 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+
+#ifndef	_SCHILY_STDINT_H
+#include <schily/stdint.h>	/* May be needed for rlim_t */
 #endif
 
 #ifndef	_SCHILY_TIME_H
@@ -92,6 +96,10 @@ struct	rusage {
 };
 #endif	/* HAVE_STRUCT_RUSAGE */
 
+#ifndef	HAVE_TYPE_RLIM_T
+#define	rlim_t	Intmax_t
+#endif
+
 #ifndef	RLIMIT_CPU
 /*
  * Resource limits
@@ -107,10 +115,6 @@ struct	rusage {
 
 #ifndef	RLIM_INFINITY
 #define	RLIM_INFINITY	0x7fffffff
-#endif
-
-#ifndef	HAVE_TYPE_RLIM_T
-#define	rlim_t	Intmax_t
 #endif
 
 struct rlimit {

@@ -1,8 +1,8 @@
-/* @(#)shcall.h	1.4 18/08/01 Copyright 2009-2018 J. Schilling */
+/* @(#)shcall.h	1.5 19/08/17 Copyright 2009-2019 J. Schilling */
 /*
  *	Abstraction from shcall.h
  *
- *	Copyright (c) 2009-2018 J. Schilling
+ *	Copyright (c) 2009-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,7 +52,7 @@ typedef struct {
 	void	*__reserved[16]; /* For future extensions		    */
 } squit_t;
 
-#define	SQ_CALL	0x01		/* Use call feature */	
+#define	SQ_CALL	0x01		/* Use call feature */
 
 #define	__squit_t_defined
 #endif

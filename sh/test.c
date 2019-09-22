@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)test.c	1.42 19/01/09 2008-2019 J. Schilling
+ * @(#)test.c	1.43 19/09/16 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.42 19/01/09 2008-2019 J. Schilling";
+	"@(#)test.c	1.43 19/09/16 2008-2019 J. Schilling";
 #endif
 
 
@@ -585,7 +585,8 @@ test_unary(op, arg)
 			return (filtyp(arg, S_IFLNK));
 #ifdef	DO_EXT_TEST
 	case 'P':
-#ifdef	S_IFPORT
+#if defined(S_IFPORT) && S_IFPORT != S_IFIFO	/* Do not use it on Ultrix */
+
 			return (filtyp(arg, S_IFPORT));
 #else
 			return (0);

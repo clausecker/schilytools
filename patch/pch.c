@@ -1,8 +1,8 @@
-/* @(#)pch.c	1.37 19/05/15 2011-2019 J. Schilling */
+/* @(#)pch.c	1.38 19/08/17 2011-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.37 19/05/15 2011-2019 J. Schilling";
+	"@(#)pch.c	1.38 19/08/17 2011-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
@@ -1420,12 +1420,14 @@ do_ed_script()
 		 */
 		if (verbose) {
 			Snprintf(buf, bufsize, "cd %s && %s %s",
+						TMPDIR,
 						CNF_PATH_RED,
-						TMPDIR, TMPOUTNAME + TMPDLEN);
+						TMPOUTNAME + TMPDLEN);
 		} else {
 			Snprintf(buf, bufsize, "cd %s && %s - %s",
+						TMPDIR,
 						CNF_PATH_RED,
-						TMPDIR, TMPOUTNAME + TMPDLEN);
+						TMPOUTNAME + TMPDLEN);
 		}
 		pipefp = popen(buf, "w");
 #ifdef	__unsafe__

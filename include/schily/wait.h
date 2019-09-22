@@ -1,8 +1,8 @@
-/* @(#)wait.h	1.28 18/06/07 Copyright 1995-2018 J. Schilling */
+/* @(#)wait.h	1.29 19/09/20 Copyright 1995-2019 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
- *	Copyright (c) 1995-2018 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -205,6 +205,24 @@ typedef enum {
 #define	CLD_CONTINUED	6	/* stopped child has continued */
 #define	NO_CLD_EXITED
 #endif	/* CLD_EXITED */
+
+#ifdef	ultrix
+/*
+ * The W*() macros on Ultrix do not work and this is a result of
+ * an incorrect definition for union wait. The kernel uses the
+ * right bits in the status, so we #undef USE_UNION_WAIT and all
+ * W*() macros. This results in #defining our working versions.
+ */
+#undef	USE_UNION_WAIT
+#undef	WTERMSIG
+#undef	WCOREDUMP
+#undef	WEXITSTATUS
+#undef	WSTOPSIG
+#undef	WIFCONTINUED
+#undef	WIFSTOPPED
+#undef	WIFSIGNALED
+#undef	WIFEXITED
+#endif	/* ultrix */
 
 #if defined(HAVE_UNION_WAIT) && defined(USE_UNION_WAIT)
 #	define WAIT_T union wait

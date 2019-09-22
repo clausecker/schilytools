@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.219 19/06/16 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.220 19/08/20 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/06/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/08/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3037,6 +3037,17 @@ below.
 Do not descend mount points.
 This is useful when doing backups of complete file systems. 
 See NOTES for more information.
+.sp
+When using
+.BR \-find ,
+this may not always work as expected, e.g. when the
+.B /proc
+filesyestem is involved.
+Use
+.B \-xdev
+past
+.B \-find
+for this reason.
 .TP
 .B \-m
 Do not restore access and modification time. 
@@ -4232,6 +4243,17 @@ Set extended debug level to #.
 Do not descend mount points.
 This is useful when doing backups of complete file systems.
 See NOTES for more information.
+.sp
+When using
+.BR \-find ,
+this may not always work as expected, e.g. when the
+.B /proc
+filesyestem is involved.
+Use
+.B \-xdev
+past
+.B \-find
+for this reason.
 .TP
 .B \-xdir
 Extract directories even if the corresponding directories on the

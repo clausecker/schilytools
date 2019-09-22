@@ -1,4 +1,4 @@
-/* @(#)format.c	1.73 18/11/21 Copyright 1985-2018 J. Schilling */
+/* @(#)format.c	1.74 19/09/12 Copyright 1985-2019 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -291,7 +291,7 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 		fa.err	= 0;
 		farg	= fa.farg = &fa;
 	} else {			/* recursion		*/
-		farg = (void *)((UIntptr_t)farg & ~1);
+		farg = (void *)((UIntptr_t)farg & ~(UIntptr_t)1);
 	}
 #endif
 #ifdef	FORMAT_FUNC_PARM

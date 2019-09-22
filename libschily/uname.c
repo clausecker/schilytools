@@ -1,13 +1,13 @@
-/* @(#)uname.c	1.2 11/08/16 Copyright 2011 J. Schilling */
+/* @(#)uname.c	1.3 19/09/01 Copyright 2011-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)uname.c	1.2 11/08/16 Copyright 2011 J. Schilling";
+	"@(#)uname.c	1.3 19/09/01 Copyright 2011-2019 J. Schilling";
 #endif
 /*
  *	uname() replacement in case it does not exist
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,10 +66,10 @@ uname(ubuf)
 	struct utsname	*ubuf;
 {
 	SYSTEM_INFO	sysinfo;
-	uint32_t	version;
-	uint32_t	majversion;
-	uint32_t	minversion;
-	uint32_t	builtnum = 0;
+	UInt32_t	version;
+	UInt32_t	majversion;
+	UInt32_t	minversion;
+	UInt32_t	builtnum = 0;
 	char		dbuf[16];
 	char		*p;
 

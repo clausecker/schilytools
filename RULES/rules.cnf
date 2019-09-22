@@ -1,6 +1,6 @@
-#ident @(#)rules.cnf	1.18 18/08/16 
+#ident @(#)rules.cnf	1.19 19/09/07 
 ###########################################################################
-# Written 1998-2013 by J. Schilling
+# Written 1998-2019 by J. Schilling
 ###########################################################################
 #
 # Make Rules for global dynamic configuration
@@ -65,7 +65,8 @@ RUL_CONF=	@echo "	==> CONFIGURING RULES \"$@\""; \
 		cd $(OINCSDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS) $(CPPFLAGS)" \
-		LDFLAGS="$(LDOPTS)" sh ../../autoconf/configure $(CONFFLAGS)
+		LDFLAGS="$(LDOPTS)" CONFIG_SHELL=$(SHELL) \
+		$(SHELL) ../../autoconf/configure $(CONFFLAGS)
 ###########################################################################
 include $(OINCSDIR)/Inull
 include $(OINCSDIR)/rules.cnf

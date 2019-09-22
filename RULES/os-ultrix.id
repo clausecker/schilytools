@@ -1,9 +1,9 @@
-#ident "@(#)sub.htm	1.7 19/09/14 "
+#ident "@(#)os-ultrix.id	1.1 19/09/08 "
 ###########################################################################
-# Written 2007-2019 by J. Schilling
+# Written 2019 by J. Schilling
 ###########################################################################
 #
-# Manual page to html converting rules
+# OS specific MACRO definitions for Ultrix
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -20,22 +20,5 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-
-html htmlx htmlxn:
-	@if [ ".$(XMK_FILE)" != . ] ; then				\
-		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
-			(						\
-			if [ -r ./$$XMK_F ] ; then				\
-				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURWDIR)/$$XMK_F\""; \
-				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) $@; \
-			else							\
-				if [ $$XMK_F != XxZzY-- ]; then		\
-					echo "NOTICE: Partial source ($(DIRNAME)/$$XMK_F) missing";\
-				fi;					\
-				:;					\
-			fi						\
-			);						\
-		done							\
-	else								\
-		: work around v7 shell bug;				\
-	fi
+O_ARCH=		ultrix
+-O_ARCH=	-$(O_ARCH)

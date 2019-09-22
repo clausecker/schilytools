@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.110 18/08/08 Copyright 1998-2018 J. Schilling
+dnl @(#)aclocal.m4	1.113 19/09/09 Copyright 1998-2019 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -56,13 +56,20 @@ if test $ac_cv_iconv_const = yes; then
   AC_DEFINE(HAVE_ICONV_CONST)
 fi])
 
+dnl We need this macro, as we cannot use parameterized macros with AC_REQUIRE
+AC_DEFUN(AC_PATH_CC,
+[AC_PATH_PROG(ac_path_cc, ${CC-cc})]
+)
+
 AC_DEFUN(AC_PROG_CPPX,
 [AC_REQUIRE([AC_PROG_CPP])dnl
+AC_REQUIRE([AC_PATH_CC])dnl
 AC_MSG_CHECKING(how to run the C preprocessor for any type of file)
 if test -z "$CPPX"; then
 AC_CACHE_VAL(ac_cv_prog_CPPX,
-[  # This must be in double quotes, not single quotes, because CPP may get
-  # substituted into the Makefile and "${CC-cc}" will confuse make.
+[
+  # This must be in double quotes, not single quotes, because CPP may get
+  # substituted in the Makefile and "${CC-cc}" will confuse make.
   CPPX="$CPP"
   CPPX_IN=""
 	cat > conftestcpp << EOF
@@ -75,7 +82,9 @@ EOF
 	ac_result=`(echo configure:__oline__: "$CPPX conftestcpp | grep xxzzy" 1>&5; eval $CPPX conftestcpp | grep xxzzy) 2>&5`
 	if test -z "$ac_result"; then
 		changequote(, )dnl
-		ac_file=`eval type ${CC-cc} 2>/dev/null | sed 's%[^/]*/%/%'`
+		# Cannot use type(1) here as this should work with a V7 shell
+		# So we use the result from AC_PATH_PROG
+		ac_file="$ac_path_cc"
 		# Remove last slash and all that follows it.  Not all systems have dirname.
 		ac_dir=`echo "$ac_file" | sed 's%/[^/][^/]*$%%'`
 		changequote([, ])dnl
@@ -84,7 +93,8 @@ EOF
 		else
 			# gcc -E does not like all file types, but
 			# gcc -E - < does. Test whether this works.
-			ac_result=`(echo configure:__oline__: "$CPPX - < conftestcpp | grep xxzzy" 1>&5; eval $CPPX - < conftestcpp | grep xxzzy) 2>&5`
+			# WARNING: eval needs a subshell for the V7 shell
+			ac_result=`(echo configure:__oline__: "$CPPX - < conftestcpp | grep xxzzy" 1>&5; (eval $CPPX -) < conftestcpp | grep xxzzy) 2>&5`
 			if test -n "$ac_result"; then
 				CPPX_IN="- <"
 			fi
@@ -221,7 +231,7 @@ if test "$GCC" != yes; then
 	if test "$CC" = suncc; then
 		sun_cc64=suncc
 	fi
-	ac_err=`< /dev/null eval $sun_cc64 -m64 -c 2>&1 | grep illegal`
+	ac_err=`< /dev/null (eval $sun_cc64 -m64 -c) 2>&1 | grep illegal`
 	if test -n "$ac_err"; then
 		ac_cv_sun_cc64_opt=no
 	else
@@ -244,7 +254,7 @@ ac_cv_hp_cc_ansi_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null eval $hp_cc -Ae -c 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`< /dev/null (eval $hp_cc -Ae -c) 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_ansi_opt=no
 		else
@@ -268,7 +278,7 @@ ac_cv_hp_cc_opt_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null eval $hp_cc -O -c 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`< /dev/null (eval $hp_cc -O -c) 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_opt_opt=no
 		else
@@ -292,7 +302,7 @@ ac_cv_hp_cc_gprof_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null eval $hp_cc -O -c 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`< /dev/null (eval $hp_cc -O -c) 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_gprof_opt=no
 		else
@@ -334,7 +344,8 @@ dnl AC_CHECK_DFUNC(INCLUDES, SYMBOL)
 dnl Checks if symbol is defined or a function
 dnl Defines HAVE_SYMBOL on success.
 AC_DEFUN([AC_CHECK_DFUNC],
-[AC_CACHE_CHECK([if $2 is defined or function], ["ac_cv_have_$2"],
+[AC_MSG_CHECKING([if $2 is defined or function]) 
+AC_CACHE_VAL(ac_cv_have_$2, 
                 [AC_TRY_LINK([$1],
 [
 #ifndef $2
@@ -343,6 +354,11 @@ AC_DEFUN([AC_CHECK_DFUNC],
 #endif],
 		[eval ac_cv_have_$2=yes],
 		[eval ac_cv_have_$2=no])])
+if eval "test \"`echo '$ac_cv_have_'$2`\" = yes"; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
 changequote(, )dnl
   ac_tr_dfunc=HAVE_`echo $2 | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
 changequote([, ])dnl
@@ -1055,7 +1071,8 @@ fi])
 dnl Checks for USG derived STDIO
 dnl Defines HAVE_USG_STDIO on success.
 AC_DEFUN([AC_HEADER_USG_STDIO],
-[AC_REQUIRE([AC_HEADER__FILBUF])AC_REQUIRE([AC_HEADER___FILBUF])dnl
+[AC_REQUIRE([AC_HEADER__FILBUF])dnl
+AC_REQUIRE([AC_HEADER___FILBUF])dnl
 AC_CACHE_CHECK([for USG derived STDIO], ac_cv_header_usg_stdio,
                 [AC_TRY_LINK([#include <stdio.h>],
 [FILE    *f;

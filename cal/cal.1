@@ -48,7 +48,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH cal 1 "2019/05/23" "SunOS 5.11" "User Commands"
+.TH cal 1 "2019/08/28" "SunOS 5.11" "User Commands"
 .SH NAME
 cal \- display a calendar
 .SH SYNOPSIS
@@ -138,6 +138,12 @@ Gregorian calendar. The argument must be in the form:
 .IB yyyy / mm / dd
 .in -5
 .sp
+or
+.sp
+.in +5
+.IB yyyy - mm - dd
+.in -5
+.sp
 and holds the day of the switch based on the Julian calendar.
 For the catholic parts of the Holy Roman Empire, this would be
 .B 1582/10/05
@@ -157,6 +163,14 @@ was set to
 This is to make
 .BR cal (1)
 compatible to the historic UNIX definition.
+.sp
+A leading
+.B +
+sign in
+.B GREGORIAN
+allows to enforce the switch date even when in the
+.B C 
+locale.
 
 .SH EXIT STATUS
 .sp

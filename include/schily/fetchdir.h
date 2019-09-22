@@ -1,6 +1,6 @@
-/* @(#)fetchdir.h	1.8 16/03/10 Copyright 2002-2016 J. Schilling */
+/* @(#)fetchdir.h	1.9 19/09/08 Copyright 2002-2019 J. Schilling */
 /*
- *	Copyright (c) 2002-2016 J. Schilling
+ *	Copyright (c) 2002-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,18 +25,18 @@
 
 /*
  * The original value used to fill the info byte before each name was ^A (1).
- * We thus need to make this value the "unknown" type value and this  finally
+ * We thus need to make this value the "unknown" type value and this finally
  * results in the FDT_* values be 1 + the UNIX file type value.
  */
-#define	FDT_UNKN	 1
-#define	FDT_FIFO	 2
-#define	FDT_CHR		 3
-#define	FDT_DIR		 5
-#define	FDT_BLK		 7
-#define	FDT_REG		 9
-#define	FDT_LNK		11
-#define	FDT_SOCK	13
-#define	FDT_WHT		15
+#define	FDT_UNKN	 1	/* Unknown, e.g dirent d_type is missing */
+#define	FDT_FIFO	 2	/* A FIFO special named pipe		*/
+#define	FDT_CHR		 3	/* A character special device node	*/
+#define	FDT_DIR		 5	/* A directory				*/
+#define	FDT_BLK		 7	/* A block special device node		*/
+#define	FDT_REG		 9	/* A regular file			*/
+#define	FDT_LNK		11	/* A symbolic link			*/
+#define	FDT_SOCK	13	/* A socket special			*/
+#define	FDT_WHT		15	/* A whiteout directory entry		*/
 
 #ifdef	__cplusplus
 extern "C" {

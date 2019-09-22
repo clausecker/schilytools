@@ -1,6 +1,6 @@
-#ident @(#)rules.ins	1.30 19/07/20 
+#ident @(#)rules.ins	1.31 19/09/14 
 ###########################################################################
-# Written 1996-2018 by J. Schilling
+# Written 1996-2019 by J. Schilling
 ###########################################################################
 #
 # Rules for target installation
@@ -65,10 +65,13 @@ xinstall: finstall
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\
 					echo "NOTICE: Partial source ($(DIRNAME)/$$XMK_F) missing";\
-				fi					\
+				fi;					\
+				:;					\
 			fi						\
 			);						\
 		done							\
+	else								\
+		: work around v7 shell bug;				\
 	fi
 
 xuninstall:
@@ -81,10 +84,13 @@ xuninstall:
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\
 					echo "NOTICE: Partial source ($(DIRNAME)/$$XMK_F) missing";\
-				fi					\
+				fi;					\
+				:;					\
 			fi						\
 			);						\
 		done							\
+	else								\
+		: work around v7 shell bug;				\
 	fi
 
 man installman:
@@ -97,10 +103,13 @@ man installman:
 			else							\
 				if [ $$XMK_F != XxZzY-- ]; then		\
 					echo "NOTICE: Partial source ($(DIRNAME)/$$XMK_F) missing";\
-				fi					\
+				fi;					\
+				:;					\
 			fi						\
 			);						\
 		done							\
+	else								\
+		: work around v7 shell bug;				\
 	fi
 
 finstall:		$(DEST_DIR)$(INSBASE)/$(PREINSDIR)$(INSDIR)$(SUBINSDIR)$(SUBINS) \

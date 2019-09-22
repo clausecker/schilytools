@@ -1,0 +1,508 @@
+New features with AN-2019-09-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a newer smake
+	*** to compile this source. If your smake is too old and aborts, ensure to
+	*** use the recent smake by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2018-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs only to Linux distributions as
+		they usually do not forward these bug reports upstream and as
+		the Linux distributions typically do not let skilled people
+		check the bugs. We did not hear about a FIFO problem in star
+		for a long time. Then a problem on Linux occurred once
+		every 6000-10000 tries but it did not happen on Solaris after
+		even 10 million tries, so it was not known besides Linux.
+
+-	psmake: The portable bootstrap smake compilation environment added
+	a new option "-shell path" to the shell script psmake/MAKE-sh in
+	order to permit to use a different shell to run "configure".
+
+	This helps to compile the boostrap smake binary on platforms where
+	/bin/sh is a broken shell but another (working) shell is present.
+	It may still be needed on Ultrix even though there are now work
+	arounds for various shell bugs on Ultrix.
+
+-	conf/cc-config.sh: All "eval" commands with I/O redirection need
+	to be in a subshell in order to work with a V7 shell. This change
+	was needed to support Ultrix.
+
+	Thanks to Robert Clausecker for reporting
+
+-	RULES: "configure" is now run by $SHELL instead of "sh". This allows
+	to call:
+
+		smake SHELL=path/to/shell
+
+	with a shell that is able to correctly run configure in case that
+	the default shell is buggy. Note that if you are on such a platform,
+	you need to run MAKE-sh in the directory "psmake" by hand, using the
+	right shell definition via the "-shell path" option.
+
+	Thanks to Robert Clausecker for reporting
+
+-	autoconf: Since 2011, we used
+
+		eval echo ....
+
+	in the macro AC_MSG_RESULT() in order to make looping over a group of
+	tests easier. It now turned out that on Ultrix the shell is buggy and
+	aborts
+
+		eval echo foo 1>&6
+
+	with an "illegal io" message.
+
+	In order to work around this problem, we had to expand the
+	AC_MSG_RESULT() in the AC_CHECK_DFUNC() macro to be able to
+	remove the "eval" call from AC_MSG_RESULT() in order to get the
+	previous state.
+
+	This even resulted in 5% performance win for "configure" as a side
+	effect...
+
+	Thanks to Robert Clausecker for reporting
+
+-	autoconf: AC_TRY_EVAL() in former times did call "( eval echo ... )"
+	in order to work around a problem in the UNIX V7 shell with I/O
+	redirection for builtin commands. We removed the "( ... )" in
+	March 2016, not knowing the reason why they have been used as we
+	intendedto enhance the "configure" performance. In order to be able to
+	again support the UNIX V7 shell, we now call { eval echo ... ;} since
+	that allows I/O redirection for stdout in the UNIX V7 shell. Since 
+	modern shells do not create a sub-shell for this, it does not reduce
+	performance with modern shells.
+
+	The I/I redirection problem for builtin commands in the V7 shell is
+	not present with "eval ... | command" and it can be circumvented with
+	"{ eval ... ;} > ...", for stdout redirection, but with stdin
+	redirection we definitely need "( eval cat ) < file".
+
+	Thanks to Robert Clausecker for reporting
+
+-	autoconf: The test AC_PROG_CPPX no longer uses the builtin type(1) but
+	rather the old autoconf concept based on a shell for-loop since we like
+	to support the V7 Bourne Shell.
+
+	Thanks to Robert Clausecker for reporting
+
+-	autoconf: A few other cases with "eval" I/O redirection have been
+	modified to run in a subshell in order to support the UNIX V7 shell
+	as well.
+
+	Thanks to Robert Clausecker for reporting
+
+-	conf/cc-config.sh: The "eval" calls are now inside () in order to
+	create a sub-shell that is needed to support the V7 Bourne Shell.
+
+-	autoconf: Ultrix has int8_t and similar definitions in unusual
+	include files but not in inttypes.h. This tricks out the
+	autoconfiguration tests and we cannot define these types for older
+	platforms. We therfore made the definitions for int8_t and similar
+	optional (using Int8_t in our code) in order to again support Ultrix.
+
+	Thanks to Robert Clausecker for reporting
+
+-	Makefile System: Added new configuration files for Ultrix in the
+	directory RULES to support non automake aware make implementations
+	line "gmake".
+
+-	Makefile System: Added dummy "else" parts to "if" shell statements
+	in the makefiles in the RULES directory in order to work around a bug
+	in the UNIX V7 shell from 1982 used on Ultrix. The "else" part
+	now contains the dummy command ":" that sets the exit code of
+	the if statement to 0 if the condition was not taken.
+
+	Thanks to Robert Clausecker for reporting
+
+-	Makefile System: Modified the default system files temp-*cc*.rul
+	to match the new concept for "mkdir -p" emulation.
+
+-	include/schily: various include files have been modified to pass 
+	"cstyle" and "hdrchk" from the OpenSolaris build system in order
+	to allow Schillix-ON integration.
+
+-	include/schily/fetchdir.h: Added more comment.
+
+-	include/schily/resource.h: Added an #include <schily/stdint.h> and
+	moved the rlim_t definition out of the #ifndef RLIMIT_CPU block.
+	This is needed for Ultrix where rlim_t is not a supported system
+	defined type.
+
+	Thanks to Robert Clausecker for reporting
+
+-	include/schily/wait.h: The W*() macros on Ultrix do not work cuurectly
+	and this is a result of an incorrect definition for union wait. The
+	Ultrix kernel uses the right bits in the status, so we 
+	#undef USE_UNION_WAIT and all W*() macros from the Ultrix system
+	include files. This causes that include/schily/wait.h #define's
+	our working versions as a replacement.
+
+	Thanks to Robert Clausecker for reporting
+
+-	libschily/Targets: The indentation has been changed for an easier
+	conversion to the OpenSolaris build system for Schillix-ON integration.
+
+-	libschily/dirent.c changed uint32_t -> UInt32_t for more portability
+	to older platforms like Ultrix.
+
+-	libschily/gethostname.c changed uint32_t -> UInt32_t for more
+	portability to older platforms like Ultrix.
+
+-	libschily/kill.c changed uint32_t -> UInt32_t for more
+	portability to older platforms like Ultrix.
+
+-	libschily/uname.c changed uint32_t -> UInt32_t for more
+	portability to older platforms line Ultrix.
+
+-	libschily/format.c is now using ~(UIntptr_t)1 instead of just ~1
+	in order to make it work correctly for 64 bit systems.
+
+	Thanks to Robert Clausecker for reporting
+
+-	libschily/match.c: The pattern matcher had a problem with parsing
+	patterns like '[[]' after adding support for the POSIX '[[:alpha:]]'
+	and similar methods in August 2017. We now correctly handle the pattern
+	in case that something starts with '[' but does not continue as "[:" 
+	and as a result does not seem to be something like '[[:alpha:]]'
+
+-	libschily/match.c: A while() loop has been converted to a do ... while()
+	loop in order to support the POSIX way of specifying "[]]" as a set
+	that contains the character ']' wihtout the need to use "\]".
+
+-	libschily/match.c: A bug introduced in March 2018 has been fixed
+	by removing "if (ap->Ch != LCLASS) nextitem(ap);" from the parser.
+
+-	libfind: A new interface function to the treewalk() function data
+	called walknlen() has been introduced. It returns the length of
+	the last pathname component without a need to call strlen().
+	This is used in order to be able to check in a performant way whether
+	a pathname ends in slash(es).
+
+-	libfind: The index pointer to the last pathname comonent was not
+	initialized in case the name was a command line argument. This
+	caused "find ./foo -name foo" not to match as expected.
+
+	Thanks to Tavian Barnes for reporting.
+
+-	libfind: We now call basename() with the last pathname component
+	in order to to be able to correctly deal and match with command
+	lines like:
+
+		find ./foo/// -name foo
+
+	basename() is used here to remove trailing slashes.
+
+-	libfind: If we are in the optimized mode that avoids stat() calls,
+	we are not allowed to avoid a stat() in case that the current file
+	may be a symlink and we are told to follow symlinks. If we did avoid
+	the stat() call as we did before, we would miss to follow symlinks
+	that point to directories.
+
+	This problem mainly happened on Linux, where struct dirent contains
+	a d_type member. In this case, libfind made the false assymption that
+	d_type (being a symlink) could not point to a directory.
+
+	Thanks to Tavian Barnes for reporting.
+
+-	libfind: schily/fcntl.h is always needed because we need AT_FDCWD that
+	may be missing on older platforms.
+
+	Thanks to Robert Clausecker for reporting
+
+-	libfind: find_misc.h now includes schily/time.h since Ultrix
+	is a historic UNIX that needs our definition of struct timespec
+	since that definition is not in system include files.
+
+	Thanks to Robert Clausecker for reporting
+
+-	libfind: find_list.c Now using a
+
+		#if defined(S_IFPORT) && S_IFPORT != S_IFIFO
+
+	to work around a strange definition on Ultrix where S_IFPORT == S_IFIFO
+	and where S_IFPORT is not a Solaris event port.
+
+	Thanks to Robert Clausecker for reporting
+
+-	cdda2wav/sndconfig.c changed uint32_t -> UInt32_t for better
+	portability to older platforms like Ultrix.
+
+-	patch: The order of arguments to the called "ed" command has been 
+	wrong when handling "ed type" patches. This bug caused patch to
+	complain with a strange error message like:
+
+		cannot change dir to /bin/red.
+
+	The bug has been introduced when a check for "red" has been made part
+	of the autoconfiguration procedure to support OpenBSD where "red" is
+	missing.
+
+-	printf: Some minor changes to permit printf to be compiled on
+	OpenSolaris-ON without using a symlink to the bosh sources. This
+	needs some extra code to always get the right "defs.h" include
+	file.
+
+-	printf: Added support for the hexadecimal float formats %a and %A
+	when printf is compiled on OpenSolaris-ON. This helps to make the
+	resulting /usr/bin/printf to behave more similar to the printf
+	command that is built into ksh93.
+
+-	SunPro Make: Added code to support an installation in /opt/onbld
+	that is used during the compilation of OpenSolaris-ON. This is needed
+	since the binary is in /opt/onbld/bin/i386/dmake or
+	/opt/onbld/bin/sparc/dmake and thus the relative path to
+	/opt/onbld/share/lib/make/make.rules is different from what is used
+	with a typical installation where the binar is directly in the bin
+	subdirectory.
+
+-	star: star -xdev -find typically works to exclude mounted files.
+	It still does not always do what is expected, e.g. in case that /proc
+	is in the tree of scanned files, where files deep in the new mounted
+	tree suddenly have the same FS ID as other filesystems, e.g. the file
+	/proc/<pid>/path/a.out.
+
+	In such cases, "star -find -xdev" is still recommended where the
+	mounted file exclusion is done inside libfind instead of being
+	done inside star.
+
+	Before, files on other filesystems have not been honored at all when
+	using "star -xdev -find ...".
+
+-	dotfiles: bsh/dotfiles.bsh.tar.bz2 sh/dotfiles.sh.tar.bz2 and
+	ved/dotfiles.ved.tar.bz2 now have an updated file ~/.termcap that
+	includes the capability kb=\b for the terminal sun-color.
+	This enables automated mapping from backspace to delete for the
+	Solaris console device, since sun keyboards starting from approx.
+	1988 emit a backspace when typing the delete key in the letter block
+	of the keyboard.
+
+-	cal: Fixed a typo in the comment for the Gregorian switch day
+	for Prussia.
+
+-	cal: The GREGORIAN environment now also supports (besides yyyy/mm/dd)
+	the format yyy-mm-dd.
+
+-	cal: The GREGORIAN environment value now may start with a + sign in
+	order to enforce the alternate julian/gregorian switch date even 
+	when being in the C locale. This helps to use the right switch date
+	even on machines that only have the C locale installed
+
+-	cpp: The yacc parser now checks for the division -2147483648 / -1
+	in order to avoid a core dump from:
+
+	#if -2147483648 / -1
+	code
+	#endif
+
+	Since that cannot be computed on a two's complement machine,
+	-2147483648 is used as the hard coded result for this statement.
+
+	Thanks to Robert Clausecker for reporting
+
+-	cpp: The man page now mentions that "cpp -C ..." passes C++ type
+	comments as well.
+
+	Thanks to Robert Clausecker for reporting
+
+-	cpp: now avoids some "static unused sccsid" warnings for its code.
+
+-	bsh: The version time stamp has been updated
+
+-	Bourne Shell: The new function isbinary() that has been introduced
+	in May and that should prevent the shell from interpreting binary
+	files as shell scripts had a problem:
+
+	In case that a disconnected TCP/IP based remote login caused a SIGTERM
+	followed by the read() function on stdin returning EIO, the shell
+	could go into a complex endless loop as the failing read() with
+	"trapnote" set caused a longjmp() before the next prompt without first
+	clearing "trapnote". As a result, the shell did hang endlessly around
+	while just consuming CPU time.
+
+	The shell now avoids to call the read() routine inside isbinary()
+	when "trapnote" is set and this way is able to avoid the longjmp() on
+	error.
+
+-	Bourne Shell: Fixed some typos in comment
+
+	Thanks to Robert Clausecker for reporting
+
+-	Bourne Shell: print.c: Changed err++ for a BOOL typed variable
+	into err = TRUE.
+
+	Thanks to Robert Clausecker for reporting
+
+-	Bourne Shell, with obosh compilation type: Avoid an "unused" warning
+	with word.c
+
+-	Bourne Shell: defs.h now includes an "extern int optopt;" in order
+	to support Ultrix where this delcaration is missing in unistd.h.
+
+	Thanks to Robert Clausecker for reporting
+
+-	bsh/Bourne Shell: test.c Now using a
+
+		#if defined(S_IFPORT) && S_IFPORT != S_IFIFO
+
+	to work around a strange definition on Ultrix
+
+	Thanks to Robert Clausecker for reporting
+
+-	Bourne Shell: New version date
+
+-	SCCS changed some uint32_t -> UInt32_t for more portability to 
+	older platforms like Ultrix.
+
+-	SCCS: diff.c now checks whether file decriptors f1 & f2 are >= 0,
+	becore calling close() in order to avoid thousands of unneeded
+	close() syscalls in case the "files" used to compare are directories.
+
+-	SCCS: diff.c Now using a
+
+		#if defined(S_IFPORT) && S_IFPORT != S_IFIFO
+
+	to work around a strange definition on Ultrix
+
+	Thanks to Robert Clausecker for reporting
+
+-	SCCS: Using a new version date.
+
+-	ved: Changed the pattern "[[\\]]" into "[\\[\\]]" since the
+	pattern matcher supports [[:alpha:]] since 2017. This caused
+	ved to no longer be able to seach for a matching square bracket.
+
+	With the fixes in libschily/match.c (see above), this change was
+	not needed anymore but it does not harm...
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

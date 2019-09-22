@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.35 18/10/29 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.h	1.37 19/09/08 Copyright 2004-2019 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -122,6 +122,7 @@ struct WALK {
 #define	WALK_WF_NOCWD	8	/* walk() -> caller: cannot get working dir  */
 #define	WALK_WF_NOHOME	16	/* walk() -> caller: cannot chdir("..")	    */
 #define	WALK_WF_NOTDIR	32	/* walk() -> walk(): file is not a directory */
+#define	WALK_WF_ISLNK	64	/* walk() -> walk(): file is a symlink	    */
 
 #define	WALK_WF_CHOWN	4096	/* (*walkfun)(): changed st_uid or st_gid */
 #define	WALK_WF_CHMOD	8192	/* (*walkfun)(): changed st_mode */
@@ -138,6 +139,7 @@ extern	int	walkgethome	__PR((struct WALK *_state));
 extern	int	walkhome	__PR((struct WALK *_state));
 extern	int	walkcwd		__PR((struct WALK *_state));
 extern	int	walkclose	__PR((struct WALK *_state));
+extern	int	walknlen	__PR((struct WALK *_state));
 
 #ifdef	__cplusplus
 }

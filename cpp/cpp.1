@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.12 19/08/07 Copyright 2010-2019 J. Schilling
+.\" @(#)cpp.1	1.13 19/08/27 Copyright 2010-2019 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "19/08/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "19/08/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
@@ -73,7 +73,9 @@ is treated as a comment.
 Pass all comments (except those that appear on lines with 
 .B cpp
 directives) to the output.
-The default is to suppress C-style comments.
+The default is to suppress C-style comments and (if enabled via
+.BR \-B )
+C++-style comments.
 .TP
 .B \-H
 Print the path names of include files on standard error.

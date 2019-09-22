@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.59 18/10/28 Copyright 2004-2018 J. Schilling */
+/* @(#)walk.c	1.62 19/09/08 Copyright 2004-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.59 18/10/28 Copyright 2004-2018 J. Schilling";
+	"@(#)walk.c	1.62 19/09/08 Copyright 2004-2019 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2019 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.
@@ -47,9 +47,8 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
-#ifdef	HAVE_FCHDIR
-#include <schily/fcntl.h>
-#else
+#include <schily/fcntl.h>	/* AT_FDCWD */
+#ifndef	HAVE_FCHDIR
 #include <schily/maxpath.h>
 #endif
 #include <schily/param.h>	/* NODEV */
@@ -114,6 +113,7 @@ struct twvars {
 	int		Curdtail;	/* Where to append to Curdir	*/
 	int		Curdlen;	/* Current size of 'Curdir'	*/
 	int		Flags;		/* Flags related to this struct	*/
+	int		Snmlen;		/* Short nm len for walk()	*/
 	struct WALK	*Walk;		/* Backpointer to struct WALK	*/
 	struct stat	Sb;		/* stat(2) buffer for start dir	*/
 	struct pdirs	*pdirs;		/* Previous dirs for walkcwd()	*/
@@ -150,6 +150,7 @@ EXPORT	void	*walkopen	__PR((struct WALK *_state));
 EXPORT	int	walkgethome	__PR((struct WALK *_state));
 EXPORT	int	walkhome	__PR((struct WALK *_state));
 EXPORT	int	walkclose	__PR((struct WALK *_state));
+EXPORT	int	walknlen	__PR((struct WALK *_state));
 LOCAL	int	xchdotdot	__PR((struct pdirs *last, int tail,
 						struct WALK *_state));
 LOCAL	int	xchdir		__PR((char *p));
@@ -226,6 +227,7 @@ treewalk(nm, fn, state)
 	 * If initial Curdir space is not sufficient, expand it.
 	 */
 	nlen = strlen(nm);
+	vars.Snmlen = nlen;
 	if ((vars.Curdlen - 2) < nlen)
 		if (incr_dspace(state->std[2], &vars, nlen + 2) < 0)
 			return (-1);
@@ -274,7 +276,6 @@ walk(nm, sf, fn, state, last)
 	int		type;
 	int		ret;
 	int		otail;
-	char		*p;
 	struct twvars	*varp = state->twprivate;
 
 	varp->pdirs = last;
@@ -291,11 +292,35 @@ walk(nm, sf, fn, state, last)
 			varp->Curdir[0] = '.';
 			varp->Curdir[1] = '\0';
 		} else {
+			char	*p;
+
 			p = strcatl(&varp->Curdir[varp->Curdtail], nm,
 								(char *)0);
 			varp->Curdtail = p - varp->Curdir;
+			/*
+			 * Let state->base point to the last component for
+			 * command line arguments indicated by otail == 0.
+			 */
+			if (otail == 0) {
+				char		*e = p;
+				register char	*c = varp->Curdir;
+
+				while (--p > c) {	/* Skip trailing '/' */
+					if (*p != '/')
+						break;
+				}
+				if (*p != '/') {	/* Not only '/'s */
+					while (p >= c && *p != '/')
+						p--;
+					p++;		/* To first non '/' */
+				}
+				state->base = p - varp->Curdir;
+				varp->Snmlen = e-p;
+			}
 		}
 	} else {
+		char	*p;
+
 		p = strcatl(&varp->Curdir[varp->Curdtail], "/", nm, (char *)0);
 		varp->Curdtail = p - varp->Curdir;
 		state->base++;
@@ -304,7 +329,8 @@ walk(nm, sf, fn, state, last)
 	if ((state->walkflags & WALK_NOSTAT) &&
 	    (
 #ifdef	HAVE_DIRENT_D_TYPE
-	    (state->flags & WALK_WF_NOTDIR) ||
+	    ((state->flags & (WALK_WF_NOTDIR|WALK_WF_ISLNK)) ==
+		WALK_WF_NOTDIR) ||
 #endif
 	    (last != NULL && !last->p_stat && last->p_nlink <= 0))) {
 		/*
@@ -420,6 +446,11 @@ type_known:
 			if (!IS_UFS(fs.st_fstype) &&
 			    !IS_ZFS(fs.st_fstype))
 				thisd.p_stat  = TRUE;
+#ifndef	HAVE_DIRENT_D_TYPE
+			else if (state->walkflags &
+					(WALK_ARGFOLLOW|WALK_ALLFOLLOW))
+				thisd.p_stat  = TRUE;
+#endif
 #else
 			thisd.p_stat  = TRUE;	/* Safe fallback */
 #endif
@@ -505,6 +536,7 @@ type_known:
 			char	*odp;
 			int	nents;
 			int	Dspace;
+			int	olen = varp->Snmlen;
 
 			/*
 			 * Add space for '/' & '\0'
@@ -543,10 +575,16 @@ type_known:
 					Dspace += incr;
 				}
 #ifdef	HAVE_DIRENT_D_TYPE
-				if (dp[0] != FDT_DIR && dp[0] != FDT_UNKN)
+				if (dp[0] == FDT_LNK) {
+					state->flags |=
+					    WALK_WF_NOTDIR|WALK_WF_ISLNK;
+
+				} else if (dp[0] != FDT_DIR && dp[0] != FDT_UNKN) {
 					state->flags |= WALK_WF_NOTDIR;
+				}
 #endif
 				state->level++;
+				varp->Snmlen = nlen;
 				ret = walk(name, sf, fn, state, &thisd);
 				state->level--;
 
@@ -555,6 +593,7 @@ type_known:
 				nents--;
 				dp += nlen +2;
 			}
+			varp->Snmlen = olen;
 			free(odp);
 		skip:
 #ifdef	USE_DIRFD
@@ -808,6 +847,18 @@ walkclose(state)
 		state->twprivate = NULL;
 	}
 	return (ret);
+}
+
+/*
+ * Return length of last pathnmame component.
+ */
+EXPORT int
+walknlen(state)
+	struct WALK	*state;
+{
+	struct twvars	*varp = state->twprivate;
+
+	return (varp->Snmlen);
 }
 
 /*

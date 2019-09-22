@@ -1,13 +1,13 @@
-/* @(#)test.c	1.40 18/07/15 Copyright 1986,1995-2018 J. Schilling */
+/* @(#)test.c	1.41 19/09/16 Copyright 1986,1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.40 18/07/15 Copyright 1986,1995-2018 J. Schilling";
+	"@(#)test.c	1.41 19/09/16 Copyright 1986,1995-2019 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
  *
- *	Copyright (c) 1986,1995-2018 J. Schilling
+ *	Copyright (c) 1986,1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -325,7 +325,7 @@ expn()
 		return (FALSE);
 #endif
 	if (streql(a, "-P"))
-#ifdef	S_IFPORT
+#if defined(S_IFPORT) && S_IFPORT != S_IFIFO	/* Do not use it on Ultrix */
 		return (ftype(getarg(0), S_IFPORT));
 #else
 		return (FALSE);

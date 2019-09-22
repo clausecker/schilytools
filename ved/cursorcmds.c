@@ -1,13 +1,13 @@
-/* @(#)cursorcmds.c	1.34 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)cursorcmds.c	1.35 19/09/05 Copyright 1984-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cursorcmds.c	1.34 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)cursorcmds.c	1.35 19/09/05 Copyright 1984-2019 J. Schilling";
 #endif
 /*
  *	Commands that deal with cursor movement
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -603,7 +603,7 @@ struct br {
 	Uchar	*br_pat;
 } br[] = {
 	{UC "()", UC "[()]"},
-	{UC "[]", UC "[[\\]]"},
+	{UC "[]", UC "[\\[\\]]"},
 	{UC "{}", UC "[{}]"},
 	{UC "<>", UC "[<>]"},
 };

@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)diff.c	1.73 18/12/17 J. Schilling
+ * @(#)diff.c	1.75 19/09/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.73 18/12/17 J. Schilling"
+#pragma ident "@(#)diff.c 1.75 19/09/16 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2306,7 +2306,13 @@ same:
 			file1, file2);
 
 closem:
-	(void) close(f1); (void) close(f2);
+	/*
+	 * Check values, it may be directories that we dod not open.
+	 */
+	if (f1 >= 0)
+		(void) close(f1);
+	if (f2 >= 0)
+		(void) close(f2);
 	return (0);
 
 notsame:
@@ -2473,7 +2479,7 @@ pfiletype(fmt)
 		return (gettext("a door"));
 #endif
 
-#ifdef	S_IFPORT
+#if defined(S_IFPORT) && S_IFPORT != S_IFIFO	/* Do not use it on Ultrix */
 	case S_IFPORT:
 		return (gettext("an event port"));
 #endif

@@ -1,6 +1,6 @@
-#ident "@(#)r-make.dep	1.11 18/08/16 "
+#ident "@(#)r-make.dep	1.12 19/09/14 "
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2019 by J. Schilling
 ###########################################################################
 #
 # Dependency building rules for make
@@ -76,6 +76,8 @@ $(DEP_DEP):
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)/man\""; \
 		$(_MKDIR) -p $(ARCHDIR)/man;		\
 		echo > $@;				\
+	else						\
+		: work around v7 shell bug;		\
 	fi
 
 ###########################################################################

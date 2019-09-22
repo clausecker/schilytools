@@ -1,11 +1,11 @@
-/* @(#)strar.h	1.5 18/05/17 Copyright 2001-2018 J. Schilling */
+/* @(#)strar.h	1.6 19/08/17 Copyright 2001-2019 J. Schilling */
 /*
  *	Defitions for the stream archive interfaces.
  *
  *	A stream archive is based on the method used for
  *	POSIX tar extended headers
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,10 @@
 #endif
 #ifndef _SCHILY_UTYPES_H
 #include <schily/utypes.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 typedef	struct	{
@@ -184,5 +188,8 @@ extern	int	strar_skip	__PR((strar *s));
 extern	int	strar_setnowarn	__PR((int val));
 extern	void	strar_xbreset	__PR((void));
 
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* _SCHILY_STRAR_H */

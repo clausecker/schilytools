@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.17 16/03/22 Copyright 1998-2016 J. Schilling
+dnl @(#)acgeneral.m4	1.19 19/09/06 Copyright 1998-2019 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -55,7 +55,7 @@ divert(-1)dnl Throw away output until AC_INIT is called.
 changequote([, ])
 
 define(AC_ACVERSION, 2.13)
-define(AC_ACVERSION_SCHILY, 1.17-Schily)
+define(AC_ACVERSION_SCHILY, 1.19-Schily)
 
 dnl Some old m4's don't support m4exit.  But they provide
 dnl equivalent functionality by core dumping because of the
@@ -151,7 +151,7 @@ AC_DEFUN(AC_INIT_NOTICE,
 [# Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version] AC_ACVERSION AC_ACVERSION_SCHILY [
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
-# Copyright (C) 1998-2016 J. Schilling
+# Copyright (C) 1998-2019 J. Schilling
 #
 # This configure script is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
@@ -1215,7 +1215,7 @@ echo "configure:__oline__: checking $1" >&AC_FD_CC])
 
 dnl AC_MSG_RESULT(RESULT-DESCRIPTION)
 define(AC_MSG_RESULT,
-[eval echo "$ac_t""$1" 1>&AC_FD_MSG])
+[echo "$ac_t""$1" 1>&AC_FD_MSG])
 
 dnl AC_VERBOSE(RESULT-DESCRIPTION)
 define(AC_VERBOSE,
@@ -1311,10 +1311,15 @@ dnl shell parser call but passed as textual arguments to the "eval" builtin and
 dnl then parsed inside "eval". For this reason there is no need for the () even
 dnl in case that the command contains an I/O redirection.
 dnl
+dnl If we however like to support the original UNIX V7 shell, this will not
+dnl work since shells older than 1984 do not support I/O redirection for
+dnl builtin commands. The V7 shell however still works with { eval echo ;}
+dnl so we now use { ;} instead of ( ), support the V7 shell and are still fast.
+dnl
 dnl AC_TRY_EVAL(VARIABLE)
 AC_DEFUN(AC_TRY_EVAL,
-[{ eval echo configure:__oline__: \"[$]$1\" 1>&AC_FD_CC; dnl
-eval [$]$1 2>&AC_FD_CC; }])
+[{ { eval echo configure:__oline__: \"[$]$1\" ;} 1>&AC_FD_CC; dnl
+{ eval [$]$1 ;} 2>&AC_FD_CC; }])
 
 dnl AC_TRY_COMMAND(COMMAND)
 AC_DEFUN(AC_TRY_COMMAND,

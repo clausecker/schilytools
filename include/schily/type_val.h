@@ -1,4 +1,4 @@
-/* @(#)type_val.h	1.1 19/02/28 Copyright 2002-2019 J. Schilling */
+/* @(#)type_val.h	1.2 19/08/17 Copyright 2002-2019 J. Schilling */
 /*
  *	Definitions to define the maximum and minimum values
  *	for all scalar types.
@@ -83,7 +83,7 @@
 #define	TYPE_ISSIGNED(t)	(((t)-1) < ((t)0))
 #define	TYPE_ISUNSIGNED(t)	(!TYPE_ISSIGNED(t))
 #if (-3 & 3) == 1		/* Two's complement */
-#define TYPE_MSBVAL(t)		(2 * -(((t)1) << (sizeof (t)*CHAR_BIT - 2)))
+#define	TYPE_MSBVAL(t)		(2 * -(((t)1) << (sizeof (t)*CHAR_BIT - 2)))
 #else
 #define	TYPE_MSBVAL(t)		((t)(~((t)0) << (sizeof (t)*CHAR_BIT - 1)))
 #endif

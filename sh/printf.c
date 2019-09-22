@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.17 18/09/08 Copyright 2015-2018 J. Schilling */
+/* @(#)printf.c	1.19 19/08/29 Copyright 2015-2019 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	printf builtin or standalone
@@ -11,7 +11,7 @@
  *	to use a callback function to output a character. This can be done
  *	using the format() function from libschily.
  *
- *	Copyright (c) 2015-2018 J. Schilling
+ *	Copyright (c) 2015-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,11 +27,15 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifndef	BOURNE_SHELL
+#include <defs.h>	/* Allow local defs.h for standalone printf via -I. */
+#else
 #include "defs.h"
+#endif
 #ifdef DO_SYSPRINTF
 
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.17 18/09/08 Copyright 2015-2018 J. Schilling";
+	"@(#)printf.c	1.19 19/08/29 Copyright 2015-2019 J. Schilling";
 
 #include <schily/errno.h>
 #include <schily/alloca.h>
@@ -447,7 +451,7 @@ sysprintf(argc, argv)
 
 			p = cp;
 			cp += strspn(C cp, "+- #0"); /* Skip flag characters  */
-			for (; p < cp; ) {
+			while (p < cp) {
 				*pfmt++ = *p;
 				if (*p++ == '-')
 					pflags |= FMINUS;
@@ -646,6 +650,9 @@ sysprintf(argc, argv)
 				break;
 			}
 #ifdef	DO_SYSPRINTF_FLOAT
+#ifdef	HAVE_PRINTF_A
+			case 'a': case 'A':
+#endif
 			case 'e': case 'E':
 			case 'f': case 'F':
 			case 'g': case 'G': {

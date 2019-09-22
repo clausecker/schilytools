@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.25 19/02/10 "
+#ident "@(#)MAKE-sh	1.27 19/09/07 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -15,6 +15,7 @@ while [ x"$1" != x ]; do
 	    echo "Usage:	$0 [options]"
 	    echo "Options:"
 	    echo "	-force-config	Force a new 'configure' run"
+	    echo "	-shell path	Force 'path' as shell for a 'configure' run"
 	    echo ""
 	    echo "Environment variables:"
 	    echo "CC=		The C-compiler to use"
@@ -25,6 +26,17 @@ while [ x"$1" != x ]; do
 	    continue;;
 
 	-force-config) forceconfig="yes"
+	    shift
+	    continue;;
+
+	-shell)
+	    shift
+	    if [ $# -lt 1 ]; then
+		echo "Missing argument to -shell"
+		$0 -help
+		exit
+	    fi
+	    CONFIG_SHELL="$1"
 	    shift
 	    continue;;
 
@@ -194,6 +206,7 @@ echo "CC:		$CC"
 echo "OPT:		$OPT"
 echo "CFLAGS:		$CF"
 echo "INCLUDE:	$INCLUDE"
+echo "CONFIG_SHELL:	${CONFIG_SHELL-sh}"
 echo
 
 if [ "$forceconfig" = "yes" ]; then
@@ -204,9 +217,11 @@ if [ -r config.cache ]; then
 	echo "Using old configure run results..."
 else
 	if [ ."$CF" != . ]; then
-		eval CC=$CC CFLAGS=$CF CONFIG_NOFAIL=TRUE sh ./configure
+		eval CC=$CC CFLAGS=$CF CONFIG_NOFAIL=TRUE \
+		  CONFIG_SHELL=${CONFIG_SHELL-sh} ${CONFIG_SHELL-sh} ./configure
 	else
-		eval CC=$CC CONFIG_NOFAIL=TRUE sh ./configure
+		eval CC=$CC CONFIG_NOFAIL=TRUE \
+		  CONFIG_SHELL=${CONFIG_SHELL-sh} ${CONFIG_SHELL-sh} ./configure
 	fi
 fi
 

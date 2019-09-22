@@ -30,7 +30,7 @@
 /*
  * Copyright 2019 J. Schilling
  *
- * @(#)cal.c       1.5 19/05/30 J. Schilling
+ * @(#)cal.c       1.7 19/08/28 J. Schilling
  *
  * From @(#)cal.c      1.14    05/06/08 SMI
  */
@@ -106,7 +106,7 @@ static char mon[13];
  * 1582/10/4 is the last day in the HRE where the Julian calendar is used.
  *
  * HRE:     1582/10/5		e.g. Cologne, catholic parts only
- * Prussia: 1616/08/23		e.g. Berlin, spans two months
+ * Prussia: 1612/08/23		e.g. Berlin, spans two months
  * HRE:     1700/02/19		Remaining rest of HRE
  * England: 1752/09/3		POSIX
  * Russia:  1918/02/1		e.g. Moscow
@@ -154,8 +154,11 @@ main(int argc, char *argv[])
 	if ((time_locale[0] != 'C') || (time_locale[1] != '\0'))
 		load_months();
 
-	if (strcmp(lcl, "C") != 0 &&
-	    (ep = getenv("GREGORIAN")) != NULL) {
+	if ((ep = getenv("GREGORIAN")) != NULL &&
+	    (*ep == '+' || strcmp(lcl, "C") != 0)) {
+		/*
+		 * If *ep == '+', we enforce to honor "GREGORIAN".
+		 */
 		if (!parsegreg(ep)) {
 			(void) fprintf(stderr,
 				gettext("%s: bad gregorian switch '%s'\n"),
@@ -476,7 +479,10 @@ parsegreg(ep)
 	long	y;
 	long	m;
 	long	d;
+	char	c;
 
+	if (*ep == '+')		/* Skip force marker */
+		ep++;
 	if (*ep == '\0')	/* Default to the predfined HRE switch */
 		return (1);
 
@@ -488,11 +494,13 @@ parsegreg(ep)
 	}
 
 	y = strtol(ep, &p, 10);
-	if (y == 0 || *p++ != '/')
+	c = *p++;
+	if (y == 0 || (c != '/' && c != '-'))
 		return (0);
 
 	m = strtol(p, &p, 10);
-	if (m == 0 || *p++ != '/')
+	c = *p++;
+	if (m == 0 || (c != '/' && c != '-'))
 		return (0);	
 
 	d = strtol(p, &p, 10);

@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.44 15/10/14 Copyright 1998-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)sndconfig.c	1.45 19/09/01 Copyright 1998-2004,2015 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.44 15/10/14 Copyright 1998-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)sndconfig.c	1.45 19/09/01 Copyright 1998-2004,2015 Heiko Eissfeldt, Copyright 2004-2019 J. Schilling";
 #endif
 
 /*
@@ -615,7 +615,7 @@ pa_outsimple:
 		waveOutEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		DeviceID = 0;
 		mmres = waveOutOpen(&DeviceID, WAVE_MAPPER, &wavform,
-			(uint32_t)waveOutProc, 0, CALLBACK_FUNCTION);
+			(UInt32_t)waveOutProc, 0, CALLBACK_FUNCTION);
 		if (mmres) {
 			char	erstr[329];
 

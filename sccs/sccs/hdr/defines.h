@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)defines.h	1.110 18/12/16 J. Schilling
+ * @(#)defines.h	1.111 19/09/01 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.110 18/12/16 J. Schilling"
+#pragma ident "@(#)defines.h 1.111 19/09/01 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -506,7 +506,7 @@ struct packet {
 	char	p_keep;		/* keep switch for readmod() */
 	char	p_encoding;	/* encoding flags for data */
 	char	p_xcreate;	/* output file created, first line written */
-	uint16_t *p_hash;	/* ptr to array of checksums */
+	UInt16_t *p_hash;	/* ptr to array of checksums */
 	struct	apply *p_apply;	/* ptr to apply array */
 	struct	queue *p_q;	/* ptr to control queue */
 	FILE	*p_iop;		/* input file */

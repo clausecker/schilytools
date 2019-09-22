@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2019 J. Schilling
  *
- * @(#)macro.c	1.92 18/10/09 2008-2018 J. Schilling
+ * @(#)macro.c	1.93 19/08/27 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.92 18/10/09 2008-2018 J. Schilling";
+	"@(#)macro.c	1.93 19/08/27 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -496,7 +496,7 @@ docolon:
 			if (bra) {		/* ${...} */
 				/*
 				 * This place is probably the wrong place to
-				 * mark the word as expandet, but before, we
+				 * mark the word as expanded, but before, we
 				 * did not mark a substitution to word in
 				 * ${var-word} if "var" is unset.
 				 */
@@ -1137,7 +1137,7 @@ static unsigned char *
 prefsubstr(v, pat, largest)
 	unsigned char	*v;		/* The data value to check	*/
 	unsigned char	*pat;		/* The pattern to match against */
-	int		largest;	/* Whether to match larges str.	*/
+	int		largest;	/* Whether to match largest str	*/
 {
 	register unsigned char	*s = v;
 	register unsigned char	*r = v;
@@ -1199,7 +1199,7 @@ static int
 suffsubstr(v, pat, largest)
 	unsigned char	*v;		/* The data value to check	*/
 	unsigned char	*pat;		/* The pattern to match against */
-	int		largest;	/* Whether to match larges str.	*/
+	int		largest;	/* Whether to match largest str	*/
 {
 	register unsigned char	*s = v;
 	register int		size = strlen(C v);
