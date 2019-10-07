@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)word.c	1.101 19/08/25 2008-2019 J. Schilling
+ * @(#)word.c	1.102 19/10/04 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.101 19/08/25 2008-2019 J. Schilling";
+	"@(#)word.c	1.102 19/10/04 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -856,7 +856,7 @@ retry:
 			newline();
 			sigchk();
 		} else if ((trapnote & SIGINP) ||
-			  ((trapnote & TRAPSET) && (rwait > 0))) {
+			    ((trapnote & TRAPSET) && (rwait > 0))) {
 #ifdef	INTERACTIVE
 			int	inp = trapnote & SIGINP; /* Reset by chktrap */
 #endif

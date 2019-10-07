@@ -27,8 +27,9 @@
 #pragma ident	"@(#)ctype.h	1.8	05/06/08 SMI"	/* SVr4.0 1.10.1.1 */
 #endif
 /*
- * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)ctype.h	1.9 16/06/09 2009-2016 J. Schilling
+ * Copyright 2009-2019 J. Schilling
+ *
+ * @(#)ctype.h	1.10 19/09/28 2009-2019 J. Schilling
  */
 /*
  *	UNIX shell
@@ -87,6 +88,11 @@
 #else
 #define	_PCT	(0)			/* '%'		*/
 #define	_NUM	(T_SHN)			/* '#'		*/
+#endif
+#ifdef	DO_DOL_SLASH
+#define	_SLA	(T_SHN)			/* '/'		*/
+#else
+#define	_SLA	(0)			/* '/'		*/
 #endif
 #define	_DOL2	(T_SHN)			/* '$'		*/
 #define	_PLS	(T_DEF|T_SET)		/* '+'		*/

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)macro.c	1.93 19/08/27 2008-2019 J. Schilling
+ * @(#)macro.c	1.95 19/10/04 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.93 19/08/27 2008-2019 J. Schilling";
+	"@(#)macro.c	1.95 19/10/04 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -452,6 +452,20 @@ getname:
 				itos(retval);
 #endif
 				v = numbuf;
+#ifdef	DO_DOL_SLASH
+			} else if (c == '/') {
+				if (retex.ex_code == CLD_EXITED) {
+					sitos(retex.ex_status);
+					v = numbuf;
+				} else if (retex.ex_code == C_NOEXEC ||
+					    retex.ex_code == C_NOTFOUND) {
+					v = UC code2str(retex.ex_code);
+				} else {
+					sig2str(retex.ex_status,
+						    (char *)numbuf);
+					v = numbuf;
+				}
+#endif
 			} else if (c == '-') {
 				v = flagadr;
 #ifdef	DO_DOT_SH_PARAMS

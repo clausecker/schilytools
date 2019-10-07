@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.244 19/06/11 Copyright 2012-2019 J. Schilling
+.\" @(#)sh.1	1.246 19/10/05 Copyright 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2019/06/11" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2019/10/05" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1729,15 +1729,75 @@ The ability to see all 32 bits from the exit code requires a
 modern operating system with support for
 .BR waitid (2)
 in addition.
-If the executable file could not be found, the returned value is 127.
-If the file exists but could not be executed, the returned value is 126.
-If a command's exit code modulo 256 is zero and
+If the executable file could not be found, the returned value is
+.BR 127 .
+If the file exists but could not be executed, the returned value is
+.BR 126 .
+If
+.B bosh
+has been compiled with
+.B DO_EXIT_MODFIX
+(which is not the default and not recommended by POSIX) and
+if a command's exit code modulo 256 is zero and
 .RB `` "set\ \-o\ fullexitcode" ''
 is not in effect, the returned value is 128 except when the operating
 system does not support
 .BR waitid (2).
 If the command was killed by a signal, the returned value is 128 +
 the signal number.
+.br
+.ne 3
+.TP
+.B /
+A
+.B decimal number
+or
+.B text
+indicating the
+.B exit status 
+returned by the last synchronously executed command.
+.sp
+If
+.B $/
+returns a
+.BR "decimal number" ,
+this is (on a POSIX system) the 32 bit
+exit code from the last command that did normally exit. Older non-POSIX
+systems like Linux return only the low 8 bits from the exit code.
+.sp
+If
+.B $/
+returns
+.BR text ,
+this is either a signal name with the leading
+.RB `` SIG ''
+stripped off, like
+.RB `` INT ''
+(see kill -l) for the signal
+that terminated the program or one of the strings
+.RB `` NOEXEC ''
+or
+.RB `` NOTFOUND '',
+in case the program could not be run at all.
+The strings
+.RB `` NOEXEC ''
+and
+.RB `` NOTFOUND ''
+are returned reliably from
+.BR vfork (2)
+childs or when the related state is already known by the cache.
+This is true for all simple commands.
+.sp
+Note that unless
+.RB `` "set\ \-o\ fullexitcode" ''
+is in effect,
+.B $/
+may have a non-zero value where
+.IB value " mod 256 == 0" 
+and the shell in such a case evaluates conditional execution as if the
+exit code was zero.
+This is the default behavior required by POSIX for compatibility with historic
+shells.
 .br
 .ne 3
 .TP
@@ -5754,6 +5814,11 @@ This gives access to the full 32 bits from the child's exit code via
 .B $?
 on all modern operating systems that support
 .BR waitid (2).
+Setting
+.B fullexitcode
+is needed to evaluate
+.IB exitcode " mod 256 == 0"
+in conditional expressions as non-zero exit code.
 .TP
 .B globalaliases
 Enables/disables persistent global aliases that are read from the file

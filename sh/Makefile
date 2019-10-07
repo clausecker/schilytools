@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.155 19/06/11  Copyright (c) 2006-2018 J. Schilling"
+#ident "@(#)Makefile	1.157 19/10/01  Copyright (c) 2006-2019 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -71,6 +71,7 @@ CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 CPPOPTS +=	-DDO_GLOBSKIPDOT	# Implement set -o globskipdot, skip . ..
 CPPOPTS +=	-DDO_GLOBSKIPDOT_DEF	# Implement set -o globskipdot as default
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
+CPPOPTS +=	-DDO_DOL_SLASH		# Include support for $/
 CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parameters
 CPPOPTS +=	-DDO_U_DOLAT_NOFAIL	# set -u; echo "$@" does not fail
 CPPOPTS +=	-DDO_DUP_FAIL		# call failed() when dup() fails

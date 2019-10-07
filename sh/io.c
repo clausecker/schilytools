@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)io.c	1.43 19/08/27 2008-2019 J. Schilling
+ * @(#)io.c	1.44 19/09/25 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.43 19/08/27 2008-2019 J. Schilling";
+	"@(#)io.c	1.44 19/09/25 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -409,125 +409,123 @@ copy(ioparg)
 	int		i;
 	int		stripflg;
 	unsigned char	*pc;
+	struct tempblk	tb;
 
+	if ((iop = ioparg) == NULL)
+		return;
 
-	if ((iop = ioparg) != NULL) {
-		struct tempblk tb;
-		copy(iop->iolst);
-		ends = mactrim((unsigned char *)iop->ioname);
-		stripflg = iop->iofile & IOSTRIP;
-		if (nosubst)
-			iop->iofile &= ~IODOC_SUBST;
-		fd = tmpfil(&tb);
+	copy(iop->iolst);
+	ends = mactrim((unsigned char *)iop->ioname);
+	stripflg = iop->iofile & IOSTRIP;
+	if (nosubst)
+		iop->iofile &= ~IODOC_SUBST;
+	fd = tmpfil(&tb);
 
-		if (fndef)
-			iop->ioname = (char *)make(tmpout);
-		else
-			iop->ioname = (char *)cpystak(tmpout);
+	if (fndef)
+		iop->ioname = (char *)make(tmpout);
+	else
+		iop->ioname = (char *)cpystak(tmpout);
 
-		iop->iolst = iotemp;
-		iotemp = iop;
+	iop->iolst = iotemp;
+	iotemp = iop;
 
-		cline = clinep = start = locstak();
-		poff = 0;
-		if (stripflg) {
-			iop->iofile &= ~IOSTRIP;
-			while (*ends == '\t')
-				ends++;
+	cline = clinep = start = locstak();
+	poff = 0;
+	if (stripflg) {
+		iop->iofile &= ~IOSTRIP;
+		while (*ends == '\t')
+			ends++;
+	}
+	for (;;) {
+		staktop = &clinep[1];
+		chkpr();
+		if (stakbot != start) {
+			poff = stakbot - start;
+			start += poff;
+			cline += poff;
+			clinep += poff;
+			poff = 0;
 		}
-		for (;;) {
-			staktop = &clinep[1];
-			chkpr();
-			if (stakbot != start) {
-				poff = stakbot - start;
-				start += poff;
-				cline += poff;
-				clinep += poff;
-				poff = 0;
-			}
-			staktop = start;
-			if (nosubst) {
-				c = readwc();
-				if (stripflg)
-					while (c == '\t')
-						c = readwc();
-
-				while (!eolchar(c)) {
-					pc = readw(c);
-					while (*pc) {
-						GROWSTAK2(clinep, poff);
-						*clinep++ = *pc++;
-					}
+		staktop = start;
+		if (nosubst) {
+			c = readwc();
+			if (stripflg)
+				while (c == '\t')
 					c = readwc();
-				}
-			} else {
-				c = nextwc();
-				if (stripflg)
-					while (c == '\t')
-						c = nextwc();
 
-				while (!eolchar(c)) {
-					pc = readw(c);
-					while (*pc) {
-						GROWSTAK2(clinep, poff);
-						*clinep++ = *pc++;
-					}
-					if (c == '\\') {
-						pc = readw(readwc());
-						/* *pc might be NULL */
-						/* BEGIN CSTYLED */
-						if (*pc) {
-							while (*pc) {
-								GROWSTAK2(clinep, poff);
-								*clinep++ = *pc++;
-							}
-						} else {
-							GROWSTAK2(clinep, poff);
-							*clinep++ = *pc;
-						}
-						/* END CSTYLED */
-					}
-					c = nextwc();
+			while (!eolchar(c)) {
+				pc = readw(c);
+				while (*pc) {
+					GROWSTAK2(clinep, poff);
+					*clinep++ = *pc++;
 				}
+				c = readwc();
 			}
+		} else {
+			c = nextwc();
+			if (stripflg)
+				while (c == '\t')
+					c = nextwc();
 
+			while (!eolchar(c)) {
+				pc = readw(c);
+				while (*pc) {
+					GROWSTAK2(clinep, poff);
+					*clinep++ = *pc++;
+				}
+				if (c == '\\') {
+					pc = readw(readwc());
+					/* *pc might be NULL */
+					if (*pc) {
+						while (*pc) {
+							GROWSTAK2(clinep, poff);
+							*clinep++ = *pc++;
+						}
+					} else {
+						GROWSTAK2(clinep, poff);
+						*clinep++ = *pc;
+					}
+				}
+				c = nextwc();
+			}
+		}
+
+		GROWSTAK2(clinep, poff);
+		*clinep = 0;
+		if (poff) {
+			cline += poff;
+			start += poff;
+			poff = 0;
+		}
+		if (eof || eq(cline, ends)) {
+			if ((i = cline - start) > 0)
+				if (write(fd, start, i) != i)
+					break;
+			break;
+		} else {
 			GROWSTAK2(clinep, poff);
-			*clinep = 0;
+			*clinep++ = NL;
 			if (poff) {
 				cline += poff;
 				start += poff;
 				poff = 0;
 			}
-			if (eof || eq(cline, ends)) {
-				if ((i = cline - start) > 0)
-					if (write(fd, start, i) != i)
-						break;
-				break;
-			} else {
-				GROWSTAK2(clinep, poff);
-				*clinep++ = NL;
-				if (poff) {
-					cline += poff;
-					start += poff;
-					poff = 0;
-				}
-			}
-
-			if ((i = clinep - start) < CPYSIZ) {
-				cline = clinep;
-			} else {
-				if (write(fd, start, i) != i)
-					break;
-				cline = clinep = start;
-			}
 		}
 
-		/*
-		 * Pushed in tmpfil -- bug fix for problem
-		 * deleting in-line script.
-		 */
-		poptemp();
+		if ((i = clinep - start) < CPYSIZ) {
+			cline = clinep;
+		} else {
+			if (write(fd, start, i) != i)
+				break;
+			cline = clinep = start;
+		}
 	}
+
+	/*
+	 * Pushed in tmpfil -- bug fix for problem
+	 * deleting in-line script.
+	 */
+	poptemp();
 }
 
 int

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)delta.c	1.85 18/12/17 J. Schilling
+ * @(#)delta.c	1.86 19/09/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.85 18/12/17 J. Schilling"
+#pragma ident "@(#)delta.c 1.86 19/09/23 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -1595,7 +1595,7 @@ struct	packet	*pkt;
 				sprintf(SccsError,
 				gettext(
 			  "file '%s' contains illegal data on line %jd (de14)"),
-				file, (intmax_t)++nline);
+				file, (Intmax_t)++nline);
 				fatal(SccsError);
 			}
 		}
@@ -1627,7 +1627,7 @@ struct	packet	*pkt;
 		    fclose(inptr);
 		    sprintf(SccsError,
 		      gettext("file '%s' contains illegal data on line %jd (de14)"),
-		      file, (intmax_t)nline);
+		      file, (Intmax_t)nline);
 		    fatal(SccsError);
 		 }
 	      } else {
@@ -1683,7 +1683,7 @@ warnctl(file, nline)
 	fprintf(stderr,
 		gettext(
 		"WARNING [%s]: line %jd begins with ^A\n"),
-		file, (intmax_t)nline);
+		file, (Intmax_t)nline);
 }
 
 static void 

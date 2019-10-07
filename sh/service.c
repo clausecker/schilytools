@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)service.c	1.58 18/05/20 2008-2018 J. Schilling
+ * @(#)service.c	1.59 19/10/05 2008-2018 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.58 18/05/20 2008-2018 J. Schilling";
+	"@(#)service.c	1.59 19/10/05 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -401,6 +401,9 @@ execs(ap, t, isvfork, av0)
 	ex.ex_status =
 	ex.ex_code = ERR_NOEXEC;
 	ex.ex_pid = mypid;
+#ifdef	DO_DOL_SLASH
+	*excausep = C_NOEXEC;
+#endif
 
 	if (isvfork)
 		exflag = TRUE;	/* Call _exit() instead of exit() */
@@ -479,9 +482,13 @@ execs(ap, t, isvfork, av0)
 		/* FALLTHROUGH */
 
 	case ENOENT:
-		if (errno == ENOENT)
+		if (errno == ENOENT) {
 			ex.ex_status =
 			ex.ex_code = ERR_NOTFOUND;
+#ifdef	DO_DOL_SLASH
+			*excausep = C_NOTFOUND;
+#endif
+		}
 		return (prefix);
 	}
 }

@@ -1,12 +1,16 @@
-#ident "@(#)Makefile	1.1 06/09/14 "
+#ident @(#)Makefile.dot	1.1 19/10/01 
+###########################################################################
+# Sample makefile for installing non-localized auxiliary files
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-MK_FILES= librmt.mk librmt_p.mk $(NO_SHL)shlrmt.mk
+INSDIR=		share/doc/bosh
+TARGET=		dotfiles.tar.bz2
+#XMK_FILE=	Makefile.man
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.mks
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################

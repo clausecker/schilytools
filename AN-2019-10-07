@@ -1,0 +1,344 @@
+New features with AN-2019-10-07:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a newer smake
+	*** to compile this source. If your smake is too old and aborts, ensure to
+	*** use the recent smake by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2018-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs only to Linux distributions as
+		they usually do not forward these bug reports upstream and as
+		the Linux distributions typically do not let skilled people
+		check the bugs. We did not hear about a FIFO problem in star
+		for a long time. Then a problem on Linux occurred once
+		every 6000-10000 tries but it did not happen on Solaris after
+		even 10 million tries, so it was not known besides Linux.
+
+-	All: The changes are now complete to support a compilation of all
+	C code on Ultrix. SunPro Make uses C++ and does not work yet.
+
+-	configure: Some shells report a syntax error with "< file (cmd)"
+	and need the redirection statement to be *after* the command. Our
+	changes to support the V7 shell by adding round braces caused ash
+	variants like "dash" to fail.
+
+	Thanks to Harald van Dijk for reporting
+
+-	cont/cc-config.sh: canged some :>some-file statements into
+	(:)>some-file. they have meen missed when introducing work arounds
+	for the V7 Shell on Ultrix that does not support I/O redirection
+	for builtin commands.
+
+	Thanks to Robert Clausecker for reporting
+
+-	libschily/resolvepath.c: resolving a symlink that points to another
+	symlink that points to itself, caused a coredump as a result from an
+	endless recursion.
+
+	We now detect this situation and abort the check before the endless
+	recursion causes a stack overflow. A symlink that directly loops
+	is immediately stopped. A longer symlink loop chain over more than one
+	symlink can only be detected by the recursion nesting level and is
+	aborted after a nesting level of 1024 has been reached. This works
+	under the assumption that the minimum stack size is more than
+	1024 * PATH_MAX and that there is no useful directory path with more
+	than 1024 symlinks in the path.
+
+	----> This problem affected star and SCCS.
+
+	Thanks to Philipp Wellner for reporting
+
+-	libschily/comerr.c: The exit code clash-mapping for historical
+	software (mainy shells) that still use waitpid() instead of
+	the modern waitid() did not work. No mapping was done effectively.
+
+	This has been fixed and we now support a range from -63 .. 191
+	that is passed to exit() unmapped. All other values are mapped to
+	-64 (192 when seen as unsigned int) to mark a clash. Setting the 
+	environment COMERR_EXCODE switches off this mapping. Note that the
+	historic UNIX ecosystem is only 100% safe with exit codes from
+	0 .. 125. This is the usage:
+
+		0 .. 125	passed and usable unmodified
+		126		exec() did not work, e.g. due to missing
+				permissions
+		127		the binary could not be found
+		128		special in some corner cases
+		128+signo	if the program has been terminated by a signal
+				With typical 64 signals, this coveres the
+				typical range 129..192. Note that ksh93
+				maps that to 256+signo
+		193..255	May be used if there are no more than
+				64 signals.
+		168..255	May be used under the assumption that no
+				program is killed via real-time signals.
+
+	Important: When using the new shell variable "$/", any exitcode works
+	properly, even when there is no clash mapping. This is because $/
+	returns the full 32 bit exit code of a child process as a decimal
+	number wheneve the child process exited with a normal exit() call.
+	This of course only works correctly when you are on a POSIX
+	compliant platform. Linux refuses to fix a related bug in their
+	waitid() syscall since they have been informed about their bug in
+	May 2016.
+
+-	libschily/comerr.c: If the environment COMERR_EXCODE has been set to
+	a value that starts with '0', the normal exit code mapping is switched
+	off, but all potential exit code values != 0 that follow the rule
+
+		(excode % 256) == 0
+
+	are mapped to -64. This helps to avoid unexpected behavior with
+	historic shells that still use the old waitpid() and modern
+	shells (using waitid() but in a backward compatible default mode)
+	where a program that terminates with
+
+		exit(256);
+
+	is evaluated in conditional statements as if the exit code was 0.
+
+-	smake: The error message for failed shell commands has been modified
+	to "Code %d (%s) from command line..." in order to cause less confusion
+	with the text printed by smake.
+
+	The text for %s is the strerror() result for the exit code if
+	applicable.
+
+	Thanks to Robert Clausecker for reporting
+
+-	bsh: bsh/dotfiles.tar.bz2 is no longer installed into 
+	share/doc/schilytools but into share/doc/bsh
+
+-	Bourne Shell: Missing Makefile.dot added.
+
+-	Bourne Shell / bsh / ved: The dotdiles TAR archives are now again named
+	*/dotfiles.tar.bz2 as the change in the previous release caused
+	problems.
+
+	Thanks for Gabriele Balducci balducci@units.it and Robert Clausecker
+	for reporting
+
+-	Bourne Shell: Cstyle changes (long lines removed) in io.c & expand.c
+
+-	Bourne Shell: Fixed a bug that prevented to forward the special exit
+	cause (NOTFOUND or NOEXEC) to the vfork() parent process via 
+	struct siginfo.si_code in some cases. These values are added beyond
+	the POSIX CLD_* values in siginfo.si_code from the POSIX standard.
+	They are passed back from the vfork()ed child to the parent via the
+	shared memory from the vfork() implementation.
+
+-	Bourne Shell: introduced shared memory to be able to forward the
+	special exit cause (NOTFOUND or NOEXEC) to the parent even in case it
+	used fork() instead of vfork().
+
+-	Bourne Shell: Added support for a new automatic parameter "$/" to
+	complement the existing parameter "$?".
+
+	This is a result from a discussion in a POSIX teleconference from
+	April 2016.
+
+	This new parameter returns *decimal numbers* for a normal command
+	termination and *text* for abnormal command termination:
+
+	number	Exit code from normal termination. This is a signed 32 bit
+		value from the exit() parameter on POSIX systems and a 8 bit
+		value on pre-POSIX systems like Linux.
+
+	signame	A signal name (see kill -l) if the command has been terminated
+		by a signal. This is the signal name with the leading "SIG"
+		stripped off.
+
+	NOEXEC	The command was found but could not be executed, e.g. as
+		a result of missing permissions or because the name points
+		to a directory.
+
+	NOTFOUND The command could not be found.
+
+	Note that currently, the strings "NOEXEC" and "NOTFOUND" are passed
+	back reliably from vfork(2) childs or when the related state is already
+	known by the cache. In other cases, the reliability of $/ with respect
+	to "NOEXEC" and "NOTFOUND" has not yet been verified. It thus may
+	return 126 or 127 as with $?. The string values "NOEXEC" and "NOTFOUND"
+	cannot be passed back from a subshell, using only the waitid()
+	mechanism. To circumvent that problem, from fork()ed subshells, 
+	shared memory or non-fork()ed virtual subshells would work.
+
+	If you detect a complex command where you get 126 or 127 instead of
+	the exoected "NOEXEC" or "NOTFOUND", please send a report.
+
+	We for now choose to use shared memory as this is easier to implement.
+	Later versions will mosy likely implement virtual fork()less
+	subshells.
+
+-	Bourne Shell: minor Cstyle changes on word.c and macro.c
+
+-	Bourne Shell: New version date
+
+-	star: Added a hint to the man page that helps to find pkglist= as a 
+	similar option to list=
+
+-	star: The new method to avoid extracting symlinks that point outside
+	the star working directory that has been introduced in October 2018
+	could cause a core dump if a symlink is checked that points to
+	another aready existing symlink that points to itself. This was caused
+	by a problem in libschily/resolvepath.c, see above.
+
+	Thanks to Philipp Wellner for reporting
+
+-	star: The option -no-secure-links now may be configured as a global
+	default via the tag STAR_SECURE_LINKS= in the file /etc/default/star
+	and as a private default via an environment of the same name.
+
+	If the value for this tag is 'n' or 'N', -no-secure-links is made the
+	default, any other value sets the option -secure-links as the default.
+
+	This may be useful for sysadmins that frequently use star to copy
+	installation specific files, but it is risky in case that alien TAR
+	archives are imported. The good news is that this permits users to
+	switch to the old star behavior where no checks for risky links
+	existed.
+
+	Thanks to Dennis Clarke for reporting
+
+-	star: A new enviroment STAR_NOHINT has been introduced to supress
+	hint messages that are otherwise seen in case STAR_SECURE_LINKS or
+	STAR_FSYNC is in the environment or in /etc/default/star
+
+-	star: New version date
+
+-	SCCS: delta.c and admin.c have been changed to use Intmax_t instead
+	of intmax_t in order to support Ultrix.
+
+	Thanks to Robert Clausecker for reporting
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -33,14 +33,14 @@
 /*
  * Copyright 2008-2018 J. Schilling
  *
- * @(#)defs.c	1.22 18/08/01 2008-2018 J. Schilling
+ * @(#)defs.c	1.25 19/10/06 2008-2018 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.22 18/08/01 2008-2018 J. Schilling";
+	"@(#)defs.c	1.25 19/10/06 2008-2018 J. Schilling";
 #endif
 
 /*
@@ -53,12 +53,15 @@ static	UConst char sccsid[] =
 #include	"name.h"
 #include	<schily/param.h>
 #include	"defs.h"
+#include	<schily/wait.h>		/* Needed for CLD_EXITED */
 #else
 #include	<setjmp.h>
 #include	"mode.h"
 #include	"name.h"
 #include	<sys/param.h>
 #include	"defs.h"
+#include	<sys/types.h>
+#include	<sys/wait.h>		/* Needed for CLD_EXITED */
 #endif
 #ifndef NOFILE
 #define	NOFILE 20
@@ -120,8 +123,11 @@ int		traprecurse;
 int		trapsig;	/* Last signal */
 
 /* execflgs */
-struct excode	ex;
-struct excode	retex;
+struct excode	ex =	{ CLD_EXITED };
+struct excode	retex =	{ CLD_EXITED };
+#ifdef	DO_DOL_SLASH
+int		*excausep;
+#endif
 int		exitval;
 int		retval;
 BOOL		execbrk;

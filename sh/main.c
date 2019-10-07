@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)main.c	1.78 19/06/18 2008-2019 J. Schilling
+ * @(#)main.c	1.79 19/10/05 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.78 19/06/18 2008-2019 J. Schilling";
+	"@(#)main.c	1.79 19/10/05 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -319,7 +319,9 @@ main(c, v, e)
 
 	hcreate();
 	set_dotpath();
-
+#ifdef	DO_DOL_SLASH
+	shmcreate();
+#endif
 
 	/*
 	 * look for options

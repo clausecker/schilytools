@@ -36,11 +36,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)expand.c	1.28 19/06/10 2008-2019 J. Schilling
+ * @(#)expand.c	1.29 19/09/25 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.28 19/06/10 2008-2019 J. Schilling";
+	"@(#)expand.c	1.29 19/09/25 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -67,7 +67,8 @@ static	UConst char sccsid[] =
  *
  */
 	int	expand	__PR((unsigned char *as, int rcnt));
-static void	addg	__PR((unsigned char *, unsigned char *, unsigned char *,
+static void	addg	__PR((unsigned char *, unsigned char *,
+			    unsigned char *,
 			    unsigned char *));
 	void	makearg	__PR((struct argnod *));
 static	DIR	*lopendir __PR((char *name));
@@ -235,7 +236,8 @@ expand(as, rcnt)
 			/*
 			 * Skip the following names: "", ".", "..".
 			 */
-			if (name[name[0] != '.' ? 0 : name[1] != '.' ? 1 : 2] == '\0')
+			if (name[name[0] != '.' ? 0 :
+			    name[1] != '.' ? 1 : 2] == '\0')
 				continue;
 #endif
 			if (name[0] == '.' && *cs != '.')

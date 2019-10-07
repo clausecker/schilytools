@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.220 19/08/20 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.223 19/09/27 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/08/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/09/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2987,6 +2987,15 @@ See also the
 .B \-X
 option.
 .sp
+See also the option
+.B pkglist=
+for a way to specify
+.BR filename ,
+.BR permission ,
+.B owner
+and
+.BR group .
+.sp
 Note that if
 .BI list= -
 has been specified, it is no longer possible to use the
@@ -3315,7 +3324,7 @@ in
 .B ENVIRONMENT
 and
 .B /etc/default/star
-for ways to configue the default behavior.
+for ways to configure the default behavior.
 .TP
 .BR \-nochown ", " \-o
 Do not restore owner and group of files. 
@@ -3350,7 +3359,13 @@ Extract hard links or symbolic links even if the target of the link
 starts with a slash (/) or if /../ is contained in the link target.
 See the description of the option
 .B \-secure\-links
-below.
+below and
+.B STAR_SECURE_LINKS
+in
+.B ENVIRONMENT
+and
+.B /etc/default/star
+for ways to configure the default behavior.
 .TP
 .B \-no\-xheader
 Do not create or extract POSIX.1-2001 extended headers.
@@ -3887,9 +3902,15 @@ To speed this up, it helps to use:
 .sp
 .B "    star -xvpw -find -type l
 .sp
-See
+See section
 .B SECURITY NOTES
-for more information.
+for more information and
+.B STAR_SECURE_LINKS
+in
+.B ENVIRONMENT
+and
+.B /etc/default/star
+for ways to configure the default behavior.
 .TP
 .B \-shm
 Use System V shared memory for fifo. 
@@ -4139,7 +4160,6 @@ for the filename on disk if
 is in extract mode or for the archive name if 
 .B star 
 is in create mode.
-.RE
 .sp
 See
 .B SECURITY NOTES
@@ -4150,6 +4170,7 @@ Note that
 is an interactive option that prevents
 .B star
 from being used in non-interactive environments.
+.RE
 .TP
 .B \-wready
 This option tells
@@ -4758,6 +4779,17 @@ All files were processed successfully.
 .br
 .ne 3
 .TP
+.B -64 / 192
+An exit code has been used that does not fit into an 8-bit unsigned number
+and the environment
+.B COMERR_EXCODE
+has not been set.
+The value
+.B -64 / 192
+in this case marks a clash.
+.br
+.ne 3
+.TP
 .B -4 / 252
 .B Star
 has been interrupted in create mode and the end of star has been delayed
@@ -5034,6 +5066,43 @@ example# star \-t f=\fIarchive-name\fP \-find . \-ls \-false
 
 .SH ENVIRONMENT
 .TP
+.B COMERR_EXCODE
+If this environment is present, exit codes are not mapped to avoid possible
+clashes with calling programs that use the outdated
+.BR waitpid (2)
+instead of the
+.BR waitid (2)
+call to wait for the exit status from
+.BR star .
+While
+.BR waitid (2)
+returns the full 32 bit exit code,
+.BR waitpid (2)
+masks the exit code with 0377.
+Without the environment
+.BR COMERR_EXCODE ,
+exit codes outside the range
+.B -63\ ..\ 191
+are mapped to
+.BR -64 " (" 192 )
+to mark a clash.
+.sp
+If the environment
+.B COMERR_EXCODE
+is set and the value starts with the character '0', an exitcode code > 0
+that leads to
+.BR "exitcode & 0377 == 0" ,
+is mapped to
+.B -64
+to avoid confusion with shells that use
+.BR waitid (2)
+but interpret these exit codes as zero with respect to conditional execution
+in order to implement compatibility to historical shells.
+.sp
+With a shell that supports the full exitcode on and a POSIX compliant
+operating system, it is recommended to set the environment
+.BR COMERR_EXCODE .
+.TP
 .B STAR_COMPRESS_FLAG
 If you like
 .B star
@@ -5079,6 +5148,34 @@ option has always been specified.
 .sp
 The environment
 .B STAR_FSYNC
+has precedence over
+.B /etc/default/star
+but may still be overwritten by command line options.
+.TP
+.B STAR_NOHINT
+If this environment is seen, some informative messages are not printed.
+this currently applies to messages related to
+.B STAR_FSYNC
+and
+.BR STAR_SECURE_LINKS .
+.TP
+.B STAR_SECURE_LINKS
+If set to
+.RB ` N ',
+the default behavior of
+.B star
+is as if the
+.B \-no\-secure\-links
+option has always been specified.
+.sp
+This disables checks for potentially insecure links by default.
+.sp
+If you like to make this the default, keep in mind that you need to specify
+.B \-secure\-links
+in case you like to unpack an archive from unknown sources.
+.sp
+The environment
+.B STAR_SECURE_LINKS
 has precedence over
 .B /etc/default/star
 but may still be overwritten by command line options.
@@ -5230,11 +5327,34 @@ is always faster than other archivers, but makes it impossible for
 .B star
 to check whether the extracion of a file to the filesystem was successful.
 .sp
+This setting is overwritten by the
+.B STAR_FSYNC
+environment, if present.
+.sp
 If you like to make the default fast, keep in mind that you need to specify
 .B \-do\-fsync
 for cases where
 .B star
 needs to be able to know whether the extraction was successful.
+.TP
+.B STAR_SECURE_LINKS
+If set to
+.RB ` N ',
+the default behavior of
+.B star
+is as if the
+.B \-no\-secure\-links
+option has always been specified.
+.sp
+This disables checks for potentially insecure links by default.
+.sp
+This setting is overwritten by the
+.B STAR_SECURE_LINKS
+environment, if present.
+.sp
+If you like to make this the default, keep in mind that you need to specify
+.B \-secure\-links
+in case you like to unpack an archive from unknown sources.
 .TP
 .B archive0=
 .TP
@@ -5350,7 +5470,9 @@ Is used for the interactive user interface.
 .BR tartest (1),
 .BR star (4),
 .BR rcmd (3),
-.BR fssnap (1m)
+.BR fssnap (1m),
+.BR waitid (2),
+.BR waitpid (2)
 .SH DIAGNOSTICS
 star: f records + p bytes (total of x bytes = d.nnk).
 .PP
@@ -5668,6 +5790,12 @@ If you get a warning, you should unpack the archive a second time and specify th
 options
 .BR \-k ", " \-w " and " \-nowarn
 in addition to the options used for the first run.
+.LP
+See the 
+.B ENVIRONMENT
+section and
+.B /etc/default/star
+for ways to configure the default behavior.
 .SH SUID NOTES
 If 
 .B star

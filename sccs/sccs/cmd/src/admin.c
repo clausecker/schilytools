@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)admin.c	1.123 19/05/12 J. Schilling
+ * @(#)admin.c	1.124 19/09/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.123 19/05/12 J. Schilling"
+#pragma ident "@(#)admin.c 1.124 19/09/23 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -1678,7 +1678,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 					sprintf(SccsError,
 					gettext(
 			  "file '%s' contains illegal data on line %jd (ad21)"),
-					file, (intmax_t)++nline);
+					file, (Intmax_t)++nline);
 					fatal(SccsError);
 				}
 			}
@@ -1718,7 +1718,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		    } else {
 		       sprintf(SccsError,
 			 gettext("file '%s' contains illegal data on line %jd (ad21)"),
-			 file, (intmax_t)nline);
+			 file, (Intmax_t)nline);
 		       fatal(SccsError);
 		    }
 		 }
@@ -1800,7 +1800,7 @@ warnctl(file, nline)
 		"WARNING [%s%s%s]: line %jd begins with ^A\n"),
 		dir_name,
 		*dir_name?"/":"",
-		file, (intmax_t)nline);
+		file, (Intmax_t)nline);
 }
 
 static void

@@ -1,7 +1,9 @@
-/* @(#)resolvepath.c	1.9 19/07/31 Copyright 2011-2019 J. Schilling */
+/* @(#)resolvepath.c	1.10 19/09/27 Copyright 2011-2019 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
+ *	We however also implement the resolvenpath() variant that does
+ *	not require the file to exist.
  *
  *	Copyright (c) 2011-2019 J. Schilling
  */
@@ -20,8 +22,8 @@
  */
 
 /*
- * Since we need to call stat()/lstat() and since this is not a predictable call,
- * we always compile this module in largefile mode.
+ * Since we need to call stat()/lstat() and since this is not a
+ * predictable call, we always compile this module in largefile mode.
  */
 #define	USE_LARGEFILES
 
@@ -96,7 +98,6 @@ resolvefpath(path, buf, bufsiz, flags)
 {
 	return (pathresolve(path, path, buf, buf, bufsiz, flags));
 }
-
 
 LOCAL int
 pathresolve(path, p, buf, b, bufsiz, flags)
@@ -217,6 +218,8 @@ register 	char	*e;
 			break;
 		} else if (S_ISLNK(sb.st_mode)) {
 			char	lname[PATH_MAX+1];
+			char	c = *b;
+			int	depth = (flags >> 8) + 1;
 
 			len = readlink(buf, lname, sizeof (lname));
 			if (len < 0) {
@@ -237,8 +240,35 @@ register 	char	*e;
 				return (-1);
 #endif
 			strcatl(bx, buf, lname, (char *)0);
+			/*
+			 * Check whether we are in a symlink loop.
+			 * This is when the path does not change or when
+			 * we have too many symlinks in the path.
+			 */
+#define	MAX_NEST	1024
+			if (depth > MAX_NEST || strcmp(path, bx) == 0) {
+				*b = c;
+#ifndef	HAVE_DYN_ARRAYS
+				free(bx);
+#endif
+				/*
+				 * The Solaris syscall returns ELOOP in this
+				 * case, so do we...
+				 */
+				if (depth > MAX_NEST || (flags & RSPF_EXIST)) {
+#ifdef	ELOOP
+					seterrno(ELOOP);
+#else
+					seterrno(EINVAL);
+#endif
+					return (-1);
+				}
+				return (strlen(buf));
+			}
 			if (b > &buf[1] && b[-1] == '/')
 				--b;
+			flags &= 0xFF;		/* Mask off depth counter */
+			flags |= depth << 8;	/* Add new depth counter  */
 			len = pathresolve(bx, bx + (b - buf), buf, b,
 								bufsiz, flags);
 #ifndef	HAVE_DYN_ARRAYS

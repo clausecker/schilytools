@@ -1,4 +1,4 @@
-# @(#)star.dfl	1.4 18/07/10 Copyright 2003-2018 J. Schilling
+# @(#)star.dfl	1.6 19/09/27 Copyright 2003-2018 J. Schilling
 #
 # This file is /etc/default/star
 #
@@ -39,6 +39,15 @@
 # extracted file, star may tell whether a file extraction has been successful.
 #
 STAR_FSYNC=N
+
+#
+# If you are frequently doing administrative work and you know that you do not
+# extract alien tar archives, you may uncomment the following line to tell star
+# to extract potentially insecure links by default. Since this sets a global
+# default, it is recommended to rather use a user specific default via the
+# environment.
+#
+#STAR_SECURE_LINKS=N
 
 #
 # Compatibility entries for Sun's tar. There are up to four entries per line:

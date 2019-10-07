@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.113 19/09/09 Copyright 1998-2019 J. Schilling
+dnl @(#)aclocal.m4	1.114 19/09/26 Copyright 1998-2019 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -231,7 +231,7 @@ if test "$GCC" != yes; then
 	if test "$CC" = suncc; then
 		sun_cc64=suncc
 	fi
-	ac_err=`< /dev/null (eval $sun_cc64 -m64 -c) 2>&1 | grep illegal`
+	ac_err=`(eval $sun_cc64 -m64 -c) < /dev/null 2>&1 | grep illegal`
 	if test -n "$ac_err"; then
 		ac_cv_sun_cc64_opt=no
 	else
@@ -254,7 +254,7 @@ ac_cv_hp_cc_ansi_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null (eval $hp_cc -Ae -c) 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`(eval $hp_cc -Ae -c) < /dev/null 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_ansi_opt=no
 		else
@@ -278,7 +278,7 @@ ac_cv_hp_cc_opt_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null (eval $hp_cc -O -c) 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`(eval $hp_cc -O -c) < /dev/null 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_opt_opt=no
 		else
@@ -302,7 +302,7 @@ ac_cv_hp_cc_gprof_opt=no
 if test "$GCC" != yes; then
 	os_name=`(uname -s) 2> /dev/null`
 	if test ."$os_name" = .HP-UX ; then
-		ac_err=`< /dev/null (eval $hp_cc -O -c) 2>&1 | grep 'Bundled.*option is available only'`
+		ac_err=`(eval $hp_cc -O -c) < /dev/null 2>&1 | grep 'Bundled.*option is available only'`
 		if test -n "$ac_err"; then
 			ac_cv_hp_cc_gprof_opt=no
 		else

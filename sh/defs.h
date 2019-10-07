@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)defs.h	1.204 19/09/16 2008-2019 J. Schilling
+ * @(#)defs.h	1.205 19/10/05 2008-2019 J. Schilling
  */
 
 /*
@@ -649,6 +649,7 @@ extern	void	prtime		__PR((struct job *jp));
 #ifndef	HAVE_GETRUSAGE
 extern	int	getrusage	__PR((int who, struct rusage *r_usage));
 #endif
+extern	void	shmcreate	__PR((void));
 
 /*
  * macro.c
@@ -1276,6 +1277,9 @@ extern const char		readonly[];
 /* execflgs */
 extern struct excode		ex;
 extern struct excode		retex;
+#ifdef	DO_DOL_SLASH
+extern	int			*excausep;
+#endif
 extern int			exitval;
 extern int			retval;
 extern BOOL			execbrk;

@@ -1,11 +1,11 @@
-/* @(#)defaults.c	1.17 18/07/10 Copyright 1998-2018 J. Schilling */
+/* @(#)defaults.c	1.18 19/09/27 Copyright 1998-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defaults.c	1.17 18/07/10 Copyright 1998-2018 J. Schilling";
+	"@(#)defaults.c	1.18 19/09/27 Copyright 1998-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2018 J. Schilling
+ *	Copyright (c) 1998-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,6 +47,7 @@ extern	BOOL		nflag;
 EXPORT	char	*get_stardefaults __PR((char *name));
 LOCAL	int	open_stardefaults __PR((char *dfltname));
 EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
+						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
 
@@ -91,17 +92,23 @@ open_stardefaults(dfltname)
 }
 
 EXPORT void
-star_defaults(fsp, no_fsyncp, dfltname)
+star_defaults(fsp, no_fsyncp, secure_linkp, dfltname)
 	long	*fsp;
 	BOOL	*no_fsyncp;
+	BOOL	*secure_linkp;
 	char	*dfltname;
 {
 	BOOL	is_open = FALSE;
 	BOOL	nofsync = FALSE;
+	BOOL	securelinks = FALSE;
+	BOOL	nohint = FALSE;
 	long	fs_cur	= 0L;
 	long	fs_max	= -1L;
 
 	dfltname = get_stardefaults(dfltname);
+
+	if (getenv("STAR_NOHINT"))
+		nohint=TRUE;
 
 	if (fsp != NULL)
 		fs_cur = *fsp;
@@ -164,7 +171,8 @@ star_defaults(fsp, no_fsyncp, dfltname)
 				p++;
 			if (*p == 'n' || *p == 'N') {
 				nofsync = TRUE;
-				if (!silent && !print_artype && xflag && !nflag)
+				if (!silent && !nohint &&
+				    !print_artype && xflag && !nflag)
 					errmsgno(EX_BAD,
 					"WARNING: fsync() disabled from '%s'.\n",
 					was_env ? "environment" :
@@ -176,6 +184,43 @@ star_defaults(fsp, no_fsyncp, dfltname)
 	}
 	if (no_fsyncp && nofsync >= 0)
 		*no_fsyncp = nofsync;
+
+	if (secure_linkp)
+		securelinks = *secure_linkp;
+	if (securelinks < 0) {
+		char	*p = NULL;
+		BOOL	was_env = FALSE;
+
+		p = getenv("STAR_SECURE_LINKS");
+		if (p == NULL) {
+			if (is_open) {
+				defltfirst();
+			} else if (open_stardefaults(dfltname) == 0) {
+				is_open = TRUE;
+			}
+			if (is_open)
+				p = defltread("STAR_SECURE_LINKS=");
+		} else {
+			was_env = TRUE;
+		}
+		if (p) {
+			while (*p == ' ' || *p == '\t')
+				p++;
+			if (*p == 'n' || *p == 'N') {
+				securelinks = TRUE;
+				if (!silent && !nohint &&
+				    !print_artype && xflag && !nflag)
+					errmsgno(EX_BAD,
+					"WARNING: -no-secure-links enabled from '%s'.\n",
+					was_env ? "environment" :
+					dfltname);
+			} else {
+				securelinks = FALSE;
+			}
+		}
+	}
+	if (secure_linkp && securelinks >= 0)
+		*secure_linkp = securelinks;
 
 	defltclose();
 }

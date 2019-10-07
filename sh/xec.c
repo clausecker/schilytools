@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)xec.c	1.110 19/06/12 2008-2019 J. Schilling
+ * @(#)xec.c	1.112 19/10/05 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.110 19/06/12 2008-2019 J. Schilling";
+	"@(#)xec.c	1.112 19/10/05 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -330,6 +330,9 @@ execute(argt, xflags, errorflg, pf1, pf2)
 							failurex(ERR_NOEXEC,
 								*com, badperm);
 						}
+#ifdef	DO_DOL_SLASH
+						*excausep = ex.ex_code;
+#endif
 #ifdef	DO_POSIX_REDIRECT
 						restore(fdindex);
 #endif
@@ -704,8 +707,10 @@ script:
 							xflags |= XEC_ALLOCJOB;
 #endif
 							goto script;
-						} else {
+						} else if (exflag != 0) {
 							exflag = 0;
+							ex.ex_status =
+							ex.ex_code = C_NOEXEC;
 						}
 					}
 #endif

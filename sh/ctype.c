@@ -30,13 +30,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2009-2016 J. Schilling
+ * Copyright 2009-2019 J. Schilling
  *
- * @(#)ctype.c	1.6 16/01/14 2009-2016 J. Schilling
+ * @(#)ctype.c	1.7 19/09/28 2009-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ctype.c	1.6 16/01/14 2009-2016 J. Schilling";
+	"@(#)ctype.c	1.7 19/09/28 2009-2019 J. Schilling";
 #endif
 
 /*
@@ -114,7 +114,7 @@ unsigned char	_ctype2[] =
 	0,	_PCS,	0,	_NUM,	_DOL2,	_PCT,	0,	0,
 
 /*	(	)	*	+	,	-	.	/	*/
-	0,	0,	_AST,	_PLS,	0,	_MIN,	0,	0,
+	0,	0,	_AST,	_PLS,	0,	_MIN,	0,	_SLA,
 
 /*	0	1	2	3	4	5	6	7	*/
 	_DIG,	_DIG,	_DIG,	_DIG,	_DIG,	_DIG,	_DIG,	_DIG,

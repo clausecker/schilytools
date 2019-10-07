@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)jobs.c	1.108 19/04/28 2008-2019 J. Schilling
+ * @(#)jobs.c	1.109 19/10/05 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.108 19/04/28 2008-2019 J. Schilling";
+	"@(#)jobs.c	1.109 19/10/05 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -523,6 +523,18 @@ statjob(jp, si, fg, rc)
 				jp->j_flag |= J_NOTIFY;
 				jobnote++;
 			}
+#ifdef	DO_DOL_SLASH
+			if (jp->j_xval == ERR_NOTFOUND &&
+			    *excausep == C_NOTFOUND) {
+				jp->j_xcode = C_NOTFOUND;
+				*excausep = 0;
+			}
+			if (jp->j_xval == ERR_NOEXEC &&
+			    *excausep == C_NOEXEC) {
+				jp->j_xcode = C_NOEXEC;
+				*excausep = 0;
+			}
+#endif
 		}
 		if (fg) {
 			pid_t	jgid = getpgid(jp->j_pid);
@@ -534,7 +546,7 @@ statjob(jp, si, fg, rc)
 			/*
 			 * The previous hack was to use "svpgid" in case that
 			 * "jgid" was -1. This turned out to give problems with
-			 *     dosh 'nroff -u1 -Tlp -man $@ | col -x' | more
+			 *   dosh 'nroff -u1 -Tlp -man $@ | col -x' | more
 			 * but it turned out that "mypgid" was a better
 			 * approximation. Since we now get the value from "fg",
 			 * we go back to the original implementation for the
@@ -2319,3 +2331,54 @@ checksigs(infop)
 	}
 }
 #endif
+
+#ifdef	DO_DOL_SLASH
+
+#ifdef	HAVE_SMMAP
+#include <schily/mman.h>
+
+void
+shmcreate()
+{
+	int	f;
+	char	*addr;
+#ifdef	_SC_PAGESIZE
+	int	size = (int)sysconf(_SC_PAGESIZE);
+#else
+	int	size = getpagesize();
+#endif
+static	int	myint;
+
+#ifdef	MAP_ANONYMOUS	/* HP/UX */
+	f = -1;
+	addr = mmap(0, mmap_sizeparm(size), PROT_READ|PROT_WRITE,
+					MAP_SHARED|MAP_ANONYMOUS, f, 0);
+#else
+	if ((f = open("/dev/zero", O_RDWR)) < 0)
+		goto err;
+	addr = mmap(0, mmap_sizeparm(size), PROT_READ|PROT_WRITE,
+					MAP_SHARED, f, 0);
+	close(f);
+#endif
+	if (addr == (char *)-1)
+		goto err;
+
+	excausep = (int *)addr;
+	return;
+err:
+	/*
+	 * mmap() did not work, try to be silent...
+	 */
+	excausep = &myint;
+}
+#else	/* !HAVE_SMMAP */
+void
+shmcreate()
+{
+static	int	myint;
+
+	excausep = &myint;
+}
+#endif	/* HAVE_SMMAP */
+
+#endif	/* DO_DOL_SLASH */

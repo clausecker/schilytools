@@ -1,8 +1,8 @@
-/* @(#)star.c	1.394 19/07/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
+/* @(#)star.c	1.395 19/09/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.394 19/07/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
+	"@(#)star.c	1.395 19/09/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling
@@ -1919,8 +1919,6 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 		if (do_install)
 			comerrno(EX_BAD, "-install not allowed in restore mode.\n");
 	}
-	if (secure_links < 0)
-		secure_links = TRUE;
 	if (oldtar)
 		chdrtype = H_OTAR;
 	if (chdrtype != H_UNDEF) {
@@ -2139,9 +2137,11 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 		}
 	}
 
-	star_defaults(&fs, &no_fsync, NULL);
+	star_defaults(&fs, &no_fsync, &secure_links, NULL);
 	if (no_fsync < 0)
 		no_fsync = FALSE;
+	if (secure_links < 0)
+		secure_links = TRUE;
 }
 
 EXPORT void

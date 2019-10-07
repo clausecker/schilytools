@@ -1,11 +1,11 @@
-/* @(#)job.c	1.12 18/03/29 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling */
+/* @(#)job.c	1.13 19/09/30 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.12 18/03/29 Copyright 1985, 87, 88, 91, 1995-2018 J. Schilling";
+	"@(#)job.c	1.13 19/09/30 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 87, 88, 91, 1995-2018 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2019 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -476,11 +476,21 @@ cmd_wait(jobp)
 nowait:
 	if (Exit) {
 		int	excode = WEXITSTATUS(Exit);
-		errmsgno(excode,
+		char	*emsg = errmsgstr(excode);
+
+		if (emsg) {
+			errmsgno(EX_BAD,
+			"*** Code %d (%s) from command line for target '%s'%s.\n",
+			excode, emsg,
+			obj->o_name,
+			NoError?" (ignored)":"");
+		} else {
+			errmsgno(EX_BAD,
 			"*** Code %d from command line for target '%s'%s.\n",
 			excode,
 			obj->o_name,
 			NoError?" (ignored)":"");
+		}
 		if (Silent && Debug <= 0) {
 			errmsgno(EX_BAD, "The following command caused the error:\n");
 			error("%s\n", cmd);

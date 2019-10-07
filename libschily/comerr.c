@@ -1,4 +1,4 @@
-/* @(#)comerr.c	1.46 17/11/03 Copyright 1985-1989, 1995-2017 J. Schilling */
+/* @(#)comerr.c	1.47 19/09/27 Copyright 1985-1989, 1995-2017 J. Schilling */
 /*
  *	Routines for printing command errors
  *
@@ -295,6 +295,7 @@ _ex_clash(exc)
 	int	exc;
 {
 	int	exmod = exc % 256;
+	char	*p;
 
 	/*
 	 * On a recent POSIX System that supports waitid(), siginfo.si_status
@@ -311,19 +312,33 @@ _ex_clash(exc)
 	 * with errno values.
 	 *
 	 * To avoid clashes with errno values, "schily/standard.h" defines
-	 * EX_BAD (-1) as default error exit code and
-	 * EX_CLASH (-64) as marker for clashes.
+	 * EX_BAD (-1) (255) as default error exit code and
+	 * EX_CLASH (-64) (192) as marker for clashes.
 	 * Exit codes in the range -2..-63 (254..193 seen as unsigned two's
 	 * complement) are available as software specific exit codes.
-	 * We map all other negative exit codes to EX_CLASH if they would fold
-	 * to -2..-63.
+	 * We map all other negative exit codes to EX_CLASH.
 	 *
 	 * Do not map exit codes in case that the "COMERR_EXCODE" environment
 	 * is present.
 	 */
-	if (getenv("COMERR_EXCODE"))
+	if ((p = getenv("COMERR_EXCODE")) != NULL) {
+		if (*p == '0') {
+			/*
+			 * Modern shells that use waitpid() still interpret
+			 * excode % 256 == 0 as a zero exit code with respect
+			 * to conditional execution for compatibility with
+			 * historic shells. Use "export COMERR_EXCODE=0" to
+			 * request support for this problem.
+			 */
+			if (exmod == 0 && exc != 0)
+				return(EX_CLASH);
+		} 
 		return (exc);
-	if (exc != exmod && exmod <= 0 && exmod >= EX_CLASH)
+	}
+
+	if ((exc != exmod) ||
+	    (exmod < EX_CLASH) ||
+	    ((exmod > 0) && (exmod & 0377) >= (EX_CLASH & 0377)))
 		exc = EX_CLASH;
 	return (exc);
 }
