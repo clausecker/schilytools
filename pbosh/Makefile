@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.159 19/09/28  Copyright (c) 2006-2019 J. Schilling"
+#ident "@(#)Makefile	1.160 19/10/25  Copyright (c) 2006-2019 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -54,6 +54,7 @@ CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_CHECKBINARY	# Check scripts for binary (\0 before \n)
 #CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
 CPPOPTS +=	-DDO_GETOPT_POSIX	# Fail: $OPTARG has optopt for optstr[0] = ':'
+CPPOPTS +=	-DDO_GETOPT_PLUS	# Support +o if optstr[0] = '+'
 CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )

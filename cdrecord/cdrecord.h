@@ -1,8 +1,8 @@
-/* @(#)cdrecord.h	1.205 13/05/28 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.h	1.206 19/10/16 Copyright 1995-2019 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -132,7 +132,16 @@
 /*
  * FIFO size must be at least 2x CDR_MAX_BUF_SIZE
  */
+#if	defined(sun) && defined(mc68000)
+#define	DEFAULT_FIFOSIZE (1L*1024L*1024L)
+#else
+#if defined(ultrix)
+#define	DEFAULT_FIFOSIZE (1L*1024L*1024L)
+#else
 #define	DEFAULT_FIFOSIZE (4L*1024L*1024L)
+#endif
+#endif
+
 
 #if	!defined(HAVE_LARGEFILES) && SIZEOF_LLONG > SIZEOF_LONG
 typedef	Llong	tsize_t;

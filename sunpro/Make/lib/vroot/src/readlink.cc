@@ -29,18 +29,19 @@
 #pragma	ident	"@(#)readlink.cc	1.4	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)readlink.cc	1.2 17/05/01 2017 J. Schilling
+ * @(#)readlink.cc	1.3 19/10/22 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readlink.cc	1.2 17/05/01 2017 J. Schilling";
+	"@(#)readlink.cc	1.3 19/10/22 2017-2019 J. Schilling";
 #endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
+#include <mksh/defs.h>	/* To work around an Ultrix sysinclude bug */
 
 extern int readlink(const char *path, void *buf, size_t bufsiz);
 

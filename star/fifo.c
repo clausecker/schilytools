@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.104 19/06/09 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.105 19/10/16 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.104 19/06/09 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.105 19/10/16 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -207,7 +207,11 @@ extern	BOOL	cflag;
 #if defined(__linux) && !defined(USE_MMAP)
 		fs = 4*1024*1024;
 #else
+#if defined(ultrix)
+		fs = 1*1024*1024;
+#else
 		fs = 8*1024*1024;
+#endif
 #endif
 #endif
 		if (lowmem)

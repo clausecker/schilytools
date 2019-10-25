@@ -1,6 +1,6 @@
 '\" te
 .\" Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.\" Copyright (c) 2012-2018, J. Schilling
+.\" Copyright (c) 2012-2019, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 2001, the Institute of Electrical and Electronics Engineers, Inc. and The Open Group. All Rights Reserved.
@@ -48,7 +48,19 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH getopt 3C "15 Mar 2018" "SunOS 5.11" "Standard C Library Functions"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH getopt 3C "23 Oct 2019" "SunOS 5.11" "Standard C Library Functions"
 .SH NAME
 getopt \- command option parsing
 .SH SYNOPSIS
@@ -68,6 +80,16 @@ getopt \- command option parsing
 .LP
 .nf
 \fBextern int\fR \fIoptind\fR, \fIopterr\fR, \fIoptopt\fR;
+.fi
+
+.SS "Schily"
+.nf
+\fBextern int\fR \fIoptflags\fR;
+.fi
+
+.SS "AT&T"
+.nf
+\fBextern int\fR \fIopt_sp\fR;
 .fi
 
 .SS "POSIX.2, XPG4, SUS, SUSv2, SUSv3"
@@ -158,6 +180,44 @@ in
 .IR optstring .
 .sp
 .LP
+If a utility likes to support options in the form
+.B +o
+or
+.BR ++long\-name ,
+.I optstring
+should start with a
+.B
+"+"\c
+\&.
+In case an option in the form
+.B +o
+or
+.BR ++long\-name
+has been detected,
+.B getopt()
+sets the
+.B OPT_PLUS
+bit in the external variable
+.IR optflags .
+.sp
+.LP
+A utility that likes to specify more than one flag character from
+.B
+":"\c
+,
+.B
+"+"
+or
+.B
+"()"
+in
+.IR optstring ,
+needs to place
+.B
+"()"
+last.
+.sp
+.LP
 The
 .B getopt()
 function returns the short-option character in
@@ -178,6 +238,25 @@ the next argument to be processed. The
 variable is external and
 is initialized to 1 before the first call to
 .BR getopt() .
+.LP
+The
+.B getopt()
+function places in
+.I opt_sp
+the index of the option letter currently processed to identify
+the right option letter in combined options. The
+.I opt_sp
+variable is external and
+is initialized to 1 before the first call to
+.BR getopt() .
+This permits to manage
+.I opt_sp
+in order to deal with multiple
+.B getopt()
+calls, which is needed for the
+.B getopts
+shell builtin.
+.LP
 The
 .B getopt()
 function sets the variable
@@ -641,3 +720,13 @@ For the Basic Utility Command syntax is Standard, see
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5)
+.br
+.ne 5
+.SH AUTHORS
+The
+.B getopt()
+function was initially written by authors at AT&T in 1980.
+.B getopt()
+was later maintained by various people at AT&T and Sun Microsystems.
+Since 2006,
+is maintained by J\*org Schilling.

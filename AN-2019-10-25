@@ -1,0 +1,377 @@
+New features with AN-2019-10-25:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a newer smake
+	*** to compile this source. If your smake is too old and aborts, ensure to
+	*** use the recent smake by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2018-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs only to Linux distributions as
+		they usually do not forward these bug reports upstream and as
+		the Linux distributions typically do not let skilled people
+		check the bugs. We did not hear about a FIFO problem in star
+		for a long time. Then a problem on Linux occurred once
+		every 6000-10000 tries but it did not happen on Solaris after
+		even 10 million tries, so it was not known besides Linux.
+
+
+-	All: Next step with Ultrix porting.
+
+	We are nearly done with the achievable tasts.
+
+	Compilation of all C code works without manual quirks and the resulting 
+	programs are usable. This however currenlty only works using GCC since
+	the Ultrix C compiler dumps core with some of our source files.
+
+	The Ultrix compiler on the supplied test machine does not support C++,
+	so it is questionable, whether it would make sense to try to make the
+	C-code compile on Ultrix.
+
+	If you have problems with the scripts to automatically detect that 
+	we should use GCC as the default compiler (as configured in the file
+	DEFAULTS/Defaults.ultrix), remove the file:
+
+		incs/Dcc.risc-ultrix
+
+	and then run:
+
+		smake CCOM=gcc
+
+	But GCC on Ultrix is buggy as well and comes with broken include
+	fixes. There are partially correct ones, one set works with C and
+	the other set works with C++. This requires a hand crafted
+	copilation for the SunPro Make that is written in C++.
+
+	You may compile a non parallel (serial only) version of 
+	SunPro Make by calling:
+
+	cd sunpro
+	smake -i CPPOPTX=-I/usr/local/lib/gcc-lib/mips-dec-ultrix4.4/2.7.2/include/cxx/ 
+
+	You may need to use a different path for that hack, if your GCC installation
+	uses a different install path or is a different version.
+
+	This results in a POSIX compliant make for Ultrix...
+
+	NOTE that yopu need to use -i because there is currently no method
+	in the Schily Makefile system that allows to disable the creation of
+	shared libraries on platforms that do not support shared libs.
+
+	Also note that you cannot use "dmake" (SunPro Make) on Ultrix yet
+	to compile projects in the Schily Makefilesystem, as there is a bug
+	in Ultrix sed(1) that causes the command:
+
+	sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+
+	to fail with the message "gabled command". If you did remove one of the
+	backslashes, it would work...
+
+	Thanks to Martin Neitzel for giving access to an Ultrix machine
+
+-	configure: A new test for fgetws() has been added to serve the needs
+	for SunPro Make on Ultrix. fgetws() is missing on Ultrix.
+
+-	configure: Added new tests for wcstol() wcstoul() wcstoul() wcstoull()
+	These interfaces are missing on Ultrix and we need to support a
+	replacement in libschily for SunPro Make portability.
+
+-	conf/makeinc: converted some eval... into (eval ...) to support
+	the Bourne Shell from SVr2 used on Ultrix. This was needed since
+	we still got some "illegal io" error messages from the pre-SVr2 Bourne
+	Shell on Ultrix.
+
+-	RULES/risc-ultrix-gcc.rul: mkdir on Ultrix supports -p
+
+-	RULES/risc-ultrix-cc.rul: new file
+
+-	RULES/cc-ultrix.rul: new file
+
+-	include/schily/wchar.h: Some fallback definitions for
+	mbsinit() mbrtowc() wcrtomb() have been moved to make them always
+	visible and not only in case that <wchar.h> exists.
+
+-	include/schily/wchar.h: Before, we checked for HAVE_ISWPRINT to catch
+	the HP-UX-10.20 case where wchar_t is in stdlib.h. Now we check
+	(SIZEOF_WCHAR == 0 || SIZEOF_WCHAR_T == 0) as this works on Ultrix as
+	well.
+
+-	include/schily/wait.h: We need to fiddle a bit more with WAIT_T in order
+	to be able to work around the buggy sys/wait.h from Ultrix.
+
+-	include/schily/schily.h: removed a superfluous \ that caused
+	warnings with the Ultrix cc.
+
+-	include/schily/libport.h: addeed vsnprintf() prototype
+
+-	include/schily/libport.h: addeed wcstol() prototype
+
+-	libschily: The argument types of the K&R function snprintf() are now
+	identical to the ANSI C variant.
+
+-	libschily: A vsnprintf() implementaton has been added since this is
+	needed by SunPro Make and missing on Ultrix.
+
+-	libschily: A new source wcastoi.c has been added. This is to 
+	support wcstol() that is missing in Ultrix and needed by SunPro Make
+
+-	libgetopt: The getopt() function now supports options in the form:
+
+		+o, ++long-option or +long-option
+
+	if the optstring starts with a '+'. A new exported variable
+	"optflags" has the bit "OPT_PLUS" set, in case that an actual option
+	starts with '+'.
+
+	If more than one of the flag characters ':', '+' or "()" are used,
+	"()" must be last.
+
+-	libfind: The recent changes to support "find dir/name -name name"
+	did not work with -depth because the name base index needs a reset
+	after processing the directory content.
+
+	Thanks to Tavian Barnes for reporting.
+
+-	libstreamar: Added new keywords "fsdevmajor" and "fsdevminor" as
+	there are too many incompatible st_dev binary formats.
+
+	These keywords are not yet created, but they are understood.
+	This permits to switch to the new format (fade out "dev") later.
+
+-	star: Added new keywords "SCHILY.fsdevmajor" and "SCHILY.fsdevminor"
+	as there are too many incompatible st_dev binary formats.
+
+	These keywords are not yet created, but they are understood.
+	This permits to switch to the new format (fade out "SCHILY.dev") later.
+
+-	star: The amount of shared mamory used by default has been reduced to
+	1 MB on Ultrix. These are old small machines, that do not support
+	8 MB.
+
+-	cdrecord: The amount of shared mamory used by default has been reduced
+	to 1 MB on Ultrix. These are old small machines, that do not support
+	4 MB.
+
+-	Bourne Shell: The testsuite no longer tries to check ISO-8859-1 strings
+	as we cannot set this up reliably on all platforms and as Mac OS does
+	not allow to create the related filenames.
+
+-	Bourne Shell: The getopts(1) builtin command now supports options in 
+	the form:
+
+		+o, ++long-option or +long-option
+
+	if the optstring starts with a '+'. The shell variable "$NAME" has
+	a leading '+' in case that an actual option starts with '+'.
+
+	Note that this makes getopts(1) in the Bourne Shell compatible at
+	shell script level to the extensions in the getopts(1) implementation
+	in ksh93 for:
+
+		-o/+o	Short options with either a leading - or +
+
+		--long	GNU style long options as aliases to short -o options
+
+		++long	GNU style long options as aliases to short +o options
+
+	Our enhancements to support:
+
+		-long	UNIX style long options as aliases to short -o options
+
+		+long	UNIX style long options as aliases to short +o options
+
+		-	Long options the have no related short option
+
+	Are not supported by ksh93.
+
+-	ved: The recognition for argv[0] == "ved-e" did previously use strrchr()
+	and did not work correctly when e.g. trying to call a binary like
+	OBJ/i386-sunos5-cc/ved. We now check only to the right of the first '-'
+	after the last '/'
+
+-	ved: the code that writes the .vedtmp file did not work on Ultrix.
+	Existing slots have not been overwritten (refreshed) but rather a copy
+	has been appended to the end of the file. This happened when switching
+	from read mode into write mode for the open file ".vedtmp.*".
+
+	We now first retrieve the old file offset before calling fflush().
+
+-	SunPro Make: If we are on old platforms like Ultrix, we need the
+	wcs*() functions from libschily, as these functions are missing
+	from libc. To use them with C++ we need the prototypes from
+	include/schily/libport.h.
+
+	The file sunpro/Make/include/mksh/defs.h now includes <schily/libport.h>
+	for that purpose, even in case a specific source does not like to
+	include <schily/schily.h>
+
+-	SunPro Make: sunpro/Make/include/mksh/defs.h now includes missing libc
+	prototypes (needed for Ultrix) in order to prevent C++ to abort
+	compilation on Ultrix.
+
+-	SunPro Make: Various sources now use schily/wait.h and WAIT_T in order
+	to avoid "int"/"union wait" problems e.g. on Ultrix.
+
+-	SunPro Make: We need to use if (*(int *)&status == 0) as e.g. Ultrix
+	has union wait.
+
+-	SunPro Make: We now support select() as a fallback if poll() is not
+	available.
+
+-	SunPro Make: sunpro/Make/include/mksh/defs.h now calls #undef PMAKE
+	if HAVE_SEMAPHORE_H is missing, e.g. on Ultrix. This prevents to
+	support "dmake -j...", but it make SunPro Make usable on Ultrx at
+	all.
+
+-	SunPro Make: sunpro/Make/include/mksh/defs.h now calls #undef PMAKE
+	if NO_PMAKE is missing
+
+-	SunPro Make: parallel.cc moved an #if defined(PMAKE) past the
+	#include defs.h to be able to disable the paralle make features in
+	case that POSIX semaphore support is missing.
+
+-	SunPro Make: changed putwchar() to putchar() since these calls
+	are close to a normal printf() call and since they are only used to
+	print the non-wide characters space and slash, which are not converted
+	multi byte characters anyway.
+
+-	SunPro Make: Added a fgetws() emulation to the file
+	sunpro/Make/bin/make/common/rep.cc, based on fgets() and mbtowcs()
+	to serve the needs of Ultrix in that source file.
+
+-	SunPro Make: Added a workaround for a missing readlink() prototype
+	on Ultrix to the file sunpro/Make/lib/vroot/src/readlink.cc
+
+-	SunPro Make: new version date
+
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

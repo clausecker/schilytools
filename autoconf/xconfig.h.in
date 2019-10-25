@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.277 19/09/05 Copyright 1998-2019 J. Schilling */
+/* @(#)xconfig.h.in	1.279 19/10/22 Copyright 1998-2019 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -572,6 +572,11 @@
 #undef HAVE_WCSWIDTH		/* wcswidth() is present in libc */
 #undef HAVE_WCTYPE		/* wctype() is present in libc */
 #undef HAVE_ISWCTYPE		/* iswctype() is present in libc */
+#undef HAVE_FGETWS		/* fgetws() is present in libc */
+#undef HAVE_WCSTOL		/* wcstol() is present in libc */
+#undef HAVE_WCSTOLL		/* wcstoul() is present in libc */
+#undef HAVE_WCSTOUL		/* wcstoul() is present in libc */
+#undef HAVE_WCSTOULL		/* wcstoull() is present in libc */
 
 
 #undef HAVE_CHFLAGS		/* chflags() is present in libc */

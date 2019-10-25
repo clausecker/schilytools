@@ -1,4 +1,4 @@
-/* @(#)snprintf.c	1.16 19/10/19 Copyright 1985, 1996-2019 J. Schilling */
+/* @(#)vsnprintf.c	1.1 19/10/19 Copyright 1985, 1996-2019 J. Schilling */
 /*
  *	Copyright (c) 1985, 1996-2019 J. Schilling
  */
@@ -16,7 +16,7 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	snprintf __nothing__	/* prototype may be wrong (e.g. IRIX) */
+#define	vsnprintf __nothing__	/* prototype may be wrong (e.g. IRIX) */
 #include <schily/mconfig.h>
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
 #include <schily/stdio.h>	/* Try again for size_t	*/
@@ -24,15 +24,15 @@
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
-#undef	snprintf
+#undef	vsnprintf
 
 /*
- * If PORT_ONLY is defined, snprintf() will only be compiled in if it is
+ * If PORT_ONLY is defined, vsnprintf() will only be compiled in if it is
  * missing on the local platform. This is used by e.g. libschily.
  */
-#if	!defined(HAVE_SNPRINTF) || !defined(PORT_ONLY)
+#if	!defined(HAVE_VSNPRINTF) || !defined(PORT_ONLY)
 
-EXPORT	int snprintf __PR((char *, size_t maxcnt, const char *, ...));
+EXPORT	int vsnprintf __PR((char *, size_t maxcnt, const char *, va_list));
 
 typedef struct {
 	char	*ptr;
@@ -61,33 +61,20 @@ _cput(c, l)
 	}
 }
 
-/* VARARGS2 */
-#ifdef	PROTOTYPES
 EXPORT int
-snprintf(char *buf, size_t maxcnt, const char *form, ...)
-#else
-EXPORT int
-snprintf(buf, maxcnt, form, va_alist)
+vsnprintf(buf, maxcnt, form, args)
 	char		*buf;
 	size_t		maxcnt;
 	const char	*form;
-	va_dcl
-#endif
+	va_list		args;
 {
-	va_list	args;
 	int	cnt;
 	_BUF	bb;
 
 	bb.ptr = buf;
 	bb.count = maxcnt;
 
-#ifdef	PROTOTYPES
-	va_start(args, form);
-#else
-	va_start(args);
-#endif
-	cnt = format(_cput, &bb, form,  args);
-	va_end(args);
+	cnt = format(_cput, &bb, form, args);
 	if (maxcnt > 0)
 		*(bb.ptr) = '\0';
 	if (bb.count < 0)
@@ -96,4 +83,4 @@ snprintf(buf, maxcnt, form, va_alist)
 	return (cnt);
 }
 
-#endif	/* !defined(HAVE_SNPRINTF) || !defined(PORT_ONLY) */
+#endif	/* !defined(HAVE_VSNPRINTF) || !defined(PORT_ONLY) */

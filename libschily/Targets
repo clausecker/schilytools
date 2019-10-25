@@ -1,4 +1,4 @@
-# @(#)Targets	1.66 19/08/16 Copyright 1995-2018 J. Schilling
+# @(#)Targets	1.68 19/10/22 Copyright 1995-2018 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -76,12 +76,14 @@ CFILES_REST=	abspath.c \
 		timegm.c \
 		uid.c unlinkat.c uname.c unsetenv.c \
 		usleep.c utimens.c utimensat.c \
+		vsnprintf.c \
 		waitid.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c wcscspn.c \
 		wcsdup.c wcseql.c wcslen.c \
 		wcslcat.c wcslcatl.c wcslcpy.c wcsncat.c wcsncmp.c \
 		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsspn.c wcsstr.c \
 		wctype.c \
+		wcastoi.c \
 		wdabort.c \
 		zerobytes.c
 

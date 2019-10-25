@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)doname.cc	1.115	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)doname.cc	1.21 19/01/07 2017-2019 J. Schilling
+ * @(#)doname.cc	1.23 19/10/17 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.21 19/01/07 2017-2019 J. Schilling";
+	"@(#)doname.cc	1.23 19/10/17 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -70,14 +70,24 @@ static	UConst char sccsid[] =
 #include <mksh/i18n.h>		/* get_char_semantics_value() */
 #include <mksh/macro.h>		/* getvar(), expand_value() */
 #include <mksh/misc.h>		/* getmem() */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/poll.h>
+#else
 #include <poll.h>
+#endif
 
 #ifdef PARALLEL
 #	include <rx/api.h>
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/utsname.h>	/* uname() */
+#include <schily/wait.h>
+#else
 #include <sys/utsname.h>	/* uname() */
 #include <sys/wait.h>
+#define	WAIT_T	int
+#endif
 
 /*
  * Defined macros
@@ -3788,13 +3798,28 @@ rxmGetNextResultsBlock(int fd)
 static int
 us_sleep(unsigned int nusecs)
 {
+#ifdef	HAVE_POLL
 	struct pollfd dummy;
 	int timeout;
 
 	if ((timeout = nusecs/1000) <= 0) {
 		timeout = 1;
 	}
-	return poll(&dummy, 0, timeout);
+	return (poll(&dummy, 0, timeout));
+#else
+#ifdef	HAVE_SELECT
+	struct timeval tv;
+
+	tv.tv_sec = 0
+	tv.tv_usec = nusecs;
+	if (tv.tv_usec <= 0) {
+		tv.tv_usec = 1000;
+	}
+	return (select(0, 0, 0, 0, &tv));
+#else
+	sleep((999999+nusecs)/1000000);
+#endif
+#endif
 }
 #endif /* TEAMWARE_MAKE_CMN */
 

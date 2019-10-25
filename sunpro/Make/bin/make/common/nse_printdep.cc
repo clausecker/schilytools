@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)nse_printdep.cc	1.18	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)nse_printdep.cc	1.6 18/03/15 2017-2018 J. Schilling
+ * @(#)nse_printdep.cc	1.7 19/10/19 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)nse_printdep.cc	1.6 18/03/15 2017-2018 J. Schilling";
+	"@(#)nse_printdep.cc	1.7 19/10/19 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -259,7 +259,7 @@ print_deplist(Dependency head)
 		    ((!dp->automatic) ||
 		     (dp->name->is_double_colon))) {
 			if (dp->name != force) {
-				putwchar(' ');
+				putchar(' ');
 				print_filename(dp->name);
 			}
 		}
@@ -276,7 +276,7 @@ print_filename(Name name)
 	(void) printf("%s", name->string_mb);
 /*
 	if (name->stat.is_dir) {
-		putwchar('/');
+		putchar('/');
 	}
  */
 }

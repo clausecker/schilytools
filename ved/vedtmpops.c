@@ -1,13 +1,13 @@
-/* @(#)vedtmpops.c	1.36 18/08/26 Copyright 1988, 1993-2018 J. Schilling */
+/* @(#)vedtmpops.c	1.37 19/10/17 Copyright 1988, 1993-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedtmpops.c	1.36 18/08/26 Copyright 1988, 1993-2018 J. Schilling";
+	"@(#)vedtmpops.c	1.37 19/10/17 Copyright 1988, 1993-2019 J. Schilling";
 #endif
 /*
  *	Routines that deal with reading/writing of .vedtmp files
  *
- *	Copyright (c) 1988, 1993-2018 J. Schilling
+ *	Copyright (c) 1988, 1993-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -137,6 +137,8 @@ write_vedtmp(wp, f, writefunc, inedit)
 		writefunc(wp, f, str, strlen(C str), uvedtmp);
 		fflush(f); fileseek(f, filesize(f));
 	} else {
+		off_t	off;
+
 		/*
 		 * Filename is already in the .vedtmp file.
 		 * Skip over the entries before.
@@ -153,7 +155,9 @@ write_vedtmp(wp, f, writefunc, inedit)
 			snprintf(C str, sizeof (str), "%13d\n", idx);
 			writefunc(wp, f, str, strlen(C str), uvedtmp);
 		}
-		fflush(f); fileseek(f, filepos(f));
+		off = filepos(f);
+		fflush(f);
+		fileseek(f, off);
 	}
 	slen = strlen(C wp->curfile)+1;
 	writefunc(wp, f, wp->curfile, slen, uvedtmp);

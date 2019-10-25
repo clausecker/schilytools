@@ -1,8 +1,8 @@
-/* @(#)getopt.h	1.1 18/11/08 Copyright 2018 J. Schilling */
+/* @(#)getopt.h	1.2 19/10/23 Copyright 2018-2019 J. Schilling */
 /*
  *	Definitions for the enhanced getopt() from libgetopt
  *
- *	Copyright (c) 2018 J. Schilling
+ *	Copyright (c) 2018-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,9 +40,41 @@ extern "C" {
 #endif
 
 /*
- * Additional external variables defined by the AT&T getopt().
+ * The POSIX variables for getopt():
+ *
+ * Init value	name	explanation
+ * 1		optind	Next argv[] index to scan, argv index of failing option
+ * 1		opterr	If 0, do not print error messages from within getopt()
+ * 0		optopt	The option character that caused the error.
+ * NULL		optarg	Pointer to the option argument.
  */
-extern	int	opt_sp;
+extern	int	optind;
+extern	int	opterr;
+extern	int	optopt;
+extern	char	*optarg;
+
+/*
+ * Additional external variables defined by the AT&T getopt().
+ *
+ * The original from AT&T used _sp, but we changed that to opt_sp to make sure
+ * that nobody is able to link an updated Solaris program with getopt() from
+ * the old Solaris libc variants.
+ *
+ * The initial value is 1, since that is the first option character after '-'.
+ */
+extern	int	opt_sp;		/* Current index for combined option strings */
+
+/*
+ * Additional external variables defined by Schily getopt() extensions.
+ *
+ * The initial value is 0.
+ */
+extern	int	optflags;
+
+/*
+ * Definitions for optflags...
+ */
+#define	OPT_PLUS	1	/* The current option is of type +o, not -o */
 
 #ifdef	__cplusplus
 }

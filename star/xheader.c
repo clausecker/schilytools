@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.100 19/08/07 Copyright 2001-2019 J. Schilling */
+/* @(#)xheader.c	1.101 19/10/13 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.100 19/08/07 Copyright 2001-2019 J. Schilling";
+	"@(#)xheader.c	1.101 19/10/13 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -112,6 +112,8 @@ LOCAL	void	get_realsize	__PR((FINFO *info, char *keyword, int klen, char *arg, i
 LOCAL	void	get_offset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_minorbits	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
@@ -228,6 +230,8 @@ LOCAL xtab_t xtab[] = {
 #endif
 			{ "SCHILY.dev",		10, get_dev,	0	},
 			{ "SCHILY.devminorbits", 19, get_minorbits,	0	},
+			{ "SCHILY.fsdevmajor",	17, get_fsmajor, 0	},
+			{ "SCHILY.fsdevminor",	17, get_fsminor, 0	},
 			{ "SCHILY.ino",		10, get_ino,	0	},
 			{ "SCHILY.nlink",	12, get_nlink,	0	},
 			{ "SCHILY.filetype",	15, get_filetype, 0	},
@@ -553,6 +557,10 @@ extern char	*textfromflags	__PR((FINFO *, char *));
 #endif
 
 	if (dodump) {
+#ifdef	__future__
+		gen_unumber("SCHILY.fsdevmajor", (Ullong)major(info->f_dev));
+		gen_unumber("SCHILY.fsdevminor", (Ullong)minor(info->f_dev));
+#endif
 		/* LINTED */
 		if (info->f_dev >= 0)
 			gen_unumber("SCHILY.dev", (Ullong)info->f_dev);
@@ -2076,6 +2084,86 @@ get_minor(info, keyword, klen, arg, len)
 }
 
 /*
+ * get major device number for st_dev (always vendor unique)
+ * The major device number should be unsigned but POSIX does not say anything
+ * about the content and defined dev_t to be a signed int.
+ */
+/* ARGSUSED */
+LOCAL void
+get_fsmajor(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	Ullong	ull;
+	BOOL	neg = FALSE;
+	dev_t	d;
+
+	if (len == 0) {
+		info->f_xflags &= ~XF_FSDEVMAJOR;
+		return;
+	}
+	if (get_snumber(keyword, arg, &ull, &neg,
+					-(Ullong)MAJOR_T_MIN, MAJOR_T_MAX)) {
+		info->f_xflags |= XF_FSDEVMAJOR;
+		if (neg)
+			info->f_devmaj = -ull;
+		else
+			info->f_devmaj = ull;
+		d = makedev(info->f_devmaj, 0);
+		d = major(d);
+		if ((neg && -d != ull) || (!neg && d != ull)) {
+			xh_rangeerr(keyword, arg, len);
+			info->f_flags |= F_BAD_META;
+		}
+	}
+	if (info->f_xflags & XF_FSDEVMINOR)
+		info->f_dev = makedev(info->f_devmaj, info->f_devmin);
+}
+
+/*
+ * get minor device number for st_dev (always vendor unique)
+ * The minor device number should be unsigned but POSIX does not say anything
+ * about the content and defined dev_t to be a signed int.
+ */
+/* ARGSUSED */
+LOCAL void
+get_fsminor(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	Ullong	ull;
+	BOOL	neg = FALSE;
+	dev_t	d;
+
+	if (len == 0) {
+		info->f_xflags &= ~XF_FSDEVMINOR;
+		return;
+	}
+	if (get_snumber(keyword, arg, &ull, &neg,
+					-(Ullong)MINOR_T_MIN, MINOR_T_MAX)) {
+		info->f_xflags |= XF_FSDEVMINOR;
+		if (neg)
+			info->f_devmin = -ull;
+		else
+			info->f_devmin = ull;
+		d = makedev(0, info->f_devmin);
+		d = minor(d);
+		if ((neg && -d != ull) || (!neg && d != ull)) {
+			xh_rangeerr(keyword, arg, len);
+			info->f_flags |= F_BAD_META;
+		}
+	}
+	if (info->f_xflags & XF_FSDEVMAJOR)
+		info->f_dev = makedev(info->f_devmaj, info->f_devmin);
+}
+
+/*
  * get number of minor bits for this file (vendor unique)
  * This is naturally unsigned.
  */
@@ -2120,12 +2208,18 @@ get_dev(info, keyword, klen, arg, len)
 	Ullong	ull;
 	BOOL	neg = FALSE;
 
-	info->f_devmaj = 0;
-	info->f_devmin = 0;
 	if (len == 0) {
 		info->f_dev = 0;
 		return;
 	}
+	/*
+	 * SCHILY.fsdevmajor and SCHILY.fsdevminor win
+	 */
+	if (info->f_xflags & (XF_FSDEVMAJOR|XF_FSDEVMINOR))
+		return;
+
+	info->f_devmaj = 0;
+	info->f_devmin = 0;
 	if (get_snumber(keyword, arg, &ull, &neg,
 					-(Ullong)DEV_T_MIN, DEV_T_MAX)) {
 		int	mbits;

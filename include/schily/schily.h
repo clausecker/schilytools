@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.130 18/10/14 Copyright 1985-2018 J. Schilling */
+/* @(#)schily.h	1.131 19/10/16 Copyright 1985-2018 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -310,7 +310,7 @@ extern	time_t		mkgmtime	__PR((struct tm *));
 #define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
 #define	GP_UMASK	8	/* TRUE if we implement umask		  */
 
-extern	int	getperm	__PR((FILE *f, char *perm, char *opname, \
+extern	int	getperm	__PR((FILE *f, char *perm, char *opname,
 				mode_t *modep, int smode, int flag));
 extern	void	permtostr	__PR((mode_t mode, char *));
 #endif

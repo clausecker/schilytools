@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.295 19/05/15 Copyright 1998-2019 J. Schilling
+dnl @(#)configure.in	1.297 19/10/22 Copyright 1998-2019 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.295)dnl
+AC_REVISION(1.297)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -622,7 +622,8 @@ AC_CHECK_DFUNCS([
 #endif
 ], wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr wcsstr wcsspn wcscspn)
 
-AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
+AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype wcstol wcstoll wcstoul wcstoull)
+AC_CHECK_FUNCS(fgetws)
 AC_CHECK_FUNCS(basename dirname)
 AC_CHECK_FUNCS(pathconf fpathconf lpathconf)
 AC_CHECK_FUNCS(malloc calloc valloc realloc memalign posix_memalign)

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# @(#)makeinc	1.8 14/03/24 Copyright 1998-2014 J. Schilling
+# @(#)makeinc	1.9 19/10/16 Copyright 1998-2019 J. Schilling
 ###########################################################################
-# Copyright 1998-2014 by J. Schilling
+# Copyright 1998-2019 by J. Schilling
 ###########################################################################
 #
 # Automake script for the Schily (SING) makefile system
@@ -104,16 +104,16 @@ echo "CC:		$CC"
 #
 # Call $CC and try to find out whether it might be "gcc" or "clang".
 #
-CC_V=`eval "$CC -v > /dev/null" 2>&1`
+CC_V=`(eval "$CC -v > /dev/null") 2>&1`
 GCC_V=`echo "$CC_V" | grep -i gcc-version `
 CLANG_V=`echo "$CC_V" | grep -i clang `
 
 if [ ".$GCC_V" != . ]; then
-	if eval "gcc -v 2> /dev/null" 2>/dev/null; then
+	if (eval "gcc -v 2> /dev/null") 2>/dev/null; then
 		CC="gcc"
 	fi
 elif [ ".$CLANG_V" != . ]; then
-	if eval "clang -v 2> /dev/null" 2>/dev/null; then
+	if (eval "clang -v 2> /dev/null") 2>/dev/null; then
 		CC="clang"
 	fi
 fi

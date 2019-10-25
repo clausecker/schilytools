@@ -1,8 +1,8 @@
-/* @(#)send.c	1.6 18/08/22 Copyright 2011-2018 J. Schilling */
+/* @(#)send.c	1.7 19/10/13 Copyright 2011-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)send.c	1.6 18/08/22 Copyright 2011-2018 J. Schilling";
+	"@(#)send.c	1.7 19/10/13 Copyright 2011-2018 J. Schilling";
 #endif
 /*
  *	Send data for a StreamArchive to the output file
@@ -143,8 +143,13 @@ strar_st_send(s, sp)
 	if (xflags & XF_MODE)
 		strar_gen_text("mode", buf, -1, 0);
 
-	if (xflags & XF_DEV)
+	if (xflags & XF_DEV) {
+#ifdef	__future__
+		strar_gen_number("fsdevmajor", (long long)major(sp->st_dev));
+		strar_gen_number("fsdevminor", (long long)minor(sp->st_dev));
+#endif
 		strar_gen_number("dev", (long long)sp->st_dev);
+	}
 
 	if (xflags & XF_INO)
 		strar_gen_number("ino", (long long)sp->st_ino);

@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.87 19/09/05 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling */
+/* @(#)ved.c	1.88 19/10/17 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.87 19/09/05 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling";
+	"@(#)ved.c	1.88 19/10/17 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -185,7 +185,9 @@ main(ac, av)
 	/*
 	 * Look for being called as ved-e or ved-w
 	 */
-	if ((errstr = (Uchar *)strrchr(av[0], '-')) != NULL) {
+	if ((errstr = (Uchar *)strrchr(av[0], '/')) == NULL)
+		errstr = (Uchar *)av[0];
+	if ((errstr = (Uchar *)strchr(C errstr, '-')) != NULL) {
 		errstr++;
 		if (strchr((char *)errstr, 'e'))
 			noedtmp = 1;

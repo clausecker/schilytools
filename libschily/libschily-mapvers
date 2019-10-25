@@ -1,7 +1,13 @@
-# /* @(#)libschily-mapvers	1.63 18/10/14 Copyright 2005-2018 J. Schilling */
+# /* @(#)libschily-mapvers	1.65 19/10/22 Copyright 2005-2019 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_2.0 {
+#ifndef	HAVE_WCSTOL
+	wcstol;
+#endif
+#ifndef	HAVE_VSNPRINTF
+	vsnprintf;	#
+#endif
 	ovstrcpy;
 	mkfstream;	# New allocator because structure did grow
 	fsgetc;		# Always use central funtion in new version

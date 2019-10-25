@@ -1,8 +1,8 @@
-/* @(#)header.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling */
+/* @(#)header.c	1.94 19/10/13 Copyright 2001-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.93 18/05/17 Copyright 2001-2018 J. Schilling";
+	"@(#)header.c	1.94 19/10/13 Copyright 2001-2018 J. Schilling";
 #endif
 /*
  *	Handling routines for StreamArchive header metadata.
@@ -128,6 +128,8 @@ LOCAL	void	get_status	__PR((FINFO *info, char *keyword, int klen, char *arg, int
 LOCAL	void	get_mode	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
@@ -194,6 +196,8 @@ LOCAL xtab_t xtab[] = {
 			{ "devminor",		8, get_minor,	0	},
 
 			{ "dev",		3, get_dev,	0	},
+			{ "fsdevmajor",		10, get_fsmajor, 0	},
+			{ "fsdevminor",		10, get_fsminor, 0	},
 			{ "ino",		3, get_ino,	0	},
 			{ "nlink",		5, get_nlink,	0	},
 
@@ -1494,6 +1498,86 @@ get_minor(info, keyword, klen, arg, len)
 }
 
 /*
+ * get major device number for st_dev (always vendor unique)
+ * The major device number should be unsigned but POSIX does not say anything
+ * about the content and defined dev_t to be a signed int.
+ */
+/* ARGSUSED */
+LOCAL void
+get_fsmajor(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	Ullong	ull;
+	BOOL	neg = FALSE;
+	dev_t	d;
+
+	if (len == 0) {
+		info->f_xflags &= ~XF_FSDEVMAJOR;
+		return;
+	}
+	if (get_snumber(keyword, arg, &ull, &neg,
+					-(Ullong)MAJOR_T_MIN, MAJOR_T_MAX)) {
+		info->f_xflags |= XF_FSDEVMAJOR;
+		if (neg)
+			info->f_devmaj = -ull;
+		else
+			info->f_devmaj = ull;
+		d = makedev(info->f_devmaj, 0);
+		d = major(d);
+		if ((neg && -d != ull) || (!neg && d != ull)) {
+			xh_rangeerr(keyword, arg, len);
+			info->f_flags |= F_BAD_META;
+		}
+	}
+	if (info->f_xflags & XF_FSDEVMINOR)
+		info->f_dev = makedev(info->f_devmaj, info->f_devmin);
+}
+
+/*
+ * get minor device number for st_dev (always vendor unique)
+ * The minor device number should be unsigned but POSIX does not say anything
+ * about the content and defined dev_t to be a signed int.
+ */
+/* ARGSUSED */
+LOCAL void
+get_fsminor(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	Ullong	ull;
+	BOOL	neg = FALSE;
+	dev_t	d;
+
+	if (len == 0) {
+		info->f_xflags &= ~XF_FSDEVMINOR;
+		return;
+	}
+	if (get_snumber(keyword, arg, &ull, &neg,
+					-(Ullong)MINOR_T_MIN, MINOR_T_MAX)) {
+		info->f_xflags |= XF_FSDEVMINOR;
+		if (neg)
+			info->f_devmin = -ull;
+		else
+			info->f_devmin = ull;
+		d = makedev(0, info->f_devmin);
+		d = minor(d);
+		if ((neg && -d != ull) || (!neg && d != ull)) {
+			xh_rangeerr(keyword, arg, len);
+			info->f_flags |= F_BAD_META;
+		}
+	}
+	if (info->f_xflags & XF_FSDEVMAJOR)
+		info->f_dev = makedev(info->f_devmaj, info->f_devmin);
+}
+
+/*
  * get device number of device containing FS (vendor unique)
  * The device number should be unsigned but POSIX does not say anything
  * about the content and defined dev_t to be a signed int.
@@ -1514,6 +1598,12 @@ get_dev(info, keyword, klen, arg, len)
 		info->f_dev = 0;
 		return;
 	}
+	/*
+	 * fsdevmajor and fsdevminor win
+	 */
+	if (info->f_xflags & (XF_FSDEVMAJOR|XF_FSDEVMINOR))
+		return;
+
 	if (get_snumber(keyword, arg, &ull, &neg,
 					-(Ullong)DEV_T_MIN, DEV_T_MAX)) {
 		if (neg)

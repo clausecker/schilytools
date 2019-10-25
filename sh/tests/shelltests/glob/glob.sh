@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)glob.sh	1.8 17/08/20 Copyright 2016 J. Schilling
+# @(#)glob.sh	1.9 19/10/15 Copyright 2016-2019 J. Schilling
 #
 
 # Read test core functions
@@ -136,10 +136,10 @@ remove abc
 #
 # glob-range-3
 # ISO-8859-1 matching
-# Will not pass in Linux systems
-:> "aÂc"
+# Will not pass in Linux or Apple systems
+#:> "aÂc"
 #docommand glob03 "$SHELL -c 'echo a[Á-Ú]*'" 0 "aÂc\n" ""
-remove "aÂc"
+#remove "aÂc"
 
 :>.bc
 docommand glob04 "$SHELL -c 'echo [a.]*'" 0 "[a.]*\n" ""

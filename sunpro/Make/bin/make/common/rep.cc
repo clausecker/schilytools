@@ -33,12 +33,12 @@
 /*
  * This file contains modifications Copyright 2017-2019 J. Schilling
  *
- * @(#)rep.cc	1.8 19/08/12 2017-2019 J. Schilling
+ * @(#)rep.cc	1.9 19/10/19 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rep.cc	1.8 19/08/12 2017-2019 J. Schilling";
+	"@(#)rep.cc	1.9 19/10/19 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -74,6 +74,35 @@ using namespace std;		/* needed for wcsdup() */
 static	Recursive_make	recursive_list;
 static	Recursive_make	*bpatch = &recursive_list;
 static	Boolean		changed;
+
+#ifndef	HAVE_FGETWS
+wchar_t *
+fgetws(wchar_t *ws, int n, FILE *f)
+{
+	char	buf[MAXPATHLEN];
+	char	*bp = buf;
+	char	*p;
+
+	if (n > sizeof (n))
+		bp = getmem(n);
+
+	p = fgets(bp, n, f);
+	if (p == NULL) {
+		ws = (wchar_t *)0;
+		goto out;
+	}
+
+	if (mbstowcs(ws, buf, n) < 0) {
+		ws = (wchar_t *)0;
+		goto out;
+	}
+
+out:
+	if (bp != buf)
+		free(bp);
+	return (ws);
+}
+#endif
 
 /*
  * File table of contents

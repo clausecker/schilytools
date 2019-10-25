@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)misc.cc	1.31	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)misc.cc	1.13 18/04/16 2017-2018 J. Schilling
+ * @(#)misc.cc	1.14 19/10/17 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.13 18/04/16 2017-2018 J. Schilling";
+	"@(#)misc.cc	1.14 19/10/17 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -59,7 +59,12 @@ static	UConst char sccsid[] =
 #include <mksh/i18n.h>		/* get_char_semantics_value() */
 #include <mksh/misc.h>
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/wait.h>	/* wait() */
+#else
 #include <sys/wait.h>		/* wait() */
+#define	WAIT_T	int
+#endif
 
 /*
  * Defined macros
@@ -877,11 +882,7 @@ handle_interrupt_mksh(int)
 		kill(childPid, SIGTERM);
 		childPid = -1;
 	}
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-	while (wait((int *) NULL) != -1);
-#else
-	while (wait((union wait *) NULL) != -1);
-#endif
+	while (wait((WAIT_T *) NULL) != -1);
 	exit_status = 2;
 	exit(2);
 }

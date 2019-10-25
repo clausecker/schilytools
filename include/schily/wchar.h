@@ -1,8 +1,8 @@
-/* @(#)wchar.h	1.23 18/05/17 Copyright 2007-2018 J. Schilling */
+/* @(#)wchar.h	1.25 19/10/16 Copyright 2007-2019 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
- *	Copyright (c) 2007-2018 J. Schilling
+ *	Copyright (c) 2007-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -54,13 +54,6 @@
 #endif
 #endif
 
-#ifdef	HAVE_WCHAR_H
-
-#ifndef	_INCL_WCHAR_H
-#include <wchar.h>
-#define	_INCL_WCHAR_H
-#endif
-
 #ifndef	HAVE_MBSINIT
 #define	mbsinit(sp)			((int)((sp) == 0))
 #endif
@@ -71,16 +64,23 @@
 #define	wcrtomb(cp, wc, sp)		wctomb(cp, wc)
 #endif
 
+#ifdef	HAVE_WCHAR_H
+#ifndef	_INCL_WCHAR_H
+#include <wchar.h>
+#define	_INCL_WCHAR_H
+#endif
+#endif	/* !HAVE_WCHAR_H */
+
 #ifndef	USE_WCHAR
 #define	USE_WCHAR
 #endif
 
-#else	/* HAVE_WCHAR_H */
-
-#undef	USE_WCHAR
-#endif	/* !HAVE_WCHAR_H */
-
-#if	!defined(HAVE_WCTYPE_H) && !defined(HAVE_ISWPRINT)
+/*
+ * HP-UX-10.20 and Ultrix do not have wchar.h but they have wchar_t in stdlib.h
+ * and the compiler understands L'a'. So disable USE_WCHAR / USE_WCTYPE only in
+ * case that wchar_t or L'a' support is missing.
+ */
+#if	!defined(HAVE_WCTYPE_H) && (SIZEOF_WCHAR == 0 || SIZEOF_WCHAR_T == 0)
 #undef	USE_WCHAR
 #undef	USE_WCTYPE
 #endif

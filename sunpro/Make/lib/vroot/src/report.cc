@@ -29,22 +29,32 @@
 #pragma	ident	"@(#)report.cc	1.17	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)report.cc	1.11 18/03/25 2017-2018 J. Schilling
+ * @(#)report.cc	1.12 19/10/17 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)report.cc	1.11 18/03/25 2017-2018 J. Schilling";
+	"@(#)report.cc	1.12 19/10/17 2017-2019 J. Schilling";
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdio.h>
+#include <schily/stdlib.h>
+#include <schily/string.h>
+#include <schily/param.h>
+#include <schily/wait.h>
+#include <schily/unistd.h>
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/param.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#define	WAIT_T	int
+#endif
 
 #include <vroot/report.h>
 #include <vroot/vroot.h>
@@ -377,7 +387,7 @@ make_it(filename)
 	register char	*command;
 	register char	*argv[6];
 	register int	pid;
-	union wait	foo;
+	WAIT_T		foo;
 
 	if (getenv(SUNPRO_DEPENDENCIES) == NULL) return;
 	command= alloca(strlen(filename)+32);

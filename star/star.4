@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.39 19/03/19 Copyr 2003-2018 J. Schilling
+. \" @(#)star.4	1.40 19/10/13 Copyr 2003-2018 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "2019/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "2019/10/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -1815,6 +1815,32 @@ Any other unknown file type.
 This should never happen.
 
 .RE
+.TP
+.B SCHILY.fsdevmajor
+The device major number of the file (from
+.BR st_dev ).
+This keyword is used in
+.B dump
+mode.
+The argument is a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
+.TP
+.B SCHILY.fsdevminor
+The device minor number of the file (from
+.BR st_dev ).
+This keyword is used in
+.B dump
+mode.
+The argument is a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
 .TP
 .B SCHILY.ino
 The inode number from

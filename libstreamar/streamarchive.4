@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)streamarchive.4	1.4 18/08/31 Copyr 2017-2018 J. Schilling
+. \" @(#)streamarchive.4	1.5 19/10/13 Copyr 2017-2018 J. Schilling
 . \" StreamArchive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -17,7 +17,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STREAMARCHIVE 4L "2018/08/31" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STREAMARCHIVE 4L "2019/10/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 streamarchive \- StreamArchive file format
 .SH DESCRIPTION
@@ -270,6 +270,26 @@ The following additional file types are used in
 A hard link to any file type.
 .RE
 
+.TP
+.B fsdevmajor
+The device major number of the file (from
+.BR st_dev )
+as a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
+.TP
+.B fsdevminor
+The device minor number of the file (from
+.BR st_dev ).
+as a decimal number.
+.sp
+The value is a signed int.
+An implementation should be able to handle at least 64 bit values.
+Note that the value is signed because POSIX does not specify
+more than the type should be an int.
 .TP
 .B gid
 The group ID of the group that owns the file.

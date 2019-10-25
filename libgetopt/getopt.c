@@ -24,12 +24,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2017 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)getopt.c	1.19 19/02/21 J. Schilling
+ * @(#)getopt.c	1.20 19/10/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.19 19/02/21 J. Schilling"
+#pragma ident "@(#)getopt.c 1.20 19/10/23 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -65,6 +65,7 @@
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/stdio.h>
+#include <schily/getopt.h>
 #ifndef	HAVE_SNPRINTF
 #include <schily/schily.h>
 #define	snprintf	js_snprintf
@@ -81,6 +82,7 @@
  *	that is in conflict with our standard definition.
  */
 extern int optind, opterr, optopt;
+extern int optflags;
 extern char *optarg;
 #endif
 
@@ -100,7 +102,7 @@ static char *parselong  __PR((const char *optstring, const char *opt,
  * that would require moving the 'optstring[0]' test outside of the
  * function.
  */
-#define	ERR(s, c, i)	if (opterr && optstring[0] != ':') { \
+#define	ERR(s, c, i)	if (opterr && !colon) { \
 	char errbuf[256]; \
 	char cbuf[2]; \
 	cbuf[0] = c; \
@@ -295,7 +297,31 @@ getopt(argc, argv, optstring)
 	int	longopt;
 	char	*longoptarg = NULL;
 	int	l = 2;
+#ifdef	DO_GETOPT_PLUS
+	int	isplus;		/* The current option starts with a '+' char */
+	int	plus = 0;	/* Found a '+' at the beginning of optstring */
+#endif
+	int	colon = 0;	/* Found a ':' at the beginning of optstring */
 
+	while ((c = *optstring) != '\0') {
+		switch (c) {
+
+#ifdef	DO_GETOPT_PLUS
+		case '+':
+			plus = 1;
+			optstring++;
+			continue;
+#endif
+		case ':':
+			colon = 1;
+			optstring++;
+			continue;
+		case '(':
+		default:
+			break;
+		}
+		break;
+	}
 	/*
 	 * Has the end of the options been encountered?  The following
 	 * implements the SUS requirements:
@@ -309,7 +335,12 @@ getopt(argc, argv, optstring)
 	 * getopt() returns -1 after incrementing optind.
 	 */
 	if (optind >= argc || argv[optind] == NULL ||
-	    argv[optind][0] != '-' || argv[optind][1] == '\0') {
+#ifdef	DO_GETOPT_PLUS
+	    ((!plus || argv[optind][0] != '+') && argv[optind][0] != '-') ||
+#else
+	    argv[optind][0] != '-' ||
+#endif
+	    argv[optind][1] == '\0') {
 		return (-1);
 	} else if (argv[optind][0] == '-' && argv[optind][1] == '-' &&
 	    argv[optind][2] == '\0') {		/* "--" */
@@ -339,13 +370,18 @@ getopt(argc, argv, optstring)
 	optopt = c = (unsigned char)argv[optind][_sp];
 	optarg = NULL;
 	longopt = (_sp == 1 && c == '-');
+#ifdef	DO_GETOPT_PLUS
+	isplus = plus && argv[optind][0] == '+';	/* actual option: +o */
+	optflags = isplus ? OPT_PLUS : 0;
+	if (isplus)
+		longopt = (_sp == 1 && c == '+');	/* check for ++xxx   */
+#endif
 #ifdef	DO_GETOPT_SDASH_LONG
 	/*
-	 * If optstring starts with "()", traditional UNIX -long options are
-	 * allowed in addition to --long.
+	 * If optstring starts with "()", traditional UNIX "-long" options are
+	 * allowed in addition to "--long".
 	 */
-	if (optstring[0] == '(' ||
-	    (optstring[0] == ':' && optstring[1] == '(')) {
+	if (optstring[0] == '(') {
 		if (!longopt && _sp == 1 &&
 		    c != '\0' && argv[optind][2] != '\0') {
 			longopt = l = 1;
@@ -357,7 +393,11 @@ tryshort:
 	    ((cp = parselong(optstring, argv[optind]+l, &longoptarg)) != NULL) :
 	    ((cp = parseshort(optstring, c)) != NULL))) {
 #ifdef	DO_GETOPT_SDASH_LONG
+#ifdef	DO_GETOPT_PLUS
+		if (longopt && optopt != (isplus ? '+' : '-')) {
+#else
 		if (longopt && optopt != '-') {
+#endif
 			/*
 			 * In case of "-long" retry as combined short options.
 			 */
@@ -431,7 +471,7 @@ tryshort:
 				c, (longopt ? optind - 1 : 0));
 			_sp = 1;
 			optarg = NULL;
-			return (optstring[0] == ':' ? ':' : '?');
+			return (colon ? ':' : '?');
 		} else
 			optarg = argv[optind++];
 		_sp = 1;

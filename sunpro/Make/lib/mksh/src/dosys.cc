@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)dosys.cc	1.38	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)dosys.cc	1.13 18/07/17 2017-2018 J. Schilling
+ * @(#)dosys.cc	1.15 19/10/17 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.13 18/07/17 2017-2018 J. Schilling";
+	"@(#)dosys.cc	1.15 19/10/17 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -66,6 +66,7 @@ static	UConst char sccsid[] =
 #include <schily/wait.h>	/* wait(), WIFEXITED(status) */
 #else
 #include <sys/wait.h>		/* wait(), WIFEXITED(status) */
+#define	WAIT_T	int
 #endif
 #if defined(sun) && !defined(HAVE_ULIMIT)
 #define	HAVE_ULIMIT
@@ -650,24 +651,7 @@ Boolean
 await(register Boolean ignore_error, register Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, void *xdrs_p, int job_msg_id)
 #endif
 {
-#ifdef SUN5_0
-        int                     status;
-#else
-#ifndef WEXITSTATUS
-#define WEXITSTATUS(stat)       stat.w_T.w_Retcode
-#endif
-#ifndef WTERMSIG
-#define WTERMSIG(stat)          stat.w_T.w_Termsig
-#endif
-#ifndef WCOREDUMP
-#define WCOREDUMP(stat)         stat.w_T.w_Coredump
-#endif
-#if defined (HP_UX) || defined (linux)
-	int			status;
-#else
-	union wait		status;
-#endif
-#endif
+	WAIT_T			status;
 	char			*buffer;
 	int			core_dumped;
 	int			exit_status;
@@ -691,8 +675,7 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 	(void) fflush(stdout);
 	(void) fflush(stderr);
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-        if (status == 0) {
+        if (*(int *)&status == 0) {
 
 #ifdef PRINT_EXIT_STATUS
 		warning_mksh(NOCATGETS("I'm in await(), and status is 0."));
@@ -703,12 +686,6 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 
 #ifdef PRINT_EXIT_STATUS
 	warning_mksh(NOCATGETS("I'm in await(), and status is *NOT* 0."));
-#endif
-
-#else
-        if (status.w_status == 0) {
-                return succeeded;
-	}
 #endif
 
         exit_status = WEXITSTATUS(status);

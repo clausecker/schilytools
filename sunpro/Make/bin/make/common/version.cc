@@ -1,17 +1,17 @@
-/* @(#)version.cc	1.17 19/07/19 Copyright 2017-2019 J. Schilling */
+/* @(#)version.cc	1.18 19/10/19 Copyright 2017-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)version.cc	1.17 19/07/19 Copyright 2017-2019 J. Schilling";
+	"@(#)version.cc	1.18 19/10/19 Copyright 2017-2019 J. Schilling";
 #endif
 
 /*
  * Copyright (c) 2019 J. Schilling
  *
- * @(#)version.cc	1.17 19/07/19 2017-2019 J. Schilling
+ * @(#)version.cc	1.18 19/10/19 2017-2019 J. Schilling
  */
 
-#define	VERSION_DATE	"2019/07/19"
+#define	VERSION_DATE	"2019/10/19"
 #define	VERSION_STR	"1.1"
 #ifdef	SCHILY_BUILD
 #define	VERSION_NAME	"Schily-Tools"

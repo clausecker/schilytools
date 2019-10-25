@@ -1,8 +1,8 @@
-/* @(#)defaults.c	1.18 19/09/27 Copyright 1998-2019 J. Schilling */
+/* @(#)defaults.c	1.19 19/10/13 Copyright 1998-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defaults.c	1.18 19/09/27 Copyright 1998-2019 J. Schilling";
+	"@(#)defaults.c	1.19 19/10/13 Copyright 1998-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2019 J. Schilling
@@ -108,7 +108,7 @@ star_defaults(fsp, no_fsyncp, secure_linkp, dfltname)
 	dfltname = get_stardefaults(dfltname);
 
 	if (getenv("STAR_NOHINT"))
-		nohint=TRUE;
+		nohint = TRUE;
 
 	if (fsp != NULL)
 		fs_cur = *fsp;

@@ -1,9 +1,9 @@
-/* @(#)libport.h	1.49 18/07/23 Copyright 1995-2018 J. Schilling */
+/* @(#)libport.h	1.51 19/10/22 Copyright 1995-2019 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
  *
- *	Copyright (c) 1995-2018 J. Schilling
+ *	Copyright (c) 1995-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -68,6 +68,11 @@ extern "C" {
 /*PRINTFLIKE3*/
 extern	int	snprintf __PR((char *, size_t, const char *, ...))
 					__printflike__(3, 4);
+#endif
+#ifndef	HAVE_VSNPRINTF
+#ifdef	_SCHILY_VARARGS_H
+extern	int	vsnprintf __PR((char *, size_t, const char *, va_list));
+#endif
 #endif
 #endif
 
@@ -209,6 +214,11 @@ extern	wchar_t		*wcsrchr	__PR((const wchar_t *s1, wchar_t c));
 #ifndef	HAVE_WCSSTR
 extern	wchar_t		*wcsstr		__PR((const wchar_t *s1,
 							const wchar_t *s2));
+#endif
+#ifndef	HAVE_WCSTOL
+extern	long		wcstol		__PR((const wchar_t *nptr,
+							wchar_t **endptr,
+							int base));
 #endif
 #endif	/* _SCHILY_WCHAR_H */
 

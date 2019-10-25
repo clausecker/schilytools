@@ -23,6 +23,11 @@
  * Copyright 2004 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * Copyright 2006-2019 J. Schilling
+ *
+ * @(#)opt_data.c	1.4 19/10/23 J. Schilling
+ */
 
 #if defined(sun)
 #pragma ident	"@(#)opt_data.c	1.11	05/06/08 SMI"
@@ -31,6 +36,7 @@
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/
 
+#include <schily/getopt.h>
 
 /*
  * Global variables
@@ -42,4 +48,5 @@
 int	opterr = 1;
 int	optind = 1;
 int	optopt = 0;
+int	optflags = 0;
 char	*optarg = 0;

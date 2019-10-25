@@ -30,17 +30,15 @@
 
 #pragma	ident	"@(#)parallel.cc	1.75	06/12/12"
 
-#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
-
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)parallel.cc	1.14 18/03/15 2017-2018 J. Schilling
+ * @(#)parallel.cc	1.17 19/10/19 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parallel.cc	1.14 18/03/15 2017-2018 J. Schilling";
+	"@(#)parallel.cc	1.17 19/10/19 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -61,12 +59,20 @@ static	UConst char sccsid[] =
 #ifdef TEAMWARE_MAKE_CMN
 #include <avo/util.h>		/* avo_get_user(), avo_hostname() */
 #endif
-#include <mk/defs.h>
+#include <mk/defs.h>		/* May #undef PMAKE on old platforms */
+
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 #include <mksh/dosys.h>		/* redirect_io() */
 #include <mksh/macro.h>		/* expand_value() */
 #include <mksh/misc.h>		/* getmem() */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/utsname.h>
+#include <schily/wait.h>
+#else
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#define	WAIT_T	int
+#endif
 
 #ifdef SGE_SUPPORT
 #include <dmthread/Avo_PathNames.h>
@@ -1460,7 +1466,11 @@ await_parallel(Boolean waitflg)
 			(void) alarm((int) update_delay);
 		}
 		pid = waitpid((pid_t)-1,
+#ifdef	ultrix
+			      (WAIT_T *)&status,
+#else
 			      &status,
+#endif
 			      nohang ? WNOHANG : 0);
 		waiterr = errno;
 		if (!nohang) {
@@ -2423,12 +2433,9 @@ run_rule_commands(char *host, char **commands)
 				errmsg(errno));
 			_exit(1);
 		} else {
-#if defined (HP_UX) || defined (linux) || defined (SUN5_0)
-			int		status;
-#else
-			union wait	status;
-#endif
-			pid_t pid;
+			WAIT_T	status;
+			pid_t	pid;
+
 			while ((pid = wait(&status)) != childPid) {
 				if (pid == -1) {
 					fprintf(stderr,

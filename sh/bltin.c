@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.140 19/08/27 2008-2019 J. Schilling
+ * @(#)bltin.c	1.141 19/10/25 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.140 19/08/27 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.141 19/10/25 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -954,8 +954,10 @@ builtin(type, argc, argv, t, xflags)
 		struct namnod *n;
 		extern unsigned char numbuf[];
 		unsigned char *varnam;
-		unsigned char c[2];
+		unsigned char c[3];	/* '+', 'c' and '\0' */
+		unsigned char *cptr;	/* points to + or to c */
 		unsigned char *cmdp = *argv;
+		unsigned char *optstring;
 
 #ifdef	DO_GETOPT_UTILS		/* For all builtins that support -- */
 		ind = optskip(argc, argv,
@@ -975,14 +977,19 @@ builtin(type, argc, argv, t, xflags)
 		if (optind <= 0)		/* Paranoia */
 			optind = 1;
 		varnam = argv[2];
+		optstring = argv[1];
+#ifndef	DO_GETOPT_PLUS
+		if (*optstring == '+')
+			optstring++;
+#endif
 		if (argc > 3) {
 			argv[2] = dolv[0];
 			getoptval = getopt(argc-2,
-					(char **)&argv[2], (char *)argv[1]);
+					(char **)&argv[2], (char *)optstring);
 			argv[2] = varnam;
 		} else {
 			getoptval = getopt(dolc+1,
-					(char **)dolv, (char *)argv[1]);
+					(char **)dolv, (char *)optstring);
 		}
 		if (getoptval == -1) {
 			itos(optind);
@@ -998,8 +1005,14 @@ builtin(type, argc, argv, t, xflags)
 		}
 		itos(optind);
 		assign(n, numbuf);
-		c[0] = (char)getoptval;
-		c[1] = '\0';
+		c[0] = '+';
+		c[1] = (char)getoptval;
+		c[2] = '\0';
+		cptr = &c[1];
+#ifdef	DO_GETOPT_PLUS
+		if (optflags & OPT_PLUS)
+			cptr = c;
+#endif
 		n = lookup(varnam);
 		if (getoptval > 256) {
 			/*
@@ -1008,12 +1021,20 @@ builtin(type, argc, argv, t, xflags)
 			 */
 #ifdef	DO_GETOPT_LONGONLY
 			itos(getoptval);
-			assign(n, numbuf);
+#ifdef	DO_GETOPT_PLUS
+			if (optflags & OPT_PLUS) {
+				unsigned char pnumbuf[64];
+				strcpy(C pnumbuf, "+");
+				strcat(C pnumbuf, C numbuf);
+				assign(n, pnumbuf);
+			} else
+#endif	/* DO_GETOPT_PLUS */
+				assign(n, numbuf);
 #else
 			assign(n, UC "?");	/* Pretend illegal option */
 #endif
 		} else
-			assign(n, c);
+			assign(n, cptr);
 		n = lookup(UC "OPTARG");
 		assign(n, UC optarg);
 #ifdef	DO_GETOPT_POSIX
@@ -1024,8 +1045,8 @@ builtin(type, argc, argv, t, xflags)
 		 */
 		if (optarg == NULL && argv[1][0] == ':' &&
 		    (getoptval == '?' || getoptval == ':')) {
-			c[0] = optopt;
-			assign(n, c);
+			c[1] = optopt;
+			assign(n, &c[1]);
 		}
 #endif
 		}

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.246 19/10/05 Copyright 2012-2019 J. Schilling
+.\" @(#)sh.1	1.247 19/10/25 Copyright 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2019/10/05" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2019/10/25" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4639,6 +4639,41 @@ starts with a colon,
 .B getopts
 prints an error message on the standard error when
 it encounters an option letter not included in optstring.
+.LP
+If
+.I optstring
+starts with a
+.RB `` + '',
+options in the form
+.BR +o ,
+.B +long\-option
+or
+.B ++long\-option
+are recognised and the
+.B name
+shell variable gets a value with a leading
+.RB `` + ''
+in case an option in the form
+.BR +o ,
+.B +long\-option
+or
+.B ++long\-option
+is used.
+.LP
+If more than one flag character from
+.B
+":"\c
+,
+.B
+"+"
+or
+.B
+"()"
+is used in
+.IR optstring ,
+.B
+"()"
+needs to be last.
 .LP
 .B getopts
 supports one or more long options as an alias to a short option.

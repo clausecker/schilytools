@@ -31,10 +31,19 @@
 #pragma	ident	"@(#)defs.h	1.35	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2019 J. Schilling
  *
- * @(#)defs.h	1.21 18/09/20 2017-2018 J. Schilling
+ * @(#)defs.h	1.24 19/10/19 2017-2019 J. Schilling
  */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/mconfig.h>
+#ifndef	HAVE_SEMAPHORE_H
+#undef	PMAKE
+#endif
+#ifdef	NO_PMAKE
+#undef	PMAKE
+#endif
+#endif
 
 /*
  * This is not "#ifdef TEAMWARE_MAKE_CMN" because we're currently
@@ -99,6 +108,32 @@
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/wctype.h>
 #include <schily/wchar.h>
+#include <schily/libport.h>
+/*
+ * In order to support Ultrix, we need to supply missing prototypes that would
+ * otherwise terminate a C++ compilation.
+ */
+#ifdef	ultrix
+#ifdef	__cplusplus
+extern "C" {
+#endif
+extern	long		gethostid	__PR((void));
+extern	int		strcasecmp	__PR((const char *, const char *));
+
+extern	int		mkstemp		__PR((char *));
+extern	int		putenv		__PR((char *));
+extern	int		unsetenv	__PR((char *));
+extern	int		symlink		__PR((const char *, const char *));
+extern	ssize_t		readlink	__PR((const char *, char *, size_t));
+
+extern	int		getopt		__PR((int, char *const *, const char *));
+#ifdef	IPC_CREAT
+extern	key_t		ftok		__PR((const char *, int));
+#endif
+#ifdef	__cplusplus
+}
+#endif
+#endif	/* ultrix */
 #else
 #ifdef	HAVE_WCTYPE_H	/* HP-UX-10.x does not have it */
 #include <wctype.h>

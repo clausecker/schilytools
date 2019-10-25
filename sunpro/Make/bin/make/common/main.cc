@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2019 J. Schilling
  *
- * @(#)main.cc	1.45 19/07/21 2017-2019 J. Schilling
+ * @(#)main.cc	1.46 19/10/17 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.45 19/07/21 2017-2019 J. Schilling";
+	"@(#)main.cc	1.46 19/10/17 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -81,7 +81,11 @@ static	UConst char sccsid[] =
 #	include <dmrc/dmrc.h> /* dmakerc file processing */
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/locale.h>	/* setlocale() */
+#else
 #include <locale.h>		/* setlocale() */
+#endif
 #include <mk/copyright.h>
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* getvar() */
@@ -93,10 +97,18 @@ static	UConst char sccsid[] =
 #endif
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/pwd.h>		/* getpwnam() */
+#include <schily/setjmp.h>
+
+#include <schily/wait.h>	/* wait() */
+#else
 #include <pwd.h>		/* getpwnam() */
 #include <setjmp.h>
 
 #include <sys/wait.h>		/* wait() */
+#define	WAIT_T	int
+#endif
 #include <vroot/report.h>	/* report_dependency(), get_report_file() */
 
 // From read2.cc
@@ -1196,11 +1208,7 @@ handle_interrupt(int)
 
 	/* Make sure the processes running under us terminate first */
 
-#if defined(SUN5_0) || defined(HP_UX) || defined(linux)
-	while (wait((int *) NULL) != -1);
-#else
-	while (wait((union wait*) NULL) != -1);
-#endif
+	while (wait((WAIT_T *) NULL) != -1);
 	/* Delete the current targets unless they are precious or phony */
 	if ((current_target != NULL) &&
 	    current_target->is_member &&

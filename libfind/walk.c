@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.62 19/09/08 Copyright 2004-2019 J. Schilling */
+/* @(#)walk.c	1.63 19/10/12 Copyright 2004-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.62 19/09/08 Copyright 2004-2019 J. Schilling";
+	"@(#)walk.c	1.63 19/10/12 Copyright 2004-2019 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -276,6 +276,7 @@ walk(nm, sf, fn, state, last)
 	int		type;
 	int		ret;
 	int		otail;
+	int		obase;
 	struct twvars	*varp = state->twprivate;
 
 	varp->pdirs = last;
@@ -325,6 +326,7 @@ walk(nm, sf, fn, state, last)
 		varp->Curdtail = p - varp->Curdir;
 		state->base++;
 	}
+	obase = state->base;
 
 	if ((state->walkflags & WALK_NOSTAT) &&
 	    (
@@ -627,6 +629,11 @@ type_known:
 				varp->Curdir[0] = '.';
 				varp->Curdir[1] = '\0';
 			}
+			/*
+			 * state->base has been modified while processing the
+			 * directory content.
+			 */
+			state->base = obase;
 			ret = (*fn)(varp->Curdir, &fs, type, state);
 		}
 	} else {
@@ -642,6 +649,7 @@ out:
 #endif
 	varp->Curdir[otail] = '\0';
 	varp->Curdtail = otail;
+	state->base = obase;
 	return (ret);
 }
 

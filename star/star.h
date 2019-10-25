@@ -1,4 +1,4 @@
-/* @(#)star.h	1.147 19/03/26 Copyright 1985, 1995-2019 J. Schilling */
+/* @(#)star.h	1.148 19/10/13 Copyright 1985, 1995-2019 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2019 J. Schilling
  */
@@ -721,6 +721,8 @@ typedef	struct	{
 
 #define	XF_DEVMAJOR	0x1000	/* Major bei Geräten			  */
 #define	XF_DEVMINOR	0x2000	/* Major bei Geräten			  */
+#define	XF_FSDEVMAJOR	0x4000	/* Major Filesys			  */
+#define	XF_FSDEVMINOR	0x8000	/* Major Filesys			  */
 
 #define	XF_ACL_ACCESS	0x04000	/* POSIX Draft Access Control List	  */
 #define	XF_ACL_DEFAULT	0x08000	/* POSIX Draft Default ACL		  */
