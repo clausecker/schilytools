@@ -21,9 +21,9 @@
 * Copyright 1991 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2017 J. Schilling
+* Copyright 2006-2019 J. Schilling
 *
-* @(#)cmds	1.60 18/12/10 J. Schilling 
+* @(#)cmds	1.62 19/11/11 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -64,8 +64,12 @@ X options may be specified as a comma separated list. The following
 options are available, they can be abbreviated as long as the abbreviation
 is still unique:
 
+mail=address	Set e-mail address for a delta (admin/delta).
+
 prepend		Prepend the current content of the g-file to the previous
 		content of that file (delta).
+
+unlink		Create an "unlink" delta in the SCCS history file (delta).
 
 Gp=initial_path	Set the initial path (admin).
 

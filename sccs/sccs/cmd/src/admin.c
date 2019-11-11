@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)admin.c	1.124 19/09/23 J. Schilling
+ * @(#)admin.c	1.126 19/11/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.124 19/09/23 J. Schilling"
+#pragma ident "@(#)admin.c 1.126 19/11/11 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -535,7 +535,7 @@ char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_INIT_PATH|XO_URAND;
+				X.x_flags = XO_INIT_PATH|XO_URAND|XO_UNLINK|XO_MAIL;
 				if (!parseX(&X))
 					goto err;
 				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
@@ -914,6 +914,8 @@ char	*afile;
 		newstats(&gpkt,line,"0");
 
 		dt.d_type = 'D';	/* type of delta */
+		if (X.x_opts & XO_UNLINK)
+			dt.d_type = 'U';
 
 		/*
 		Set initial release, level, branch and
@@ -933,6 +935,8 @@ char	*afile;
 			{
 			 dt.d_sid.s_rel = 1;
 			 dt.d_sid.s_lev = 1;
+			if (X.x_opts & XO_UNLINK)
+				dt.d_sid.s_lev = 0;
 			 dt.d_sid.s_br = dt.d_sid.s_seq = 0;
 			}
 		dtime(&dt.d_dtime);		/* get time and date */
@@ -974,7 +978,9 @@ char	*afile;
 		}
 		if (gpkt.p_flags & PF_V6) {
 			Checksum_offset = ftell(gpkt.p_xiop);
+			gpkt.p_mail = X.x_mail;
 			sidext_ba(&gpkt, &dt);	/* Will not write "dt" entry. */
+			gpkt.p_mail = NULL;
 		}
 
 		/*

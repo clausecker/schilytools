@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)diff.c	1.75 19/09/16 J. Schilling
+ * @(#)diff.c	1.76 19/10/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.75 19/09/16 J. Schilling"
+#pragma ident "@(#)diff.c 1.76 19/10/28 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2307,7 +2307,8 @@ same:
 
 closem:
 	/*
-	 * Check values, it may be directories that we dod not open.
+	 * Check values, it may be directories that we did not open
+	 * and thus f1/f2 may be -1.
 	 */
 	if (f1 >= 0)
 		(void) close(f1);

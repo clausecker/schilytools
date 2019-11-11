@@ -1,4 +1,4 @@
-/* @(#)wchar.h	1.25 19/10/16 Copyright 2007-2019 J. Schilling */
+/* @(#)wchar.h	1.26 19/10/28 Copyright 2007-2019 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
@@ -70,6 +70,10 @@
 #define	_INCL_WCHAR_H
 #endif
 #endif	/* !HAVE_WCHAR_H */
+
+#ifndef	WEOF
+#define	WEOF	((wint_t)(-1))
+#endif	/* WEOF */
 
 #ifndef	USE_WCHAR
 #define	USE_WCHAR

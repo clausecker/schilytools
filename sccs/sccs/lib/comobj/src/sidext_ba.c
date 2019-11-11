@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)sidext_ba.c	1.2 15/02/07 Copyright 2011-2015 J. Schilling
+ * @(#)sidext_ba.c	1.3 19/11/11 Copyright 2011-2019 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sidext_ba.c	1.2 15/02/07 Copyright 2011-2015 J. Schilling"
+#pragma ident "@(#)sidext_ba.c	1.3 19/11/11 Copyright 2011-2019 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -51,4 +51,13 @@ sidext_ba(pkt, dt)
 		snprintf(line, sizeof (line), "%c%c_%c s %5.5d\n",
 			CTLCHAR, COMMENTS, SIDEXTENS, pkt->p_ghash);
 	putline(pkt, line);
+	if (pkt->p_mail) {
+		if (pkt->p_flags & PF_V6)
+			snprintf(line, sizeof (line), "%c%c m %s\n",
+				CTLCHAR, SIDEXTENS, pkt->p_mail);
+		else
+			snprintf(line, sizeof (line), "%c%c_%c m %s\n",
+				CTLCHAR, COMMENTS, SIDEXTENS, pkt->p_mail);
+		putline(pkt, line);
+	}
 }

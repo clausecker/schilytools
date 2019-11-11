@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getfiles
-. \" @(#)getfiles.3	1.5 18/05/22 Copyright 1985-2018 J. Schilling
+. \" @(#)getfiles.3	1.8 19/11/04 Copyright 1985-2019 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETFILES 3 "2018/05/22" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETFILES 3 "2019/11/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 getfiles() \- gets next non flag-type argument
 .SH SYNOPSIS
@@ -28,6 +28,28 @@ int getfiles(pac, pav, fmt)
 	char *(*pav)[]; /* pointer to address of arg vector */
 .B
 	char *fmt;      /* format string */
+.B
+
+int getlfiles(pac, pav, props, fmt)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	struct ga_props *props; /* control properties */
+.B
+	char *fmt;      /* format string */
+
+.B
+int getvfiles(pac, pav, props, vfmt)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	struct ga_props *props; /* control properties */
+.B
+	struct ga_flags *vfmt;  /* array of formats and args */
 .fi
 .SH DESCRIPTION
 .BR getfiles ()
@@ -46,6 +68,48 @@ and decrement
 before calling
 .BR getfiles ()
 again.
+.PP
+.BR getlfiles ()
+is similar to
+.BR getfiles ()
+but it implements an additional 
+.B ga_props
+parameter that must be initialized with
+.BR getarginit ()
+before it is passed.
+.PP
+.BR getvfiles ()
+is similar to
+.BR getlfiles ()
+but uses a structure
+.B ga_flags
+instead of a format string and a variable arg list with pointers.
+The array of structures
+.BR ga_flags :
+.br
+.ne 8
+.sp
+.nf
+.B
+struct ga_flags {
+.B
+   const char  *ga_format; /* Comma separated list for one flag */
+.B
+   void        *ga_arg;    /* Ptr. to variable to fill for flag */
+.B
+   getpargfun  ga_funcp;   /* Ptr. for function to call (&/~)   */
+.B
+};
+.fi
+.sp
+is terminated by an element with
+.BR "ga_format == NULL" .
+For a
+.B ga_format
+that does not expect a function pointer,
+.B ga_funcp
+is
+.BR NULL .
 .SH RETURNS
 .TP 14
 .B FLAGDELIM\ 2
@@ -122,7 +186,6 @@ none
 .SH AUTHOR
 .nf
 J\*org Schilling
-Seestr. 110
 D\-13353 Berlin
 Germany
 .fi

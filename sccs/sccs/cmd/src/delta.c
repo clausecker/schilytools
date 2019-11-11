@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)delta.c	1.86 19/09/23 J. Schilling
+ * @(#)delta.c	1.87 19/11/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.86 19/09/23 J. Schilling"
+#pragma ident "@(#)delta.c 1.87 19/11/11 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -277,7 +277,7 @@ register char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_PREPEND_FILE;
+				X.x_flags = XO_PREPEND_FILE|XO_MAIL;
 				if (!parseX(&X))
 					goto err;
 				break;
@@ -945,7 +945,9 @@ int orig_nlines;
 	}
 	if (pkt->p_flags & PF_V6) {
 		Checksum_offset = ftell(gpkt.p_xiop);
+		gpkt.p_mail = X.x_mail;
 		sidext_ba(pkt, &dt);
+		gpkt.p_mail = NULL;
 	}
 
 	sprintf(str, NOGETTEXT("%c%c "), CTLCHAR, COMMENTS);

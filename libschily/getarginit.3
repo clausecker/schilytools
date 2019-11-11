@@ -1,0 +1,135 @@
+. \"  Manual Seite fuer getarginit
+. \" @(#)getarginit.3	1.2 19/11/04 Copyright 2019 J. Schilling
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH GETARGINIT 3 "2019/11/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+getarginit() \- initialize properties for getargs() type functions
+.SH SYNOPSIS
+.nf
+#include <schily/getargs.h>
+
+.B
+int getarginit(propg, flags)
+.B
+.B
+   struct ga_props *props; /* control properties */
+.B
+   int flags;              /* to control option parsing behavior */
+.fi
+.SH DESCRIPTION
+.BR getarginit ()
+initializes
+.B struct ga_props
+as needed by the functions
+.BR getlargs (),
+.BR getlallargs (),
+.BR getlfiles (),
+.BR getvargs (),
+.BR getvallargs (),
+.BR getvfiles ().
+
+.LP
+The 
+.I flags
+argument controls the behavior of the named functions.
+If the value is
+.BR 0 ,
+the default behavior as documentd in the man pages is used.
+The following flags are possible and may be combined:
+.LP
+.TP 20
+.B GAF_DEFAULT
+Use the default behavior.
+.TP
+.B GAF_NO_PLUS
+Options may not start with a
+.RB `` + ''
+even if they are marked with a
+.B +
+in the format string.
+.TP
+.B GAF_NO_EQUAL
+Disallow
+.RB `` = ''
+between option name and value.
+.TP
+.B GAF_NEED_DASH
+A dash is needed before an option that takes an argument.
+Options in the form
+.IB name = value
+are not allowed.
+.TP
+.B GAF_DELIM_DASHDASH
+The special argument
+.RB `` -- ''
+stops option parsing even when using
+.BR getallargs (),
+.BR getlallargs (),
+.BR getvallargs ().
+.TP
+.B GAF_SINGLEARG
+In a string with combined single character options, the last option
+character may be an option that has an argument.
+.TP
+.B GAF_POSIX
+This macro enforces
+.B POSIX
+behavior and expands to
+.BR GAF_NO_PLUS " | " GAF_NO_EQUAL " | " GAF_SINGLEARG .
+This value may not be combined with other flags.
+
+.ne 5
+.SH RETURNS
+.LP
+.TP
+.B 0
+No error occurred.
+.TP
+.B \-1
+The version of the library was too old for the calling program.
+
+.SH EXAMPLES
+
+.SH "SEE ALSO"
+.nh 
+.sp 
+.LP
+.BR getlargs (3),
+.BR getlallargs (3),
+.BR getlfiles (3),
+.BR getvargs (3),
+.BR getvallargs (3),
+.BR getvfiles (3).
+
+.SH NOTES
+none
+
+.SH BUGS
+none
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+joerg.schilling@fokus.fraunhofer.de
+or
+.B
+joerg@schily.net

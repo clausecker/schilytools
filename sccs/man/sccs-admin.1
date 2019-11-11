@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.56 19/05/12 Copyright 2007-2019 J. Schilling
+.\" @(#)sccs-admin.1	1.58 19/11/11 Copyright 2007-2019 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2019/05/12" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2019/11/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -878,6 +878,32 @@ to reatain the
 .I unified random
 from the original file.
 If this option was specified, only one file type argiment is permitted.
+.TP
+.BI mail= address
+Set
+.I address
+as e-mail address in the delta table for the
+.I SID
+in case the
+.B history file
+has just been created with
+.BR admin .
+.TP
+.B unlink
+If used together with the option
+.BR \-n ,
+this makes the initial release a special release that unlinks (removes) the
+.B g-file
+by using the
+.B get(1)
+command in case the file exists as non-writable file.
+The default
+.B SID
+used in this case is
+.BR 1.0 ,
+in order to permit a
+.B 1.1
+release with file content later in the same history file.
 .TP
 .B help
 Print a short online help for available options.

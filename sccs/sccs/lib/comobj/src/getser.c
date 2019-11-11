@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009-2015 J. Schilling
+ * Copyright 2009-2019 J. Schilling
  *
- * @(#)getser.c	1.5 15/02/06 J. Schilling
+ * @(#)getser.c	1.6 19/11/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getser.c 1.5 15/02/06 J. Schilling"
+#pragma ident "@(#)getser.c 1.6 19/11/06 J. Schilling"
 #endif
 /*
  * @(#)getser.c 1.7 06/12/12
@@ -40,8 +40,8 @@
 #pragma ident	"@(#)sidtoser.c"
 #pragma ident	"@(#)sccs:lib/comobj/sidtoser.c"
 #endif
-# include	<defines.h>
-# include      <had.h>
+#include <defines.h>
+#include <had.h>
 
 int
 getser(pkt)
@@ -75,30 +75,29 @@ register struct packet *pkt;
 	/*
 	 * If had '-t' keyletter and R.L SID type, find
 	 * the youngest SID
-	*/
+	 */
 	else if ((pkt->p_reqsid.s_br == 0) && HADT) {
 		for (n = maxser(pkt); n; n--) {
 			rdp = &pkt->p_idel[n];
 			if (rdp->i_sid.s_rel == pkt->p_reqsid.s_rel &&
-			    rdp->i_sid.s_lev == pkt->p_reqsid.s_lev )
+			    rdp->i_sid.s_lev == pkt->p_reqsid.s_lev)
 				break;
 		}
 		ser = n;
-	}
-	else if (pkt->p_reqsid.s_br && pkt->p_reqsid.s_seq == 0) {
+	} else if (pkt->p_reqsid.s_br && pkt->p_reqsid.s_seq == 0) {
 		for (n = maxser(pkt); n; n--) {
 			rdp = &pkt->p_idel[n];
 			if (rdp->i_sid.s_rel == pkt->p_reqsid.s_rel &&
 				rdp->i_sid.s_lev == pkt->p_reqsid.s_lev) {
-                                /*
-                                 * If release, level and branch are equal,
-                                 * this is the serial number to use, otherwise
-                                 * if the release and level are equal, it might
-                                 * be the case that there are no deltas on
-                                 * the branch specified by the default delta.
-                                 * If this is the case, store this serial
-                                 * number, it is the one we want
-                                 */
+				/*
+				 * If release, level and branch are equal,
+				 * this is the serial number to use, otherwise
+				 * if the release and level are equal, it might
+				 * be the case that there are no deltas on
+				 * the branch specified by the default delta.
+				 * If this is the case, store this serial
+				 * number, it is the one we want
+				 */
 				if (rdp->i_sid.s_br == pkt->p_reqsid.s_br) {
 					ser = n;
 					break;
@@ -107,15 +106,17 @@ register struct packet *pkt;
 				}
 			}
 		}
-	}
-	else {
-		ser = sidtoser(&pkt->p_reqsid,pkt);
+	} else {
+		ser = sidtoser(&pkt->p_reqsid, pkt);
 	}
 	if (ser == 0)
 		fatal(gettext("nonexistent sid (ge5)"));
 	rdp = &pkt->p_idel[ser];
 	pkt->p_gotsid = rdp->i_sid;
-	if (def || (pkt->p_reqsid.s_lev == 0 && pkt->p_reqsid.s_rel == pkt->p_gotsid.s_rel))
+	if (def ||
+	    (pkt->p_reqsid.s_lev == 0 &&
+	    pkt->p_reqsid.s_rel == pkt->p_gotsid.s_rel)) {
 		pkt->p_reqsid = pkt->p_gotsid;
-	return(ser);
+	}
+	return (ser);
 }

@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)defines.h	1.111 19/09/01 J. Schilling
+ * @(#)defines.h	1.113 19/11/11 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.111 19/09/01 J. Schilling"
+#pragma ident "@(#)defines.h 1.113 19/11/11 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -410,10 +410,11 @@ typedef struct Nparms {
  */
 typedef struct Xparms {
 	char	*x_parm;		/* -X argument			*/
+	char	*x_mail;		/* -Xmail Email address		*/
 	char	*x_init_path;		/* -XGp Initial path		*/
 	urand_t	x_rand;			/* -XGr Unified random number	*/
 	unsigned x_opts;		/* Options seen			*/
-	unsigned x_flags;		/* Various flags		*/
+	unsigned x_flags;		/* Options permitted		*/
 } Xparms;
 
 /*
@@ -422,6 +423,8 @@ typedef struct Xparms {
 #define	XO_PREPEND_FILE	0x01		/* Optimized mode for Changeset files */
 #define	XO_INIT_PATH	0x10		/* -XGp Initial path		*/
 #define	XO_URAND	0x20		/* -XGr Unified random number	*/
+#define	XO_UNLINK	0x40		/* -Xunlink create an unlink delta */
+#define	XO_MAIL		0x80		/* -Xmail= e-mail address	*/
 
 
 struct	deltab {
@@ -445,10 +448,12 @@ struct	ixg {
  * pkt->p_idel
  */
 struct	idel {
-	struct	sid	i_sid;
-	struct	ixg	*i_ixg;
-	int	i_pred;
-	struct timespec	i_datetime;
+	struct	sid	i_sid;		/* sid from ^Ad line		*/
+	struct	ixg	*i_ixg;		/* I/X/G entries from delta	*/
+	int		i_pred;		/* predecessor serial		*/
+	char		i_dtype;	/* delta type from ^Ad line	*/
+					/* 3 bytes padding		*/
+	struct timespec	i_datetime;	/* time stamp from ^Ad line	*/
 };
 
 # define maxser(pkt)	((pkt)->p_idel->i_pred)
@@ -537,6 +542,10 @@ struct packet {
 	 */
 	char	*p_init_path;	/* Initial path relative to project set home */
 	urand_t	p_rand;		/* Unified random number for file */
+	/*
+	 * SID specific meta data
+	 */
+	char	*p_mail;	/* E-mail of committer */
 	/*
 	 * Various other s-file specific data
 	 */

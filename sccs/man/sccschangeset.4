@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)sccschangeset.4	1.8 15/02/25 Copyright 2011-2015 J. Schilling 
+.\" @(#)sccschangeset.4	1.9 19/11/06 Copyright 2011-2015 J. Schilling 
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -25,28 +25,43 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccschangeset 4 "2015/02/25" "J\*org Schilling" "File Formats"
+.TH sccschangeset 4 "2019/11/06" "J\*org Schilling" "File Formats"
 .SH NAME
 sccschangeset \- format of an SCCS changeset file
 .SH DESCRIPTION
 .LP
-An SCCS
+An
+.B SCCS
 .B changeset
 file is an
 .B ASCII
 file consisting of a list of entries
-that describe the state of a project-set under control of SCCSv6 or later.
+that describe the state of a
+.B project set
+under control of
+.B SCCSv6
+or later.
 .LP
 The
 .B changeset
-file itself is under control of SCCS.
-SCCS works directly on the 
+file itself is under control of
+.BR SCCS .
+.B SCCS
+works directly on the 
 .BR s. changeset
 file.
 There is no need to check out the related file content, as the deltas
 can be consructed without explicitely running the 
 .BR diff (1)
-program.
+program; this results in a noticeable performance win.
+.LP
+Parts of the information are recorded inside the
+.B changeset
+file content and other information is recorded within the
+.B SCCS
+meta data of the
+.B changeset
+file.
 
 .SS Conventions
 .LP
@@ -55,7 +70,9 @@ The following terms are used in this documentation:
 .ne 5
 .TP 20
 .B project set
-A set of one or more files under control of SCCS that form a project.
+A set of one or more files under control of
+.B SCCS
+that form a project.
 .br
 .ne 5
 .TP
@@ -68,7 +85,9 @@ with
 .B project set
 related meta data such as the
 .B changeset
-file.
+file and typically the
+.B SCCS
+history files related to the project.
 .br
 .ne 5
 .TP
@@ -84,7 +103,20 @@ The person who formed a commit set.
 .TP
 .B email address
 The email address used to identify a committer.
+Since the email address is valid for a whole
+.BR "commit set" ,
+it is recorded in the meta data of the related delta to the
+.B changeset
+file.
+
 .SS File Format
+.LP
+Each
+.B commit set
+adds a number of entries to the beginning of the
+.B changeset
+file, one entry for every file that was modified by this
+.BR "commit set" .
 .LP
 Each entry in the
 .B changeset
@@ -99,12 +131,14 @@ contains a newline character, additional newlines may be in the related entry.
 .LP
 Each entry in the
 .B changeset
-file consists of six fields that are separated by a
-.B vertical line
+file consists of five fields that are specific to a single file from the
+.BR changeset .
+The entries are separated by a
+.B vertical bar
 character (ASCII 0x7C).
 The
-.B vertical line
-character may not be part of the email address, it however may appear
+.B vertical bar
+character may appear
 in the path name.
 .br
 .ne 5
@@ -148,7 +182,7 @@ for a detailed description of the SID specific checksums for a file.
 .TP
 .B path length
 A decimal number representing the number of bytes in the path name not
-including the final newline character.
+including the final newline character used to terminate the whole entry.
 .br
 .ne 5
 .TP
@@ -159,7 +193,7 @@ The path name holds a relative path as seen from the
 directory.
 As the path name is the last member in the lines of a changeset file,
 it may contain the
-.B vertical line
+.B vertical bar
 character (ASCII 0x7C).
 .RE
 .LP

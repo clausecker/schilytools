@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)dodelt.c	1.26 19/01/08 J. Schilling
+ * @(#)dodelt.c	1.27 19/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.26 19/01/08 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.27 19/11/08 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -86,15 +86,18 @@ char type;
 		if (pkt->p_idel == 0) {
 			if ((TN < dt.d_dtime.dt_sec) ||
 			    ((TN == dt.d_dtime.dt_sec) &&
-			    (Tns < dt.d_dtime.dt_nsec)))
-				fprintf(stderr,gettext("Time stamp later than current clock time (co10)\n"));
+			    (Tns < dt.d_dtime.dt_nsec))) {
+				fprintf(stderr,
+				    gettext(
+			"Time stamp later than current clock time (co10)\n"));
+			}
 			pkt->p_idel = (struct idel *)
 					fmalloc((unsigned) (n=((dt.d_serial+1)*
-					sizeof(*pkt->p_idel))));
+					sizeof (*pkt->p_idel))));
 			zero((char *) pkt->p_idel,n);
 			pkt->p_apply = (struct apply *)
 					fmalloc((unsigned) (n=((dt.d_serial+1)*
-					sizeof(*pkt->p_apply))));
+					sizeof (*pkt->p_apply))));
 			zero((char *) pkt->p_apply,n);
 			if (pkt->p_pgmrs != NULL) {
 				pkt->p_pgmrs = (char **)
@@ -104,23 +107,29 @@ char type;
 			}
 			pkt->p_idel->i_pred = dt.d_serial;
 		}
-		if (dt.d_type == 'D') {
+		if (dt.d_type == 'D' ||				/* Delta */
+		    dt.d_type == 'U') {				/* Unlink */
+			/*
+			 * sidp is != NULL only for rmchg
+			 */
 			if (sidp && eqsid(&dt.d_sid,sidp)) {
 				copy(dt.d_pgmr, pkt->p_pgmr);	/* for rmchg */
-				zero((char *) sidp,sizeof(*sidp));
+				zero((char *) sidp,sizeof (*sidp));
 				founddel = 1;
 				pkt->p_first_esc = 1;
 				pkt->p_first_cmt = 1;
 				pkt->p_cdid_mrs = 0;
-				for (p = pkt->p_line; *p && *p != 'D'; p++)
+				for (p = pkt->p_line;
+				    *p && *p != dt.d_type; p++) {
 					;
+				}
 				if (*p) {
 					/*
 					 * Also correct saved line hash, used
 					 * for putline() optimization.
 					 */
-					pkt->p_clhash -= 'D';
-					pkt->p_uclhash -= 'D';
+					pkt->p_clhash -= dt.d_type;   /* D/U */
+					pkt->p_uclhash -= dt.d_type;  /* D/U */
 					pkt->p_clhash += type;
 					pkt->p_uclhash += type;
 					*p = type;
@@ -159,6 +168,7 @@ char type;
 			rdp->i_sid.s_br = dt.d_sid.s_br;
 			rdp->i_sid.s_seq = dt.d_sid.s_seq;
 			rdp->i_pred = dt.d_pred;
+			rdp->i_dtype = dt.d_type;
 			rdp->i_datetime.tv_sec = dt.d_dtime.dt_sec;
 			rdp->i_datetime.tv_nsec = dt.d_dtime.dt_nsec;
 			if (founddel && type == 0)	/* Already skipped */
@@ -179,8 +189,7 @@ char type;
 					if (founddel)
 					{
 						(*pkt->p_escdodelt)(pkt);
-						if(type == 'R' && HADZ && pkt->p_line[1] == MRNUM )
-						{
+						if (type == 'R' && HADZ && pkt->p_line[1] == MRNUM) {
 							(*pkt->p_fredck)(pkt);
 						}
 					}
@@ -198,7 +207,11 @@ char type;
 				case INCLUDE:
 				case EXCLUDE:
 				case IGNORE:
-					if (dt.d_type == 'D') {
+					/*
+					 * Is this really needed for type 'U' as well?
+					 */
+					if (dt.d_type == 'D' ||
+					    dt.d_type == 'U') {
 						doixg(pkt->p_line,&rdp->i_ixg);
 					}
 					continue;
@@ -212,7 +225,7 @@ char type;
 			break;
 		lhash = pkt->p_clhash;
 	}
-	return(pkt->p_idel);
+	return (pkt->p_idel);
 }
 
 static char
@@ -222,7 +235,7 @@ register struct deltab *dt;
 {
 	if (getline(pkt) == NULL)
 		fmterr(pkt);
-	return(del_ab(pkt->p_line,dt,pkt));
+	return (del_ab(pkt->p_line,dt, pkt));
 }
 
 static void
@@ -246,10 +259,10 @@ struct ixg **ixgp;
 		NONBLANK(p);
 	}
 	cnt = ip - v;
-	for (prevp = curp = (*ixgp); curp; curp = (prevp = curp)->i_next ) 
+	for (prevp = curp = (*ixgp); curp; curp = (prevp = curp)->i_next)
 		;
-	curp = (struct ixg *) fmalloc((unsigned) 
-		(sizeof(struct ixg) + (cnt-1)*sizeof(curp->i_ser[0])));
+	curp = (struct ixg *) fmalloc((unsigned)
+		(sizeof (struct ixg) + (cnt-1)*sizeof (curp->i_ser[0])));
 	if (*ixgp == 0)
 		*ixgp = curp;
 	else

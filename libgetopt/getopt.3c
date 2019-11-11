@@ -60,7 +60,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH getopt 3C "23 Oct 2019" "SunOS 5.11" "Standard C Library Functions"
+.TH getopt 3C "28 Oct 2019" "SunOS 5.11" "Standard C Library Functions"
 .SH NAME
 getopt \- command option parsing
 .SH SYNOPSIS
@@ -166,12 +166,15 @@ and that is used as the return value for
 .BR getopt ()
 when the related long option is seen.
 .LP
-Utilities that like to support the traditional UNIX form of long options
+Utilities that like to support the traditional
+.B UNIX form
+of long options
+derived from
+.B Multics
 .RB "(using " \-long\-name )
-can specify the string
-.B
-"()"
-at the beginning of
+can specify the string "\c
+.B ()\c
+\%" at the beginning of
 .I optstring
 or directly after the initial
 .B
@@ -186,9 +189,7 @@ or
 .BR ++long\-name ,
 .I optstring
 should start with a
-.B
-"+"\c
-\&.
+.RB `` + ''.
 In case an option in the form
 .B +o
 or
@@ -202,20 +203,15 @@ bit in the external variable
 .sp
 .LP
 A utility that likes to specify more than one flag character from
-.B
-":"\c
-,
-.B
-"+"
-or
-.B
-"()"
-in
+.RB `` : '',
+.RB `` + '',
+or "\c
+.B ()\c
+\&" in
 .IR optstring ,
-needs to place
-.B
-"()"
-last.
+needs to place "\c
+.B ()\c
+\&" last.
 .sp
 .LP
 The
@@ -325,8 +321,7 @@ returns an error indication.
 .sp
 .LP
 When all options have been processed (that is, up to the first operand),
-.B
-getopt() \c
+.B getopt()
 returns -1. The special option "--"(two hyphens) can be used
 to delimit the end of the options; when it is encountered, -1 is returned
 and "--" is skipped. This is useful in delimiting non-option arguments that
@@ -720,6 +715,19 @@ For the Basic Utility Command syntax is Standard, see
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5)
+.br
+.ne 5
+.SH NOTES
+.LP
+The 
+.RB `` + ''
+flag to enable
+.B +o
+type options has been taken from
+.BR ksh93 .
+Future enhancement flags will be letters inside "\c
+.B ()\c
+\&".
 .br
 .ne 5
 .SH AUTHORS

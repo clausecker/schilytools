@@ -1,8 +1,8 @@
 '\" te
-.\" @(#)sccsfile.4	1.44 18/12/18 Copyright 2007-2018 J. Schilling */
+.\" @(#)sccsfile.4	1.46 19/11/08 Copyright 2007-2019 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
-.\" Copyright (c) 2007-2015 J. Schilling
+.\" Copyright (c) 2007-2019 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2018/12/18" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2019/11/08" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -272,12 +272,14 @@ The actual values for
 .IR inserted \|/ deleted \|/ unchanged
 are five digit numbers.
 If an actual value is greater than 99999, then it is replaced by 99999.
+.br
+.ne 11
 .LP
 The second line
 .RB ( ^Ad )
 contains the
 .I type
-of the delta:
+of the delta in the second word:
 .RS
 .TP
 .B D
@@ -285,10 +287,24 @@ for a normal delta
 .TP
 .B R
 for a removed delta
+.TP
+.B U
+for a delta that causes to unlink the
+.B g-file
+.sp
+If this delta type is used for the initial release of a
+.B SCCS
+history file, the default
+.B SID
+is set to
+.B 1.0
+to permit the first delta with data to have the typical
+.BR 1.1 .
 .RE
 .sp
-followed by
-the SCCS ID
+The delta table type is followed by
+the
+.I SCCS ID
 .RB ( SID )
 of the delta, the
 .I date

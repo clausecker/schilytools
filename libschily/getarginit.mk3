@@ -1,16 +1,18 @@
-#ident @(#)Makefile	1.3 19/10/28 
+#ident @(#)getarginit.mk3	1.1 19/11/04 
 ###########################################################################
-# Sample makefile for sub directory makes
+# Sample makefile for installing manual pages
 ###########################################################################
-SRCROOT=	../..
+SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-DIRS=			lib/bsd/src lib/mksh/src lib/vroot/src
-$(SHLIB_BUILD)DIRS +=	lib/makestate/src
-DIRS +=			bin/make/common
+MANDIR=		man
+TARGETMAN=	getarginit
+MANSECT=	$(MANSECT_LIB)
+MANSUFFIX=	$(MANSUFF_LIB)
+MANFILE=	getarginit.3
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.dir
+include		$(SRCROOT)/$(RULESDIR)/rules.man
 ###########################################################################

@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2019 J. Schilling
  *
- * @(#)main.cc	1.46 19/10/17 2017-2019 J. Schilling
+ * @(#)main.cc	1.47 19/11/11 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.46 19/10/17 2017-2019 J. Schilling";
+	"@(#)main.cc	1.47 19/11/11 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -555,6 +555,14 @@ main(int argc, char *argv[])
 		(void) printf(gettext("MAKEFLAGS value: %s\n"), cp == NULL ? "" : cp);
 	}
 
+	/*
+	 * If there have been -C options, they have been evaluated with the
+	 * last call to read_command_options() and we thus may need to
+	 * re-initialize CURDIR before we read the Makefiles in order to let
+	 * them overwrite CURDIR if they like.
+	 */
+	if (current_path_reset)
+		(void) get_current_path();
 	/*
 	 * Need to set this up after parsing options and after a
 	 * possible -C option has been processed.
@@ -1581,7 +1589,20 @@ read_command_options(register int argc, register char **argv)
 				warning(gettext("Ignoring DistributedMake -x option"));
 #endif
 				break;
-			case 2048:
+			case 2048: {
+				char	*ap = argv[i+1];
+
+				if (argv[i][2])		/* e.g. -Cdir */
+					ap = &argv[i][2];
+				if (ap == NULL) {
+					fatal(gettext("No argument after -C flag"));
+				}
+				if (chdir(ap) != 0) {
+					fatal(gettext("Failed to change to directory %s: %s"),
+					    ap, strerror(errno));
+				}
+				current_path_reset = true;
+				}
 				break;
 			default: /* > 1 of -c, f, g, j, K, M, m, O, o, x seen */
 				fatal(gettext("Illegal command line. More than one option requiring\nan argument given in the same argument group"));
@@ -1768,17 +1789,30 @@ setup_makeflags_argv()
 				unquote_str(cp_orig, mf_argv[i]);
 			}
 			*cp = tmp_char;
-			if (strcmp(mf_argv[i-1], NOCATGETS("-C")) == 0) {
-				/*
-				 * Ignore -C and argument.
-				 */
-				i -= 2;
-			}
 		} else {
 			mf_argv[i] = NULL;
 		}
 	}
 	mf_argv[i] = NULL;
+
+	for (i = 1; i < mf_argc; i++) {
+		if (strncmp(mf_argv[i], NOCATGETS("-C"), 2) == 0) {
+			int	j = i;
+
+			/*
+			 * Ignore -C and argument.
+			 */
+			if (mf_argv[i][2]) {
+				j += 1;
+				mf_argc -= 1;
+			} else {
+				j += 2;
+				mf_argc -= 2;
+			}
+			for ( ; i <= mf_argc; i++, j++)
+				mf_argv[i] = mf_argv[j];
+		}
+	}
 }
 
 /*
@@ -2534,14 +2568,6 @@ read_files_and_state(int argc, char **argv)
 	makeflags_and_macro.size = 0;
 	enter_argv_values(mf_argc, mf_argv, &makeflags_and_macro);
 	enter_argv_values(argc, argv, &makeflags_and_macro);
-	/*
-	 * If there have been -C options, they have been evaluated
-	 * with the last call and we thus may need to re-initialize
-	 * CURDIR before we read the Makefiles in order to let them
-	 * overwrite CURDIR if they like.
-	 */
-	if (current_path_reset)
-		(void) get_current_path();
 
 /*
  *	Set MFLAGS and MAKEFLAGS
@@ -3213,15 +3239,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 					ap = &argv[i][2];
 				else
 					argv[i+1] = NULL;
-				if (ap == NULL) {
-					fatal(gettext("No argument after -C flag"));
-				}
-				if (chdir(ap) != 0) {
-					fatal(gettext("Failed to change to directory %s: %s"),
-					    ap, strerror(errno));
-				}
 				argv[i] = NULL;
-				current_path_reset = true;
 				continue;
 			default: /* Shouldn't reach here */
 				argv[i] = NULL;

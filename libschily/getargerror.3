@@ -1,0 +1,73 @@
+. \"  Manual Seite fuer getargerror
+. \" @(#)getargerror.3	1.2 19/11/04 Copyright 1985-2018 J. Schilling
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH GETARGERROR 3 "2019/11/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+getargerror() \- convert arg parsing error code to a string
+.SH SYNOPSIS
+.nf
+#include <schily/getargs.h>
+
+.B
+char *getargerror(val)
+.B
+	int val;        /* error code */
+.fi
+.SH DESCRIPTION
+.BR getargerror ()
+returns a string that matches the return code of the argument parsing routines.
+
+.SH RETURNS
+.LP
+A string that matches the return code or the string
+.B "Illegal arg error"
+in case that a nonexisting return code has been passed.
+.LP
+The codes
+.B FLAGPARSED
+and
+.B NOTAFLAG
+share the same value, but FLAGPARSED is not returned to external callers.
+
+.SH EXAMPLES
+
+.SH "SEE ALSO"
+.nh 
+.sp 
+.LP
+.BR getargs (3),
+.BR getallargs (3),
+.BR getfiles (3).
+
+.SH NOTES
+none
+
+.SH BUGS
+none
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+joerg.schilling@fokus.fraunhofer.de
+or
+.B
+joerg@schily.net

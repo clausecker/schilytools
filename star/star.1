@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.223 19/09/27 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.224 19/10/26 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/09/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/10/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3868,23 +3868,30 @@ Many system installations contain plenty of symbolic links with absolute
 path name or with
 .B /../
 inside.
-The usability of a tar archiver for system backups would be limited if
+The usability of a tar archiver for system backups and in copy mode
+would be limited if
 .B \-secure\-links
-checking would be done by default for backups as well,
+checking would be done by default for backups or when in copy mode,
 .B star
 thus makes link checking optional when in
 .B \-restore
+or in
+.B \-copy
 mode.
-When
+When neither
 .B \-restore
-has not been specified, link checking is the default, since this is the usual
-way where archives from unknown sources are going to be unpacked.
+nor
+.B \-copy
+have been specified, link checking is the default, since this is the usual
+way when archives from unknown sources are going to be unpacked.
 .sp
 To turn off
 this default for the usual case, the option
 .B \-no\-secure\-links
 may be used and in
 .B \-restore
+or
+.B \-copy
 mode, 
 .B \-secure\-links
 may be specified to turn it on.

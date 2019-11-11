@@ -1,5 +1,5 @@
 
-#ident @(#)libgetopt.mk	1.6 19/10/23 
+#ident @(#)libgetopt.mk	1.7 19/11/07 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -16,7 +16,7 @@ CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSLIB"'	# dgettext
 include		Targets
 LIBS=		
 
-XMK_FILE=	getopt.mk3
+XMK_FILE=	getopt.mk3 getsubopt.mk3
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.lib
 ###########################################################################

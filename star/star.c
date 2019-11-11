@@ -1,8 +1,8 @@
-/* @(#)star.c	1.395 19/09/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
+/* @(#)star.c	1.397 19/11/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.395 19/09/27 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
+	"@(#)star.c	1.397 19/11/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2019 J. Schilling
@@ -1871,6 +1871,8 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 		nodir = FALSE;
 		multivol = FALSE;
 		linkdata = FALSE;
+		if (secure_links < 0)
+			secure_links = FALSE;
 
 		if (!tflag && !diff_flag)
 			xflag = TRUE;
@@ -1947,6 +1949,12 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, paxopts, llbs)
 	if (diff_flag) {
 		if (diffopts == 0)
 			diffopts = D_DEFLT;
+		if ((diffopts & D_ATIME) == 0)
+			diffopts &= ~D_ANTIME;
+		if ((diffopts & D_MTIME) == 0)
+			diffopts &= ~D_MNTIME;
+		if ((diffopts & D_CTIME) == 0)
+			diffopts &= ~D_CNTIME;
 	} else if (diffopts != 0) {
 		errmsgno(EX_BAD, "diffopts= only makes sense with -diff\n");
 		susage(EX_BAD);

@@ -5,6 +5,8 @@
 # Read test core functions
 . ../../common/test-common
 
+IS_64=`file ${prs} | grep 'ELF 64'`
+
 g=foo
 s=s.$g
 p=p.$g
@@ -34,7 +36,14 @@ docommand y4 "${prs} -e '-d:I: :D: :T:' s.2069" 0 "1.7 69/01/01 00:00:00
 " IGNORE
 
 docommand y5 "${prs} -e '-d:I: :D: :T:' s.1960" 0 IGNORE IGNORE
-docommand y6 "${prs} -e '-d:I: :D: :T:' s.3000" 0 IGNORE IGNORE
+if [ "$IS_64" ]; then
+	docommand y6 "${prs} -e '-d:I: :D: :T:' s.3000" 0 IGNORE IGNORE
+else
+	#
+	# prs in 32 bit mode is expected to fail with y3000
+	#
+	docommand y6 "${prs} -e '-d:I: :D: :T:' s.3000" 1 IGNORE IGNORE
+fi
 
 remove $z $s $p $g $output
 success

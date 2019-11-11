@@ -1,8 +1,8 @@
-/* @(#)header.c	1.199 19/07/08 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.200 19/11/01 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.199 19/07/08 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.200 19/11/01 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -2587,6 +2587,8 @@ gnutar_to_info(ptb, info)
 		info->f_ansec = 0L;
 		if (info->f_atime == 0 && ptb->gnu_dbuf.t_atime[0] == '\0')
 			info->f_atime = info->f_mtime;
+		else
+			info->f_xflags |= XF_ATIME;
 	}
 
 	if ((info->f_xflags & XF_CTIME) == 0) {
@@ -2598,6 +2600,8 @@ gnutar_to_info(ptb, info)
 		info->f_cnsec = 0L;
 		if (info->f_ctime == 0 && ptb->gnu_dbuf.t_ctime[0] == '\0')
 			info->f_ctime = info->f_mtime;
+		else
+			info->f_xflags |= XF_CTIME;
 	}
 
 	if (is_sparse(info)) {

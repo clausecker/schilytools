@@ -1,7 +1,10 @@
-# /* @(#)libschily-mapvers	1.65 19/10/22 Copyright 2005-2019 J. Schilling */
+# /* @(#)libschily-mapvers	1.66 19/10/29 Copyright 2005-2019 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_2.0 {
+	wcastoi;
+	wcastol;
+	wcastolb;
 #ifndef	HAVE_WCSTOL
 	wcstol;
 #endif

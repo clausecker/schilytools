@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getallargs
-. \" @(#)getallargs.3	1.5 18/05/22 Copyright 1985-2018 J. Schilling
+. \" @(#)getallargs.3	1.8 19/11/04 Copyright 1985-2019 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETALLARGS 3 "2018/05/22" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETALLARGS 3 "2019/11/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 getallargs() \- parses all the flag-type arguments
 .SH SYNOPSIS
@@ -40,6 +40,40 @@ int getallargs(pac, pav, fmt, a1, \|.\|.\|., an)
 	                /* (corresponding to the */
 .B
 	                /* nth descriptor in fmt) */
+
+.B
+int getlallargs(pac, pav, props, fmt, a1, \|.\|.\|., an)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	struct ga_props *props; /* control properties */
+.B
+	char *fmt;      /* format string */
+.B
+	type *a1;       /* pointer to result 1 */
+.B
+	                /* (corresponding to the */
+.B
+	                /* first descriptor in fmt) */
+.B
+	type *an;       /* pointer to result n */
+.B
+	                /* (corresponding to the */
+.B
+	                /* nth descriptor in fmt) */
+
+.B
+int getvallargs(pac, pav, props, vfmt)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	struct ga_props *props; /* control properties */
+.B
+	struct ga_flags *vfmt;  /* array of formats and args */
 .fi
 .SH DESCRIPTION
 .BR getallargs ()
@@ -47,6 +81,48 @@ parses all flag (option) arguments (anywhere on the command line).
 It does not return until all the arguments have been parsed
 correctly (returning 0), or an error has occurred (returning <
 0).
+.PP
+.BR getlallargs ()
+is similar to
+.BR getallargs ()
+but it implements an additional 
+.B ga_props
+parameter that must be initialized with
+.BR getarginit ()
+before it is passed.
+.PP
+.BR getvallargs ()
+is similar to
+.BR getlallargs ()
+but uses a structure
+.B ga_flags
+instead of a format string and a variable arg list with pointers.
+The array of structures
+.BR ga_flags :
+.br
+.ne 8
+.sp
+.nf
+.B
+struct ga_flags {
+.B
+   const char  *ga_format; /* Comma separated list for one flag */
+.B
+   void        *ga_arg;    /* Ptr. to variable to fill for flag */
+.B
+   getpargfun  ga_funcp;   /* Ptr. for function to call (&/~)   */
+.B
+};
+.fi
+.sp
+is terminated by an element with
+.BR "ga_format == NULL" .
+For a
+.B ga_format
+that does not expect a function pointer,
+.B ga_funcp
+is
+.BR NULL .
 .PP
 See
 .BR getargs ()
@@ -125,7 +201,6 @@ none
 .SH AUTHOR
 .nf
 J\*org Schilling
-Seestr. 110
 D\-13353 Berlin
 Germany
 .fi

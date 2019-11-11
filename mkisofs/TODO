@@ -1,4 +1,4 @@
-/* @(#)TODO	1.6 03/04/27 joerg */
+/* @(#)TODO	1.9 08/11/27 joerg */
 	1) Finish multiple paths.  Update nlink count on directories if it is
 	different than what stat returned.  Save the nlink count that we store in
 	the rock ridge attributes so know when we don't have to adjust it.
@@ -55,3 +55,110 @@ Extent # auch als off_t statt int
 
 Wenn HFS, dann max File size == 2 GB?
 
+/*--------------------------------------------------------------------------*/
+
+Files mit ';' im Namen
+
+/*--------------------------------------------------------------------------*/
+
+> Betreff: Re: [Cdrecord-developers] No HFS MultiSession possible
+> 
+> >From: "Sam" <samuel@macuta.de>
+> 
+> >I have tried everything - with no success.
+> >What I want do do is a CD Extra with a Hybrid Data Track. So 
+> >i burn the
+> >first session (audio), read th -msinfo and then try to 
+> >create a hybrid
+> >ISO/HFS track at the given sector.
+> >e.g.: mkisofs -C 0,15582 -J -r -hfs -o "C:\dat.iso" "C:\dat"
+> 
+> If this is on DOS, then the filenames are not valid.
+> A '\' may not appear inside a DOS filername and '\' is not a 
+> valid path name
+> separator. The official path name separator is '/'
+
+This was just an example! I know how to make ISO files with any
+other options but *multisession hfs* (-C .,. -hfs). I tried it 
+also in Linux eith the same error message.
+ 
+> >I tried to do it without -J and/or -r, Windows and Linux, 
+> and so on...
+> >When doing it without -hfs, it works. When doing it with 
+> -hfs but without -C
+> >0,15582 it works, too.
+> 
+> >The error is:
+> >Implementation botch: Initial Padbock should start at 15582 
+> but starts at
+> >15583.
+> 
+> create aone or two small tar files with a sample directory 
+> data that allows to
+> reproduce the problem....
+
+It can be reproduced with any directory. If you use Linux try this:
+
+mkisofs -C 0,15582 -hfs -o "test.iso" "/var/log"
+
+Please try this and tell me if it produceses the same error message.
+It seams, that hfs can't be written for a cd extra 
+(audio+data multisession without importing the first session).
+
+/*--------------------------------------------------------------------------*/
+Koblinger Egmont <egmont@uhulinux.hu>
+
+Using 2.01a23 on Linux, ix86, I created a bootable CD-ROM. The important
+options to mkisofs were these:
+-boot-load-size 4 -no-emul-boot -boot-info-table -b boot/isolinux.bin
+-c boot/boot.cat -J -T -hide-joliet-trans-tbl -r -hide-rr-moved
+
+Then I found that this CD boots correctly on many machines, but doesn't
+boot on many other ones (which are correct hardware too, e.g. my one is
+an Abit BX6 from about 1999).
+
+Some debugging showed me that these machines have problem accessing the
+contents of the CD beyond thirty-some megabytes from BIOS, hence they need
+the boot image and the boot catalog files to go somewhere at the beginning
+of the disc. However, it seems to me that mkisofs doesn't handle these
+files specially, they go to the same position as if they were simple files
+not related to booting.
+
+Then I read README.sort and told mkisofs to put these files at the
+beginning. Now the CD boots on every machine.
+
+My request is: would it be possible to teach mkisofs to automatically put
+the boot image and boot catalog files at the beginning of the iso image?
+(Maybe implemented by adding 1 to their sorting weight so that one can
+override this with the -sort option).
+
+And, in the mean time, mkisofs/README.sort ends with a comment:
+"I have no idea if this is really useful ..."
+In case you shouldn't accept my suggestion for some reason, then at least
+this comment should be changed to "It is useful to put boot images at the
+beginning of the disc ..."
+/*--------------------------------------------------------------------------*/
+Andere Dinge die im Zeitplan davor kommen: 
+ 
+-       Win32/MINGW Port 
+ 
+-       Weitere Boot Unterstuetzung (IRIX, HPUX, ...) 
+ 
+
+/*--------------------------------------------------------------------------*/
+
+Eine Option damit man Symlinks erkennt die aus dem Image herausragen?
+
+/*--------------------------------------------------------------------------*/
+
+Ist es noetig hinter einer Path Table mit ungerader Sektorzahl einen 
+Padblock zu schreiben?
+
+        path_blocks = ISO_BLOCKS(path_table_size); 
+        if (path_blocks & 1) 
+                path_blocks++; 
+
+gleiches fuer jpath_blocks
+
+/*--------------------------------------------------------------------------*/
+Warning: Disabling Joliet support for DVD-Video.

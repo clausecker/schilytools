@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)get.c	1.83 18/12/17 J. Schilling
+ * @(#)get.c	1.84 19/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.83 18/12/17 J. Schilling"
+#pragma ident "@(#)get.c 1.84 19/11/08 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -536,6 +536,12 @@ get(pkt, file)
 			gen_lfile(pkt);
 		if (HADG)
 			goto unlock;
+
+		if (pkt->p_idel[ser].i_dtype == 'U') {	/* unlink delta */
+			unlink(gfile);
+			goto unlock;
+		}
+
 		flushto(pkt, EUSERTXT, FLUSH_NOCOPY);
 		idsetup(pkt, gfile);
 		pkt->p_chkeof = 1;

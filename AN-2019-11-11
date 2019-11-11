@@ -1,0 +1,309 @@
+New features with AN-2019-11-11:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a newer smake
+	*** to compile this source. If your smake is too old and aborts, ensure to
+	*** use the recent smake by calling:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+	The new smake version mentioned above is smake-1.2.4
+	The recent smake version is smake-1.3
+
+	*** Due to the fact that schily-tools 2018-01-26 introduced
+	*** optimizations for the Schily version of SunPro Make, you
+	*** need at least the dmake version from 2018/01/11 with support
+	*** for the "export" directive to compile with this makefile system.
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	BUG WARNING: Please never report bugs only to Linux distributions as
+		they usually do not forward these bug reports upstream and as
+		the Linux distributions typically do not let skilled people
+		check the bugs. We did not hear about a FIFO problem in star
+		for a long time. Then a problem on Linux occurred once
+		every 6000-10000 tries but it did not happen on Solaris after
+		even 10 million tries, so it was not known besides Linux.
+
+
+-	include/schily/wchar.h: The new oder of definitions introduced for
+	Ultrix support caused WEOF to be missing on Ultrix and as a result,
+	diff did not compile anymore.
+
+-	A new method has been introduced to disable the compilation of
+	shared libraries on platforms (like Ultrix) where support for
+	shared libraries is mising.
+
+-	The files DEFAULTS/Defaults.ultrix and DEFAULTS_ENG/Defaults.ultrix
+	now contain a line:
+
+		SHLIB_BUILD=    $(NUMBER_SIGN)
+
+	to switch off compilation for shared libraries on Ultrix.
+
+	to compile on Ultrix, call:
+
+	smake
+	cd sunpro
+	smake CPPOPTX=-I/usr/local/lib/gcc-lib/mips-dec-ultrix4.4/2.7.2/include/cxx/ 
+
+	You may need to call psmake/smake if you did not yet compile and install
+	schilytools on Ultrix.
+
+-	libschily: the new functions wcastoi wcastol wcastolb that have been
+	added with the previous release have been forgotten in the linker map
+	file.
+
+-	libschily: The man pages for the getargs() option parser that has been
+	modeled after a concept Fom UNOS from Charles River Data Systems from
+	1980 have been reworked. This includes new man pages getarginit.3
+	getvargs.3 getvallargs.3 getvfiles.3 getlargs.3 getlallargs.3
+	getlfiles.3 getargerror.3
+
+-	libgetopt: The man page has been reworked and now mentions that the
+	long option in the form "-long" first appeared on Multics, then on UNIX
+	and both before th GNU type long options.
+
+	Options in the form "--long" have been unknown before they have been
+	introduced by GNU around 1990.
+
+-	libgetopt: The file clip.pdf has been added. It explains that the GNU
+	style function interface "getopt_long()" is not suitable as general
+	interface since it cannot be used together with the shell "getopts(1)"
+	builtin command. The PDF has been written by Joseph Kowalski from Sun
+	Microsystems. It shows how architectural decisions have been made at
+	Sun.
+
+	The concept in this PDF is still not really useful as it claims to
+	enforce POSIX rules but at the same time supports GNU style long
+	options by default.
+
+	Our enhanced version keeps compatibility to the last OpenSolaris
+	version of getopt() but supports what people like. This includes
+
+	-	long options without a short equivalent, since long
+		options are used for commands that need more options than
+		possible with short options
+
+	-	Multics/UNIX style long options with a single dash that
+		are in use on UNIX since approx. 1980.
+
+	Note that while the current getopt() supports all basic features that
+	are used in modern programs, it is recommended to use the
+
+		getargs()/getfiles()
+
+	type suite from libschily if there is a need to support more than basic
+	features. The getargs()/getfiles() type functions allow to control the
+	behavior more fine grained.
+
+-	libgetopt: The function getsubopt() from POSIX has been added
+
+-	libgetopt: The man page for getsubopt() has been added
+
+-	star: When using star -copy, the default is now -no-secure-links.
+	This is what users like since they are copying their own data that
+	per definition cannot be untrusted external data.
+
+-	star: star -diff is now "more smooth" to use, when the archive type
+	is GNU TAR and the "atime" or "ctime" properties are not present
+	for a specific file. Before, Jan 1 1970 was the assumed time in
+	the archive.
+
+-	star: star -diff now prints a diff statistics summary.
+
+-	star: New version date
+
+-	mkisofs: added TODO file update that includes local modifications
+	from up to 2008
+
+-	SCCS: fixed a typo in diff.c
+
+	Thanks to Robert Clausecker for reporting
+
+-	SCCS: Added a new delta type 'U' that allows to tell get(1) to remove
+	the g-file. Such SCCS history files are going to be used as
+	placeholders for removed files in the upcomming project mode.
+
+	If a file under control is renamed, it's history file is renamed as
+	well.
+
+	If a file under control is removed, it's history file is renamed to the
+	directory $PROJECTHOME/.sccs/dels/SCCS and a new "unlink" type history
+	file is installed under the old name.
+
+	This is important, as it will allow to resync repository copies
+	using tar. This also works for mercurial based repositories but not for
+	git repositories that did run "git gc" before.
+
+-	SCCS: admin now has a new option -Xunlink. It can be used together with
+	-n to create special SCCS history files that remove the g-file on
+	extraction if a delta is to be extracted that is of type 'U'.
+
+-	SCCS: get now honors delta table entries that use the new 'U' delta
+	type and removed non-writable g-files on extraction. This feature only
+	works if the history file is in SCCS V6 mode.
+
+-	SCCS: the help file "cmds" now mentions the new option -Xunlink
+
+-	SCCS: The man page for sccsfile.4 nowmentions the new Delta Table
+	Type 'U'.
+
+-	SCCS: The man page for "changeset.4" has been reworded to increase
+	reeadablility and it fixed a typo that claimed that the changeset
+	file uses six instead of five fields per entry.
+
+-	SCCS: conpliance tests: the y2000 test suite now exptects a 32 bit
+	"prs" binary to fail with year 3000.
+
+-	SCCS: The makefile changesetman.mk now localizes the content
+	
+		.so man4/sccschangeset.4
+
+	To make it .so man5/sccschangeset.5 on Linux.
+
+-	SCCS a new option -Xmail=address allows admin(1) and delta(1) to add
+	an email address to the delta meta data.
+
+-	SCCS: New version date
+
+-	SunPro Make: The Makefile in sunpro/Make now makes use of the 
+	new construct $(SHLIB_BUILD)DIRS to exclude libmakestate on
+	Ultrix as Ultrix does not suppport shared libraries.
+
+-	SunPro Make: The -C option that has been recently been introduced was
+	processed too late (after ".make.rules" may have been read).
+
+	The -C option is now handled ealier (before searching for .make.rules),
+	to use the correct local default rules in case they exist.
+
+-	SunPro Make: The check for -C dir in MAKEFLAGS has been improved.
+	The previous implementation did catch and suppress -C dir but not 
+	-Cdir.
+	
+
+
+
+-	SCCS TODO:
+
+	-	Convert sccs.c to use -NSCCS in the back end programs instead
+		of converting g-file names from the command line into s.file
+		names in the frontend in order to forward s.file names to the
+		backend programs. Doing it this way allows us to have the SCCS
+		history files "off tree" in a separate directory tree starting
+		with ".sccs/" at the "project root" directory, as the related
+		code to convert path names is in libcomobj::bulkprepare().
+
+	-	Add code to admin(1) and delta(1) to retrieve the list of
+		new or modified files in order to have all important code
+		for a "sccs commit" in a single program that does not need to
+		deal with ARG_MAX limitations.
+
+	-	Add code to admin(1), delta(1) and get(1) to maintain/understand
+		the changeset file.
+
+	-	Add code to libcomobj to understand the changeset file,
+		which is needed in order to e.g. know the file names and file
+		specific SIDs/state that correspond to a project global SID.
+
+	-	Add code to all programs to maintain a lock (for the file
+		$PROJECTHOME/.sccs/SCCS/s.changeset, that would be in the file
+		$PROJECTHOME/.sccs/SCCS/z.changeset) to maintain a project
+		global lock.
+
+	-	Find/verify a complete transactional model that allows to repair
+		complex changes to the set of files for a project that have
+		been aborted in the middle. The current idea is to create the
+		file $PROJECTHOME/.sccs/changeset with the deltas to the
+		changeset during a complex update operation.
+
+	-	Find a way to decide when to use SCCS v6 type history files.
+
+		For the project mode, this is needed in order to prevent 
+		historic SCCS implementations to believe they could modify
+		files without knowing about project global locks.
+
+		Currently, SCCS V67 needs to be anebale manually for every
+		history file using "admin".
+
+
+
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be named SUSv8).
+					The development of SUSv8 will start in
+					late 2016.
+
+	We are now expecting the Bourne Shell to be fully POSIX compliant.
+
+-	Bourne Shell further TODO list:
+
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not execute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

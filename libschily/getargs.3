@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getargs
-. \" @(#)getargs.3	1.6 16/10/13 Copyright 1985 J. Schilling
+. \" @(#)getargs.3	1.8 19/11/04 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds s sz
 .TH GETARGS 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-getargs() \- parses arguments until a non-flag is reached
+getargs(), getlargs(), getvargs() \- parse arguments until a non-flag is reached
 .SH SYNOPSIS
 .nf
 #include <schily/getargs.h>
@@ -55,6 +55,17 @@ int getlargs(pac, pav, props, fmt, a1, \|.\|.\|., an)
 	type *an;       /* pointer to result n (corresponding */
 .B
 	                /* to the nth descriptor in fmt) */
+
+.B
+int getvargs(pac, pav, props, vfmt)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	struct ga_props *props; /* control properties */
+.B
+	struct ga_flags *vfmt;  /* array of formats and args */
 .fi
 .SH DESCRIPTION
 .BR getargs ()
@@ -65,29 +76,12 @@ or has an
 .RB ' = '
 in it and trys to find a matching description in
 .BR fmt .
-If a match is found, the corresponding value pointed at by
+If a match is found, the corresponding value pointed to by
 .B a1
 to
 .B an
 is set to the value according to the conversion specification.
-.PP
-.BR getlargs ()
-is similar to
-.BR getargs ()
-but it implements an additional 
-.B ga_props
-parameter that must be initialized with
-.BR getarginit ()
-before it is passed.
-.LP
-Each normal format takes one address argument from
-.B a1
-to
-.B an
-and each function type format takes two address arguments from
-.B a1
-to
-.BR an .
+
 .PP
 If a match is not found,
 .BR getargs ()
@@ -120,11 +114,75 @@ and
 points to the argument after the argument "\c
 .B \-\-\c
 ".
+
+.PP
+.BR getlargs ()
+is similar to
+.BR getargs ()
+but it implements an additional 
+.B ga_props
+parameter that must be initialized with
+.BR getarginit ()
+before it is passed.
+Instead of using an explicit structure parameter, the special parameter
+.B GA_NO_PROPS
+may be used to enforce default behavior and the special parameter
+.B GA_POSIX_PROPS
+may be used to enforce
+.B POSIX
+compliant behavior.
+
+.PP
+.BR getvargs ()
+is similar to
+.BR getlargs ()
+but uses a structure
+.B ga_flags
+instead of a format string and a variable arg list with pointers.
+The array of structures
+.BR ga_flags :
+.br
+.ne 8
+.sp
+.nf
+.B
+struct ga_flags {
+.B
+   const char  *ga_format; /* Comma separated list for one flag */
+.B
+   void        *ga_arg;    /* Ptr. to variable to fill for flag */
+.B
+   getpargfun  ga_funcp;   /* Ptr. for function to call (&/~)   */
+.B
+};
+.fi
+.sp
+is terminated by an element with
+.BR "ga_format == NULL" .
+For a
+.B ga_format
+that does not expect a function pointer,
+.B ga_funcp
+is
+.BR NULL .
+
+.LP
+With
+.BR getargs ()
+each normal format takes one address argument from
+.B a1
+to
+.B an
+and each function type format takes two address arguments from
+.B a1
+to
+.BR an .
+
 .PP
 In the description, it is assumed that
-.B pac=&ac
+.B pac\ =\ &ac
 and
-.BR pav=&av ,
+.BR pav\ =\ &av ,
 where
 .B ac
 and
@@ -140,6 +198,7 @@ and
 as it verifies each argument and reflects the
 .I current
 position back to the user.
+
 .PP
 The format string is a series of one or more option descriptors.
 Each option descriptor starts with the
@@ -157,64 +216,17 @@ It is followed by the optional
 .B format descriptor
 and an optional
 .BR "size modifier" .
+
 .PP
 Legal conversions and their meanings are:
 .TP
-.BR #c " or " #C
-.B Char integer
-.RS
-.PP
-The remainder of the current argument, or if it is
-empty, the next existing argument is converted to a
-character sized integer value. An error in conversion results
-in a
-.B BADFLAG
-situation.
-.RE
-.TP
-.BR #s " or " #S
-.B Short integer
-.RS
-.PP
-The remainder of the current argument, or if it is
-empty, the next existing argument is converted to a
-short integer value. An error in conversion results
-in a
-.B BADFLAG
-situation.
-.RE
-.TP
-.BR # " or " #i " or " #I
+.B #
 .B Integer
 .RS
 .PP
 The remainder of the current argument, or, if it is
 empty, the next existing argument is converted to an
 int value. An error in conversion results in a
-.B BADFLAG
-situation.
-.RE
-.TP
-.BR #l " or " #L
-.B Long integer
-.RS
-.PP
-The remainder of the current argument, or if it is
-empty, the next existing argument is converted to a
-long integer value. An error in conversion results
-in a
-.B BADFLAG
-situation.
-.RE
-.TP
-.BR #ll " or " #LL
-.B Long long integer
-.RS
-.PP
-The remainder of the current argument, or if it is
-empty, the next existing argument is converted to a
-long long integer value. An error in conversion results
-in a
 .B BADFLAG
 situation.
 .RE
@@ -290,7 +302,7 @@ situation is returned.
 .RE
 .TP
 .B &
-.B Function
+.B Call function
 .RS
 .PP
 This format takes two parameters in the argument list of
@@ -303,6 +315,7 @@ Because the argument just after the function address argument is passed
 as a second argument to the function, common routines can have
 their results in different places depending on which switch is
 invoked.
+
 .LP
 The function is called with five arguments:
 .TP
@@ -324,6 +337,7 @@ The current value of
 .TP
 .BR 5 )
 A pointer to the matching part of the format string.
+
 .LP
 The function must return one of these values:
 .TP 18
@@ -356,7 +370,7 @@ each time.
 .RE
 .TP
 .B ~
-.BR Function " for " BOOL "ean flag
+.BR "Call function" " for " BOOL "ean flag
 .RS
 .PP
 This is a variant of the
@@ -369,8 +383,42 @@ options at the same time.
 As boolean flags take no arguments,
 the first argument of the called function points to an empty string.
 .RE
+.ne 8
+.LP
+The conversion types:
+.TP 12
+.B #
+Integer conversion
+.TP
+.B +
+Increment integer
+.TP
+.B %[01]
+Boolean assignement
+.LP
+may have a size modifier:
+.TP
+.BR c " or " C
+The assignement is made to an character sized object.
+.TP
+.BR s " or " S
+The assignement is made to a short int sized object.
+.TP
+.I empty
+.PD 0
+.TP
+.BR i " or " I
+.PD
+The assignement is made to an int sized object.
+.TP
+.BR l " or " L
+The assignement is made to a long int sized object.
+.TP
+.BR ll " or " LL
+The assignement is made to a long long int sized object.
+
 .PP
-Descriptors are separated by a
+Flag (option) descriptors are separated by a
 .RB ' , '
 (without whitespace) in the
 format string. They correspond in order to the resultant pointers,
@@ -397,11 +445,11 @@ If the flag should start with a
 the
 .RB ' \+ '
 needs to be in the format string.
-If the flag should start with a
+If a long flag should start with a
 .RB ' \-\- ',
-a single
+and a log flag with a single dash should not  be permitted, a single
 .RB ' \- '
-needs to be in the format string.
+needs to be in front of the flag name in the format string.
 .PP
 .ne 3
 Flags, where conversion is to take place, may appear
@@ -450,6 +498,7 @@ where
 .B flag
 is the matching flag string. No additional effort is
 required to get these different ways of specifying values.
+
 .LP
 For flags or type:
 .BR * ,
@@ -500,6 +549,7 @@ contains the offending command line argument.
 .B BADFMT\ \ \-2
 A bad format descriptor string has been detected.
 The calling program, rather than the user, was in error.
+
 .LP
 General rules for the return code:
 .TP 14
@@ -511,6 +561,7 @@ All arguments have been parsed.
 .TP
 .B <\ 0
 An error occurred or not a file type argument.
+
 .LP
 Flag and file arg processing should be terminated after getting a
 return code <= 0.
@@ -549,9 +600,9 @@ before calling
 .PP
 .BR getargs ()
 should only be used when the position of the switches
-influences how an argument is processed (e.g., format and pr
-commands), or when all switches must be before all the arguments
-(e.g, write command). In other cases, use
+influences how an argument is processed,
+or when all switches must be before all file type arguments.
+In other cases, use
 .BR getallargs ().
 
 .SH BUGS
