@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)get.c	1.84 19/11/08 J. Schilling
+ * @(#)get.c	1.85 19/11/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.84 19/11/08 J. Schilling"
+#pragma ident "@(#)get.c 1.85 19/11/12 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -792,7 +792,7 @@ register struct packet *pkt;
 	       line[0] == CTLCHAR && line[1] == STATS) {
 		fgets(line,sizeof(line),in);
 		del_ab(line,&dt,pkt);
-		if (dt.d_type == 'D') {
+		if (dt.d_type == 'D' || dt.d_type == 'U') {
 			reason = pkt->p_apply[dt.d_serial].a_reason;
 			if (pkt->p_apply[dt.d_serial].a_code == APPLY) {
 				OUTPUTC(' ');
@@ -853,7 +853,7 @@ register struct packet *pkt;
 					continue;
 				case MRNUM:
 				case COMMENTS:
-					if (dt.d_type == 'D') {
+					if (dt.d_type == 'D' || dt.d_type == 'U') {
 					   if (fprintf(out,"\t%s",&line[3]) == EOF)
 					      xmsg(outname,
 					         NOGETTEXT("gen_lfile"));

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.247 19/10/25 Copyright 2012-2019 J. Schilling
+.\" @(#)sh.1	1.248 19/11/18 Copyright 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2019/10/25" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2019/11/18" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -739,7 +739,9 @@ characters up to a newline to be ignored.
 .LP
 If the hash character
 .B #
-is the first character in a command line and hash commands
+is the
+.B first character
+in a command line and hash commands
 have been enabled via
 .BR "set\ \-o\ hashcmds" ,
 the whole line is processed by the hash command interpreter.
@@ -891,13 +893,29 @@ otherwise the new default is set.
 .TP
 .B #
 In interactive mode,
-when entered on the command line, this prints the shell version.
+when entered as
+.B first character
+on the command line, this prints the shell version.
+.sp
 After the command
-.B set -o hashcmds
-in a shell script, if a
+.B set\ \-o\ hashcmds
+has been issued in a shell script, a
 .B #
-is seen inside that shell script and a space follows, the rest of
-the line is interpreted as comment.
+as
+.B first character
+of a command line inside that shell script,
+if followed by a non-space character is no longer
+interpreted as a comment. This may be a problem in the file
+.B $HOME/.shrc
+as this file is typically used to enable
+.B hashcmds
+via
+.B set\ \-o\ hashcmds
+for an interactive shell.
+It is thus recommended to have
+.B set\ \-o\ hashcmds
+close to the bottom of the file
+.BR $HOME/.shrc .
 
 .SS "Alias Substitution"
 .LP
@@ -2061,9 +2079,9 @@ is:
 .br
 .B set -o fdpipe
 .br
-.B set -o hashcmds
-.br
 .B set -o hostprompt
+.br
+.B set -o hashcmds
 .br
 .B set -o time
 .sp

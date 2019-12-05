@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)val.c	1.60 19/05/15 J. Schilling
+ * @(#)val.c	1.61 19/11/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.60 19/05/15 J. Schilling"
+#pragma ident "@(#)val.c 1.61 19/11/12 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -536,13 +536,20 @@ char	*c_name;
 			satoi(l, &gpkt.p_ihash);
 			gpkt.p_chash = 0;
 			gpkt.p_uchash = 0;
-			if (HADR)
+			if (HADR) {
+				struct sid	ssid;
+				char		*p;
+
 				/*
 				check for invalid or ambiguous SID.
 				*/
-				if (invalid(c_sid)) {
+				p = sid_ab(c_sid, &ssid);
+				if (*p ||
+				    (ssid.s_rel == 0 && ssid.s_lev) ||
+				    (ssid.s_lev == 0 && ssid.s_br) ||
+				    (ssid.s_br == 0 && ssid.s_seq))
 					infile_err |= INVALSID_ERR;
-				}
+			}
 			/*
 			read delta table checking for errors and/or
 			SID.
@@ -852,41 +859,6 @@ register char	*file;
 	   printf(gettext("    %s: Unknown or duplicate keyletter argument\n"), file);
 	if (code & FILARG_ERR)
 		printf(gettext("    %s: missing file argument\n"), file);
-}
-
-
-/*
- * This function takes as its argument the SID inputed and determines
- * whether or not it is valid (e. g. not ambiguous or illegal).
- */
-
-static int
-invalid(i_sid)
-register char	*i_sid;
-{
-	register int count;
-	register int digits;
-	count = digits = 0;
-	if (*i_sid == '0' || *i_sid == '.')
-		return (1);
-	i_sid++;
-	digits++;
-	while (*i_sid != '\0') {
-		if (*i_sid++ == '.') {
-			digits = 0;
-			count++;
-			if (*i_sid == '0' || *i_sid == '.')
-				return (1);
-		}
-		digits++;
-		if (digits > 5)
-			return (1);
-	}
-	if (*(--i_sid) == '.')
-		return (1);
-	if (count == 1 || count == 3)
-		return (0);
-	return (1);
 }
 
 
@@ -1202,11 +1174,12 @@ register char *d_sid;
 			return (1);
 		getdel(&del, l, pkt);
 		if (HADR && !(infile_err & INVALSID_ERR)) {
-			if (equal(d_sid, del.osid) && del.type == 'D')
+			if (equal(d_sid, del.osid) &&
+			    (del.type == 'D' || del.type == 'U'))
 				goods++;
 		}
 		if (gpkt.p_flags & PF_V6 &&
-		    HADH && del.type == 'D') {
+		    HADH && (del.type == 'D' || del.type == 'U')) {
 			int	ser;
 
 			satoi(del.serial, &ser);

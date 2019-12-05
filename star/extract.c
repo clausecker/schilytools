@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.166 19/06/16 Copyright 1985-2019 J. Schilling */
+/* @(#)extract.c	1.167 19/11/29 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.166 19/06/16 Copyright 1985-2019 J. Schilling";
+	"@(#)extract.c	1.167 19/11/29 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -1379,17 +1379,17 @@ _make_dcopy(info, do_symlink, retp, eflags)
 	char	*dir = info->f_lname;
 	DIR	*dirp;
 	char	*dp;
-	int	nents;
+	size_t	nents;
 	int	ret = TRUE;
 	FINFO	ninfo;
 
 	if (do_symlink && info->f_lname[0] != '/') {
 
 		char	*p = strrchr(info->f_name, '/');
-		int	len;
+		size_t	len;
 
 		if (p) {
-			int	llen;
+			size_t	llen;
 
 			len = p - info->f_name + 1;
 			if ((len + (llen = strlen(info->f_lname))) > PATH_MAX) {
@@ -1435,7 +1435,7 @@ _make_dcopy(info, do_symlink, retp, eflags)
 
 	while (nents > 0) {
 		char	*name;
-		int	nlen;
+		size_t	nlen;
 
 		name = &dp[1];
 		nlen = strlen(name);
@@ -1503,7 +1503,7 @@ copy_file(from, to, do_symlink, eflags)
 	 */
 	if (do_symlink && from[0] != '/') {
 		char	*p = strrchr(to, '/');
-		int	len;
+		size_t	len;
 
 		if (p) {
 			int	llen;
@@ -2246,7 +2246,7 @@ inside_tree(info)
 	char	*npath = _npath;
 	char	*p;
 	size_t	len;
-	ssize_t	nlen;
+	int	nlen;			/* Solaris resolvepath() returns int */
 	BOOL	ret = FALSE;
 extern	const	char	*wdir;
 

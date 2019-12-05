@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.137 19/09/27 Copyright 1996-2019 J. Schilling */
+/* @(#)starsubs.h	1.141 19/12/03 Copyright 1996-2019 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -66,6 +66,7 @@ extern	BOOL	openremote	__PR((void));
 extern	void	opentape	__PR((void));
 extern	void	closetape	__PR((void));
 extern	void	changetape	__PR((BOOL donext));
+extern	void	runnewvolscript	__PR((int volno, int nindex));
 extern	void	nextitape	__PR((void));
 extern	void	nextotape	__PR((void));
 extern	int	startvol	__PR((char *buf, int amount));
@@ -120,7 +121,9 @@ extern	BOOL	update_newer	__PR((FINFO *info));
 extern	void	checklinks	__PR((void));
 extern	int	_fileread	__PR((int *fp, void *buf, int len));
 extern	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
-extern	void	createlist	__PR((void));
+#if	defined(_SCHILY_WALK_H)
+extern	void	createlist	__PR((struct WALK *state));
+#endif
 #ifdef _STAR_H
 extern	BOOL	read_symlink	__PR((char *sname, char *name,
 					FINFO *info, TCB *ptb));
@@ -287,20 +290,20 @@ extern	void	cpio_resync	__PR((void));
 extern	void	xbinit		__PR((void));
 extern	void	xbbackup	__PR((void));
 extern	void	xbrestore	__PR((void));
-extern	int	xhsize		__PR((void));
+extern	size_t	xhsize		__PR((void));
 extern	void	info_to_xhdr	__PR((FINFO *info, TCB *ptb));
 extern	BOOL	xhparse		__PR((FINFO *info, char	*p, char *ep));
-extern	void	xh_rangeerr	__PR((char *keyword, char *arg, int len));
+extern	void	xh_rangeerr	__PR((char *keyword, char *arg, size_t len));
 extern	void	gen_xtime	__PR((char *keyword, time_t sec, Ulong nsec));
 extern	void	gen_unumber	__PR((char *keyword, Ullong arg));
 extern	void	gen_number	__PR((char *keyword, Llong arg));
-extern	void	gen_text	__PR((char *keyword, char *arg, int alen,
+extern	void	gen_text	__PR((char *keyword, char *arg, size_t alen,
 								Uint flags));
 
 extern	void	tcb_to_xhdr_reset __PR((void));
 extern	int	tcb_to_xhdr	__PR((TCB *ptb, FINFO *info));
 
-extern	BOOL	get_xtime	__PR((char *keyword, char *arg, int len,
+extern	BOOL	get_xtime	__PR((char *keyword, char *arg, size_t len,
 						time_t *secp, long *nsecp));
 #ifdef	__needed_
 extern	BOOL	get_number	__PR((char *keyword, char *arg, Llong *llp));
@@ -394,6 +397,7 @@ extern	BOOL	getinfo		__PR((char *name, FINFO *info));
 extern	BOOL	getinfoat	__PR((int fd, char *name, FINFO *info));
 #endif
 #ifdef	_SCHILY_STAT_H
+extern	BOOL	getstat		__PR((char *name, struct stat *sp));
 extern	BOOL	stat_to_info	__PR((int fd, struct stat *sp, FINFO *info));
 #endif
 #ifdef	EOF
@@ -457,10 +461,10 @@ extern	void	set_acls	__PR((FINFO *info));
  */
 extern	void	utf8_init	__PR((int type));
 extern	void	utf8_fini	__PR((void));
-extern	int	to_utf8		__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
-extern	BOOL	from_utf8	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
+extern	size_t	to_utf8		__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
+extern	BOOL	from_utf8	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
 
 /*
  * fflags.c

@@ -1,0 +1,24 @@
+i pkginfo
+i depend
+#i copyright
+i checkpkg_override
+d none bin ? ? ?
+f none bin/make 0755 root bin
+l none bin/dmake=../bin/make
+d none lib ? ? ?
+f none lib/libmakestate.so.1 0444 root bin
+s none lib/libmakestate.so=libmakestate.so.1
+l none lib/svr4.make=../bin/make
+d none xpg4 ? ? ?
+d none xpg4/bin ? ? ?
+l none xpg4/bin/make=../../bin/make
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/man1 ? ? ?
+f none share/man/man1/make.1 0444 root bin
+f none share/man/man1/sysV-make.1 0444 root bin
+f none share/man/man1/dmake.1 0444 root bin
+d none share/lib ? ? ?
+d none share/lib/make 0755 root bin
+f none share/lib/make/make.rules 0644 root bin
+f none share/lib/make/svr4.make.rules 0644 root bin

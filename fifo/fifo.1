@@ -1,0 +1,140 @@
+.\" @(#)fifo.1	1.1 19/12/03 Copyr 2019 J. Schilling
+.\" Manual page for fifo
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH FIFO 1L "2019/12/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+fifo \- a fifo buffer that reads from stdin and writes to stdout
+.SH SYNOPSIS
+.B
+fifo
+[
+.I options
+]
+.SH DESCRIPTION
+.B fifo
+creates a shared memory area, then forks into two processes.
+.B fifo
+then reads from
+.B stdin
+and puts the data into the shared memory area.
+The other process takes data from the shared memory area and writes it to
+.BR stdout .
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.br
+.ne 4
+.TP
+.BI bs= #
+Set both input and output block size to #.
+You may use the same method as in 
+.BR dd (1)
+and
+.BR sdd (1).
+The number representing the size is taken in bytes unless otherwise specified.
+If a number is followed directly by the letter `.', `w', `b', `k', `m', `g',
+`t', or `p',
+the size is multiplied by 1, 2, 512, 1024, 1024*1024, 1024*1024*1024,
+1024*1024*1024*1024 or 1024*1024*1024*1024*1024.
+If the size consists of numbers separated by `x' or `*', multiplication of the 
+two numbers is performed.
+Thus 
+.I "bs=7x8k
+will specify a blocksize of 56\ kBytes.
+Blocksize must be a multiple of 512 bytes.
+.br
+.ne 4
+.TP
+.BI fs= #
+Set fifo size to #.
+See 
+.I bs=
+for the possible syntax.
+.sp
+The default size of the fifo is 1 Mbyte on Sun mc68000 systems,
+4 Mbytes on non mmap() aware Linux systems and 8 Mbytes on all other systems.
+.br
+.ne 4
+.TP
+.BI ibs= #
+Set input buffer size to #.
+See 
+.I bs=
+for the possible syntax.
+.sp
+If unspecified and input is a pipeline, 
+.B PIPE_BUF
+is used.
+.br
+.ne 4
+.TP
+.BI obs= #
+Set output buffer size to #.
+See 
+.I bs=
+for the possible syntax.
+.sp
+If unspecified and output is a pipeline, 
+.B PIPE_BUF
+is used.
+.br
+.ne 4
+.TP
+.B \-no-statistics
+Do not print
+.B fifo
+statistics at the end.
+.br
+.ne 4
+.TP
+.B \-debug
+Print additional debug messages.
+.br
+.ne 4
+.TP
+.B \-help
+Prints a short summary of the 
+.B fifo
+options and exists.
+.br
+.ne 4
+.TP
+.B \-version
+Prints the 
+.B fifo
+version number string and exists.
+
+.SH EXAMPLES
+.SH ENVIRONMENT
+.SH "EXIT STATUS
+.SH FILES
+.SH "SEE ALSO"
+.BR sdd (1),
+.BR star (1).
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.SH AUTHORS
+The
+.B fifo
+program was first written by J. Schilling in 1989 as a separate test program
+for buffering for
+.BR star .
+It was later included into the
+.B star
+program.
+This program is a new attempt from 2019 to have a separate
+.B fifo
+program again.

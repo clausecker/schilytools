@@ -22,6 +22,7 @@ f none bin/count 0755 root bin
 f none bin/cstyle.js 0755 root bin
 s none bin/cstyle=cstyle.js
 f none bin/Cstyle 0755 root bin
+f none bin/fifo 0755 root bin
 f none bin/hdump 0755 root bin
 f none bin/lndir 0755 root bin
 f none bin/match 0755 root bin
@@ -30,12 +31,14 @@ l none bin/od=hdump
 f none bin/obosh 0755 root bin
 f none bin/p 0755 root bin
 f none bin/pbosh 0755 root bin
+f none bin/printf 0755 root bin
 f none bin/scut 0755 root bin
 f none bin/sdd 4711 root bin
 f none bin/sfind 0755 root bin
 f none bin/spaste 0755 root bin
 f none bin/sformat 0755 root bin
 f none bin/sgrow 0755 root bin
+f none bin/strar 0755 root bin
 f none bin/label 0755 root bin
 f none bin/termcap 0755 root bin
 f none bin/translit 0755 root bin
@@ -56,6 +59,7 @@ f none share/man/man1/bsh.1 0444 root bin
 f none share/man/man1/cpp.1 0444 root bin
 f none share/man/man1/sh.1 0444 root bin
 f none share/man/man1/obosh.1 0444 root bin
+f none share/man/man1/pbosh.1 0444 root bin
 f none share/man/man1/btcflash.1 0444 root bin
 f none share/man/man1/cal.1 0444 root bin
 f none share/man/man1/calc.1 0444 root bin
@@ -65,6 +69,7 @@ f none share/man/man1/compare.1 0444 root bin
 f none share/man/man1/copy.1 0444 root bin
 f none share/man/man1/count.1 0444 root bin
 f none share/man/man1/cstyle.1 0444 root bin
+f none share/man/man1/fifo.1 0444 root bin
 f none share/man/man1/hdump.1 0444 root bin
 f none share/man/man1/jsh.1 0444 root bin
 f none share/man/man1/label.1 0444 root bin
@@ -76,18 +81,25 @@ f none share/man/man1/od.1 0444 root bin
 f none share/man/man1/p.1 0444 root bin
 f none share/man/man1/pfbsh.1 0444 root bin
 f none share/man/man1/pfsh.1 0444 root bin
+f none share/man/man1/printf.1 0444 root bin
 f none share/man/man1/scut.1 0444 root bin
 f none share/man/man1/sdd.1 0444 root bin
 f none share/man/man1/sfind.1 0444 root bin
+f none share/man/man1/sgrow.1 0444 root bin
 f none share/man/man1/spaste.1 0444 root bin
+f none share/man/man1/strar.1 0444 root bin
 f none share/man/man1/termcap.1 0444 root bin
 f none share/man/man1/translit.1 0444 root bin
 f none share/man/man1/udiff.1 0444 root bin
 d none share/man/man8 ? ? ?
 f none share/man/man8/sformat.8 0444 root bin
 d none share/doc ? ? ?
-d none share/doc/schilyutils 0755 root bin
-f none share/doc/schilyutils/dotfiles.tar.bz2 0644 root bin
+d none share/doc/bosh 0755 root bin
+f none share/doc/bosh/dotfiles.tar.bz2 0644 root bin
+d none share/doc/bsh 0755 root bin
+f none share/doc/bsh/dotfiles.tar.bz2 0644 root bin
+d none share/doc/ved 0755 root bin
+f none share/doc/ved/dotfiles.tar.bz2 0644 root bin
 d none xpg4 ? ? ?
 d none xpg4/bin ? ? ?
 l none xpg4/bin/od=../../bin/hdump

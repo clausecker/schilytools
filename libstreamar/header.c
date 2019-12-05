@@ -1,8 +1,8 @@
-/* @(#)header.c	1.94 19/10/13 Copyright 2001-2018 J. Schilling */
+/* @(#)header.c	1.96 19/12/03 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.94 19/10/13 Copyright 2001-2018 J. Schilling";
+	"@(#)header.c	1.96 19/12/03 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Handling routines for StreamArchive header metadata.
@@ -18,7 +18,7 @@ static	UConst char sccsid[] =
  *	include any UTF-8 character, the "value" is using UTF-8 or
  *	binary data.
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -88,9 +88,9 @@ struct _unknown {
 LOCAL	void	_xbinit		__PR((void));
 EXPORT	void	xbreset		__PR((void));
 EXPORT	char	*gxbuf		__PR((void));
-EXPORT	int	gxbsize		__PR((void));
-EXPORT	int	gxblen		__PR((void));
-EXPORT	void	xbgrow		__PR((int newsize));
+EXPORT	size_t	gxbsize		__PR((void));
+EXPORT	size_t	gxblen		__PR((void));
+EXPORT	void	xbgrow		__PR((size_t newsize));
 #ifdef	__USED__
 LOCAL	void	check_xtime	__PR((char *keyword, FINFO *info));
 #endif
@@ -98,45 +98,45 @@ EXPORT	void	gen_xtime	__PR((char *keyword, time_t sec, Ulong nsec));
 EXPORT	void	gen_unumber	__PR((char *keyword, Ullong arg));
 EXPORT	void	gen_number	__PR((char *keyword, Llong arg));
 #ifdef	__USED__
-LOCAL	void	gen_iarray	__PR((char *keyword, ino_t *arg, int ents, int len));
+LOCAL	void	gen_iarray	__PR((char *keyword, ino_t *arg, size_t ents, size_t len));
 #endif
-EXPORT	void	gen_text	__PR((char *keyword, char *arg, int alen,
+EXPORT	void	gen_text	__PR((char *keyword, char *arg, size_t alen,
 								Uint flags));
-LOCAL	int	len_len		__PR((int len));
+LOCAL	int	len_len		__PR((size_t len));
 LOCAL	xtab_t	*lookup		__PR((char *cmd, int clen, xtab_t *cp));
 EXPORT	BOOL	xhparse		__PR((FINFO *info, char	*p, char *ep));
 LOCAL	void	print_unknown	__PR((char *keyword));
 EXPORT	int	setnowarn	__PR((int val));
-LOCAL	void	xh_rangeerr	__PR((char *keyword, char *arg, int len));
-LOCAL	void	print_toolong	__PR((char *keyword, char *arg, int len));
-LOCAL	BOOL	get_xtime	__PR((char *keyword, char *arg, int len,
+LOCAL	void	xh_rangeerr	__PR((char *keyword, char *arg, size_t len));
+LOCAL	void	print_toolong	__PR((char *keyword, char *arg, size_t len));
+LOCAL	BOOL	get_xtime	__PR((char *keyword, char *arg, size_t len,
 						time_t *secp, long *nsecp));
-LOCAL	void	get_atime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_ctime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_mtime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_atime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_ctime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_mtime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 LOCAL	BOOL	get_xnumber	__PR((char *keyword, char *arg, Ullong *llp, char *type));
 LOCAL	BOOL	get_unumber	__PR((char *keyword, char *arg, Ullong *ullp, Ullong maxval));
 LOCAL	BOOL	get_snumber	__PR((char *keyword, char *arg, Ullong *ullp, BOOL *negp, Ullong minval, Ullong maxval));
-LOCAL	void	get_uid		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_gid		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_uname	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_gname	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_path	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_lpath	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_size	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_status	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_mode	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_uid		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_gid		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_uname	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_gname	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_path	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_lpath	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_size	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_status	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_mode	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 LOCAL	void	unsup_arg	__PR((char *keyword, char *arg));
 LOCAL	void	bad_utf8	__PR((char *keyword, char *arg));
 
@@ -158,8 +158,8 @@ LOCAL	Uchar	dtab[] = "0123456789";
 					;
 
 LOCAL	char	*xbuf;	/* Space used to prepare I/O from/to extended headers */
-LOCAL	int	xblen;	/* the length of the buffer for the extended headers */
-LOCAL	int	xbidx;	/* The index where we start to prepare next entry    */
+LOCAL	size_t	xblen;	/* the length of the buffer for the extended headers */
+LOCAL	size_t	xbidx;	/* The index where we start to prepare next entry    */
 
 LOCAL	unkn_t	*unkn;	/* A list of unknown keywords to print warnings once */
 
@@ -232,13 +232,13 @@ gxbuf()
 	return (xbuf);
 }
 
-EXPORT int
+EXPORT size_t
 gxbsize()
 {
 	return (xbidx);
 }
 
-EXPORT int
+EXPORT size_t
 gxblen()
 {
 	return (xblen);
@@ -249,10 +249,10 @@ gxblen()
  */
 EXPORT void
 xbgrow(newsize)
-	int	newsize;
+	size_t	newsize;
 {
 	char	*newbuf;
-	int	i;
+	size_t	i;
 	int	ps = getpagesize();
 
 	/*
@@ -331,7 +331,7 @@ gen_xtime(keyword, sec, nsec)
 		char	nb[32];
 	register char	*p;
 	register char	*np;
-	register int	len;
+	register size_t	len;
 
 	if (nsec >= 1000000000)	/* We would create an unusable string */
 		nsec = 0;
@@ -412,8 +412,8 @@ gen_unumber(keyword, arg)
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
+	register size_t	len;
+	register size_t	i;
 
 	if ((xbidx + 100) > xblen)
 		xbgrow(100);
@@ -476,8 +476,8 @@ gen_number(keyword, arg)
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
+	register size_t	len;
+	register size_t	i;
 		BOOL	neg = FALSE;
 
 	if ((xbidx + 100) > xblen)
@@ -545,16 +545,16 @@ LOCAL void
 gen_iarray(keyword, arg, ents, len)
 	register char	*keyword;
 		ino_t	*arg;
-		int	ents;
-	register int	len;	/* Estimated length */
+		size_t	ents;
+	register size_t	len;	/* Estimated length */
 {
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register Ullong	ll;
 	register char	*p;
 	register char	*np;
-	register int	i;
-	register int	llen;
-	register int	olen;
+	register size_t	i;
+	register size_t	llen;
+	register size_t	olen;
 
 	/*
 	 * The following code is equivalent to:
@@ -586,7 +586,7 @@ gen_iarray(keyword, arg, ents, len)
 	len = p - &xbuf[xbidx];	/* strlen(keyword) + ' ' + '='		    */
 	for (i = 0; i < ents; i++) {
 		if (((p - xbuf) + 100) > xblen) {
-			register int	xb_idx;
+			register size_t	xb_idx;
 			/*
 			 * The address for xbuf may change in case that
 			 * realloc() cannot grow the current memory chunk,
@@ -647,15 +647,15 @@ EXPORT void
 gen_text(keyword, arg, alen, flags)
 	register char	*keyword;
 		char	*arg;
-		int	alen;
+		size_t	alen;
 		Uint	flags;
 {
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
-	register int	llen;
-	register int	olen;
+	register size_t	len;
+	register size_t	i;
+	register size_t	llen;
+	register size_t	olen;
 
 	/*
 	 * The following code is equivalent to:
@@ -664,7 +664,7 @@ gen_text(keyword, arg, alen, flags)
 	 *
 	 * But avoids copying if possible.
 	 */
-	if ((len = alen) == -1)
+	if ((len = alen) == (size_t)-1)
 		len = strlen(arg);
 	alen = len;
 	if (flags & T_ADDSLASH)		/* only used if 'path' is a dir	    */
@@ -724,7 +724,7 @@ gen_text(keyword, arg, alen, flags)
 
 LOCAL int
 len_len(len)
-	register int	len;
+	register size_t	len;
 {
 	if (len <= 8)
 		return (1);
@@ -871,26 +871,26 @@ LOCAL void
 xh_rangeerr(keyword, arg, len)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (nowarn)
 		return;
 	errmsgno(EX_BAD,
 		"WARNING: %s '%.*s' in extended header exceeds local range.\n",
-		keyword, len, arg);
+		keyword, (int)len, arg);
 }
 
 LOCAL void
 print_toolong(keyword, arg, len)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (nowarn)
 		return;
 	errmsgno(EX_BAD,
 		"WARNING: %s '%.*s' in extended header too long, ignoring.\n",
-		keyword, len, arg);
+		keyword, (int)len, arg);
 }
 
 /*
@@ -904,7 +904,7 @@ LOCAL BOOL
 get_xtime(keyword, arg, len, secp, nsecp)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 	time_t	*secp;
 	long	*nsecp;
 {
@@ -965,7 +965,7 @@ get_atime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_ATIME;
@@ -985,7 +985,7 @@ get_ctime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_CTIME;
@@ -1005,7 +1005,7 @@ get_mtime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_MTIME;
@@ -1105,7 +1105,7 @@ get_uid(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1145,7 +1145,7 @@ get_gid(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1189,7 +1189,7 @@ get_uname(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_UNAME;
@@ -1223,7 +1223,7 @@ get_gname(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_GNAME;
@@ -1257,7 +1257,7 @@ get_path(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_PATH;
@@ -1292,7 +1292,7 @@ get_lpath(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_LINKPATH;
@@ -1328,7 +1328,7 @@ get_size(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1369,7 +1369,7 @@ get_status(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1406,7 +1406,7 @@ get_mode(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		return;
@@ -1433,7 +1433,7 @@ get_major(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1471,7 +1471,7 @@ get_minor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1509,7 +1509,7 @@ get_fsmajor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1549,7 +1549,7 @@ get_fsminor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1589,7 +1589,7 @@ get_dev(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1630,7 +1630,7 @@ get_ino(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1659,7 +1659,7 @@ get_nlink(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1686,7 +1686,7 @@ get_filetype(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	int	i;
 
@@ -1722,7 +1722,7 @@ get_archtype(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		return;
@@ -1743,7 +1743,7 @@ get_hdrcharset(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 23 && streql("ISO-IR 10646 2000 UTF-8", arg)) {
 		info->f_xflags &= ~XF_BINARY;
@@ -1765,7 +1765,7 @@ get_dummy(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 }
 

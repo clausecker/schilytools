@@ -18,6 +18,7 @@ f none lib/librmt.a 0444 root bin
 f none lib/libscg.a 0444 root bin
 f none lib/librscg.a 0444 root bin
 f none lib/libscgcmd.a 0444 root bin
+f none lib/libstreamar.a 0444 root bin
 f none lib/libxtermcap.a 0444 root bin
 f none lib/libedc_ecc.a 0444 root bin
 f none lib/libedc_ecc_dec.a 0444 root bin
@@ -119,10 +120,18 @@ f none share/man/man3/format.3 0444 root bin
 f none share/man/man3/fpipe.3 0444 root bin
 f none share/man/man3/fprintf.3 0444 root bin
 f none share/man/man3/getallargs.3 0444 root bin
+f none share/man/man3/getargerror.3 0444 root bin
+f none share/man/man3/getarginit.3 0444 root bin
 f none share/man/man3/getargs.3 0444 root bin
 f none share/man/man3/geterrno.3 0444 root bin
 f none share/man/man3/getfiles.3 0444 root bin
+f none share/man/man3/getlallargs.3 0444 root bin
+f none share/man/man3/getlargs.3 0444 root bin
+f none share/man/man3/getlfiles.3 0444 root bin
 f none share/man/man3/getline.3 0444 root bin
+f none share/man/man3/getvallargs.3 0444 root bin
+f none share/man/man3/getvargs.3 0444 root bin
+f none share/man/man3/getvfiles.3 0444 root bin
 f none share/man/man3/handlecond.3 0444 root bin
 f none share/man/man3/movebytes.3 0444 root bin
 f none share/man/man3/ofindline.3 0444 root bin
@@ -132,14 +141,17 @@ f none share/man/man3/peekc.3 0444 root bin
 f none share/man/man3/printf.3 0444 root bin
 f none share/man/man3/raisecond.3 0444 root bin
 f none share/man/man3/resolvefpath.3 0444 root bin
-f none share/man/man3/resolvenpath.3 0444 root bin
 f none share/man/man3/resolvepath.3 0444 root bin
+f none share/man/man3/resolvenpath.3 0444 root bin
 f none share/man/man3/spawnl.3 0444 root bin
 f none share/man/man3/spawnv.3 0444 root bin
 f none share/man/man3/sprintf.3 0444 root bin
 f none share/man/man3/strcatl.3 0444 root bin
 f none share/man/man3/streql.3 0444 root bin
 f none share/man/man3/strlen.3 0444 root bin
+#
+f none share/man/man3/getopt.3 0444 root bin
+f none share/man/man3/getsubopt.3 0444 root bin
 #
 f none share/man/man3/librmt.3 0444 root bin
 f none share/man/man3/rmtinit.3 0444 root bin
@@ -150,6 +162,8 @@ f none share/man/man3/rmtgetconn.3 0444 root bin
 f none share/man/man3/rmtopen.3 0444 root bin
 f none share/man/man3/rmtclose.3 0444 root bin
 f none share/man/man3/rmtread.3 0444 root bin
+f none share/man/man3/rmtrmt.3 0444 root bin
+f none share/man/man3/rmtrsh.3 0444 root bin
 f none share/man/man3/rmtwrite.3 0444 root bin
 f none share/man/man3/rmtseek.3 0444 root bin
 f none share/man/man3/rmtioctl.3 0444 root bin
@@ -160,6 +174,7 @@ f none share/man/man3/rmtg2mtg.3 0444 root bin
 d none share/man/man4 ? ? ?
 f none share/man/man4/makefiles.4 0444 root bin
 f none share/man/man4/makerules.4 0444 root bin
+f none share/man/man4/streamarchive.4 0444 root bin
 d none include ? ? ?
 d none include/schily 0755 root bin
 f none include/schily/_regex.h 0444 root bin
@@ -190,6 +205,7 @@ f none include/schily/fnmatch.h 0444 root bin
 f none include/schily/fstream.h 0444 root bin
 f none include/schily/getargs.h 0444 root bin
 f none include/schily/getcwd.h 0444 root bin
+f none include/schily/getopt.h 0444 root bin
 f none include/schily/grp.h 0444 root bin
 f none include/schily/hostname.h 0444 root bin
 f none include/schily/iconv.h 0444 root bin
@@ -234,6 +250,7 @@ f none include/schily/sem.h 0444 root bin
 f none include/schily/setjmp.h 0444 root bin
 f none include/schily/sha1.h 0444 root bin
 f none include/schily/sha2.h 0444 root bin
+f none include/schily/sha3.h 0444 root bin
 f none include/schily/shadow.h 0444 root bin
 f none include/schily/shcall.h 0444 root bin
 f none include/schily/shedit.h 0444 root bin
@@ -250,6 +267,7 @@ f none include/schily/stdint.h 0444 root bin
 f none include/schily/stdio.h 0444 root bin
 f none include/schily/stdlib.h 0444 root bin
 f none include/schily/stkframe.h 0444 root bin
+f none include/schily/strar.h 0444 root bin
 f none include/schily/string.h 0444 root bin
 f none include/schily/sunos4_proto.h 0444 root bin
 f none include/schily/sysexits.h 0444 root bin
@@ -261,10 +279,12 @@ f none include/schily/time.h 0444 root bin
 f none include/schily/timeb.h 0444 root bin
 f none include/schily/times.h 0444 root bin
 f none include/schily/types.h 0444 root bin
+f none include/schily/type_val.h 0444 root bin
 f none include/schily/unistd.h 0444 root bin
 f none include/schily/utime.h 0444 root bin
 f none include/schily/utsname.h 0444 root bin
 f none include/schily/utypes.h 0444 root bin
+f none include/schily/values.h 0444 root bin
 f none include/schily/varargs.h 0444 root bin
 f none include/schily/vfork.h 0444 root bin
 f none include/schily/wait.h 0444 root bin

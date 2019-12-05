@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getargs
-. \" @(#)getargs.3	1.8 19/11/04 Copyright 1985 J. Schilling
+. \" @(#)getargs.3	1.9 19/11/26 Copyright 1985-2019 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -212,7 +212,16 @@ the
 or
 .BR plus ,
 which must match the option parameter on the command line.
-It is followed by the optional
+The
+.B plus
+sign (+) must be escaped via
+.B \e\e
+in the format string to disctinct it from the
+.B +
+format character.
+Each 
+.B option-name
+is followed by the optional
 .B format descriptor
 and an optional
 .BR "size modifier" .
@@ -257,24 +266,21 @@ and set to
 .BR TRUE " (" +1 ).
 .RE
 .TP
-.BR %0 " or " %1
-.BI Set " sized " BOOL
+.BR %0 " .. " %9
+.BI Set " sized " integer
+to value in the range
+.BR 0 .. 9 .
 .RS
 .PP
 The value of the related argument pointer is either set to
-.B 0
-(when using the format
-.BR %0 ),
-or set to 
-.B 1
-(when using the format
-.BR %1 ),
-assuming a
+the single digit value that follows the
+.B %
+character, assuming a
 .I size
 that depends on the optional
 .B size modifier
-after the
-.BR %0 " or " %1 .
+after
+.BR %0 " .. " %9 .
 See the integer conversions above for a list of valid
 .BR "size modifiers" .
 .RE
@@ -393,8 +399,8 @@ Integer conversion
 .B +
 Increment integer
 .TP
-.B %[01]
-Boolean assignement
+.B %[0-9]
+Integer assignement
 .LP
 may have a size modifier:
 .TP

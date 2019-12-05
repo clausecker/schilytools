@@ -1,13 +1,13 @@
-/* @(#)fetchdir.c	1.29 16/03/10 Copyright 2002-2016 J. Schilling */
+/* @(#)fetchdir.c	1.30 19/11/28 Copyright 2002-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fetchdir.c	1.29 16/03/10 Copyright 2002-2016 J. Schilling";
+	"@(#)fetchdir.c	1.30 19/11/28 Copyright 2002-2019 J. Schilling";
 #endif
 /*
  *	Blocked directory handling.
  *
- *	Copyright (c) 2002-2016 J. Schilling
+ *	Copyright (c) 2002-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/utypes.h>
 #include <schily/dirent.h>
 #include <schily/stat.h>	/* needed in case we have no dirent->d_ino */
@@ -39,20 +40,20 @@ static	UConst char sccsid[] =
 #define	lstat	stat
 #endif
 
-EXPORT	char	*fetchdir	__PR((char *dir, int *entp, int *lenp,
+EXPORT	char	*fetchdir	__PR((char *dir, size_t *entp, size_t *lenp,
 						ino_t **inop));
 #ifdef	HAVE_DIRENT_D_TYPE
 LOCAL	int	fdt		__PR((int type));
 #endif
-EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dir_name, int *entp,
-						int *lenp, ino_t **inop));
+EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dir_name, size_t *entp,
+						size_t *lenp, ino_t **inop));
 
 EXPORT char *
 fetchdir(dir, entp, lenp, inop)
 	char	*dir;			/* The name of the directory	  */
-	int	*entp;			/* Pointer to # of entries found  */
-	int	*lenp;			/* Pointer to len of returned str */
-	ino_t	**inop;
+	size_t	*entp;			/* Pointer to # of entries found  */
+	size_t	*lenp;			/* Pointer to len of returned str */
+	ino_t	**inop;			/* Pointer to returned inode array */
 {
 	char	*ret;
 	DIR	*d = opendir(dir);
@@ -112,20 +113,20 @@ EXPORT char *
 dfetchdir(d, dir_name, entp, lenp, inop)
 	DIR	*d;
 	char	*dir_name;		/* The name of the directory	  */
-	int	*entp;			/* Pointer to # of entries found  */
-	int	*lenp;			/* Pointer to len of returned str */
-	ino_t	**inop;
+	size_t	*entp;			/* Pointer to # of entries found  */
+	size_t	*lenp;			/* Pointer to len of returned str */
+	ino_t	**inop;			/* Pointer to returned inode array */
 {
 		char	*erg = NULL;
-		int	esize = 2;
+		size_t	esize = 2;
 		int	msize = getpagesize();
-		int	off = 0;
+		size_t	off = 0;
 		ino_t	*ino = NULL;
-		int	mino = 0;
+		size_t	mino = 0;
 	struct dirent	*dp;
 	register char	*name;
-	register int	nlen;
-	register int	nents = 0;
+	register size_t	nlen;
+	register size_t	nents = 0;
 #ifndef	HAVE_DIRENT_D_INO
 	struct stat	sbuf;
 		char	sname[PATH_MAX+1];

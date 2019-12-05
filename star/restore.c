@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.78 19/01/16 Copyright 2003-2019 J. Schilling */
+/* @(#)restore.c	1.79 19/11/29 Copyright 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.78 19/01/16 Copyright 2003-2019 J. Schilling";
+	"@(#)restore.c	1.79 19/11/29 Copyright 2003-2019 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -159,7 +159,7 @@ LOCAL	void	printLsyms	__PR((FILE *f, imap_t *imp));
 EXPORT	void	printLsym	__PR((FILE *f));
 #endif
 #ifdef	__needed__
-LOCAL	BOOL	dirdiskonly	__PR((FINFO *info, int *odep, char ***odp));
+LOCAL	BOOL	dirdiskonly	__PR((FINFO *info, size_t *odep, char ***odp));
 #endif
 
 LOCAL int
@@ -526,8 +526,8 @@ sym_addrec(info)
 		imap_t	*idir;
 		char	*dp;
 		ino_t	*ip;
-		int	len;
-		int	i;
+		size_t	len;
+		size_t	i;
 
 		idir = imp;
 		dp = info->f_dir;
@@ -640,9 +640,9 @@ sym_addstat(info, imp)
 	}
 
 	if (is_dir(info)) {
-		int	len = strlen(imp->i_name);
+		size_t	len = strlen(imp->i_name);
 
-		if (imp->i_name[len-1] == '/')
+		if (len > 0 && imp->i_name[len-1] == '/')
 			imp->i_name[len-1] = '\0';
 		imp->i_flags |= I_DIR;
 	}
@@ -659,15 +659,15 @@ sym_dirprepare(info, idir)
 	FINFO	*info;
 	imap_t	*idir;
 {
-	int	dlen;
+	size_t	dlen;
 	ino_t	*oino;
 	char	**dname;
 	char	*p;
-	int	i;
-	int	j;
+	size_t	i;
+	size_t	j;
 	FINFO	finfo;
 	char	*dp2;
-	int	ents2;
+	size_t	ents2;
 	char	**dname2;
 	ino_t	*ino2;
 	ino_t	*oino2;
@@ -1358,7 +1358,7 @@ sym_open(name)
 	char	*buf;
 	size_t	buflen = PATH_MAX;
 	FILE	*f;
-	int	amt;
+	ssize_t	amt;
 	char	*p;
 	Llong	ll;
 	ino_t	oino;
@@ -1488,7 +1488,7 @@ xgetline(f, bufp, lenp, name)
 	size_t	*lenp;
 	char	*name;
 {
-	int	amt;
+	ssize_t	amt;
 
 	clearerr(f);
 	if ((amt = getdelim(bufp, lenp, '\0', f)) < 0) {
@@ -1527,7 +1527,7 @@ sym_initsym()
 	FINFO	finfo;
 	imap_t	*imp;
 	char	*dp;
-	int	ents;
+	size_t	ents;
 	DIR	*dirp;
 
 	fillbytes((char *)&finfo, sizeof (finfo), '\0');
@@ -2057,7 +2057,7 @@ fullname(imp, cp, ep, top)
 	char	*ep;
 	BOOL	top;
 {
-	int	len;
+	size_t	len;
 
 	if (imp == iroot)
 		return (cp);
@@ -2220,7 +2220,7 @@ printLsym(f)
 LOCAL BOOL
 dirdiskonly(info, odep, odp)
 	FINFO	*info;
-	int	*odep;
+	size_t	*odep;
 	char	***odp;
 {
 	register char	**ep1;	   /* Directory entry pointer array (arch) */
@@ -2228,11 +2228,11 @@ dirdiskonly(info, odep, odp)
 	register char	*dp2;	   /* Directory names string from disk	   */
 	register char	**oa = 0;  /* Only in arch pointer array	   */
 	register char	**od = 0;  /* Only on disk pointer array	   */
-	register int	i;
-		int	ents1 = -1;
-		int	ents2;
-		int	dlen = 0;  /* # of entries only on disk		*/
-		int	alen = 0;  /* # of entries only in arch		*/
+	register size_t	i;
+		size_t	ents1 = (size_t)-1;
+		size_t	ents2;
+		size_t	dlen = 0;  /* # of entries only on disk		*/
+		size_t	alen = 0;  /* # of entries only in arch		*/
 		BOOL	diffs = FALSE;
 		DIR	*dirp;
 

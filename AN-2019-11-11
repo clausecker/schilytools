@@ -178,7 +178,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	SCCS: the help file "cmds" now mentions the new option -Xunlink
 
--	SCCS: The man page for sccsfile.4 nowmentions the new Delta Table
+-	SCCS: The man page for sccsfile.4 now mentions the new Delta Table
 	Type 'U'.
 
 -	SCCS: The man page for "changeset.4" has been reworded to increase
@@ -208,6 +208,8 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 	The -C option is now handled ealier (before searching for .make.rules),
 	to use the correct local default rules in case they exist.
+
+	Thanks to Andy Fiddaman for reporting.
 
 -	SunPro Make: The check for -C dir in MAKEFLAGS has been improved.
 	The previous implementation did catch and suppress -C dir but not 
@@ -300,7 +302,6 @@ programs now (hopefully) call gettext() for all strings that need localization.
 Author:
 
 Joerg Schilling
-Seestr. 110
 D-13353 Berlin
 Germany
 

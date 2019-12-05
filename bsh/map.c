@@ -1,8 +1,8 @@
-/* @(#)map.c	1.39 18/03/20 Copyright 1986-2018 J. Schilling */
+/* @(#)map.c	1.40 19/11/23 Copyright 1986-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.39 18/03/20 Copyright 1986-2018 J. Schilling";
+	"@(#)map.c	1.40 19/11/23 Copyright 1986-2018 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
@@ -55,6 +55,7 @@ static	UConst char sccsid[] =
 #include "bsh.h"
 #include "str.h"
 #include "strsubs.h"
+#define	C	(char *)
 #else
 #include <schily/standard.h>
 #include "ved.h"
@@ -137,11 +138,14 @@ LOCAL	char	*get_map	__PR((int c));
 EXPORT	void	list_map	__PR((ewin_t *wp));
 LOCAL	char	*get_map	__PR((ewin_t *wp, int c));
 #endif
+LOCAL	BOOL	_has_map	__PR((Uchar *mn));
+LOCAL	BOOL	fallback_map	__PR((char *from, char *to, char *comment));
 LOCAL	void	init_cursor_maps __PR((void));
 #ifndef	BSH
 EXPORT	void	init_fk_maps	__PR((void));
 LOCAL	char	*pretty_string	__PR((Uchar *s));
 #endif
+LOCAL	void	init_fallback_maps __PR((void));
 
 /*
  * Initialize the intermediate character stack.
@@ -256,13 +260,13 @@ map_init()
 	init_cursor_maps();
 	if ((f = fileopen(mapfname, for_read)) == (FILE *)NULL) {
 		if (geterrno() == ENOENT)
-			return;
+			goto fallback;
 #ifdef	BSH
 		berror(ecantopen, mapfname, errstr(geterrno()));
 #else
 		errmsg("Cannot open '%s'.\n", mapfname);
 #endif
-		return;
+		goto fallback;
 	}
 
 	ap = array;
@@ -323,6 +327,8 @@ error("'%s' already defined.", pretty_string(UC ap[0]));
 		}
 	}
 	fclose(f);
+fallback:
+	init_fallback_maps();
 }
 
 /*
@@ -665,6 +671,47 @@ writeerr("mapg %d", cp[-1]);
 	return (NULL); /* XXX NOTREACHED ??? */
 }
 
+LOCAL BOOL
+_has_map(mn)
+	Uchar	*mn;
+{
+	register	smap_t	*np;
+
+	if (maptab[*mn] == 0)
+		return (FALSE);
+
+	for (np = first_map; np; np = np->m_next) {
+		if (streql(C mn, np->m_from))
+			return (TRUE);
+	}
+	return (FALSE);
+}
+
+LOCAL BOOL
+fallback_map(from, to, comment)
+	char	*from;
+	char	*to;
+	char	*comment;
+{
+	char	froms[M_NAMELEN + 1];
+	char	tos[M_STRINGLEN + 1];
+	char	*pf;
+	char	*pt;
+
+	if (strlen(from) > M_NAMELEN || strlen(to) > M_STRINGLEN)
+		return (FALSE);
+
+	pf = froms;
+	pt = tos;
+	tdecode(from, &pf);
+	tdecode(to, &pt);
+
+	if (_has_map(UC froms))
+		return (FALSE);
+
+	return (_add_map(UC froms, UC tos, comment));
+}
+
 #ifndef BSH
 
 /*
@@ -958,5 +1005,33 @@ init_cursor_maps()
 	environ = esav;
 }
 #endif
+
+LOCAL void
+init_fallback_maps()
+{
+#ifdef	BSH
+	fallback_map("^[[3~", "^?", "Delete Char");
+	fallback_map("^[[7~", "^A", "Cursor Home");
+	fallback_map("^[[8~", "^E", "Cursor End");
+#else
+	fallback_map("^[[3~", "^?", "Delete Char");
+	fallback_map("^[[5~", "^[p", "Page up");
+	fallback_map("^[[6~", "^[n", "Page down");
+	fallback_map("^[[7~", "^A", "Go to sol");
+	fallback_map("^[[8~", "^E", "Go to eol");
+	fallback_map("^[[11~", "^C", "Quit Editor  (F1)");
+	fallback_map("^[[12~", "^B", "Top          (F2)");
+	fallback_map("^[[13~", "^D", "Delete Char  (F3)");
+	fallback_map("^[[14~", "^K", "Delete Line  (F4)");
+	fallback_map("^[[15~", "^O", "Open Line    (F5)");
+	fallback_map("^[[17~", "^T", "Cut Line     (F6)");
+	fallback_map("^[[18~", "^V", "Paste        (F7)");
+	fallback_map("^[[19~", "^\\", "Change Buffer(F8)");
+	fallback_map("^[[20~", "^R", "Search down  (F9)");
+	fallback_map("^[[21~", "^Z", "Research     (F10)");
+	fallback_map("^[[23~", "^G", "Get from     (F11)");
+	fallback_map("^[[24~", "^W", "Write to     (F12)");
+#endif
+}
 
 #endif	/* INTERACTIVE */

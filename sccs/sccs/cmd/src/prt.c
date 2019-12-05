@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)prt.c	1.40 19/05/16 J. Schilling
+ * @(#)prt.c	1.41 19/11/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.40 19/05/16 J. Schilling"
+#pragma ident "@(#)prt.c 1.41 19/11/12 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -444,7 +444,7 @@ char *file;
 
 #endif	/* defined(BUG_1205145) || defined(GMT_TIME) */
 
-			if (!HADA && del.type != 'D') {
+			if (!HADA && (del.type != 'D' && del.type != 'U')) {
 				(void) read_to(EDELTAB);
 				continue;
 			}

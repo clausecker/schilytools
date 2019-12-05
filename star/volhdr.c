@@ -1,8 +1,8 @@
-/* @(#)volhdr.c	1.45 19/03/09 Copyright 1994, 2003-2019 J. Schilling */
+/* @(#)volhdr.c	1.48 19/12/03 Copyright 1994, 2003-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.45 19/03/09 Copyright 1994, 2003-2019 J. Schilling";
+	"@(#)volhdr.c	1.48 19/12/03 Copyright 1994, 2003-2019 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
@@ -76,20 +76,20 @@ EXPORT	void	put_volhdr	__PR((char *name, BOOL putv));
 EXPORT	void	put_svolhdr	__PR((char *name));
 EXPORT	void	put_multhdr	__PR((off_t size, off_t off));
 EXPORT	BOOL	get_volhdr	__PR((FINFO *info, char *vhname));
-LOCAL	void	get_label	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_hostname	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_filesys	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_cwd		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_device	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dumptype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dumplevel	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_reflevel	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dumpdate	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_refdate	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_volno	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_blockoff	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_blocksize	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_tapesize	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_label	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_hostname	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_filesys	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_cwd		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_device	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dumptype	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dumplevel	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_reflevel	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dumpdate	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_refdate	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_volno	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_blockoff	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_blocksize	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_tapesize	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 
 /*
  * Important for the correctness of gen_number(): As long as we stay <= 55
@@ -569,7 +569,7 @@ put_release()
 	if (H_TYPE(chdrtype) == H_XUSTAR)
 		return;
 
-	gen_text("SCHILY.release", vers, -1, 0);
+	gen_text("SCHILY.release", vers, (size_t)-1, 0);
 
 	ghdr = TRUE;
 }
@@ -587,7 +587,7 @@ put_archtype()
 	if (H_TYPE(chdrtype) == H_XUSTAR)
 		return;
 
-	gen_text("SCHILY.archtype", hdr_name(chdrtype), -1, 0);
+	gen_text("SCHILY.archtype", hdr_name(chdrtype), (size_t)-1, 0);
 
 	ghdr = TRUE;
 }
@@ -597,6 +597,7 @@ put_gvolhdr(name)
 	char	*name;
 {
 	char	nbuf[1024];
+extern	BOOL dodump;
 
 	if ((props.pr_flags & PR_VU_XHDR) == 0 || props.pr_xc != 'x')
 		return;
@@ -613,25 +614,27 @@ put_gvolhdr(name)
 #endif
 
 	gip->label = name;
-	if (gip->dumplevel >= 0) {
+	if (gip->dumplevel >= 0 || dodump > 1) {
 		nbuf[0] = '\0';
 		gethostname(nbuf, sizeof (nbuf));
 		gip->hostname = ___savestr(nbuf);
 	}
 
 	if (gip->label)
-		gen_text("SCHILY.volhdr.label", gip->label, -1, 0);
+		gen_text("SCHILY.volhdr.label", gip->label, (size_t)-1, 0);
 	if (gip->hostname)
-		gen_text("SCHILY.volhdr.hostname", gip->hostname, -1, 0);
+		gen_text("SCHILY.volhdr.hostname", gip->hostname,
+							(size_t)-1, 0);
 	if (gip->filesys)
-		gen_text("SCHILY.volhdr.filesys", gip->filesys, -1, 0);
+		gen_text("SCHILY.volhdr.filesys", gip->filesys, (size_t)-1, 0);
 	if (gip->cwd)
-		gen_text("SCHILY.volhdr.cwd", gip->cwd, -1, 0);
+		gen_text("SCHILY.volhdr.cwd", gip->cwd, (size_t)-1, 0);
 	if (gip->device)
-		gen_text("SCHILY.volhdr.device", gip->device, -1, 0);
+		gen_text("SCHILY.volhdr.device", gip->device, (size_t)-1, 0);
 
 	if (gip->dumptype > 0)
-		gen_text("SCHILY.volhdr.dumptype", dt_name(gip->dumptype), -1, 0);
+		gen_text("SCHILY.volhdr.dumptype", dt_name(gip->dumptype),
+							(size_t)-1, 0);
 	if (gip->dumplevel >= 0)
 		gen_number("SCHILY.volhdr.dumplevel", gip->dumplevel);
 	if (gip->reflevel >= 0)
@@ -651,7 +654,7 @@ put_gvolhdr(name)
 		gen_number("SCHILY.volhdr.tapesize", gip->tapesize);
 
 	if (binflag)
-		gen_text("hdrcharset", "BINARY", -1, 0);
+		gen_text("hdrcharset", "BINARY", (size_t)-1, 0);
 
 	if ((xhsize() + 2 * TBLOCK) > (gip->blocksize * TBLOCK)) {
 		errmsgno(EX_BAD, "Panic: Tape record size too small.\n");
@@ -772,7 +775,7 @@ get_label(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	grip->gflags |= GF_LABEL;
 	grip->label = ___savestr(arg);
@@ -785,7 +788,7 @@ get_hostname(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	grip->gflags |= GF_HOSTNAME;
 	grip->hostname = ___savestr(arg);
@@ -798,7 +801,7 @@ get_filesys(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	grip->gflags |= GF_FILESYS;
 	grip->filesys = ___savestr(arg);
@@ -811,7 +814,7 @@ get_cwd(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	grip->gflags |= GF_CWD;
 	grip->cwd    = ___savestr(arg);
@@ -824,7 +827,7 @@ get_device(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	grip->gflags |= GF_DEVICE;
 	grip->device = ___savestr(arg);
@@ -837,7 +840,7 @@ get_dumptype(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		grip->gflags &= ~GF_DUMPTYPE;
@@ -858,7 +861,7 @@ get_dumplevel(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -884,7 +887,7 @@ get_reflevel(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -910,7 +913,7 @@ get_dumpdate(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	long	nsec;
 	time_t	t;	/* FreeBSD/MacOS X have broken tv_sec/time_t */
@@ -935,7 +938,7 @@ get_refdate(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	long	nsec;
 	time_t	t;	/* FreeBSD/MacOS X have broken tv_sec/time_t */
@@ -960,7 +963,7 @@ get_volno(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -986,7 +989,7 @@ get_blockoff(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1012,7 +1015,7 @@ get_blocksize(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1038,7 +1041,7 @@ get_tapesize(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 

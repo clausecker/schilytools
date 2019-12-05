@@ -1,13 +1,13 @@
-/* @(#)send.c	1.7 19/10/13 Copyright 2011-2018 J. Schilling */
+/* @(#)send.c	1.8 19/12/03 Copyright 2011-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)send.c	1.7 19/10/13 Copyright 2011-2018 J. Schilling";
+	"@(#)send.c	1.8 19/12/03 Copyright 2011-2019 J. Schilling";
 #endif
 /*
  *	Send data for a StreamArchive to the output file
  *
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,7 +48,7 @@ strar_archtype(s)
 	strar		*s;
 {
 	strar_xbreset();
-	strar_gen_text("archtype", "StreamArchive", -1, 0);
+	strar_gen_text("archtype", "StreamArchive", (size_t)-1, 0);
 	filewrite(s->f_fp, strar_gxbuf(), strar_gxbsize());
 }
 
@@ -57,7 +57,7 @@ strar_eof(s)
 	strar		*s;
 {
 	strar_xbreset();
-	strar_gen_text("status", "EOF", -1, 0);
+	strar_gen_text("status", "EOF", (size_t)-1, 0);
 	filewrite(s->f_fp, strar_gxbuf(), strar_gxbsize());
 }
 
@@ -110,9 +110,9 @@ strar_st_send(s, sp)
 	}
 
 	if (!utf8)
-		strar_gen_text("hdrcharset", "BINARY", -1, 0);
+		strar_gen_text("hdrcharset", "BINARY", (size_t)-1, 0);
 
-	strar_gen_text("path", s->f_name, -1, utf8);
+	strar_gen_text("path", s->f_name, (size_t)-1, utf8);
 
 	if (type == XT_SLINK) {
 		int	llen;
@@ -123,7 +123,7 @@ strar_st_send(s, sp)
 			 * string from readlink is not null terminated
 			 */
 			buf[llen] = '\0';
-			strar_gen_text("linkpath", buf, -1, utf8);
+			strar_gen_text("linkpath", buf, (size_t)-1, utf8);
 		}
 	}
 	if (s->f_cmdflags & CMD_VERBOSE) {
@@ -139,9 +139,10 @@ strar_st_send(s, sp)
 	permtostr(sp->st_mode, buf);
 
 	if (xflags & XF_FILETYPE)
-		strar_gen_text("filetype", XTTONAME(IFTOXT(sp->st_mode)), -1, 0);
+		strar_gen_text("filetype", XTTONAME(IFTOXT(sp->st_mode)),
+								(size_t)-1, 0);
 	if (xflags & XF_MODE)
-		strar_gen_text("mode", buf, -1, 0);
+		strar_gen_text("mode", buf, (size_t)-1, 0);
 
 	if (xflags & XF_DEV) {
 #ifdef	__future__
@@ -165,12 +166,12 @@ strar_st_send(s, sp)
 	if (xflags & XF_UNAME) {
 		ic_nameuid(name, sizeof (name)-1, sp->st_uid);
 		if (name[0])
-			strar_gen_text("uname", name, -1, utf8);
+			strar_gen_text("uname", name, (size_t)-1, utf8);
 	}
 	if (xflags & XF_GNAME) {
 		ic_namegid(name, sizeof (name)-1, sp->st_gid);
 		if (name[0])
-			strar_gen_text("gname", name, -1, utf8);
+			strar_gen_text("gname", name, (size_t)-1, utf8);
 	}
 
 	if (type > XT_DIR) {

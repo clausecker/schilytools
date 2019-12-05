@@ -1,8 +1,8 @@
-/* @(#)header.c	1.200 19/11/01 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.201 19/11/29 Copyright 1985, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.200 19/11/01 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.201 19/11/29 Copyright 1985, 1994-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -3039,8 +3039,8 @@ dump_info(info)
 
 	error("f_dir:       %p\n", info->f_dir);
 	error("f_dirinos:   %p\n", info->f_dirinos);
-	error("f_dirlen:    %d\n", info->f_dirlen);
-	error("f_dirents:    %d\n", info->f_dirents);
+	error("f_dirlen:    %lld\n", (Llong)info->f_dirlen);
+	error("f_dirents:   %lld\n", (Llong)info->f_dirents);
 	error("f_dev:       0x%llX\n", (Ullong)info->f_dev);
 	error("f_ino:       %llu\n", (Ullong)info->f_ino);
 	error("f_nlink:     %llu\n", (Ullong)info->f_nlink);

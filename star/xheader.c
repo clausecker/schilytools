@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.101 19/10/13 Copyright 2001-2019 J. Schilling */
+/* @(#)xheader.c	1.103 19/12/03 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.101 19/10/13 Copyright 2001-2019 J. Schilling";
+	"@(#)xheader.c	1.103 19/12/03 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -68,75 +68,75 @@ struct _unknown {
 
 LOCAL	void	_xbinit		__PR((void));
 EXPORT	void	xbinit		__PR((void));
-LOCAL	void	xbgrow		__PR((int newsize));
+LOCAL	void	xbgrow		__PR((size_t newsize));
 EXPORT	void	xbbackup	__PR((void));
 EXPORT	void	xbrestore	__PR((void));
-EXPORT	int	xhsize		__PR((void));
+EXPORT	size_t	xhsize		__PR((void));
 LOCAL	void	write_xhdr	__PR((int type));
 EXPORT	void	info_to_xhdr	__PR((FINFO * info, TCB * ptb));
 LOCAL	void	check_xtime	__PR((char *keyword, FINFO *info));
 EXPORT	void	gen_xtime	__PR((char *keyword, time_t sec, Ulong nsec));
 EXPORT	void	gen_unumber	__PR((char *keyword, Ullong arg));
 EXPORT	void	gen_number	__PR((char *keyword, Llong arg));
-LOCAL	void	gen_iarray	__PR((char *keyword, ino_t *arg, int ents, int len));
-EXPORT	void	gen_text	__PR((char *keyword, char *arg, int alen,
+LOCAL	void	gen_iarray	__PR((char *keyword, ino_t *arg, size_t ents, size_t len));
+EXPORT	void	gen_text	__PR((char *keyword, char *arg, size_t alen,
 								Uint flags));
-LOCAL	int	len_len		__PR((int len));
+LOCAL	int	len_len		__PR((size_t len));
 LOCAL	xtab_t	*lookup		__PR((char *cmd, int clen, xtab_t *cp));
 EXPORT	int	tcb_to_xhdr	__PR((TCB * ptb, FINFO * info));
 EXPORT	BOOL	xhparse		__PR((FINFO *info, char	*p, char *ep));
 LOCAL	void	print_unknown	__PR((char *keyword));
-EXPORT	void	xh_rangeerr	__PR((char *keyword, char *arg, int len));
-LOCAL	void	print_toolong	__PR((char *keyword, char *arg, int len));
-LOCAL	void	get_xvolhdr	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+EXPORT	void	xh_rangeerr	__PR((char *keyword, char *arg, size_t len));
+LOCAL	void	print_toolong	__PR((char *keyword, char *arg, size_t len));
+LOCAL	void	get_xvolhdr	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 LOCAL	void	info_xcopy	__PR((FINFO *ninfo, FINFO *oinfo));
-EXPORT	BOOL	get_xtime	__PR((char *keyword, char *arg, int len,
+EXPORT	BOOL	get_xtime	__PR((char *keyword, char *arg, size_t len,
 						time_t *secp, long *nsecp));
-LOCAL	void	get_atime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_ctime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_mtime	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_atime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_ctime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_mtime	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 #ifdef	__needed_
 EXPORT	BOOL	get_number	__PR((char *keyword, char *arg, Llong *llp));
 #endif
 LOCAL	BOOL	get_xnumber	__PR((char *keyword, char *arg, Ullong *llp, char *type));
 EXPORT	BOOL	get_unumber	__PR((char *keyword, char *arg, Ullong *ullp, Ullong maxval));
 EXPORT	BOOL	get_snumber	__PR((char *keyword, char *arg, Ullong *ullp, BOOL *negp, Ullong minval, Ullong maxval));
-LOCAL	void	get_uid		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_gid		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_uname	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_gname	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_path	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_lpath	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_size	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_realsize	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_offset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_minorbits	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_uid		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_gid		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_uname	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_gname	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_path	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_lpath	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_size	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_realsize	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_offset	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_major	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_minor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_fsmajor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_fsminor	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_minorbits	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dev		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 #ifdef	USE_ACL
-LOCAL	void	get_acl_type	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_acl_access	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_acl_default	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_acl_ace	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_acl_type	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_acl_access	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_acl_default	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_acl_ace	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 #endif
 #ifdef  USE_XATTR
-LOCAL	void	get_attr	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_attr	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 #endif
 #ifdef	USE_FFLAGS
-LOCAL	void	get_xfflags	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_xfflags	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 #endif
-LOCAL	void	get_dir		__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_iarray	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_release	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
-LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
+LOCAL	void	get_dir		__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_iarray	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_release	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_archtype	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_hdrcharset	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
+LOCAL	void	get_dummy	__PR((FINFO *info, char *keyword, int klen, char *arg, size_t len));
 LOCAL	void	unsup_arg	__PR((char *keyword, char *arg));
 LOCAL	void	bad_utf8	__PR((char *keyword, char *arg));
 
@@ -158,8 +158,8 @@ LOCAL	Uchar	dtab[] = "0123456789";
 
 
 LOCAL	char	*xbuf;	/* Space used to prepare I/O from/to extended headers */
-LOCAL	int	xblen;	/* the length of the buffer for the extended headers */
-LOCAL	int	xbidx;	/* The index where we start to prepare next entry    */
+LOCAL	size_t	xblen;	/* the length of the buffer for the extended headers */
+LOCAL	size_t	xbidx;	/* The index where we start to prepare next entry    */
 
 EXPORT	BOOL	ghdr;	/* We need wo write a 'g'lobal header		*/
 LOCAL	FINFO	ginfo;	/* The 'g'lobal FINFO data			*/
@@ -292,10 +292,10 @@ xbinit()
  */
 LOCAL void
 xbgrow(newsize)
-	int	newsize;
+	size_t	newsize;
 {
 	char	*newbuf;
-	int	i;
+	size_t	i;
 	int	ps = getpagesize();
 
 	/*
@@ -314,8 +314,8 @@ xbgrow(newsize)
  * Variables used to allow us to create an extended header while we write one
  */
 LOCAL	char	*oxbuf;	/* Space used to prepare I/O from/to extended headers */
-LOCAL	int	oxblen;	/* the length of the buffer for the extended headers */
-LOCAL	int	oxbidx;	/* The index where we start to prepare next entry    */
+LOCAL	size_t	oxblen;	/* the length of the buffer for the extended headers */
+LOCAL	size_t	oxbidx;	/* The index where we start to prepare next entry    */
 
 EXPORT void
 xbbackup()
@@ -337,7 +337,7 @@ xbrestore()
 	xbidx = oxbidx;
 }
 
-EXPORT int
+EXPORT size_t
 xhsize()
 {
 	return (xbidx);
@@ -449,21 +449,21 @@ extern	BOOL	dodump;
 
 	if (xflags & XF_UNAME) {
 		ic_nameuid(name, sizeof (name)-1, info->f_uid);
-		gen_text("uname", name, -1, T_UTF8);
+		gen_text("uname", name, (size_t)-1, T_UTF8);
 	}
 	if (xflags & XF_GNAME) {
 		ic_namegid(name, sizeof (name)-1, info->f_gid);
-		gen_text("gname", name, -1, T_UTF8);
+		gen_text("gname", name, (size_t)-1, T_UTF8);
 	}
 
 	if (xflags & XF_PATH) {
-		gen_text("path", info->f_name, -1,
+		gen_text("path", info->f_name, (size_t)-1,
 			(info->f_flags & F_ADDSLASH) != 0 ?
 				(T_ADDSLASH|T_UTF8) : T_UTF8);
 	}
 
 	if (xflags & XF_LINKPATH && info->f_lnamelen)
-		gen_text("linkpath", info->f_lname, -1, T_UTF8);
+		gen_text("linkpath", info->f_lname, (size_t)-1, T_UTF8);
 
 	if (xflags & XF_SIZE)
 		gen_unumber("size", (Ullong)info->f_rsize);
@@ -523,15 +523,17 @@ extern	BOOL	dodump;
 	}
 #endif
 	if (xflags & XF_ACL_ACE) {
-		gen_text("SCHILY.acl.ace", info->f_acl_ace, -1, T_UTF8);
+		gen_text("SCHILY.acl.ace", info->f_acl_ace, (size_t)-1, T_UTF8);
 	}
 
 	if (xflags & XF_ACL_ACCESS) {
-		gen_text("SCHILY.acl.access", info->f_acl_access, -1, T_UTF8);
+		gen_text("SCHILY.acl.access", info->f_acl_access,
+							(size_t)-1, T_UTF8);
 	}
 
 	if (xflags & XF_ACL_DEFAULT) {
-		gen_text("SCHILY.acl.default", info->f_acl_default, -1, T_UTF8);
+		gen_text("SCHILY.acl.default", info->f_acl_default,
+							(size_t)-1, T_UTF8);
 	}
 #endif  /* USE_ACL */
 
@@ -552,7 +554,8 @@ extern	BOOL	dodump;
 extern char	*textfromflags	__PR((FINFO *, char *));
 
 		char	fbuf[512];
-		gen_text("SCHILY.fflags", textfromflags(info, fbuf), -1, 0);
+		gen_text("SCHILY.fflags", textfromflags(info, fbuf),
+							(size_t)-1, 0);
 	}
 #endif
 
@@ -568,13 +571,15 @@ extern char	*textfromflags	__PR((FINFO *, char *));
 			gen_number("SCHILY.dev", (Llong)info->f_dev);
 		gen_unumber("SCHILY.ino", (Ullong)info->f_ino);
 		gen_unumber("SCHILY.nlink", (Ullong)info->f_nlink);
-		gen_text("SCHILY.filetype", XTTONAME(info->f_rxftype), -1, 0);
+		gen_text("SCHILY.filetype", XTTONAME(info->f_rxftype),
+								(size_t)-1, 0);
 #ifdef	__needed__
 		if (info->f_rxftype != info->f_xftype)
-			gen_text("SCHILY.tarfiletype", XTTONAME(info->f_xftype), -1, 0);
+			gen_text("SCHILY.tarfiletype", XTTONAME(info->f_xftype),
+								(size_t)-1, 0);
 #endif
 		if (is_dir(info)) {
-			int	oidx = xbidx;
+			size_t	oidx = xbidx;
 
 			if (info->f_dir)
 				gen_text("SCHILY.dir",
@@ -590,7 +595,8 @@ extern char	*textfromflags	__PR((FINFO *, char *));
 					xbidx - oidx + 1);
 		}
 	} else if (is_multivol(info)) {
-		gen_text("SCHILY.filetype", XTTONAME(info->f_rxftype), -1, 0);
+		gen_text("SCHILY.filetype", XTTONAME(info->f_rxftype),
+								(size_t)-1, 0);
 	}
 
 	write_xhdr(props.pr_xc);
@@ -658,7 +664,7 @@ gen_xtime(keyword, sec, nsec)
 		char	nb[32];
 	register char	*p;
 	register char	*np;
-	register int	len;
+	register size_t	len;
 
 	if (nsec >= 1000000000)	/* We would create an unusable string */
 		nsec = 0;
@@ -739,8 +745,8 @@ gen_unumber(keyword, arg)
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
+	register size_t	len;
+	register size_t	i;
 
 	if ((xbidx + 100) > xblen)
 		xbgrow(100);
@@ -803,8 +809,8 @@ gen_number(keyword, arg)
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
+	register size_t	len;
+	register size_t	i;
 		BOOL	neg = FALSE;
 
 	if ((xbidx + 100) > xblen)
@@ -871,16 +877,16 @@ LOCAL void
 gen_iarray(keyword, arg, ents, len)
 	register char	*keyword;
 		ino_t	*arg;
-		int	ents;
-	register int	len;	/* Estimated length */
+		size_t	ents;
+	register size_t	len;	/* Estimated length */
 {
 		char	nb[64];	/* 41 is enough for unsigned 128 bit ints    */
 	register Ullong	ll;
 	register char	*p;
 	register char	*np;
-	register int	i;
-	register int	llen;
-	register int	olen;
+	register size_t	i;
+	register size_t	llen;
+	register size_t	olen;
 
 	/*
 	 * The following code is equivalent to:
@@ -912,7 +918,7 @@ gen_iarray(keyword, arg, ents, len)
 	len = p - &xbuf[xbidx];	/* strlen(keyword) + ' ' + '='		    */
 	for (i = 0; i < ents; i++) {
 		if (((p - xbuf) + 100) > xblen) {
-			register int	xb_idx;
+			register size_t	xb_idx;
 			/*
 			 * The address for xbuf may change in case that
 			 * realloc() cannot grow the current memory chunk,
@@ -972,15 +978,15 @@ EXPORT void
 gen_text(keyword, arg, alen, flags)
 	register char	*keyword;
 		char	*arg;
-		int	alen;
+		size_t	alen;
 		Uint	flags;
 {
 	register char	*p;
 	register char	*np;
-	register int	len;
-	register int	i;
-	register int	llen;
-	register int	olen;
+	register size_t	len;
+	register size_t	i;
+	register size_t	llen;
+	register size_t	olen;
 
 	/*
 	 * The following code is equivalent to:
@@ -989,7 +995,7 @@ gen_text(keyword, arg, alen, flags)
 	 *
 	 * But avoids copying if possible.
 	 */
-	if ((len = alen) == -1)
+	if ((len = alen) == (size_t)-1)
 		len = strlen(arg);
 	alen = len;
 	if (flags & T_ADDSLASH)		/* only used if 'path' is a dir	    */
@@ -1067,7 +1073,7 @@ tcb_to_xhdr_reset()
 
 LOCAL int
 len_len(len)
-	register int	len;
+	register size_t	len;
 {
 	if (len <= 8)
 		return (1);
@@ -1267,26 +1273,26 @@ EXPORT void
 xh_rangeerr(keyword, arg, len)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (nowarn)
 		return;
 	errmsgno(EX_BAD,
 		"WARNING: %s '%.*s' in extended header at %lld exceeds local range.\n",
-		keyword, len, arg, tblocks());
+		keyword, (int)len, arg, tblocks());
 }
 
 LOCAL void
 print_toolong(keyword, arg, len)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (nowarn)
 		return;
 	errmsgno(EX_BAD,
 		"WARNING: %s '%.*s' in extended header at %lld too long, ignoring.\n",
-		keyword, len, arg, tblocks());
+		keyword, (int)len, arg, tblocks());
 }
 
 LOCAL void
@@ -1295,7 +1301,7 @@ get_xvolhdr(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	register xtab_t	*cp;
 extern		xtab_t	volhtab[];
@@ -1407,7 +1413,7 @@ EXPORT BOOL
 get_xtime(keyword, arg, len, secp, nsecp)
 	char	*keyword;
 	char	*arg;
-	int	len;
+	size_t	len;
 	time_t	*secp;
 	long	*nsecp;
 {
@@ -1470,7 +1476,7 @@ get_atime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_ATIME;
@@ -1490,7 +1496,7 @@ get_ctime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_CTIME;
@@ -1510,7 +1516,7 @@ get_mtime(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_MTIME;
@@ -1634,7 +1640,7 @@ get_uid(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1674,7 +1680,7 @@ get_gid(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -1718,7 +1724,7 @@ get_uname(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_UNAME;
@@ -1752,7 +1758,7 @@ get_gname(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_GNAME;
@@ -1786,7 +1792,7 @@ get_path(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_PATH;
@@ -1809,7 +1815,7 @@ get_path(info, keyword, klen, arg, len)
 		info->f_namelen = len;
 		info->f_xflags |= XF_PATH;
 	} else {
-		int	ilen = len;
+		size_t	ilen = len;
 		BOOL	ret;
 
 		do {
@@ -1852,7 +1858,7 @@ get_lpath(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_xflags &= ~XF_LINKPATH;
@@ -1875,7 +1881,7 @@ get_lpath(info, keyword, klen, arg, len)
 		info->f_lnamelen = len;
 		info->f_xflags |= XF_LINKPATH;
 	} else {
-		int	ilen = len;
+		size_t	ilen = len;
 		BOOL	ret;
 
 		do {
@@ -1919,7 +1925,7 @@ get_size(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1960,7 +1966,7 @@ get_realsize(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -1989,7 +1995,7 @@ get_offset(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -2019,7 +2025,7 @@ get_major(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -2057,7 +2063,7 @@ get_minor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -2095,7 +2101,7 @@ get_fsmajor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -2135,7 +2141,7 @@ get_fsminor(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -2174,7 +2180,7 @@ get_minorbits(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -2203,7 +2209,7 @@ get_dev(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 	BOOL	neg = FALSE;
@@ -2290,7 +2296,7 @@ get_ino(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -2319,7 +2325,7 @@ get_nlink(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	Ullong	ull;
 
@@ -2346,7 +2352,7 @@ get_filetype(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	int	i;
 
@@ -2391,7 +2397,7 @@ get_acl_type(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 11 && streql(arg, "POSIX draft"))
 		return;
@@ -2415,7 +2421,7 @@ get_acl_access(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0 || (info->f_flags & F_BAD_ACL)) {
 		info->f_xflags &= ~XF_ACL_ACCESS;
@@ -2447,7 +2453,7 @@ get_acl_default(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0 || (info->f_flags & F_BAD_ACL)) {
 		info->f_xflags &= ~XF_ACL_DEFAULT;
@@ -2481,7 +2487,7 @@ get_acl_ace(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0 || (info->f_flags & F_BAD_ACL)) {
 		info->f_xflags &= ~XF_ACL_ACE;
@@ -2517,10 +2523,10 @@ get_attr(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	register star_xattr_t	*x;
-	register int		num = 0;
+	register size_t		num = 0;
 
 	if (len == 0) {
 		/*
@@ -2575,7 +2581,7 @@ get_xfflags(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		info->f_fflags = 0;
@@ -2595,7 +2601,7 @@ get_dir(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	info->f_dir = 0;
 	info->f_dirlen = 0;
@@ -2629,10 +2635,10 @@ get_iarray(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
-	register int	dirents = 0;
-	register int	i;
+	register size_t	dirents = 0;
+	register size_t	i;
 	register char	*p = arg;
 	register ino_t	*ino;
 		Ullong	ull;
@@ -2693,7 +2699,7 @@ get_release(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		if (grip->release) {
@@ -2723,7 +2729,7 @@ get_archtype(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 	if (len == 0) {
 		grip->gflags &= ~GF_ARCHTYPE;
@@ -2744,7 +2750,7 @@ get_hdrcharset(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 #ifdef	__needed__
 	BOOL	is_global = info == &ginfo;
@@ -2770,7 +2776,7 @@ get_dummy(info, keyword, klen, arg, len)
 	char	*keyword;
 	int	klen;
 	char	*arg;
-	int	len;
+	size_t	len;
 {
 }
 

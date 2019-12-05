@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.37 19/09/08 Copyright 2004-2019 J. Schilling */
+/* @(#)walk.h	1.39 19/11/28 Copyright 2004-2019 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -25,6 +25,9 @@
 #include <schily/mconfig.h>
 #endif
 
+#ifndef _SCHILY_TYPES_H
+#include <schily/types.h>
+#endif
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>
 #endif
@@ -73,6 +76,7 @@ extern "C" {
 /*
  * The 'type' argument to walkfun.
  */
+#define	WALK_NONE	0	/* Used when not called from treewalk()	*/
 #define	WALK_F		1	/* File	*/
 #define	WALK_SL		2	/* Symbolic Link */
 #define	WALK_D		3	/* Directory */
@@ -93,8 +97,8 @@ typedef	int	(*cbfun_t)	__PR((int ac, char  **argv));
 
 struct WALK {
 	int	flags;		/* Flags for communication with (*walkfun)() */
-	int	base;		/* Filename offset in path for  (*walkfun)() */
 	int	level;		/* The nesting level set up for (*walkfun)() */
+	size_t	base;		/* Filename offset in path for  (*walkfun)() */
 	int	walkflags;	/* treewalk() control flags		    */
 	void	*twprivate;	/* treewalk() private do not touch	    */
 	FILE	*std[3];	/* To redirect stdin/stdout/err in treewalk  */
@@ -139,7 +143,8 @@ extern	int	walkgethome	__PR((struct WALK *_state));
 extern	int	walkhome	__PR((struct WALK *_state));
 extern	int	walkcwd		__PR((struct WALK *_state));
 extern	int	walkclose	__PR((struct WALK *_state));
-extern	int	walknlen	__PR((struct WALK *_state));
+extern	size_t	walknlen	__PR((struct WALK *_state));
+extern	void	walksname	__PR((char *_nm, struct WALK *_state));
 
 #ifdef	__cplusplus
 }

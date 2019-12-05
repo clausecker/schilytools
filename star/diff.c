@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.107 19/11/02 Copyright 1993-2019 J. Schilling */
+/* @(#)diff.c	1.108 19/11/29 Copyright 1993-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.107 19/11/02 Copyright 1993-2019 J. Schilling";
+	"@(#)diff.c	1.108 19/11/29 Copyright 1993-2019 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -736,11 +736,11 @@ dirdiffs(f, info)
 	register char	*dp2;	   /* Directory names string from disk	   */
 	register char	**oa = 0;  /* Only in arch pointer array	   */
 	register char	**od = 0;  /* Only on disk pointer array	   */
-	register int	i;
-		int	ents1 = -1;
-		int	ents2;
-		int	dlen = 0;
-		int	alen = 0;
+	register size_t	i;
+		size_t	ents1 = (size_t)-1;
+		size_t	ents2;
+		size_t	dlen = 0;
+		size_t	alen = 0;
 		BOOL	diffs = FALSE;
 		DIR	*dirp;
 		int	err;
@@ -775,8 +775,9 @@ dirdiffs(f, info)
 
 	if (ents1 != ents2) {
 		if (debug || verbose > 2) {
-			fgtprintf(f, "Archive ents: %d Disk ents: %d '%s'\n",
-					ents1, ents2, info->f_name);
+			fgtprintf(f, "Archive ents: %lld Disk ents: %lld '%s'\n",
+					(Llong)ents1, (Llong)ents2,
+					info->f_name);
 		}
 		diffs = TRUE;
 	}

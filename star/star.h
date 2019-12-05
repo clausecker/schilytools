@@ -1,4 +1,4 @@
-/* @(#)star.h	1.148 19/10/13 Copyright 1985, 1995-2019 J. Schilling */
+/* @(#)star.h	1.149 19/11/29 Copyright 1985, 1995-2019 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2019 J. Schilling
  */
@@ -606,8 +606,8 @@ typedef	struct	{
 	Ulong	f_gmaxlen;	/* Maximale Länge des Gruppennamens	  */
 	char	*f_dir;		/* Directory Inhalt			  */
 	ino_t	*f_dirinos;	/* Inode Liste fuer Directory Inhalt	  */
-	int	f_dirlen;	/* Extended strlen(f_dir)+1		  */
-	int	f_dirents;	/* # der Directory Eintraege		  */
+	size_t	f_dirlen;	/* Extended strlen(f_dir)+1		  */
+	size_t	f_dirents;	/* # der Directory Eintraege		  */
 	dev_t	f_dev;		/* Geraet auf dem sich d. Datei befindet  */
 	major_t	f_devmaj;	/* Major von f_dev			  */
 	minor_t	f_devmin;	/* Minor bei f_dev			  */

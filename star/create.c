@@ -1,8 +1,8 @@
-/* @(#)create.c	1.158 19/08/20 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)create.c	1.160 19/11/29 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.158 19/08/20 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)create.c	1.160 19/11/29 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
@@ -157,6 +157,10 @@ extern	BOOL	dumpmeta;
 extern	BOOL	lowmem;
 extern	BOOL	do_subst;
 
+#ifdef	USE_FIND
+extern	BOOL	dofind;
+#endif
+
 extern	int	intr;
 
 /*
@@ -175,7 +179,7 @@ EXPORT	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
 LOCAL	void	createi		__PR((char *sname, char *name, int namlen,
 					FINFO *info, pathstore_t *pathp,
 					struct pdirs *last));
-EXPORT	void	createlist	__PR((void));
+EXPORT	void	createlist	__PR((struct WALK *state));
 LOCAL	BOOL	get_metainfo	__PR((char *line));
 EXPORT	BOOL	read_symlink	__PR((char *sname, char *name, FINFO *info, TCB *ptb));
 LOCAL	LINKS	*find_link	__PR((FINFO *info));
@@ -200,6 +204,7 @@ LOCAL	BOOL	checkexclude	__PR((char *sname, char *name, int namlen, FINFO *info))
 
 #ifdef	USE_FIND
 EXPORT	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
+LOCAL	void	findcreate	__PR((char *name, struct WALK *state));
 #endif
 
 EXPORT void
@@ -749,7 +754,8 @@ out:
 }
 
 EXPORT void
-createlist()
+createlist(state)
+	struct WALK	*state;
 {
 	register int	nlen;
 		char	*name;
@@ -781,6 +787,11 @@ createlist()
 		if (intr)
 			break;
 		curfs = NODEV;
+#ifdef	USE_FIND
+		if (dofind) {
+			findcreate(name, state);
+		} else
+#endif
 		create(name, FALSE, FALSE); /* XXX Liste doch wie Kommandozeile? */
 	}
 	free(name);
@@ -1460,10 +1471,10 @@ put_dir(sname, dname, namlen, info, ptb, pathp, last)
 #endif
 	pathstore_t	path;
 	register char	*name;
-		int	xlen;
+		size_t	xlen;
 		BOOL	putdir = FALSE;
 		BOOL	direrr = FALSE;
-		int	dlen;
+		size_t	dlen;
 		char	*dp = NULL;
 	struct pdirs	thisd;
 	struct pdirs	*pd = last;
@@ -1513,7 +1524,7 @@ put_dir(sname, dname, namlen, info, ptb, pathp, last)
 		 */
 		if (!lowmem) {
 			ino_t	*ino = NULL;
-			int	nents;
+			size_t	nents;
 
 			d = lopendir(sname);
 			if (d) {
@@ -1649,13 +1660,21 @@ put_dir(sname, dname, namlen, info, ptb, pathp, last)
 				snm = dir->d_name;
 				xlen = strlen(snm);
 			} else {
-				if (dlen <= 0)
+				if (dlen == 0)
 					break;
 
 				snm = &dp[1];
 				xlen = strlen(snm);
 				dp += xlen + 2;
-				dlen -= xlen + 2;
+				/*
+				 * Subtract total element size but make sure
+				 * that "dlen" never wraps "below" zero, as it
+				 * is unsigned.
+				 */
+				if ((xlen + 2) > dlen)
+					dlen = 0;
+				else
+					dlen -= xlen + 2;
 			}
 
 			if ((namlen+xlen+1) >= pathp->ps_size) {
@@ -1968,15 +1987,40 @@ walkfunc(nm, fs, type, state)
 	if (state->tree == NULL ||
 	    find_expr(nm, nm + state->base, fs, state, state->tree)) {
 		FINFO	finfo;
+		extern char	*listfile;
 
 		finfo.f_sname = nm + state->base;
 		finfo.f_name = nm;
 		stat_to_info(AT_FDCWD, fs, &finfo);
 		if (nomount && newfs(&finfo))
 			return (0);
+		if (listfile)		/* We did not do a chdir() */
+			state->base = 0;
 		createi(nm + state->base, nm, strlen(nm), &finfo,
 			(pathstore_t *)0, (struct pdirs *)0);
 	}
 	return (0);
+}
+
+LOCAL void
+findcreate(name, state)
+	register char	*name;
+	struct WALK	*state;
+{
+	struct stat	statbuf;
+	int		type = WALK_NONE;
+
+	if (!getstat(name, &statbuf)) {
+		if (!errhidden(E_STAT, name)) {
+			if (!errwarnonly(E_STAT, name))
+				xstats.s_staterrs++;
+			errmsg("Cannot stat '%s'.\n", name);
+			(void) errabort(E_STAT, name, TRUE);
+		}
+		return;
+	}
+
+	walksname(name, state);
+	(void) walkfunc(name, &statbuf, type, state);
 }
 #endif

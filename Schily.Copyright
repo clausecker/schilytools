@@ -80,7 +80,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * conf
-  Copyright 1996-2018 J. Schilling
+  Copyright 1996-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ clause.
 * cpp
   Written by John F. Reiser in July/August 1978
   Copyright Caldera International Inc. 2001-2002
-  Copyright 2010-2018 J. Schilling
+  Copyright 2010-2019 J. Schilling
   License: BSD
 
 ----------------------------------------------------------------------------
@@ -105,6 +105,11 @@ clause.
   Written by Bill Shannon
   Copyright Sun Microsystems Inc. 1991-2008
   Copyright 2004-2018 J. Schilling
+  License: CDDL
+
+----------------------------------------------------------------------------
+* fifo
+  Copyright 1989-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -496,7 +501,7 @@ clause.
 ----------------------------------------------------------------------------
 * patch
   Copyright (c) 1984-1988 Larry Wall
-  Copyright (c) 2011-2018 J. Schilling
+  Copyright (c) 2011-2019 J. Schilling
   License: 
  
   Redistribution and use in source and binary forms, with or without
@@ -526,7 +531,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * pkgdefs
-  Copyright 2002-2018 J. Schilling
+  Copyright 2002-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -536,7 +541,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * psmake
-  Copyright 1985-2018 J. Schilling
+  Copyright 1985-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -561,7 +566,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * RULES
-  Copyright 1992-2018 J. Schilling
+  Copyright 1992-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -616,7 +621,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * smake
-  Copyright 1985-2018 J. Schilling
+  Copyright 1985-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -657,7 +662,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * tests
-  Copyright 2011-2016 J. Schilling
+  Copyright 2011-2019 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -667,7 +672,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * udiff
-  Copyright 1985-2011 J. Schilling
+  Copyright 1985-2018 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------

@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.78 18/04/21 Copyright 1985, 1988, 1994-2018 J. Schilling */
+/* @(#)getargs.c	2.79 19/11/26 Copyright 1985, 1988, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.78 18/04/21 Copyright 1985, 1988, 1994-2018 J. Schilling";
+	"@(#)getargs.c	2.79 19/11/26 Copyright 1985, 1988, 1994-2019 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2018 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2019 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -109,6 +109,7 @@ LOCAL	int	dosflags __PR((const char *, void *,
 						int, va_list));
 LOCAL	int	checkfmt __PR((const char *));
 LOCAL	int	checkeql __PR((const char *));
+LOCAL	BOOL	validfmt __PR((unsigned char c));
 
 LOCAL	va_list	va_dummy;
 
@@ -598,6 +599,11 @@ again:
 				 * Allow "#?*&+" to appear inside a flag.
 				 * NOTE: they must be escaped by '\\' only
 				 *	 inside the the format string.
+				 *	 Only characters permitted by the
+				 *	 function validfmt() are really
+				 *	 accepted. So if we like to permit
+				 *	 more than '+' in addition, we need
+				 *	 to enhance validfmt() as well.
 				 */
 				fmt++;
 				isspec = FALSE;
@@ -686,7 +692,7 @@ again:
 				 */
 				break;
 			} else if (*fmt == *argp) {
-				char	c;
+				unsigned char	c;
 
 				if (argp[1] == '\0' &&
 				    (fmt[1] == '\0' || fmt[1] == ',')) {
@@ -699,11 +705,11 @@ again:
 				}
 				/*
 				 * Check whether the current program argument
-				 * contains characters that are not allowd in
+				 * contains characters that are not allowed in
 				 * option names. Check current character.
 				 */
-				c = *fmt;
-				if (c == ',' || (!isalnum(c) && isfmtspec(c)))
+				c = *(unsigned char *)fmt;
+				if (c == ',' || !validfmt(c))
 					goto nextarg;
 			} else {
 				/*
@@ -867,10 +873,8 @@ again:
 				goto nextchance;
 
 			fmt++;
-			if (*fmt == '1')
-				val = TRUE;
-			else if (*fmt == '0')
-				val = FALSE;
+			if (*fmt >= '0' && *fmt <= '9')
+				val = *fmt - '0';
 			else
 				goto nextchance;
 
@@ -1164,10 +1168,10 @@ again:
 					} else if (fmt[1] == '%') {
 						fmt++;
 						rsf[i].fmt = '%';
-						if (fmt[1] == '0')
-							rsf[i].val = (char)FALSE;
-						else if (fmt[1] == '1')
-							rsf[i].val = (char)TRUE;
+
+						if (fmt[1] >= '0' &&
+						    fmt[1] <= '9')
+							rsf[i].val = fmt[1] - '0';
 						fmt++;
 						if (fmt[1] == ',' ||
 						    fmt[1] == '\0') {
@@ -1413,7 +1417,7 @@ checkfmt(fmt)
 /*
  *	Parse the string as long as valid characters can be found.
  *	Valid flag identifiers are chosen from the set of
- *	alphanumeric characters, '-' and '_'.
+ *	alphanumeric characters, '+', '-' and '_'.
  *	If the next character is an equal sign the string
  *	contains a valid flag identifier.
  */
@@ -1429,6 +1433,24 @@ checkeql(str)
 		/* LINTED */
 		;
 	return (c == '=');
+}
+
+/*
+ * Check whether the argument is a valid character for an option name.
+ */
+#ifdef	PROTOTYPES
+LOCAL BOOL
+validfmt(register unsigned char c)
+#else
+LOCAL BOOL
+validfmt(c)
+	register unsigned char c;
+#endif
+{
+
+	if (isalnum(c) || c == '_' || c == '-' || c == '+')
+		return (TRUE);
+	return (FALSE);
 }
 
 EXPORT char *

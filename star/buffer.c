@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.196 19/03/26 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)buffer.c	1.197 19/11/13 Copyright 1985, 1995, 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.196 19/03/26 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)buffer.c	1.197 19/11/13 Copyright 1985, 1995, 2001-2019 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -164,6 +164,7 @@ EXPORT	BOOL	openremote	__PR((void));
 EXPORT	void	opentape	__PR((void));
 EXPORT	void	closetape	__PR((void));
 EXPORT	void	changetape	__PR((BOOL donext));
+EXPORT	void	runnewvolscript	__PR((int volno, int nindex));
 EXPORT	void	nextitape	__PR((void));
 EXPORT	void	nextotape	__PR((void));
 EXPORT	int	startvol	__PR((char *buf, int amount));
@@ -557,8 +558,6 @@ changetape(donext)
 	 * XXX ufsdump.
 	 */
 	if (newvol_script) {
-		char	scrbuf[PATH_MAX];
-
 		fflush(vpr);
 		if (!donext) {
 			errmsgno(EX_BAD,
@@ -566,14 +565,7 @@ changetape(donext)
 				tarfiles[nextindex]);
 			comerrno(EX_BAD, "Aborting.\n");
 		}
-		/*
-		 * The script is called with the next volume # and volume name
-		 * as argument.
-		 */
-		js_snprintf(scrbuf, sizeof (scrbuf), "%s '%d' '%s'",
-				newvol_script,
-				stats->volno, tarfiles[nextindex]);
-		system(scrbuf);
+		runnewvolscript(stats->volno, nextindex);
 	} else {
 		int	len;
 
@@ -594,6 +586,28 @@ changetape(donext)
 	tarfindex = nextindex;
 	openremote();
 	opentape();
+}
+
+EXPORT void
+runnewvolscript(volno, nindex)
+	int	volno;
+	int	nindex;
+{
+	char	scrbuf[PATH_MAX];
+
+	if (!newvol_script)
+		return;
+
+	if (nindex >= ntarfiles)
+		nindex = 0;
+	/*
+	 * The script is called with the next volume # and volume name
+	 * as argument.
+	 */
+	js_snprintf(scrbuf, sizeof (scrbuf), "%s '%d' '%s'",
+			newvol_script,
+			volno, tarfiles[nindex]);
+	system(scrbuf);
 }
 
 /*

@@ -1,4 +1,4 @@
-# /* @(#)libfind-mapvers	1.16 19/09/07 Copyright 2005-2019 J. Schilling */
+# /* @(#)libfind-mapvers	1.17 19/11/25 Copyright 2005-2019 J. Schilling */
 
 /*
  * Due to a bug in the the C-Preprocessor from SunPro C, we get a syntax
@@ -7,6 +7,11 @@
  * Unfortunately, the GNU linker does not like them, so we run the result
  * through tr -d '"'
  */
+"SCHILY_0.9.4" {	# Not yet a stable interface!
+global:
+	walksname;	# walk.c
+} "SCHILY_0.9.3";
+
 "SCHILY_0.9.3" {	# Not yet a stable interface!
 global:
 	walknlen;	# walk.c

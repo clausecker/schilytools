@@ -1,9 +1,9 @@
-/* @(#)schilyio.h	1.4 16/09/10 Copyright 2006-2016 J. Schilling */
+/* @(#)schilyio.h	1.5 19/12/04 Copyright 2006-2019 J. Schilling */
 /*
  *	Replacement for libschily/stdio/schilyio.h to allow
  *	FILE * -> int *
  *
- *	Copyright (c) 2006-2016 J. Schilling
+ *	Copyright (c) 2006-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,7 @@
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 
+#undef	FAST_GETC_PUTC
 #include <mystdio.h>
 #include <schily/varargs.h>
 #include <schily/standard.h>

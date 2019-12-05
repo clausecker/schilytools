@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.105 19/10/16 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.107 19/12/02 Copyright 1989, 1994-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.105 19/10/16 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.107 19/12/02 Copyright 1989, 1994-2019 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -427,6 +427,22 @@ runfifo(ac, av)
 		beosshm_child();
 #endif
 
+#ifdef	FIFO_STANDALONE
+	if (pid != 0) {
+		EDEBUG(("Get prozess: pid: %d\n", pid));
+		/* Get Prozess */
+		(void) close(mp->gpout);
+		(void) close(mp->ppin);
+		do_out();
+	} else {
+		EDEBUG(("Put prozess: pid: %d\n", pid));
+		/* Put Prozess */
+		(void) close(mp->gpin);
+		(void) close(mp->ppout);
+		do_in();
+	}
+	return;
+#else
 	if ((pid != 0) ^ cflag) {
 		EDEBUG(("Get prozess: cflag: %d pid: %d\n", cflag, pid));
 		/* Get Prozess */
@@ -484,6 +500,7 @@ runfifo(ac, av)
 		 * TAR process.
 		 */
 	}
+#endif
 }
 
 #ifdef	HANG_DEBUG
@@ -1315,6 +1332,7 @@ do_in()
 {
 	int	amt;
 	int	cnt;
+extern	int	tarfindex;
 
 	/*
 	 * First start reading to reduce total startup time.
@@ -1364,6 +1382,7 @@ owake:
 		}
 	}
 	closetape();
+	runnewvolscript(stats->volno+1, tarfindex+1);
 }
 
 /*
@@ -1378,6 +1397,7 @@ do_out()
 {
 	int	cnt;
 	int	amt;
+extern	int	tarfindex;
 
 	for (;;) {
 		cnt = fifo_owait(mp->obs);
@@ -1413,6 +1433,7 @@ nextwrite:
 		fifo_iwake(amt);
 	}
 	closetape();
+	runnewvolscript(stats->volno+1, tarfindex+1);
 }
 
 /*

@@ -17,6 +17,12 @@
 ./cdda2wav/priv.c
 ./cdda2wav/scsi_cdr.c
 ./cdda2wav/scsi_scan.c
+./fifo/fifo.c
+./fifo/fifo.h
+./fifo/star.h
+./fifo/starsubs.h
+./fifo/pathname.h
+./fifo/bitstring.h
 ./label/check_part.c
 ./label/io.c
 ./label/makelabel.c

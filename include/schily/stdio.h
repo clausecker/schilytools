@@ -1,8 +1,8 @@
-/* @(#)stdio.h	1.14 16/11/06 Copyright 2009-2016 J. Schilling */
+/* @(#)stdio.h	1.15 19/12/04 Copyright 2009-2019 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
- *	Copyright (c) 2009-2016 J. Schilling
+ *	Copyright (c) 2009-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,7 +90,9 @@ extern "C" {
  *
  * If you believe you can do this on onther platforms, send a note.
  */
-#if	defined(__SVR4) && defined(__sun) && defined(_LP64)
+#if	defined(__SVR4) && defined(__sun) && defined(_LP64) && \
+	!defined(getc_unlocked)
+
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>	/* Needed for ssize_t */
 #endif

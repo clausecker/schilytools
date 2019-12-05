@@ -1,15 +1,15 @@
-/* @(#)unicode.c	1.18 19/03/23 Copyright 2001-2019 J. Schilling */
+/* @(#)unicode.c	1.22 19/12/03 Copyright 2001-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.18 19/03/23 Copyright 2001-2019 J. Schilling";
+	"@(#)unicode.c	1.22 19/12/03 Copyright 2001-2019 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
  *
  *	This is currently a very simple implementation that only
- *	handles ISO-8859-1 coding. There should be a better solution
- *	in the future.
+ *	handles ISO-8859-1 coding using intrinsic code and using
+ *	iconv() in case of other encodings.
  *
  *	Copyright (c) 2001-2019 J. Schilling
  */
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/utypes.h>
 #include <schily/iconv.h>
 #include <schily/standard.h>
@@ -45,31 +46,31 @@ static	UConst char sccsid[] =
 
 EXPORT	void	utf8_init	__PR((int type));
 EXPORT	void	utf8_fini	__PR((void));
-EXPORT	int	to_utf8		__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
-LOCAL	int	_to_utf8	__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
+EXPORT	size_t	to_utf8		__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
+LOCAL	size_t	_to_utf8	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
 #ifdef	USE_ICONV
-LOCAL	int	_to_iconv	__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
+LOCAL	size_t	_to_iconv	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
 #endif
-LOCAL	int	_to_none	__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
-EXPORT	BOOL	from_utf8	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
-LOCAL	BOOL	_from_utf8	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
+LOCAL	size_t	_to_none	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
+EXPORT	BOOL	from_utf8	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
+LOCAL	BOOL	_from_utf8	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
 #ifdef	USE_ICONV
-LOCAL	BOOL	_from_iconv	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
+LOCAL	BOOL	_from_iconv	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
 #endif
-LOCAL	BOOL	_from_none	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
+LOCAL	BOOL	_from_none	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
 
-LOCAL	int	(*p_to_utf8)	__PR((Uchar *to, int tolen,
-					Uchar *from, int len)) = _to_utf8;
-LOCAL	BOOL	(*p_from_utf8)	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len)) = _from_utf8;
+LOCAL	size_t	(*p_to_utf8)	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len)) = _to_utf8;
+LOCAL	BOOL	(*p_from_utf8)	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len)) = _from_utf8;
 
 LOCAL	iconv_t	ic_from	= (iconv_t)-1;
 LOCAL	iconv_t	ic_to	= (iconv_t)-1;
@@ -160,12 +161,12 @@ utf8_fini()
 #endif
 }
 
-EXPORT int
+EXPORT size_t
 to_utf8(to, tolen, from, len)
 	register Uchar	*to;
-		int	tolen;
+		size_t	tolen;
 	register Uchar	*from;
-	register int	len;
+	register size_t	len;
 {
 	return (p_to_utf8(to, tolen, from, len));
 }
@@ -176,17 +177,20 @@ to_utf8(to, tolen, from, len)
  * characters written to the destination excluding the final null byte
  * (strlen(to)).
  */
-LOCAL int
+LOCAL size_t
 _to_utf8(to, tolen, from, len)
 	register Uchar	*to;
-		int	tolen;
+		size_t	tolen;
 	register Uchar	*from;
-	register int	len;
+	register size_t	len;
 {
 	register Uchar	*oto = to;
 	register Uchar	c;
 
-	while (--len >= 0) {
+	if (len == 0)
+		goto out;
+
+	do {
 		c = *from++;
 		if (c <= 0x7F) {
 			*to++ = c;
@@ -198,21 +202,22 @@ _to_utf8(to, tolen, from, len)
 			*to++ = c & 0xBF;
 		}
 		/*
-		 * XXX We have plenty of space in "to" when weare called.
+		 * XXX We have plenty of space in "to" when we are called.
 		 * XXX Should we check wether we did hit "tolen"?
 		 */
-	}
+	} while (--len > 0);
+out:
 	*to = '\0';
 	return (to - oto);
 }
 
 #ifdef	USE_ICONV
-LOCAL int
+LOCAL size_t
 _to_iconv(to, tolen, from, len)
 	Uchar	*to;
-	int	tolen;
+	size_t	tolen;
 	Uchar	*from;
-	int	len;
+	size_t	len;
 {
 #ifdef	HAVE_ICONV_CONST
 	const char	*fp = (char *)from;
@@ -248,12 +253,12 @@ _to_iconv(to, tolen, from, len)
 }
 #endif
 
-LOCAL int
+LOCAL size_t
 _to_none(to, tolen, from, len)
 	Uchar	*to;
-	int	tolen;
+	size_t	tolen;
 	Uchar	*from;
-	int	len;
+	size_t	len;
 {
 	*movebytes(from, to, len) = '\0';
 	return (len);
@@ -262,9 +267,9 @@ _to_none(to, tolen, from, len)
 EXPORT BOOL
 from_utf8(to, tolen, from, lenp)
 	Uchar	*to;
-	int	tolen;
+	size_t	tolen;
 	Uchar	*from;
-	int	*lenp;
+	size_t	*lenp;
 {
 	return (p_from_utf8(to, tolen, from, lenp));
 }
@@ -279,49 +284,65 @@ from_utf8(to, tolen, from, lenp)
 LOCAL BOOL
 _from_utf8(to, tolen, from, lenp)
 	register Uchar	*to;
-		int	tolen;
+		size_t	tolen;
 	register Uchar	*from;
-		int	*lenp;
+		size_t	*lenp;
 {
 	register Uchar	*oto = to;
 	register Uchar	c;
 	register BOOL	ret = TRUE;
-	register int	len = *lenp;
+	register size_t	len = *lenp;
 		Uchar	*endp = to + tolen;
 
-	while (--len >= 0) {
+	if (len == 0)
+		goto out;
+
+	do {
 		c = *from++;
 		if (c <= 0x7F) {
 			*to++ = c;
 		} else if (c == 0xC0) {
 			*to++ = *from++ & 0x7F;
-			len--;
+			if (--len == 0)
+				break;
 		} else if (c == 0xC1) {
 			*to++ = (*from++ | 0x40) & 0x7F;
-			len--;
+			if (--len == 0)
+				break;
 		} else if (c == 0xC2) {
 			*to++ = *from++;
-			len--;
+			if (--len == 0)
+				break;
 		} else if (c == 0xC3) {
 			*to++ = *from++ | 0x40;
-			len--;
+			if (--len == 0)
+				break;
 		} else {
 			ret = FALSE;		/* unknown/illegal UTF-8 char */
 			*to++ = '_';		/* use default character    */
 			if (c < 0xE0) {
 				from++;		/* 2 bytes in total */
-				len--;
+				if (--len == 0)
+					break;
 			} else if (c < 0xF0) {
 				from += 2;	/* 3 bytes in total */
+				if (len <= 2)
+					break;
 				len -= 2;
 			} else if (c < 0xF8) {
 				from += 3;	/* 4 bytes in total */
+				if (len <= 3)
+					break;
 				len -= 3;
 			} else if (c < 0xFC) {
 				from += 4;	/* 5 bytes in total */
+				if (len <= 4)
+					break;
 				len -= 4;
 			} else if (c < 0xFE) {
 				from += 5;	/* 6 bytes in total */
+				if (len <= 5)
+					break;
 				len -= 5;
 			} else {
 				while (len > 0) {
@@ -332,8 +353,11 @@ _from_utf8(to, tolen, from, lenp)
 					if (c <= 0xBF)
 						break;
 					from++;
-					len--;
+					if (--len == 0)
+						break;
 				}
+				if (len == 0)
+					break;
 			}
 		}
 		/*
@@ -343,7 +367,8 @@ _from_utf8(to, tolen, from, lenp)
 		 */
 		if (to >= endp)
 			break;
-	}
+	} while (--len > 0);
+out:
 	if (to < endp)
 		*to = '\0';
 	*lenp = (to - oto);
@@ -354,9 +379,9 @@ _from_utf8(to, tolen, from, lenp)
 LOCAL BOOL
 _from_iconv(to, tolen, from, len)
 	Uchar	*to;
-	int	tolen;
+	size_t	tolen;
 	Uchar	*from;
-	int	*len;
+	size_t	*len;
 {
 #ifdef	HAVE_ICONV_CONST
 	const char	*fp = (char *)from;
@@ -377,7 +402,7 @@ _from_iconv(to, tolen, from, len)
 	if (ret == -1 && geterrno() == E2BIG) {
 		/*
 		 * in case of an overflow signal this via *len,
-		 * note that "tol" may be 0 in such a case.
+		 * even if on Linux where "tol" is 0 in such a case.
 		 */
 		*len = tolen;
 		rc = FALSE;
@@ -405,9 +430,9 @@ _from_iconv(to, tolen, from, len)
 LOCAL BOOL
 _from_none(to, tolen, from, len)
 	Uchar	*to;
-	int	tolen;
+	size_t	tolen;
 	Uchar	*from;
-	int	*len;
+	size_t	*len;
 {
 	*movebytes(from, to, *len) = '\0';
 	return (TRUE);

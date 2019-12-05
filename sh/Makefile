@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.158 19/10/25  Copyright (c) 2006-2019 J. Schilling"
+#ident "@(#)Makefile	1.159 19/11/12  Copyright (c) 2006-2019 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -192,7 +192,7 @@ LIBS=		$(LIB_SECDB) -lshedit -lxtermcap -lgetopt \
 		$(LIB_ACL_TEST) \
 		$(LIB_INTL) $(LIB_DL)
 #LIBS=		-lgen -lsecdb 
-XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
+XMK_FILE=	Makefile.dot Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
 
 signames.c abbrev.c abbrev.h:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS

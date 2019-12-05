@@ -1,8 +1,8 @@
-/* @(#)header.h	1.2 18/05/17 Copyright 2001-2018 J. Schilling */
+/* @(#)header.h	1.4 19/12/03 Copyright 2001-2019 J. Schilling */
 /*
  *	Defitions for the stream archive internal interfaces.
  *
- *	Copyright (c) 2001-2018 J. Schilling
+ *	Copyright (c) 2001-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -46,12 +46,12 @@
 
 extern	void	strar_xbreset		__PR((void));
 extern	char	*strar_gxbuf		__PR((void));
-extern	int	strar_gxbsize		__PR((void));
-extern	int	strar_gxblen		__PR((void));
-extern	void	strar_xbgrow		__PR((int newsize));
+extern	size_t	strar_gxbsize		__PR((void));
+extern	size_t	strar_gxblen		__PR((void));
+extern	void	strar_xbgrow		__PR((size_t newsize));
 
 extern	void	strar_gen_text		__PR((char *keyword,
-						char *arg, int alen,
+						char *arg, size_t alen,
 						Uint flags));
 extern	void	strar_gen_xtime		__PR((char *keyword, time_t sec,
 						Ulong nsec));
@@ -66,9 +66,9 @@ extern	BOOL	strar_xhparse		__PR((FINFO *info, char	*p, char *ep));
 extern	void	utf8_codeset	__PR((const char *code_set));
 extern	void	utf8_init	__PR((int type));
 extern	void	utf8_fini	__PR((void));
-extern	int	to_utf8		__PR((Uchar *to, int tolen,
-					Uchar *from, int len));
-extern	BOOL	from_utf8	__PR((Uchar *to, int tolen,
-					Uchar *from, int *len));
+extern	size_t	to_utf8		__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t len));
+extern	BOOL	from_utf8	__PR((Uchar *to, size_t tolen,
+					Uchar *from, size_t *len));
 
 #endif	/* _HEADER_H */

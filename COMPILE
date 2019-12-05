@@ -1,4 +1,4 @@
-# @(#)README.compile	1.41 19/03/28 Copyright 1997-2019 J. Schilling
+# @(#)README.compile	1.42 19/11/27 Copyright 1997-2019 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -828,7 +828,6 @@ Compiling with the "Americal fuzzy lop":
 Author:
 
 Joerg Schilling
-Seestr. 110
 D-13353 Berlin
 Germany
 

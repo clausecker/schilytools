@@ -1,4 +1,4 @@
-# @(#)README	1.4 18/09/17 Copyr 1997-2018 J. Schilling
+# @(#)README	1.5 19/11/29 Copyr 1997-2018 J. Schilling
 
 Star is a tar like archiver - TAR stands for Tape ARchiver.
 
@@ -46,11 +46,28 @@ Its main advantages over other tar implementations are:
 				  the quality of the network implementation
 				  and the speed of the filesystem.
 
+	selectable cli		- star cli=xxx allows to select a command line
+				  interface from the list
+
+					star, suntar, gnutar, pax, cpio.
+
 	accurate sparse files	- star is able to reproduce holes in sparse
 				  files accurately if the OS includes 
 				  the needed support functions. This is
 				  currently true for Solaris-2.3 to
 				  Solaris-2.5.1 and for Solaris-10 or newer
+
+	infinite path name length - star has no path name limitation at
+				  all. It is even able to deal with
+				  path names that are longer than the
+				  OS limitation PATH_MAX, that is usually
+				  1024 octetts.
+
+				  Before July 2018, star did archive and
+				  extract Pathnames up to 1024 Bytes. Since
+				  July 2018, star deals with long names of
+				  arbitrary length. The same limitation
+				  applies to linknames. 
 
 	pattern matcher		- for a convenient user interface
 				  (see manual page for more details).
@@ -146,7 +163,6 @@ Have a look at the manual page, it is included in the distribution.
 Author:
 
 Joerg Schilling
-Seestr. 110
 D-13353 Berlin
 Germany
 

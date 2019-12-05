@@ -1,0 +1,9 @@
+ARCH=i386
+PKG=CSWmake
+NAME=make - The SunOS make program enabled for parallel execution
+VERSION=1.1
+CATEGORY=application
+VENDOR=http://schilytools.sourceforge.net/  packaged for CSW by Jörg Schilling
+HOTLINE=http://www.blastwave.org/bugtrack/
+EMAIL=joerg@blastwave.org
+BASEDIR=/opt/csw

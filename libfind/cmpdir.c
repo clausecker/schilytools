@@ -1,13 +1,13 @@
-/* @(#)cmpdir.c	1.27 09/07/11 Copyright 2002-2009 J. Schilling */
+/* @(#)cmpdir.c	1.28 19/11/28 Copyright 2002-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmpdir.c	1.27 09/07/11 Copyright 2002-2009 J. Schilling";
+	"@(#)cmpdir.c	1.28 19/11/28 Copyright 2002-2019 J. Schilling";
 #endif
 /*
  *	Blocked directory sort/compare.
  *
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,17 +27,18 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/utypes.h>
 #include <schily/string.h>
 #include <schily/schily.h>
 #include <schily/fetchdir.h>
 
 EXPORT	int	fdircomp	__PR((const void *p1, const void *p2));
-EXPORT	char	**sortdir	__PR((char *dir, int *entp));
-EXPORT	int	cmpdir		__PR((int ents1, int ents2,
+EXPORT	char	**sortdir	__PR((char *dir, size_t *entp));
+EXPORT	int	cmpdir		__PR((size_t ents1, size_t ents2,
 					char **ep1, char **ep2,
 					char **oa, char **od,
-					int *alenp, int *dlenp));
+					size_t *alenp, size_t *dlenp));
 
 /*
  * Compare directory entries from fetchdir().
@@ -67,22 +68,24 @@ fdircomp(p1, p2)
 /*
  * Sort a directory string as returned by fetchdir().
  *
+ * If "ents" == (size_t)-1, start with counting exisiting entries.
+ *
  * Return allocated arry with string pointers.
  */
 EXPORT char **
 sortdir(dir, entp)
 	char	*dir;
-	int	*entp;
+	size_t	*entp;
 {
-	int	ents = -1;
+	size_t	ents = (size_t)-1;
 	char	**ea;
 	char	*d;
 	char	*p;
-	int	i;
+	size_t	i;
 
 	if (entp)
 		ents = *entp;
-	if (ents < 0) {
+	if (ents == (size_t)-1) {
 		d = dir;
 		ents = 0;
 		while (*d) {
@@ -111,20 +114,20 @@ sortdir(dir, entp)
 
 EXPORT int
 cmpdir(ents1, ents2, ep1, ep2, oa, od, alenp, dlenp)
-	register int	ents1;	/* # of directory entries in arch	*/
-	register int	ents2;	/* # of directory entries on disk	*/
+	register size_t	ents1;	/* # of directory entries in arch	*/
+	register size_t	ents2;	/* # of directory entries on disk	*/
 	register char	**ep1;	/* Directory entry pointer array (arch)	*/
 	register char	**ep2;	/* Directory entry pointer array (disk)	*/
 	register char	**oa;	/* Only in arch pointer array		*/
 	register char	**od;	/* Only on disk pointer array		*/
-		int	*alenp;	/* Len pointer for "only in arch" array	*/
-		int	*dlenp;	/* Len pointer for "only on disk" array	*/
+		size_t	*alenp;	/* Len pointer for "only in arch" array	*/
+		size_t	*dlenp;	/* Len pointer for "only on disk" array	*/
 {
-	register int	i1;	/* Index for 'only in archive'		*/
-	register int	i2;	/* Index for 'only on disk'		*/
+	register size_t	i1;	/* Index for 'only in archive'		*/
+	register size_t	i2;	/* Index for 'only on disk'		*/
 	register int	d;	/* 'diff' amount (== 0 means equal)	*/
-	register int	alen = 0; /* Number of ents only in archive	*/
-	register int	dlen = 0; /* Number of ents only on disk	*/
+	register size_t	alen = 0; /* Number of ents only in archive	*/
+	register size_t	dlen = 0; /* Number of ents only on disk	*/
 
 	for (i1 = i2 = 0; i1 < ents1 && i2 < ents2; i1++, i2++) {
 		d = fdircomp(&ep1[i1], &ep2[i2]);

@@ -111,7 +111,6 @@ programs now (hopefully) call gettext() for all strings that need localization.
 Author:
 
 Joerg Schilling
-Seestr. 110
 D-13353 Berlin
 Germany
 

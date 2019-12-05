@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)prs.c	1.59 19/01/17 J. Schilling
+ * @(#)prs.c	1.60 19/11/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.59 19/01/17 J. Schilling"
+#pragma ident "@(#)prs.c 1.60 19/11/12 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -241,14 +241,12 @@ char *argv[];
 			switch (c) {
 			case 'r':	/* specified SID */
 				if (argv[j][2] == '\0') {
-					no_arg = 1;
-					break;
+					if (*(omit_sid(p)) != '\0') {
+						no_arg = 1;
+						continue;
+					}
 				}
-				if (*p) {
-					if (invalid(p))
-						fatal(gettext("invalid sid (co8)"));
-					sid_ab(p, &sid);
-				}
+				chksid(sid_ab(p, &sid), &sid);
 				break;
 			case 'c':	/* cutoff date[time] */
 				if ((*p) && (mystrptime(p, &Date_time, 0) != -1)) {
@@ -530,7 +528,7 @@ register struct packet *pkt;
 		ignore 'removed' deltas if !HADA keyletter
 		*/
 
-		if (!HADA && dt.d_type != 'D') {
+		if (!HADA && (dt.d_type != 'D' && dt.d_type != 'U')) {
 			read_to(EDELTAB, pkt);
 			continue;
 		}
@@ -1042,36 +1040,6 @@ clean_up()
 
 
 /*
- * This function takes as it's argument the SID inputed and determines
- * whether or not it is valid (e. g. not ambiguous or illegal).
- */
-
-static int
-invalid(i_sid)
-register char	*i_sid;
-{
-	register int digits = 0;
-	if (*i_sid == '0' || *i_sid == '.')
-		return (1);
-	i_sid++;
-	digits++;
-	while (*i_sid != '\0') {
-		if (*i_sid++ == '.') {
-			digits = 0;
-			if (*i_sid == '0' || *i_sid == '.')
-				return (1);
-		}
-		digits++;
-		if (digits > 5)
-			return (1);
-	}
-	if (*(--i_sid) == '.')
-		return (1);
-	return (0);
-}
-
-
-/*
  * This procedure checks the delta table entries for correct format.
  * It also checks to see if the SID specified by the -r keyletter
  * is contained in the file.  If no SID was specified assumes the top
@@ -1103,7 +1071,7 @@ register struct packet *pkt;
 		/*
 		ignore if "removed" delta
 		*/
-		if (!HADA && dt.d_type != 'D') {
+		if (!HADA && (dt.d_type != 'D' && dt.d_type != 'U')) {
 			read_to(EDELTAB, pkt);
 			continue;
 		}

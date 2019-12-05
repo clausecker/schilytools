@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.224 19/10/26 Copyr 1982-2019 J. Schilling
+. \" @(#)star.1	1.228 19/11/26 Copyr 1982-2019 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2019/10/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2019/11/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -33,6 +33,14 @@ star \- unique standard tape archiver
 [\fIoptions\fP]
 [\fB\-find\fP]
 .I file1 .\|.\|. filen
+[\fIfind_expr\fP]
+.br
+.ie n .B "star\ "
+.el .B "star\ \ "
+.I command
+.BI list= name
+[\fIoptions\fP]
+\fB\-find\fP
 [\fIfind_expr\fP]
 .br
 .ie n .B "tar\ \ "
@@ -329,6 +337,20 @@ command as described in
 .br
 .ne 4
 .TP
+.B tar
+The classical
+.B tar
+interface selects the command line interface of the classical UNIX
+.B tar
+command. This is currently an alias to
+.B suntar
+and implements extensions introduced by the
+.B tar
+command found on
+.BR Solaris .
+.br
+.ne 4
+.TP
 .B gnutar
 The
 .B gnutar
@@ -336,6 +358,11 @@ interface selects the command line interface of the
 .B GNU tar
 command as described in
 .BR gnutar (1).
+.B Star
+however does not implement the deviations from the standard behavior,
+that are caused by the GNU option parser that is used by the original
+.BR gtar (1)
+command.
 .br
 .ne 4
 .TP
@@ -1978,6 +2005,15 @@ option and the section
 for more information on
 .IR "true incremental dumps" .
 .TP
+.B \-dump+
+Works similar to
+.B \-dump
+but creates more global archive header meta data, e.g. the
+.B SCHILY.volhdr.hostname
+tag.
+.sp
+This helps to understand where a tar archive has been created.
+.TP
 .B \-dump\-cumulative
 instructs
 .B star
@@ -2987,6 +3023,13 @@ See also the
 .B \-X
 option.
 .sp
+If used together with
+.BR \-find ,
+no
+.I path list
+is accepted after the option
+.BR \-find .
+.sp
 See also the option
 .B pkglist=
 for a way to specify
@@ -3255,7 +3298,9 @@ file in
 .BI new\-volume\-script= script
 Call 
 .I script
-at end of each tape if in multi volume mode.
+at end of each tape (even the last one) if in multi volume mode or if the
+.B tsize=
+option has been specified.
 If this option is not in effect, 
 .B star
 will ask the user to confirm the volume change.
@@ -3574,6 +3619,22 @@ Each value that is not used to overwrite the original values may be replaced by 
 The fields are separated by spaces, so the
 .B pkglist=
 option does not allow files that contain newline or space characters.
+.sp
+If used together with 
+.BR \-find ,
+the
+.IR uid ,
+.IR gid
+and
+.I permission
+values from the
+.BI pkglist= file
+have precedence over changes on this meta data introduced by
+.BR libfind .
+.sp
+See
+.B list= 
+option for further information.
 .TP
 .BR \-pax\-c ", " \-notarg
 Match all file or archive members except those specified by the pattern or file operands.
@@ -5070,6 +5131,19 @@ instead of the way used by star, use:
 .IP
 .B
 example# star \-t f=\fIarchive-name\fP \-find . \-ls \-false
+.PP
+If you like to split the content of an archived tree into tar chunks
+of 1 GB, you could call:
+.sp
+.RS
+.nf
+.B
+example# star \-c f=/tmp/v.tar tsize=1G \e
+.br
+.B
+new\-volume\-script='sh \-c "mv /tmp/v.tar /tmp/v$(($1-1)).tar" nv' .
+.fi
+.RE
 
 .SH ENVIRONMENT
 .TP

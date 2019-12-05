@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.279 19/10/22 Copyright 1998-2019 J. Schilling */
+/* @(#)xconfig.h.in	1.280 19/11/21 Copyright 1998-2019 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -254,13 +254,13 @@
 #undef HAVE_FCHDIR		/* fchdir() is present in libc */
 #undef HAVE_FDOPENDIR		/* fdopendir() is present in libc */
 #undef HAVE_GETDELIM		/* getdelim() is present in libc */
-#undef HAVE_OPENAT		/* openat() is present in libc */
+#undef HAVE_OPENAT		/* P openat() is present in libc */
 #undef HAVE_ATTROPEN		/* attropen() is present in libc */
-#undef HAVE_FSTATAT		/* fstatat() is present in libc */
-#undef HAVE_FCHOWNAT		/* fchownat() is present in libc */
+#undef HAVE_FSTATAT		/* P fstatat() is present in libc */
+#undef HAVE_FCHOWNAT		/* P fchownat() is present in libc */
 #undef HAVE_FUTIMESAT		/* futimesat() is present in libc */
-#undef HAVE_RENAMEAT		/* renameat() is present in libc */
-#undef HAVE_UNLINKAT		/* unlinkat() is present in libc */
+#undef HAVE_RENAMEAT		/* P renameat() is present in libc */
+#undef HAVE_UNLINKAT		/* P unlinkat() is present in libc */
 #undef HAVE___ACCESSAT		/* __accessat() is present in libc */
 #undef HAVE_ACCESSAT		/* accessat() is present in libc */
 #undef HAVE_REALPATH		/* realpath() is present in libc */
@@ -268,15 +268,15 @@
 /*
  * See e.g. http://www.die.net/doc/linux/man/man2/mkdirat.2.html
  */
-#undef HAVE_MKDIRAT		/* mkdirat() is present in libc */
-#undef HAVE_FACCESSAT		/* faccessat() is present in libc */
-#undef HAVE_FCHMODAT		/* fchmodat() is present in libc */
-#undef HAVE_LINKAT		/* inkat() is present in libc */
-#undef HAVE_MKFIFOAT		/* mkfifoat() is present in libc */
-#undef HAVE_MKNODAT		/* mknodat() is present in libc */
-#undef HAVE_READLINKAT		/* readlinkat() is present in libc */
-#undef HAVE_SYMLINKAT		/* symlinkat() is present in libc */
-#undef HAVE_UTIMENSAT		/* utimensat() is present in libc */
+#undef HAVE_MKDIRAT		/* P mkdirat() is present in libc */
+#undef HAVE_FACCESSAT		/* P faccessat() is present in libc */
+#undef HAVE_FCHMODAT		/* P fchmodat() is present in libc */
+#undef HAVE_LINKAT		/* P linkat() is present in libc */
+#undef HAVE_MKFIFOAT		/* P mkfifoat() is present in libc */
+#undef HAVE_MKNODAT		/* P mknodat() is present in libc */
+#undef HAVE_READLINKAT		/* P readlinkat() is present in libc */
+#undef HAVE_SYMLINKAT		/* P symlinkat() is present in libc */
+#undef HAVE_UTIMENSAT		/* P utimensat() is present in libc */
 #undef HAVE_IOCTL		/* ioctl() is present in libc */
 #undef HAVE_FCNTL		/* fcntl() is present in libc */
 #undef HAVE_PIPE		/* pipe() is present in libc */

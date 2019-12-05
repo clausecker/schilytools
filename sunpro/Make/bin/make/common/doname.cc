@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2019 J. Schilling
  *
- * @(#)doname.cc	1.23 19/10/17 2017-2019 J. Schilling
+ * @(#)doname.cc	1.24 19/12/01 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.23 19/10/17 2017-2019 J. Schilling";
+	"@(#)doname.cc	1.24 19/12/01 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -3462,7 +3462,7 @@ set_locals(register Name target, register Property old_locals)
 	Chain			cond_name;
 	Chain			cond_chain;
 
-#ifdef DISTRIBUTED
+#if defined(DISTRIBUTED) || defined(PMAKE)
 	if (target->dont_activate_cond_values) {
 		return;
 	}
@@ -3523,7 +3523,7 @@ reset_locals(register Name target, register Property old_locals, register Proper
 	register Property	this_conditional;
 	Chain			cond_chain;
 
-#ifdef DISTRIBUTED
+#if defined(DISTRIBUTED) || defined(PMAKE)
 	if (target->dont_activate_cond_values) {
 		return;
 	}
