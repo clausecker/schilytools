@@ -1,11 +1,11 @@
-/* @(#)create.c	1.160 19/11/29 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)create.c	1.161 20/02/05 Copyright 1985, 1995, 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.160 19/11/29 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)create.c	1.161 20/02/05 Copyright 1985, 1995, 2001-2020 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1012,7 +1012,7 @@ acpio_link(info)
 		char	*name = info->f_name;
 		char	*lname = info->f_lname;
 		off_t	size = info->f_size;	/* real size of file	    */
-#ifdef	__what_people_would_expect__
+#ifdef	__wrong_but_what_people_would_expect__
 		off_t	rsize = info->f_rsize;	/* size as archived on tape */
 #endif
 
@@ -1059,7 +1059,7 @@ acpio_link(info)
 	info->f_name  = name;
 	info->f_lname = lname;
 	info->f_size  = size;
-#ifdef	__what_people_would_expect__
+#ifdef	__wrong_but_what_people_would_expect__
 	info->f_rsize = rsize;
 #else
 	info->f_rsize = size;	/* Achieve that the last link archives data */

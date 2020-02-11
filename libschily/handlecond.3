@@ -1,5 +1,5 @@
-. \"  Manual Seite fuer handle
-. \" @(#)handle.3	1.1
+. \"  Manual Seite fuer handlecond
+. \" @(#)handlecond.3	1.2 20/02/09 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,34 +13,51 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH HANDLE 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH HANDLECOND 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-handle() \- sets a function to handle a condition
+handlecond() \- sets a function to handle a condition
 .SH SYNOPSIS
 .nf
 .B
-#include <sigblk.h> 
+#include <schily/sigblk.h> 
+.sp
+.B void
 .B
-handle(signame, sp, func, arg1)
+handlecond(signame, sp, func, arg1)
 .B	char	*signame;
 .B	SIGBLK	*sp;
 .B	int	(*func)();
 .B	long	arg1;
+.sp
+.B void
+.B
+starthandlecond(sigfirst)
+.B	SIGBLK	*sigfirst;
+.sp
+.B void
+.B
+unhandlecond(sigfirst)
+.B	SIGBLK	*sigfirst;
 .fi
 .SH DESCRIPTION
-handle() sets up a handler for a condition. The user must
+.BR handlecond ()
+sets up a handler for a condition. The user must
 explicitly allocate the condition block and pass it to the
 function.
 .PP
-handle() establishes function func as the condition handler for
+.BR handlecond ()
+establishes function func as the condition handler for
 the condition signame. arg1 is passed to func at the time of
 condition signalling. signame "any_other", catches all
 conditions.
 .PP
 The specified function is called with the actual condition being
-signalled, with arguments from the latest handle() call for that
-function in the given frame and from the call to raise(). For
-instance:
+signalled, with arguments from the latest
+.BR handlecond ()
+call for that
+function in the given frame and from the call to
+.BR raisecond ().
+For instance:
 .PP
 .nf
 .B
@@ -60,6 +77,20 @@ int func (signame, arg1, arg2)
 If the function returns TRUE (non-zero), it is assumed that the
 condition has been successfully handled; otherwise, the
 condition is signalled farther down the stack.
+.LP
+.BR starthandlecond ()
+sets an initial marker to the current stack frame. It needs to be called before
+.BR handlecond ()
+may be used and the argument needs to be a variable local to the
+current function.
+.LP
+.BR unhandlecond ()
+needs to be called before a function may call
+.B return
+or fall out of the function body. The argument needs to be the same as used for
+the 
+.BR starthandlecond ()
+function.
 .SH RETURNS
 none
 .SH NOTES
@@ -71,19 +102,24 @@ be invoked (only once, since it too may return FALSE).
 .PP
 To revert a condition handler simply use NULL as func.
 .PP
-SIGBLK, defined in <sigblk.h>, must be included.
-handle() is frequently used with longjmp() and setjmp().
+SIGBLK, defined in <schily/sigblk.h>, must be included.
+.BR handlecond ()
+is frequently used with
+.BR longjmp ()
+and
+.BR setjmp ().
 .PP
 Eah function which calls
-.I handle()
+.BR handlecond ()
 must call
-.I unhandle()
-before it returns. Otherwise the return will fail.
+.BR unhandlecond ()
+before it returns. Otherwise the return will fail or cause a core dump.
 .SH BUGS
-.I Handle()
+.BR handlecond ()
 makes the framepointer odd, to mark the current stack frame.
 .PP
 This confuses programs like
 .B adb(1)
 and
-.B dbx(1).
+.B dbx(1)
+because the debuggers scan the stack frame to get the call stack.

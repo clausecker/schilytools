@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)macro.c	1.95 19/10/04 2008-2019 J. Schilling
+ * @(#)macro.c	1.99 20/01/26 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.95 19/10/04 2008-2019 J. Schilling";
+	"@(#)macro.c	1.99 20/01/26 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -256,6 +256,40 @@ shvar(v)
 		v = UC shname;
 	} else if (eq(v, "version")) {		/* Shell version */
 		v = UC shvers;
+	} else if (eq(v, "path")) {		/* Shell path */
+		static unsigned char *shpath = NULL;
+		char		pbuf[MAXPATHLEN + 1];
+		unsigned char	*pname;
+#ifdef	HAVE_GETEXECNAME
+		const char	*exname = getexecname();
+#else
+			char	*exname = getexecpath();
+#endif
+		if (shpath)
+			return (shpath);
+		if (exname == NULL)
+			return (NULL);
+		if (*exname == '/')
+			pname = UC exname;
+		else
+			pname = UC realpath(exname, pbuf);
+		if (pname) {
+			/*
+			 * NUMBUFLEN is sufficient in most cases.
+			 * We cannot do this on stak as we need to
+			 * keep the current stak segment open.
+			 */
+			if (length(pname) > NUMBUFLEN) {
+				shpath = pname = make(pname);
+			} else {
+				movstr(pname, numbuf);
+				return (numbuf);
+			}
+		}
+#ifndef	HAVE_GETEXECNAME
+		libc_free(exname);
+#endif
+		v = UC pname;
 	} else {
 		return (NULL);
 	}

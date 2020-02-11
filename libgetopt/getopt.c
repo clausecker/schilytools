@@ -26,10 +26,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)getopt.c	1.20 19/10/23 J. Schilling
+ * @(#)getopt.c	1.22 19/12/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.20 19/10/23 J. Schilling"
+#pragma ident "@(#)getopt.c 1.22 19/12/14 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -82,7 +82,7 @@
  *	that is in conflict with our standard definition.
  */
 extern int optind, opterr, optopt;
-extern int optflags;
+extern int optflg;
 extern char *optarg;
 #endif
 
@@ -372,7 +372,7 @@ getopt(argc, argv, optstring)
 	longopt = (_sp == 1 && c == '-');
 #ifdef	DO_GETOPT_PLUS
 	isplus = plus && argv[optind][0] == '+';	/* actual option: +o */
-	optflags = isplus ? OPT_PLUS : 0;
+	optflg = isplus ? GETOPT_PLUS_FL : 0;
 	if (isplus)
 		longopt = (_sp == 1 && c == '+');	/* check for ++xxx   */
 #endif

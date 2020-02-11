@@ -84,7 +84,7 @@ getopt \- command option parsing
 
 .SS "Schily"
 .nf
-\fBextern int\fR \fIoptflags\fR;
+\fBextern int\fR \fIoptflg\fR;
 .fi
 
 .SS "AT&T"
@@ -197,9 +197,9 @@ or
 has been detected,
 .B getopt()
 sets the
-.B OPT_PLUS
+.B GETOPT_PLUS_FL
 bit in the external variable
-.IR optflags .
+.IR optflg .
 .sp
 .LP
 A utility that likes to specify more than one flag character from
@@ -599,7 +599,7 @@ aliases can also be assigned as shown in the following example:
 .sp
 .in +2
 .nf
-:a(ascii)b(binary):(in-file)(input)o:(outfile)(output)V(version)?(help)
+:a(ascii)b(binary)f:(in-file)(input)o:(out-file)(output)V(version)?(help)
 .fi
 .in -2
 

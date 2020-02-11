@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.167 19/11/29 Copyright 1985-2019 J. Schilling */
+/* @(#)extract.c	1.168 20/02/05 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.167 19/11/29 Copyright 1985-2019 J. Schilling";
+	"@(#)extract.c	1.168 20/02/05 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2019 J. Schilling
+ *	Copyright (c) 1985-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -641,7 +641,7 @@ newer(info, cinfo)
 	}
 
 	/*
-	 * nsec beachten wenn im Archiv!
+	 * Honor nsecs if part of the archive.
 	 */
 	havenano = (info->f_xflags & XF_MTIME) && (cinfo->f_flags & F_NSECS);
 	if ((cinfo->f_mtime > info->f_mtime) ||

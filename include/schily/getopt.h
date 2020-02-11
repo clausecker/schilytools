@@ -1,4 +1,4 @@
-/* @(#)getopt.h	1.2 19/10/23 Copyright 2018-2019 J. Schilling */
+/* @(#)getopt.h	1.4 19/12/14 Copyright 2018-2019 J. Schilling */
 /*
  *	Definitions for the enhanced getopt() from libgetopt
  *
@@ -69,12 +69,14 @@ extern	int	opt_sp;		/* Current index for combined option strings */
  *
  * The initial value is 0.
  */
-extern	int	optflags;
+extern	int	optflg;
 
 /*
- * Definitions for optflags...
+ * Definitions for optflg...
  */
-#define	OPT_PLUS	1	/* The current option is of type +o, not -o */
+#if	!defined(sun) || !defined(GETOPT_PLUS_FL)
+#define	GETOPT_PLUS_FL	1	/* The current option is of type +o, not -o */
+#endif
 
 #ifdef	__cplusplus
 }

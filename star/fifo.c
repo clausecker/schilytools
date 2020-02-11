@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.107 19/12/02 Copyright 1989, 1994-2019 J. Schilling */
+/* @(#)fifo.c	1.108 20/02/05 Copyright 1989, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.107 19/12/02 Copyright 1989, 1994-2019 J. Schilling";
+	"@(#)fifo.c	1.108 20/02/05 Copyright 1989, 1994-2020 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  *		kill -RTMAX <pid2>
  *	and then to report the output (from stderr).
  *
- *	Copyright (c) 1989, 1994-2019 J. Schilling
+ *	Copyright (c) 1989, 1994-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -396,15 +396,15 @@ fifo_ibs_shrink(newsize)
 /*
  * fork() and run FIFO background process in forked child.
  *
- * Der eigentliche star Prozess ist immer im Vordergrund.
- * Der Band Prozess ist immer im Hintergrund.
+ * The main star process is always in the foreground.
+ * The tape process is always in the background.
  *
- * Band -> fifo -> star
+ * Tape -> fifo -> star
  * star -> fifo -> star	-copy	flag
- * star -> fifo -> Band	-c	flag
+ * star -> fifo -> Tape	-c	flag
  *
- * Beim Lesen ist der star Prozess der get Prozess.
- * Beim Schreiben ist der star Prozess der put Prozess.
+ * While reading, the star process is the "get" process.
+ * While writing, the star process is the "put" process.
  */
 EXPORT void
 runfifo(ac, av)
@@ -482,7 +482,7 @@ runfifo(ac, av)
 		}
 #ifdef	USE_OS2SHM
 		DosFreeMem(buf);
-#ifdef	__needed__
+#ifdef	__never__
 		sleep(30000);	/* XXX If calling _exit() here the parent */
 				/* XXX process seems to be blocked.	  */
 				/* XXX This should be fixed soon.	  */

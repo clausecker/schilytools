@@ -1,4 +1,4 @@
-# @(#)Targets.man	1.9 19/11/04 Copyright 2015-2015 J. Schilling
+# @(#)Targets.man	1.10 20/02/09 Copyright 2015-2015 J. Schilling
 
 MAN_MK_FILES=			\
 	absfpath.mk3		\
@@ -64,7 +64,9 @@ MAN_MK_FILES=			\
 	spawnl.mk3		\
 	spawnv.mk3		\
 	sprintf.mk3		\
+	starthandlecond.mk3	\
 	strcatl.mk3		\
 	streql.mk3		\
 	strlen.mk3		\
+	unhandlecond.mk3	\
 

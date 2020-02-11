@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2019 J. Schilling
  *
- * @(#)bltin.c	1.141 19/10/25 2008-2019 J. Schilling
+ * @(#)bltin.c	1.143 19/12/14 2008-2019 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.141 19/10/25 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.143 19/12/14 2008-2019 J. Schilling";
 #endif
 
 /*
@@ -1010,7 +1010,7 @@ builtin(type, argc, argv, t, xflags)
 		c[2] = '\0';
 		cptr = &c[1];
 #ifdef	DO_GETOPT_PLUS
-		if (optflags & OPT_PLUS)
+		if (optflg & GETOPT_PLUS_FL)
 			cptr = c;
 #endif
 		n = lookup(varnam);
@@ -1022,7 +1022,7 @@ builtin(type, argc, argv, t, xflags)
 #ifdef	DO_GETOPT_LONGONLY
 			itos(getoptval);
 #ifdef	DO_GETOPT_PLUS
-			if (optflags & OPT_PLUS) {
+			if (optflg & GETOPT_PLUS_FL) {
 				unsigned char pnumbuf[64];
 				strcpy(C pnumbuf, "+");
 				strcat(C pnumbuf, C numbuf);

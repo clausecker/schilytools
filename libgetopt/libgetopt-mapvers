@@ -1,9 +1,9 @@
-# /* @(#)libgetopt-mapvers	1.5 19/11/11 Copyright 2018-2019 J. Schilling */
+# /* @(#)libgetopt-mapvers	1.7 19/12/14 Copyright 2018-2019 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.1 {
 global:
-	optflags;	# Needed for +o
+	optflg;		# Needed for plus options
 } SCHILY_1.0;
 
 SCHILY_1.0 {

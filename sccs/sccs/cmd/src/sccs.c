@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.107 19/01/04 J. Schilling
+ * @(#)sccs.c	1.108 20/01/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.107 19/01/04 J. Schilling"
+#pragma ident "@(#)sccs.c 1.108 20/01/30 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -722,6 +722,10 @@ main(argc, argv)
 		if (strcmp(p, "FALSE") == 0)
 			NewMode = FALSE;
 	}
+	if (NewMode && NewOpt == NULL) {
+		perror(gettext("Sccs: -p cannot be used in New Mode"));
+		exit(EX_OSERR);
+	}
 	if (NewMode) {
 		if (NewOpt == NULL) {
 			NewOpt = malloc(strlen(SccsPath)+6);
@@ -869,7 +873,10 @@ command(argv, forkflag, arg0)
 	fflush(stdout);
 
 	/*
-	 * Select the macro string for NewMode if avaliable.
+	 * Select the second half of the macro string for NewMode if avaliable.
+	 * Macro string is: "old mode command %new mode command".
+	 * If the "new mode command" command starts with a space, up to 3
+	 * flag characters for the -N option follow.
 	 */
 	if (NewMode && (p = strchr(arg0, '%')) != NULL)
 		arg0 = ++p;
@@ -917,11 +924,13 @@ command(argv, forkflag, arg0)
 	editchs = NULL;		/* arg0 -> cmd:editchs/next... */
 	macro_opstr_p = NULL;
 	buf[0] = '\0';
-	NewOpt[2] = ' ';	/* Reset flags to placeholders */
-	NewOpt[3] = ' ';
-	NewOpt[4] = ' ';
+	if (NewMode) {
+		NewOpt[2] = ' '; /* Reset flags to placeholders */
+		NewOpt[3] = ' ';
+		NewOpt[4] = ' ';
+	}
 	p = arg0;
-	if (*p == ' ') {
+	if (NewMode && *p == ' ') {
 		if (*++p == '+')
 			NewOpt[2] = *p++;
 		if (*p == '-')

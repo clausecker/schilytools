@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer geterrno
-. \" @(#)geterrno.3	1.1
+. \" @(#)geterrno.3	1.2 20/02/09 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETERRNO 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETERRNO 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 geterrno() \- gets system error number
 .SH SYNOPSIS
@@ -25,7 +25,7 @@ last failure was. This is often necessary since some
 subroutines just indicate success or failure, rather than
 directly return definitive error codes.
 .PP
-For example, comerr() uses geterrno() to learn the error so that
+For example, comerr() uses geterrno() to retrieve the last error so that
 an appropriate message can be printed.
 .SH RETURNS
 Returns the error code for the last system error that occurred

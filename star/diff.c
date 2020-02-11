@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.108 19/11/29 Copyright 1993-2019 J. Schilling */
+/* @(#)diff.c	1.109 20/02/05 Copyright 1993-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.108 19/11/29 Copyright 1993-2019 J. Schilling";
+	"@(#)diff.c	1.109 20/02/05 Copyright 1993-2020 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2019 J. Schilling
+ *	Copyright (c) 1993-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -341,7 +341,7 @@ diff_tcb(info)
 	}
 
 	/*
-	 * nsec beachten wenn im Archiv!
+	 * Honor nsecs if part of the archive.
 	 */
 	if ((diffopts & D_ATIME) != 0 && (info->f_xflags & XF_ATIME) != 0) {
 		if (info->f_atime != finfo.f_atime) {
@@ -455,7 +455,7 @@ diff_tcb(info)
 	 * In case of a hardlinked symlink, we currently do not have the symlink
 	 * target path and thus cannot check the synlink target.
 	 */
-	if (!is_link(info))
+	if (!is_link(info)) {
 	if (((diffopts & (D_SLINK|D_SLPATH)) || verbose) && is_symlink(&finfo)) {
 		/*
 		 * XXX finfo.f_lname is static as the maximum symlink len
@@ -473,6 +473,7 @@ diff_tcb(info)
 				tdiffs.d_slpath++;
 			}
 		}
+	}
 	}
 #endif
 

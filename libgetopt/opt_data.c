@@ -26,7 +26,7 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)opt_data.c	1.4 19/10/23 J. Schilling
+ * @(#)opt_data.c	1.5 19/12/14 J. Schilling
  */
 
 #if defined(sun)
@@ -48,5 +48,5 @@
 int	opterr = 1;
 int	optind = 1;
 int	optopt = 0;
-int	optflags = 0;
+int	optflg = 0;
 char	*optarg = 0;

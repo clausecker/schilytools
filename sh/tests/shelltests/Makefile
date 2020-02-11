@@ -11,6 +11,7 @@ all-tests:	test-bugs	\
 		test-error	\
 		test-exec	\
 		test-exit	\
+		test-for	\
 		test-getopts	\
 		test-glob	\
 		test-here	\
@@ -68,6 +69,9 @@ test-exit:
 
 test-exec:
 	[ -d exec ] || exit 0 && cd exec && for i in *.sh; do echo Running test exec/$$i; $(SHELL) $$i; done
+
+test-for:
+	[ -d for ] || exit 0 && cd for && for i in *.sh; do echo Running test for/$$i; $(SHELL) $$i; done
 
 test-getopts:
 	[ -d getopts ] || exit 0 && cd getopts && for i in *.sh; do echo Running test getopts/$$i; $(SHELL) $$i; done

@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer breakline
-. \" @(#)breakline.3	1.1
+. \" @(#)breakline.3	1.2 20/02/09 Copyright 1988,2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH BREAKLINE 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH BREAKLINE 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 breakline() \- breaks a buffer into fields
 .SH SYNOPSIS
@@ -30,8 +30,8 @@ character delim, replacing the occurrences of delim in buf with
 the NULL character ('\\0'). It fills in the array with pointers
 to the beginning of each field in the buffer. max defines how
 many entries to fill in the array. If there are not enough
-fields in buf, the extra entries in the array will point to a
-NULL string.
+fields in buf, the extra entries in the array will point to an
+empty string.
 .SH RETURNS
 Returns the number of fields actually in the buffer, but not
 more than max.

@@ -6,7 +6,7 @@
 
 ----------------------------------------------------------------------------
 * bsh
-  Copyright 1982-2019 J. Schilling
+  Copyright 1982-2020 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * fifo
-  Copyright 1989-2019 J. Schilling
+  Copyright 1989-2020 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -302,7 +302,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * libschily
-  Copyright (c) 1984-1989, 1994-2019 J. Schilling
+  Copyright (c) 1984-1989, 1994-2020 J. Schilling
   License: CDDL
 
   License of libschily/fnmatch.c:
@@ -488,7 +488,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * obosh
-  Copyright 1985-2019 J. Schilling
+  Copyright 1985-2020 J. Schilling
   Copyright 1989-2009 Sun Microsystems, Inc.
   Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T
   License: CDDL
@@ -524,7 +524,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * pbosh
-  Copyright 1982-2019 J. Schilling
+  Copyright 1982-2020 J. Schilling
   Copyright 1989-2009 Sun Microsystems, Inc.
   Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T
   License: CDDL
@@ -571,7 +571,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * sccs
-  Copyright 1997-2019 J. Schilling
+  Copyright 1997-2020 J. Schilling
   Copyright 1993-2005 Sun Microsystems, Inc.
   Copyright (c) 1988 AT&T
   Written   1972 by Marc J. Rochkind at Bell Labs
@@ -614,7 +614,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * sh
-  Copyright 1982-2019 J. Schilling
+  Copyright 1982-2020 J. Schilling
   Copyright 1989-2009 Sun Microsystems, Inc.
   Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T
   License: CDDL
@@ -631,7 +631,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * star
-  Copyright 1982-2019 J. Schilling
+  Copyright 1982-2020 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------

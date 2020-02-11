@@ -1,13 +1,13 @@
-/* @(#)match.c	1.38 13/04/28 Copyright 1985-2013 J. Schilling */
+/* @(#)match.c	1.39 19/12/11 Copyright 1985-2019 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)match.c	1.38 13/04/28 Copyright 1985-2013 J. Schilling";
+	"@(#)match.c	1.39 19/12/11 Copyright 1985-2019 J. Schilling";
 #endif
 /*
  *	search file(s) for a pattern
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2019 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -147,8 +147,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2013 Jörg Schilling\n",
-				"1.38",
+		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2019 Jörg Schilling\n",
+				"1.39",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -174,7 +174,7 @@ main(ac, av)
 			comerrno(EX_BAD,
 				"Cannot match words in nomagic mode.\n");
 		plen += 2 * (sizeof (notletter) - 1);
-		if ((name = malloc(plen)) == NULL)
+		if ((name = malloc(plen+1)) == NULL)
 			comerrno(EX_BAD, "No memory for pattern");
 		strcatl(name, notletter, pat, notletter, (char *)NULL);
 		pat = name;

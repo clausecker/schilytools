@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer cmpbytes
-. \" @(#)cmpbytes.3	1.1 17/02/15 Copyright 1988-2017 J. Schilling
+. \" @(#)cmpbytes.3	1.2 20/02/09 Copyright 1988-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH CMPBYTES 3 "2017/02/15" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH CMPBYTES 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 cmpbytes() \- compare data
 .SH SYNOPSIS
@@ -30,9 +30,12 @@ ssize_t cmpbytes(from, to, cnt)
 .SH DESCRIPTION
 cmpbytes() compares size bytes from from to to.
 .SH RETURN VALUE
-The the offset of the first differing character in the strings.
-.I to
-string.
+.TP 12
+.B cnt
+Both memory chunks are equal
+.TP
+.BR 0 .. cnt-1
+The offset of the first differing character in the chunks.
 .SH ERRORS
 .LP
 No errors are defined

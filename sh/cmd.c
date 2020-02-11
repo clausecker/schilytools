@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2017 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)cmd.c	1.50 17/12/18 2008-2017 J. Schilling
+ * @(#)cmd.c	1.51 20/01/28 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.50 17/12/18 2008-2017 J. Schilling";
+	"@(#)cmd.c	1.51 20/01/28 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -456,11 +456,28 @@ item(flag)
 			else
 				t->fornam = wdarg->argval;
 			if (skipnl(SEMIFLG) == INSYM) {
-				chkword();
-
-				nohash++;
-				t->forlst = (struct comnod *)item(0);
-				nohash--;
+#ifdef	DO_POSIX_FOR
+				if (word()) {
+					/*
+					 * "for i in; do cmd ...; done" is valid
+					 */
+					if (wdval != NL && wdval != ';')
+						synbad();
+					t->forlst = (struct comnod *)\
+					    getstor(sizeof (struct comnod));
+					t->forlst->comtyp = TCOM;
+					t->forlst->comio = NULL;
+					t->forlst->comarg = NULL;
+					t->forlst->comset = NULL;
+#else
+				if (word()) {
+					synbad();
+#endif
+				} else {
+					nohash++;
+					t->forlst = (struct comnod *)item(0);
+					nohash--;
+				}
 
 				if (wdval != NL && wdval != ';')
 					synbad();

@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)idsubst.c	1.74 19/01/07 J. Schilling
+ * @(#)idsubst.c	1.75 19/12/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)idsubst.c 1.74 19/01/07 J. Schilling"
+#pragma ident "@(#)idsubst.c 1.75 19/12/19 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -392,7 +392,6 @@ char line[];
 			case 'Y':
 				tp = trans(tp, Type);
 				break;
-				/* FALLTHRU */
 			case 'W':
 				if ((Whatstr != NULL) && (recursive == 0)) {
 					recursive = 1;

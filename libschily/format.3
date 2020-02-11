@@ -1,6 +1,6 @@
 '\" t
 . \"  Manual Seite fuer format
-. \" @(#)format.3	1.4 17/12/08 Copyright 1985-2017 J. Schilling
+. \" @(#)format.3	1.5 20/02/09 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH FORMAT 3 "2017/12/08" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH FORMAT 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 format() \- generates formatted output as in printf
 .SH SYNOPSIS
@@ -58,8 +58,7 @@ formatted.
 .PP
 .B Formatting Options
 .PP
-The formatting, although complicated, has a great deal of
-flexibility. The format string contains a string to be
+The format string contains a string to be
 processed and places where other strings can be inserted. These
 places are denoted by a % followed by characters which specify
 how the next argument from formatargs is to be placed in the
@@ -450,7 +449,7 @@ spaces to be output. This does not use an argument.
 Note that an actual space should appear where <SP> appears
 above.
 .SH RETURNS
-the number of characters transmitted exluding the trailing null byte.
+the number of characters transmitted excluding the trailing null byte.
 .SH EXAMPLES
 .TP
 .B 1.

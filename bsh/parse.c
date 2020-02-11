@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.38 18/06/27 Copyright 1985-2018 J. Schilling */
+/* @(#)parse.c	1.40 20/01/27 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.38 18/06/27 Copyright 1985-2018 J. Schilling";
+	"@(#)parse.c	1.40 20/01/27 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -916,6 +916,7 @@ iocheck(ty, np)
 	case IDUP:	/* <& */
 	case ODUP:	/* >& */
 		return (iotype(np->tn_type) == ty || iocheck(ty, np->tn_right.tn_node));
+	case ANDP:	/* && */
 	case CMD:
 		return (iocheck(ty, np->tn_right.tn_node));
 	default:

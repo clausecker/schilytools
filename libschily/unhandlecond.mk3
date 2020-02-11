@@ -1,0 +1,18 @@
+#ident @(#)unhandlecond.mk3	1.1 20/02/09 
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	unhandlecond
+MANSECT=	$(MANSECT_LIB)
+MANSUFFIX=	$(MANSUFF_LIB)
+MANFILE=	unhandlecond.3
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

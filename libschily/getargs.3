@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getargs
-. \" @(#)getargs.3	1.9 19/11/26 Copyright 1985-2019 J. Schilling
+. \" @(#)getargs.3	1.10 20/02/10 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETARGS 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETARGS 3 "2020/02/10" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 getargs(), getlargs(), getvargs() \- parse arguments until a non-flag is reached
 .SH SYNOPSIS
@@ -68,6 +68,14 @@ int getvargs(pac, pav, props, vfmt)
 	struct ga_flags *vfmt;  /* array of formats and args */
 .fi
 .SH DESCRIPTION
+.LP
+.BR getargs ()
+is part of the advanced option parsing interface together with the
+.BR getallargs ()
+and
+.BR getfiles ()
+family.
+.LP
 .BR getargs ()
 looks at each argument that begins with
 .RB ' \- ',
@@ -299,7 +307,7 @@ result. If there is no next char, the result is
 .RS
 .PP
 A pointer to the remainder of the current argument
-is returned in the related argument pinter.
+is returned in the related argument pointer.
 If there are no more data in the
 argument the next argument is used, and if there is
 no next argument, a
@@ -502,8 +510,8 @@ either as:
 .PP
 where
 .B flag
-is the matching flag string. No additional effort is
-required to get these different ways of specifying values.
+is the matching flag string.
+All the above variants are accepted by the function.
 
 .LP
 For flags or type:
@@ -554,7 +562,7 @@ contains the offending command line argument.
 .TP
 .B BADFMT\ \ \-2
 A bad format descriptor string has been detected.
-The calling program, rather than the user, was in error.
+This means an error in the calling program, not a user input data error.
 
 .LP
 General rules for the return code:

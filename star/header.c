@@ -1,14 +1,14 @@
-/* @(#)header.c	1.201 19/11/29 Copyright 1985, 1994-2019 J. Schilling */
+/* @(#)header.c	1.203 20/02/05 Copyright 1985, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.201 19/11/29 Copyright 1985, 1994-2019 J. Schilling";
+	"@(#)header.c	1.203 20/02/05 Copyright 1985, 1994-2020 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2019 J. Schilling
+ *	Copyright (c) 1985, 1994-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -341,8 +341,8 @@ isstmagic(s)
 /*
  * Check for XSTAR / XUSTAR format.
  *
- * Since we ise this function after we checked for the "tar" signature, it
- * is unly used as a XUSTAR check.
+ * Since we use this function after we checked for the "tar" signature, it
+ * is only used as a XUSTAR check.
  *
  * This is star's upcoming new standard format. This format understands star's
  * old extended POSIX format and in future will write POSIX.1-2001 extensions
@@ -2723,7 +2723,7 @@ stoli(s, l, fieldw)
 	register int	t;
 	register char	*ep = s + fieldw;
 
-#ifdef	__nonono__
+#ifdef	__never__
 	/*
 	 * We do not like this to be used for the t_chksum field.
 	 */

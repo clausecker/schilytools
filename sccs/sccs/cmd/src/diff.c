@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)diff.c	1.76 19/10/28 J. Schilling
+ * @(#)diff.c	1.79 19/12/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.76 19/10/28 J. Schilling"
+#pragma ident "@(#)diff.c 1.79 19/12/07 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -322,7 +322,7 @@ static void	only __PR((struct dir *, int));
 static void	sort __PR((struct line *, int));
 static void	unsort __PR((struct line *, int, int *));
 static void	filename __PR((char **, char **, struct stat *, char **));
-static void	prepare __PR((int, char *));
+static int	prepare __PR((int, char *));
 static void	prune __PR((void));
 static void	equiv __PR((struct line *, int, struct line *, int, int *));
 static void	done __PR((void));
@@ -776,8 +776,8 @@ diffreg()
 	lastline = 0;
 	lastmatchline = 0;
 
-	prepare(0, file1);
-	prepare(1, file2);
+	if (prepare(0, file1) || prepare(1, file2))
+		return (anychange = 1);
 	prune();
 	sort(sfile[0], slen[0]);
 	sort(sfile[1], slen[1]);
@@ -2673,7 +2673,12 @@ filename(pa1, pa2, st, ifile)
 			status = 2;
 			done();
 		}
-	} else if ((st->st_mode & S_IFMT) == S_IFCHR) {
+#if  defined(S_IFBLK)
+	} else if ((st->st_mode & S_IFMT) != S_IFREG &&
+		    (st->st_mode & S_IFMT) != S_IFBLK) {
+#else
+	} else if ((st->st_mode & S_IFMT) != S_IFREG) {
+#endif
 		*pa1 = copytemp(a1);
 	} else if (a1[0] == '-' && a1[1] == 0) {
 		*pa1 = copytemp(a1);	/* hack! */
@@ -2734,7 +2739,7 @@ copytemp(fn)
 	return (tempfile[whichtemp-1]);
 }
 
-static void
+static int
 prepare(i, arg)
 	int	i;
 	char	*arg;
@@ -2752,7 +2757,10 @@ prepare(i, arg)
 	if (isize < 64)
 		isize = 64;
 
-	(void) fseek(input[i], (off_t)0, SEEK_SET);
+	if (fseek(input[i], (off_t)0, SEEK_SET) < 0) {
+		perror(arg);
+		return (1);
+	}
 	p = (struct line *)talloc((isize + 3) * sizeof (line));
 	for (j = 0; (h = readhash(input[i], i, arg)) != 0; ) {
 		if (j >= isize) {
@@ -2764,6 +2772,7 @@ prepare(i, arg)
 	}
 	len[i] = j;
 	file[i] = p;
+	return (0);
 }
 
 static void

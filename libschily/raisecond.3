@@ -1,5 +1,5 @@
-. \"  Manual Seite fuer raise
-. \" @(#)raise.3	1.1
+. \"  Manual Seite fuer raisecond
+. \" @(#)raisecond.3	1.2 20/02/09 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,37 +13,55 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RAISE 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RAISECOND 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-raise() \- raises a condition
+raisecond() \- raises a condition
 .SH SYNOPSIS
 .nf
 .B
-raise(signame, arg2)
+#include <schily/sigblk.h> 
+.sp
+.B void
+.B
+raisecond(signame, arg2)
 .B	char	*signame;
 .B	long	arg2;
 .fi
 .SH DESCRIPTION
-raise causes the condition signame to be signalled on the stack,
+.BR raisecond ()
+causes the condition signame to be signalled on the stack,
 in each frame in order from the most recent (top of stack) to
 the oldest. Each frame is checked for a condition handler for
 signame or, if one is not found in the frame, for any_other. If
 a handler is found, it is called with signame and with arg1,
-established in the call to handle(), and arg2, from this call.
+established in the call to
+.BR handlecond (),
+and arg2, from this call.
 If a handler is not found, the process is repeated in the next
-older stack frame. If raise() reaches the end of the stack
+older stack frame. If
+.BR raise ()
+reaches the end of the stack
 without finding a handler, it prints "Condition not caught:
 condition_name" on stderr and the process is suspended via
 abort().
 .PP
-If the handler returns TRUE, raise() returns. Otherwise it
+If the handler returns TRUE,
+.BR raisecond ()
+returns. Otherwise it
 continues just as if it had not found the handler.
 .SH RETURNS
 none
 .SH NOTES
-handle() and raise() are frequently used with the subroutines
-longjmp() and setjmp().
+.BR handlecond ()
+and
+.BR raisecond ()
+are frequently used with the subroutines
+.BR longjmp ()
+and
+.BR setjmp ().
 .PP
-Routines that call raise() can choose to ignore the result;
+Routines that call
+.BR raisecond ()
+can choose to ignore the result;
 however, they should anticipate the condition in order to ensure
 a reasonable outcome to the program.

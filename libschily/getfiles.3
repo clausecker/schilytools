@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getfiles
-. \" @(#)getfiles.3	1.8 19/11/04 Copyright 1985-2019 J. Schilling
+. \" @(#)getfiles.3	1.9 20/02/10 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETFILES 3 "2019/11/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETFILES 3 "2020/02/10" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 getfiles() \- gets next non flag-type argument
 .SH SYNOPSIS
@@ -52,6 +52,16 @@ int getvfiles(pac, pav, props, vfmt)
 	struct ga_flags *vfmt;  /* array of formats and args */
 .fi
 .SH DESCRIPTION
+.LP
+.BR getfiles ()
+is part of the advanced option parsing interface together with the
+.BR getargs ()
+and
+.BR getallrgs ()
+family.
+.BR getfiles ()
+skips options until a file type argument is encountered.
+.LP
 .BR getfiles ()
 returns, with a value of
 .BR "+1 " ( NOTAFLAG )
@@ -134,7 +144,7 @@ contains the offending command line argument.
 .TP
 .B BADFMT\ \ \-2
 A bad format descriptor string has been detected.
-The calling program, rather than the user, was in error.
+This means an error in the calling program, not a user input data error.
 .de ..
 .TP
 .B NOTAFILE\ \-3

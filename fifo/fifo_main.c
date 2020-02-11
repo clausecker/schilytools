@@ -1,11 +1,11 @@
-/* @(#)fifo_main.c	1.1 19/12/03 Copyright 1989, 2019 J. Schilling */
+/* @(#)fifo_main.c	1.2 20/01/23 Copyright 1989, 2019-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo_main.c	1.1 19/12/03 Copyright 1989, 2019 J. Schilling";
+	"@(#)fifo_main.c	1.2 20/01/23 Copyright 1989, 2019-2020 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1989, 2019 J. Schilling
+ *	Copyright (c) 1989, 2019-2020 J. Schilling
  *
  */
 /*
@@ -61,8 +61,8 @@ LOCAL	BOOL	ispipe		__PR((int));
 BOOL	debug	  = FALSE;		/* -debug has been specified	*/
 long	fs;				/* FIFO size			*/
 long	bs;				/* TAPE block size (bytes)	*/
-long	ibs;
-long	obs;
+extern	long	ibs;
+extern	long	obs;
 int	tarfindex;			/* Current index in list	*/
 BOOL	multivol = FALSE;		/* -multivol specified		*/
 long	chdrtype  = H_UNDEF;		/* command line hdrtype		*/
@@ -163,8 +163,8 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2019/12/03", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1989, 2019 Jörg Schilling\n");
+		printf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2020/01/23", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 1989, 2019-2020 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */

@@ -1,13 +1,13 @@
-/* @(#)remove.c	1.61 18/10/23 Copyright 1985, 1991-2018 J. Schilling */
+/* @(#)remove.c	1.62 20/02/05 Copyright 1985, 1991-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.61 18/10/23 Copyright 1985, 1991-2018 J. Schilling";
+	"@(#)remove.c	1.62 20/02/05 Copyright 1985, 1991-2020 J. Schilling";
 #endif
 /*
  *	remove files an file trees
  *
- *	Copyright (c) 1985, 1992-2018 J. Schilling
+ *	Copyright (c) 1985, 1992-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,10 +25,10 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
-#include <schily/fcntl.h>	/* Wegen AT_REMOVEDIR */
+#include <schily/fcntl.h>	/* For AT_REMOVEDIR */
 #include "star.h"
 #include "table.h"
-#include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
+#include <schily/dirent.h>	/* XXX For S_IFLNK */
 #include <schily/unistd.h>
 #define	GT_COMERR		/* #define comerr gtcomerr */
 #define	GT_ERROR		/* #define error gterror   */

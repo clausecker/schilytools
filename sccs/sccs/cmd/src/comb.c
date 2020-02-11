@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2019 J. Schilling
  *
- * @(#)comb.c	1.36 18/12/17 J. Schilling
+ * @(#)comb.c	1.38 19/12/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.36 18/12/17 J. Schilling"
+#pragma ident "@(#)comb.c 1.38 19/12/20 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -287,6 +287,8 @@ static	int	idx;
 		dir_name = N.n_dir_name;
 	}
 
+	if (strchr(file, '\'') || strchr(file, '\\'))
+		fatal(gettext("dangerous filename (cb5)"));
 	sinit(&gpkt, file, SI_OPEN);
 	gpkt.p_verbose = -1;
 	gpkt.p_stdout = stderr;
@@ -366,16 +368,16 @@ static	int	idx;
 	sid_ba(sp, rarg);
 	if ((Val_ptr = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 		Val_ptr = Blank;
-	fprintf(iop, "v=`prs -r%s -d:MR: %s`\n", rarg, gpkt.p_file);
-	fprintf(iop, "vs=`val -v %s`\n", gpkt.p_file);
+	fprintf(iop, "v=`prs -r%s -d:MR: '%s'`\n", rarg, gpkt.p_file);
+	fprintf(iop, "vs=`val -v '%s'`\n", gpkt.p_file);
 	fprintf(iop, "V6=\n");
 	fprintf(iop, "ip=\n");
 	fprintf(iop, "ur=\n");
 	fprintf(iop, "case \"$vs\" in\n");
 	fprintf(iop, "SCCS\\ V6*)\n");
 	fprintf(iop, "\tV6=-V6\n");
-	fprintf(iop, "\tip=-XGp=`prs -d:Gp: %s`\n", gpkt.p_file);
-	fprintf(iop, "\tur=-XGr=`prs -d:Gr: %s`\n", gpkt.p_file);
+	fprintf(iop, "\tip=-XGp=`prs -d:Gp: '%s'`\n", gpkt.p_file);
+	fprintf(iop, "\tur=-XGr=`prs -d:Gr: '%s'`\n", gpkt.p_file);
 	fprintf(iop, "\t;;\n");
 	fprintf(iop, "esac\n");
 	fprintf(iop, "if test \"$v\"\n");
@@ -424,7 +426,7 @@ static	int	idx;
 		fprintf(iop, "admin -z s.COMB$$\n");
 		fprintf(iop, "fi\n");
 	}
-	fprintf(iop, "sed -n '/^%c%c$/,/^%c%c$/p' %s >comb$$\n",
+	fprintf(iop, "sed -n '/^%c%c$/,/^%c%c$/p' '%s' >comb$$\n",
 		CTLCHAR, BUSERTXT, CTLCHAR, EUSERTXT, gpkt.p_file);
 	fprintf(iop, "ed - comb$$ <<\\!\n");
 	fprintf(iop, "1d\n");
@@ -434,14 +436,14 @@ static	int	idx;
 	fprintf(iop, "w\n");
 	fprintf(iop, "q\n");
 	fprintf(iop, "!\n");
-	fprintf(iop, "prs -e %s >>comb$$\n", gpkt.p_file);
+	fprintf(iop, "prs -e '%s' >>comb$$\n", gpkt.p_file);
 	fprintf(iop, "admin -tcomb$$ s.COMB$$\\\n");
 	for (i = 0; i < NFLAGS; i++)
 		if ((p = gpkt.p_sflags[i]) != NULL)
 		    if (i != (ENCODEFLAG-'a'))
 			fprintf(iop, " -f%c%s\\\n", i + 'a', p);
 	fprintf(iop, "\n");
-	fprintf(iop, "sed -n '/^%c%c$/,/^%c%c$/p' %s >comb$$\n",
+	fprintf(iop, "sed -n '/^%c%c$/,/^%c%c$/p' '%s' >comb$$\n",
 		CTLCHAR, BUSERNAM, CTLCHAR, EUSERNAM, gpkt.p_file);
 	fprintf(iop, "ed - comb$$ <<\\!\n");
 	fprintf(iop, "v/^%c/s/.*/ -a& \\\\/\n", CTLCHAR);
@@ -457,12 +459,12 @@ static	int	idx;
 	fprintf(iop, ". comb$$\n");
 	fprintf(iop, "rm comb$$\n");
 	if (!HADS) {
-		fprintf(iop, "rm -f %s\n", gpkt.p_file);
-		fprintf(iop, "mv s.COMB$$ %s\n", gpkt.p_file);
+		fprintf(iop, "rm -f '%s'\n", gpkt.p_file);
+		fprintf(iop, "mv s.COMB$$ '%s'\n", gpkt.p_file);
 		if (!gpkt.p_sflags[VALFLAG - 'a'])
-			fprintf(iop, "admin -dv %s\n", gpkt.p_file);
+			fprintf(iop, "admin -dv '%s'\n", gpkt.p_file);
 	} else {
-		fprintf(iop, "set `ls -st s.COMB$$ %s`\n", gpkt.p_file);
+		fprintf(iop, "set `ls -st s.COMB$$ '%s'`\n", gpkt.p_file);
 		fprintf(iop, "c=`expr 100 - 100 '*' $1 / $3`\n");
 		fprintf(iop, "echo '%s\t' ${c}'%%\t' $1/$3\n", gpkt.p_file);
 		fprintf(iop, "rm -f s.COMB$$\n");
@@ -494,13 +496,13 @@ char *file;
 	struct sid *sp;
 
 	sid_ba(sp = &idp[ser].i_sid, buf);
-	fprintf(fptr, "get -s -k -r%s -p %s > COMB$$\n", buf, file);
+	fprintf(fptr, "get -s -k -r%s -p '%s' > COMB$$\n", buf, file);
 	if (Do_prs) {
-		fprintf(fptr, "a=`prs -r%s -d:C: %s`\n", buf, file);
-		fprintf(fptr, "b=`prs -r%s -d:MR: %s`\n", buf, file);
-		fprintf(fptr, "c=`prs -r%s -d:D: %s`\n", buf, file);
-		fprintf(fptr, "d=`prs -r%s -d:T: %s`\n", buf, file);
-		fprintf(fptr, "e=`prs -r%s -d:P: %s`\n", buf, file);
+		fprintf(fptr, "a=`prs -r%s -d:C: '%s'`\n", buf, file);
+		fprintf(fptr, "b=`prs -r%s -d:MR: '%s'`\n", buf, file);
+		fprintf(fptr, "c=`prs -r%s -d:D: '%s'`\n", buf, file);
+		fprintf(fptr, "d=`prs -r%s -d:T: '%s'`\n", buf, file);
+		fprintf(fptr, "e=`prs -r%s -d:P: '%s'`\n", buf, file);
 	}
 	return (sp);
 }

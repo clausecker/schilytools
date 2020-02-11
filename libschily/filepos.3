@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer filepos
-. \" @(#)filepos.3	1.1
+. \" @(#)filepos.3	1.2 20/02/09 Copyright 1985-2020 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -13,17 +13,18 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH FILEPOS 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH FILEPOS 3 "2020/02/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 filepos() \- returns the logical position in a file
 .SH SYNOPSIS
 .nf
 .B
-long filepos(f)
+off_t filepos(f)
 .B	FILE *f;
 .fi
 .SH DESCRIPTION
-filepos() returns the current file position as an offset in bytes
+.BR filepos ()
+returns the current file position as an offset in bytes
 from the beginning of the file. This is the position of the next
 byte to be read or written.
 .SH RETURNS
@@ -35,9 +36,10 @@ be the number of bytes read or written from the current file,
 unless a seek call is issued which changes the logical position
 but does not affect the device.
 .PP
-File positions may be set to arbitrary values (via fileseek() )
+File positions may be set to arbitrary values (via
+.BR fileseek ())
 and are only used by the file system when actual reading or
-writing occur.
+writing occurs.
 .PP
 Normally, the file position is incremented by the amount of data
 transferred for each sequential read or write.

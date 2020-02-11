@@ -1,8 +1,8 @@
-/* @(#)restore.c	1.79 19/11/29 Copyright 2003-2019 J. Schilling */
+/* @(#)restore.c	1.81 20/02/05 Copyright 2003-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.79 19/11/29 Copyright 2003-2019 J. Schilling";
+	"@(#)restore.c	1.81 20/02/05 Copyright 2003-2020 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -15,7 +15,7 @@ static	UConst char sccsid[] =
  *	are first moved to "star-tmpdir" and finally removed from there
  *	when we decide to exit star.
  *
- *	Copyright (c) 2003-2019 J. Schilling
+ *	Copyright (c) 2003-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,7 +52,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
-#include <schily/fcntl.h>	/* Wegen AT_REMOVEDIR */
+#include <schily/fcntl.h>	/* For AT_REMOVEDIR */
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include "star.h"
@@ -1130,7 +1130,7 @@ move2dir(dir, name, oino)
 				pathp, (Llong)onp->i_oino,
 				(Llong)onp->i_nino, onp->i_flags);
 #endif
-#ifdef	nonono
+#ifdef	__never__
 		/*
 		 * XXX It is not clear how to handle new hard links
 		 * XXX to directories correctly.

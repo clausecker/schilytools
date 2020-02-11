@@ -42,3 +42,8 @@ not exist in the named SCCS-file.
 The argument specified to comb would result in no changes made
 to the named SCCS-file.  Therefore, it can't do anything to
 the named SCCS-file.
+-5
+"dangerous filename"
+The filename contains a charcter that would cause problems with
+the shell script we generate.  If you need to use comb on this
+file, rename the history file before calling comb.

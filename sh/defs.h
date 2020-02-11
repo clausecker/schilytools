@@ -37,9 +37,9 @@
 #endif
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)defs.h	1.205 19/10/05 2008-2019 J. Schilling
+ * @(#)defs.h	1.206 20/01/25 2008-2020 J. Schilling
  */
 
 /*
@@ -1268,6 +1268,12 @@ extern unsigned char		*trapcom[];
  */
 #else
 extern char			**environ;
+#endif
+
+#define		NUMBUFLEN	21	/* big enough for 64 bits */
+#if	NUMBUFLEN < SIG2STR_MAX
+#undef		NUMBUFLEN
+#define		NUMBUFLEN	(SIG2STR_MAX-1)
 #endif
 extern unsigned char		numbuf[];
 extern const char		export[];

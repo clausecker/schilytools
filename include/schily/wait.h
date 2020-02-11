@@ -1,4 +1,4 @@
-/* @(#)wait.h	1.30 19/10/17 Copyright 1995-2019 J. Schilling */
+/* @(#)wait.h	1.31 19/12/09 Copyright 1995-2019 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
@@ -213,7 +213,7 @@ typedef enum {
  * right bits in the status, so we #undef USE_UNION_WAIT and all
  * W*() macros. This results in #defining our working versions.
  */
-#define WAIT_T union wait
+#define	WAIT_T		union wait
 #undef	USE_UNION_WAIT
 #undef	WTERMSIG
 #undef	WCOREDUMP
