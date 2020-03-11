@@ -1,14 +1,14 @@
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.78 18/06/09 Copyright 1990-2018 J. Schilling */
+/* @(#)remote.c	1.80 20/02/13 Copyright 1990-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.78 18/06/09 Copyright 1990-2018 J. Schilling";
+	"@(#)remote.c	1.80 20/02/13 Copyright 1990-2020 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
  *
- *	Copyright (c) 1990-2018 J. Schilling
+ *	Copyright (c) 1990-2020 J. Schilling
  *
  *	TOTO:
  *		Signal handler for SIGPIPE
@@ -1564,7 +1564,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 		    setuid(pw->pw_uid) == -1) {
 #endif
 #endif
-			errmsg("seteuid(%lld) failed.\n",
+			errmsgno(geterrno(), "seteuid(%lld) failed.\n",
 							(Llong)pw->pw_uid);
 			_exit(EX_BAD);
 			/* NOTREACHED */

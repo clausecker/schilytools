@@ -1,12 +1,12 @@
-/* @(#)toc.c	1.105 19/04/04 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling */
+/* @(#)toc.c	1.106 20/02/26 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.105 19/04/04 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2017 J. Schilling";
+"@(#)toc.c	1.106 20/02/26 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2017 J. Schilling, Heiko Eissfeldt
+ * Copyright (c) 2004-2020 J. Schilling, Heiko Eissfeldt
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -475,10 +475,10 @@ typedef struct TOC {	/* structure of table of contents (cdrom) */
 
 #define	IS__PREEMPHASIZED(p)	((GETFLAGS(p) & 0x10) != 0)
 #define	IS__INCREMENTAL(p)	((GETFLAGS(p) & 0x10) != 0)
-#define	IS__COPYRESTRICTED(p)	(!(GETFLAGS(p) & 0x20) != 0)
-#define	IS__COPYRIGHTED(p)	(!(GETFLAGS(p) & 0x20) != 0)
+#define	IS__COPYRESTRICTED(p)	((GETFLAGS(p) & 0x20) == 0)
+#define	IS__COPYRIGHTED(p)	((GETFLAGS(p) & 0x20) == 0)
 #define	IS__DATA(p)		((GETFLAGS(p) & 0x40) != 0)
-#define	IS__AUDIO(p)		(!(GETFLAGS(p) & 0x40) != 0)
+#define	IS__AUDIO(p)		((GETFLAGS(p) & 0x40) == 0)
 #define	IS__QUADRO(p)		((GETFLAGS(p) & 0x80) != 0)
 
 /*

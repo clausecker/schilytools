@@ -1,7 +1,7 @@
-/* @(#)pch.h	1.11 16/12/18 2011-2016 J. Schilling */
+/* @(#)pch.h	1.12 20/02/13 2011-2020 J. Schilling */
 /*
  *	Copyright (c) 1986, 1987 Larry Wall
- *	Copyright (c) 2011-2016 J. Schilling
+ *	Copyright (c) 2011-2020 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -21,6 +21,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
+EXT LINENUM p_repl_lines;		/* From pch.c # of replacement lines */
 
 extern	void	re_patch __PR((void));
 extern	void	open_patch_file __PR((char *filename));

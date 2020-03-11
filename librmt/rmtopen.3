@@ -1,4 +1,4 @@
-. \" @(#)rmtopen.3	1.6 18/06/09 Copyr 2002-2018 J. Schilling
+. \" @(#)rmtopen.3	1.7 20/02/13 Copyr 2002-2020 J. Schilling
 . \" Manual page for rmtopen
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTOPEN 3L "2018/06/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTOPEN 3L "2020/02/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
 .SH SYNOPSIS
@@ -55,7 +55,7 @@ int rmtioctl(int remfd, int cmd, int count);
 sends an open request to the remote server,
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() ,
+.BR rmtgetconn (3),
 .I pathname
 is a path to be opened on the server side and
 .I fmode
@@ -66,7 +66,7 @@ the GNU open flag enhancements, only the lowest two bits
 in the open flags can be send to the remote server.
 .sp
 If the open requests succeeds, 
-.B rmtopen()
+.BR rmtopen (3)
 takes care of telling the remote side to switch to 
 .B RMT protocol VERSION 1 
 .TP
@@ -74,45 +74,45 @@ takes care of telling the remote side to switch to
 sends a close request to the remote server,
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() .
+.BR rmtgetconn (3).
 .TP
 .B rmtread()
 sends a read request to the remote server, 
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() .
+.BR rmtgetconn (3).
 The other parameters are the same as for a local
-.B read(2)
+.BR read (2)
 call.
-.B rmtread()
+.BR rmtread (3)
 will fail if there was no previous successful 
-.B rmtopen()
+.BR rmtopen (3)
 before.
 .TP
 .B rmtwrite()
 sends a write request to the remote server, 
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() .
+.BR rmtgetconn (3).
 The other parameters are the same as for a local
 .B write(2)
 call.
-.B rmtwrite()
+.BR rmtwrite (3)
 will fail if there was no previous successful 
-.B rmtopen()
+.BR rmtopen (3)
 before.
 .TP
 .B rmtseek()
 sends a seek request to the remote server, 
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() .
+.BR rmtgetconn (3).
 The other parameters are the same as for a local
-.B lseek(2)
+.BR lseek (2)
 call.
-.B rmtseek()
+.BR rmtseek (3)
 will fail if there was no previous successful 
-.B rmtopen()
+.BR rmtopen (3)
 before.
 .TP
 .B rmtioctl()
@@ -137,17 +137,17 @@ returns a value >= 0 if the remote close succeeds.
 .TP
 .B rmtread()
 returns the return value obtained the remote 
-.B read(2)
+.BR read (2)
 request.
 .TP
 .B rmtwrite()
 returns the return value obtained the remote 
-.B write(2)
+.BR write (2)
 request.
 .TP
 .B rmtseek()
 returns the return value obtained the remote 
-.B lseek(2)
+.BR lseek (2)
 request.
 .TP
 .B rmtioctl()
@@ -258,7 +258,6 @@ is still maintained by J\*org Schilling.
 .LP
 .nf
 J\*org Schilling
-Seestr. 110
 D\-13353 Berlin
 Germany
 .fi

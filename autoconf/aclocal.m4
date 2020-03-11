@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.114 19/09/26 Copyright 1998-2019 J. Schilling
+dnl @(#)aclocal.m4	1.115 20/02/26 Copyright 1998-2019 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -3120,14 +3120,31 @@ main()
 	ret = waitid(P_PID, pid, &si, WEXITED);
 	if (ret < 0)
 		exit(1);
-	if (pid != si.si_pid)		/* Mac OS X has si.si_pid == 0 */
+	if (pid != si.si_pid)		/* Old Mac OS X has si.si_pid == 0 */
 		exit(2);
-	if (si.si_code != CLD_EXITED)	/* Mac OS X has si.si_code == 0 */
+	if (si.si_code != CLD_EXITED)	/* Old Mac OS X has si.si_code == 0 */
 		exit(3);
 	if ((si.si_status & 0xFFFF) != (1234567890 & 0xFFFF))
 		exit(4);		/* Should deliver more than 8 bits */
 					/* Linux only delivers 8 bits */
 					/* Mac OS X delivers 24 bits */
+
+	if ((pid = fork()) < 0)
+		exit(1);
+	if (pid == 0) {
+		kill(getpid(), SIGTERM);
+		sleep (1);
+		_exit(1234567890);
+	}
+	ret = waitid(P_PID, pid, &si, WEXITED);
+	if (ret < 0)
+		exit(1);
+	if (pid != si.si_pid)		/* Old Mac OS X has si.si_pid == 0 */
+		exit(2);
+	if (si.si_code != CLD_KILLED)	/* Old Mac OS X has si.si_code == 0 */
+		exit(5);
+	if (si.si_status != SIGTERM)	/* Mac OS X has si.si_status == 0 */
+		exit(6);
 
 	exit(0);
 }],

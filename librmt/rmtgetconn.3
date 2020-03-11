@@ -1,4 +1,4 @@
-. \" @(#)rmtgetconn.3	1.4 18/06/09 Copyr 2002-2018 J. Schilling
+. \" @(#)rmtgetconn.3	1.5 20/02/13 Copyr 2002-2020 J. Schilling
 . \" Manual page for rmtgetconn
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTGETCONN 3L "2018/06/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTGETCONN 3L "2020/02/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtinit, rmtdebug, rmthostname, rmtfilename, rmtgetconn \- initiate a connection to a remote tape server
 .SH SYNOPSIS
@@ -80,7 +80,7 @@ int rmtgetconn(host, trsize, excode)
 Is an optional function that allows to set up a function for 
 error printing and a function to be called to exit the program.
 If 
-.B rmtinit()
+.BR rmtinit (3)
 is not called or any of the function pointers is 
 .SM NULL,
 the appropriate default function is used instead.
@@ -101,7 +101,7 @@ server program. The default is otherwise
 The 
 .B RMT
 environment still overwrites the default set up by
-.BR rmtrmt() .
+.BR rmtrmt (3).
 .TP
 .B rmtrsh()
 allows to set up a different remote login program to the remote
@@ -111,7 +111,7 @@ server program. The default is otherwise to use
 The 
 .B RSH
 environment still overwrites the default set up by
-.BR rmtrsh() .
+.BR rmtrsh (3).
 .TP
 .B rmtfilename()
 is given a filename that may be either in remote file syntax (
@@ -136,16 +136,16 @@ The third argument is a string in remote file syntax.
 This function establishes a connection to the remote tape server process.
 The first parameter is the usr/host part of a string in remote file syntax
 and should be created via
-.BR rmthostname().
+.BR rmthostname (3).
 The second parameter is the expected maximum transfer size. It is used to set up
 kernel buffering via 
-.B setsockopt()
+.BR setsockopt (3)
 to increase performance.
 The third parameter is an alternate exit code to be used instead of the library 
 default if 
-.B rmtgetconn()
+.BR rmtgetconn (3)
 decides to call
-.BR exit().
+.BR exit (3).
 This allows commands like 
 .B ufsdump
 to use the documented exit codes for startup errors.
@@ -183,26 +183,26 @@ argument turns out to be not in remote file syntax.
 .B rmtgetconn()
 return a file descriptor which is suitable to be used as first argument
 for functions like
-.B rmtopen()
+.BR rmtopen (3)
 or
-.BR rmtwrite() .
+.BR rmtwrite (3).
 If 
-.B rmtgetconn()
+.BR rmtgetconn (3)
 fails to set up a connection, -1 is returned.
 If
-.B rmtgetconn()
+.BR rmtgetconn (3)
 is unable to find the port number for shell/tcp, the current uid has no
 entry in the passwd file or the user name includes illegal characters,
 .B exit()
 is called.
 If you do not like 
-.B rmtgetconn()
+.BR rmtgetconn (3)
 to exit in this case, call
-.B rmtinit()
+.BR rmtinit (3)
 before and install a non exiting function as 
-.B exit() 
+.BR exit (3)
 handler; 
-.B rmtgetconn()
+.BR rmtgetconn (3)
 then will return -2 after this function did return.
 . \" .SH ERRORS
 
@@ -248,9 +248,9 @@ to create a secure shell connection.
 If the environment
 .B RSH
 is empty, then the default
-.B rcmd()
+.BR rcmd (3)
 is used even in case
-.B rmtrsh()
+.BR rmtrsh (3)
 has been called.
 .TP
 .B RMT
@@ -266,7 +266,7 @@ If the environment
 is empty, then the default
 .B /etc/rmt
 is used even in case
-.B rmtrmt()
+.BR rmtrmt (3)
 has been called.
 .sp
 Note that the remote tape server program name will be ignored if you log in
@@ -320,7 +320,7 @@ a bug for their implementation of
 .BR ssh (1).
 .LP
 If you use 
-.B rmtgetconn()
+.BR rmtgetconn (3)
 to create a remote connection via an unfixed
 .BR rsh (1)
 or 
@@ -339,7 +339,6 @@ is still maintained by J\*org Schilling.
 .LP
 .nf
 J\*org Schilling
-Seestr. 110
 D\-13353 Berlin
 Germany
 .fi

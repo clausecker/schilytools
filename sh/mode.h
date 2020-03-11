@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * Copyright 2008-2018 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)mode.h	1.28 18/10/07 2008-2018 J. Schilling
+ * @(#)mode.h	1.29 20/03/05 2008-2020 J. Schilling
  */
 
 /*
@@ -292,6 +292,7 @@ struct regnod
 	struct argnod	*regptr;
 	struct trenod	*regcom;
 	struct regnod	*regnxt;
+	char		regflag;
 };
 
 /*

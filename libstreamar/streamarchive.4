@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)streamarchive.4	1.5 19/10/13 Copyr 2017-2018 J. Schilling
+. \" @(#)streamarchive.4	1.6 20/02/07 Copyr 2017-2020 J. Schilling
 . \" StreamArchive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -17,7 +17,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STREAMARCHIVE 4L "2019/10/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STREAMARCHIVE 4L "2020/02/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 streamarchive \- StreamArchive file format
 .SH DESCRIPTION
@@ -29,7 +29,10 @@ and
 .B value
 records that are similar to content of the 
 POSIX.1-2001 extended headers called
-.BR "TAR (PAX) HEADERs" .
+.BR "TAR (PAX) HEADERs" ,
+based on a proposal from
+.B Sun Microsystems
+from 1997.
 .LP
 A new file always begins with the
 .B path
@@ -397,6 +400,18 @@ for vendor specific extensions
 by the standard.
 
 .SH "SEE ALSO"
+.BR star (4).
+
 .SH NOTES
 .SH BUGS
 .SH AUTHOR
+.nf
+J\*org Schilling
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+joerg@schily.net

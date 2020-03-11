@@ -1,7 +1,7 @@
-/* @(#)common.h	1.29 18/04/10 2011-2018 J. Schilling */
+/* @(#)common.h	1.30 20/02/13 2011-2020 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2020 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -188,8 +188,6 @@ EXT bool do_backup;			/* Create backup from original file */
 EXT int diff_type;			/*   -c/-e/-n/-u	*/
 
 EXT char *revision;			/* prerequisite revision, if any */
-
-EXT LINENUM p_repl_lines;		/* From pch.c # of replacement lines */
 
 extern	void	my_exit __PR((int status));
 

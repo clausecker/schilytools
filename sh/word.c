@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)word.c	1.102 19/10/04 2008-2019 J. Schilling
+ * @(#)word.c	1.103 20/03/05 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.102 19/10/04 2008-2019 J. Schilling";
+	"@(#)word.c	1.103 20/03/05 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -213,6 +213,10 @@ word()
 				else
 					peekn = d | MARK;
 			}
+#ifdef	DO_FALLTHR_CASE 
+		} else if (c == ';' && d == '&') {
+			wdval = ECASYM;
+#endif
 		} else {
 			peekn = d | MARK;
 			wdval = c;

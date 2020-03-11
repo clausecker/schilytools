@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)args.c	1.93 20/01/29 2008-2020 J. Schilling
+ * @(#)args.c	1.94 20/02/18 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.93 20/01/29 2008-2020 J. Schilling";
+	"@(#)args.c	1.94 20/02/18 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -531,7 +531,15 @@ again:
 #endif
 					if (fv == errflg)
 						eflag = errflg;
-#ifdef	EXECATTR_FILENAME
+
+#ifdef	DO_MONITOR_SCRIPT
+					if (fv == monitorflg &&
+					    (flags & jcflg) == 0) {
+						startjobs();
+					}
+#endif
+
+#ifdef	EXECATTR_FILENAME		/* from <exec_attr.h> */
 					if (fv == pfshflg)
 						secpolicy_init();
 #endif

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.112 19/10/05 2008-2019 J. Schilling
+ * @(#)xec.c	1.114 20/03/06 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.112 19/10/05 2008-2019 J. Schilling";
+	"@(#)xec.c	1.114 20/03/06 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1168,56 +1168,60 @@ script:
 
 		case TSW:		/* "case command */
 			{
-				unsigned char	*r = mactrim(swptr(t)->swarg);
-				struct regnod *regp;
+			unsigned char	*r = mactrim(swptr(t)->swarg);
+			struct regnod *regp;
 
 #ifdef	DO_POSIX_CASE
-				exitval = 0;
-				exval_clear();
+			exitval = 0;
+			exval_clear();
 #endif
 #ifdef	CASE_XPRINT
-				if (flags & execpr)
-					cprint(UC "case", r, UC "in");
+			if (flags & execpr)
+				cprint(UC "case", r, UC "in");
 #endif
-				regp = swptr(t)->swlst;
-				while (regp) {
-					struct argnod *rex = regp->regptr;
+			regp = swptr(t)->swlst;
+			while (regp) {
+				struct argnod *rex = regp->regptr;
 
-					while (rex) {
-						unsigned char	*s;
+				while (rex) {
+					unsigned char	*s;
 
-						s = macro(rex->argval);
-						/*
-						 * Make 'case "" in "")' work.
-						 * See AT&T hack in _macro() and
-						 * quoted nul removal in trims()
-						 */
-						if (s[0] == '\\' &&
-						    s[1] == '\0')
-							s++;
+					s = macro(rex->argval);
+					/*
+					 * Make 'case "" in "")' work.
+					 * See AT&T hack in _macro() and
+					 * quoted nul removal in trims()
+					 */
+					if (s[0] == '\\' &&
+					    s[1] == '\0')
+						s++;
 #ifdef	CASE_XPRINT
-						if (flags & execpr)
-							cprint(s, UC ")",
-								UC "...");
+					if (flags & execpr)
+						cprint(s, UC ")",
+							UC "...");
 #endif
-						if (gmatch((char *)r,
-								(char *)s) ||
-						    ((flags2 & posixflg) == 0 &&
-						    (trim(s), eq(r, s)))) {
-							execute(regp->regcom,
-								XEC_NOSTOP,
-								errorflg,
-								no_pipe,
-								no_pipe);
-							regp = 0;
-							break;
-						}
-						else
-							rex = rex->argnxt;
+					if (gmatch((char *)r,
+							(char *)s) ||
+					    ((flags2 & posixflg) == 0 &&
+					    (trim(s), eq(r, s)))) {
+						do {
+						    execute(regp->regcom,
+							XEC_NOSTOP,
+							errorflg,
+							no_pipe,
+							no_pipe);
+						} while (regp->regflag &&
+						    (regp =
+						    regp->regnxt));
+						regp = 0;
+						break;
+					} else {
+						rex = rex->argnxt;
 					}
-					if (regp)
-						regp = regp->regnxt;
 				}
+				if (regp)
+					regp = regp->regnxt;
+			}
 			}
 			break;
 		}

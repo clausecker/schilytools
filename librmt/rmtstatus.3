@@ -1,4 +1,4 @@
-. \" @(#)rmtstatus.3	1.5 18/06/09 Copyr 2002-2018 J. Schilling
+. \" @(#)rmtstatus.3	1.6 20/02/13 Copyr 2002-2020 J. Schilling
 . \" Manual page for rmtstatus
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTSTATUS 3L "2018/06/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTSTATUS 3L "2020/02/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtstatus, rmtxstatus, _mtg2rmtg, _rmtg2mtg \- request MTIOCGET on a connection to a remote tape server
 .SH SYNOPSIS
@@ -50,32 +50,32 @@ perform a MTIOCGET
 request to the remote server, 
 .I remfd
 is a file descriptor previously obtained from a call to 
-.BR rmtgetconn() ,
+.BR rmtgetconn (3),
 .B "struct mtget
 is the local magnetic tape status structure,
 .B "struct rmtget
 is the enhanced magnetic tape status structure from
 .BR librmt .
-.B rmtstatus()
+.BR rmtstatus (3)
 and
-.B rmtxstatus()
+.BR rmtxstatus (3)
 will fail if there was no previous successful 
-.B rmtopen()
+.BR rmtopen (3)
 before.
-.B rmtstatus()
+.BR rmtstatus (3)
 and
-.B rmtxstatus()
+.BR rmtxstatus (3)
 take care of using
 .B RMT protocol VERSION 1 
 if the remote side implements support for protocol version 1.
 The function
-.B rmtstatus()
+.BR rmtstatus (3)
 is outdated and should be avoided as the results in
 .B "struct mtget
 will be the least common denominator of the local and remote variants
 of the structure.
 Use
-.B rmtxstatus()
+.BR rmtxstatus (3)
 instead.
 The member
 .B mt_xflags
@@ -197,7 +197,6 @@ is still maintained by J\*org Schilling.
 .LP
 .nf
 J\*org Schilling
-Seestr. 110
 D\-13353 Berlin
 Germany
 .fi

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.159 19/11/12  Copyright (c) 2006-2019 J. Schilling"
+#ident "@(#)Makefile	1.161 20/03/05  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -50,6 +50,7 @@ CPPOPTS +=	-DDO_EXEC_AC		# Include support for exec -c -a
 CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
+CPPOPTS +=	-DDO_MONITOR_SCRIPT	# Allow to set jobconrol in shell scripts
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_CHECKBINARY	# Check scripts for binary (\0 before \n)
 CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
@@ -58,6 +59,7 @@ CPPOPTS +=	-DDO_GETOPT_PLUS	# Support +o if optstr[0] = '+'
 CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )
+CPPOPTS +=	-DDO_FALLTHR_CASE	# Support for fallthrough case with ;&
 CPPOPTS +=	-DDO_POSIX_GMATCH	# Support for POSIX [:alpha:] ...
 #CPPOPTS +=	-DGMATCH_CLERR_NORM	# Handle glob class error as normal char
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well

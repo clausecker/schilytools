@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.31 19/02/28 Copyright 1999-2019 J. Schilling
+# @(#)rmlinks	1.32 20/02/26 Copyright 1999-2019 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -110,6 +110,7 @@ rm -f raisecond.c
 rm -f rename.c
 rm -f searchinpath.c
 rm -f uname.c
+rm -f unsetenv.c
 rm -f cvmod.c
 rm -f fcons.c
 rm -f file_raise.c

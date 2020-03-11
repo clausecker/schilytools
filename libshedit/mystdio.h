@@ -1,9 +1,9 @@
-/* @(#)mystdio.h	1.20 17/11/02 Copyright 2006-2017 J. Schilling */
+/* @(#)mystdio.h	1.21 20/02/26 Copyright 2006-2020 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
  *
- *	Copyright (c) 2006-2017 J. Schilling
+ *	Copyright (c) 2006-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,10 +59,15 @@
 /*
  * shell_* names are internal
  */
+#undef	printf
 #define	printf		shell_printf
+#undef	fprintf
 #define	fprintf		shell_fprintf
+#undef	sprintf
 #define	sprintf		shell_sprintf
+#undef	snprintf
 #define	snprintf	shell_snprintf
+#undef	error
 #define	error		shell_error
 
 #define	js_printf	shell_printf

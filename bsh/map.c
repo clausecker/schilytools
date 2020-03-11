@@ -1,13 +1,13 @@
-/* @(#)map.c	1.40 19/11/23 Copyright 1986-2018 J. Schilling */
+/* @(#)map.c	1.41 20/02/27 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.40 19/11/23 Copyright 1986-2018 J. Schilling";
+	"@(#)map.c	1.41 20/02/27 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2018 J. Schilling
+ *	Copyright (c) 1986-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -671,6 +671,9 @@ writeerr("mapg %d", cp[-1]);
 	return (NULL); /* XXX NOTREACHED ??? */
 }
 
+/*
+ * Check whether a mapping for "nm" already exists in out current map tables.
+ */
 LOCAL BOOL
 _has_map(mn)
 	Uchar	*mn;
@@ -687,6 +690,13 @@ _has_map(mn)
 	return (FALSE);
 }
 
+/*
+ * Install a fallback mapping in case no other mapping for the "from" string
+ * has been been set up yet.
+ *
+ * This allows ved/bsh/bosh to work nicely even when the user did not yet
+ * install own rc files with mappings in his $HOME.
+ */
 LOCAL BOOL
 fallback_map(from, to, comment)
 	char	*from;

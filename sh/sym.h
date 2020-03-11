@@ -27,8 +27,8 @@
 #pragma ident	"@(#)sym.h	1.8	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * Copyright 2009-2017 J. Schilling
- * @(#)sym.h	1.11 17/08/01 2009-2017 J. Schilling
+ * Copyright 2009-2020 J. Schilling
+ * @(#)sym.h	1.12 20/03/05 2009-2020 J. Schilling
  */
 /*
  *	UNIX shell
@@ -61,6 +61,8 @@
 #define	ORFSYM	(SYMREP|'|')	/* "||"		*/
 #define	APPSYM	(SYMREP|'>')	/* ">>"		*/
 #define	DOCSYM	(SYMREP|'<')	/* "<<"		*/
+#define	SYMALT	01000		/* additional symbols */
+#define	ECASYM  (SYMALT|'&')	/* ";&"		*/
 #define	EOFSYM	02000
 #define	SYMFLG	0400		/* reserved symbols (see above) */
 
