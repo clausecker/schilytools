@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.296 19/01/16 joerg */
+/* @(#)mkisofs.c	1.299 20/03/27 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.296 19/01/16 joerg";
+	"@(#)mkisofs.c	1.299 20/03/27 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1997-2019 J. Schilling
+ * Copyright (c) 1997-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,7 +194,11 @@ char	*uid_str;		/* CLI Parameter for -uid option	    */
 int	untranslated_filenames;	/* CLI Parameter for -U option		    */
 int	pversion;		/* CLI Parameter for -version option	    */
 int	rationalize_xa;		/* CLI Parameter for -xa option		    */
+ldate	creation_date;		/* CLI Parameter for -creation-date	    */
 ldate	modification_date;	/* CLI Parameter for -modification-date	    */
+ldate	expiration_date;	/* CLI Parameter for -expiration-date	    */
+ldate	effective_date;		/* CLI Parameter for -effective-date	    */
+ldate	reproducible_date;	/* CLI Parameter for -reproducible-date	    */
 #ifdef	APPLE_HYB
 char	*afpfile = "";		/* CLI Parameter for -map option	    */
 char	*root_info;		/* CLI Parameter for -root-info option	    */
@@ -324,6 +328,7 @@ UInt32_t null_inodes = NULL_INO_MAX;
 BOOL	correct_inodes = TRUE;	/* TRUE: add a "correct inodes" fingerprint */
 BOOL	rrip112 = TRUE;		/* TRUE: create Rock Ridge V 1.12	    */
 BOOL	long_rr_time = FALSE;	/* TRUE: use long (17 Byte) time format	    */
+BOOL	noatime = FALSE;	/* Whether not to include file access time  */
 
 #ifdef	DUPLICATES_ONCE
 int	duplicates_once = 0;	/* encode duplicate files once */
@@ -1220,18 +1225,30 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1LOG_FILE\1Re-direct messages to LOG_FILE")},
 	{{"long-rr-time%1", &long_rr_time },
 	__("Use long Rock Ridge time format")},
-	{{"m& ,exclude& ", NULL, (getpargfun)add_match },
-	__("\1GLOBFILE\1Exclude file name")},
-	{{"exclude-list&", NULL, (getpargfun)add_list},
-	__("\1FILE\1File with list of file names to exclude")},
 
 	{{"hide-ignorecase", &match_igncase },
 	__("Ignore case with -exclude-list and -hide* options")},
 	{{"exclude-ignorecase", &match_igncase },
 	NULL},
 
+	{{"creation-date&", &creation_date, (getpargfun)get_ldate },
+	__("\1DATE\1Set the creation date field of the PVD")},
 	{{"modification-date&", &modification_date, (getpargfun)get_ldate },
 	__("\1DATE\1Set the modification date field of the PVD")},
+	{{"expiration-date&", &expiration_date, (getpargfun)get_ldate },
+	__("\1DATE\1Set the expiration date field of the PVD")},
+	{{"effective-date&", &effective_date, (getpargfun)get_ldate },
+	__("\1DATE\1Set the effective date field of the PVD")},
+	{{"reproducible-date&", &reproducible_date, (getpargfun)get_ldate },
+	__("\1DATE\1Set reproducible date in the fields of the PVD")},
+
+	{{"m& ,exclude& ", NULL, (getpargfun)add_match },
+	__("\1GLOBFILE\1Exclude file name")},
+	{{"exclude-list&", NULL, (getpargfun)add_list},
+	__("\1FILE\1File with list of file names to exclude")},
+
+	{{"noatime%1", &noatime },
+	__("Do not include file access time")},
 	{{"nobak%0", &all_files },
 	__("Do not include backup files")},
 	{{"no-bak%0", &all_files},
@@ -2099,6 +2116,23 @@ main(argc, argv)
 					cav[0], c, getargerror(c));
 		susage(EX_BAD);
 	}
+	if (reproducible_date.l_sec) {
+		if (outfile) {
+			comerrno(EX_BAD,
+			_("Do not use -o outfile with -reproducible-date\n"));
+		}
+		noatime = TRUE;
+		if (modification_date.l_sec == tv_begun.tv_sec)
+			modification_date = reproducible_date;
+		if (creation_date.l_sec == 0)
+			creation_date = reproducible_date;
+		if (effective_date.l_sec == 0)
+			effective_date = reproducible_date;
+	}
+	begun = modification_date.l_sec;
+	tv_begun.tv_sec = modification_date.l_sec;
+	tv_begun.tv_usec = modification_date.l_usec;
+
 args_ok:
 	if (argind == 0)
 		argind = argc - cac;
@@ -2110,7 +2144,7 @@ args_ok:
 	if (pversion) {
 		printf(_("mkisofs %s %s (%s-%s-%s)\n\n\
 Copyright (C) 1993-1997 %s\n\
-Copyright (C) 1997-2019 %s\n"),
+Copyright (C) 1997-2020 %s\n"),
 			version_string,
 			VERSION_DATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS,

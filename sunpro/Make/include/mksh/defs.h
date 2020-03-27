@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.35	06/12/12"
 
 /*
- * Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.24 19/10/19 2017-2019 J. Schilling
+ * @(#)defs.h	1.25 20/03/24 2017-2020 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -480,7 +480,7 @@ typedef enum {
 /*
  * We don't need this typedef, since there is a
  * #define	timestruc_t	struct timespec
- * in $(SRCROOT)/incs/*/xconfig.h that is created by "configure" in
+ * in $(SRCROOT)/incs/ * /xconfig.h that is created by "configure" in
  * case out current platform does not support that typedef.
  */
 typedef struct timespec timestruc_t;

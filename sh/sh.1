@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.250 20/03/05 Copyright 2012-2020 J. Schilling
+.\" @(#)sh.1	1.251 20/03/13 Copyright 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2020/03/05" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2020/03/13" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -543,6 +543,12 @@ is used in place of
 .B ;;
 the next subsequent list, if any, is executed.
 This causes a fall through to the next command list.
+If
+.B ;;&
+is used in place of
+.BR ;; ,
+the shell tests the next pattern list in the statement, if any,
+and executes any associated list on a successful match.
 .sp
 When not in 
 .B POSIX

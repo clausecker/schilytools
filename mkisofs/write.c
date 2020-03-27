@@ -1,8 +1,8 @@
-/* @(#)write.c	1.146 16/12/13 joerg */
+/* @(#)write.c	1.148 20/03/26 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.146 16/12/13 joerg";
+	"@(#)write.c	1.148 20/03/26 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2016 J. Schilling
+ * Copyright (c) 1999-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2039,7 +2039,10 @@ pvd_write(outfile)
 	int		i;
 	int		s;
 	Uchar		*cp;
+extern	ldate		creation_date;
 extern	ldate		modification_date;
+extern	ldate		expiration_date;
+extern	ldate		effective_date;
 
 
 	iso9660_ldate(iso_time, tv_begun.tv_sec, tv_begun.tv_usec * 1000, -100);
@@ -2127,6 +2130,24 @@ extern	ldate		modification_date;
 	memcpy(vol_desc.expiration_date, "0000000000000000", 17);
 	memcpy(vol_desc.effective_date, iso_time, 17);
 
+	if (creation_date.l_sec)
+		iso9660_ldate(vol_desc.creation_date,
+			creation_date.l_sec,
+			creation_date.l_usec * 1000,
+			creation_date.l_gmtoff);
+
+	if (expiration_date.l_sec)
+		iso9660_ldate(vol_desc.expiration_date,
+			expiration_date.l_sec,
+			expiration_date.l_usec * 1000,
+			expiration_date.l_gmtoff);
+
+	if (effective_date.l_sec)
+		iso9660_ldate(vol_desc.effective_date,
+			effective_date.l_sec,
+			effective_date.l_usec * 1000,
+			effective_date.l_gmtoff);
+
 	if (use_XA) {
 		char	*xap = &((char *)&vol_desc)[1024];
 
@@ -2209,6 +2230,7 @@ vers_write(outfile)
 	int		len;
 	extern char	version_string[];
 	extern int	path_ind;
+	extern ldate	creation_date;
 
 	/* Now write the version descriptor. */
 	memset(vers, 0, sizeof (vers));
@@ -2217,7 +2239,10 @@ vers_write(outfile)
 	cp = vers;
 	X_ac = saved_ac();
 	X_av = saved_av();
-	strlcpy(&cp[idx], ctime(&begun), 26);
+	if (creation_date.l_sec)
+		strlcpy(&cp[idx], ctime(&creation_date.l_sec), 26);
+	else
+		strlcpy(&cp[idx], ctime(&begun), 26);
 	idx += 25;
 	strlcpy(&cp[idx], version_string, SECTOR_SIZE - idx);
 	idx += strlen(version_string);

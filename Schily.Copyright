@@ -462,7 +462,7 @@ clause.
   Written by Eric Youngdale (1993).
   Copyright (c) 1993-1997 Eric Youngdale
   Copyright 1993 Yggdrasil Computing, Incorporated
-  Copyright (c) 1997-2019 J. Schilling
+  Copyright (c) 1997-2020 J. Schilling
   parts Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
   parts Copyright (c) 1997, 1998, 1999, 2000 James Pearson
   APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
@@ -646,7 +646,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * sunpro Make
-  Copyright 2017-2019 J. Schilling
+  Copyright 2017-2020 J. Schilling
   Copyright 1987-2006 Sun Microsystems, Inc.
   License: CDDL
 
@@ -677,7 +677,7 @@ clause.
 
 ----------------------------------------------------------------------------
 * ved
-  Copyright 1984-2019 J. Schilling
+  Copyright 1984-2020 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------

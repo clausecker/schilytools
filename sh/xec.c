@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.114 20/03/06 2008-2020 J. Schilling
+ * @(#)xec.c	1.116 20/03/25 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.114 20/03/06 2008-2020 J. Schilling";
+	"@(#)xec.c	1.116 20/03/25 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1180,6 +1180,7 @@ script:
 				cprint(UC "case", r, UC "in");
 #endif
 			regp = swptr(t)->swlst;
+nextexpr:
 			while (regp) {
 				struct argnod *rex = regp->regptr;
 
@@ -1204,12 +1205,21 @@ script:
 							(char *)s) ||
 					    ((flags2 & posixflg) == 0 &&
 					    (trim(s), eq(r, s)))) {
+						/*
+						 * regflag == 2 -> ;;&
+						 * regflag == 1 -> ;&
+						 * regflag == 0 -> ;;
+						 */
 						do {
 						    execute(regp->regcom,
 							XEC_NOSTOP,
 							errorflg,
 							no_pipe,
 							no_pipe);
+						    if (regp->regflag == 2 &&
+							    (regp =
+							    regp->regnxt))
+							goto nextexpr;
 						} while (regp->regflag &&
 						    (regp =
 						    regp->regnxt));

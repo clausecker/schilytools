@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.152 16/12/13 joerg */
+/* @(#)mkisofs.h	1.153 20/03/24 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2016 J. Schilling
+ * Copyright (c) 1999,2000-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -725,6 +725,7 @@ extern	UInt32_t null_inodes;
 extern	BOOL	correct_inodes;
 extern	BOOL	rrip112;
 extern	BOOL	long_rr_time;	/* TRUE: use long (17 Byte) time format	    */
+extern	BOOL	noatime;	/* Whether not to include file access time  */
 
 extern char	*findgequal	__PR((char *));
 extern void	*e_malloc	__PR((size_t));

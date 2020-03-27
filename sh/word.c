@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)word.c	1.103 20/03/05 2008-2020 J. Schilling
+ * @(#)word.c	1.105 20/03/25 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.103 20/03/05 2008-2020 J. Schilling";
+	"@(#)word.c	1.105 20/03/25 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -213,9 +213,15 @@ word()
 				else
 					peekn = d | MARK;
 			}
-#ifdef	DO_FALLTHR_CASE 
-		} else if (c == ';' && d == '&') {
-			wdval = ECASYM;
+#ifdef	DO_FALLTHR_CASE
+			else if (wdval == ECSYM) {		/* ;;  */
+				if ((d = nextwc()) == '&')	/* ;;& */
+					wdval = ECARSYM;	/* ;;& */
+				else
+					peekn = d | MARK;
+			}
+		} else if (c == ';' && d == '&') {		/* ;& */
+			wdval = ECASYM;				/* ;& */
 #endif
 		} else {
 			peekn = d | MARK;

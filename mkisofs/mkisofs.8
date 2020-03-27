@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.167 19/03/05 Copyright 1997-2018 J. Schilling
+.\" @(#)mkisofs.8	1.170 20/03/27 Copyright 1997-2020 J. Schilling
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License version 2
@@ -29,7 +29,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2019/03/05" "Version 3.02"
+.TH MKISOFS 8 "2020/03/27" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -357,6 +357,22 @@ will not be able to create
 .B "correct inode numbers
 for zero sized files.
 .TP
+.BI \-creation\-date " date-spec
+Set the
+.B creation date
+in the primary volume descriptor (PVD) to a value different from the current
+time.
+This allows e.g. to set up an intentional date in order to be able to create 
+reproducible ISO-9660 filesystem images.
+.sp
+See
+.B \-modification\-date
+for a description of the
+.I date-spec
+format and
+.B \-reproducible\-date
+for a simple way to create reproducible filesystem images.
+.TP
 .B \-duplicates\-once
 Tells
 .B mkisofs
@@ -367,6 +383,22 @@ This allows
 to archive inode numbers and hard links even when it is run on
 non-POSIX platforms like
 .BR DOS .
+.TP
+.BI \-effective\-date " date-spec
+Set the
+.B effective date
+in the primary volume descriptor (PVD) to a value different from the current
+time.
+This allows e.g. to set up an intentional date in order to be able to create 
+reproducible ISO-9660 filesystem images.
+.sp
+See
+.B \-modification\-date
+for a description of the
+.I date-spec
+format and
+.B \-reproducible\-date
+for a simple way to create reproducible filesystem images.
 .TP
 .BI \-b " eltorito_boot_image
 .TP
@@ -687,7 +719,22 @@ Note that currently only the tags
 .BR SHRINK ,
 are checked from
 .BR mkisofs .
-
+.TP
+.BI \-expiration\-date " date-spec
+Set the
+.B expiration date
+in the primary volume descriptor (PVD) to a value different from a zeroed out
+time.
+This allows e.g. to set up an intentional date in order to be able to create 
+reproducible ISO-9660 filesystem images.
+.sp
+See
+.B \-modification\-date
+for a description of the
+.I date-spec
+format and
+.B \-reproducible\-date
+for a simple way to create reproducible filesystem images.
 .TP
 .BI \-B " img_sun4,img_sun4c,img_sun4m,img_sun4d,img_sun4e
 .TP
@@ -1522,6 +1569,14 @@ to parse the popular POSIX date format created by:
 Note that the possible range for
 .I date-spec
 for 32 bit programs is limited to values up to 2038 Jan 19 04:14:07 GMT.
+.sp
+The PVD contains the following four date values:
+.BR creation-date ,
+.BR expiration-date ,
+.B effective-date
+and
+.BR modification-date .
+See the related option for a description.
 .TP
 .B \-N
 .TP
@@ -1537,6 +1592,29 @@ Mode to use when creating new directories in the iso fs image.  The default
 mode in the absence of a
 .B \-dir\-mode
 option is 0555.
+.TP
+.B \-noatime
+Do not include the file last access time but rather use the modification time.
+This allows e.g. to create reproducible ISO-9660 filesystem images.
+.sp
+See also the options: 
+.BR \-creation\-date ,
+.BR \-expiration\-date ,
+.BR \-effective\-date ,
+.B \-modification\-date
+and
+.B \-reproducible\-date
+for other options to create reproducible ISO-9660 filesystem images.
+.sp
+To create reproducible ISO-9660 filesystem images, the options:
+.BR \-creation\-date ,
+.BR \-effective\-date ,
+.B \-modification\-date
+and
+.B \-noatime
+need to be specified and the
+.B \-o
+option must not be used.
 .TP
 .B \-nobak
 .TP
@@ -1775,6 +1853,15 @@ characters).
 .br
 This violates the ISO-9660 standard, but it happens to work on many systems.
 Use with caution.
+.TP
+.BI \-reproducible\-date " date-spec
+Is a macro for setting
+.BR \-creation\-date ,
+.BR \-effective\-date ,
+.B \-modification\-date
+and
+.B \-noatime
+in order to create reproducible ISI 9660 filesystem images.
 .TP
 .BI \-root " dir
 Moves all files and directories into

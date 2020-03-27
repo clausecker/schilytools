@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)func.c	1.37 20/03/05 2008-2020 J. Schilling
+ * @(#)func.c	1.38 20/03/23 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.37 20/03/05 2008-2020 J. Schilling";
+	"@(#)func.c	1.38 20/03/23 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -642,7 +642,9 @@ prf(t)
 
 				prs_buff(UC ")");
 				prf(swl->regcom);
-				if (swl->regflag)
+				if (swl->regflag == 2)
+					prs_buff(UC ";;&");
+				else if (swl->regflag)
 					prs_buff(UC ";&");
 				else
 					prs_buff(UC ";;");

@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.140 18/05/20 joerg */
+/* @(#)tree.c	1.142 20/03/26 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.140 18/05/20 joerg";
+	"@(#)tree.c	1.142 20/03/26 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2018 J. Schilling
+ * Copyright (c) 1999,2000-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,8 +235,18 @@ stat_filter(path, st)
 {
 	int	result = stat(path, st);
 
-	if (result >= 0 && rationalize)
+	if (result < 0)
+		return (result);
+
+	if (rationalize)
 		stat_fix(st);
+
+	if (noatime) {
+		int	nsecs = stat_mnsecs(st);
+
+		st->st_atime = st->st_mtime;
+		stat_set_ansecs(st, nsecs);
+	}
 	return (result);
 }
 
@@ -247,8 +257,19 @@ lstat_filter(path, st)
 {
 	int	result = lstat(path, st);
 
-	if (result >= 0 && rationalize)
+	if (result < 0)
+		return (result);
+
+	if (rationalize)
 		stat_fix(st);
+
+	if (noatime) {
+		int	nsecs = stat_mnsecs(st);
+
+		st->st_atime = st->st_mtime;
+		stat_set_ansecs(st, nsecs);
+	}
+
 	return (result);
 }
 
@@ -826,11 +847,12 @@ generate_reloc_directory()
 {
 	time_t		current_time;
 	struct directory_entry *s_entry;
+extern	time_t		begun;
 
 	/*
 	 * Create an  entry for our internal tree
 	 */
-	time(&current_time);
+	current_time = begun;
 	reloc_dir = (struct directory *)
 		e_malloc(sizeof (struct directory));
 	memset(reloc_dir, 0, sizeof (struct directory));
@@ -2991,9 +3013,10 @@ EXPORT void
 init_fstatbuf()
 {
 	struct timeval	current_time;
+extern	struct timeval	tv_begun;
 
 	if (fstatbuf.st_ctime == 0) {
-		gettimeofday(&current_time, NULL);
+		current_time = tv_begun;
 		if (rationalize_uid)
 			fstatbuf.st_uid = uid_to_use;
 		else

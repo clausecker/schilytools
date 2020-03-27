@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.29 19/07/22 Copyr 2012-2019 J. Schilling
+. \" @(#)make.1s	1.30 20/03/14 Copyr 2012-2019 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2019/07/22" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2020/03/14" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -3766,88 +3766,72 @@ An error occurred
 .SH FILES
 .sp
 .ne 2
-.mk
-.na
+.PD 0
+.TP
 .B makefile
-.ad
-.br
-.na
+.TP
 .B Makefile
-.ad
+.PD
 .sp .6
-.RS 4n
 current version(s) of
 .B make
 description file
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.PD 0
+.TP
 .B s.makefile
-.ad
-.br
-.na
+.TP
 .B s.Makefile
-.ad
+.PD
 .sp .6
-.RS 4n
 .B SCCS
 history files for the above makefile(s) in the current
 directory
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.PD 0
+.TP
 .B SCCS/s.makefile
-.ad
-.br
-.na
+.TP
 .B SCCS/s.Makefile
-.ad
+.PD
 .sp .6
-.RS 4n
 .B SCCS
 history files for the above makefile(s)
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 .B make.rules
-.ad
 .sp .6
-.RS 4n
 default file for user-defined targets, macros, and implicit rules
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 .B /usr/share/lib/make/make.rules
-.ad
 .sp .6
-.RS 4n
 makefile for standard implicit rules and macros (not read if
 .B make.rules
 is)
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\&.make.state\fR
-.ad
 .sp .6
-.RS 4n
 state file in the local directory
-.RE
+
+.sp
+.ne 2
+.TP
+\fB\&.make.state.lock\fR
+.sp .6
+lock file for the state file in the local directory.
+This file may need manual removal if the system crashed at a critical state.
 
 .SH ATTRIBUTES
 .sp

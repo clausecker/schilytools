@@ -28,7 +28,7 @@
 #endif
 /*
  * Copyright 2009-2020 J. Schilling
- * @(#)sym.h	1.12 20/03/05 2009-2020 J. Schilling
+ * @(#)sym.h	1.13 20/03/13 2009-2020 J. Schilling
  */
 /*
  *	UNIX shell
@@ -62,7 +62,8 @@
 #define	APPSYM	(SYMREP|'>')	/* ">>"		*/
 #define	DOCSYM	(SYMREP|'<')	/* "<<"		*/
 #define	SYMALT	01000		/* additional symbols */
-#define	ECASYM  (SYMALT|'&')	/* ";&"		*/
+#define	ECASYM	(SYMALT|'&')	/* ";&"		*/
+#define	ECARSYM	(SYMALT|';')	/* ";;&"	*/
 #define	EOFSYM	02000
 #define	SYMFLG	0400		/* reserved symbols (see above) */
 

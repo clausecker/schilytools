@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)cmd.c	1.52 20/03/05 2008-2020 J. Schilling
+ * @(#)cmd.c	1.54 20/03/25 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.52 20/03/05 2008-2020 J. Schilling";
+	"@(#)cmd.c	1.54 20/03/25 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -350,12 +350,15 @@ syncase(esym)
 		}
 		wdset &= ~IN_CASE;
 		r->regcom = cmd(0, NLFLG | MTFLG);
-		if (wdval == ECSYM) {
+		if (wdval == ECSYM) {			/* ;; */
 			r->regnxt = syncase(esym);
-#ifdef	DO_FALLTHR_CASE 
-		} else if (wdval == ECASYM) {
+#ifdef	DO_FALLTHR_CASE
+		} else if (wdval == ECASYM) {		/* ;& */
 			r->regnxt = syncase(esym);
-			r->regflag++;
+			r->regflag = 1;
+		} else if (wdval == ECARSYM) {		/* ;;& */
+			r->regnxt = syncase(esym);
+			r->regflag = 2;
 #endif
 		} else {
 			chksym(esym);
