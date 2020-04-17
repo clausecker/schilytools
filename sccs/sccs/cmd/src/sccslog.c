@@ -1,25 +1,13 @@
-/* @(#)sccslog.c	1.44 18/12/17 Copyright 1997-2018 J. Schilling */
+/* @(#)sccslog.c	1.45 20/03/30 Copyright 1997-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.44 18/12/17 Copyright 1997-2018 J. Schilling";
+	"@(#)sccslog.c	1.45 20/03/30 Copyright 1997-2020 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2018 J. Schilling
+ *	Copyright (c) 1997-2020 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- * A copy of the CDDL is also available via the Internet at
- * http://www.opensource.org/licenses/cddl1.txt
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <defines.h>
 #include <schily/stdio.h>
@@ -249,7 +237,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf(_(
-		"sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2018 Jörg Schilling\n"),
+		"sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2020 Jörg Schilling\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,
@@ -519,7 +507,8 @@ dofile(name)
 
 				tm.tm_year -= 56;	/* 2 * 4 * 7 */
 				if (len >= 9) {
-					lt = t = mkgmtime(&tm);
+							/* never fails */
+					t = lt = mklgmtime(&tm);
 					lt -= gmtoffs;
 					t -= gmtoffs;
 				} else {
@@ -530,14 +519,19 @@ dofile(name)
 				lt += 1767225600;	/* 56 years */
 			} else {
 				if (len >= 9) {
-					lt = t = mkgmtime(&tm);
+							/* never fails */
+					t = lt = mklgmtime(&tm);
 					lt -= gmtoffs;
 					t -= gmtoffs;
 				} else {
 					lt = t = mktime(&tm);
 				}
 			}
-			if (geterrno() != 0) {
+			/*
+			 * Be careful, on IRIX mktime() sets errno but
+			 * returns a time_t != -1.
+			 */
+			if (t == (time_t)-1 && geterrno() != 0) {
 				comerr("Cannot convert date '%s' from '%s'.\n",
 				p, name);
 			}

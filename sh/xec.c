@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.116 20/03/25 2008-2020 J. Schilling
+ * @(#)xec.c	1.120 20/04/16 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.116 20/03/25 2008-2020 J. Schilling";
+	"@(#)xec.c	1.120 20/04/16 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -405,6 +405,13 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						    (flags & errflg) &&
 						    exitval &&
 						    pos != SYSRETURN) {
+							/*
+							 * ERR trap has been
+							 * handled in builtin()
+							 * do not call it a
+							 * 2nd time.
+							 */
+							traprecurse++;
 							done(0);
 						}
 #endif
@@ -482,11 +489,23 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						 */
 						freetree((struct trenod *)f);
 
+#ifdef	DO_POSIX_E
+						if (errorflg &&
+						    (flags & errflg) &&
+						    (xflags&XEC_NOSTOP) == 0 &&
+						    exitval) {
+							done(0);
+						}
+#endif
 						break;
 					}
 				} else if (t->treio == 0) {
 					chktrap();
 #ifdef	DO_POSIX_E
+					/*
+					 * Implement errexit (-e) for command
+					 * substitution.
+					 */
 					if (argn == 0 && errorflg &&
 					    (flags & errflg) &&
 					    exitval) {
@@ -524,8 +543,12 @@ execute(argt, xflags, errorflg, pf1, pf2)
 			oex = ex;
 #endif
 
-#ifdef	DO_TRAP_EXIT
+#if	defined(DO_TRAP_EXIT) || defined(DO_ERR_TRAP)
+#if	defined(DO_ERR_TRAP)
+			if (trapcom[0] || trapcom[ERRTRAP])
+#else
 			if (trapcom[0])
+#endif
 				xflags &= ~XEC_EXECED;
 #endif
 			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP)) {
@@ -714,7 +737,12 @@ script:
 						}
 					}
 #endif
-					chktrap();
+#ifdef	DO_ERR_TRAP
+					if ((trapnote & TRAPSET) ||
+					    (exitval &&
+					    (xflags & XEC_NOSTOP) == 0))
+#endif
+						chktrap();
 					break;		/* From case TFORK: */
 				}
 				mypid = getpid();	/* This is the child */
@@ -991,15 +1019,18 @@ script:
 				errorflg,
 				no_pipe, no_pipe);
 			/*
-			 * When not in POSIX mode, be compatible to the Solaris
-			 * modifications for bugid 1133408 even tough this is
-			 * questionable:
+			 * Be compatible to the Solaris modifications for
+			 * bugid 1133408:
 			 *
 			 * Update errorflg if set -e is invoked in the sub-sh
+			 *
+			 * Our previous erreneous modifications (see deactivated
+			 * #ifdef) did prevent a "set -e;..." list from using
+			 * the errorflag.
 			 */
 			execute(lstptr(t)->lstrit,
 				xflags,
-#ifdef	DO_POSIX_E
+#ifdef	__not_correct_DO_POSIX_E
 				errorflg,
 #else
 				(errorflg | (eflag & errflg)),

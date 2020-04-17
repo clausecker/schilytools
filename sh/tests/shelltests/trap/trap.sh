@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)trap.sh	1.3 19/02/05 Copyright 2017-2019 J. Schilling
+# @(#)trap.sh	1.4 20/04/15 Copyright 2017-2019 J. Schilling
 #
 
 # Read test core functions
@@ -32,5 +32,22 @@ fi
 # when vfork() was used.
 #
 docommand trap04 "$SHELL -c 'trap \"echo TRAP\" EXIT; /dev/null/ne; trap - EXIT; echo end'" 0 "end\n" NONEMPTY
+
+#
+# Ceck the ERR trap that has been introduced by ksh88
+#
+docommand trap50 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false; true'" 0 "exit code 1\n" ""
+docommand trap51 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false'" 1 "exit code 1\n" ""
+docommand trap51 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false || true'" 0 "" ""
+docommand trap53 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; /bin/false; /bin/true'" 0 "exit code 1\n" ""
+docommand trap54 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; /bin/false'" 1 "exit code 1\n" ""
+docommand trap55 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; /bin/false || /bin/true'" 0 "" ""
+
+docommand trap60 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false; true'" 1 "exit code 1\n" ""
+docommand trap61 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false'" 1 "exit code 1\n" ""
+docommand trap61 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false || true'" 0 "" ""
+docommand trap63 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; /bin/false; /bin/true'" 1 "exit code 1\n" ""
+docommand trap64 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; /bin/false'" 1 "exit code 1\n" ""
+docommand trap65 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; /bin/false || /bin/true'" 0 "" ""
 
 success

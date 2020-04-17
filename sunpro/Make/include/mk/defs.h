@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.61	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * This file contains modifications Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.10 19/07/19 2017-2019 J. Schilling
+ * @(#)defs.h	1.11 20/03/29 2017-2020 J. Schilling
  */
 
 /*
@@ -268,6 +268,7 @@ extern	char		*mbs_ptr;
 extern	char		*mbs_ptr2;
 extern	Boolean		no_action_was_taken;
 extern	int		mtool_msgs_fd;
+extern	Boolean		no_archconf;
 extern	Boolean		no_parallel;
 #ifdef SGE_SUPPORT
 extern	Boolean		grid;
@@ -439,6 +440,9 @@ extern	char		*getwd(char *);
 extern	void		handle_interrupt(int);
 extern	Boolean		is_running(Name target);
 extern	void		load_cached_names(void);
+extern	void		define_var(const char *name, const char *value);
+extern	char		*get_var(const char *name);
+extern	void		setup_arch(void);
 extern	Boolean		parallel_ok(Name target, Boolean line_prop_must_exists);
 extern	void		print_dependencies(register Name target, register Property line);
 extern	void		send_job_start_msg(Property line);

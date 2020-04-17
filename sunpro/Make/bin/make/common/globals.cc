@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)globals.cc	1.42	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * This file contains modifications Copyright 2017-2020 J. Schilling
  *
- * @(#)globals.cc	1.11 19/07/19 2017-2019 J. Schilling
+ * @(#)globals.cc	1.12 20/03/29 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.11 19/07/19 2017-2019 J. Schilling";
+	"@(#)globals.cc	1.12 20/03/29 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -150,6 +150,9 @@ static	UConst char sccsid[] =
 	Boolean		no_action_was_taken = true;	/* true if we've not **
 							** run any command   */
 
+#ifdef	DO_ARCHCONF
+	Boolean		no_archconf = false;		/* automake features */
+#endif
 	Boolean		no_parallel = false;		/* TEAMWARE_MAKE_CMN */
 #ifdef SGE_SUPPORT
 	Boolean		grid = false;			/* TEAMWARE_MAKE_CMN */

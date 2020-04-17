@@ -1,0 +1,20 @@
+#b bash5conf CONFIG_SHELL=/opt/schily/bin/bash5 /opt/schily/bin/bash5 ./configure
+#b bashconf CONFIG_SHELL=/usr/bin/bash /usr/bin/bash ./configure
+#b boshconf CONFIG_SHELL=/opt/schily/bin/bosh /opt/schily/bin/bosh ./configure
+#b dashconf CONFIG_SHELL=/opt/schily/bin/dash /opt/schily/bin/dash ./configure
+#b gwshconf CONFIG_SHELL=/opt/schily/bin/gwsh /opt/schily/bin/gwsh ./configure
+#b hasconf  CONFIG_SHELL=/usr/has/bin/sh /usr/has/bin/sh ./configure
+#b ksh93conf CONFIG_SHELL=/usr/bin/ksh93 /usr/bin/ksh93 ./configure
+#b ksh93v-64conf CONFIG_SHELL=/opt/schily/bin/ksh93v-64 /opt/schily/bin/ksh93v-64 ./configure
+#b kshconf  CONFIG_SHELL=/usr/bin/ksh /usr/bin/ksh ./configure
+#b mkshconf CONFIG_SHELL=/opt/schily/bin/mksh /opt/schily/bin/mksh ./configure
+#b oboshconf CONFIG_SHELL=/opt/schily/bin/obosh /opt/schily/bin/obosh ./configure
+#b oshconf  CONFIG_SHELL=/opt/schily/bin/osh /opt/schily/bin/osh ./configure
+#b pboshconf CONFIG_SHELL=/opt/schily/bin/pbosh /opt/schily/bin/pbosh ./configure
+#b poshconf CONFIG_SHELL=/opt/schily/bin/posh /opt/schily/bin/posh ./configure
+#b shconf   CONFIG_SHELL=/bin/sh /bin/sh ./configure
+#b tmpconf  CONFIG_SHELL=/tmp/sh /tmp/sh ./configure
+#b v7conf   CONFIG_SHELL=/opt/schily/bin/v7sh /opt/schily/bin/v7sh ./configure
+#b xxconf   dosh 'CONFIG_SHELL=$1 $1 ./configure' xxconf
+#b yashconf CONFIG_SHELL=/opt/schily/bin/yash /opt/schily/bin/yash ./configure
+#b zshconf  CONFIG_SHELL=/usr/bin/zsh ZSH_EMULATION=sh /usr/bin/zsh ./configure

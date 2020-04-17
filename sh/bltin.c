@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)bltin.c	1.143 19/12/14 2008-2019 J. Schilling
+ * @(#)bltin.c	1.146 20/04/15 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.143 19/12/14 2008-2019 J. Schilling";
+	"@(#)bltin.c	1.146 20/04/15 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1254,7 +1254,12 @@ out:
 	flushb();		/* Flush print buffer */
 	restore(fdindex);	/* Restore file descriptors */
 	exval_set(exitval);	/* Prepare ${.sh.*} parameters */
-	chktrap();		/* Run installed traps */
+#ifdef	DO_ERR_TRAP
+	if ((trapnote & TRAPSET) ||
+	    (exitval &&
+	    (xflags & XEC_NOSTOP) == 0))
+#endif
+		chktrap();	/* Run installed traps */
 }
 
 #ifdef	DO_POSIX_CD

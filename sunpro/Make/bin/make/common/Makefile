@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.21 17/07/19 
+#ident @(#)Makefile	1.22 20/03/30 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -20,6 +20,7 @@ CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
 CPPOPTS +=	-DDO_MAKE_NAME	# Set up "MAKE_NAME=sunpro"
+CPPOPTS +=	-DDO_ARCHCONF	# Set up "MAKE_OS", ...
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 #CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_SPRO_MAKE\"
@@ -28,7 +29,8 @@ CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 C++FILES=	ar.cc depvar.cc dist.cc dmake.cc doname.cc dosys.cc \
 		files.cc globals.cc implicit.cc macro.cc main.cc \
 		make.cc misc.cc nse.cc nse_printdep.cc parallel.cc \
-		pmake.cc read.cc read2.cc rep.cc state.cc version.cc
+		pmake.cc read.cc read2.cc rep.cc state.cc archconf.cc \
+		version.cc
 
 #
 # -lmksdmsi18n	needed for catgets()

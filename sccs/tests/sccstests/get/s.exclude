@@ -1,0 +1,46 @@
+h45688
+s 00001/00000/00003
+d D 1.4 20/04/15 14:29:07 ogj 6 5
+x 5
+c excluded version 1.3, added line four
+e
+s 00001/00000/00002
+d D 1.3 20/04/15 14:26:53 ogj 5 2
+x 2
+c excluded version 1.2, added new line
+e
+s 00001/00000/00003
+d R 1.4 20/04/15 14:23:11 ogj 4 3
+c added line four
+e
+s 00001/00000/00002
+d R 1.3 20/04/15 14:21:49 ogj 3 2
+x 2
+c removed version 1.2, added new line three
+e
+s 00001/00000/00002
+d D 1.2 20/04/15 14:21:04 ogj 2 1
+c added line three
+e
+s 00002/00000/00000
+d D 1.1 20/04/15 14:19:55 ogj 1 0
+c date and time created 20/04/15 14:19:55 by ogj
+e
+u
+U
+f e 0
+t
+T
+I 1
+this is line one
+I 5
+added line between
+E 5
+this is line two
+I 2
+this is line three
+I 6
+this is line four
+E 6
+E 2
+E 1

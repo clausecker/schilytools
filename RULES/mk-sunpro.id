@@ -1,9 +1,9 @@
-#ident "@(#)mk-sunpro.id	1.22 18/04/15 "
+#ident "@(#)mk-sunpro.id	1.23 20/03/30 "
 ###########################################################################
-# Written 1996-2018 by J. Schilling
+# Written 1996-2020 by J. Schilling
 ###########################################################################
 #
-# Name of make program (make/gmake/smake)
+# Name of make program SunPro Make
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -57,10 +57,17 @@ NUMBER_SIGN=	$(PRE_NUMBER:pre\%=%)
 ###########################################################################
 #
 # Set up the values for XP_ARCH/XK_ARCH/XM_ARCH/...
+# For older versions of the Schily version of SunPro Make, we use rules.ars
+# For newer versions with support for archconfig.cc we use rules.arn
 #
 ###########################################################################
+_ARX=		$(_UNIQ)$(MAKE_OS)
+__ARX=		$(_ARX:$(_UNIQ)=rules.ars)
+ARX=		$(__ARX:$(_UNIQ)%=rules.arn)
+
 _ARS=		$(_UNIQ)$(ARCH_DONE)
-__ARS=		$(_ARS:$(_UNIQ)=rules.ars)
+#__ARS=		$(_ARS:$(_UNIQ)=rules.ars)
+__ARS=		$(_ARS:$(_UNIQ)=$(ARX))
 ___ARS=		$(__ARS:$(_UNIQ)TRUE=rules.nul)
 ARS=		$(___ARS:$(_UNIQ)%=%)
 

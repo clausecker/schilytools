@@ -1,13 +1,13 @@
-/* @(#)make.c	1.214 19/07/18 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling */
+/* @(#)make.c	1.215 20/03/30 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.214 19/07/18 Copyright 1985, 87, 88, 91, 1995-2019 J. Schilling";
+	"@(#)make.c	1.215 20/03/30 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2019 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2020 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -96,6 +96,7 @@ LOCAL	int	put_env		__PR((char *new));
 LOCAL	int	unset_env	__PR((char *name));
 
 BOOL	posixmode	= FALSE;	/* We found a .POSIX target	*/
+BOOL	Aflag		= FALSE;	/* -a Do not run setup_arch()	*/
 BOOL	Eflag		= FALSE;	/* -e Environment overrides vars*/
 BOOL	Iflag		= FALSE;	/* -i Ignore command errors	*/
 BOOL	Kflag		= FALSE;	/* -k Continue on unrelated tgts */
@@ -802,7 +803,7 @@ main(ac, av)
 		int	i;
 		int	cac = ac;
 		char	* const *cav = av;
-	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
+	static	char	options[] = "help,version,posix,a,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
 
 	save_args(ac, av);
 
@@ -827,6 +828,7 @@ main(ac, av)
 
 	cac--; cav++;
 	if (getallargs(&cac, &cav, options, &help, &pversion, &posixmode,
+			&Aflag,
 			&Eflag, &Iflag, &Kflag, &Nflag, &NSflag, &Print,
 			&Qflag, &Rflag, &Sflag, &Stopflag, &Tflag,
 			&No_Warn, &Do_Warn,
@@ -841,7 +843,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2019 Jörg Schilling\n",
+		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2020 Jörg Schilling\n",
 				make_version, VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -911,7 +913,8 @@ main(ac, av)
 	setup_MAKE(av[0]);	/* Set up $(MAKE)			*/
 	setup_SHELL();		/* Set up $(SHELL)			*/
 	setup_vars();		/* Set up some known special macros	*/
-	setup_arch();		/* Set up arch specific macros		*/
+	if (!Aflag)
+		setup_arch();	/* Set up arch specific macros		*/
 	read_environ();		/* Sets F_READONLY if -e flag is present*/
 
 	if (Debug > 0 && Mlevel > 0)
@@ -1096,6 +1099,10 @@ getmakeflags()
 			XDebug++;
 			break;
 
+		case 'a':
+			Aflag = TRUE;	/* Do not run setup_arch() */
+			break;
+
 		case 'e':		/* Environment overrides vars */
 			Eflag = TRUE;
 			break;
@@ -1278,7 +1285,7 @@ setmakeflags()
 		/*
 		 * MAKEFLAGS=-	12 bytes incl '\0'
 		 * 4 x 8 bytes=	32 bytes
-		 * 15 flags	15 bytes
+		 * 16 flags	16 bytes
 		 * '-- '	 3 bytes
 		 * =====================
 		 *		62 bytes
@@ -1317,6 +1324,8 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 	while (--i >= 0)
 		*p++ = 'X';
 
+	if (Aflag)		/* Do not run setup_arch() */
+		*p++ = 'a';
 	if (Eflag)		/* Environment overrides vars */
 		*p++ = 'e';
 	if (Iflag)		/* Ignore errors from cmds */

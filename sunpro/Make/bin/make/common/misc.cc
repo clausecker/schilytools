@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)misc.cc	1.34	95/10/04"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * This file contains modifications Copyright 2017-2020 J. Schilling
  *
- * @(#)misc.cc	1.14 19/07/19 2017-2019 J. Schilling
+ * @(#)misc.cc	1.15 20/03/30 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.14 19/07/19 2017-2019 J. Schilling";
+	"@(#)misc.cc	1.15 20/03/30 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -1042,3 +1042,36 @@ find_run_directory (char	*cmd,
 
     return rv;
 }
+
+#ifdef	DO_ARCHCONF
+/*
+ * Interface routines used by archconf.cc
+ */
+void
+define_var(const char *name, const char *value)
+{
+	Name	thisname;
+
+	MBSTOWCS(wcs_buffer, name);
+	thisname = GETNAME(wcs_buffer, FIND_LENGTH);
+
+	MBSTOWCS(wcs_buffer, value);
+	SETVAR(thisname, GETNAME(wcs_buffer, FIND_LENGTH), false);
+}
+
+char *
+get_var(const char *name)
+{
+	Name	thisname;
+	Name	thisvalue;
+
+	MBSTOWCS(wcs_buffer, name);
+	thisname = getname_fn(wcs_buffer, FIND_LENGTH, true);
+	if (thisname == NULL)
+		return (NULL);
+	thisvalue = getvar(thisname);
+	if (thisvalue == NULL)
+		return (NULL);
+	return (thisvalue->string_mb);
+}
+#endif

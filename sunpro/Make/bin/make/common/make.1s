@@ -1,9 +1,9 @@
 '\" te
-. \" @(#)make.1s	1.30 20/03/14 Copyr 2012-2019 J. Schilling
+. \" @(#)make.1s	1.31 20/03/30 Copyr 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
-.\" Copyright (c) 2012-2018, J. Schilling
+.\" Copyright (c) 2012-2020, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
@@ -61,13 +61,13 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2020/03/14" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2020/03/30" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR] [\fB-i\fR]
+\fB/usr/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-a\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR] [\fB-i\fR]
      [\fB-k\fR] [\fB-n\fR] [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
      [\fB-f\fR \fImakefile\fR].\|.\|. [\fB-K\fR \fIstatefile\fR].\|.\|. [\fItarget\fR].\|.\|.
      [\fImacro\fR = \fIvalue\fR.\|.\|.]
@@ -75,7 +75,7 @@ make \- maintain, update, and regenerate related programs and files
 
 .LP
 .nf
-\fB/usr/xpg4/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR]
+\fB/usr/xpg4/bin/make\fR [\fB-C\fR \fIdirectory\fR] [\fB-a\fR] [\fB-d\fR] [\fB-dd\fR] [\fB-D\fR] [\fB-DD\fR] [\fB-e\fR]
      [\fB-i\fR] [\fB-k\fR] [\fB-n\fR] [\fB-p\fR] [\fB-P\fR] [\fB-q\fR] [\fB-r\fR] [\fB-s\fR] [\fB-S\fR] [\fB-t\fR] [\fB-V\fR]
      [\fB-f\fR \fImakefile\fR].\|.\|. [\fItarget\fR].\|.\|. [\fImacro\fR = \fIvalue\fR.\|.\|.]
 .fi
@@ -204,14 +204,37 @@ for building it, and if no file by that name is present,
 .B make
 issues
 an error message and halts.
+.sp
+.LP
+Unless when in
+.B SUN_MAKE_COMPAT_MODE
+or when emulating
+.BR "sysV make" ,
+.B make
+sets up some
+.B Special-Purpose Macros
+that provide
+.B automake
+properties.
+
 .SH OPTIONS
 .sp
 .LP
 The following options are supported:
 .sp
 .ne 2
-.PD 0
 .TP 16n
+.B \-a
+Do not set up architecture specific make macros like
+.BR MAKE_ARCH ,
+.B MAKE_OS
+and similar that are provided as part of the
+.B automake
+features.
+.sp
+.ne 2
+.PD 0
+.TP
 .BI \-C directory
 .TP
 .BI \-C " directory
@@ -2136,6 +2159,262 @@ of the
 .BR arch (1)
 command, prepended with \fB\(mi\fR\&.
 
+.sp
+.LP
+The following macros are provided for compatibility with smake:
+.
+.br
+.ne 2
+.TP 15n
+.B MAKE_ARCH
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the processor architecture of the current machine
+from
+.B uname \-p
+(e.g. mc68020, sparc, pentium, i386).
+.
+.br
+.ne 2
+.TP
+.B MAKE_BRAND
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the brand of the current machine
+from
+.BR sysinfo (SI_HW_PROVIDER)
+(e.g. Sun_Microsystems).
+.
+.br
+.ne 2
+.TP
+.B MAKE_DOMAIN
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the domainname of the current machine
+from
+.BR domainname (1)
+(e.g. acme.com).
+.
+.br
+.ne 2
+.TP
+.B MAKE_HOST
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the host name of the current machine
+from
+.B uname \-n
+(e.g. duffy, sherwood, ghost).
+.
+.br
+.ne 2
+.TP
+.B MAKE_HOST_OS
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the host OS name from
+.B uname \-Hs
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. windows).
+.
+.br
+.ne 2
+.TP
+.B MAKE_HOST_OSREL
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the host OS release from
+.B uname \-Hr
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. 5.1).
+.
+.br
+.ne 2
+.TP
+.B MAKE_HOST_OSVERSION
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the host OS version from
+.B uname \-Hv
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. sp2).
+.
+.br
+.ne 2
+.TP
+.B MAKE_HWSERIAL
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the serial number of the current machine
+(e.g. 1920098175).
+.
+.br
+.ne 2
+.TP
+.B MAKE_ISALIST
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the instruction set architecture list of the current machine
+from
+.BR sysinfo (SI_ISALIST)
+(e.g. amd64 pentium_pro+mmx pentium_pro pentium+mmx pentium i486 i386 i86).
+.
+.br
+.ne 2
+.TP
+.B MAKE_M_ARCH
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the machine architecture of the current machine
+derived from
+.B MAKE_MACH
+(e.g. sun3, sun4).
+.
+.br
+.ne 2
+.TP
+.B MAKE_MACH
+This macro is set up by 
+.B bmake
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the kernel architecture of the current machine
+from
+.B uname \-m
+(e.g. sun3, sun4c, sun4m, sun4u, i86pc).
+.
+.br
+.ne 2
+.TP
+.B MAKE_MODEL
+This macro is set up by 
+.B bmake
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the model name of the current machine
+from
+.BR sysinfo (SI_PLATFORM)
+or
+.B uname \-i
+(e.g. SUNW,SPARCstation-20).
+.
+.br
+.ne 2
+.TP
+.B MAKE_NAME
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the official name of the
+make program \- in our case 
+.BR smake .
+.
+.br
+.ne 2
+.TP
+.B MAKE_OS
+This macro is set up by 
+.B make
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the operating system name of the current machine
+from
+.B uname \-s
+(e.g. sunos, linux, dgux).
+.
+.br
+.ne 2
+.TP
+.B MAKE_OSDEFS
+This macro is set up by 
+.B bmake
+as part of the 
+.B automake
+features of
+.BR make .
+It contains operating system specific defines for the compiler
+(e.g. \-D__SVR4).
+.
+.br
+.ne 2
+.TP
+.B MAKE_OSREL
+This macro is set up by 
+.B bmake
+as part of the 
+.B automake
+features of
+.BR bmake .
+It contains the operating system release name of the current machine
+from
+.B uname \-r
+(e.g. 5.5, 4.1.1).
+.
+.br
+.ne 2
+.TP
+.B MAKE_OSVERSION
+This macro is set up by 
+.B bmake
+as part of the 
+.B automake
+features of
+.BR make .
+It contains the operating system version of the current machine
+from
+.B uname \-v
+(e.g. generic).
+.
 .sp
 .LP
 The following macros are provided for compatibility with GNU make:

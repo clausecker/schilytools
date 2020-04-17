@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)main.cc	1.158	06/12/12"
 
 /*
- * Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)main.cc	1.47 19/11/11 2017-2019 J. Schilling
+ * @(#)main.cc	1.49 20/03/30 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.47 19/11/11 2017-2019 J. Schilling";
+	"@(#)main.cc	1.49 20/03/30 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -1371,7 +1371,7 @@ read_command_options(register int argc, register char **argv)
 	extern char		*optarg;
 	extern int		optind, opterr, optopt;
 
-#define SUNPRO_CMD_OPTS	"-~BbC:c:Ddef:g:ij:K:kM:m:NnO:o:PpqRrSsTtuVvwx:"
+#define SUNPRO_CMD_OPTS	"-~aBbC:c:Ddef:g:ij:K:kM:m:NnO:o:PpqRrSsTtuVvwx:"
 
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 #	define SVR4_CMD_OPTS   "-C:c:ef:g:ij:km:nO:o:pqrsTtVv"
@@ -1476,16 +1476,18 @@ read_command_options(register int argc, register char **argv)
 				fprintf(stderr,
 					gettext("              [ -j dmake_max_jobs ][ -K statefile ][ -m dmake_mode ][ -x MODE_NAME=VALUE ][ -o dmake_odir ]...\n"));
 				fprintf(stderr,
-					gettext("              [ -d ][ -dd ][ -D ][ -DD ][ -e ][ -i ][ -k ][ -n ][ -p ][ -P ][ -u ][ -w ]\n"));
+					gettext("              [ -a] [ -d ][ -dd ][ -D ][ -DD ]\n"));
+				fprintf(stderr,
+					gettext("              [ -e ][ -i ][ -k ][ -n ][ -p ][ -P ][ -u ][ -w ]\n"));
 				fprintf(stderr,
 					gettext("              [ -q ][ -r ][ -s ][ -S ][ -t ][ -v ][ -V ][ target... ][ macro=value... ][ \"macro +=value\"... ]\n"));
 				} else
 #endif
 				{
 				fprintf(stderr,
-					gettext("Usage : make [ -f makefile ][ -K statefile ]... [ -d ][ -dd ][ -D ][ -DD ]\n"));
+					gettext("Usage : make [ -f makefile ][ -K statefile ]...\n"));
 				fprintf(stderr,
-					gettext("             [ -C directory]\n"));
+					gettext("             [ -a ][ -d ][ -dd ][ -D ][ -DD ] [ -C directory]\n"));
 				fprintf(stderr,
 					gettext("             [ -e ][ -i ][ -k ][ -n ][ -p ][ -P ][ -q ][ -r ][ -s ][ -S ][ -t ]\n"));
 				fprintf(stderr,
@@ -1867,6 +1869,15 @@ parse_command_option(register char ch)
 	case '~':			 /* Invert next option */
 		invert_next = 1;
 		return 0;
+#ifdef	DO_ARCHCONF
+	case 'a':			 /* Do not set up uname, ... vars */
+		if (invert_this) {
+			no_archconf = false;
+		} else {
+			no_archconf = true;
+		}
+		return 0;
+#endif
 	case 'B':			 /* Obsolete */
 		return 0;
 	case 'b':			 /* Obsolete */
@@ -2102,7 +2113,7 @@ parse_command_option(register char ch)
 				argv_zero_base, verstring);
 			fprintf(stdout, "\n");
 			fprintf(stdout, "Copyright (C) 1987-2006 Sun Microsystems\n");
-			fprintf(stdout, "Copyright (C) 2017-2019 Joerg Schilling\n");
+			fprintf(stdout, "Copyright (C) 1996-2020 Joerg Schilling\n");
 			exit_status = 0;
 			exit(0);
 #else
@@ -2541,6 +2552,11 @@ read_files_and_state(int argc, char **argv)
 			false);
 	}
 #endif
+#ifdef	DO_ARCHCONF
+	if (!sunpro_compat && !svr4 && !no_archconf) {
+		setup_arch();
+	}
+#endif
 
 	default_target_to_build = NULL;
 	trace_reader = false;
@@ -2581,6 +2597,12 @@ read_files_and_state(int argc, char **argv)
 	append_char((int) hyphen_char, &makeflags_string);
 	append_char((int) hyphen_char, &makeflags_string_posix);
 
+#ifdef	DO_ARCHCONF
+	if (no_archconf) {
+		append_char('a', &makeflags_string);
+		append_char('a', &makeflags_string_posix);
+	}
+#endif
 	switch (read_trace_level) {
 	case 2:
 		append_char('D', &makeflags_string);
@@ -2652,6 +2674,10 @@ read_files_and_state(int argc, char **argv)
 	if (quest) {
 		append_char('q', &makeflags_string);
 		append_char('q', &makeflags_string_posix);
+	}
+	if (ignore_default_mk) {
+		append_char('r', &makeflags_string);
+		append_char('r', &makeflags_string_posix);
 	}
 	if (silent_all) {
 		append_char('s', &makeflags_string);

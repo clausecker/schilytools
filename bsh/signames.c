@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.22 18/07/07 Copyright 1998-2018 J. Schilling */
+/* @(#)signames.c	1.25 20/04/13 Copyright 1998-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.22 18/07/07 Copyright 1998-2018 J. Schilling";
+	"@(#)signames.c	1.25 20/04/13 Copyright 1998-2020 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2018 J. Schilling
+ *	Copyright (c) 1998-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -339,88 +339,88 @@ LOCAL struct signames rtsignames[] = {
 	{ _SIGRTMIN+2,	"RTMIN+2",	"Third Realtime Signal", },
 	{ _SIGRTMIN+3,	"RTMIN+3",	"Fourth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 9
+#if	(_SIGRTMAX - _SIGRTMIN) >= 8
 	{ _SIGRTMIN+4,	"RTMIN+4",	"Fifth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 11
+#if	(_SIGRTMAX - _SIGRTMIN) >= 10
 	{ _SIGRTMIN+5,	"RTMIN+5",	"Sixth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 13
+#if	(_SIGRTMAX - _SIGRTMIN) >= 12
 	{ _SIGRTMIN+6,	"RTMIN+6",	"Seventh Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 15
+#if	(_SIGRTMAX - _SIGRTMIN) >= 14
 	{ _SIGRTMIN+7,	"RTMIN+7",	"Eighth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 17
+#if	(_SIGRTMAX - _SIGRTMIN) >= 16
 	{ _SIGRTMIN+8,	"RTMIN+8",	"Nint Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 19
+#if	(_SIGRTMAX - _SIGRTMIN) >= 18
 	{ _SIGRTMIN+9,	"RTMIN+9",	"Tenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 21
+#if	(_SIGRTMAX - _SIGRTMIN) >= 20
 	{ _SIGRTMIN+10,	"RTMIN+10",	"Eleventh Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 23
+#if	(_SIGRTMAX - _SIGRTMIN) >= 22
 	{ _SIGRTMIN+11,	"RTMIN+11",	"Twelfth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 25
+#if	(_SIGRTMAX - _SIGRTMIN) >= 24
 	{ _SIGRTMIN+12,	"RTMIN+12",	"Thirteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 27
+#if	(_SIGRTMAX - _SIGRTMIN) >= 26
 	{ _SIGRTMIN+13,	"RTMIN+13",	"Fourteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 29
+#if	(_SIGRTMAX - _SIGRTMIN) >= 28
 	{ _SIGRTMIN+14,	"RTMIN+14",	"Fifteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 31
+#if	(_SIGRTMAX - _SIGRTMIN) >= 30
 	{ _SIGRTMIN+15,	"RTMIN+15",	"Sixteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 33
+#if	(_SIGRTMAX - _SIGRTMIN) >= 32
 	{ _SIGRTMIN+16,	"RTMIN+16",	"Seventeenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 35
+#if	(_SIGRTMAX - _SIGRTMIN) >= 34
 	{ _SIGRTMIN+17,	"RTMIN+17",	"Eighteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 37
+#if	(_SIGRTMAX - _SIGRTMIN) >= 36
 	{ _SIGRTMIN+18,	"RTMIN+18",	"Nineteenth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 39
+#if	(_SIGRTMAX - _SIGRTMIN) >= 38
 	{ _SIGRTMIN+19,	"RTMIN+19",	"Twentieth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 41
+#if	(_SIGRTMAX - _SIGRTMIN) >= 40
 	{ _SIGRTMIN+20,	"RTMIN+20",	"Twenty-first Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 43
+#if	(_SIGRTMAX - _SIGRTMIN) >= 42
 	{ _SIGRTMIN+21,	"RTMIN+21",	"Twenty-second Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 45
+#if	(_SIGRTMAX - _SIGRTMIN) >= 44
 	{ _SIGRTMIN+22,	"RTMIN+22",	"Twenty-third Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 47
+#if	(_SIGRTMAX - _SIGRTMIN) >= 46
 	{ _SIGRTMIN+23,	"RTMIN+23",	"Twenty-fourth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 49
+#if	(_SIGRTMAX - _SIGRTMIN) >= 48
 	{ _SIGRTMIN+24,	"RTMIN+24",	"Twenty-fifth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 51
+#if	(_SIGRTMAX - _SIGRTMIN) >= 50
 	{ _SIGRTMIN+25,	"RTMIN+25",	"Twenty-sixth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 53
+#if	(_SIGRTMAX - _SIGRTMIN) >= 52
 	{ _SIGRTMIN+26,	"RTMIN+26",	"Twenty-seventh Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 55
+#if	(_SIGRTMAX - _SIGRTMIN) >= 54
 	{ _SIGRTMIN+27,	"RTMIN+27",	"Twenty-eighth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 57
+#if	(_SIGRTMAX - _SIGRTMIN) >= 56
 	{ _SIGRTMIN+28,	"RTMIN+28",	"Twenty-ninth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 59
+#if	(_SIGRTMAX - _SIGRTMIN) >= 58
 	{ _SIGRTMIN+29,	"RTMIN+29",	"Thirtieth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 61
+#if	(_SIGRTMAX - _SIGRTMIN) >= 60
 	{ _SIGRTMIN+30,	"RTMIN+30",	"Thirty-firsth Realtime Signal", },
 #endif
-#if	(_SIGRTMAX - _SIGRTMIN) >= 63
+#if	(_SIGRTMAX - _SIGRTMIN) >= 62
 	{ _SIGRTMIN+31,	"RTMIN+31",	"Thirty-second Realtime Signal", },
 #endif
 #if	(_SIGRTMAX - _SIGRTMIN) >= 63

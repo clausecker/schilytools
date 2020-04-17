@@ -1,4 +1,8 @@
-h62277
+h10090
+s 00001/00001/00108
+d D 1.6 20/04/16 01:57:21 joerg 6 5
+c %Z% Neu um "No id keywords" Warnung zu vermeiden
+e
 s 00002/00002/00107
 d D 1.5 15/06/03 00:06:43 joerg 5 4
 c ../common/test-common -> ../../common/test-common
@@ -126,7 +130,12 @@ mkdir SCCS
 echo "Creating the input files..."
 for i in $files
 do
+D 6
     echo "This is file $i" > $i
+E 6
+I 6
+    echo "This is file $i %Z%" > $i	# Avoid "No id keywords" warning
+E 6
     ${sccs} enter $i
     rm ,$i
 done

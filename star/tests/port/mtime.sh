@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)mtime.sh	1.2 19/03/25 Copyright 2019 J. Schilling
+# @(#)mtime.sh	1.4 20/03/30 Copyright 2019-2020 J. Schilling
 #
 
 # mtime.sh:	Tests to check whether large and negative mtimes work.
@@ -9,6 +9,10 @@
 . ../common/test-common
 
 LC_ALL=C export LC_ALL
+#
+# IRIX does GMT-1 wrong
+#
+TZ=MET export TZ
 
 #d=`../testutils/realpwd`
 

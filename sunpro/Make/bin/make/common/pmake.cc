@@ -33,14 +33,14 @@
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2020 J. Schilling
  *
- * @(#)pmake.cc	1.10 18/03/15 2017-2018 J. Schilling
+ * @(#)pmake.cc	1.11 20/03/28 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pmake.cc	1.10 18/03/15 2017-2018 J. Schilling";
+	"@(#)pmake.cc	1.11 20/03/28 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -71,6 +71,16 @@ static	UConst char sccsid[] =
 
 #ifdef HAVE_RPC_RPC_H
 #include <rpc/rpc.h>		/* host2netname(), netname2host() */
+#endif
+
+#ifdef	__sgi
+/*
+ * IRIX includes netname2host() in libc, but it does not provide
+ * any prototype in the system include files.
+ */
+extern "C" {
+	extern int netname2host(const char *, char *, const int);
+};
 #endif
 
 #ifndef	MAXNETNAMELEN

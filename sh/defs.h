@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)defs.h	1.206 20/01/25 2008-2020 J. Schilling
+ * @(#)defs.h	1.208 20/04/11 2008-2020 J. Schilling
  */
 
 /*
@@ -1246,7 +1246,13 @@ extern jmps_t			*dotshell;
 /* fault handling */
 extern unsigned			brkincr;
 #define		MINTRAP		0
+#ifdef	DO_ERR_TRAP
+#define		MAXTRAP		(NSIG+1)
+#define		ERRTRAP		(MAXTRAP-1)
+#else
 #define		MAXTRAP		NSIG
+#endif
+#define		MAX_SIG		NSIG
 
 #define		TRAPSET		2		/* Mark incoming signal/fault */
 #define		SIGSET		4		/* Mark fault w. no trapcmd */

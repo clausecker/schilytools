@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)command.sh	1.6 18/04/29 2017 J. Schilling
+# @(#)command.sh	1.7 20/03/30 2017-2020 J. Schilling
 #
 
 # Read test core functions
@@ -8,10 +8,11 @@
 
 #
 # Basic tests to check whether the builtin "command" work
+# IRIX has ls in /sbin/, so we need to be careful
 #
 docommand command01 "$SHELL -c 'command'" 0 "" ""
-docommand command02 "$SHELL -c 'command -v ls | grep /bin/ls'" 0 NONEMPTY ""
-docommand command03 "$SHELL -c 'command -V ls | grep \"ls.*/bin/ls\"'" 0 NONEMPTY ""
+docommand command02 "$SHELL -c 'command -v ls | grep bin/ls'" 0 NONEMPTY ""
+docommand command03 "$SHELL -c 'command -V ls | grep \"ls.*bin/ls\"'" 0 NONEMPTY ""
 docommand command04 "$SHELL -c 'command -p ls | grep command.sh'" 0 NONEMPTY ""
 docommand command05 "$SHELL -c 'command env | grep ZzZzZ'" 1 "" ""
 docommand command06 "$SHELL -c 'ZzZzZ=bla command env | grep ZzZzZ=bla'" 0 NONEMPTY ""

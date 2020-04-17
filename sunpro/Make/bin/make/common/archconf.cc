@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.35 20/04/04 Copyright 1996-2020 J. Schilling */
+/* @(#)archconf.cc	1.2 20/04/04 Copyright 1996-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.35 20/04/04 Copyright 1996-2020 J. Schilling";
+	"@(#)archconf.cc	1.2 20/04/04 Copyright 1996-2020 J. Schilling";
 #endif
 /*
  *	Make program
@@ -11,17 +11,26 @@ static	UConst char sccsid[] =
  *	Copyright (c) 1996-2020 by J. Schilling
  */
 /*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * CDDL HEADER START
  *
- * See the file CDDL.Schily.txt in this distribution for details.
- * A copy of the CDDL is also available via the Internet at
+ * This file and its contents are supplied under the terms of the
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
+ *
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
  * http://www.opensource.org/licenses/cddl1.txt
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
  *
  * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
+ * file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+ * If applicable, add the following below this CDDL HEADER, with the
+ * fields enclosed by brackets "[]" replaced with your own identifying
+ * information: Portions Copyright [yyyy] [name of copyright owner]
+ *
+ * CDDL HEADER END
  */
 
 #include <schily/stdio.h>
@@ -34,8 +43,15 @@ static	UConst char sccsid[] =
 #include <schily/utsname.h>
 #include <schily/systeminfo.h>
 
-#include <schily/schily.h>
-#include "make.h"
+#include <schily/errno.h>
+
+#define	NAMEMAX		4096	/* Max size of a name POSIX linelen */
+#define	Uchar		unsigned char
+#define	streql(a, b)	(strcmp((a), (b)) == 0)
+
+#ifdef	DO_ARCHCONF
+extern void define_var(const char *name, const char *value);
+extern char *get_var(const char *name);
 
 #ifdef	HAVE_SYS_SYSCTL_H
 #include <schily/types.h>
@@ -54,24 +70,27 @@ static	UConst char sccsid[] =
 #include <OS.h>
 #endif
 
+#include <mksh/misc.h>
+#include <mk/defs.h>
+
 #ifdef	NO_SYSINFO
 #ifdef	HAVE_SYS_SYSTEMINFO_H
 #undef	HAVE_SYS_SYSTEMINFO_H
 #endif
 #endif
 
-EXPORT	void	setup_arch	__PR((void));
-LOCAL	BOOL	do_uname	__PR((void));
-LOCAL	BOOL	do_sysinfo	__PR((void));
-LOCAL	BOOL	do_sysctl	__PR((void));
-LOCAL	BOOL	do_haiku	__PR((void));
-LOCAL	void	do_gethostname	__PR((void));
-LOCAL	void	do_defs		__PR((void));
-LOCAL	void	do_archheuristics __PR((void));
-LOCAL	void	archcvt		__PR((char *));
+EXPORT	void	setup_arch(void);
+LOCAL	BOOL	do_uname(void);
+LOCAL	BOOL	do_sysinfo(void);
+LOCAL	BOOL	do_sysctl(void);
+LOCAL	BOOL	do_haiku(void);
+LOCAL	void	do_gethostname(void);
+LOCAL	void	do_defs(void);
+LOCAL	void	do_archheuristics(void);
+LOCAL	void	archcvt(char *);
 #if defined(HAVE_SYS_SYSTEMINFO_H) || \
 	(defined(HAVE_SYS_SYSCTL_H) && defined(HW_MODEL)) /* See do_sysctl() */
-LOCAL	void	unblank		__PR((char *));
+LOCAL	void	unblank(char *);
 #endif
 
 /*
@@ -113,7 +132,8 @@ do_uname()
 	struct	utsname	un;
 
 	if (uname(&un) < 0) {
-		errmsg("Cannot get host arch (uname).\n");
+		warning(gettext("Cannot get host arch (uname): %s"),
+		    errmsg(errno));
 		return (FALSE);
 	}
 #ifdef	__comment__
@@ -303,7 +323,7 @@ LOCAL BOOL
 do_sysctl()
 {
 #if	defined(HW_MODEL) || defined(HW_MACHINE_ARCH)
-	char	*name;
+	const char	*name;
 	char	nbuf[NAMEMAX];
 	size_t	len;
 	int	mib[2];
@@ -598,8 +618,7 @@ do_archheuristics()
  * convert ' ' into '-'.
  */
 LOCAL void
-archcvt(p)
-	register char	*p;
+archcvt(register char *p)
 {
 	register Uchar	c;
 
@@ -622,8 +641,7 @@ archcvt(p)
  * Convert all spaces into '-'.
  */
 LOCAL void
-unblank(p)
-	register char	*p;
+unblank(register char *p)
 {
 	register char	c;
 
@@ -634,3 +652,4 @@ unblank(p)
 	}
 }
 #endif
+#endif	/* DO_ARCHCONF */

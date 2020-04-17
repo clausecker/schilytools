@@ -60,7 +60,7 @@ mkdir SCCS
 echo "Creating the input files..."
 for i in $files
 do
-    echo "This is file $i" > $i
+    echo "This is file $i %Z%" > $i	# Avoid "No id keywords" warning
     ${admin} -i$i SCCS/s.$i
     rm $i
 done

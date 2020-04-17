@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.251 20/03/13 Copyright 2012-2020 J. Schilling
+.\" @(#)sh.1	1.254 20/04/15 Copyright 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2020/03/13" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2020/04/15" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -5761,7 +5761,26 @@ was not supported in older versions of
 .TP
 .B \-e
 Exit immediately if a command exits with a non-zero exit status.
-
+The shell however does not exit if the command that fails is part
+of the  command list immediately following a
+.B while
+or
+.B until
+keyword, it it is part of the test following the
+.B if
+or
+.B elif
+reserved words, if it is part of a command executed in a
+.B &&
+or
+.B ||
+list except the command that is the final command in that list,
+if it is not the last command in a pipeline,
+or if the exit value of a command is being inverted with
+.BR ! .
+If a trap on
+.B ERR
+is set, it is executed before the shell exits. 
 .br
 .ne 3
 .TP
@@ -6954,6 +6973,21 @@ the command
 is executed on exit
 from the shell.
 .sp
+If
+.I n
+is
+.BR ERR ,
+the command
+.I argument
+is executed if a command terminates with a non-zero exit code.
+The
+.B ERR
+command is however not executed on the same conditions that do not
+cause the shell to exit when the
+.B errexit
+.RB ( \-e )
+option is set.
+.sp
 The
 .B trap
 command with no arguments prints a list of
@@ -7000,6 +7034,12 @@ The option
 .B \-p
 was not supported in older versions of
 .BR sh .
+.sp
+The trap name
+.B ERR
+was not supported in older versions of
+.B sh
+and is not part of the POSIX standard.
 
 .br
 .ne 3

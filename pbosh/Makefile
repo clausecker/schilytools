@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.162 20/03/05  Copyright (c) 2006-2020 J. Schilling"
+#ident "@(#)Makefile	1.163 20/04/10  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -98,6 +98,7 @@ CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_TRAP_EXIT		# Fork for (trap cmd EXIT; /usr/bin/true)
 CPPOPTS +=	-DDO_TRAP_FROM_WAITID	# With jobcontrol get signal from waitid()
+CPPOPTS +=	-DDO_ERR_TRAP		# Implement trap cmd ERR
 CPPOPTS +=	-DDO_POSIX_READ		# Implement POSIX read, mult. IFS -> ""
 CPPOPTS +=	-DDO_POSIX_PARAM	# Implement support for ${10}
 CPPOPTS +=	-DDO_POSIX_HERE		# Clear "quote" before expanding here document

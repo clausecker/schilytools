@@ -1,6 +1,6 @@
-#ident "@(#)ip22-irix-gcc.rul	1.13 15/11/30 "
+#ident "@(#)ip22-irix-gcc.rul	1.15 20/03/30 "
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2020 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Silicon Graphics IRIX
@@ -33,10 +33,9 @@ LIB_SOCKET=
 LIB_MATH=	-lm
 LIB_KVM=	
 
-#LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
-LDOPTDYN=
-LNDYNLIB=	@
+LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-rpath,%)
+LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
+#LNDYNLIB=	@
 
 FLOAT_OPTIONS=	
 

@@ -1,4 +1,4 @@
-. \" @(#)rmtopen.3	1.7 20/02/13 Copyr 2002-2020 J. Schilling
+. \" @(#)rmtopen.3	1.8 20/03/31 Copyr 2002-2020 J. Schilling
 . \" Manual page for rmtopen
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTOPEN 3L "2020/02/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTOPEN 3L "2020/03/31" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
 .SH SYNOPSIS
@@ -141,17 +141,17 @@ returns the return value obtained the remote
 request.
 .TP
 .B rmtwrite()
-returns the return value obtained the remote 
+returns the return value obtained by the remote 
 .BR write (2)
 request.
 .TP
 .B rmtseek()
-returns the return value obtained the remote 
+returns the return value obtained by the remote 
 .BR lseek (2)
 request.
 .TP
 .B rmtioctl()
-returns the return value obtained the remote 
+returns the return value obtained by the remote 
 .B ioctl(f, MTIOCTOP, struct mtop *)
 call.
 
@@ -168,6 +168,8 @@ value retrieved from the remote server.
 int	remfd;
 char	*remfn;
 char	host[256];
+int	iosize = 10240;	/* socket send/receive size to set up */
+
 
 if ((remfn = rmtfilename(filename)) != NULL) {
 	rmthostname(host, sizeof (host), filename);

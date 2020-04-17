@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.49 19/07/18 Copyright 1985-2019 J. Schilling
+. \" @(#)smake.1	1.50 20/03/30 Copyright 1985-2019 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2019/07/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2020/03/30" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -89,6 +89,15 @@ features that allow to implement portable, layered, object oriented makefiles.
 .PP
 
 .SH OPTIONS
+.TP
+.B \-a
+Do not set up architecture specific make macros like
+.BR MAKE_ARCH ,
+.B MAKE_OS
+and similar that are provided as part of the
+.B automake
+features.
+
 .TP
 .BI \-C " dir
 Change the working directory to
@@ -1427,7 +1436,9 @@ as part of the
 features of
 .BR smake .
 It contains the processor architecture of the current machine
-(e.g. mc68020, sparc, pentium).
+from
+.B uname \-p
+(e.g. mc68020, sparc, pentium, i386).
 .
 .TP
 .B MAKE_BRAND
@@ -1438,7 +1449,22 @@ as part of the
 features of
 .BR smake .
 It contains the brand of the current machine
+from
+.BR sysinfo (SI_HW_PROVIDER)
 (e.g. Sun_Microsystems).
+.
+.TP
+.B MAKE_DOMAIN
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the domainname of the current machine
+from
+.BR domainname (1)
+(e.g. acme.com).
 .
 .TP
 .B MAKE_HOST
@@ -1449,7 +1475,10 @@ as part of the
 features of
 .BR smake .
 It contains the host name of the current machine
+from
+.B uname \-n
 (e.g. duffy, sherwood, ghost).
+.
 .TP
 .B MAKE_HOST_OS
 This macro is set up by 
@@ -1490,26 +1519,28 @@ of the current machine in case that there
 is a layered OS like Cygwin (e.g. sp2).
 .
 .TP
-.B MAKE_MACH
+.B MAKE_HWSERIAL
 This macro is set up by 
 .B smake
 as part of the 
 .B automake
 features of
 .BR smake .
-It contains the kernel architecture of the current machine
-(e.g. sun3, sun4c, sun4m, sun4u).
+It contains the serial number of the current machine
+(e.g. 1920098175).
 .
 .TP
-.B MAKE_MODEL
+.B MAKE_ISALIST
 This macro is set up by 
 .B smake
 as part of the 
 .B automake
 features of
 .BR smake .
-It contains the model name of the current machine
-(e.g. SUNW,SPARCstation-20).
+It contains the instruction set architecture list of the current machine
+from
+.BR sysinfo (SI_ISALIST)
+(e.g. amd64 pentium_pro+mmx pentium_pro pentium+mmx pentium i486 i386 i86).
 .
 .TP
 .B MAKE_M_ARCH
@@ -1520,7 +1551,37 @@ as part of the
 features of
 .BR smake .
 It contains the machine architecture of the current machine
+derived from
+.B MAKE_MACH
 (e.g. sun3, sun4).
+.
+.TP
+.B MAKE_MACH
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the kernel architecture of the current machine
+from
+.B uname \-m
+(e.g. sun3, sun4c, sun4m, sun4u, i86pc).
+.
+.TP
+.B MAKE_MODEL
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the model name of the current machine
+from
+.BR sysinfo (SI_PLATFORM)
+or
+.B uname \-i
+(e.g. SUNW,SPARCstation-20).
 .
 .TP
 .B MAKE_NAME
@@ -1543,6 +1604,8 @@ as part of the
 features of
 .BR smake .
 It contains the operating system name of the current machine
+from
+.B uname \-s
 (e.g. sunos, linux, dgux).
 .
 .TP
@@ -1565,6 +1628,8 @@ as part of the
 features of
 .BR smake .
 It contains the operating system release name of the current machine
+from
+.B uname \-r
 (e.g. 5.5, 4.1.1).
 .
 .TP
@@ -1576,18 +1641,9 @@ as part of the
 features of
 .BR smake .
 It contains the operating system version of the current machine
+from
+.B uname \-v
 (e.g. generic).
-.
-.TP
-.B MAKE_SERIAL
-This macro is set up by 
-.B smake
-as part of the 
-.B automake
-features of
-.BR smake .
-It contains the serial number of the current machine
-(e.g. 1920098175).
 .
 .TP
 .B MAKE_SHELL_FLAG

@@ -1,6 +1,6 @@
-#ident "@(#)cc-sgi.rul	1.17 18/08/16 "
+#ident "@(#)cc-sgi.rul	1.21 20/04/06 "
 ###########################################################################
-# Written 1996-2018 by J. Schilling
+# Written 1996-2020 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for Silicon Graphics cc
@@ -21,17 +21,22 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
+SGI_OPT=
+SGI_OPT32=	-32
+SGI_OPT64=	-64
+SGI_OPTXX=	$(SGI_OPT$(C_ARCH:cc%=%))
+
 CPP_FLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 C_FLAGS=	$(COPTS) $(CWARNOPTS) $(COPTOPT) $(SGICOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SGIC++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
-COPTS=
+COPTS=		$(SGI_OPTXX)
 CWOPTS=		-fullwarn
 COPTOPT=	-O
-COPTDYN=	-Kpic
+COPTDYN=
 COPTGPROF=	-p1
-C++OPTS=
+C++OPTS=	$(SGI_OPTXX)
 C++WOPTS=	
 #C++OPTOPT=	-O
 #C++OPTDYN=	-Kpic
@@ -50,9 +55,10 @@ LDFLAGS=	$(LDOPTS) $(LDOPTX)
 LDLIBS=		$(LIBS) $(LIBX)
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
-LDOPTS=		$(LIBS_PATH) $(LDPATH) $(LARGEFILE_OPT)
+LDOPTS=		$(LIBS_PATH) $(LDPATH) $(LARGEFILE_OPT) $(RUNPATH:-R%=-rpath %)
 #LDOPTDYN=	-dy -G -ztext -h $(TARGET) -ldl
-LNDYNLIB=	@
+LDOPTDYN=	-shared -soname $(TARGET)
+LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -69,17 +75,17 @@ CC++_COM_DEF=	CC
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(SGI_OPTXX)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(SGI_OPTXX)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld $(SGI_OPTXX)
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) $(SGI_OPTXX) -M
 MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -M
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(SGI_OPTXX)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(SGI_OPTXX)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(SGI_OPTXX)
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) $(SGI_OPTXX) -M
 MKC++DEP_OUT=

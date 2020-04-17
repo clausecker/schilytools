@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)ar.cc	1.28	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2020 J. Schilling
  *
- * @(#)ar.cc	1.7 18/03/15 2017-2018 J. Schilling
+ * @(#)ar.cc	1.8 20/03/28 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ar.cc	1.7 18/03/15 2017-2018 J. Schilling";
+	"@(#)ar.cc	1.8 20/03/28 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -67,6 +67,10 @@ static	UConst char sccsid[] =
 #ifdef	HAVE_RANLIB_H
 #include <ranlib.h>
 #else
+#ifndef	__sgi
+/*
+ * IRIX defines struct ranlib in <ar.h>, so we nust not define it here.
+ */
 struct ranlib {
 	union {
 		off_t	ran_strx;	/* string table index of */
@@ -74,6 +78,7 @@ struct ranlib {
 	}	ran_un;
 	off_t	ran_off;		/* library member at this offset */
 };
+#endif
 #endif
 
 #include <ctype.h>		/* isspace */

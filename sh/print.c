@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)print.c	1.45 20/01/25 2008-2020 J. Schilling
+ * @(#)print.c	1.46 20/04/16 2008-2020 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.45 20/01/25 2008-2020 J. Schilling";
+	"@(#)print.c	1.46 20/04/16 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -498,7 +498,10 @@ void
 prs_cntl(s)
 	unsigned char	*s;
 {
-	unsigned char cbuf[BUFLEN+5];	/* 4 bytes for octal number + nul */
+	/*
+	 * Add redzone of MB_LEN_MAX * 4 bytes for octal number + nul
+	 */
+	unsigned char cbuf[BUFLEN+(4*MB_LEN_MAX)+1];
 	int n;
 	wchar_t wc;
 	unsigned char *olds = s;

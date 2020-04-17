@@ -1,4 +1,4 @@
-. \" @(#)rmtgetconn.3	1.5 20/02/13 Copyr 2002-2020 J. Schilling
+. \" @(#)rmtgetconn.3	1.6 20/03/31 Copyr 2002-2020 J. Schilling
 . \" Manual page for rmtgetconn
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTGETCONN 3L "2020/02/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTGETCONN 3L "2020/03/31" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtinit, rmtdebug, rmthostname, rmtfilename, rmtgetconn \- initiate a connection to a remote tape server
 .SH SYNOPSIS
@@ -84,9 +84,9 @@ If
 is not called or any of the function pointers is 
 .SM NULL,
 the appropriate default function is used instead.
-The supplied error printing function needs to be compatible with
+The supplied error printing function needs to implement the same interface as
 .BR errmsgno (3)
-and the supplied exit function needs to be compatible with
+and the supplied exit function needs to implement the same interface as
 .BR exit (3).
 .TP
 .B rmtdebug()
@@ -118,7 +118,7 @@ is given a filename that may be either in remote file syntax (
 .I hostname:filename
 or
 .I user@hostname:filename
-) or not.
+) or specified as a hierarchical file path.
 If the argument turns out to be in remote file syntax, a pointer to the
 filename part is returned.
 .TP
@@ -213,6 +213,7 @@ then will return -2 after this function did return.
 int	remfd;
 char	*remfn;
 char	host[256];
+int	iosize = 10240;	/* socket send/receive size to set up */
 
 if ((remfn = rmtfilename(filename)) != NULL) {
 	rmthostname(host, sizeof (host), filename);
