@@ -1,11 +1,11 @@
-/* @(#)isodebug.c	1.30 15/11/29 Copyright 1996-2015 J. Schilling */
+/* @(#)isodebug.c	1.31 20/05/05 Copyright 1996-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodebug.c	1.30 15/11/29 Copyright 1996-2015 J. Schilling";
+	"@(#)isodebug.c	1.31 20/05/05 Copyright 1996-2020 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1996-2015 J. Schilling
+ *	Copyright (c) 1996-2020 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -276,8 +276,9 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isodebug %s (%s-%s-%s) Copyright (C) 1996-2015 %s\n"),
+		printf(_("isodebug %s %s (%s-%s-%s) Copyright (C) 1996-2020 %s\n"),
 					VERSION,
+					VERSION_DATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Joerg Schilling"));
 		exit(0);

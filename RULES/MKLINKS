@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.135 20/04/01 "
+#ident "@(#)MKLINKS	1.136 20/05/03 "
 ###########################################################################
-# Written 1996-2019 by J. Schilling
+# Written 1996-2020 by J. Schilling
 ###########################################################################
-# Copyright (c) 1996-2019 J. Schilling
+# Copyright (c) 1996-2020 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -49,6 +49,7 @@ $symlink	r-smake.tag		r-build.tag
 $symlink	r-make.obj		r-gmake.obj
 $symlink	r-make.obj		r-sunpro.obj
 $symlink	r-make.tag		r-sunpro.tag
+$symlink	r-make.tag		r-bsdmake.tag
 
 $symlink	cc-clang.rul		cc-clang32.rul
 $symlink	cc-clang.rul		cc-clang64.rul

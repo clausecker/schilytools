@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.120 20/04/16 2008-2020 J. Schilling
+ * @(#)xec.c	1.122 20/04/26 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.120 20/04/16 2008-2020 J. Schilling";
+	"@(#)xec.c	1.122 20/04/26 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -95,11 +95,11 @@ static	int	exallocjob	__PR((struct trenod *t, int xflags));
 /*VARARGS3*/
 int
 execute(argt, xflags, errorflg, pf1, pf2)
-	struct trenod	*argt;
-	int		xflags;
-	int		errorflg;
-	int		*pf1;
-	int		*pf2;
+	struct trenod	*argt;		/* The cmd tree to eecute	    */
+	int		xflags;		/* Flags to control nested execution */
+	int		errorflg;	/* Shadow copy of current -e state  */
+	int		*pf1;		/* Potential input pipe		    */
+	int		*pf2;		/* Potential output pipe	    */
 {
 	/*
 	 * `stakbot' is preserved by this routine
@@ -455,7 +455,11 @@ execute(argt, xflags, errorflg, pf1, pf2)
 							localp = t;
 							localcnt = 0;
 							execute(f->fndval,
+#ifdef	DO_POSIX_E
+							    xflags|XEC_INFUNC,
+#else
 							    xflags,
+#endif
 							    errorflg, pf1, pf2);
 #ifdef	DO_SYSLOCAL
 							if (localcnt > 0) {
@@ -683,6 +687,13 @@ script:
 					if (treeflgs & FPIN)
 						closepipe(pf1);
 					if (!(treeflgs&FPOU)) {
+#ifdef	DO_PIPE_PARENT
+						/*
+						 * Rest stdin if needed
+						 */
+						if (xflags & XEC_STDINSAV)
+							resetjobfd();
+#endif
 						postjob(parent,
 							!(treeflgs&FAMP), 0);
 						freejobs();
@@ -893,7 +904,7 @@ script:
 				if ((xflags & XEC_STDINSAV) == 0) {
 					/*
 					 * Move stdin to save it. This move is
-					 * restored from inside postjob().
+					 * restored via resetjobfd().
 					 */
 					sfd = topfd;
 					fdmap[topfd].org_fd = STDIN_FILENO;
@@ -1015,23 +1026,24 @@ script:
 
 		case TLST:		/* ";" separated command list */
 			execute(lstptr(t)->lstlef,
-				xflags&XEC_NOSTOP,
+				xflags&(XEC_NOSTOP|XEC_INFUNC),
 				errorflg,
 				no_pipe, no_pipe);
 			/*
 			 * Be compatible to the Solaris modifications for
-			 * bugid 1133408:
+			 * bugid 1133408 by oring in (eflag & errflg):
 			 *
 			 * Update errorflg if set -e is invoked in the sub-sh
 			 *
-			 * Our previous erreneous modifications (see deactivated
-			 * #ifdef) did prevent a "set -e;..." list from using
-			 * the errorflag.
+			 * Our previous erreneous modifications did prevent 
+			 * a "set -e;..." list completely from using the
+			 * errorflag. We now only handle functions as blocks.
 			 */
 			execute(lstptr(t)->lstrit,
 				xflags,
-#ifdef	__not_correct_DO_POSIX_E
-				errorflg,
+#ifdef	DO_POSIX_E
+				errorflg |
+				(xflags & XEC_INFUNC ? 0 : (eflag & errflg)),
 #else
 				(errorflg | (eflag & errflg)),
 #endif

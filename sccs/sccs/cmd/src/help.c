@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)help.c	1.11 18/04/29 J. Schilling
+ * @(#)help.c	1.12 20/05/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.11 18/04/29 J. Schilling"
+#pragma ident "@(#)help.c 1.12 20/05/08 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -155,6 +155,9 @@ main(argc, argv)
 #endif
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 	Fflags = FTLMSG;
 #ifdef	SCCS_FATALHELP
 	Fflags |= FTLFUNC;

@@ -1,4 +1,4 @@
-/* @(#)README.eltorito	1.2 00/03/18 eric */
+/* @(#)README.eltorito	1.3 20/05/10 eric, 2000-2020 J. Schilling */
 
 What is El Torito?
 ------------------
@@ -66,6 +66,25 @@ mkisofs -b boot/boot.img -c boot/boot.catalog -o bootcd.iso .
 The -b option specifies the boot image to be used (note the path is
 relative to the root of the iso9660 disc), and the -c option is
 for the boot catalog file.
+
+Since many BIOS implementations now have problems with larger boot images,
+modern boot implementations use the no emulation boot and load the rest
+of the boot image after Eltorito did load a single 2048 byte sector. Use
+a command line like this to create a modern boot:
+
+mkisofs -V MYVOL -iso-level 4 -R -b boot/grub/stage2_eltorito -no-emul-boot \
+	-boot-load-size 4 -boot-info-table -o myvol.iso thisdir
+
+or even a modern boot and EFI boot support at the same time:
+
+mkisofs -V MYVOL -iso-level 4 -R -b boot/grub/stage2_eltorito -no-emul-boot \
+	-boot-load-size 4 -boot-info-table \
+	-eltorito-alt-boot -eltorito-platform efi -b boot/grub/boot.efi \
+	-no-emul-boot
+	-o myvol.iso thisdir
+
+Depending on the BIOS and on the EFI boot code, the -boot-load-size option
+may also be needed for the EFI boot.
 
 Now burn the CD and its ready to boot!
 

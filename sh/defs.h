@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)defs.h	1.208 20/04/11 2008-2020 J. Schilling
+ * @(#)defs.h	1.209 20/04/21 2008-2020 J. Schilling
  */
 
 /*
@@ -67,6 +67,7 @@ extern "C" {
 #define		XEC_STDINSAV	020	/* STDIN_FILENO was moved away	    */
 #define		XEC_ALLOCJOB	040	/* A job slot was already allocated */
 #define		XEC_HASARGV	0100	/* t->comarg holds expanded argv[]  */
+#define		XEC_INFUNC	01000	/* We are inside a function call    */
 
 /* endjobs flags */
 #define		JOB_STOPPED	01
@@ -1203,6 +1204,11 @@ extern const char		devnull[];
 #define		noexit		0200000000	/* Inhibit exit from builtins */
 #define		nofuncs		0400000000	/* Inhibit functions */
 
+/*
+ * We currently support up to 4x 30 flag bits, but we currently only use
+ * 2x 30 flag bits.
+ * If we start to use 'fl3' and 'fl4', we need to ass support to args.c
+ */
 #define		fl2		010000000000	/* If in flagval: see flags2 */
 #define		fl3		020000000000	/* If in flagval: see flags3 */
 #define		fl4		(fl2 | fl3)	/* If in flagval: see flags4 */

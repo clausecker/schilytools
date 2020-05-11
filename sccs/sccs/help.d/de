@@ -21,9 +21,9 @@
 * Copyright 1998 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2014 J. Schilling
+* Copyright 2006-2020 J. Schilling
 *
-* @(#)de	1.6 18/12/04 J. Schilling
+* @(#)de	1.7 20/05/10 J. Schilling
 *
 * @(#)de 1.4 06/12/12
 *
@@ -92,9 +92,8 @@ which are too large.  Therefore, delta re-tries with smaller chunks.
 it gives up hope and terminates processing of the SCCS file.)
 Do a "help de17" for more information.
 -14
-"file ... contains illegal data on line ..."
-The named line in the file ... begins with the SCCS control
-character SOH(ASCII 001) or contains ASCII NUL. This is not
+"file ... contains '\000' on line ..."
+The named line in the file ... contains ASCII NUL. This is not
 allowed  for the files created  earlier as text SCCS  files
 using the  SCCSv4  history file format, (see sccs-admin(1),
 keyletter 'b').

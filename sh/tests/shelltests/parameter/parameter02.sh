@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter02.sh	1.2 16/06/29 2016 J. Schilling
+# @(#)parameter02.sh	1.3 20/04/28 2016-2020 J. Schilling
 #
 
 # Read test core functions
@@ -40,9 +40,9 @@ esac
 (echo 2 "${IFS+'}'z}") 2>/dev/null || echo failed in 2
 (echo 3 "foo ${IFS+'bar} baz") 2>/dev/null || echo failed in 3
 
-#(echo '4 \c'; pfn "foo ${IFS+"b   c"} baz") 2>/dev/null || echo failed in 4
+(echo '4 \c'; pfn "foo ${IFS+"b   c"} baz") 2>/dev/null || echo failed in 4
 # bosh: 4 failed in 4
-echo "4 foo b   c baz"
+#echo "4 foo b   c baz"
 
 (echo '5 \c'; pfn "foo ${IFS+b   c} baz") 2>/dev/null || echo failed in 5
 
@@ -82,9 +82,9 @@ l=t; (echo 22 "${IFS+h`echo i "${IFS+$l}"h'\c'`ere}") 2>/dev/null || echo failed
 l=t; (echo 23 "${IFS+h$(echo i "${IFS+$l}"h'\c')ere}") 2>/dev/null || echo failed in 23
 key=value; (echo '24 \c'; pfn "${IFS+'$key'}") 2>/dev/null || echo failed in 24
 
-#key=value; (echo '25 \c'; pfn "${IFS+"'$key'"}") 2>/dev/null || echo failed in 25    # ksh93: '$key'
+key=value; (echo '25 \c'; pfn "${IFS+"'$key'"}") 2>/dev/null || echo failed in 25    # ksh93: '$key'
 #bosh: 25 $key
-echo "25 'value'"
+#echo "25 'value'"
 
 key=value; (echo '26 \c'; pfn ${IFS+'$key'}) 2>/dev/null || echo failed in 26
 key=value; (echo '27 \c'; pfn ${IFS+"'$key'"}) 2>/dev/null || echo failed in 27
@@ -93,19 +93,19 @@ key=value; (echo '27 \c'; pfn ${IFS+"'$key'"}) 2>/dev/null || echo failed in 27
 #bosh: Syntax Fehler -> Komplettabbruch
 echo "28 'x ~ x''x}\"x}\" #"
 
-#u=x; (echo '29 \c'; pfs foo ${IFS+a"b$u{ {"{ {\}b} c ${IFS+d{}} bar ${IFS-e{}} baz; echo .) 2>/dev/null || echo failed in 29
-#(echo '30 \c'; pfs ${IFS+foo 'b\
-#ar' baz}; echo .) 2>/dev/null || (echo failed in 30; echo failed in 31)
-#(echo '32 \c'; pfs ${IFS+foo "b\
-#ar" baz}; echo .) 2>/dev/null || echo failed in 32
+u=x; (echo '29 \c'; pfs foo ${IFS+a"b$u{ {"{ {\}b} c ${IFS+d{}} bar ${IFS-e{}} baz; echo .) 2>/dev/null || echo failed in 29
+(echo '30 \c'; pfs ${IFS+foo 'b\
+ar' baz}; echo .) 2>/dev/null || (echo failed in 30; echo failed in 31)
+(echo '32 \c'; pfs ${IFS+foo "b\
+ar" baz}; echo .) 2>/dev/null || echo failed in 32
 #bosh: 29 failed in 29
 #bosh: 30 failed in 30
 #bosh: failed in 31
 #bosh: 32 failed in 32
-echo "29 <foo> <abx{ {{> <{}b> <c> <d{}> <bar> <}> <baz> ."
-echo "30 <foo> <b\\
-ar> <baz> ."
-echo "32 <foo> <bar> <baz> ."
+#echo "29 <foo> <abx{ {{> <{}b> <c> <d{}> <bar> <}> <baz> ."
+#echo "30 <foo> <b\\
+#ar> <baz> ."
+#echo "32 <foo> <bar> <baz> ."
 
 (echo '33 \c'; pfs "${IFS+foo 'b\
 ar' baz}"; echo .) 2>/dev/null || echo failed in 33

@@ -1,0 +1,7 @@
+cassi	CMF assist library	Originally for NSE but currently only a stub
+comobj	common object library	In former times, the only library used by SCCS
+mpwlib	libPW			Former "Programmers Workbench" from AT&T UNIX
+sccs	SCCS high level library	Schily SCCS high level code
+
+When linked together as shared library, the code from all these libraries will
+be in libsccs.

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)rmchg.c	1.50 18/12/17 J. Schilling
+ * @(#)rmchg.c	1.51 20/05/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.50 18/12/17 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.51 20/05/08 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -142,6 +142,9 @@ char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
 	routine, and terminate processing.

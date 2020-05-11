@@ -1,8 +1,8 @@
-/* @(#)dump.c	1.41 15/12/07 joerg */
+/* @(#)dump.c	1.42 20/05/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dump.c	1.41 15/12/07 joerg";
+	"@(#)dump.c	1.42 20/05/05 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2015 J. Schilling
+ * Copyright (c) 1999-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -302,8 +302,9 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("devdump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
+		printf(_("devdump %s %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2020 %s\n"),
 					VERSION,
+					VERSION_DATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
 					_("Joerg Schilling"));

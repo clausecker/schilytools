@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)func.c	1.38 20/03/23 2008-2020 J. Schilling
+ * @(#)func.c	1.39 20/04/22 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.38 20/03/23 2008-2020 J. Schilling";
+	"@(#)func.c	1.39 20/04/22 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -252,9 +252,9 @@ prendlst()
 	} else if (nonl) {
 		prc_buff(';');
 		prc_buff(SPACE);
-	}
-	else
+	} else {
 		prc_buff(NL);
+	}
 }
 
 void
@@ -397,6 +397,7 @@ prf(t)
 		int	type;
 
 		type = t->tretyp & COMMSK;
+		didnl = 0;
 
 #ifdef	PARSE_DEBUG
 		prnt(t);

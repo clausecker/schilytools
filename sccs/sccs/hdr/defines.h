@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.113 19/11/11 J. Schilling
+ * @(#)defines.h	1.114 20/05/09 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.113 19/11/11 J. Schilling"
+#pragma ident "@(#)defines.h 1.114 20/05/09 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -859,6 +859,24 @@ extern	void	*dbg_fmalloc __PR((unsigned, char *, int));
  * Setup a callback for fatal() from libmpw
  */
 extern	void	set_clean_up	__PR((void (*f)(void)));
+
+
+/*
+ * Declares for external functions in lib/sccs
+ */
+extern	int	addcmd		__PR((int nfiles, int argc, char **argv));
+extern	int	commitcmd	__PR((int nfiles, int argc, char **argv));
+extern	int	initcmd		__PR((int nfiles, int argc, char **argv));
+extern	int	sccs_debug	__PR((void));
+extern	char	**sccs_getanames	__PR((void));
+extern	int	sccs_getanum	__PR((void));
+extern	int	sccs_setdebug	__PR((int val));
+extern	void	sccs_sethdebug	__PR((void));
+extern	int	removecmd	__PR((int nfiles, int argc, char **argv));
+extern	int	renamecmd	__PR((int nfiles, int argc, char **argv));
+extern	int	rootcmd		__PR((int nfiles, int argc, char **argv));
+extern	int	statuscmd	__PR((int nfiles, int argc, char **argv));
+extern	int	usrerr		__PR((const char *f, ...));
 
 
 # define RESPSIZE	1024

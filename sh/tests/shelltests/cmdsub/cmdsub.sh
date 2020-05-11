@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)cmdsub.sh	1.6 16/08/31 Copyright 2016 J. Schilling
+# @(#)cmdsub.sh	1.7 20/04/22 Copyright 2016-2020 J. Schilling
 #
 
 # Read test core functions
@@ -79,6 +79,16 @@ rand 100000000
 rand 100000000
 XEOF
 docommand cmdsub02 "$SHELL ./x" 0 IGNORE ""
+
+#
+# Check whether "didnl" in func.c is correctly reset.
+#
+docommand cmdsub03 "$SHELL -c 'echo \$( printf a; printf b )
+: \$(
+cat << HERE
+HERE
+)
+echo \$( printf a; printf b ) '" 0 "ab\nab\n" ""
 
 remove x
 success

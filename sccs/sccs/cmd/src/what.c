@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)what.c	1.19 18/12/17 J. Schilling
+ * @(#)what.c	1.20 20/05/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.19 18/12/17 J. Schilling"
+#pragma ident "@(#)what.c 1.20 20/05/08 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -93,6 +93,10 @@ main(argc, argv)
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	tzset();	/* Set up timezome related vars */
+
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 
 	if (argc < 2)
 		dowhat(stdin);

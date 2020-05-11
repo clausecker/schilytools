@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)parameter.sh	1.14 18/10/10 Copyright 2016-2019 J. Schilling
+# @(#)parameter.sh	1.15 20/04/28 Copyright 2016-2020 J. Schilling
 #
 
 # Read test core functions
@@ -185,5 +185,9 @@ docommand param181 "$SHELL -c 'foo=abcdefghij; bar=efg ; echo \${foo%\"\$bar*\"}
 docommand param182 "$SHELL -c 'foo=abcdefghij"\\\\\\"e; bar=efg ; echo \${foo%\"\e\"}'" 0 "abcdefghij\n" ""
 docommand param183 "$SHELL -c 'foo=abcdefghij"\\\\\\"e; bar=efg ; echo \${foo%\e}'" 0 "abcdefghij\\\\\n" ""
 docommand param184 "$SHELL -c 'in=\$1; pre=\${1%?}; out=\${in#\"\$pre\"}; printf [%s] \"\$out\"' -- AB\\\"C" 0 "[C]" ""
+
+docommand param200 "$SHELL -c 'a=; printf \"<%s>\" \"\${a:-\"a b\"}\"'" 0 "<a b>" ""
+docommand param201 "$SHELL -c 'x=\"a*b\"; y=\"a[*]b\"; printf \"<%s>\" \"\${x#\$y}\"'" 0 "<>" ""
+docommand param202 "$SHELL -c 'x=\"a*b\"; y=\"a[*]b\"; printf \"<%s>\" \"\${x#\"\$y\"}\"'" 0 "<a*b>" ""
 
 success

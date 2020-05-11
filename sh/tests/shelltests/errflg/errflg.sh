@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)errflg.sh	1.6 20/04/11 Copyright 2016 J. Schilling
+# @(#)errflg.sh	1.8 20/04/23 Copyright 2016 J. Schilling
 #
 
 # Read test core functions
@@ -69,5 +69,20 @@ docommand ef35 "$SHELL -c 'set -e; a=\`false; echo 1\` : ; echo x \$a'" 0 "x\n" 
 # This is an example from the POSIX standard
 #
 docommand ef50 "$SHELL -c 'set -e; (false; echo one) | cat; echo two'" 0 "two\n" ""
+
+#
+# The "errflg" in variable "flags" is sometimes partially cleared
+# and later restored. Verify that we also use the "eflag" variable
+# to build $-
+#
+docommand ef60 "$SHELL -c 'foo() { echo \$-; set -eu; echo \$-; set --; echo \$-; }; foo; echo \$-' arg" 0 "\neu\neu\neu\n" ""
+
+#
+# Check whether functions are not terminated in the middle wile the return code is used.
+#
+docommand ef70 "$SHELL -ce 'foo() { echo 1; false; echo 2; }; foo'" '!=0' "1\n" ""
+docommand ef71 "$SHELL -c 'set -e; foo() { echo 1; false; echo 2; }; foo'" '!=0' "1\n" ""
+docommand ef72 "$SHELL -ce 'foo() { echo 1; false; echo 2; }; if foo; then :; fi'" 0 "1\n2\n" ""
+docommand ef73 "$SHELL -c 'set -e; foo() { echo 1; false; echo 2; }; if foo; then :; fi'" 0 "1\n2\n" ""
 
 success

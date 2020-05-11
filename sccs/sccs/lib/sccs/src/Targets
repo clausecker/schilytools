@@ -1,0 +1,2 @@
+CFILES=	add.c commit.c debug.c init.c			\
+	remove.c rename.c root.c status.c usrerr.c

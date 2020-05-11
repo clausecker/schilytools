@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)args.c	1.94 20/02/18 2008-2020 J. Schilling
+ * @(#)args.c	1.95 20/04/21 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.94 20/02/18 2008-2020 J. Schilling";
+	"@(#)args.c	1.95 20/04/21 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -394,7 +394,7 @@ again:
 		if ((strcmp((char *)&cp[1], "version") == 0) ||
 		    (cp[1] == '-' && strcmp((char *)&cp[2], "version") == 0)) {
 			cp = UC "-V";
-		} else if (cp[1] == '-') {
+		} else if (cp[1] == '-' && cp[2] == '\0') {
 			/*
 			 * if first argument is "--" then options are not
 			 * to be changed. Fix for problems getting
@@ -729,8 +729,10 @@ setopts()
 {
 	unsigned char	*flagc;
 	unsigned char	*flagp;
+	unsigned long	oflags = flags;
 
 	flagp = flagadr;
+	flags |= eflag;
 	if (flags) {
 		flagc = flagchar;
 		while (flagc < &flagchar[NFLAGCHAR]) {
@@ -740,6 +742,7 @@ setopts()
 		}
 	}
 	*flagp = 0;
+	flags = oflags;
 }
 
 /*

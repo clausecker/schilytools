@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.85 19/11/12 J. Schilling
+ * @(#)get.c	1.86 20/05/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.85 19/11/12 J. Schilling"
+#pragma ident "@(#)get.c 1.86 20/05/08 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -143,6 +143,9 @@ register char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 #ifdef	SCCS_FATALHELP

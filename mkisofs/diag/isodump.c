@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.52 15/12/08 joerg */
+/* @(#)isodump.c	1.53 20/05/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.52 15/12/08 joerg";
+	"@(#)isodump.c	1.53 20/05/05 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2015 J. Schilling
+ * Copyright (c) 1999-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -590,8 +590,9 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
+		printf(_("isodump %s %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2020 %s\n"),
 					VERSION,
+					VERSION_DATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
 					_("Joerg Schilling"));

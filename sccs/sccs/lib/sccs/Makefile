@@ -1,13 +1,13 @@
-#ident @(#)Makefile	1.2 20/05/08 
+#ident @(#)Makefile	1.1 20/05/08 
 ###########################################################################
 # Sample makefile for sub directory makes
 ###########################################################################
-SRCROOT=	../../..
+SRCROOT=	../../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-DIRS=		cassi comobj mpwlib sccs
+DIRS=		src
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.dir

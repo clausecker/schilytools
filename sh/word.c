@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)word.c	1.105 20/03/25 2008-2020 J. Schilling
+ * @(#)word.c	1.106 20/04/27 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.105 20/03/25 2008-2020 J. Schilling";
+	"@(#)word.c	1.106 20/04/27 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -593,6 +593,7 @@ match_block(argp, c, d)
 {
 	unsigned int	cc;
 	unsigned char	*pc;
+	int		parm = 0;
 #ifdef	MATCH_BLOCK_DEBUG
 	UIntptr_t	p = relstakp(argp);
 #endif
@@ -608,7 +609,7 @@ match_block(argp, c, d)
 				*argp++ = *pc++;
 			}
 		}
-		if (c == 0 || c == d)
+		if (c == 0 || ((c == d) && parm <= 0))
 			break;
 		if (c == NL)
 			chkpr();
@@ -634,6 +635,10 @@ match_block(argp, c, d)
 #ifdef	DO_DOL_PAREN
 		if (c == DOLLAR) {
 			argp = dolparen(argp);
+			if (peekn == ('{' | MARK))
+				parm++;
+		} else if (c == '}' && parm) {
+			parm--;
 		}
 #endif
 	}

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.87 19/11/11 J. Schilling
+ * @(#)delta.c	1.89 20/05/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.87 19/11/11 J. Schilling"
+#pragma ident "@(#)delta.c 1.89 20/05/10 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -160,6 +160,9 @@ register char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 #ifdef	SCCS_FATALHELP
@@ -1532,6 +1535,8 @@ struct	packet	*pkt;
 	int	search_on = 0;
 #endif
 	off_t	nline;
+	off_t	soh = -1;
+	int	isctl;
 	int	idx = 0;
 	int	warned = 0;
 	char	chkflags = 0;
@@ -1561,6 +1566,7 @@ struct	packet	*pkt;
 		sum += usum(line, idx);
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
 			chkflags |= CK_CTLCHAR;
+			soh = nline;
 			if ((pkt->p_flags & PF_V6) == 0)
 				goto err;
 			if (!warned) {
@@ -1594,9 +1600,12 @@ struct	packet	*pkt;
 					continue;
 				}
 				fclose(inptr);
+				isctl = soh == nline;
 				sprintf(SccsError,
 				gettext(
-			  "file '%s' contains illegal data on line %jd (de14)"),
+			  isctl ?
+			  "file '%s' begins with '\\001' on line %jd (de20)":
+			  "file '%s' contains '\\000' on line %jd (de14)"),
 				file, (Intmax_t)++nline);
 				fatal(SccsError);
 			}
@@ -1627,8 +1636,12 @@ struct	packet	*pkt;
 		    chkflags |= CK_NULL;
 	err:
 		    fclose(inptr);
+		    isctl = soh == nline;
 		    sprintf(SccsError,
-		      gettext("file '%s' contains illegal data on line %jd (de14)"),
+		      gettext(
+			  isctl ?
+			  "file '%s' begins with '\\001' on line %jd (de20)":
+			  "file '%s' contains '\\000' on line %jd (de14)"),
 		      file, (Intmax_t)nline);
 		    fatal(SccsError);
 		 }

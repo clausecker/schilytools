@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.60 19/09/14 "
+#ident "@(#)rules1.top	1.61 20/05/03 "
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -103,10 +103,19 @@ _XMAKEPROG=	$(__MAKEPROG:$(_UNIQ)%=%)
 # gmake defines a macro MAKE_COMMAND. If neither MAKE_NAME is defined by 
 # the make program, nor MAKEPROG is set, try this to recognize gmake.
 #
-_MAKE_COMMAND=	$(MAKE_COMMAND:%make=gmake)
+_GMAKE_COMMAND=	$(_UNIQ)$(MAKE_COMMAND)
+__GMAKE_COMMAND= $(_GMAKE_COMMAND:%make=gmake)
+___GMAKE_COMMAND= $(__GMAKE_COMMAND:$(_UNIQ)%=)
+
+# bmake defined a macro .MAKE. If neither MAKE_NAME is defined by
+# the make program, nor MAKEPROG is set, try this to recognize bmake.
+#
+_BMAKE_COMMAND=	$(_UNIQ)$(.MAKE)
+__BMAKE_COMMAND= $(_BMAKE_COMMAND:%make=bsdmake)
+___BMAKE_COMMAND= $(__BMAKE_COMMAND:$(_UNIQ)%=)
 
 __XMAKEPROG=	$(_UNIQ)$(_XMAKEPROG)
-___XMAKEPROG=	$(__XMAKEPROG:$(_UNIQ)=$(_MAKE_COMMAND))
+___XMAKEPROG=	$(__XMAKEPROG:$(_UNIQ)=$(___GMAKE_COMMAND)$(___BMAKE_COMMAND))
 XMAKEPROG=	$(___XMAKEPROG:$(_UNIQ)%=%)
 
 include		$(SRCROOT)/$(RULESDIR)/mk-$(XMAKEPROG).id

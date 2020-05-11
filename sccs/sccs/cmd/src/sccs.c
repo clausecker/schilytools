@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.108 20/01/30 J. Schilling
+ * @(#)sccs.c	1.114 20/05/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.108 20/01/30 J. Schilling"
+#pragma ident "@(#)sccs.c 1.114 20/05/10 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -43,6 +43,7 @@ static UConst char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/sigset.h>
+#include <schily/getopt.h>
 #include <schily/sysexits.h>
 #ifndef	EX_OK
 #define	EX_OK 0
@@ -283,7 +284,6 @@ static struct p_file *getpfent __PR((FILE *pfp));
 static int checkpfent __PR((struct p_file *pf));
 static char *nextfield __PR((register char *p));
 static void putpfent __PR((register struct p_file *pf, register FILE *f));
-static int  usrerr	__PR((const char *f, ...));
 static void syserr	__PR((const char *f, ...));
 static char *gstrcat __PR((char *to, char *from, unsigned int xlength));
 static char *gstrncat __PR((char *to, char *from, int n, unsigned int xlength));
@@ -293,21 +293,12 @@ static int diffs __PR((int nfiles, char **argv));
 static void do_diffs __PR((char *file));
 static int enter __PR((int nfiles, char **argv));
 static int editor __PR((int nfiles, char **argv));
-static int istext __PR((int nfiles, char **argv));
-static int addcmd __PR((int nfiles, char **argv));
-static int commitcmd __PR((int nfiles, char **argv));
-static int initcmd __PR((int nfiles, char **argv));
-static int initdir __PR((char *path, int intree));
-static int removecmd __PR((int nfiles, char **argv));
-static int renamecmd __PR((int nfiles, char **argv));
-static int rootcmd __PR((int nfiles, char **argv));
-static int statuscmd __PR((int nfiles, char **argv));
+static int istext __PR((int nfiles, int argc, char **argv));
 static char *makegfile __PR((char *name));
 #ifdef	USE_RECURSIVE
 static int dorecurse __PR((char **argv, char **np, char *dir, struct sccsprog *cmd));
 #endif
 static int fgetchk	__PR((char *file, int dov6, int silent));
-static void sethdebug	__PR((void));
 
 /* values for sccsoper */
 #define	PROG		0	/* call a program */
@@ -371,9 +362,11 @@ static struct sccsprog SccsProg[] =
 	{ "what",	PROG,	NO_SDOT|NO_N,		PROGPATH(what) },
 #ifndef V6
 	{ "sccsdiff",	PROG,	REALUSER,		PROGPATH(sccsdiff) },
+	{ "sccsdiffs",	PROG,	REALUSER,		PROGPATH(sccsdiff) },
 	{ "rcs2sccs",	PROG,	REALUSER|NO_N,		PROGPATH(rcs2sccs) },
 #else
 	{ "sccsdiff",	SHELL,	REALUSER,		PROGPATH(sccsdiff) },
+	{ "sccsdiffs",	SHELL,	REALUSER,		PROGPATH(sccsdiff) },
 	{ "rcs2sccs",	SHELL,	REALUSER|NO_N,		PROGPATH(rcs2sccs) },
 #endif /* V6 */
 	{ "edit",	CMACRO,	RF_OK|NO_SDOT,		"get -e" },
@@ -660,7 +653,7 @@ main(argc, argv)
 
 #ifdef DEBUG
 			  case 'T':		/* trace */
-				Debug++;
+				sccs_setdebug(++Debug);
 				break;
 #endif
 
@@ -851,6 +844,7 @@ command(argv, forkflag, arg0)
 	char **np, *nextp;
 	register char **ap;
 	register char *q;
+	int ac = 0;
 	int rval = 0;
 	int hady = 0;
 	int len;
@@ -1382,6 +1376,7 @@ command(argv, forkflag, arg0)
 	   nfiles++;
 	}
 	*np = NULL;
+	ac = np - ap;
 
 	/*
 	**  Interpret operation associated with this command.
@@ -1675,35 +1670,35 @@ command(argv, forkflag, arg0)
 		break;
 
 	  case ISTEXT:		/* check whether file needs encoding */
-		rval = istext(nfiles, ap);
+		rval = istext(nfiles, ac, ap);
 		break;
 
 	  case ADD:		/* add specified files on next commit  */
-		rval = addcmd(nfiles, ap);
+		rval = addcmd(nfiles, ac, ap);
 		break;
 
 	  case COMMIT:		/* commit changes to project repository */
-		rval = commitcmd(nfiles, ap);
+		rval = commitcmd(nfiles, ac, ap);
 		break;
 
 	  case INIT:		/* initialize empty project repository */
-		rval = initcmd(nfiles, ap);
+		rval = initcmd(nfiles, ac, ap);
 		break;
 
 	  case REMOVE:		/* remove specified files on next commit  */
-		rval = removecmd(nfiles, ap);
+		rval = removecmd(nfiles, ac, ap);
 		break;
 
 	  case RENAME:		/* rename specified files on next commit  */
-		rval = renamecmd(nfiles, ap);
+		rval = renamecmd(nfiles, ac, ap);
 		break;
 
 	  case ROOT:		/* show project root directory */
-		rval = rootcmd(nfiles, ap);
+		rval = rootcmd(nfiles, ac, ap);
 		break;
 
 	  case STATUS:		/* show changed files in the project */
-		rval = statuscmd(nfiles, ap);
+		rval = statuscmd(nfiles, ac, ap);
 		break;
 
 	  default:
@@ -2949,51 +2944,6 @@ putpfent(pf, f)
 }
 
 /*
-**  USRERR -- issue user-level error
-**
-**	Parameters:
-**		f -- format string.
-**		p1-p3 -- parameters to a printf.
-**
-**	Returns:
-**		-1
-**
-**	Side Effects:
-**		none.
-*/
-
-#ifdef	PROTOTYPES
-static int
-usrerr(const char *f, ...)
-#else
-static int
-usrerr(f, va_alist)
-	const char	*f;
-	va_dcl
-#endif
-{
-	va_list	ap;
-
-#ifdef	PROTOTYPES
-	va_start(ap, f);
-#else
-	va_start(ap);
-#endif
-	fprintf(stderr, "\n%s: ", MyName);
-	vfprintf(stderr, f, ap);
-	fprintf(stderr, "\n");
-	va_end(ap);
-
-#ifdef	SCCS_FATALHELP
-	if (strchr(f, '(')) {
-		sccsfatalhelp((char *)f);
-		errno = 0;
-	}
-#endif
-	return (-1);
-}
-
-/*
 **  SYSERR -- print system-generated error.
 **
 **	Parameters:
@@ -3462,50 +3412,61 @@ editor(nfiles, argv)
 }
 
 static int
-istext(nfiles, argv)
+istext(nfiles, argc, argv)
 	int	nfiles;
+	int	argc;
 	char	**argv;
 {
-	int	rval = 0;
+	int	rval;
 	char	**np;
-	char	**ap = argv;
 	int	silent = 0;
 	int	dov6 = 0;
 	int	files = 0;
 
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
+	optind = 1;
+	opt_sp = 1;
+	while ((rval = getopt(argc, argv, ":sV:")) != -1) {
+		switch (rval) {
 
-			case 's':
-				silent = TRUE;
+		case 's':
+			silent = TRUE;
+			break;
+		case 'V':
+			switch (*optarg) {
+			case '4':
+				dov6 = FALSE;
 				break;
-			case 'V':
-				switch ((*np)[2]) {
-				case '4':
-					dov6 = FALSE;
-					break;
-				case '6':
-					dov6 = TRUE;
-					break;
-				default:
-					usrerr("%s %s",
-					    gettext("unknown option"),
-					    *np);
-					rval = EX_USAGE;
-					exit(EX_USAGE);
-					break;
-				}
+			case '6':
+				dov6 = TRUE;
 				break;
 			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
+				usrerr("%s -V%s",
+				    gettext("unknown option"),
+				    optarg);
 				rval = EX_USAGE;
 				exit(EX_USAGE);
 				break;
 			}
-			continue;
+			break;
+		case ':':
+			usrerr("%s %s",
+				gettext("option requires an argument"),
+				argv[optind-1]);
+			rval = EX_USAGE;
+			exit(EX_USAGE);
+			/*NOTREACHED*/
+		default:
+			usrerr("%s %s",
+				gettext("unknown option"),
+				argv[optind-1]);
+			rval = EX_USAGE;
+			exit(EX_USAGE);
+			/*NOTREACHED*/
 		}
+	}
+
+	rval = 0;
+	for (np = &argv[optind]; *np != NULL; np++) {
 		files |= 1;
 		rval |= fgetchk(*np, dov6, silent);
 	}
@@ -3516,604 +3477,6 @@ istext(nfiles, argv)
 	}
 	return (rval);
 }
-
-/*
- * Code to support project enhancements for SCCS.
- * This is mainly the project set home directory, the directory ".sccs" in that
- * directory and the changeset file.
- */
-static char	**anames;
-static int	alen;
-static int	anum;
-static int	addfile		__PR((char *file));
-static void	free_anames	__PR((void));
-static int	readncache	__PR((void));
-static int	addcmp		__PR((const void *file1, const void *file2));
-static void	cvtpath		__PR((char *nm, char *nbuf, size_t nbsize,
-					int cwd, int phome));
-
-/*
- * Add a single file name to the array of files that describes the project.
- */
-static int
-addfile(file)
-	char	*file;
-{
-	if (alen <= anum) {
-		alen += 128;
-		anames = realloc(anames, alen * sizeof (char *));
-		if (anames == NULL)
-			efatal("out of space (ut9)");
-	}
-	if ((anames[anum++] = strdup(file)) == NULL)
-		efatal("out of space (ut9)");
-	return (0);
-}
-
-/*
- * Free old strings from anames[].
- */
-static void
-free_anames()
-{
-	int	i;
-
-	for (i = 0; i < anum; i++) {
-		free(anames[i]);
-	}
-	anames = 0;
-}
-
-/*
- * Read the current name cache file and keep it in an in core array.
- */
-static int
-readncache()
-{
-	char	nbuf[FILESIZE];
-	char	lbuf[MAXLINE];
-	FILE	*nfp;
-
-	strlcpy(nbuf, setrhome, sizeof (nbuf));
-	strlcat(nbuf, "/.sccs/ncache", sizeof (nbuf));
-	nfp = fopen(nbuf, "rb");
-	if (nfp == NULL) {
-		return (-1);
-	}
-
-	/*
-	 * Reset old entries in anames[].
-	 * Then read in the file.
-	 */
-	free_anames();
-	while (fgets(lbuf, sizeof (lbuf), nfp) != NULL) {
-		size_t	llen = strlen(lbuf);
-
-		if (llen > 0 && lbuf[llen-1] == '\n')
-			lbuf[llen-1] = '\0';
-		addfile(lbuf);
-	}
-	fclose(nfp);
-	return (0);
-}
-
-/*
- * Add compare function for qsort().
- * Note that we do not compare the time_t field and thus use an offset of 15,
- * see below for the format used for this string.
- */
-static int
-addcmp(file1, file2)
-	const void	*file1;
-	const void	*file2;
-{
-	int	ret = strcmp(&(*(char **)file1)[15], &(*(char **)file2)[15]);
-
-	if (ret == 0) {
-		Ffile = &(*(char **)file1)[15];
-		fatal(gettext("already tracked (sc4)"));
-	}
-	return (ret);
-}
-
-/*
- * Convert a path name that is relative to the current working directory into
- * a path name that is relative to the change set home directory and normalize
- * the resulting path name.
- */
-static void
-cvtpath(nm, nbuf, nbsize, cwd, phome)
-	char	*nm;		/* The file name argument */
-	char	*nbuf;		/* The file name output buffer */
-	size_t	nbsize;		/* The size of the file name output buffer */
-	int	cwd;		/* File descriptor to working dir */
-	int	phome;		/* File descriptor to change set home dir */
-{
-	char	npbuf[FILESIZE];
-	size_t	npboff;
-	int	nlen;
-	char	*name;
-
-	name = nm;
-	npboff = 0;
-	if (cwdprefix[0] && name[0] != '/') {
-		/*
-		 * We are not in the change set home directory and
-		 * "name" is not an absolute path name.
-		 * Copy the cwd prefix before the path to get a path
-		 * name that is relative to the the change set home.
-		 */
-		strlcpy(&npbuf[npboff], cwdprefix, sizeof (npbuf) - npboff);
-		npboff += cwdprefixlen;
-		strlcpy(&npbuf[npboff], "/", sizeof (npbuf) - npboff);
-		npboff += 1;
-		strlcpy(&npbuf[npboff], name, sizeof (npbuf) - npboff);
-		name = npbuf;
-	}
-	/*
-	 * Since all our path names are relative to the change set
-	 * home directory, we need to fchdir() to that directory before
-	 * we normalize the path name.
-	 */
-	if (*nm != '/' && fchdir(phome) < 0) {
-		Ffile = setahome ? setahome : setrhome;
-		efatal("cannot change directory (cm16)");
-	}
-	nlen = resolvepath(name, nbuf, nbsize);	/* Must exist */
-	if (nlen < 0) {
-		efatal("path conversion error (cm12)");
-	} else if (nlen >= nbsize) {
-		fatal("resolved path too long (cm13)");
-	} else {
-		/*
-		 * While the libschily implementation null terminates
-		 * the names, this is not the case for the Solaris
-		 * syscall resolvepath().
-		 */
-		nbuf[nlen] = '\0';
-
-		/*
-		 * If the resulting name is an absolute path that starts
-		 * with the absolute change set home directory string,
-		 * try to make it relative by removing the absolute home
-		 * path string.
-		 *
-		 * If the remaining path is not inside the change set
-		 * home tree, abort.
-		 */
-		if (nbuf[0] == '/' && setahome)
-			make_relative(nbuf);
-		if (!in_tree(nbuf)) {
-			Ffile = nbuf;
-			fatal("not in tree (cm17)");
-		}
-	}
-	/*
-	 * Chdir() back to our previous working directory since all
-	 * file arguments are relative to that directory.
-	 */
-	if (*nm != '/' && fchdir(cwd) < 0) {
-		Ffile = ".";
-		efatal("cannot change directory (cm16)");
-	}
-}
-
-/*
- * Add file to the current file set for the current change set.
- * This command always needs to have file type argument(s).
- */
-static int
-addcmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	char	nbuf[FILESIZE];
-	size_t	nboff;
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-	int	cwd = -1;	/* File descriptor to cwd */
-	int	phome = -1;	/* File descriptor to project home */
-	struct stat statb;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		if (files == 0) {
-			/*
-			 * In order to keep the first implementation simple,
-			 * we assume that the current working directory is
-			 * always inside the change set tree and that all
-			 * file arguments are from the same change set.
-			 *
-			 * XXX If we like to enhance this, we first need to
-			 * XXX find what we like to support.
-			 */
-			checkhome(NULL);	/* No project set home: abort */
-			readncache();		/* Read already known files */
-
-			cwd = opencwd();
-			phome = openphome();
-		}
-		files |= 1;
-		/*
-		 * 12 digits work from year -1199 up to year 33658 but we may
-		 * need to check for strange time stamps if time_t has more
-		 * that 32 bits since such a strange time stamp could cause
-		 * an overflow in the string below.
-		 */
-		strlcpy(nbuf, "A 000000000000 ", sizeof (nbuf));
-		if (stat(*np, &statb) < 0)
-			xmsg(*np, NOGETTEXT("add"));
-#if SIZEOF_TIME_T > 4
-		if (statb.st_mtime > 999999999999L ||
-		    statb.st_mtime < -99999999999L)
-			efatal("file not in supported time range (cm15)");
-#endif
-		sprintf(&nbuf[2], "%12ld ", (long)statb.st_mtime);
-		nboff = 15;
-		cvtpath(*np, &nbuf[nboff], sizeof (nbuf) - nboff, cwd, phome);
-		addfile(nbuf);
-	}
-	closedirfd(cwd);
-	closedirfd(phome);
-
-	if (files == 0) {
-		usrerr(gettext(" missing file arg (cm3)"));
-	} else {
-		FILE	*nfp;
-		int	i;
-
-		qsort((void *)anames, anum, sizeof (char *), addcmp);
-
-		strlcpy(nbuf, setrhome, sizeof (nbuf));
-		strlcat(nbuf, "/.sccs/ncache", sizeof (nbuf));
-		nfp = xfcreat(nbuf, 0666);
-		for (i = 0; i < anum; i++) {
-			fputs(anames[i], nfp);
-			fputs("\n", nfp);
-		}
-		fclose(nfp);
-	}
-	return (rval);
-}
-
-static int
-commitcmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		if (files == 0) {
-			checkhome(NULL);	/* No project set home: abort */
-		}
-		files |= 1;
-/*		rval |= initdir(*np, flags);*/
-	}
-	if (files == 0) {
-/*		rval |= initdir(".", flags);*/
-		checkhome(NULL);		/* No project set home: abort */
-	}
-	fprintf(stderr, gettext("sccs: 'commit' not yet implemented\n"));
-	rval = 1;
-	return (rval);
-}
-
-/*
- * Init directories for use with the project enhanced variant of SCCS.
- * This creates a directory named ".sccs" in the projects root directory.
- * The important content of that directory is the changeset history file.
- */
-static int
-initcmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	flags = 0;
-	int	files = 0;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-#define	IF_INTREE	1
-			case 'i':
-				flags |= IF_INTREE;
-				break;
-
-#define	IF_FORCE	2
-			case 'f':
-				flags |= IF_FORCE;
-				break;
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		files |= 1;
-		rval |= initdir(*np, flags);
-	}
-	if (files == 0) {
-		rval |= initdir(".", flags);
-	}
-	xsethome(NULL);
-	return (rval);
-}
-
-/*
- * Initialize a directory as root directory for a project enhanced SCCS.
- * This creates a directory named ".sccs" in the projects root directory.
- * The important content of that directory is the changeset history file.
- * The default is to have the SCCS history files for the files in the
- * project in $PROJECTROOT/.sccs/data but the files may be in the historic
- * location if the bit IF_INTREE is set in "flags".
- */
-LOCAL int
-initdir(hpath, flags)
-	char	*hpath;
-	int	flags;
-{
-	char	nbuf[FILESIZE];
-	int	err = 0;
-
-	resolvenpath(hpath, nbuf, sizeof (nbuf));	/* May not yet exist */
-	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-
-	unsethome();					/* Forget old home */
-	xsethome(hpath);
-
-	if (Debug) {
-		sethdebug();
-	}
-
-	if ((flags & IF_FORCE) == 0 && SETHOME_INIT()) {
-		int	Oflags = Fflags;
-
-		Fflags &= ~FTLACT;
-		Ffile = setahome ? setahome : setrhome;
-		fatal(gettext("already initialized (sc3)"));
-		Ffile = NULL;
-		Fflags = Oflags;
-		return (1);
-	}
-
-	strlcat(nbuf, "/.sccs", sizeof (nbuf));
-	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-	strlcat(nbuf, "/SCCS", sizeof (nbuf));
-	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-	nbuf[strlen(nbuf) -4] = '\0';
-	strlcat(nbuf, "dels", sizeof (nbuf));
-	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-	strlcat(nbuf, "/SCCS", sizeof (nbuf));
-	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-	if ((flags & IF_INTREE) == 0) {
-		nbuf[strlen(nbuf) -9] = '\0';
-		strlcat(nbuf, "data", sizeof (nbuf));
-		xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
-	}
-	unsethome();
-	return (err);
-}
-
-static int
-removecmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		if (files == 0) {
-			checkhome(NULL);	/* No project set home: abort */
-		}
-		files |= 1;
-/*		rval |= initdir(*np, flags);*/
-	}
-	if (files == 0) {
-/*		rval |= initdir(".", flags);*/
-		checkhome(NULL);		/* No project set home: abort */
-	}
-	fprintf(stderr, gettext("sccs: 'remove' not yet implemented\n"));
-	rval = 1;
-	return (rval);
-}
-
-static int
-renamecmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		if (files == 0) {
-			checkhome(NULL);	/* No project set home: abort */
-		}
-		files |= 1;
-/*		rval |= initdir(*np, flags);*/
-	}
-	if (files == 0) {
-/*		rval |= initdir(".", flags);*/
-		checkhome(NULL);		/* No project set home: abort */
-	}
-	fprintf(stderr, gettext("sccs: 'rename' not yet implemented\n"));
-	rval = 1;
-	return (rval);
-}
-
-static int
-rootcmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-	int	verbose = 0;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			case 'v':
-				verbose++;
-				break;
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		files |= 1;
-		unsethome();
-		sethome(*np);
-		break;
-	}
-	if (verbose) {
-		xsethome(NULL);	/* Only abort in case of error */
-		sethdebug();
-	} else {
-		checkhome(NULL); /* No complete project set home: abort */
-		printf("%s\n",
-			setahome != NULL ? setahome :
-			setrhome != NULL ? setrhome : "ERROR");
-	}
-	return (rval);
-}
-
-static int
-statuscmd(nfiles, argv)
-	int	nfiles;
-	char	**argv;
-{
-	int	rval = 0;
-	char	**np;
-	char	**ap = argv;
-	int	files = 0;
-	int	i;
-
-	for (np = &ap[1]; *np != NULL; np++) {
-		if (**np == '-') {
-			/* we have a flag */
-			switch ((*np)[1]) {
-
-			default:
-				usrerr("%s %s", gettext("unknown option"), *np);
-				rval = EX_USAGE;
-				exit(EX_USAGE);
-				break;
-			}
-			continue;
-		}
-		if (files == 0) {
-			checkhome(NULL);	/* No project set home: abort */
-			readncache();		/* Read already known files */
-		}
-		files |= 1;
-/*		rval |= initdir(*np, flags);*/
-	}
-	if (files == 0) {
-/*		rval |= initdir(".", flags);*/
-		checkhome(NULL);		/* No project set home: abort */
-	}
-	for (i = 0; i < anum; i++) {
-		char	nbuf[FILESIZE];
-		int	nlen;
-		struct stat statb;
-
-		if (stat(anames[i]+13, &statb) < 0)
-			xmsg(*np, NOGETTEXT("add"));
-
-		nlen = resolvepath(anames[i]+13, nbuf, sizeof (nbuf));
-		if (nlen < 0) {
-			efatal("path conversion error (cm12)");
-		} else if (nlen >= sizeof (nbuf)) {
-			fatal("resolved path too long (cm13)");
-		} else {
-			/*
-			 * While the libschily implementation null terminates
-			 * the names, this is not the case for the Solaris
-			 * syscall resolvepath().
-			 */
-			nbuf[nlen] = '\0';
-		}
-	}
-	return (rval);
-}
-/*
- * End of code to support project enhancements for SCCS.
- */
 
 /*
 **  MAKEGFILE -- make filename of clear file
@@ -4540,8 +3903,9 @@ fgetchk(file, dov6, silent)
 	char	*p = NULL;	/* Intialize to make gcc quiet */
 	char	*pn =  NULL;
 	char	line[VBUF_SIZE];
-	int	nline, idx = 0;
-	int	soh = 0;
+	int	idx = 0;
+	off_t	nline;
+	off_t	soh = 0;
 	int	err = 0;
 	char	lastchar;
 
@@ -4571,8 +3935,10 @@ fgetchk(file, dov6, silent)
 	 */
 	while ((idx = fread(line, 1, sizeof (line), inptr)) > 0) {
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
-			if (soh == 0 && !dov6)
+			if (soh == 0 && !dov6) {
 				soh = nline + 1;
+				goto issoh;
+			}
 		}
 		lastchar = line[idx-1];
 		p = findbytes(line, idx, '\0');
@@ -4582,13 +3948,14 @@ fgetchk(file, dov6, silent)
 		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
 			if (pn && p > pn) {
 	errout:
-				fclose(inptr);
+				if (inptr)
+					fclose(inptr);
 				if (silent)
 					return (1);
 				fprintf(stderr,
 				gettext(
-				"%s: illegal data on line %d (de14)\n"),
-				file, ++nline);
+				"%s: line %jd contains '\\000' (de14)\n"),
+				file, (Intmax_t)++nline);
 				return (1);
 			}
 			nline++;
@@ -4596,18 +3963,22 @@ fgetchk(file, dov6, silent)
 				break;
 
 			if (p[1] == CTLCHAR) {
-				if (soh == 0 && !dov6)
+				if (soh == 0 && !dov6) {
 					soh = nline + 1;
+					goto issoh;
+				}
 			}
 		}
 	}
+issoh:
 	fclose(inptr);
+	inptr = NULL;
 	if (soh) {
 		if (!silent)
 			fprintf(stderr,
 			gettext(
-			"%s: line %d begins with '\\001' (de20)\n"),
-				file, soh);
+			"%s: line %jd begins with '\\001' (de20)\n"),
+				file, (Intmax_t)soh);
 		err = 1;
 	}
 	if (lastchar != '\n') {
@@ -4622,36 +3993,4 @@ fgetchk(file, dov6, silent)
 		err = 1;
 	}
 	return (err);
-}
-
-LOCAL void
-sethdebug()
-{
-	printf(gettext("setahome:  '%s'\n"),
-					setahome != NULL ? setahome : "NULL");
-	printf(gettext("setphome:  '%s'\n"),
-					setphome != NULL ? setphome : "NULL");
-	printf(gettext("setrhome:  '%s'\n"),
-					setrhome != NULL ? setrhome : "NULL");
-	printf(gettext("cwdprefix: '%s'\n"),
-					cwdprefix != NULL ? cwdprefix : "NULL");
-	printf(gettext("homedist:  %d\n"),
-					homedist);
-	printf(gettext("setahomelen: %d\n"),
-					setahomelen);
-	printf(gettext("setphomelen: %d\n"),
-					setphomelen);
-	printf(gettext("setrhomelen: %d\n"),
-					setrhomelen);
-	printf(gettext("cwdprefixlen: %d\n"),
-					cwdprefixlen);
-	printf(gettext("sethomestat: 0x%8.8X\n"),
-					sethomestat);
-	printf(gettext("sethome OK: %d INIT: %d OFFTREE: %d DELS %d\n"),
-					(sethomestat & SETHOME_OK) != 0,
-					SETHOME_INIT(),
-					(sethomestat & SETHOME_OFFTREE) != 0,
-					(sethomestat & SETHOME_DELS_OK) != 0);
-	if ((sethomestat & SETHOME_OK) && (sethomestat & SETHOME_DELS_OK) == 0)
-		printf(gettext("WARNING: Uninitialized .sccs directory found.\n"));
 }

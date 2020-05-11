@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)macro.c	1.99 20/01/26 2008-2020 J. Schilling
+ * @(#)macro.c	1.100 20/04/27 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.99 20/01/26 2008-2020 J. Schilling";
+	"@(#)macro.c	1.100 20/04/27 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -367,6 +367,7 @@ retry:
 			unsigned char	*argp, *v = NULL;
 			unsigned char		idb[2];
 			unsigned char		*id = idb;
+			unsigned char	oquote;
 
 			*id = '\0';
 
@@ -560,9 +561,11 @@ docolon:
 					    (nulflg && *v == 0)) ^
 					    (setchar(c))) {
 						int	ntrim = trimflag;
+
+						oquote = quote;
 #ifdef	DO_SUBSTRING
 						if (c == '#' || c == '%') {
-							int	nc = readwc();
+							unsigned int	nc;
 
 #ifdef	__needed__
 							/*
@@ -570,14 +573,24 @@ docolon:
 							 */
 							ntrim = 0;
 #endif
+							nc = readwc();
 							if (nc == c) {
 								largest++;
 							} else {
 								peekc = nc|MARK;
 							}
+							quote = 0;
+						} else {
+							unsigned int	nc;
+
+							nc = readwc();
+							if (nc == DQUOTE)
+								quote = 0;
+							peekc = nc|MARK;
 						}
 #endif
 						copyto('}', ntrim);
+						quote = oquote;
 					} else {
 						skipto('}');
 					}
@@ -608,6 +621,7 @@ docolon:
 						error(badsub);
 						return (EOF);
 					}
+#ifdef	__needed__
 					if (quote) {
 						/*
 						 * This is a copy that we may
@@ -615,6 +629,7 @@ docolon:
 						 */
 						trim(argp);
 					}
+#endif
 
 					/*
 					 * Treat double quotes in glob pattern.

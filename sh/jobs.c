@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)jobs.c	1.111 20/04/17 2008-2020 J. Schilling
+ * @(#)jobs.c	1.112 20/04/26 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.111 20/04/17 2008-2020 J. Schilling";
+	"@(#)jobs.c	1.112 20/04/26 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1258,9 +1258,6 @@ postjob(pid, fg, blt)
 		*nextjob = thisjob;
 		thisjob->j_curp = jobcur;
 		jobcur = thisjob;
-#ifdef	DO_PIPE_PARENT
-		resetjobfd();	/* Restore stdin in case it was moved away. */
-#endif
 	}
 
 	/*
