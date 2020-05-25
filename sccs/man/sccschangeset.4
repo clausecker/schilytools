@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)sccschangeset.4	1.9 19/11/06 Copyright 2011-2015 J. Schilling 
+.\" @(#)sccschangeset.4	1.10 20/05/14 Copyright 2011-2015 J. Schilling 
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccschangeset 4 "2019/11/06" "J\*org Schilling" "File Formats"
+.TH sccschangeset 4 "2020/05/14" "J\*org Schilling" "File Formats"
 .SH NAME
 sccschangeset \- format of an SCCS changeset file
 .SH DESCRIPTION
@@ -204,6 +204,53 @@ file may look like:
   0e31666e43286|1.3|45206|15|some/dir/file.c
 .sp
 .LP
+
+.br
+.ne 5
+.SH FILES
+.LP
+The
+.B sccs init
+command creates an initial framework of directories and files that
+allow to maintain a set of files in project mode.
+The following directory structure is created:
+.TP 12
+.IB projecthome /.sccs/
+The location of
+.B SCCS
+files in case that
+.B SCCS
+is in project mode.
+.br
+.ne 3
+.TP
+.IB projecthome /.sccs/data
+The location of the
+.B SCCS
+off-tree shadow directory tree that holds the history files for
+all files under control of
+.B SCCS
+when in project mode.
+.br
+.ne 3
+.TP
+.IB projecthome /.sccs/dels
+The location of the history files from deleted files that have been
+in the repository.
+.br
+.ne 3
+.TP
+.IB projecthome /.sccs/SCCS/s.changeset
+The project specific changeset file is in the directory
+.B .sccs
+in the project set home directory.
+This is the central database that allows to retrieve the
+relation between project versions and file specific versions.
+Only the 
+.B s.changeset
+file is present, a related
+.B g-file
+does not exist.
 
 .br
 .ne 5

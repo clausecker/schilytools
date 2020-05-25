@@ -1,10 +1,27 @@
 #! /bin/sh
 #
-# @(#)trap.sh	1.6 20/04/25 Copyright 2017-2019 J. Schilling
+# @(#)trap.sh	1.7 20/05/11 Copyright 2017-2020 J. Schilling
 #
 
 # Read test core functions
 . ../../common/test-common
+
+#
+# NetBSD has only /usr/bin/true, Linux has only /bin/true
+#
+# Fallback assignment first:
+PTRUE=/bin/true
+PFALSE=/bin/false
+#
+# Now a check...
+#
+if /usr/bin/true 2>/dev/null; then
+	PTRUE=/usr/bin/true
+	PFALSE=/usr/bin/false
+elif /bin/true 2>/dev/null; then
+	PTRUE=/bin/true
+	PFALSE=/bin/false
+fi
 
 #
 # Basic tests to check whether trap works as expected.
@@ -45,16 +62,16 @@ if $is_bosh; then
 docommand trap50 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false; true'" 0 "exit code 1\n" ""
 docommand trap51 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false'" 1 "exit code 1\n" ""
 docommand trap51 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; false || true'" 0 "" ""
-docommand trap53 "$SHELL -c 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; /bin/false; /bin/true'" 0 "exit code != 0\n" ""
-docommand trap54 "$SHELL -c 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; /bin/false'" "!=0" "exit code != 0\n" ""
-docommand trap55 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; /bin/false || /bin/true'" 0 "" ""
+docommand trap53 "$SHELL -c 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; $PFALSE; $PTRUE'" 0 "exit code != 0\n" ""
+docommand trap54 "$SHELL -c 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; $PFALSE'" "!=0" "exit code != 0\n" ""
+docommand trap55 "$SHELL -c 'trap \"echo exit code \\\$?\" ERR; $PFALSE || $PTRUE'" 0 "" ""
 
 docommand trap60 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false; true'" 1 "exit code 1\n" ""
 docommand trap61 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false'" 1 "exit code 1\n" ""
 docommand trap61 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; false || true'" 0 "" ""
-docommand trap63 "$SHELL -ce 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; /bin/false; /bin/true'" "!=0" "exit code != 0\n" ""
-docommand trap64 "$SHELL -ce 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; /bin/false'" "!=0" "exit code != 0\n" ""
-docommand trap65 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; /bin/false || /bin/true'" 0 "" ""
+docommand trap63 "$SHELL -ce 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; $PFALSE; $PTRUE'" "!=0" "exit code != 0\n" ""
+docommand trap64 "$SHELL -ce 'trap \"[ \\\$? -ne 0 ] && echo exit code != 0\" ERR; $PFALSE'" "!=0" "exit code != 0\n" ""
+docommand trap65 "$SHELL -ce 'trap \"echo exit code \\\$?\" ERR; $PFALSE || $PTRUE'" 0 "" ""
 fi
 
 success

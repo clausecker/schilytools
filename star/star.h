@@ -1,6 +1,6 @@
-/* @(#)star.h	1.149 19/11/29 Copyright 1985, 1995-2019 J. Schilling */
+/* @(#)star.h	1.150 20/05/12 Copyright 1985, 1995-2020 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2019 J. Schilling
+ *	Copyright (c) 1985, 1995-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -842,11 +842,17 @@ typedef struct {
 #undef	isdigit		/* Needed for HP-UX */
 #endif
 #define	isdigit(c)	((c) >= '0' && (c) <= '9')
+#ifdef	isoctal
+#undef	isoctal		/* Needed if aclutils.h is present */
+#endif
 #define	isoctal(c)	((c) >= '0' && (c) <= '7')
 #ifdef	isupper
 #undef	isupper		/* Needed for HP-UX */
 #endif
 #define	isupper(c)	((c) >= 'A' && (c) <= 'Z')
+#ifdef	toupper
+#undef	toupper		/* Needed if aclutils.h is present */
+#endif
 #define	toupper(c)	(isupper(c) ? (c) : (c) - ('a' - 'A'))
 /*
  * Needed for QNX

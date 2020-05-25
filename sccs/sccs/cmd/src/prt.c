@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)prt.c	1.42 20/05/08 J. Schilling
+ * @(#)prt.c	1.44 20/05/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.42 20/05/08 J. Schilling"
+#pragma ident "@(#)prt.c 1.44 20/05/19 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -72,6 +72,7 @@
 #define	BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
 
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static FILE *iptr;
 static char *line = NULL;
 static size_t line_size = 0;
@@ -209,7 +210,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "()-r:c:y:esdaiuftbtN:V(version)");
+			c = getopt(argc, argv, "()-r:c:y:esdaiuftbtN:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -294,6 +295,14 @@ char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				printf(gettext(
 				    "prt %s-SCCS version %s %s (%s-%s-%s)\n"),
@@ -304,7 +313,8 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: prt [ -abdefistu ][ -c date-time ]\n\t[ -r date-time ][ -ySID ][ -N[bulk-spec]] s.filename..."));
+			err:
+				fatal(gettext("Usage: prt [ -abdefistu ][ -c date-time ]\n\t[ -r date-time ][ -ySID ][ -N[bulk-spec]][ -Xxopts ] s.filename..."));
 			}
 
 			/*
@@ -355,7 +365,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, prt, 1, N.n_sdot);
+			do_file(p, prt, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -381,12 +391,16 @@ char *file;
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of prt */
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 	}

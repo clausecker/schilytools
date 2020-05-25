@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.58 19/11/11 Copyright 2007-2019 J. Schilling
+.\" @(#)sccs-admin.1	1.61 20/05/16 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2019/11/11" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2020/05/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -67,7 +67,9 @@ sccs-admin, admin \- create and administer SCCS history files
 .RB [ -y [\c
 .IR comment ]]
 .br
-.RB "    [" -N\c
+.RB "    [" \-X\c
+.IR extended-options ]
+.RB [ -N\c
 .IR bulk-spec ]
 .IR s.filename ...
 
@@ -863,7 +865,7 @@ This option exists in order to permit
 to reatain the
 .I initial path
 from the original file.
-If this option was specified, only one file type argiment is permitted.
+If this option was specified, only one file type argument is permitted.
 .TP
 .BI Gr= urand
 Set the
@@ -877,7 +879,7 @@ This option exists in order to permit
 to reatain the
 .I unified random
 from the original file.
-If this option was specified, only one file type argiment is permitted.
+If this option was specified, only one file type argument is permitted.
 .TP
 .BI mail= address
 Set
@@ -904,6 +906,17 @@ used in this case is
 in order to permit a
 .B 1.1
 release with file content later in the same history file.
+.TP
+.B 0
+When reading filenames from
+.BR stdin ,
+triggered by a file name argument
+.RB ` - ',
+the filename separator is a
+.B null byte
+instead of a
+.BR newline .
+This allows to use long lists with arbitrary filenames.
 .TP
 .B help
 Print a short online help for available options.

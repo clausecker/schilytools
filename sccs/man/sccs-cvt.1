@@ -1,4 +1,4 @@
-.\" @(#)sccs-cvt.1	1.21 18/12/18 Copyright 2011-2018 J. Schilling
+.\" @(#)sccs-cvt.1	1.22 20/05/16 Copyright 2011-2020 J. Schilling
 .\" Manual page for sccs-cvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-cvt 1 "2018/12/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-cvt 1 "2020/05/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-cvt, sccscvt \- convert SCCS history files between v4/v6
 .SH SYNOPSIS
@@ -213,6 +213,43 @@ arguments, it is recommended to use
 as the file name parameter for
 .BR sccscvt (1)
 and to send a list of path names to
+.RE
+
+.br
+.ne 3
+.TP
+.BI \-X extended\-options
+Specify extended options. The argument
+.I extended\-options
+may be a comma separated list of extended option names.
+.sp
+The following extended options are supported, they may be abbreviated as long
+ad the abbreviation is still unique. Options with parameter may not be
+abbreviated.
+.sp
+.RS
+.TP
+.B 0
+When reading filenames from
+.BR stdin ,
+triggered by a file name argument
+.RB ` - ',
+the filename separator is a
+.B null byte
+instead of a
+.BR newline .
+This allows to use long lists with arbitrary filenames.
+.TP
+.B help
+Print a short online help for available options.
+.PP
+The
+.B \-X
+option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 .RE
 
 .TP

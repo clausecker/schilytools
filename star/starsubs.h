@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.141 19/12/03 Copyright 1996-2019 J. Schilling */
+/* @(#)starsubs.h	1.142 20/05/24 Copyright 1996-2020 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2019 J. Schilling
+ *	Copyright (c) 1996-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -489,6 +489,7 @@ extern	BOOL	star_darchive	__PR((char *arname, char *dfltname));
 /*
  * subst.c
  */
+extern	int	paxpsubst	__PR((char *cmd, BOOL *arg));
 extern	int	parsesubst	__PR((char *cmd, BOOL *arg));
 #ifdef _STAR_H
 extern	BOOL	subst		__PR((FINFO *info));

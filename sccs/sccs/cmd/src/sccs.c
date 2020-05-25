@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.114 20/05/10 J. Schilling
+ * @(#)sccs.c	1.116 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.114 20/05/10 J. Schilling"
+#pragma ident "@(#)sccs.c 1.116 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -264,7 +264,7 @@ struct list_files
 
 int main __PR((int argc, char **argv));
 static char *getNsid __PR((char *file, char *user));
-static int command __PR((char **argv, bool forkflag, char *arg0));
+int command __PR((char **argv, bool forkflag, char *arg0));
 static void get_sccscomment __PR((void));
 static void get_list_files __PR((struct list_files **listftailpp, char *filename, bool no_sdot));
 static struct sccsprog *lookup __PR((char *name));
@@ -830,7 +830,7 @@ getNsid(file, user)
 **		none.
 */
 
-static int
+int
 command(argv, forkflag, arg0)
 	char **argv;
 	bool forkflag;
@@ -2585,7 +2585,7 @@ unedit(nfiles, argv)
 			err = 1;
 			continue;
 		}
-		do_file(cp, do_unedit, 1, 1);
+		do_file(cp, do_unedit, 1, 1, NULL);
 		if (!Fcnt)
 			*np++ = *argv;
 		else
@@ -3100,7 +3100,7 @@ diffs(nfiles, argv)
 	diffs_ap = ap;
 	diffs_np = np;
 	for (i = 0; i < nargs; i++) {
-		do_file(*cur_arg, do_diffs, 1, 0);
+		do_file(*cur_arg, do_diffs, 1, 0, NULL);
 		if (Fcnt) {
 			err = 1;
 		}

@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.230 20/02/14 Copyr 1982-2020 J. Schilling
+. \" @(#)star.1	1.231 20/05/24 Copyr 1982-2020 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2020/02/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2020/05/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3724,6 +3724,52 @@ Preserve the file mode bits.
 This is equivalent to calling
 .BR "star \-p" ".
 .RE
+
+.TP
+.BI \-pax\-s " replstr"
+Modify file or archive member names named by a pattern according to the
+substitution expression
+.IR replstr .
+The format of 
+.I replstr
+is:
+.sp
+.BI "	\-pax\-s\ " /old/new/[gp]
+.sp
+The
+.B old
+pattern may use regular expressions and the 
+.B new
+string may contain the special character '&'. The character '&' is substituted by the
+string that matches the
+.B old
+pattern.
+The
+.B new
+string may also contain the special strings '\e1' .. '\e9' that refer to parts of the
+.B old
+string selected by '\e(...\e)' groups.
+The optional trailing 'g' means global substitution. If 'g' is not used, a substitution
+pattern is only used once on a name.
+If the optional trailing 'p' is used, the substitution is printed to standard error.
+.sp
+Up to 100 substitute options may be used. If more than one substitute option has been
+specified,
+.B star
+will loop over all substitute patterns until one matches.
+The up to 100 substitute options are processed together with the
+.BI \-s " replstr"
+options in the order they appear on the command line.
+.sp
+If the name substitutes to the empty string, the file is skipped.
+.sp
+If the target platform for
+.B star
+does not support
+.B regex
+functions, there is a silent fallback to the
+.BI \-s " replstr"
+option and the '\e1' .. '\e9' substitutions are not possible.
 .TP
 .B \-prinodes
 Print inode numbers in verbose list mode if the archive contains
@@ -3906,6 +3952,9 @@ Up to 100 substitute options may be used. If more than one substitute option has
 specified,
 .B star
 will loop over all substitute patterns until one matches.
+The up to 100 substitute options are processed together with the
+.BI \-pax\-s " replstr"
+options in the order they appear on the command line.
 .sp
 If the name substitutes to the empty string, the file is skipped.
 .TP

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.47 18/12/18 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs-get.1	1.48 20/05/16 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2018/12/18" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2020/05/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -639,6 +639,43 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs
 implementations.
+
+.br
+.ne 3
+.TP
+.BI \-X extended\-options
+Specify extended options. The argument
+.I extended\-options
+may be a comma separated list of extended option names.
+.sp
+The following extended options are supported, they may be abbreviated as long
+ad the abbreviation is still unique. Options with parameter may not be
+abbreviated.
+.sp
+.RS
+.TP
+.B 0
+When reading filenames from
+.BR stdin ,
+triggered by a file name argument
+.RB ` - ',
+the filename separator is a
+.B null byte
+instead of a
+.BR newline .
+This allows to use long lists with arbitrary filenames.
+.TP
+.B help
+Print a short online help for available options.
+.PP
+The
+.B \-X
+option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
 
 .br
 .ne 3

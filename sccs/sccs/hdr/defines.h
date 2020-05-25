@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.114 20/05/09 J. Schilling
+ * @(#)defines.h	1.117 20/05/17 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.114 20/05/09 J. Schilling"
+#pragma ident "@(#)defines.h 1.117 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -425,6 +425,7 @@ typedef struct Xparms {
 #define	XO_URAND	0x20		/* -XGr Unified random number	*/
 #define	XO_UNLINK	0x40		/* -Xunlink create an unlink delta */
 #define	XO_MAIL		0x80		/* -Xmail= e-mail address	*/
+#define	XO_NULLPATH	0x100		/* -X0 read '\0' terminated pathnames */
 
 
 struct	deltab {
@@ -639,6 +640,7 @@ extern	char	*setphome;	/* Best path to the project set home dir */
 extern	char	*setrhome;	/* Relative path to the project set home dir */
 extern	char	*setahome;	/* Absolute path to the project set home dir */
 extern	char	*cwdprefix;	/* Prefix from project set home dir to cwd */
+extern	char	*changesetfile;	/* The path to the changeset history file */
 extern	int	homedist;	/* The # of dirs to the project set home dir */
 extern	int	setphomelen;	/* strlen(setphome) */
 extern	int	setrhomelen;	/* strlen(setrhome) */
@@ -655,6 +657,7 @@ extern	int	sethomestat;	/* sethome() status flags */
 #define	SETHOME_INTREE	4	/* $SET_HOME/.sccs/data missing, SCCS in tree */
 #define	SETHOME_OFFTREE	8	/* $SET_HOME/.sccs/data found, SCCS off tree */
 #define	SETHOME_DELS_OK 16	/* $SET_HOME/.sccs/dels was found	*/
+#define	SETHOME_CHSET_OK 32	/* $SET_HOME/.sccs/SCCS/s.changeset found */
 
 #define	SETHOME_ALL_OK	(SETHOME_OK|SETHOME_DELS_OK)
 
@@ -702,7 +705,7 @@ extern	void	donamedflags	__PR((struct packet *));
 extern	void	dometa	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *,
 				struct stats *, struct sid *, int));
-extern	void	do_file __PR((char *, void (*func)(char *), int, int));
+extern	void	do_file __PR((char *, void (*func)(char *), int, int, Xparms *));
 extern	void	doget	__PR((char *afile, char *gname, int ser));
 extern	void	dogtime	__PR((struct packet *pkt, char *gfile,
 				struct timespec *mtime));
@@ -819,6 +822,7 @@ extern	int	efatal	__PR((char *));
 extern	int	fatal	__PR((char *));
 extern	int	lockit	__PR((char *, int, pid_t, char *));
 extern	int	unlockit __PR((char *, pid_t, char *));
+extern	int	ismylock __PR((char *, pid_t, char *));
 extern	int	mylock	__PR((char *, pid_t, char *));
 extern	int	sccs_index __PR((char *, char *));
 extern	int	imatch	__PR((char *, char *));

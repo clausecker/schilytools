@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.59 19/07/09 Copyright 2001-2019 J. Schilling */
+/* @(#)acl_unix.c	1.60 20/05/12 Copyright 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.59 19/07/09 Copyright 2001-2019 J. Schilling";
+	"@(#)acl_unix.c	1.60 20/05/12 Copyright 2001-2020 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2019 J. Schilling
+ *	Copyright (c) 2001-2020 J. Schilling
  *
  *	There are currently two basic flavors of ACLs:
  *
@@ -78,6 +78,7 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/errno.h>
+#include <schily/ctype.h>	/* Needed if <aclutils.h> is available */
 #include "star.h"
 #include "props.h"
 #include "table.h"

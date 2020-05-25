@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.52 19/11/11 Copyright 2007-2019 J. Schilling
+.\" @(#)sccs-delta.1	1.53 20/05/16 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2019/11/11" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2020/05/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -552,6 +552,17 @@ a major performance win that is used for updating the
 .BR sccschangeset (4)
 file when in
 .BR "project mode" .
+.TP
+.B 0
+When reading filenames from
+.BR stdin ,
+triggered by a file name argument
+.RB ` - ',
+the filename separator is a
+.B null byte
+instead of a
+.BR newline .
+This allows to use long lists with arbitrary filenames.
 .TP
 .B help
 Print a short online help for available options.

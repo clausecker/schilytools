@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)unget.c	1.37 20/05/08 J. Schilling
+ * @(#)unget.c	1.39 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.37 20/05/08 J. Schilling"
+#pragma ident "@(#)unget.c 1.39 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -77,6 +77,7 @@ static struct sid	sid;
 static struct utsname 	un;
 static char *uuname;
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 
 	int	main	__PR((int argc, char **argv));
 static void	unget	__PR((char *file));
@@ -152,7 +153,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-			c = getopt(argc, argv, "()-r:snqN:V(version)");
+			c = getopt(argc, argv, "()-r:snqN:X:V(version)");
 
 				/*
 				 * This takes care of options given after
@@ -208,6 +209,14 @@ char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				p = sname(argv[0]);
 				printf(gettext(
@@ -220,11 +229,12 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
+			err:
 				p = sname(argv[0]);
 				if (equal(p,"sact"))
 					fatal(gettext("Usage: sact [-s][-N[bulk-spec]] s.filename ..."));
 				else
-					fatal(gettext("Usage: unget [-ns][-r SID][-N[bulk-spec]] s.filename ..."));
+					fatal(gettext("Usage: unget [-ns][-r SID][-N[bulk-spec]][ -Xxopts ] s.filename ..."));
 			}
 
 			if (testmore) {
@@ -278,7 +288,7 @@ char *argv[];
 	Fflags |= FTLJMP;
 	for (i = 1; i < argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, unget, 1, N.n_sdot);
+			do_file(p, unget, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -295,12 +305,16 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {

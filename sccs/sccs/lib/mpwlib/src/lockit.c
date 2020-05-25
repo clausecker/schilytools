@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2014 J. Schilling
+ * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)lockit.c	1.14 14/08/09 J. Schilling
+ * @(#)lockit.c	1.15 20/05/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.14 14/08/09 J. Schilling"
+#pragma ident "@(#)lockit.c 1.15 20/05/14 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -54,18 +54,18 @@
 	`lockfile' is removed and it tries again to make `lockfile'.
 	After `count' tries, or if the reason for the create failing
 	is something other than EACCES, return xmsg().
- 
+
 	Unlockit will return 0 if the named lock exists, contains
 	the given pid, and is successfully removed; -1 otherwise.
 */
 
-# define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
-# include	<defines.h>
-# include	<i18n.h>
-# include	<schily/utsname.h>
-# include	<ccstypes.h>
-# include	<signal.h>
-# include	<limits.h>
+#define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
+#include	<defines.h>
+#include	<i18n.h>
+#include	<schily/utsname.h>
+#include	<ccstypes.h>
+#include	<signal.h>
+#include	<limits.h>
 
 #ifndef	SYS_NMLN
 #define	SYS_NMLN	257
@@ -74,7 +74,7 @@
 #define	O_DSYNC	0
 #endif
 
-# define	nodenamelength	SYS_NMLN
+#define	nodenamelength	SYS_NMLN
 
 static int onelock __PR((pid_t pid, char *uuname, char *lockfile));
 
@@ -84,7 +84,7 @@ lockit(lockfile, count, pid, uuname)
 	int	count;			/* # of retries to get lock (e.g. 4) */
 	pid_t	pid;			/* The pid of the holding process.   */
 	char	*uuname;		/* The hostname for this machine.    */
-{  
+{
 	int	fd;
 	pid_t	opid;
 	char	ouuname[nodenamelength];
@@ -97,13 +97,13 @@ lockit(lockfile, count, pid, uuname)
 	copy(lockfile, tempfile);
 	snprintf(uniqfilename, sizeof (uniqfilename),
 	    "%s/%ju.%s%jd", dname(tempfile),
-	   (UIntmax_t)pid, uuname, (Intmax_t)time((time_t *)0));
+	    (UIntmax_t)pid, uuname, (Intmax_t)time((time_t *)0));
 	if (length(uniqfilename) >= PATH_MAX) {
-	   uniq_nmbr = (int)pid + (int)time((time_t *)0);   
-	   copy(lockfile, tempfile);
-	   sprintf(uniqfilename, "%s/%X", dname(tempfile),
-	      uniq_nmbr&0xffffffff);
-	   uniqfilename[PATH_MAX-1] = '\0';
+		uniq_nmbr = (int)pid + (int)time((time_t *)0);
+		copy(lockfile, tempfile);
+		sprintf(uniqfilename, "%s/%X", dname(tempfile),
+		    uniq_nmbr&0xffffffff);
+		uniqfilename[PATH_MAX-1] = '\0';
 	}
 	/*
 	 * Former SCCS implementations later renamed this file to the lock file
@@ -112,40 +112,40 @@ lockit(lockfile, count, pid, uuname)
 	 * desired directory.
 	 */
 	fd = open(uniqfilename, O_WRONLY|O_CREAT|O_BINARY, 0666);
-        if (fd < 0) {
-	   return(-1);
+	if (fd < 0) {
+		return (-1);
 	} else {
-	   (void)close(fd);
-	   (void)unlink(uniqfilename);
+		(void) close(fd);
+		(void) unlink(uniqfilename);
 	}
 #endif
-	for (++count; --count; (void)sleep(10)) {
+	for (++count; --count; (void) sleep(10)) {
 		if (onelock(pid, uuname, lockfile) == 0)
-		   return(0);
+			return (0);
 		if (errno == EACCES)
-		   return(-1);
+			return (-1);
 		if (!exists(lockfile))
-		   continue;
+			continue;
 		omtime = Statbuf.st_mtime;
 		if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0)
-		   continue;
+			continue;
 		opid = pid;		/* In case file is empty */
 		ouuname[0] = '\0';
-		(void)read(fd, (char *)&opid, sizeof(opid));
-		(void)read(fd, ouuname, nodenamelength);
-		(void)close(fd);
+		(void) read(fd, (char *)&opid, sizeof (opid));
+		(void) read(fd, ouuname, nodenamelength);
+		(void) close(fd);
 		/*
 		 * If lockfile is from this host, check for pid.
 		 * If lockfile is empty, ouuname and uuname are not equal.
 		 */
 		if (equal(ouuname, uuname)) {
-		   if (kill((int) opid,0) == -1 && errno == ESRCH) {
-		      if ((exists(lockfile)) &&
-			  (omtime == Statbuf.st_mtime)) {
-			 (void) unlink(lockfile);
-			 continue;
-		      }
-		   }
+			if (kill((int) opid, 0) == -1 && errno == ESRCH) {
+				if ((exists(lockfile)) &&
+				    (omtime == Statbuf.st_mtime)) {
+					(void) unlink(lockfile);
+					continue;
+				}
+			}
 		}
 		/*
 		 * Lock file is empty, hold by other host or hold by an
@@ -153,11 +153,11 @@ lockit(lockfile, count, pid, uuname)
 		 * Wait in case that file is younger than 60 seconds.
 		 */
 		if ((ltime = time((time_t *)0) - Statbuf.st_mtime) < 60L) {
-		   if (ltime >= 0 && ltime < 60) {
-		      (void) sleep((unsigned) (60 - ltime));
-		   } else {
-		      (void) sleep(60);
-		   }
+			if (ltime >= 0 && ltime < 60) {
+				(void) sleep((unsigned) (60 - ltime));
+			} else {
+				(void) sleep(60);
+			}
 		}
 		/*
 		 * Lock file is at least 60 seconds old.
@@ -170,7 +170,7 @@ lockit(lockfile, count, pid, uuname)
 			(void) unlink(lockfile);
 	}
 	errno = EEXIST;	/* We failed due to exhausted retry count */
-	return(-1);
+	return (-1);
 }
 
 int
@@ -179,28 +179,17 @@ char	*lockfile;
 pid_t	pid;
 char	*uuname;
 {
-	int	fd, n;
-	pid_t	opid;
-	char	ouuname[nodenamelength];
-
 	/*
 	 * Do nothing if just called from a clean up handler that does
 	 * not yet have a lockfile name.
 	 */
 	if (lockfile[0] == '\0')
-	   return (-1);
+		return (-1);
 
-	if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0) {
-	   return(-1);
-	}
-	n = read(fd, (char *)&opid, sizeof(opid));
-	(void)read(fd, ouuname, nodenamelength);
-	(void)close(fd);
-	if (n == sizeof(opid) && opid == pid && (equal(ouuname,uuname))) {
-	   return(unlink(lockfile));
-	} else {
-	   return(-1);
-	}
+	if (mylock(lockfile, pid, uuname))
+		return (unlink(lockfile));
+	else
+		return (-1);
 }
 
 static int
@@ -228,10 +217,11 @@ char	*lockfile;
 	strncpy(&lock[sizeof (pid_t)], uuname, nodenamelength);
 
 	otime = time((time_t *)0);
-	if ((fd = open(lockfile, O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
+	if ((fd = open(lockfile,
+		    O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
 		if (write(fd, lock, sizeof (lock)) != sizeof (lock)) {
-			(void)close(fd);
-			(void)unlink(lockfile);
+			(void) close(fd);
+			(void) unlink(lockfile);
 			return (xmsg(lockfile, NOGETTEXT("lockit")));
 		}
 		close(fd);
@@ -254,23 +244,36 @@ char	*lockfile;
 }
 
 int
-mylock(lockfile, pid, uuname)
-char	*lockfile;
-pid_t	pid;
-char	*uuname;
+ismylock(lockfile, pid, uuname)
+	char	*lockfile;
+	pid_t	pid;
+	char	*uuname;
 {
-	int	fd, n;
+	int	fd;
+	int	n;
 	pid_t	opid;
 	char	ouuname[nodenamelength];
 
-	if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0)
-	   return(0);
-	n = read(fd, (char *)&opid, sizeof(opid));
-	(void)read(fd, ouuname, nodenamelength);
-	(void)close(fd);
-	if (n == sizeof(opid) && opid == pid && (equal(ouuname, uuname))) {
-	   return(1);
-	} else {
-	   return(0);
+	if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0) {
+		if (errno == ENOENT)		/* There was no lock file */
+			return (-1);
+		return (0);
 	}
+	n = read(fd, (char *)&opid, sizeof (opid));
+	(void) read(fd, ouuname, nodenamelength);
+	(void) close(fd);
+	if (n == sizeof (opid) && opid == pid && (equal(ouuname, uuname))) {
+		return (1);
+	} else {
+		return (0);
+	}
+}
+
+int
+mylock(lockfile, pid, uuname)
+	char	*lockfile;
+	pid_t	pid;
+	char	*uuname;
+{
+	return (ismylock(lockfile, pid, uuname) > 0);
 }

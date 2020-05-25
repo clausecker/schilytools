@@ -1,4 +1,8 @@
-h47253
+h59476
+s 00001/00001/00096
+d D 1.5 20/05/24 21:50:55 joerg 5 4
+c Unbekannte Option von -X -> -Z wegen neuer Option -X
+e
 s 00001/00001/00096
 d D 1.4 15/06/03 00:06:44 joerg 4 3
 c ../common/test-common -> ../../common/test-common
@@ -126,7 +130,12 @@ docommand v19 "${vg_val} -mX -mX s.f" 64 IGNORE IGNORE
 docommand v20 "${vg_val} -yX -yX s.f" 64 IGNORE IGNORE
 
 # Unknown option
+D 5
 docommand v21 "${vg_val} -X s.f" 64 IGNORE IGNORE
+E 5
+I 5
+docommand v21 "${vg_val} -Z s.f" 64 IGNORE IGNORE
+E 5
 
 
 

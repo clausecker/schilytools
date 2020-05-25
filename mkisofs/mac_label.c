@@ -1,12 +1,12 @@
-/* @(#)mac_label.c	1.21 16/10/10 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling */
+/* @(#)mac_label.c	1.22 20/05/11 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mac_label.c	1.21 16/10/10 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling";
+	"@(#)mac_label.c	1.22 20/05/11 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2020 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2016 J. Schilling
+ *	Copyright (c) 2004-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,8 +67,8 @@ gen_prepboot_label(ml)
 {
 	struct directory_entry *de;
 	int		i = 0;
-	int		block;
-	int		size;
+	unsigned	block;
+	unsigned	size;
 	MacLabel	*mac_label = (MacLabel *) ml;
 
 	if (verbose > 1) {
@@ -98,7 +98,7 @@ gen_prepboot_label(ml)
 		mac_label->image[i].startSect[2] = 0;
 		mac_label->image[i].startSect[3] = 0;
 
-		size = (last_extent - session_start) * 2048 / 512;
+		size = (unsigned)(last_extent - session_start) * (2048 / 512);
 		mac_label->image[i].size[0] = size & 0xff;
 		mac_label->image[i].size[1] = (size >> 8) & 0xff;
 		mac_label->image[i].size[2] = (size >> 16) & 0xff;
@@ -115,7 +115,7 @@ gen_prepboot_label(ml)
 			/* NOTREACHED */
 		}
 		/* get size and block in 512-byte blocks */
-		block = get_733(de->isorec.extent) * 2048 / 512;
+		block = get_733(de->isorec.extent) * (2048 / 512);
 		size = get_733(de->isorec.size) / 512 + 1;
 		fprintf(stderr, _("PReP boot partition %d is \"%s\"\n"),
 			i + 1, prep_boot_image[i - use_chrp_boot]);

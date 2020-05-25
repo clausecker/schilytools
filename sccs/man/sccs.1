@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.47 18/12/18 Copyright 2007-2018 J. Schilling
+.\" @(#)sccs.1	4.49 20/05/21 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2018/12/18" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2020/05/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -148,6 +148,33 @@ argument. These options are specific to each subcommand, and are described
 along with the subcommands themselves (see
 .B Subcommands
 below).
+
+.br
+.ne 8
+.SS "Project oriented subcommand overview"
+.LP
+.ne 5
+.SM SCCS
+historically did only only support a set of single unrelated files,
+but the upcoming
+.B SCCSv6
+supports also complete projects as a whole. Some commands are specific
+to this project mode of
+.SM SCCS.
+
+.br
+.ne 4
+.TP 1i
+.B init
+Initialize the current directory or named directory for use with
+.SM SCCS
+as project set home directory.
+
+.br
+.ne 4
+.TP
+.B root
+Print information about the project set home directory.
 
 .br
 .ne 8
@@ -1494,6 +1521,22 @@ option is equivalent to
 .br
 .ne 5
 .HP
+.B init
+.RB [ -f ]
+.RB [ -i ]
+.RB [ -s ]
+.RI [ directory ]
+.sp .6
+Initialize a directory for use with
+.B SCCS
+in project mode.
+See
+.BR sccs-init (1)
+for more information.
+
+.br
+.ne 5
+.HP
 .B istext
 .RB [ -s ]
 .RB [ -V4 " | " -V6 ]
@@ -1740,6 +1783,18 @@ Refer to
 for more information about the
 .B rmdel
 utility.
+
+.br
+.ne 5
+.HP
+.B root
+.RB [ -v ]
+.RI [ directory ]
+.sp .6
+Print information about the project set home directory.
+See
+.BR sccs-root (1)
+for more information.
 
 .br
 .ne 5
@@ -2337,10 +2392,12 @@ Interface StabilityStandard
 .BR sccs\-delta (1),
 .BR sccs\-get (1),
 .BR sccs\-help (1),
+.BR sccs\-init (1),
 .BR sccs\-log (1),
 .BR sccs\-prs (1),
 .BR sccs\-prt (1),
 .BR sccs\-rmdel (1),
+.BR sccs\-root (1),
 .BR sccs\-sact (1),
 .BR sccs\-sccsdiff (1),
 .BR sccs\-unget (1),

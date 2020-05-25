@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)prs.c	1.61 20/05/08 J. Schilling
+ * @(#)prs.c	1.63 20/05/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.61 20/05/08 J. Schilling"
+#pragma ident "@(#)prs.c 1.63 20/05/19 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -95,6 +95,7 @@ static char	*Deltatime;
 static char	tempskel[] = NOGETTEXT("/tmp/prXXXXXX"); /* used to generate */
 							/* temp file names */
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static struct	sid	sid;
 
 static char	untmp[32], uttmp[32], cmtmp[32];
@@ -122,7 +123,6 @@ static void	clean_up __PR((void));
 static void	process __PR((char *file));
 static void	dodeltbl __PR((struct packet *pkt));
 static void	scanspec __PR((char *spec, struct deltab *dtp, struct stats *statp));
-static int	invalid __PR((char *i_sid));
 static void	deltblchk __PR((struct packet *pkt));
 static int	getstats __PR((struct packet *pkt, struct stats *statp));
 static int	sidcmp __PR((struct sid *sid1, struct sid *sid2));
@@ -220,7 +220,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "()-d:r:c:ealqN:V(version)");
+			c = getopt(argc, argv, "()-d:r:c:ealqN:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -298,6 +298,14 @@ char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				printf(gettext(
 				    "prs %s-SCCS version %s %s (%s-%s-%s)\n"),
@@ -308,7 +316,8 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: prs [ -ael ][ -c date-time ][ -d dataspec ]\n\t[ -r SID ][ -N[bulk-spec]] s.filename ..."));
+			err:
+				fatal(gettext("Usage: prs [ -ael ][ -c date-time ][ -d dataspec ]\n\t[ -r SID ][ -N[bulk-spec]][ -Xxopts ] s.filename ..."));
 			}
 
 			/*
@@ -365,7 +374,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, process, 1, N.n_sdot);
+			do_file(p, process, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -384,12 +393,16 @@ register	char	*file;
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of 'process' */
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {

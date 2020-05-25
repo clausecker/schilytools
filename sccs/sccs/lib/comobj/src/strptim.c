@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)strptim.c	1.12 11/08/26 J. Schilling
+ * @(#)strptim.c	1.13 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)strptim.c 1.12 11/08/26 J. Schilling"
+#pragma ident "@(#)strptim.c 1.13 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)strptim.c 1.7 06/12/12
@@ -51,6 +51,9 @@
  *
  * If val == 0, we are converting cutoff times from command line.
  * If val == 1, we are converting delta table entries for prs(1).
+ *
+ * As long as we use this only from prs(1) to compare cutoff times,
+ * there is no need to return the parsed nano seconds or the time zone.
  */
 int
 mystrptime(p, t, val)
@@ -59,8 +62,10 @@ mystrptime(p, t, val)
 	int		val;
 {
 	int	y, dn, cn, warn = 0;
+#ifdef	__needed__
 	int	ns = 0;
 	int	tz = DT_NO_ZONE;
+#endif
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	time_t	gtime;
 #endif
@@ -114,10 +119,17 @@ mystrptime(p, t, val)
 		if(t->tm_sec<0 || t->tm_sec>59) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
 
+#ifdef	__needed__
 		if (*p == '.')
 			ns = gns(p, &p);
 		if (*p == '+' || *p == '-')
 			tz = gtz(p, &p);
+#else
+		if (*p == '.')
+			(void) gns(p, &p);
+		if (*p == '+' || *p == '-')
+			(void) gtz(p, &p);
+#endif
 
 #if defined(BUG_1205145) || defined(GMT_TIME)
 		gtime = mktime(t);		/* local time -> GMT time_t */

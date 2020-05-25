@@ -78,7 +78,7 @@ docommand v19 "${vg_val} -mX -mX s.f" 64 IGNORE IGNORE
 docommand v20 "${vg_val} -yX -yX s.f" 64 IGNORE IGNORE
 
 # Unknown option
-docommand v21 "${vg_val} -X s.f" 64 IGNORE IGNORE
+docommand v21 "${vg_val} -Z s.f" 64 IGNORE IGNORE
 
 
 

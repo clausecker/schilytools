@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.46 19/11/08 Copyright 2007-2019 J. Schilling */
+.\" @(#)sccsfile.4	1.47 20/05/14 Copyright 2007-2019 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2019 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2019/11/08" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2020/05/14" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -1164,6 +1164,19 @@ and
 .BI z. file
 temporary lock file contains the binary process id in host byte order 
 followed by the host name
+
+.br
+.ne 3
+.TP
+.IB projecthome /.sccs/SCCS/s.changeset
+The project specific changeset file is in the directory
+.B .sccs
+in the project set home directory.
+Only the 
+.B s.changeset
+file is present, a related
+.B g-file
+does not exist.
 
 .br
 .ne 3

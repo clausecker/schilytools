@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)dofile.c	1.13 18/04/29 J. Schilling
+ * @(#)dofile.c	1.14 20/05/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.13 18/04/29 J. Schilling"
+#pragma ident "@(#)dofile.c 1.14 20/05/16 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -54,21 +54,29 @@ char	had_standinp;
 #define	dot_dotdot(n)	((n)[(n)[0] != '.' ? 0 : (n)[1] != '.' ? 1 : 2] == '\0')
 
 void
-do_file(p, func, check_file, need_sdot)
-register char *p;
-void (*func) __PR((char *));
-int check_file;		/* Check whether file is readable */
-int need_sdot;		/* Skip non s. files */
+do_file(p, func, check_file, need_sdot, X)
+	register char *p;
+	void	(*func) __PR((char *));
+	int	check_file;	/* Check whether file is readable */
+	int	need_sdot;	/* Skip non s. files */
+	Xparms	*X;		/* -X options */
 {
 	extern char *Ffile;
-	int fd;
+	int	fd;
+	int	delim;
 	char str[FILESIZE];
-	char ibuf[FILESIZE];
+	char	*ibuf = NULL;
+	size_t	isize = 0;
+	ssize_t	llen;
 	DIR	*dirf;
 	struct dirent *dir[2];
 
 	had_standinp = 0;
 	had_dir = 0;
+	if (X && (X->x_opts & XO_NULLPATH))
+		delim = '\0';
+	else
+		delim = '\n';
 
 	if ((p[0] == '-') && (!p[1])) {
 		/*
@@ -78,15 +86,14 @@ int need_sdot;		/* Skip non s. files */
 		 * not followed by any characters.
 		 */
 		had_standinp = 1;
-		while (fgets(ibuf, sizeof (ibuf), stdin) != NULL) {
-			size_t	l;
 
-			l = strlen(ibuf);
-			if (l > 0 && ibuf[l-1] == '\n')
-				ibuf[l-1] = '\0';
+		while ((llen = getdelim(&ibuf, &isize, delim, stdin)) > 0) {
+			if (delim && ibuf[llen-1] == '\n')
+				ibuf[--llen] = '\0';
 
 			had_dir = 0;
-			if (exists(ibuf) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
+			if (exists(ibuf) &&
+			    (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				had_dir = 1;
 				Ffile = ibuf;
 				if ((dirf = opendir(ibuf)) == NULL)
@@ -129,6 +136,8 @@ int need_sdot;		/* Skip non s. files */
 				}
 			}
 		}
+		if (ibuf)
+			free(ibuf);
 	} else if (exists(p) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 		had_dir = 1;
 		Ffile = p;

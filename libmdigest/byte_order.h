@@ -1,10 +1,10 @@
-/* @(#)byte_order.h	1.3 15/11/22 2015 J. Schilling */
+/* @(#)byte_order.h	1.4 20/05/11 2015-2020 J. Schilling */
 /* byte_order.h */
 /*
  * SHA3 hash code taken from
  * https://github.com/rhash/RHash/tree/master/librhash
  *
- * Portions Copyright (c) 2015 J. Schilling
+ * Portions Copyright (c) 2015-2020 J. Schilling
  */
 #ifndef BYTE_ORDER_H
 #define	BYTE_ORDER_H
@@ -61,7 +61,7 @@ extern "C" {
 		__BYTE_ORDER == __LITTLE_ENDIAN) || \
 	defined(CPU_IA32) || defined(CPU_X64) || \
 	defined(__ia64) || defined(__ia64__) || defined(__alpha__) || defined(_M_ALPHA) || \
-	defined(vax) || defined(MIPSEL) || defined(_ARM_)
+	defined(vax) || defined(MIPSEL) || defined(_ARM_) || defined(_M_ARM)
 #define	CPU_LITTLE_ENDIAN
 #define	IS_BIG_ENDIAN 0
 #define	IS_LITTLE_ENDIAN 1

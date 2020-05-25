@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)bltin.c	1.146 20/04/15 2008-2020 J. Schilling
+ * @(#)bltin.c	1.147 20/05/17 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.146 20/04/15 2008-2020 J. Schilling";
+	"@(#)bltin.c	1.147 20/05/17 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -371,11 +371,9 @@ builtin(type, argc, argv, t, xflags)
 				break;
 			a1 = argv[ind];
 		}
-#endif
 
-#ifdef	DO_SYSPUSHD
 		/*
-		 * Enable cd - & cd -- ... only with DO_SYSPUSHD
+		 * Enable cd - & cd -- ... only with DO_POSIX_CD
 		 */
 		if (type == SYSCD && a1 && a1[0] == '-') {
 			if (a1[1] == '\0') {

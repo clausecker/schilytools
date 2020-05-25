@@ -1,13 +1,13 @@
-/* @(#)subst.c	1.24 18/10/23 Copyright 1986,2003-2018 J. Schilling */
+/* @(#)subst.c	1.26 20/05/24 Copyright 1986,2003-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subst.c	1.24 18/10/23 Copyright 1986,2003-2018 J. Schilling";
+	"@(#)subst.c	1.26 20/05/24 Copyright 1986,2003-2020 J. Schilling";
 #endif
 /*
  *	Substitution commands
  *
- *	Copyright (c) 1986,2003-2018 J. Schilling
+ *	Copyright (c) 1986,2003-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,16 +34,27 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #include <schily/patmatch.h>
+#ifdef	HAVE_REGEX_H
+#include <regex.h>
+#endif
 
 #include "star.h"
 #include "starsubs.h"
 #include "pathname.h"
 
+EXPORT	int	paxpsubst	__PR((char *cmd, BOOL *arg));
 EXPORT	int	parsesubst	__PR((char *cmd, BOOL *arg));
+LOCAL	int	_parsesubst	__PR((char *cmd, BOOL *arg, BOOL paxmode));
 EXPORT	BOOL	subst		__PR((FINFO *info));
 LOCAL	char	*substitute	__PR((char *from, long fromlen, int idx, char *to, long tolen));
 LOCAL	BOOL	simpleto	__PR((char *s, long len));
-LOCAL	int	catsub		__PR((char *here, char *old, long oldlen, char *to, long tolen, char *limit));
+#ifdef	HAVE_REGEX_H
+LOCAL	int	catsub		__PR((char *here, char *old, long oldlen,
+					char *to, long tolen, char *limit, regmatch_t *));
+#else
+LOCAL	int	catsub		__PR((char *here, char *old, long oldlen,
+					char *to, long tolen, char *limit));
+#endif
 EXPORT	BOOL	ia_change	__PR((TCB *ptb, FINFO *info));
 LOCAL	BOOL	pax_change	__PR((TCB *ptb, FINFO *info));
 LOCAL	void	s_enomem	__PR((void));
@@ -60,6 +71,7 @@ LOCAL	int	*aux[NPAT];	/* Aux array (compiled pattern) */
 LOCAL	int	alt[NPAT];	/* List of results from patcompile() */
 LOCAL	int	*state;		/* State array used by patmatch() */
 LOCAL	Int32_t	substcnt[NPAT];	/* Subst. count or MAXINT32 for 'g', < 0: 'v' */
+LOCAL	char	isreg[NPAT];	/* Whether we use sed(1) or change(1) style */
 
 extern	FILE	*tty;
 extern	FILE	*vpr;
@@ -72,11 +84,43 @@ extern	BOOL	paxinteract;
 /*
  * This is the command line parser for tar/pax substitution commands.
  * Syntax is: -s '/old/new/v'
+ * Supporting sed(1) like substitutions.
+ */
+EXPORT int
+paxpsubst(cmd, arg)
+	char	*cmd;		/* The subst command string		*/
+	BOOL	*arg;		/* Set to TRUE if we have a valid stubst */
+{
+#ifdef	HAVE_REGEX_H
+	return (_parsesubst(cmd, arg, TRUE));
+#else
+	return (_parsesubst(cmd, arg, FALSE));
+#endif
+}
+
+/*
+ * This is the command line parser for tar/pax substitution commands.
+ * Syntax is: -s '/old/new/v'
+ * Supporting change(1) like substitutions.
  */
 EXPORT int
 parsesubst(cmd, arg)
-	char	*cmd;
-	BOOL	*arg;
+	char	*cmd;		/* The subst command string		*/
+	BOOL	*arg;		/* Set to TRUE if we have a valid stubst */
+{
+	return (_parsesubst(cmd, arg, FALSE));
+}
+
+/*
+ * This is the command line parser for tar/pax substitution commands.
+ * Syntax is: -s '/old/new/v'
+ * Supporting both variants of the substitutions.
+ */
+LOCAL int
+_parsesubst(cmd, arg, paxmode)
+	char	*cmd;		/* The subst command string		*/
+	BOOL	*arg;		/* Set to TRUE if we have a valid stubst */
+	BOOL	paxmode;	/* Whether to use sed(1) instead of change(1) */
 {
 	register char	*from;
 	register char	*to;
@@ -158,11 +202,32 @@ parsesubst(cmd, arg)
 	if (fromlen > maxplen)
 		maxplen = fromlen;
 
-	aux[npat] = ___malloc(fromlen*sizeof (int), "compiled subst pattern");
-	if ((alt[npat] = patcompile(pat[npat], patlen[npat], aux[npat])) == 0) {
-		comerrno(EX_BAD, "Bad pattern: '%s'.\n", pat[npat]);
-		return (-2);
+	if (paxmode) {
+#ifdef	HAVE_REGEX_H
+		int	ret;
+
+		aux[npat] = ___malloc(sizeof (regex_t),
+					"compiled subst pattern");
+		ret = regcomp((regex_t *) aux[npat], (char *)pat[npat], 0);
+		if (ret != 0) {
+			char	eb[1024];
+
+			regerror(ret, (regex_t *) aux[npat], eb, sizeof (eb));
+			comerrno(EX_BAD, "Bad pattern: '%s'. %s\n",
+				pat[npat], eb);
+			return (-2);
+		}
+#endif
+	} else {
+		aux[npat] = ___malloc(fromlen*sizeof (int),
+					"compiled subst pattern");
+		if ((alt[npat] = patcompile(pat[npat], patlen[npat],
+						aux[npat])) == 0) {
+			comerrno(EX_BAD, "Bad pattern: '%s'.\n", pat[npat]);
+			return (-2);
+		}
 	}
+	isreg[npat] = paxmode;
 
 	if (printsubst)
 		count *= -1;
@@ -231,12 +296,20 @@ substitute(from, fromlen, idx, to, tolen)
 	size_t	soff;
 	int	slen;
 	BOOL	didmatch = FALSE;
+	BOOL	paxmode;
+#ifdef	HAVE_REGEX_H
+	regmatch_t	mat[10];
+	regmatch_t	*matp;
+	regex_t		*re = (regex_t *) aux[idx];
+#endif
 #define	limit	(new.ps_path + new.ps_size)
 
 	if (fromlen == 0)
 		return (NULL);
 	if (new.ps_size == 0 && init_pspace(PS_EXIT, &new) < 0)
 		return (NULL);
+
+	paxmode = isreg[idx];
 
 	tosimple = simpleto(to, tolen);
 
@@ -258,6 +331,18 @@ substitute(from, fromlen, idx, to, tolen)
 			/*
 			 * Loop over the from string for a possible match
 			 */
+#ifdef	HAVE_REGEX_H
+			matp = NULL;
+			if (paxmode) {
+				if (regexec(re, string, 10, mat, 0) != 0) {
+					string++;
+					slen--;
+					continue;
+				}
+				end = string + mat[0].rm_eo;
+				matp = mat;
+			} else
+#endif
 			if ((end = (char *)patmatch(pat[idx], aux[idx],
 			    (Uchar *)string, 0, slen, alt[idx],
 			    state)) == NULL) {
@@ -266,6 +351,7 @@ substitute(from, fromlen, idx, to, tolen)
 				slen--;
 				continue;
 			}
+
 			if (!didmatch) {
 				/*
 				 * We had a first match. Copy the 'from' string
@@ -361,7 +447,12 @@ substitute(from, fromlen, idx, to, tolen)
 				free(xoldp);
 		} else {
 			soff = string - new.ps_path;
-			tolen = catsub(string, old, oldlen, to, tolen, limit);
+#ifdef	HAVE_REGEX_H
+			tolen = catsub(string, oldp, oldlen, to, tolen, limit,
+					matp);
+#else
+			tolen = catsub(string, oldp, oldlen, to, tolen, limit);
+#endif
 			string = new.ps_path + soff;
 			if (oldp != old)
 				free(oldp);
@@ -411,13 +502,20 @@ simpleto(s, len)
  * The '&' character in the to string is substituted with the old from string.
  */
 LOCAL int
+#ifdef	HAVE_REGEX_H
+catsub(here, old, oldlen, to, tolen, limit, mat)
+#else
 catsub(here, old, oldlen, to, tolen, limit)
+#endif
 	register char	*here;
 	register char	*old;
 	register long	oldlen;
 	register char	*to;
 	register long	tolen;
 	register char	*limit;
+#ifdef	HAVE_REGEX_H
+	regmatch_t	*mat;
+#endif
 {
 	char	xold[PATH_MAX+1];
 	char	*xoldp;
@@ -451,6 +549,31 @@ catsub(here, old, oldlen, to, tolen, limit)
 			}
 			here = new.ps_path + hoff;
 		}
+#ifdef	HAVE_REGEX_H
+		if (*to == '\\' && mat && to[1] >= '1' && to[1] <= '9') {
+			int	i = to[1] - '0';
+			size_t	olen;
+
+			to += 2;
+			tolen--;
+			if (mat[i].rm_so == -1)
+				continue;
+
+			olen = mat[i].rm_eo - mat[i].rm_so;
+			if ((here+olen) >= limit) {
+				hoff = here - new.ps_path;
+				if (incr_pspace(PS_STDERR, &new,
+					    1 + (here+olen) - limit) < 0) {
+					s_enomem();
+					goto over;
+				}
+				here = new.ps_path + hoff;
+			}
+			strlcpy(here, old+mat[i].rm_so, olen+1);
+			here += olen;
+			continue;
+		} else
+#endif
 		if (*to == '\\') {
 			if (--tolen >= 0)
 				*here++ = *++to;
@@ -486,7 +609,7 @@ catsub(here, old, oldlen, to, tolen, limit)
 		free(xoldp);
 	return (here - p);
 over:
-	errmsgno(EX_BAD, "& Substitution path overflow.\n");
+	errmsgno(EX_BAD, "Substitution path overflow.\n");
 	if (xoldp != xold)
 		free(xoldp);
 	return (-1);

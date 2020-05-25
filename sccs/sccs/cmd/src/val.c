@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)val.c	1.62 20/05/08 J. Schilling
+ * @(#)val.c	1.64 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.62 20/05/08 J. Schilling"
+#pragma ident "@(#)val.c 1.64 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -77,6 +77,7 @@ static int	inpstd;		/* TRUE = args from standard input */
 
 static struct packet gpkt;
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 
 static struct deltab dt;
 static struct deltab odt;
@@ -105,7 +106,6 @@ static void	validate __PR((char *c_path, char *c_sid, char *c_type, char *c_name
 static void	getdel __PR((struct delent *delp, char *lp, struct packet *pkt));
 static void	read_to __PR((int ch, struct packet *pkt));
 static void	report __PR((int code, char *inp_line, char *file));
-static int	invalid __PR((char *i_sid));
 static char *	get_line __PR((struct packet *pkt));	/* function returning ptr to line read */
 static void	s_init __PR((struct packet *pkt, char *file));
 static int	read_mod __PR((struct packet *pkt));
@@ -273,7 +273,7 @@ char	*argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-			c = getopt(argc, argv, "()-r:sm:y:hvTN:V(version)");
+			c = getopt(argc, argv, "()-r:sm:y:hvTN:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -326,6 +326,14 @@ char	*argv[];
 					N.n_parm = p;
 					break;
 
+				case 'X':	/* -Xtended options */
+					X.x_parm = optarg;
+					X.x_flags = XO_NULLPATH;
+					if (!parseX(&X))
+						goto err;
+					had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+					break;
+
 				case 'V':		/* version */
 					printf(gettext(
 					    "val %s-SCCS version %s %s (%s-%s-%s)\n"),
@@ -336,8 +344,9 @@ char	*argv[];
 					exit(EX_OK);
 
 				default:
+				err:
 					Fflags &= ~FTLEXIT;
-					fatal(gettext("Usage: val [ -h ] [ -s ] [ -m name ] [ -r SID ] [ -T ] [ -v ]\n\t[ -y type ] [ -N[bulk-spec]] s.filename..."));
+					fatal(gettext("Usage: val [ -h ] [ -s ] [ -m name ] [ -r SID ] [ -T ] [ -v ]\n\t[ -y type ] [ -N[bulk-spec]][ -Xxopts ] s.filename..."));
 					if (debug) {
 						printf(gettext("Uknown option '%c'.\n"),
 							optopt?optopt:c);
@@ -423,7 +432,7 @@ char	*argv[];
 		}
 		strlcpy(path, filelist[i+j], sizeof (path));
 		if (!inpstd) {
-			do_file(path, do_validate, 1, N.n_sdot);
+			do_file(path, do_validate, 1, N.n_sdot, &X);
 			continue;
 		}
 		validate(path, sid, type, name);
@@ -448,12 +457,16 @@ do_validate(c_path)
 	char	*c_path;
 {
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = c_path;
+#endif
 
 		c_path = bulkprepare(&N, c_path);
 		if (c_path == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 	}

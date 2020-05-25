@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.12 18/12/10 Copyright 2011-2018 J. Schilling
+ * @(#)sethome.c	1.13 20/05/17 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.12 18/12/10 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)sethome.c	1.13 20/05/17 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -38,6 +38,7 @@ char	*setphome;	/* Best path to the project set home directory */
 char	*setrhome;	/* Relative path to the project set home directory */
 char	*setahome;	/* Absolute path to the project set home directory */
 char	*cwdprefix;	/* Prefix from project set home directory to cwd */
+char	*changesetfile;	/* The path to the changeset history file */
 int	homedist;	/* The # of directories to the project set home dir */
 int	setphomelen;	/* strlen(setphome) */
 int	setrhomelen;	/* strlen(setrhome) */
@@ -54,6 +55,7 @@ LOCAL	void	mkrelhome	__PR((char *bp, size_t len, int i));
 LOCAL	int	mkprefix	__PR((char *bp, size_t len, int i));
 LOCAL	int	checkdotsccs	__PR((char *path));
 EXPORT	int	checkhome	__PR((char *path));
+LOCAL	void	gchangeset	__PR((void));
 
 /*
  * Undo the effect of a previous sethome() call.
@@ -73,6 +75,10 @@ unsethome()
 	if (cwdprefix != NULL) {
 		free(cwdprefix);
 		cwdprefix = NULL;
+	}
+	if (changesetfile != NULL) {
+		free(changesetfile);
+		changesetfile = NULL;
 	}
 	setphome = NULL;
 	homedist = setphomelen = setrhomelen = setahomelen =
@@ -123,7 +129,10 @@ sethome(path)
 
 	if (path == NULL)
 		path = ".";
-	if (abspath(path, buf, sizeof (buf)) == NULL) {
+	if (abspath(path, buf, sizeof (buf)) == NULL) {	/* Can't get abspath */
+		/*
+		 * Resolve symlinks and .. in path
+		 */
 		resolvenpath(path, buf, sizeof (buf));	/* Rationalize path */
 		return (dorel(buf, sizeof (buf)));
 	}
@@ -168,7 +177,8 @@ sethome(path)
 		setphomelen = setrhomelen;
 	}
 	sethomestat |= SETHOME_OK;
-	checkdotsccs(setrhome);
+	(void) checkdotsccs(setrhome);
+	gchangeset();
 	return (1);					/* $SET_HOME/.sccs OK */
 }
 
@@ -310,13 +320,14 @@ dorel(bp, len)
 	setphome = setrhome;
 	setphomelen = setrhomelen;
 	sethomestat |= SETHOME_OK;
-	checkdotsccs(setrhome);
+	(void) checkdotsccs(setrhome);
 	*p = '\0';					/* Cut off new text */
 	errno = 0;
 	if (!mkprefix(bp, len, i))			/* Not found */
 		return (-1);
 	if (cwdprefix == NULL)				/* no mem */
 		return (-1);
+	gchangeset();
 	return (1);
 }
 
@@ -496,4 +507,19 @@ checkhome(path)
 		return (0);			/* (Fflags & FTLACT= == 0) */
 	}
 	return (1);
+}
+
+LOCAL void
+gchangeset()
+{
+	char		buf[max(8192, PATH_MAX+1)];
+	struct stat	_Statbuf;
+
+	if (setphome == NULL)
+		return;
+	strlcpy(buf, setphome, sizeof (buf));
+	strlcat(buf, "/.sccs/SCCS/s.changeset", sizeof (buf));
+	if (_exists(buf) && S_ISREG(_Statbuf.st_mode))
+		sethomestat |= SETHOME_CHSET_OK;
+	changesetfile = strdup(buf);
 }

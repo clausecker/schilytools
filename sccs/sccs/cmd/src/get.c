@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.86 20/05/08 J. Schilling
+ * @(#)get.c	1.88 20/05/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.86 20/05/08 J. Schilling"
+#pragma ident "@(#)get.c 1.88 20/05/19 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -77,6 +77,7 @@
 static struct packet gpkt;		/* libcomobj data for get()	*/
 
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static struct sid sid;			/* To hold -r parameter		*/
 static unsigned	Ser;			/* To hold -a parameter		*/
 static char	*ilist;			/* To hold -i parameter		*/
@@ -176,7 +177,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "()-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFN:V(version)");
+		        c = getopt(argc, argv, "()-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFN:X:V(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -314,6 +315,14 @@ register char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				printf(gettext(
 				    "get %s-SCCS version %s %s (%s-%s-%s)\n"),
@@ -324,7 +333,8 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file]\n\t[-isid-list] [-rsid] [-xsid-list][ -N[bulk-spec]] s.filename ..."));
+			err:
+			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file]\n\t[-isid-list] [-rsid] [-xsid-list][ -N[bulk-spec]][ -Xxopts ] s.filename ..."));
 			}
 
 			/*
@@ -368,7 +378,7 @@ register char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, do_get, 1, N.n_sdot);
+			do_file(p, do_get, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -404,12 +414,16 @@ get(pkt, file)
 	if (setjmp(Fjmp))
 		return;
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		ifile = N.n_ifile;

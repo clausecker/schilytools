@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.24 18/12/18 Copyright 2011-2018 J. Schilling */
+/* @(#)sccscvt.c	1.26 20/05/17 Copyright 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.24 18/12/18 Copyright 2011-2018 J. Schilling";
+	"@(#)sccscvt.c	1.26 20/05/17 Copyright 2011-2020 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *	is kept in special degenerated comment at the beginning of the comment
  *	block.
  *
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <version.h>
 #include <had.h>
 #include <i18n.h>
+#include <schily/getargs.h>
 #include <schily/utsname.h>
 
 LOCAL	void	usage		__PR((int exitcode));
@@ -40,11 +41,13 @@ LOCAL	void	get_setup	__PR((char *file));
 LOCAL	int	get_hash	__PR((int ser));
 LOCAL	void	clean_up	__PR((void));
 LOCAL	int	getN		__PR((const char *, void *));
+LOCAL	int	getX		__PR((const char *, void *));
 
 LOCAL	struct utsname	un;
 LOCAL	char		*uuname;
 LOCAL	struct packet	gpkt;
 LOCAL	Nparms		N;			/* Keep -N parameters		*/
+LOCAL	Xparms		X;			/* Keep -X parameters		*/
 
 LOCAL	BOOL	dov6	= -1;
 LOCAL	BOOL	keepold;
@@ -62,6 +65,7 @@ usage(exitcode)
 	fprintf(stderr, _("	-d	Discard SCCS v6 meta data.\n"));
 	fprintf(stderr, _("	-keep,-k Keep original history file as o.file.\n"));
 	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
+	fprintf(stderr, _("	-Xxopts	Processes SCCS extended files.\n"));
 	exit(exitcode);
 }
 
@@ -72,7 +76,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,V4%0,V6,d,k,keep,N&_";
+	char	*opts = "help,V,version,V4%0,V6,d,k,keep,N&_,X&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nargs = 0;
@@ -116,7 +120,8 @@ main(ac, av)
 			&dov6, &dov6,
 			&discardv6,
 			&keepold, &keepold,
-			getN, &N) < 0) {
+			getN, &N,
+			getX, &X) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
 	}
@@ -124,7 +129,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf(
-	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2018 %s\n"),
+	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2020 %s\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,
@@ -152,7 +157,9 @@ main(ac, av)
 	while (getfiles(&cac, &cav, opts) > 0) {
 		struct stat	sb;
 
-		if (stat(cav[0], &sb) >= 0 && S_ISDIR(sb.st_mode))
+		if (cav[0][0] == '-' && cav[0][1] == '\0')
+			do_file("-", convert, 0, N.n_sdot, &X);
+		else if (stat(cav[0], &sb) >= 0 && S_ISDIR(sb.st_mode))
 			dodir(cav[0]);
 		else
 			convert(cav[0]);
@@ -218,12 +225,16 @@ convert(file)
 	if (setjmp(Fjmp))
 		return;
 	if (N.n_parm) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		dir_name = N.n_dir_name;
@@ -754,5 +765,17 @@ getN(argp, valp)
 {
 	initN(&N);
 	N.n_parm = (char *)argp;
+	return (TRUE);
+}
+
+LOCAL int
+getX(argp, valp)
+	const char	*argp;
+	void		*valp;
+{
+	X.x_parm = (char *)argp;
+	X.x_flags = XO_NULLPATH;
+	if (!parseX(&X))
+		return (BADFLAG);
 	return (TRUE);
 }

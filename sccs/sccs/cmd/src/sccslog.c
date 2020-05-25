@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.45 20/03/30 Copyright 1997-2020 J. Schilling */
+/* @(#)sccslog.c	1.47 20/05/17 Copyright 1997-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.45 20/03/30 Copyright 1997-2020 J. Schilling";
+	"@(#)sccslog.c	1.47 20/05/17 Copyright 1997-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2020 J. Schilling
@@ -32,6 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
+#include <schily/getargs.h>
 #include <schily/schily.h>
 #include <version.h>
 #include <i18n.h>
@@ -62,6 +63,7 @@ LOCAL	char		*Cwd;
 LOCAL	char		*SccsPath = "";
 LOCAL	BOOL		extended = FALSE;
 LOCAL	Nparms		N;			/* Keep -N parameters		*/
+LOCAL	Xparms		X;			/* Keep -X parameters		*/
 
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
@@ -71,6 +73,7 @@ LOCAL	void	dodir		__PR((char *name));
 LOCAL	void	dofile		__PR((char *name));
 LOCAL	int	fgetline	__PR((FILE *, char *, int));
 LOCAL	int	getN		__PR((const char *, void *));
+LOCAL	int	getX		__PR((const char *, void *));
 
 /*
  * XXX With SCCS v6 local time + GMT off, we should not compare struct tm
@@ -190,6 +193,7 @@ usage(exitcode)
 	fprintf(stderr, _("	-p subdir	Define SCCS subdir.\n"));
 	fprintf(stderr, _("	-x	Include all comment, even SCCSv6 metadata.\n"));
 	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
+	fprintf(stderr, _("	-Xxopts	Processes SCCS extended files.\n"));
 	exit(exitcode);
 }
 
@@ -200,7 +204,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,a+,x,C*,p*,N&_";
+	char	*opts = "help,V,version,a+,x,C*,p*,N&_,X&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nopooling = 0;
@@ -241,7 +245,8 @@ main(ac, av)
 			&help, &pversion, &pversion,
 			&nopooling, &extended,
 			&Cwd, &SccsPath,
-			getN, &N) < 0) {
+			getN, &N,
+			getX, &X) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
 	}
@@ -273,7 +278,9 @@ main(ac, av)
 	while (getfiles(&cac, &cav, opts) > 0) {
 		struct stat	sb;
 
-		if (stat(cav[0], &sb) >= 0 && S_ISDIR(sb.st_mode))
+		if (cav[0][0] == '-' && cav[0][1] == '\0')
+			do_file("-", dofile, 0, N.n_sdot, &X);
+		else if (stat(cav[0], &sb) >= 0 && S_ISDIR(sb.st_mode))
 			dodir(cav[0]);
 		else
 			dofile(cav[0]);
@@ -382,12 +389,16 @@ dofile(name)
 	if (setjmp(Fjmp))
 		return;
 	if (N.n_parm) {
+#ifdef	__needed__
 		char	*ofile = name;
+#endif
 
 		name = bulkprepare(&N, name);
 		if (name == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 	}
@@ -637,5 +648,17 @@ getN(argp, valp)
 {
 	initN(&N);
 	N.n_parm = (char *)argp;
+	return (TRUE);
+}
+
+LOCAL int
+getX(argp, valp)
+	const char	*argp;
+	void		*valp;
+{
+	X.x_parm = (char *)argp;
+	X.x_flags = XO_NULLPATH;
+	if (!parseX(&X))
+		return (BADFLAG);
 	return (TRUE);
 }

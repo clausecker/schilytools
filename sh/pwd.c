@@ -37,13 +37,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)pwd.c	1.39 19/01/14 2008-2019 J. Schilling
+ * @(#)pwd.c	1.40 20/05/17 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.39 19/01/14 2008-2019 J. Schilling";
+	"@(#)pwd.c	1.40 20/05/17 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -728,7 +728,7 @@ rmslash(string)
 void
 ocwdnod()
 {
-#ifdef	DO_SYSPUSHD
+#ifdef	DO_POSIX_CD
 	extern struct namnod opwdnod;
 
 	if (opwdnod.namval != ocwdname)

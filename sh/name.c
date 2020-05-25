@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)name.c	1.79 19/08/27 2008-2019 J. Schilling
+ * @(#)name.c	1.80 20/05/17 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.79 19/08/27 2008-2019 J. Schilling";
+	"@(#)name.c	1.80 20/05/17 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1144,7 +1144,7 @@ popval(n)
 
 		pwdnod.namval = pwdnod.namenv = cwdname;
 	}
-#ifdef	DO_SYSPUSHD
+#ifdef	DO_POSIX_CD
 	else if (n == &opwdnod) {
 		extern	unsigned char	*ocwdname;
 

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.12 17/06/27 
+#ident @(#)Makefile	1.14 20/05/21 
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
@@ -13,8 +13,10 @@ MK_FILES=	adminman.mk bdiffman.mk cdcman.mk changesetman.mk \
 		sccs-adminman.mk sccs-cdcman.mk sccs-combman.mk \
 		sccs-cvtman.mk \
 		sccs-deltaman.mk sccs-getman.mk sccs-helpman.mk \
+		sccs-initman.mk \
 		sccs-logman.mk \
 		sccs-prsman.mk sccs-prtman.mk sccs-rmdelman.mk \
+		sccs-rootman.mk \
 		sccs-sactman.mk sccs-sccsdiffman.mk sccs-ungetman.mk \
 		sccs-valman.mk \
 		sccschangesetman.mk sccscvtman.mk \

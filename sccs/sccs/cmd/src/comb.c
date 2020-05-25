@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)comb.c	1.39 20/05/08 J. Schilling
+ * @(#)comb.c	1.41 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.39 20/05/08 J. Schilling"
+#pragma ident "@(#)comb.c 1.41 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -52,6 +52,7 @@ static struct sid sid;
 
 static struct packet gpkt;
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static int	num_files;
 static int	Do_prs;
 static char	*clist;
@@ -138,7 +139,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-			c = getopt(argc, argv, "()-p:c:osN:V(version)");
+			c = getopt(argc, argv, "()-p:c:osN:X:V(version)");
 
 				/*
 				 * This takes care of options given after
@@ -189,6 +190,14 @@ register char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				printf(gettext(
 				"comb %s-SCCS version %s %s (%s-%s-%s)\n"),
@@ -199,8 +208,9 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
+			err:
 				fatal(gettext(
-				"Usage: comb [ -os ][ -c sid-list ] [ -p SID ][ -N[bulk-spec]] s.filename ..."));
+				"Usage: comb [ -os ][ -c sid-list ] [ -p SID ][ -N[bulk-spec]][ -Xxopts ] s.filename ..."));
 			}
 
 			if (testmore) {
@@ -248,7 +258,7 @@ register char *argv[];
 	iop = stdout;
 	for (i = 1; i < argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, comb, 1, N.n_sdot);
+			do_file(p, comb, 1, N.n_sdot, &X);
 	fclose(iop);
 	iop = NULL;
 
@@ -273,12 +283,16 @@ static	int	idx;
 	if (setjmp(Fjmp))
 		return;
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {

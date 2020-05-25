@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)rmchg.c	1.51 20/05/08 J. Schilling
+ * @(#)rmchg.c	1.53 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.51 20/05/08 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.53 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -83,6 +83,7 @@
 
 static struct sid sid;
 static Nparms	N;			/* Keep -N parameters		*/
+static Xparms	X;			/* Keep -X parameters		*/
 static int num_files;
 static char D_type;
 static char 	*Sidhold;
@@ -176,7 +177,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "()-r:m:y:dzqN:V(version)");
+		        c = getopt(argc, argv, "()-r:m:y:dzqN:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -241,6 +242,14 @@ char *argv[];
 				N.n_parm = p;
 				break;
 
+			case 'X':	/* -Xtended options */
+				X.x_parm = optarg;
+				X.x_flags = XO_NULLPATH;
+				if (!parseX(&X))
+					goto err;
+				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
+				break;
+
 			case 'V':		/* version */
 				p = sname(argv[0]);
 				printf(gettext(
@@ -253,10 +262,11 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
+			err:
 				p = sname(argv[0]);
 				if (equal(p,"cdc"))
 					fatal(gettext(
-					"Usage: cdc -r SID [-mmr-list] [-y [comment]] [-N[bulk-spec]] s.filename ..."));
+					"Usage: cdc -r SID [-mmr-list] [-y [comment]] [-N[bulk-spec]][ -Xxopts ] s.filename ..."));
 				else
 					fatal(gettext(
 					"Usage: rmdel -r SID [-N[bulk-spec]] s.filename ..."));
@@ -318,7 +328,7 @@ char *argv[];
 	*/
 	for (i=1; i<argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, rmchg, 1, N.n_sdot);
+			do_file(p, rmchg, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -356,12 +366,16 @@ char *file;
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of rmchg */
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.126 19/11/11 J. Schilling
+ * @(#)admin.c	1.127 20/05/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.126 19/11/11 J. Schilling"
+#pragma ident "@(#)admin.c 1.127 20/05/16 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -535,7 +535,8 @@ char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_INIT_PATH|XO_URAND|XO_UNLINK|XO_MAIL;
+				X.x_flags = XO_INIT_PATH|XO_URAND|\
+					XO_UNLINK|XO_MAIL|XO_NULLPATH;
 				if (!parseX(&X))
 					goto err;
 				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
@@ -642,10 +643,10 @@ char *argv[];
 	*/
 	for (j=1; j<argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, admin, HADN|HADI ? 0 : 1, N.n_sdot);
+			do_file(p, admin, HADN|HADI ? 0 : 1, N.n_sdot, &X);
 
 	if (num_files == 0 && HADUCN)
-		do_file("-", admin, 0, N.n_sdot);
+		do_file("-", admin, 0, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }

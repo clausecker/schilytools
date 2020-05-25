@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.89 20/05/10 J. Schilling
+ * @(#)delta.c	1.91 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.89 20/05/10 J. Schilling"
+#pragma ident "@(#)delta.c 1.91 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -280,7 +280,7 @@ register char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_PREPEND_FILE|XO_MAIL;
+				X.x_flags = XO_PREPEND_FILE|XO_MAIL|XO_NULLPATH;
 				if (!parseX(&X))
 					goto err;
 				break;
@@ -340,7 +340,7 @@ register char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, delta, 1, N.n_sdot);
+			do_file(p, delta, 1, N.n_sdot, &X);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -380,12 +380,16 @@ char *file;
 		return;
 
 	if (HADUCN) {
+#ifdef	__needed__
 		char	*ofile = file;
+#endif
 
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
+#ifdef	__needed__
 			if (N.n_ifile)
 				ofile = N.n_ifile;
+#endif
 			fatal(gettext("directory specified as s-file (cm14)"));
 		}
 		ifile = N.n_ifile;

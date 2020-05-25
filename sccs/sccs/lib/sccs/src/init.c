@@ -22,10 +22,10 @@
 /*
  * Copyright 2015-2020 J. Schilling
  *
- * @(#)init.c	1.1 20/05/09 J. Schilling
+ * @(#)init.c	1.3 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)init.c 1.1 20/05/09 J. Schilling"
+#pragma ident "@(#)init.c 1.3 20/05/17 J. Schilling"
 #endif
 #include <defines.h>
 #include <version.h>
@@ -56,7 +56,7 @@ initcmd(nfiles, argc, argv)
 
 	optind = 1;
 	opt_sp = 1;
-	while ((rval = getopt(argc, argv, "if")) != -1) {
+	while ((rval = getopt(argc, argv, "ifs")) != -1) {
 		switch (rval) {
 
 #define	IF_INTREE	1
@@ -67,6 +67,11 @@ initcmd(nfiles, argc, argv)
 #define	IF_FORCE	2
 		case 'f':
 			flags |= IF_FORCE;
+			break;
+
+#define	IF_SINGLEFILE	4
+		case 's':
+			flags |= IF_SINGLEFILE;
 			break;
 		default:
 			usrerr("%s %s",
@@ -143,6 +148,22 @@ initdir(hpath, flags)
 		strlcat(nbuf, "data", sizeof (nbuf));
 		xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
 	}
+	if ((flags & IF_SINGLEFILE) == 0) {
+		int	r;
+		char	*av[6];
+		extern int command __PR((char **argv, int forkflag, char *arg0));
+
+		av[0] = "admin";
+		av[1] = "-V6";
+		av[2] = "-Xunlink";
+		av[3] = "-n";
+		av[4] = changesetfile;
+		av[5] = NULL;
+		r = command(av, TRUE, "");
+		if (r)
+			err = 1;
+	}
+
 	unsethome();
 	return (err);
 }
@@ -158,6 +179,8 @@ sccs_sethdebug()
 					setrhome != NULL ? setrhome : "NULL");
 	printf(gettext("cwdprefix: '%s'\n"),
 					cwdprefix != NULL ? cwdprefix : "NULL");
+	printf(gettext("changeset: '%s'\n"),
+					changesetfile != NULL ? changesetfile : "NULL");
 	printf(gettext("homedist:  %d\n"),
 					homedist);
 	printf(gettext("setahomelen: %d\n"),
@@ -170,11 +193,12 @@ sccs_sethdebug()
 					cwdprefixlen);
 	printf(gettext("sethomestat: 0x%8.8X\n"),
 					sethomestat);
-	printf(gettext("sethome OK: %d INIT: %d OFFTREE: %d DELS %d\n"),
+	printf(gettext("sethome OK: %d INIT: %d OFFTREE: %d DELS %d CHSET %d\n"),
 					(sethomestat & SETHOME_OK) != 0,
 					SETHOME_INIT(),
 					(sethomestat & SETHOME_OFFTREE) != 0,
-					(sethomestat & SETHOME_DELS_OK) != 0);
+					(sethomestat & SETHOME_DELS_OK) != 0,
+					(sethomestat & SETHOME_CHSET_OK) != 0);
 	if ((sethomestat & SETHOME_OK) && (sethomestat & SETHOME_DELS_OK) == 0)
 		printf(gettext(
 			"WARNING: Uninitialized .sccs directory found.\n"));

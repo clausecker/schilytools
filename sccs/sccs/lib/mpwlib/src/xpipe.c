@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)xpipe.c	1.6 09/11/08 J. Schilling
+ * @(#)xpipe.c	1.7 20/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xpipe.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)xpipe.c 1.7 20/05/17 J. Schilling"
 #endif
 /*
  * @(#)xpipe.c 1.4 06/12/12
@@ -62,9 +62,10 @@ int *t;
 	static char p[16];	/* strlen("pipe") * 3 + 1 */
 
 	strcpy(p, (const char *) NOGETTEXT("pipe"));
-	if (pipe(t) == 0)
+	if (pipe(t) == 0) {
+		setmode(t[0], O_BINARY);
+		setmode(t[1], O_BINARY);
 		return(0);
-	setmode(t[0], O_BINARY);
-	setmode(t[1], O_BINARY);
+	}
 	return(xmsg(p,p));
 }
