@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)spax.1	1.14 20/05/21 Copyr 2004-2020 J. Schilling
+. \" @(#)spax.1	1.15 20/05/26 Copyr 2004-2020 J. Schilling
 . \" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics Engineers, Inc and The Open Group.
 . \" Manual page for spax
 . \"
@@ -30,7 +30,7 @@
 .ce
 .B \\$1
 ..
-.TH SPAX 1L "2020/05/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SPAX 1L "2020/05/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 pax \- portable archive interchange
 .SH SYNOPSIS
@@ -1022,29 +1022,58 @@ The manual page for
 .B spax
 is not yet ready.
 The following text is a quotation from the POSIX.1-2001 standard.
-.PP
+.LP
 In
 .B list
 mode with the
-.BI "\-o listopt=" format
+.B -o
+.BI listopt= format
 option, the
-.I format
-argument shall be applied for each selected file. The 
-.B pax 
-utility
-shall append a <newline> to the
+format argument is applied for each selected file.
+.B spax
+appends a
+NEWLINE to the
 .B listopt
-output for each selected
-file. The
+output for each selected file. The
 .I format
-argument shall be used as the
-.I format
-string
-described in the Base Definitions volume of IEEE Std 1003.1-2001,
-Chapter 5, File Format Notation, with the exceptions 1. through 5.
-defined in the EXTENDED DESCRIPTION section of
-.BR printf (3),
-plus the following exceptions:
+argument is used as the format string with the following exceptions. (See
+.BR printf (1)
+for the first five exceptions.)
+.TP
+.B 1.
+A
+.B SPACE
+character in the format string, in any context other than a
+flag of a conversion specification, is treated as an ordinary character that
+is copied to the output.
+.TP
+.B 2.
+A \fB\&' '\fR character in the format string is treated as a \fB\&' '\fR
+character, not as a SPACE.
+.TP
+.B 3.
+In addition to the escape sequences described in the
+.BR formats (5)
+manual page, (\fB\e\e\fR, \fB\ea\fR, \fB\eb\fR, \fB\ef\fR, \fB\en\fR,
+\fB\er\fR, \fB\et\fR, \fB\ev\fR), \fB\e\fIddd\fR, where
+.I ddd
+is a
+one-, two-, or three-digit octal number, is written as a byte with the
+numeric value specified by the octal number.
+.TP
+.B 4.
+Output from the
+.B d
+or
+.B u
+conversion specifiers is not preceded or
+followed with BLANKs not specified by the format operand.
+.TP
+.B 5.
+Output from the
+.B o
+conversion specifier is not preceded with zeros
+that are not specified by the format operand.
 .TP
 .B 6.
 The sequence

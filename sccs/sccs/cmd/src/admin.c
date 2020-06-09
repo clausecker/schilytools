@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.127 20/05/16 J. Schilling
+ * @(#)admin.c	1.129 20/06/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.127 20/05/16 J. Schilling"
+#pragma ident "@(#)admin.c 1.129 20/06/08 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -118,7 +118,7 @@ static char	Valpgm[]	=	NOGETTEXT("val");
 static int	fexists;		/* Current file exists		*/
 static int	num_files;		/* Number of file args		*/
 static int	VFLAG  =  0;		/* -v option seen		*/
-static int	versflag = 4;		/* history vers for new files	*/
+static int	versflag = -1;		/* history vers for new files	*/
 static struct sid	new_sid;	/* -r argument			*/
 static char	*anames[MAXNAMES];	/* -a arguments			*/
 static char	*enames[MAXNAMES];	/* -e arguments			*/
@@ -583,15 +583,9 @@ char *argv[];
 			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
-#ifdef	SCCS_V6_ENV
-	if (versflag != 6) {
-		if (getenv("SCCS_V6"))
-			versflag = 6;
-	}
-#endif
 
-	for(i=1; i<argc; i++){
-		if(argv[i]) {
+	for (i = 1; i < argc; i++){
+		if (argv[i]) {
 		       num_files++;
 		}
 	}
@@ -620,9 +614,26 @@ char *argv[];
 		if (N.n_sdot && (sethomestat & SETHOME_OFFTREE))
 			fatal(gettext("-Ns. not supported in off-tree project mode"));
 
+		/*
+		 * If someone previously successfully called "sccs init" and
+		 * "admin" is called with the option -N, we default to -V6.
+		 */
+		if (versflag < 0 && SETHOME_INIT()) {
+			versflag = 6;
+		}
+
 	} else if (HADI && ifile[0] == '.' && ifile[1] == '\0') {
 		direrror(ifile, 'i');
 	}
+
+#ifdef	SCCS_V6_ENV
+	if (versflag < 0) {		/* Not explicitly selected, check ENV */
+		if (getenv("SCCS_V6"))
+			versflag = 6;
+	}
+#endif
+	if (versflag < 0)
+		versflag = 4;		/* This is the historic default */
 
 	if ((HADY || HADM) && ! (HADI || HADN))
 		fatal(gettext("illegal use of 'y' or 'm' keyletter (ad30)"));
@@ -1589,6 +1600,7 @@ char	*afile;
 	}
 	sclose(&gpkt);
 	sfree(&gpkt);
+	ffreeall();
 }
 
 static int
@@ -1814,10 +1826,6 @@ static void
 clean_up()
 {
 	xrm(&gpkt);
-	if (gpkt.p_xiop) {
-		fclose(gpkt.p_xiop);
-		gpkt.p_xiop = NULL;
-	}
 	if(gpkt.p_file[0]) {
 		unlink(auxf(gpkt.p_file,'x'));
 		if (HADI)
@@ -1835,6 +1843,9 @@ clean_up()
 		uuname = un.nodename;
 		unlockit(Zhold, getpid(),uuname);
 	}
+	sclose(&gpkt);
+	sfree(&gpkt);
+	ffreeall();
 }
 
 static void

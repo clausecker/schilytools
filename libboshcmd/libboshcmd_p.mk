@@ -1,4 +1,4 @@
-#ident "@(#)libboshcmd_p.mk	1.1 18/01/10 "
+#ident "@(#)libboshcmd_p.mk	1.2 18/08/01 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,6 +10,7 @@ SUBINSDIR=	/profiled
 INSDIR=		lib
 TARGETLIB=	boshcmd
 
+CPPOPTS +=	-DSCHILY_INCLUDES	# Tell the code to use schily include files
 CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 CPPOPTS +=	-DVFORK			# Use vfork() if possible
 

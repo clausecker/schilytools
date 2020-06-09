@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.197 19/11/13 Copyright 1985, 1995, 2001-2019 J. Schilling */
+/* @(#)buffer.c	1.198 20/06/06 Copyright 1985, 1995, 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.197 19/11/13 Copyright 1985, 1995, 2001-2019 J. Schilling";
+	"@(#)buffer.c	1.198 20/06/06 Copyright 1985, 1995, 2001-2020 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2019 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -287,6 +287,7 @@ opentape()
 	extern	dev_t	tape_dev;
 	extern	ino_t	tape_ino;
 	extern	BOOL	tape_isreg;
+	extern	Llong	mtskip;
 
 	if (copyflag || (nullout && !(uflag || rflag))) {
 		tarfiles[tarfindex] = "null";
@@ -465,6 +466,11 @@ opentape()
 	if (Zflag || zflag || bzflag || lzoflag ||
 	    p7zflag || xzflag || lzipflag || zstdflag || lzmaflag || freezeflag ||
 	    compress_prg) {
+		extern long	iskip;
+
+		iskip = 0;	/* We cannot skip in compressed archives. */
+		mtskip = 0;	/* We cannot skip in compressed archives. */
+
 		if (isremote)
 			comerrno(EX_BAD, "Cannot compress remote archives (yet).\n");
 		/*
@@ -474,6 +480,19 @@ opentape()
 			compressopen();
 		else
 			comerrno(EX_BAD, "Can only compress files.\n");
+
+	} else if (stats->volno == 1 && mtskip) {
+		if (tape_isreg) {
+			if (mtseek((off_t)mtskip * TBLOCK, SEEK_SET) == -1)
+				excomerr("Cannot seek input for mtskip=.\n");
+			mtskip = 0;
+		} else if (mtioctl(MTNOP, 0) >= 0) {
+		extern	int	nblocks;
+			int	count = mtskip / nblocks; 
+
+			if (mtioctl(MTFSR, count) == -1)
+				excomerr("Cannot position tape for mtskip=.\n");
+		}
 	}
 
 #ifdef	timerclear

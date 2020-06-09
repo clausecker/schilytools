@@ -1,4 +1,4 @@
-. \" @(#)sdd.1	1.9 18/12/19 Copyr 1982-1995,2018 J. Schilling
+. \" @(#)sdd.1	1.10 20/05/30 Copyr 1982-1995,2020 J. Schilling
 . \"  Manual page for sdd
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SDD 1E "2018/12/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SDD 1E "2020/05/30" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .SH SYNOPSIS
@@ -201,18 +201,29 @@ Print a dot to
 each time a record is written to indicate progress.
 .TP
 .BI secsize= #
-Set the basic buffersize to
+Set the basic buffersize for error recovery via
+.B \-noerror
+to
 .IR #.
 The default is 512 to match the most usual physical sector size.
 Since error recovery is done at the level of the basic buffer size, you need
-to use this option in case you are accessing a drive with a different physical
-sector size.
+to use this option in error recovery mode in case you are accessing a drive
+with a different physical sector size than 512 bytes.
 .TP
 .BR \-time ", " \-t
 Report the total time and the transfer rate.
 .TP
 .B \-noerror
 Do not stop transfer on I/O errors. Error messages will appear on the screen.
+If this option is used and
+.B \-noseek
+has not been specified as well,
+.B ibs
+and
+.B obs
+need to be multiples of the error recovery blocksize specified via
+.BI secsize= #\c
+\&.
 .TP
 .B \-noerrwrite
 Do not write blocks that are not read correctly. Seek on the output to skip

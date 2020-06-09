@@ -22,10 +22,10 @@
 /*
  * Copyright 2015-2020 J. Schilling
  *
- * @(#)init.c	1.3 20/05/17 J. Schilling
+ * @(#)init.c	1.4 20/05/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)init.c 1.3 20/05/17 J. Schilling"
+#pragma ident "@(#)init.c 1.4 20/05/31 J. Schilling"
 #endif
 #include <defines.h>
 #include <version.h>
@@ -153,6 +153,8 @@ initdir(hpath, flags)
 		char	*av[6];
 		extern int command __PR((char **argv, int forkflag, char *arg0));
 
+		unsethome();				/* Forget old home */
+		xsethome(hpath);			/* sets changesetfile */
 		av[0] = "admin";
 		av[1] = "-V6";
 		av[2] = "-Xunlink";

@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.42 18/09/28 Copyright 1986-2018 J. Schilling */
+/* @(#)hdump.c	1.43 20/05/25 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.42 18/09/28 Copyright 1986-2018 J. Schilling";
+	"@(#)hdump.c	1.43 20/05/25 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	traditional Solaris interface, /usr/bin/od and /usr/xpg4/bin/od must be
  *	hard linked. Symlinks would be followed by getexecname().
  *
- *	Copyright (c) 1986-2018 J. Schilling
+ *	Copyright (c) 1986-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -439,9 +439,9 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-		_("%s release %s %s (%s-%s-%s) Copyright (C) 1986-2018 %s\n"),
+		_("%s release %s %s (%s-%s-%s) Copyright (C) 1986-2020 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.42", "2018/09/28",
+				"1.43", "2020/05/25",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -1224,6 +1224,7 @@ myatoll(s)
 		s++;
 	} else if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
 		curradix = 16;
+		s += 2;
 	} else if (s[0] == '0' && !streql("0", s)) {
 		curradix = 8;
 	} else if (((p = strchr(s, '.')) != NULL) &&

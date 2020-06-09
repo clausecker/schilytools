@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)fmalloc.c	1.6 11/07/27 J. Schilling
+ * @(#)fmalloc.c	1.7 20/06/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fmalloc.c 1.6 11/07/27 J. Schilling"
+#pragma ident "@(#)fmalloc.c 1.7 20/06/07 J. Schilling"
 #endif
 /*
  * @(#)fmalloc.c 1.5 06/12/12
@@ -131,10 +131,9 @@ void *aptr;
 	while (cnt)
 		if (aptr == ptrlist[--cnt]) {
 			free(aptr);
+			ptrlist[cnt] = NULL;
 			if (cnt == ptrcnt - 1)
 				--ptrcnt;
-			else
-				ptrlist[cnt] = NULL;
 			return;
 		}
 	fatal(gettext("ffree: Pointer not pointing to allocated area"));

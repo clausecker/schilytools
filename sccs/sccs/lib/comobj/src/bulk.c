@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.15 18/12/16 Copyright 2011-2018 J. Schilling
+ * @(#)bulk.c	1.17 20/06/01 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.15 18/12/16 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)bulk.c	1.17 20/06/01 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -21,6 +21,7 @@
 #pragma ident	"@(#)sccs:lib/comobj/bulk.c"
 #endif
 #include	<defines.h>
+#include	<schily/libgen.h>	/* Needed for dirname() */
 #include	<i18n.h>
 
 #ifdef	BULK_DEBUG
@@ -45,6 +46,7 @@ initN(N)
 	N->n_sid.s_rel = N->n_sid.s_lev = N->n_sid.s_br = N->n_sid.s_seq = 0;
 	N->n_mtime.tv_sec = 0;
 	N->n_mtime.tv_nsec = 0;
+	N->n_flags = N->n_pflags = 0;
 }
 
 void
@@ -71,6 +73,9 @@ parseN(N)
 {
 	char	*parm = N->n_parm;
 
+	/*
+	 * First check the leading flag characters in the -N parameter.
+	 */
 	while (*parm && any(*parm, "+-, ")) {
 		if (*parm == ' ') {		/* Dummy flag	   */
 			parm++;
@@ -91,8 +96,11 @@ parseN(N)
 			parm++;
 		}
 	}
-	N->n_sdot = sccsfile(parm);
-	if (N->n_sdot) {			/* parm ends in s. */
+	/*
+	 * path not points to the path name component of the -N argument
+	 */
+	N->n_sdot = sccsfile(parm);		/* Check last pn component */
+	if (N->n_sdot) {			/* parm ends in s.	   */
 		if (strlen(sname(parm)) > 2)
 			fatal(gettext("bad N argument (co37)"));
 		N->n_prefix = parm;		/* -Ns. / -NSCCS/s. */
@@ -108,7 +116,7 @@ parseN(N)
 			slseen = 0;
 			len++;
 		}
-		len += 3;
+		len += 3;			/* Add "s.\0"	*/
 		N->n_prefix = xmalloc(len);
 		cat(N->n_prefix, parm, slseen?"":"/", sdot, (char *)0);
 		N->n_subd = 1;
@@ -167,13 +175,18 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 	N->n_mtime.tv_sec = 0;
 	if (!N->n_sdot) {			/* afile is ifile name */
 		char	*sn = sname(afile);
+		char	*pfx;
 
 		if (exists(afile)) {		/* must exist */
+			N->n_mtime.tv_sec = Statbuf.st_mtime;
+			N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
+
 			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
-				return ((char *)NULL);
+				if ((N->n_pflags & NP_DIR) == 0)
+					return ((char *)NULL);
 			} else {
-				N->n_mtime.tv_sec = Statbuf.st_mtime;
-				N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
+				if ((N->n_pflags & NP_DIR) != 0)
+					return ((char *)NULL);
 			}
 		} else {
 			N->n_mtime.tv_sec = 0;
@@ -210,19 +223,27 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			else
 				Dir[len] = '\0'; /* Solaris syscall needs it */
 		}
+		pfx = N->n_prefix;
+		N->n_ifile = sn;
+
+		if ((N->n_pflags & NP_DIR) != 0) {
+			strlcpy(tmp, pfx, sizeof (tmp));
+			pfx = dirname(tmp);
+			sn = NULL;
+		}
 		if (Dir[0] != '\0' && (dfd < 0 || chdir(Dir) < 0)) {
 			Nhold[0] = '\0';
 			if (sethomestat & SETHOME_OFFTREE) {
 				strlcatl(Nhold, sizeof (Nhold),
 					setrhome, "/.sccs/data/",
-					cwdprefix?cwdprefix:"",
-					cwdprefix?"/":"",
+					cwdprefixlen?cwdprefix:"",
+					cwdprefixlen?"/":"",
 					Dir, *Dir?"/":"",
-					N->n_prefix, sn, (char *)0);
+					pfx, sn, (char *)0);
 			} else {
 				strlcatl(Nhold, sizeof (Nhold),
 					Dir, *Dir?"/":"",
-					N->n_prefix, sn, (char *)0);
+					pfx, sn, (char *)0);
 			}
 			N->n_ifile = afile;
 			N->n_dir_name = NULL;
@@ -231,14 +252,13 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			if (sethomestat & SETHOME_OFFTREE) {
 				strlcatl(Nhold, sizeof (Nhold),
 					setrhome, "/.sccs/data/",
-					cwdprefix?cwdprefix:"",
-					cwdprefix?"/":"",
-					N->n_prefix, sn, (char *)0);
+					cwdprefixlen?cwdprefix:"",
+					cwdprefixlen?"/":"",
+					pfx, sn, (char *)0);
 			} else {				/* use short name */
 				strlcatl(Nhold, sizeof (Nhold),
-					N->n_prefix, sn, (char *)0);
+					pfx, sn, (char *)0);
 			}
-			N->n_ifile = sn;
 			N->n_dir_name = Dir;
 			if (N->n_dir_name[0] == '.' && N->n_dir_name[1] == '/')
 				N->n_dir_name += 2;

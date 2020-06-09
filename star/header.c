@@ -1,8 +1,8 @@
-/* @(#)header.c	1.203 20/02/05 Copyright 1985, 1994-2020 J. Schilling */
+/* @(#)header.c	1.205 20/06/05 Copyright 1985, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.203 20/02/05 Copyright 1985, 1994-2020 J. Schilling";
+	"@(#)header.c	1.205 20/06/05 Copyright 1985, 1994-2020 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -977,6 +977,10 @@ get_tcb(ptb)
 	Ulong	check;
 	Ulong	ocheck;
 	BOOL	eof = FALSE;
+extern	long	iskip;
+extern	Llong	mtskip;
+extern	char	*bigptr;
+extern	m_stats	*stats;
 
 	/*
 	 * bei der Option -i wird ein genulltes File
@@ -1008,6 +1012,17 @@ get_tcb(ptb)
 #endif
 				xstats.s_hardeof++;
 				return (EOF);
+			}
+			if (mtskip) {
+				int	nbl = stats->blocksize / TBLOCK;
+
+				iskip = mtskip % nbl;
+				iskip *= TBLOCK;
+			}
+			if (iskip) {
+				if (stats->blocksize >= (iskip+TBLOCK)) {
+					movetcb((TCB *)(bigptr+iskip), (TCB *)ptb);
+				}
 			}
 			hdrtype = get_hdrtype(ptb, FALSE);
 			hdrtype = get_xhtype(ptb, hdrtype);
@@ -1129,6 +1144,8 @@ get_tcb(ptb)
 			 */
 			buf_resume();
 			buf_rwake(props.pr_hdrsize); /* eat up archive header */
+			if (iskip)
+				buf_rwake(iskip);
 		} else {
 			if (readblock((char *)ptb, props.pr_hdrsize) == EOF) {
 				errmsgno(EX_BAD,

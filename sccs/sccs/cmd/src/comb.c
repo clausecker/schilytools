@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)comb.c	1.41 20/05/17 J. Schilling
+ * @(#)comb.c	1.42 20/06/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.41 20/05/17 J. Schilling"
+#pragma ident "@(#)comb.c 1.42 20/06/07 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -488,6 +488,8 @@ static	int	idx;
 	}
 	if (dir_name)
 		fprintf(iop, "cd \"$wdir\"\n");
+
+	ffreeall();
 }
 
 /*ARGSUSED*/
@@ -549,5 +551,7 @@ int i;
 static void
 clean_up()
 {
+	sclose(&gpkt);
+	sfree(&gpkt);
 	ffreeall();
 }

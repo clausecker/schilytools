@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.49 20/05/21 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs.1	4.50 20/05/28 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2020/05/21" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2020/05/28" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -1619,13 +1619,47 @@ implementations.
 
 .br
 .ne 5
-.TP
-.B print
+.HP
+.BR print " [" \-a "] [" \-A "] [\c"
+.BR \-n "] [" \-r\c
+.IR sid "] \c
+.B file ...
 .sp .6
 Print the entire history of each named file. Equivalent to an
 .RB ` "sccs prs -e" '
 followed by an
 .RB ` "sccs get -p -m" '.
+
+.br
+.RS
+.ne 3
+.TP
+.B \-A
+Annotates the output
+(see
+.BR sccs-get (1)).
+.br
+.ne 3
+.TP
+.B \-a
+Includes all deltas, including those marked as removed
+(see
+.BR sccs-rmdel (1)).
+.br
+.ne 3
+.TP
+.B \-m
+(see
+.BR sccs-get (1)).
+.br
+.ne 3
+.TP
+.BI \-r sid
+Specify the
+.B SID
+(see
+.BR sccs-get (1)).
+.RE
 
 .br
 .ne 6

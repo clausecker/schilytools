@@ -1,0 +1,54 @@
+h15489
+s 00042/00000/00000
+d D 1.1 20/06/08 21:30:13 joerg 1 0
+c date and time created 20/06/08 21:30:13 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+#
+# %Z%%M%	%I% %E% Copyright 2011-2020 J. Schilling
+#
+setup() {
+	if test -f SCCS/s.opt.sh
+	then
+		if test -d XSCCS
+		then
+			miscarry "Cannot rename SCCS to XSCCS, XSCCS exists"
+		else
+			mv SCCS XSCCS
+		fi
+	fi
+}
+
+restore() {
+	if test -f XSCCS/s.opt.sh
+	then
+		if test -d SCCS
+		then
+			miscarry "Cannot rename XSCCS back to XSCCS, SCCS exists"
+		else
+			mv XSCCS SCCS
+		fi
+	fi
+}
+
+
+# If LANG is defined but the system is misconfigured, we will produce
+# the error message "Error setting locale: No such file or directory".
+# If that happens, the test suite will fail.  For this reason, we
+# unset the LANG environment variable.  Of course, things being
+# printed out in the wrong language would also mess up the results of
+# the test suite.
+# We want to prevent setlocale(LC_ALL, "") failing:
+unset LANG
+
+# We assume that all the files we want to work on are in the 
+# current directory.
+unset PROJECTDIR
+
+
+E 1

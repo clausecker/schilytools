@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cmds	1.65 20/05/24 J. Schilling 
+* @(#)cmds	1.67 20/06/05 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -201,7 +201,7 @@ options:
 b		Enables branch deltas
 cceil		Sets a ceiling on the releases that can be checked out
 dsid		Specify default delta number to be used by an SCCS get command
-e		The content is UUencoded
+e		The content is uuencoded
 ffloor		Sets a floor on the releases that can be checked out
 i[value]	Treat the `No id keywords (cm7)' message as an error
 j		Allow concurrent get -e calls
@@ -465,7 +465,7 @@ Keyword       Data Item            Section           Type           Type
   :G:   G-File name                  N/A           file name         S
  :PN:   Pathname                     N/A           pathname          S
  :Gp:   Pathname              Global metadata      initial pathname  S
- :Gr:   Unified random nubmer         "            hex number        S
+ :Gr:   Unified random number         "            hex number        S
 
 Format type: S -> simple format, M -> multi line format
 
@@ -588,7 +588,7 @@ options:
 	sccs admin	create or administer SCCS history files
 	sccs branch	create a branch on an SCCS file
 	sccs cdc	change the delta commentary of an SCCS delta
-	sccs check	same as "info" but no putput if nothing is edited
+	sccs check	same as "info" but no output if nothing is edited
 	sccs clean	remove files that can be regenerated from the s-file
 	sccs comb	combine SCCS deltas
 	sccs create	same as "enter" but followed by "get"
@@ -607,7 +607,7 @@ options:
 	sccs istext	check whether a file needs to be encoded
 	sccs ldiffs	compare edited file using local diff program from OS
 	sccs log	create a changelog using SCCS delta comments
-	sccs print	print the history and copmlete content of an SCCS file
+	sccs print	print the history and complete content of an SCCS file
 	sccs prs	display selected portions of an SCCS history
 	sccs prt	display delta table information from an SCCS file
 	sccs rcs2sccs	convert RCS history files into SCCS history files
@@ -744,10 +744,16 @@ options:
 	-cdate	Retrieve version based on cutoff-time
 	-rSID	Supply SCCS ID
 -print
-	print
+	print [-a] [-A] [-n] [-r<SID>] file ...
 
 	Print entire history of a file, equivalent to an `sccs prs -e'
 	followed by an `sccs get -p -m'
+
+options:
+	-a	Include all deltas (including removed deltas)
+	-A	Precede each line with annotate data for programmer and date
+	-n	Precede each line with %M% ID and TAB
+	-rSID	Supply SCCS ID
 -branch
 	branch [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
 	    [-p] [-l] file ...

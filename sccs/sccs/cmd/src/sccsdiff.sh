@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)sccsdiff.sh	1.12 18/12/17 Copyright 2011-2018 J. Schilling
+# @(#)sccsdiff.sh	1.13 20/05/29 Copyright 2011-2020 J. Schilling
 #
 # CDDL HEADER START
 #
@@ -52,7 +52,7 @@ rflag=
 addflags=
 Nflag=
 get=get
-for i in $@
+for i in "$@"
 do
 	if [ "$addflags" = "yes" ]
 	then
@@ -150,7 +150,16 @@ do
 		rflag=	
 		;;	
 	*)
-		echo "$0: $i not an SCCS file" 1>&2
+		if [ "$Nflag" ]; then
+			#
+			# In NewMode, get(1) converts g-filenames into
+			# s-filenames if needed, so need to let get(1)
+			# do the checks.
+			#
+			files="$files $i"
+		else
+			echo "$0: $i not an SCCS file" 1>&2
+		fi
 		;;
 	esac
 done
@@ -171,9 +180,11 @@ do
 	#
 	# $Nflag may contain spaces, so clear IFS for this command
 	#
-	if IFS= $get $nseflag $Nflag -s -o -k -r$sid1 $i -G/tmp/geta$$
+	OIFS=$IFS
+	IFS=
+	if $get $nseflag $Nflag -s -o -k -r$sid1 $i -G/tmp/geta$$
 	then
-		if IFS= $get $nseflag $Nflag -s -o -k -r$sid2 $i -G/tmp/getb$$
+		if $get $nseflag $Nflag -s -o -k -r$sid2 $i -G/tmp/getb$$
 		then
 			diff $flags /tmp/geta$$ /tmp/getb$$ > /tmp/getc$$
 		else
@@ -184,6 +195,7 @@ do
 		error=1
 		continue	# error: cannot get release $sid1
 	fi
+	IFS=$OIFS
 
 	if [ ! -s /tmp/getc$$ ]
 	then

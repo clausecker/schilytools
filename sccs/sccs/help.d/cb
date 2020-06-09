@@ -18,6 +18,10 @@
 *
 * CDDL HEADER END
 *
+* Copyright 2006-2020 J. Schilling
+*
+* @(#)cb	1.3 20/06/05 J. Schilling 
+*
 * @(#)cb 1.2 06/12/12
 *
 *#ident	"@(#)sccs:help.d/cb"
@@ -44,6 +48,6 @@ to the named SCCS-file.  Therefore, it can't do anything to
 the named SCCS-file.
 -5
 "dangerous filename"
-The filename contains a charcter that would cause problems with
+The filename contains a character that would cause problems with
 the shell script we generate.  If you need to use comb on this
 file, rename the history file before calling comb.

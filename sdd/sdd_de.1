@@ -1,4 +1,4 @@
-. \" @(#)sdd_de.1	1.5 01/07/20 Copyright 1985-1997 J. Schilling
+. \" @(#)sdd_de.1	1.6 20/05/30 Copyright 1985-2020 J. Schilling
 . \"  Manual Seite fuer sdd
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SDD 1 "15. Mai 1997" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SDD 1 "2020/05/30" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .SH SYNOPSIS
@@ -220,6 +220,16 @@ wird ein Punkt auf
 .I stderr
 geschrieben um dem Fortschritt des Transfers anzuzeigen.
 .TP
+.BI secsize= #
+Setzt die zugrundegelegte Puppfergr\*o\*se f\*ur Fehlerbehebung mittels
+.B \-noerror
+auf
+.IR #.
+Der Default ist 512 und passt zu der \*ublichen physischen Sektorgr\*o\*se.
+Da die Fehlerbehebung auf der Ebene der Basis-Puffer-Gr\*o\*se erfolgt,
+wird diese Option ben\*otigt, wenn im Fehlerbehebungsmodus ein Laufwerk mit
+einer anderen physischen Sektorgr\*o\*se als 512 Bytes verwendet wird.
+.TP
 .BR \-time ", " \-t
 Es wird die gesammte Transferzeit, sowie die Daten\*ubertragungsgeschindigkeit
 angezeigt.
@@ -227,6 +237,15 @@ angezeigt.
 .B \-noerror
 Bei einem I/O Fehler wird der Transfer nicht unterbrochen. Fehlermeldungen
 werden auf dem Schirm angezeigt.
+Wird diese Option verwendet ohne auch
+.B \-noseek
+zu verwenden, dann m\*ussen
+.B ibs
+und
+.B obs
+Vielfache der Fehlerbehebungs-Sektorgr\*o\*se aus
+.BI secsize= #
+sein.
 .TP
 .B \-noerrwrite
 Blöcke, die nicht korrekt gelesen wurden werden nicht geschrieben.
@@ -298,10 +317,18 @@ Gibt eine kurze Zusammenfassung der
 .B sdd
 optionen aus und endet.
 .TP
+.B \-md5
+Berechnet die md5 Sunne f\*ur die Daten.
+Wenn die Option
+.B \-onull
+verwendet wurde berechnet,
+.B sdd
+md5 Summe aus den Eingangsdaten, sonst werden die Ausgangsdaten verwendet.
+.TP
 .B \-version
 Gibt die
 .B sdd
-versions number aus und endet.
+Versions-Nummer aus und endet.
 .
 . \" .SH EXAMPLES
 .SH BEISPIELE

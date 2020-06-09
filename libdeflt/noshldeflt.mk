@@ -1,4 +1,4 @@
-#ident "@(#)noshldeflt.mk	1.1 06/07/21 "
+#ident "@(#)noshldeflt.mk	1.2 20/06/01 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,4 +6,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 all:
-	@echo "	==> NO shared libs on this platform (yet)"
+	@echo "	==> MAKING no shared libs on this platform (LINKMODE=${LNKMODE})"
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.dyn
+###########################################################################

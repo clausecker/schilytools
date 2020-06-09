@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.61 20/05/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-admin.1	1.62 20/06/09 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2020/05/16" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2020/06/09" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -952,10 +952,23 @@ implementations.
 .sp
 .ne 3
 .TP
+.B \-V4
+When used together with
+.B \-i
+or
+.BR \-n ,
+.BR admin (1)
+will create a 
+.B "SCCS v4
+history file instead of the default, that may be
+.BR "SCCS v6" .
+.sp
+.ne 3
+.TP
 .B \-V6
 When used together with
 .B \-i
-of
+or
 .BR \-n ,
 .BR admin (1)
 will create a 
@@ -963,6 +976,17 @@ will create a
 history file instead of a
 .B "SCCS v4
 history file.
+.sp
+.B "SCCS v6
+history files are the default in case that a directory
+.IB projecthome /.sccs/
+has been created before and correcly populated and
+.BR admin (1)
+has been called with the
+.B \-N
+option to select the
+.BR "new mode" .
+.sp
 .B "SCCS v6
 history files are not understood by historic SCCS implementations.
 See

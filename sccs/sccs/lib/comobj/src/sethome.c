@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.13 20/05/17 Copyright 2011-2020 J. Schilling
+ * @(#)sethome.c	1.14 20/05/28 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.13 20/05/17 Copyright 2011-2020 J. Schilling"
+#pragma ident "@(#)sethome.c	1.14 20/05/28 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -484,6 +484,22 @@ checkdotsccs(path)
 		err = errno;
 	} else {
 		sethomestat &= ~SETHOME_DELS_OK;
+	}
+	/*
+	 * At least during the period, where we are converting to the new
+	 * interfaces, we need a way to intentionally select a behavior.
+	 * SCCS_NMODE=i	enforces intree history
+	 * SCCS_NMODE=o	enforces offree history
+	 * SCCS_NMODE=	keeps current defaults
+	 */
+	if ((p = getenv("SCCS_NMODE")) != NULL) {
+		if (*p == 'i') {
+			sethomestat |=  SETHOME_INTREE;
+			sethomestat &= ~SETHOME_OFFTREE;
+		} else if (*p) {
+			sethomestat &= ~SETHOME_INTREE;
+			sethomestat |=  SETHOME_OFFTREE;
+		}
 	}
 	if (err) {
 		errno = err;

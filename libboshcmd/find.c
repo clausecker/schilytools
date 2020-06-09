@@ -1,4 +1,4 @@
-/* @(#)find.c	1.6 18/01/10 Copyright 2014-2018 J. Schilling */
+/* @(#)find.c	1.7 18/08/01 Copyright 2014-2018 J. Schilling */
 #include <schily/mconfig.h>
 /*
  *	find builtin
@@ -19,12 +19,13 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include "../sh/defs.h"
 #include "bosh.h"
 #define	DO_SYSFIND
 #ifdef DO_SYSFIND
 
 static	UConst char sccsid[] =
-	"@(#)find.c	1.6 18/01/10 Copyright 2014-2018 J. Schilling";
+	"@(#)find.c	1.7 18/08/01 Copyright 2014-2018 J. Schilling";
 
 #include	<schily/walk.h>
 #include	<schily/find.h>
@@ -51,16 +52,22 @@ sysfind(argc, argv, boshp)
 	squit_t		quit;
 	unsigned char	**xecenv;
 	int		exval;
+	unsigned long	oflags2 = *boshp->flagsp2;
 
 	std[0] = stdin;
 	std[1] = stdout;
 	std[2] = stderr;
 
+	find_sqinit(&quit);
 	quit.quitfun = quitfun;
 	quit.qfarg = &boshp->intrcnt;
+	quit.flags = SQ_CALL;
+	quit.callfun = boshp->callsh;
 
 	xecenv = boshp->get_envptr();
+	*boshp->flagsp2 &= ~timeflg;
 	exval = find_main(argc, (char **)argv, (char **)xecenv, std, &quit);
+	*boshp->flagsp2 = oflags2;
 
 	fflush(stdin);
 	fflush(stdout);

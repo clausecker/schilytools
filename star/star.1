@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.231 20/05/24 Copyr 1982-2020 J. Schilling
+. \" @(#)star.1	1.235 20/06/07 Copyr 1982-2020 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2020/05/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2020/06/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2837,6 +2837,20 @@ to remove existing non-empty directories may also need the options
 and
 .BR \-remove\-recursive .
 .TP
+.BI iskip= #
+Set the initial skip size to #.
+See 
+.I bs=
+for the possible syntax.
+.sp
+The skip size is the number of bytes to ignore from the first
+tape record. This option is typically used if a tar archive on a
+tape is not read from the beginning and the tape has been forwarded
+before the tape is read.
+.B iskip=
+then specifies the offset of the first archive header within the
+current tape record. It does not work on compressed archives.
+.TP
 .B \-j
 run the input or output through a 
 .B bzip2
@@ -3206,6 +3220,50 @@ that violate POSIX but some
 implementations insist in reading
 such nonstandard archives.
 .TP
+.BI mtskip= #
+Set the initial archive skip amount to #.
+See 
+.I bs=
+for the possible syntax.
+.sp
+The archive skip size is the number of 512 byte blocks to ignore
+before starting to read the archive. Typically, the value printed
+by the
+.B \-block\-number
+option is used as the parameter.
+.sp
+This option is used if a tar archive on a
+tape is not read from the beginning in order to fast forward to 
+a specific file. Check the
+.B \-one\-file
+option for a way to extract only one file from the archive.
+.sp
+If the archive is a plain file, this option results in a
+.BR lseek ()
+call to the input file.
+If the archive is a magnetic tape, this option results in a
+.BR mtioctl ( MTFSR )
+call for the part of the blocks that can be represented by the tape block size
+followed by a skip of the remainder of the blocks. Since
+.B star
+learns about the tape block size from the first
+.BR read ()
+call, this option does not work correctly if the tape block size used by
+.B star
+does not match the tape block size on the medium. See the
+.BI blocks= #
+option above for information on the tape block size.
+.sp
+If
+.BI mtskip= #
+has been specified, a 
+.BI iskip= #
+option is ignored and the value is rather computed from the
+.BI mtskip= #
+parameter.
+.BI mtskip= #
+does not work on compressed archives.
+.TP
 .B \-multivol
 Switch to multi volume mode.
 In multi volume mode, there will be no logical EOF marker written to the end
@@ -3487,6 +3545,24 @@ Do not restore owner and group of files.
 This may be used if super user privileges are needed to overwrite 
 existing files but the local ownership of the existing files should 
 not change.
+.TP
+.B \-one-file
+Exit
+.B star
+after one file has been extracted as a result from a match with
+a pattern or with a command line argument.
+This option is intended for users that need to restore single files
+from larger tape archives and do not like to wait until the end of
+the tape is reached.
+To let
+.B star
+exit after the first file, call
+.B \-one-file
+together with
+.BR pat=* .
+This is e.g. useful together with the option
+.BI mtskip= #\c
+\&.
 .TP
 .BR \-onull ", " \-nullout
 Do not actually write to the archive but compute and add the sizes.

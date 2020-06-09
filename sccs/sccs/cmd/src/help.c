@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)help.c	1.12 20/05/08 J. Schilling
+ * @(#)help.c	1.13 20/06/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.12 20/05/08 J. Schilling"
+#pragma ident "@(#)help.c 1.13 20/06/01 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -102,7 +102,7 @@
 
 
 	int	main __PR((int argc, char **argv));
-static char *	ask __PR((void));
+static char	*ask __PR((void));
 
 
 int
@@ -178,8 +178,9 @@ main(argc, argv)
 	 * don't know how to get the proper translation text.
 	 */
 	if (stat(help_dir, &Statbuf) != 0) { /* Does help directory exist? */
-		printf(
-		    NOGETTEXT("Unrecognized locale... setting to English\n"));
+		printf(gettext(
+		    "No help for locale '%s' ... setting to English.\n"),
+		    locale);
 	}
 
 	if (argc == 1) {

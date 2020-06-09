@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.168 20/02/05 Copyright 1985-2020 J. Schilling */
+/* @(#)extract.c	1.169 20/06/05 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.168 20/02/05 Copyright 1985-2020 J. Schilling";
+	"@(#)extract.c	1.169 20/06/05 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -319,7 +319,10 @@ extern	struct WALK walkstate;
 			if (xcpio_link(&finfo))		/* Now extract all   */
 				continue;
 		}
-		extracti(&finfo, imp);
+		if (extracti(&finfo, imp) > TRUE) {
+			errmsgno(EX_BAD, "Exiting as -one-file was specified\n");
+			break;
+		}
 	}
 #ifdef	USE_FIND
 	if (dofind) {
@@ -350,6 +353,8 @@ extracti(info, imp)
 		TCB	tb;
 	register TCB 	*ptb = &tb;
 		char	*name = info->f_name;
+		BOOL	didmatch = FALSE;
+	extern	BOOL	one_file;
 
 	if (listfile && !hash_lookup(info->f_name)) {
 		void_file(info);
@@ -359,9 +364,13 @@ extracti(info, imp)
 		void_file(info);
 		return (FALSE);
 	}
-	if (havepat && !match(info->f_name)) {
-		void_file(info);
-		return (FALSE);
+	if (havepat) {
+		if (!match(info->f_name)) {
+			void_file(info);
+			return (FALSE);
+		}
+		if (one_file)
+			didmatch = TRUE;
 	}
 	if (!is_file(info) && to_stdout) {
 		void_file(info);
@@ -589,7 +598,7 @@ link_ok:
 #ifdef COPY_LINKS_DELAYED
 	if ((copyhardlinks && is_link(info)) ||
 	    (copysymlinks && is_symlink(info)))
-		return (TRUE);
+		return (TRUE+didmatch);
 #endif
 set_modes:
 	if (!to_stdout)
@@ -600,7 +609,7 @@ error("-->setmode(%s, %llo)\n", info->f_name, (Ullong)info->f_mode);
 #endif
 	if (dorestore)
 		sym_addstat(info, imp);
-	return (TRUE);
+	return (TRUE+didmatch);
 }
 
 /*

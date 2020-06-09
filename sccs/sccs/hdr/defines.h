@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.117 20/05/17 J. Schilling
+ * @(#)defines.h	1.118 20/06/01 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.117 20/05/17 J. Schilling"
+#pragma ident "@(#)defines.h 1.118 20/06/01 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -395,6 +395,7 @@ typedef struct Nparms {
 	struct sid	n_sid;		/* SID if n_get == 2		*/
 	struct timespec	n_mtime;	/* Timestamp for -i -o		*/
 	unsigned n_flags;		/* Various flags		*/
+	unsigned n_pflags;		/* Flags to control processing	*/
 } Nparms;
 
 /*
@@ -404,6 +405,12 @@ typedef struct Nparms {
 #define	N_IDOT		0x0002		/* admin: -i. has been specified */
 #define	N_NFILE		0x0004		/* admin: -n has been specified  */
 #define	N_GETI		0x0008		/* get: -p has not been specified */
+
+/*
+ * Definitions for n_pflags above
+ */
+#define	NP_DIR		0x0001		/* We want the SCCS dir name	*/
+
 
 /*
  * Parameters for the -X option:

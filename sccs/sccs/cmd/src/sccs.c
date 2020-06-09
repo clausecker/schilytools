@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.116 20/05/17 J. Schilling
+ * @(#)sccs.c	1.126 20/06/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.116 20/05/17 J. Schilling"
+#pragma ident "@(#)sccs.c 1.126 20/06/07 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -273,6 +273,7 @@ static char *makefile __PR((char *name, const char *in_SccsDir));
 static bool isdir __PR((char *name));
 static bool isfile __PR((char *name));
 static bool safepath __PR((register char *p));
+static char *xstrdup __PR((char *file));
 static int fix __PR((int nfiles, char **argv));
 static int clean __PR((int mode, char **argv));
 static void nothingedited __PR((bool nobranch, const char *usernm));
@@ -387,7 +388,7 @@ static struct sccsprog SccsProg[] =
 	{ "ldiffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL },
 	{ "-diff",	PROG,	NO_SDOT|REALUSER|NO_N,	PROGPATH(diff) },
 	{ "-ldiff",	PROG,	NO_SDOT|REALUSER|NO_N,	"diff" },
-	{ "print",	CMACRO,	RF_OK|NO_SDOT,		"prs -e/get -p -m -s" },
+	{ "print",	CMACRO,	RF_OK|NO_SDOT,		"prs:ar -e/get:Anr -p -m -s" },
 	{ "branch",	CMACRO,	RF_OK|NO_SDOT,
 	    "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g" },
 	{ "enter",	ENTER,	NO_SDOT,		NULL },
@@ -531,19 +532,19 @@ main(argc, argv)
 #endif
 
 #ifndef SCCSDIR
-	/* Pull "SccsDir" out of the environment variable         */
-	/*                                                        */
-	/* PROJECTDIR                                             */
+	/* Pull "SccsDir" out of the environment variable	  */
+	/*							  */
+	/* PROJECTDIR						  */
 	/* If contains an absolute path name  (beginning  with  a */
 	/* slash),  sccs  searches  for SCCS history files in the */
-	/* directory given by that variable.                      */
-	/*                                                        */
+	/* directory given by that variable.			  */
+	/*							  */
 	/* If PROJECTDIR does not begin with a slash, it is taken */
 	/* as  the  name  of a user, and sccs searches the src or */
 	/* source subdirectory of that user's home directory  for */
 	/* history  files.  If  such  a directory is found, it is */
 	/* used. Otherwise, the value is used as a relative  path */
-	/* name.                                                  */
+	/* name.						  */
 
 	p = getenv(NOGETTEXT("PROJECTDIR"));
 	if (p != NULL && p[0] != '\0') {
@@ -621,16 +622,16 @@ main(argc, argv)
 	/*CONSTCOND*/
 	while (1) {
 			if (current_optind < optind) {
-			   current_optind = optind;
-			   argv[i] = 0;
-			   if (optind > i+1) {
-			      argv[i+1] = NULL;
-			   }
-			   i = current_optind;
+				current_optind = optind;
+				argv[i] = 0;
+				if (optind > i+1) {
+					argv[i+1] = NULL;
+				}
+				i = current_optind;
 			}
 			c = getopt(argc, argv, "()-rp:d:RTV(version)");
 			if (c == EOF) {
-			   break;
+				break;
 			}
 			argp = optarg;
 			switch (c) {
@@ -703,17 +704,26 @@ main(argc, argv)
 
 	if (xsethome(NULL) > 0)
 		NewMode = TRUE;
-#ifndef	__not_yet__
-	NewMode = FALSE;
-#endif
 	if ((p = getenv("SCCS_NMODE")) != NULL) {
-		NewMode = TRUE;
 		/*
 		 * XXX Should we also disable any other SCCS v6 extensions
 		 * XXX instead of just disabling the use of -NSCCS?
 		 */
 		if (strcmp(p, "FALSE") == 0)
 			NewMode = FALSE;
+		if (strcmp(p, "TRUE") == 0)
+			NewMode = TRUE;
+		/*
+		 * In all other cases, keep the value from xsethome(NULL).
+		 */
+	} else {
+#ifndef	__not_yet__
+		/*
+		 * If environmenment "SCCS_NMODE" is missing,
+		 * NewMode is currently always set to FALSE.
+		 */
+		NewMode = FALSE;
+#endif
 	}
 	if (NewMode && NewOpt == NULL) {
 		perror(gettext("Sccs: -p cannot be used in New Mode"));
@@ -740,6 +750,8 @@ main(argc, argv)
 		}
 		initN(&N);
 		initN(&Nsd);
+		N.n_parm = &NewOpt[2];
+		Nsd.n_parm = &NewOptsd[2];
 		parseN(&N);
 		parseN(&Nsd);
 	}
@@ -767,18 +779,24 @@ getNsid(file, user)
 	char * file;
 	char * user;
 {
-	int           cnt = -1;
-	char	      line[BUFSIZ];
-	char *	      cp;
-	struct packet gpkt;
-	struct pfile  pf;
-	struct pfile  goodpf;
-	FILE *        in;
+	int		cnt = -1;
+	char		line[BUFSIZ];
+	char *		cp;
+	struct packet	gpkt;
+	struct pfile	pf;
+	struct pfile	goodpf;
+	FILE *		in;
 
+	if (NewMode) {
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
 	sinit(&gpkt, file, SI_INIT);
-	cp = auxf(gpkt.p_file,'p');
+	cp = auxf(gpkt.p_file, 'p');
 	if (!exists(cp))
-		return(NULL);
+		return (NULL);
 	strcpy(Nsid, "");
 	zero((char *)&goodpf, sizeof (goodpf));
 	in = xfopen(cp, O_RDONLY|O_BINARY);
@@ -804,7 +822,7 @@ getNsid(file, user)
 		  goodpf.pf_nsid.s_rel, goodpf.pf_nsid.s_lev,
 		  goodpf.pf_nsid.s_br,  goodpf.pf_nsid.s_seq);
 	}
-	return (strdup(Nsid));
+	return (xstrdup(Nsid));
 }
 
 /*
@@ -1056,7 +1074,7 @@ command(argv, forkflag, arg0)
 			          perror(gettext("Sccs: no mem"));
 			          exit(EX_OSERR);
 			       }
-			       sprintf(str,"%s/%s",ibuf,dir->d_name);
+			       sprintf(str, "%s/%s", ibuf, dir->d_name);
 			       get_list_files(&listftailp, str, no_sdot);
 			       cnt_files_from_stdin++;
 			    }
@@ -1075,12 +1093,12 @@ command(argv, forkflag, arg0)
 	              char **pp = NULL;
 
 	              if (macro_opstr_p != 0) {
-	                 if (strchr(macro_opstr_p,p[1]) == NULL) {
+	                 if (strchr(macro_opstr_p, p[1]) == NULL) {
 			    usrerr("%s %s", gettext("unknown option"), p);
 			    exit(EX_USAGE);
 			 }
 		      }
-	              if (editchs == NULL || strchr(editchs,p[1]) != NULL) {
+	              if (editchs == NULL || strchr(editchs, p[1]) != NULL) {
 			 pp = np;
 			 *np++ = p;
 		      }
@@ -1095,7 +1113,7 @@ command(argv, forkflag, arg0)
 			 case 'c':
 			    if (strcmp(cmd->sccsname,"sccsdiff") != 0) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1107,7 +1125,7 @@ command(argv, forkflag, arg0)
 				(strcmp(cmd->sccsname,"diffs") != 0) &&
 				(strcmp(cmd->sccsname,"-diff") != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1118,7 +1136,7 @@ command(argv, forkflag, arg0)
 			    if ((strcmp(cmd->sccsname,"prs") != 0) &&
 			        (strcmp(cmd->sccsname,"log") != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1135,7 +1153,7 @@ command(argv, forkflag, arg0)
 			        (strcmp(maincmd->sccsname,"enter")   != 0) &&
 			        (strcmp(cmd->sccsname,"prs")         != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1149,7 +1167,7 @@ command(argv, forkflag, arg0)
 			        (strcmp(cmd->sccsname,"delta") != 0) &&
 			        (strcmp(cmd->sccsname,"get") != 0))) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1160,7 +1178,7 @@ command(argv, forkflag, arg0)
 			    if ((strcmp(cmd->sccsname,"admin") != 0) &&
 			        (strcmp(maincmd->sccsname,"sccsdiff") != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1168,9 +1186,9 @@ command(argv, forkflag, arg0)
 			    }
 		            break;
 			 case 'g':
-			    if ((strcmp(cmd->sccsname,"get") != 0)) {
+			    if ((strcmp(cmd->sccsname, "get") != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1178,14 +1196,14 @@ command(argv, forkflag, arg0)
 			    }
 		            break;
 			 case 'r':
-			    if (strcmp(cmd->sccsname,"prs") != 0) {
-			       if (strcmp(cmd->sccsname,"get") == 0) {
+			    if (strcmp(cmd->sccsname, "prs") != 0) {
+			       if (strcmp(cmd->sccsname, "get") == 0) {
 				  if (*(omit_sid(nextp)) != '\0') {
 				     break;
 				  }
 			       }
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1196,9 +1214,9 @@ command(argv, forkflag, arg0)
 			    if ((strcmp(maincmd->sccsname,"deledit") == 0) ||
 			        (strcmp(maincmd->sccsname,"delget")  == 0) ||
 			        (strcmp(maincmd->sccsname,"create")  == 0) ||
-			        (strcmp(cmd->sccsname,"get") != 0)) {
+			        (strcmp(cmd->sccsname, "get") != 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1209,9 +1227,9 @@ command(argv, forkflag, arg0)
 			    if ((strcmp(cmd->sccsname,"prs")    == 0) ||
 			        (strcmp(cmd->sccsname,"admin")  == 0) ||
 			        (strcmp(maincmd->sccsname,"create") == 0) ||
-			        (strcmp(cmd->sccsname,"enter")  == 0)) {
+			        (strcmp(cmd->sccsname, "enter")  == 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1219,9 +1237,9 @@ command(argv, forkflag, arg0)
 			    }
 		            break;
 			 case 'p':
-			    if (strcmp(cmd->sccsname,"comb") == 0) {
+			    if (strcmp(cmd->sccsname, "comb") == 0) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1229,9 +1247,9 @@ command(argv, forkflag, arg0)
 			    }
 		            break;
 			 case 'y':
-			    if (strcmp(cmd->sccsname,"val") == 0) {
+			    if (strcmp(cmd->sccsname, "val") == 0) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1241,9 +1259,9 @@ command(argv, forkflag, arg0)
 		            break;
 			 case 'G':
 			 case 'w':
-			    if (strcmp(cmd->sccsname,"get") == 0) {
+			    if (strcmp(cmd->sccsname, "get") == 0) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1256,7 +1274,7 @@ command(argv, forkflag, arg0)
 				(strcmp(cmd->sccsname,"get")      == 0) ||
 				(strcmp(cmd->sccsname,"diffs")    == 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1269,7 +1287,7 @@ command(argv, forkflag, arg0)
 				(strcmp(cmd->sccsname,"diffs")    == 0) ||
 				(strcmp(cmd->sccsname,"-diff")    == 0)) {
 			       if (editchs != NULL
-			            && strchr(editchs,p[1]) == NULL) {
+			            && strchr(editchs, p[1]) == NULL) {
 			          argv++;
 			       } else {
 			          *np++ = *++argv;
@@ -1282,18 +1300,18 @@ command(argv, forkflag, arg0)
 			}
 		      }
 		      if (!hady && strncmp(p, "-y", 2) == 0) {
-			 if (strcmp(cmd->sccsname,"deledit") == 0 ||
-			     strcmp(cmd->sccsname,"delget")  == 0)
+			 if (strcmp(cmd->sccsname, "deledit") == 0 ||
+			     strcmp(cmd->sccsname, "delget")  == 0)
 				hady = 1;
 		      }
 		      if (strcmp(p,"-C") == 0) {
-			 if (strcmp(cmd->sccsname,"-diff") == 0) {
+			 if (strcmp(cmd->sccsname, "-diff") == 0) {
 			    if (pp != NULL)
 			       *pp = "-c";
 			 }
 		      }
 		      if (strcmp(p,"-I") == 0) {
-			 if (strcmp(cmd->sccsname,"-diff") == 0) {
+			 if (strcmp(cmd->sccsname, "-diff") == 0) {
 			    if (pp != NULL)
 			       *pp = "-i";
 			 }
@@ -1419,16 +1437,22 @@ command(argv, forkflag, arg0)
 			 * Get length of possible prefix before SCCS/s.file
 			 * to construct the full path name for the -G option.
 			 */
-		        gfp = auxf(ap[ind], 'g');
-		        strcpy(Gname, SccsPath);
-		        strcat(Gname, "/s.");
-		        strcat(Gname, gfp);
-		        len = strlen(ap[ind]) - strlen(Gname);
-		        strcpy(Gname, "-G");		/* Start -G option */
-		        strncat(Gname, ap[ind], len);	/* Copy path base */
-		        strcat(Gname, gfp);		/* Append g-file name */
+			if (NewMode) {
+			        strcpy(Gname, "-G");	/* Start -G option */
+			        strcat(Gname, ap[ind]);	/* Copy g-file name */
+			} else {
+				gfp = auxf(ap[ind], 'g');
+				strcpy(Gname, SccsPath);
+				strcat(Gname, "/s.");
+				strcat(Gname, gfp);
+				len = strlen(ap[ind]) - strlen(Gname);
+				strcpy(Gname, "-G");	/* Start -G option */
+				strncat(Gname, ap[ind], /* Copy path base */
+				    len);
+				strcat(Gname, gfp);	/* Append g-file name */
+			}
 			ap_for_get[size_ap_for_get - 3] = Gname;
-		        ap_for_get[size_ap_for_get - 2] = ap[ind];
+			ap_for_get[size_ap_for_get - 2] = ap[ind];
 			ap_for_get[size_ap_for_get - 1] = NULL;
 		        rval = callprog(cmd->sccspath, cmd->sccsflags, ap_for_get, TRUE);
 		} else {
@@ -1437,7 +1461,7 @@ command(argv, forkflag, arg0)
 				 * The "sccs deledit ..." or "sccs delget ..."
 				 * macro is running.
 				 */
-				int     ind, ind1;
+				int	ind, ind1;
 				char ** Arr = NULL;
 
 				for (ind = ind1 = 0; ap[ind] != NULL; ind++) {
@@ -1517,16 +1541,16 @@ command(argv, forkflag, arg0)
 
 				del_macro = 1;
 				if ((user_name = logname()) == NULL)
-				       fatal(gettext("User ID not in password file (cm9)"));
+					fatal(gettext("User ID not in password file (cm9)"));
 				for (ind = 0; ap[ind] != NULL; ind++) {
 					if (!r_option_value) {
 						/* in search of '-r' option */
 						if (strstr(ap[ind], "-r") != NULL) {
 							if (strcmp(ap[ind], "-r")) {
-								r_option_value = strdup(ap[ind]);
+								r_option_value = xstrdup(ap[ind]);
 							} else {
 								if (ap[ind+1] != NULL)
-									r_option_value = strdup(ap[ind+1]);
+									r_option_value = xstrdup(ap[ind+1]);
 							}
 						}
 					}
@@ -1583,9 +1607,9 @@ command(argv, forkflag, arg0)
 						}
 					}
 					if ((macro_files = calloc(nfiles, (sizeof (char *)))) == NULL ||
-					           (ap1  = calloc(xsize, (sizeof (char *)))) == NULL) {
+						   (ap1  = calloc(xsize, (sizeof (char *)))) == NULL) {
 						perror(gettext("Sccs: no mem"));
-						      exit(EX_OSERR);
+						exit(EX_OSERR);
 					}
 					for (ind = 0; ind < (cnt - nfiles); ind++) {
 						ap1[ind] = ap[ind];
@@ -1610,7 +1634,7 @@ command(argv, forkflag, arg0)
 						*file_arg = *next_file;
 						if ((rval = command(&ap1[1], forkflag, q)) != 0) {
 							macro_rval = rval;
-							*cp        = NULL;
+							*cp	   = NULL;
 						} else {
 							*cp = *next_file;
 						}
@@ -1878,7 +1902,7 @@ callprog(progpath, flags, argv, forkflag)
 					else
 					{
 						sprintf(sigmsgbuf, "%s %d",
-						        gettext("Signal"),
+							gettext("Signal"),
 							sigcode);
 						sigmsg = sigmsgbuf;
 					}
@@ -1903,9 +1927,8 @@ callprog(progpath, flags, argv, forkflag)
 #ifdef	HAVE_VFORK
 		didvfork = 1;
 #endif
-	}
-	else if (OutFile >= 0)		/* !forkflag && ... */
-	{
+	} else if (OutFile >= 0) {		/* !forkflag && ... */
+
 		syserr(gettext("callprog: setting stdout w/o forking"));
 		if (didvfork)
 			_exit(EX_SOFTWARE);
@@ -2118,11 +2141,7 @@ makefile(name, in_SccsDir)
 		/*
 		 * but if I have, squirrel it away
 		 */
-		p = strdup(buf);
-		if (p == NULL) {
-			perror(gettext("Sccs: no mem"));
-			exit(EX_OSERR);
-		}
+		p = xstrdup(buf);
 	}
 	return (p);
 }
@@ -2204,8 +2223,22 @@ safepath(p)
 	usrerr(gettext("You may not use full pathname or \"..\"\n"));
 	exit(EX_USAGE);
 
-	/*unreached*/
+	/* NOTREACHED */
 	return (FALSE);
+}
+
+static char *
+xstrdup(file)
+	char	*file;
+{
+	char	*dfile;
+
+	dfile = strdup(file);
+	if (dfile == NULL) {
+		perror(gettext("Sccs: no mem"));
+		exit(EX_OSERR);
+	}
+	return (dfile);
 }
 
 static int
@@ -2377,22 +2410,34 @@ clean(mode, argv)
 	/*
 	**  Find and open the SCCS directory.
 	*/
-
-	gstrcpy(buf, SccsDir, sizeof (buf));
-	if (buf[0] != '\0')
-		gstrcat(buf, "/", sizeof (buf));
-	if (subdir != NULL)
-		gstrcat(buf, subdir, sizeof (buf));
-	bufend = &buf[strlen(buf)-1];
-	while (bufend > buf && *bufend == '/')
-		*bufend-- = '\0';
-	if ((bufend = strstr(buf, SccsPath)) == NULL ||
-	    bufend[strlen(SccsPath)] != '\0') {
-		if (subdir != NULL)
+	if (NewMode) {
+		if (subdir == NULL)
+			subdir = ".";
+		N.n_pflags =  NP_DIR;
+		subdir = bulkprepare(&N, subdir);
+		if (subdir == NULL) {
+			fatal(gettext("non directory specified as argument (cm20)"));
+		}
+		N.n_pflags =  0;
+		strlcpy(buf, subdir, sizeof (buf));
+	} else {
+		gstrcpy(buf, SccsDir, sizeof (buf));
+		if (buf[0] != '\0')
 			gstrcat(buf, "/", sizeof (buf));
-		gstrcat(buf, SccsPath, sizeof (buf));
+		if (subdir != NULL)
+			gstrcat(buf, subdir, sizeof (buf));
+		bufend = &buf[strlen(buf)-1];
+		while (bufend > buf && *bufend == '/')
+			*bufend-- = '\0';
+		if ((bufend = strstr(buf, SccsPath)) == NULL ||
+		    bufend[strlen(SccsPath)] != '\0') {
+			if (subdir != NULL)
+				gstrcat(buf, "/", sizeof (buf));
+			gstrcat(buf, SccsPath, sizeof (buf));
+		}
 	}
 	bufend = &buf[strlen(buf)];
+
 	basebuf[0] = '\0';
 	baseend = basebuf;
 	if (Rflag) {
@@ -2647,11 +2692,17 @@ do_unedit(fn)
 	/* assumed that fn is a "s." filename already */
 	if (fn == NULL)
 		return;
-	if ((pfn = strdup(fn)) == NULL)
-		pfn = fn;
-	if (!sccsfile(pfn))
-	{
+
+	if (NewMode) {
+		fn = bulkprepare(&N, fn);
+		if (fn == NULL) {
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+	}
+	pfn = xstrdup(fn);
+	if (!sccsfile(pfn)) {
 		usrerr(gettext("bad file name \"%s\""), fn);
+		free(pfn);
 		return;
 	}
 	gfile = auxf(pfn, 'g');
@@ -2676,8 +2727,7 @@ do_unedit(fn)
 	{
 		printf(gettext("%12s: not being edited\n"),
 			gfile);
-		if (pfn == fn)
-			free(pfn);
+		free(pfn);
 		if (Gfile)
 			free(Gfile);
 		return;
@@ -2718,8 +2768,7 @@ do_unedit(fn)
 				fclose(tfp);
 				fclose(pfp);
 				unlink(tfn);
-				if (pfn == fn)
-					free(pfn);
+				free(pfn);
 				if (Gfile)
 					free(Gfile);
 				return;
@@ -2757,8 +2806,7 @@ do_unedit(fn)
 				fclose(tfp);
 				fclose(pfp);
 				unlink(tfn);
-				if (pfn == fn)
-					free(pfn);
+				free(pfn);
 				if (Gfile)
 					free(Gfile);
 				return;
@@ -2776,8 +2824,7 @@ do_unedit(fn)
 		if (freopen(pfn, "wb", pfp) == NULL)
 		{
 			usrerr(gettext("cannot create \"%s\""), pfn);
-			if (pfn == fn)
-				free(pfn);
+			free(pfn);
 			if (Gfile)
 				free(Gfile);
 			return;
@@ -2817,8 +2864,7 @@ do_unedit(fn)
 	{
 		printf(gettext("%12s: not being edited by you\n"), gfile);
 	}
-	if (pfn == fn)
-		free(pfn);
+	free(pfn);
 	if (Gfile)
 		free(Gfile);
 }
@@ -3131,19 +3177,23 @@ char *file;
 
 	if ((diffs_ap == NULL) && (diffs_np == NULL))
 		return;
-	if ((pfile = makefile(file, newSccsDir)) == NULL)
+	if (NewMode) {
+		pfile = bulkprepare(&N, file);
+		if (pfile == NULL) {
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		pfile = xstrdup(pfile);
+	} else if ((pfile = makefile(file, newSccsDir)) == NULL)
 		return;
-	if ((gfile = makegfile(pfile)) == NULL)
+	if (NewMode)
+		gfile = file;
+	else if ((gfile = makegfile(pfile)) == NULL)
 		return;
 	sfile_exists = isfile(pfile);
 
 	/* make "p." filename */
 	if (pfile == file) {
-		pfile = strdup(file);
-		if (pfile == NULL) {
-			perror(gettext("Sccs: no mem"));
-			exit(EX_OSERR);
-		}
+		pfile = xstrdup(file);
 	}
 	p = strrchr(pfile, '/');
 	if (p == NULL) {
@@ -3196,7 +3246,8 @@ char *file;
 		Fcnt = 1;
 	}
 	free(pfile);
-	free(gfile);
+	if (gfile != file)
+		free(gfile);
 	unlink(tmp_file);
 }
 
@@ -3241,20 +3292,24 @@ enter(nfiles, argv)
 		char *filep, *cp;
 
 		filep = makefile(*np, SccsDir);
-		gstrcpy(buf, filep, sizeof (buf));
-		cp = strrchr(buf, '/');
-		if (cp != 0) {
-			*cp = '\0';
-		}
-		if (stat(buf, &statb) == -1) {
-			if (mkdir(buf, 0777) == -1) {
-				syserr(gettext("Cannot mkdir %s"), buf);
-				exit(EX_SOFTWARE);
+		if (!NewMode) {
+			gstrcpy(buf, filep, sizeof (buf));
+			cp = strrchr(buf, '/');
+			if (cp != 0) {
+				*cp = '\0';
 			}
-		} else {
-			if (!(statb.st_mode & S_IFDIR)) {
-				usrerr("File `%s' exists, but is not  directory", buf);
-				exit(EX_SOFTWARE);
+			if (stat(buf, &statb) == -1) {
+				if (mkdir(buf, 0777) == -1) {
+					syserr(gettext("Cannot mkdir %s"), buf);
+					exit(EX_SOFTWARE);
+				}
+			} else {
+				if (!(statb.st_mode & S_IFDIR)) {
+					usrerr(
+				    "File `%s' exists, but is not directory",
+						buf);
+					exit(EX_SOFTWARE);
+				}
 			}
 		}
 		printf("\n%s:\n", *np);
@@ -3508,11 +3563,7 @@ makegfile(name)
 		}
 	}
 	if (gname == name) {
-		gname = strdup(name);
-		if (gname == NULL) {
-			perror(gettext("Sccs: no mem"));
-			exit(EX_OSERR);
-		}
+		gname = xstrdup(name);
 	}
 	if (!sccsfile(gname)) {
 		free(gname);
@@ -3684,7 +3735,7 @@ walkfunc(nm, fs, type, state)
 					exit(EX_OSERR);
 				}
 			}
-			wp->argv[wp->argind++] = strdup(nm);
+			wp->argv[wp->argind++] = xstrdup(nm);
 			wp->argv[wp->argind] = NULL;
 			return (0);
 		}

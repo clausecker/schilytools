@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.108 20/02/05 Copyright 1989, 1994-2020 J. Schilling */
+/* @(#)fifo.c	1.109 20/06/05 Copyright 1989, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.108 20/02/05 Copyright 1989, 1994-2020 J. Schilling";
+	"@(#)fifo.c	1.109 20/06/05 Copyright 1989, 1994-2020 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -586,14 +586,23 @@ fifo_prmp(sig)
 {
 #ifdef	HANG_DEBUG
 	char	fbuf[100];
+	BOOL	isget = FALSE;
 extern	BOOL	cflag;
 
 	if (sig == 0 && !debug)
 		return;
 
-	error("pid:      %ld (%ld) copy %d cflag %d\n",
+#ifdef	FIFO_STANDALONE
+	if (pid != 0) 
+		isget = TRUE;
+#else
+	if ((pid != 0) ^ cflag)
+		isget = TRUE;
+#endif
+
+	error("pid:      %ld (%ld) copy %d cflag %d %s process\n",
 					(long)getpid(), (long)pid,
-					copyflag, cflag);
+					copyflag, cflag, isget?"get":"put");
 	error("waitchan: %d\n", waitchan);
 	error("putptr:   %p\n", mp->putptr);
 	error("getptr:   %p\n", mp->getptr);
@@ -700,7 +709,7 @@ extern	BOOL	cflag;
 		/*
 		 * If pid != 0, this is the foreground process
 		 */
-		if (ret < 0 || (mp->eflags & FIFO_EXIT) == 0) {
+		if (ret < 0 || ((mp->eflags & FIFO_EXIT) == 0)) {
 			errmsg(
 			"Sync pipe read error pid %d ret %d\n",
 				pid, ret);
@@ -714,7 +723,7 @@ extern	BOOL	cflag;
 			 * A previous error was seen, keep it.
 			 */
 			ret = mp->ferrno;
-		} else {
+		} else if ((mp->eflags & FIFO_EXIT) == 0) {
 			/*
 			 * Recent sync pipe read error.
 			 * Signal error to forground process.

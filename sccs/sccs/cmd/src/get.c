@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.88 20/05/19 J. Schilling
+ * @(#)get.c	1.89 20/06/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.88 20/05/19 J. Schilling"
+#pragma ident "@(#)get.c 1.89 20/06/07 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -938,13 +938,8 @@ clean_up()
 	/*
 	clean_up is only called from fatal() upon bad termination.
 	*/
-	if (gpkt.p_iop) {
-		fclose(gpkt.p_iop);
-		gpkt.p_iop = NULL;
-	}
 	if (gpkt.p_gout) {
 		fflush(gpkt.p_gout);
-		gpkt.p_gout = NULL;
 	}
 	if (gpkt.p_gout && gpkt.p_gout != stdout) {
 		fclose(gpkt.p_gout);
@@ -962,7 +957,11 @@ clean_up()
 			unlockit(auxf(gpkt.p_file,'z'), getpid(), uuname);
 		}
 	}
+	sclose(&gpkt);
+	sfree(&gpkt);
 	ffreeall();
+	if (HADUCA)				/* ffreeall() killed it	*/
+		lhash_destroy();		/* need to reset it	*/
 }
 
 static	char	warn[] = NOGETTEXT("WARNING: being edited: `%s' (ge18)\n");

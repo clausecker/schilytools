@@ -21,9 +21,9 @@
 * Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2015 J. Schilling
+* Copyright 2006-2020 J. Schilling
 *
-* @(#)ad	1.7 15/03/10 J. Schilling
+* @(#)ad	1.8 20/06/03 J. Schilling
 *
 * @(#)ad 1.6 06/12/12
 *
@@ -87,7 +87,8 @@ This flag must have an SID.
 "more than one file"
 You are trying to create more than one SCCS file, and you supplied
 the 'i' keyletter. You can only create one file when you supply
-the 'i' keyletter.
+the 'i' keyletter. A possible reason for the problem is that you
+have a space between the 'i' keyletter and the input filename.
 -16
 "r only allowed with i"
 You specified the 'r' keyletter for an SCCS file without

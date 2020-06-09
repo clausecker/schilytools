@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.68 18/12/10 Copyright 1984-2018 J. Schilling */
+/* @(#)sdd.c	1.69 20/05/30 Copyright 1984-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.68 18/12/10 Copyright 1984-2018 J. Schilling";
+	"@(#)sdd.c	1.69 20/05/30 Copyright 1984-2020 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2018 J. Schilling
+ *	Copyright (c) 1984-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1477,9 +1477,9 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s %s (%s-%s-%s)\n\n", "1.68", "2018/12/10",
+		printf("sdd %s %s (%s-%s-%s)\n\n", "1.69", "2020/05/30",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2018 Jörg Schilling\n");
+		printf("Copyright (C) 1984-2020 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
 		printf("conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or ");
@@ -1536,24 +1536,31 @@ getopts(ac, av)
 		ibs = bs;
 	if (obs == 0)
 		obs = bs;
-	if ((ibs == obs) &&
-	    (bs % sdd_bsize)) {
-		errmsgno(EX_BAD,
-			"Buffer size must be a multiple of %ld.\n",
-			sdd_bsize);
-		usage(EX_BAD);
-	}
-	if (ibs % sdd_bsize) {
-		errmsgno(EX_BAD,
-			"Input buffer size must be a multiple of %ld.\n",
-			sdd_bsize);
-		usage(EX_BAD);
-	}
-	if (obs % sdd_bsize) {
-		errmsgno(EX_BAD,
-			"Output buffer size must be a multiple of %ld.\n",
-			sdd_bsize);
-		usage(EX_BAD);
+	/*
+	 * It makes no sense to check for EISPIPE with lseek() and to
+	 * disable seeking, since we currently do not distinct between
+	 * noiseek and nooseek.
+	 */
+	if (noerror && !noseek) {
+		if ((ibs == obs) &&
+		    (bs % sdd_bsize)) {
+			errmsgno(EX_BAD,
+			    "Buffer size must be a multiple of %ld.\n",
+			    sdd_bsize);
+			usage(EX_BAD);
+		}
+		if (ibs % sdd_bsize) {
+			errmsgno(EX_BAD,
+			    "Input buffer size must be a multiple of %ld.\n",
+			    sdd_bsize);
+			usage(EX_BAD);
+		}
+		if (obs % sdd_bsize) {
+			errmsgno(EX_BAD,
+			    "Output buffer size must be a multiple of %ld.\n",
+			    sdd_bsize);
+			usage(EX_BAD);
+		}
 	}
 	if (iskip == 0)
 		iskip = skip;
@@ -1634,7 +1641,7 @@ Options:\n\
 	-onull		  Do not write output to any file\n\
 	ibs=#,obs=#,bs=#  Set input/outbut buffersize or both to #\n\
 	cbs=#		  Set conversion buffersize to #\n\
-	secsize=#	  Set basic buffersize to # (default %ld)\n\
+	secsize=#	  Set basic buffersize for -noerror to # (default %ld)\n\
 	ivsize=#,ovsize=# Set input/output volume size to #\n\
 	count=#		  Transfer at most # input records\n\
 	iseek=#,iskip=#	  Seek/skip # bytes on input before starting\n\

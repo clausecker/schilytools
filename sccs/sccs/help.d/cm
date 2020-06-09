@@ -18,9 +18,9 @@
 *
 * CDDL HEADER END
 *
-* Copyright 2006-2019 J. Schilling
+* Copyright 2006-2020 J. Schilling
 *
-* @(#)cm	1.10 19/05/15 J. Schilling
+* @(#)cm	1.11 20/06/01 J. Schilling
 *
 * @(#)cm 1.2 06/12/12
 *
@@ -134,3 +134,6 @@ The command or operation does not support more than one argument.
 A time stamp is out of the supported range.
 This is most likely a result of a time stamp that is not supported by the
 conversion routines from the actual operating system.
+-20
+"non directory specified as argument"
+A non-directory was specified when only directories were expected.
