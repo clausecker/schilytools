@@ -1,25 +1,13 @@
-/* @(#)sccslog.c	1.47 20/05/17 Copyright 1997-2020 J. Schilling */
+/* @(#)sccslog.c	1.49 20/06/27 Copyright 1997-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.47 20/05/17 Copyright 1997-2020 J. Schilling";
+	"@(#)sccslog.c	1.49 20/06/27 Copyright 1997-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2020 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- * A copy of the CDDL is also available via the Internet at
- * http://www.opensource.org/licenses/cddl1.txt
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <defines.h>
 #include <schily/stdio.h>
@@ -399,7 +387,11 @@ dofile(name)
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 	}
 
@@ -500,7 +492,7 @@ dofile(name)
 				int mins  = gmtoffs % 100;
 
 				gmtoffs = hours * 3600 + mins * 60;
-			} else {
+			} else if (len < 9) {
 				/*
 				 * XXX GMT offset aus localtime bestimmen?
 				 * XXX Nein, wir nehmen mktime() bei len >= 9.
@@ -508,7 +500,8 @@ dofile(name)
 				gmtoffs = 1;
 			}
 			if (len < 9)
-				len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",				vers,
+				len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",
+				vers,
 				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
 				user);

@@ -1,19 +1,24 @@
-h18581
+hV6,sum=27043
 s 00011/00004/00059
-d D 1.3 16/08/14 23:16:32 joerg 3 2
+d D 1.3 2016/08/14 23:16:32+0200 joerg 3 2
+S s 49596
 c tail +2 -> tail $plustwo und $plustwo wird automatish angepasst
 e
 s 00001/00001/00062
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 38580
 c ../common/test-common -> ../../common/test-common
 e
 s 00063/00000/00000
-d D 1.1 11/05/29 21:10:07 joerg 1 0
+d D 1.1 2011/05/29 21:10:07+0200 joerg 1 0
+S s 38441
 c date and time created 11/05/29 21:10:07 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b5c54b9
+G p sccs/tests/sccstests/extensions/extflags.sh
 t
 T
 I 1

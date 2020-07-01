@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.118 20/06/01 J. Schilling
+ * @(#)defines.h	1.127 20/06/25 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.118 20/06/01 J. Schilling"
+#pragma ident "@(#)defines.h 1.127 20/06/25 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -388,14 +388,17 @@ typedef struct Nparms {
 	char	n_get;			/* Found -N+* or -N++*		*/
 	char	n_sdot;			/* Found -N*s.			*/
 	char	n_subd;			/* Found -NSCCS			*/
+	char	n_didchdir;		/* bulkprepare() did chdir()	*/
 	char	*n_prefix;		/* "s." /  "* /s." / "* /SCCS"	*/
 	char	*n_parm;		/* -N argument			*/
 	char	*n_ifile;		/* The plain g-file name	*/
 	char	*n_dir_name;		/* directory for -N		*/
+	int	n_dfd;			/* Openfd for the current dir	*/
 	struct sid	n_sid;		/* SID if n_get == 2		*/
 	struct timespec	n_mtime;	/* Timestamp for -i -o		*/
 	unsigned n_flags;		/* Various flags		*/
 	unsigned n_pflags;		/* Flags to control processing	*/
+	int	n_error;		/* bulk processing error #	*/
 } Nparms;
 
 /*
@@ -410,6 +413,24 @@ typedef struct Nparms {
  * Definitions for n_pflags above
  */
 #define	NP_DIR		0x0001		/* We want the SCCS dir name	*/
+#define	NP_NOCHDIR	0x0002		/* No chdir() in bulkprepare()	*/
+
+/*
+ * Definitions for n_error above
+ */
+#define	BULK_OK		0		/* Not an error			*/
+#define	BULK_BADARG	1		/* "bad N argument (co37)"	*/
+#define	BULK_NOSID	2		/* "not a SID-tagged filename (co38)" */
+#define	BULK_EPATHCONV	3		/* "path conversion error (co28)" */
+#define	BULK_ETOOLONG	4		/* "resolved path too long (co29)" */
+#define	BULK_NOTSCCS	5		/* "not an SCCS file (co1)"	*/
+#define	BULK_NOTINSUBDIR 6		/* "not in specified sub dir (co36)" */
+#define	BULK_ECLOSE	7		/* fd close error */
+#define	BULK_ECHDIR	8		/* chdir() error */
+#define	BULK_EISDIR	9		/* "dir specified as s-file (cm14)" */
+#define	BULK_ENOTDIR	10		/* "non dir specified as arg (cm20)" */
+#define	BULK_ENOIENT	11		/* input file does not exist	*/
+#define	BULK_EMKDIR	12		/* cannot make dir		*/
 
 
 /*
@@ -418,6 +439,7 @@ typedef struct Nparms {
 typedef struct Xparms {
 	char	*x_parm;		/* -X argument			*/
 	char	*x_mail;		/* -Xmail Email address		*/
+	char	*x_user;		/* -Xuser User name		*/
 	char	*x_init_path;		/* -XGp Initial path		*/
 	urand_t	x_rand;			/* -XGr Unified random number	*/
 	unsigned x_opts;		/* Options seen			*/
@@ -432,7 +454,8 @@ typedef struct Xparms {
 #define	XO_URAND	0x20		/* -XGr Unified random number	*/
 #define	XO_UNLINK	0x40		/* -Xunlink create an unlink delta */
 #define	XO_MAIL		0x80		/* -Xmail= e-mail address	*/
-#define	XO_NULLPATH	0x100		/* -X0 read '\0' terminated pathnames */
+#define	XO_USER		0x100		/* -Xuser= user name		*/
+#define	XO_NULLPATH	0x200		/* -X0 read '\0' terminated pathnames */
 
 
 struct	deltab {
@@ -648,6 +671,7 @@ extern	char	*setrhome;	/* Relative path to the project set home dir */
 extern	char	*setahome;	/* Absolute path to the project set home dir */
 extern	char	*cwdprefix;	/* Prefix from project set home dir to cwd */
 extern	char	*changesetfile;	/* The path to the changeset history file */
+extern	char	*changesetgfile; /* The path to the changeset file */
 extern	int	homedist;	/* The # of dirs to the project set home dir */
 extern	int	setphomelen;	/* strlen(setphome) */
 extern	int	setrhomelen;	/* strlen(setrhome) */
@@ -665,10 +689,13 @@ extern	int	sethomestat;	/* sethome() status flags */
 #define	SETHOME_OFFTREE	8	/* $SET_HOME/.sccs/data found, SCCS off tree */
 #define	SETHOME_DELS_OK 16	/* $SET_HOME/.sccs/dels was found	*/
 #define	SETHOME_CHSET_OK 32	/* $SET_HOME/.sccs/SCCS/s.changeset found */
+#define	SETHOME_NEWMODE	64	/* NewMode has been selected in sccs(1)	*/
 
 #define	SETHOME_ALL_OK	(SETHOME_OK|SETHOME_DELS_OK)
+#define	SETHOME_ALLP_OK	(SETHOME_OK|SETHOME_DELS_OK|SETHOME_CHSET_OK)
 
 #define	SETHOME_INIT()	((sethomestat & SETHOME_ALL_OK) == SETHOME_ALL_OK)
+#define	SETHOME_CHSET()	((sethomestat & SETHOME_ALLP_OK) == SETHOME_ALLP_OK)
 
 /*
  * Declares for external functions in lib/comobj
@@ -712,7 +739,8 @@ extern	void	donamedflags	__PR((struct packet *));
 extern	void	dometa	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *,
 				struct stats *, struct sid *, int));
-extern	void	do_file __PR((char *, void (*func)(char *), int, int, Xparms *));
+extern	void	do_file __PR((char *, void (*func)(char *), int,
+				int, Xparms *));
 extern	void	doget	__PR((char *afile, char *gname, int ser));
 extern	void	dogtime	__PR((struct packet *pkt, char *gfile,
 				struct timespec *mtime));
@@ -788,8 +816,14 @@ extern	void	initN	__PR((Nparms *N));
 extern	void	freeN	__PR((Nparms *N));
 extern	void	parseN	__PR((Nparms *N));
 extern	char *	bulkprepare __PR((Nparms *N, char *afile));
+extern	int	bulkchdir __PR((Nparms *N));
+extern	int	bulkclosedir __PR((Nparms *N));
+extern	char *	bulkerror __PR((Nparms *N));
 extern	int	parseX	__PR((Xparms *X));
-
+extern	int	lockchset	__PR((pid_t ppid, pid_t pid, char *uuname));
+extern	int	unlockchset	__PR((pid_t pid, char *uuname));
+extern	int	refreshchsetlock __PR((void));
+	
 extern	int	opendirfd	__PR((const char *name));
 extern	int	closedirfd	__PR((int fd));
 extern	int	opencwd		__PR((void));
@@ -828,6 +862,7 @@ extern	void	*xmalloc __PR((size_t));
 extern	int	efatal	__PR((char *));
 extern	int	fatal	__PR((char *));
 extern	int	lockit	__PR((char *, int, pid_t, char *));
+extern	int	lockrefresh __PR((char *));
 extern	int	unlockit __PR((char *, pid_t, char *));
 extern	int	ismylock __PR((char *, pid_t, char *));
 extern	int	mylock	__PR((char *, pid_t, char *));
@@ -854,6 +889,8 @@ extern	int	checkhome __PR((char *path));
 extern	int	sethome	__PR((char *path));
 extern	void	unsethome __PR((void));
 extern	int	xsethome __PR((char *path));
+extern	void	setnewmode __PR((void));
+extern	void	unsetnewmode __PR((void));
 
 #ifdef	DBG_MALLOC
 extern	void	*dbg_fmalloc __PR((unsigned, char *, int));

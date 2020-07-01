@@ -1,33 +1,41 @@
-h05096
+hV6,sum=15169
 s 00012/00000/00088
-d D 1.6 19/05/16 21:35:51 joerg 6 5
+d D 1.6 2019/05/16 21:35:51+0200 joerg 6 5
+S s 01820
 c Hinweis auf date probleme in betriebssystemen
 e
 s 00005/00000/00083
-d D 1.5 19/05/12 14:12:21 joerg 5 4
+d D 1.5 2019/05/12 14:12:21+0200 joerg 5 4
+S s 10534
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00002/00002/00081
-d D 1.4 15/06/03 00:06:44 joerg 4 3
+d D 1.4 2015/06/03 00:06:44+0200 joerg 4 3
+S s 53479
 c ../common/test-common -> ../../common/test-common
 e
 s 00003/00001/00080
-d D 1.3 11/05/31 21:53:45 joerg 3 2
+d D 1.3 2011/05/31 21:53:45+0200 joerg 3 2
+S s 53201
 c expect_fail=true um den Abbruch auf einigen Plattformen zu vermeiden
 e
 s 00028/00002/00053
-d D 1.2 11/05/30 01:16:59 joerg 2 1
+d D 1.2 2011/05/30 01:16:59+0200 joerg 2 1
+S s 45003
 c Neue Tests mit SCCS 4-digit cut-off (z.B. -c1968/1231235959)
 e
 s 00055/00000/00000
-d D 1.1 11/04/26 11:44:52 joerg 1 0
+d D 1.1 2011/04/26 11:44:52+0200 joerg 1 0
+S s 47324
 c date and time created 11/04/26 11:44:52 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ef7b457
+G p sccs/tests/cssctests/year-2000/ext.sh
 t
 T
 I 1

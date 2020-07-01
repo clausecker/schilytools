@@ -1,20 +1,25 @@
-h47043
+hV6,sum=54446
 s 00002/00002/00025
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 10147
 c ../common/test-common -> ../../common/test-common
 e
 s 00001/00001/00026
-d D 1.2 15/06/01 23:55:23 joerg 2 1
+d D 1.2 2015/06/01 23:55:23+0200 joerg 2 1
+S s 09869
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00027/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 08650
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eebc960
+G p sccs/tests/cssctests/prt/nodel.sh
 t
 T
 I 1

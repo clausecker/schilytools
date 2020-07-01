@@ -1,19 +1,24 @@
-h38922
+hV6,sum=46291
 s 00024/00000/00029
-d D 1.3 18/12/02 10:05:24 joerg 3 2
+d D 1.3 2018/12/02 10:05:24+0100 joerg 3 2
+S s 11306
 c Neuer Test mit noch laengeren Zeilen und nun auch mit delta
 e
 s 00001/00001/00028
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 34990
 c ../common/test-common -> ../../common/test-common
 e
 s 00029/00000/00000
-d D 1.1 11/05/29 20:20:45 joerg 1 0
+d D 1.1 2011/05/29 20:20:45+0200 joerg 1 0
+S s 34851
 c date and time created 11/05/29 20:20:45 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b63031b
+G p sccs/tests/sccstests/large/long.sh
 t
 T
 I 1

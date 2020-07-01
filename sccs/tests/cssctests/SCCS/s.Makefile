@@ -1,15 +1,19 @@
-h54932
+hV6,sum=61011
 s 00005/00001/00060
-d D 1.2 11/05/31 21:15:51 joerg 2 1
+d D 1.2 2011/05/31 21:15:51+0200 joerg 2 1
+S s 30611
 c Kein Abbruch mehr bei Problen mit what/whatbasic.sh wgen HP-UX ARG_MAX
 e
 s 00061/00000/00000
-d D 1.1 11/05/27 18:55:58 joerg 1 0
+d D 1.1 2011/05/27 18:55:58+0200 joerg 1 0
+S s 15121
 c date and time created 11/05/27 18:55:58 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8eb275a9
+G p sccs/tests/cssctests/Makefile
 t
 T
 I 1

@@ -1,16 +1,20 @@
-h34841
+hV6,sum=41548
 s 00001/00001/00044
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 16332
 c ../common/test-common -> ../../common/test-common
 e
 s 00045/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 16193
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ede41ab
+G p sccs/tests/cssctests/prs/exists.sh
 t
 T
 I 1

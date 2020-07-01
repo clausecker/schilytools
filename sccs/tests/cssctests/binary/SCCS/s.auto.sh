@@ -1,28 +1,35 @@
-h16051
+hV6,sum=25403
 s 00003/00003/00130
-d D 1.5 15/06/03 00:06:43 joerg 5 4
+d D 1.5 2015/06/03 00:06:43+0200 joerg 5 4
+S s 22706
 c ../common/test-common -> ../../common/test-common
 e
 s 00012/00002/00121
-d D 1.4 14/08/26 20:19:40 joerg 4 3
+d D 1.4 2014/08/26 20:19:40+0200 joerg 4 3
+S s 22289
 c ascii/binary Unterschiede bei SCCSv4 <-> SCCSv6 beruecksichtigen
 e
 s 00001/00001/00122
-d D 1.3 11/06/18 16:06:36 joerg 3 2
+d D 1.3 2011/06/18 16:06:36+0200 joerg 3 2
+S s 06855
 c x=z.$g -> x=x.$g
 e
 s 00002/00001/00121
-d D 1.2 11/05/30 01:18:01 joerg 2 1
+d D 1.2 2011/05/30 01:18:01+0200 joerg 2 1
+S s 06857
 c Falscher Binaertest fuer CSSC korrigiert
 e
 s 00122/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 03629
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ebb3d70
+G p sccs/tests/cssctests/binary/auto.sh
 t
 T
 I 1

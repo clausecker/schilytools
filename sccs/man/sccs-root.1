@@ -1,4 +1,4 @@
-.\" @(#)sccs-root.1	1.1 20/05/21 Copyr 2020 J. Schilling
+.\" @(#)sccs-root.1	1.2 20/06/28 Copyr 2020 J. Schilling
 .\" Manual page for sccs-root
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-root 1 "2020/05/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-root 1 "2020/06/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-root \- list information about the SCCS project set home directory
 .SH SYNOPSIS
@@ -93,24 +93,68 @@ of SCCS commands should set the environment variable
 and set
 .BR LC_ALL=C .
 .SH FILES
+
+.SH ATTRIBUTES
+.LP
+See 
+.BR attributes (5)
+for descriptions of the following attributes:
+.LP
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i) 
+lw(2.75i) |lw(2.75i) 
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySCHILYdeveloper-build-sccs
+_
+Interface StabilityEvolving
+.TE
+
 .SH SEE ALSO
 .nh
 .LP
 .BR sccs (1),
+.BR sccs\-add (1),
 .BR sccs\-admin (1),
+.BR sccs\-branch (1),
 .BR sccs\-cdc (1),
+.BR sccs\-check (1),
+.BR sccs\-clean (1),
 .BR sccs\-comb (1),
+.BR sccs\-commit (1),
+.BR sccs\-create (1),
 .BR sccs\-cvt (1),
+.BR sccs\-deledit (1),
+.BR sccs\-delget (1),
 .BR sccs\-delta (1),
+.BR sccs\-diffs (1),
+.BR sccs\-edit (1),
+.BR sccs\-editor (1),
+.BR sccs\-enter (1),
+.BR sccs\-fix (1),
 .BR sccs\-get (1),
 .BR sccs\-help (1),
+.BR sccs\-histfile (1),
+.BR sccs\-info (1),
 .BR sccs\-init (1),
+.BR sccs\-istext (1),
+.BR sccs\-ldiffs (1),
 .BR sccs\-log (1),
+.BR sccs\-print (1),
 .BR sccs\-prs (1),
 .BR sccs\-prt (1),
+.BR sccs\-rcs2sccs (1),
+.BR sccs\-remove (1),
+.BR sccs\-rename (1),
 .BR sccs\-rmdel (1),
 .BR sccs\-sact (1),
 .BR sccs\-sccsdiff (1),
+.BR sccs\-status (1),
+.BR sccs\-tell (1),
+.BR sccs\-unedit (1),
 .BR sccs\-unget (1),
 .BR sccs\-val (1),
 .BR what (1),

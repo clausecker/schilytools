@@ -1,20 +1,25 @@
-h56191
+hV6,sum=62803
 s 00001/00002/00041
-d D 1.3 15/06/03 00:16:41 joerg 3 2
+d D 1.3 2015/06/03 00:16:41+0200 joerg 3 2
+S s 21540
 c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
 e
 s 00005/00001/00038
-d D 1.2 15/04/25 19:50:21 joerg 2 1
+d D 1.2 2015/04/25 19:50:21+0200 joerg 2 1
+S s 22187
 c FORCE_ROOT=true erlaubt einen Test als root
 e
 s 00039/00000/00000
-d D 1.1 11/05/28 12:31:44 joerg 1 0
+d D 1.1 2011/05/28 12:31:44+0200 joerg 1 0
+S s 18623
 c date and time created 11/05/28 12:31:44 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e880e8b79
+G p sccs/tests/common/not-root
 t
 T
 I 1

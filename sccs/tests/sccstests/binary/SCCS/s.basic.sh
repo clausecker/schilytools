@@ -1,20 +1,25 @@
-h05432
+hV6,sum=13066
 s 00002/00002/00053
-d D 1.3 15/06/03 00:06:45 joerg 3 2
+d D 1.3 2015/06/03 00:06:45+0200 joerg 3 2
+S s 29441
 c ../common/test-common -> ../../common/test-common
 e
 s 00018/00002/00037
-d D 1.2 14/08/26 14:05:24 joerg 2 1
+d D 1.2 2014/08/26 14:05:24+0200 joerg 2 1
+S s 29163
 c ^A Behandlung am Anfang der Zeile haengt nun davon ab ob ein SCCSv6 history File vorliegt
 e
 s 00039/00000/00000
-d D 1.1 11/05/29 20:20:24 joerg 1 0
+d D 1.1 2011/05/29 20:20:24+0200 joerg 1 0
+S s 63912
 c date and time created 11/05/29 20:20:24 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b57ae31
+G p sccs/tests/sccstests/binary/basic.sh
 t
 T
 I 1

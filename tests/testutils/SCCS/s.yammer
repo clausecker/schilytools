@@ -1,11 +1,14 @@
-h19778
+hV6,sum=24263
 s 00017/00000/00000
-d D 1.1 11/05/27 20:17:18 joerg 1 0
+d D 1.1 2011/05/27 20:17:18+0200 joerg 1 0
+S s 11767
 c date and time created 11/05/27 20:17:18 by joerg
 e
 u
 U
 f e 0
+G r 0e47243576f56
+G p tests/testutils/yammer
 t
 T
 I 1

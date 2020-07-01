@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.89 20/06/07 J. Schilling
+ * @(#)get.c	1.91 20/06/18 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.89 20/06/07 J. Schilling"
+#pragma ident "@(#)get.c 1.91 20/06/18 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -96,6 +96,9 @@ static char	cmr[CMRLIMIT];		/* To hold -z parameter		*/
 static int	num_files;		/* arg counter for main()/get()	*/
 static char	Pfilename[FILESIZE];	/* p.filename used in get()	*/
 static time_t	cutoff = MAX_TIME;	/* cutoff time for main()/get()	*/
+
+static struct	utsname	un;		/* uname for lockit()		*/
+static char	*uuname;		/* un.nodename			*/
 
 
 static	void    clean_up __PR((void));
@@ -374,11 +377,34 @@ register char *argv[];
 			fatal(gettext("-Ns. not supported in off-tree project mode"));
 	}
 
+	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (HADE && SETHOME_CHSET())
+		lockchset(getppid(), getpid(), uuname);
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
 			do_file(p, do_get, 1, N.n_sdot, &X);
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (HADE && SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);
+		unlockchset(getpid(), uuname);
+	}
 
 	return (Fcnt ? 1 : 0);
 }
@@ -413,6 +439,19 @@ get(pkt, file)
 
 	if (setjmp(Fjmp))
 		return;
+
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (HADE && SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (HADUCN) {
 #ifdef	__needed__
 		char	*ofile = file;
@@ -424,7 +463,11 @@ get(pkt, file)
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		ifile = N.n_ifile;
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
@@ -438,8 +481,6 @@ get(pkt, file)
 	}
 
 	if (HADE) {
-		struct utsname	un;
-		char		*uuname;
 
 		/*
 		call `sinit' to check if file is an SCCS file
@@ -448,8 +489,11 @@ get(pkt, file)
 		pass both the PID and machine name to lockit
 		*/
 		sinit(pkt, file, SI_INIT);
-		uname(&un);
-		uuname = un.nodename;
+
+		/*
+		 * Lock out any other user who may be trying to process
+		 * the same file.
+		 */
 		if (lockit(auxf(file, 'z'), 10, getpid(), uuname))
 			efatal(gettext("cannot create lock file (cm4)"));
 	}
@@ -722,13 +766,8 @@ get(pkt, file)
 	}
 unlock:
 	if (HADE) {
-		struct utsname	un;
-		char		*uuname;
-
 		copy(auxf(pkt->p_file, 'p'), Pfilename);
 		rename(auxf(pkt->p_file, 'q'), Pfilename);
-		uname(&un);
-		uuname = un.nodename;
 		unlockit(auxf(pkt->p_file, 'z'), getpid(), uuname);
 	}
 	sclose(pkt);
@@ -947,9 +986,6 @@ clean_up()
 		unlink(Gfile);
 	}
 	if (HADE) {
-		struct utsname	un;
-		char		*uuname;
-
 		uname(&un);
 		uuname = un.nodename;
 		if (mylock(auxf(gpkt.p_file,'z'), getpid(), uuname)) {

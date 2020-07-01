@@ -1,12 +1,15 @@
-h43500
+hV6,sum=50311
 s 00066/00000/00000
-d D 1.1 10/04/18 18:20:27 joerg 1 0
+d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
+S s 35189
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e471a559118f
+G p sccs/tests/cssctests/prt/expected/nodel.-u-f-t-b
 t
 T
 I 1

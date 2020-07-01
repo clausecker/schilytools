@@ -1,8 +1,8 @@
-/* @(#)subst.c	1.26 20/05/24 Copyright 1986,2003-2020 J. Schilling */
+/* @(#)subst.c	1.27 20/06/11 Copyright 1986,2003-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subst.c	1.26 20/05/24 Copyright 1986,2003-2020 J. Schilling";
+	"@(#)subst.c	1.27 20/06/11 Copyright 1986,2003-2020 J. Schilling";
 #endif
 /*
  *	Substitution commands
@@ -136,7 +136,7 @@ _parsesubst(cmd, arg, paxmode)
 		Int32_t	count = 1;
 
 	if (debug) {
-		error("Add subst pattern: '%s'", cmd);
+		error("Add subst pattern: '%s'.\n", cmd);
 	}
 
 	cmdlen = strlen(cmd);
@@ -147,7 +147,9 @@ _parsesubst(cmd, arg, paxmode)
 	to = ++from;
 	while (to < endp) {
 		c = *to;
-		if (c != dc)
+		if (c == '\\')
+			to += 2;
+		else if (c != dc)
 			to++;
 		else
 			break;
@@ -160,7 +162,9 @@ _parsesubst(cmd, arg, paxmode)
 	cp = to;
 	while (cp < endp) {
 		c = *cp;
-		if (c != dc)
+		if (c == '\\')
+			cp += 2;
+		else if (c != dc)
 			cp++;
 		else
 			break;
@@ -185,7 +189,7 @@ _parsesubst(cmd, arg, paxmode)
 	}
 
 	if (debug) {
-		error("  '%s'%s'(%ld,%ld) opts '%s' simpleto: %d\n",
+		error("Resulting subst:   '%s'%s'(%ld,%ld) opts '%s' simpleto: %d\n",
 			from, to, fromlen, tolen,
 			subopts, simpleto(to, tolen));
 	}

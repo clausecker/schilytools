@@ -1,20 +1,25 @@
-h27965
+hV6,sum=35515
 s 00001/00001/00042
-d D 1.3 15/06/03 00:06:43 joerg 3 2
+d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
+S s 03949
 c ../common/test-common -> ../../common/test-common
 e
 s 00001/00001/00042
-d D 1.2 11/06/18 16:06:36 joerg 2 1
+d D 1.2 2011/06/18 16:06:36+0200 joerg 2 1
+S s 03810
 c x=z.$g -> x=x.$g
 e
 s 00043/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 03812
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ec2349c
+G p sccs/tests/cssctests/cdc/1general.sh
 t
 T
 I 1

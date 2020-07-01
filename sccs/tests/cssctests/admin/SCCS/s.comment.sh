@@ -1,37 +1,46 @@
-h07723
+hV6,sum=18996
 s 00001/00000/00110
-d D 1.7 19/05/12 14:28:12 joerg 7 6
+d D 1.7 2019/05/12 14:28:12+0200 joerg 7 6
+S s 54010
 c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
 e
 s 00024/00000/00086
-d D 1.6 19/05/12 14:12:22 joerg 6 5
+d D 1.6 2019/05/12 14:12:22+0200 joerg 6 5
+S s 50201
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00002/00002/00084
-d D 1.5 15/06/03 00:06:43 joerg 5 4
+d D 1.5 2015/06/03 00:06:43+0200 joerg 5 4
+S s 64482
 c ../common/test-common -> ../../common/test-common
 e
 s 00011/00001/00075
-d D 1.4 14/08/26 20:11:31 joerg 4 3
+d D 1.4 2014/08/26 20:11:31+0200 joerg 4 3
+S s 64204
 c Anpassung an erweitertes Datumsformat von SCCSv6
 e
 s 00001/00001/00075
-d D 1.3 11/10/21 23:07:38 joerg 3 2
+d D 1.3 2011/10/21 23:07:38+0200 joerg 3 2
+S s 38692
 c prs -d:DI: Tests sind nun POSIX konform
 e
 s 00003/00003/00073
-d D 1.2 11/05/30 01:13:10 joerg 2 1
+d D 1.2 2011/05/30 01:13:10+0200 joerg 2 1
+S s 38598
 c sed -ne '/^COMMENTS:$/,/$/ p' -> sed -ne '/^COMMENTS:$/,/^.*$/ p'
 e
 s 00076/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 38052
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb9e04f
+G p sccs/tests/cssctests/admin/comment.sh
 t
 T
 I 1

@@ -1,12 +1,15 @@
-h54069
+hV6,sum=60701
 s 00640/00000/00000
-d D 1.1 10/04/18 18:20:27 joerg 1 0
+d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
+S s 45760
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ee79468
+G p sccs/tests/cssctests/prt/all-variations.txt
 t
 T
 I 1

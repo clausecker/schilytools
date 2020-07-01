@@ -1,12 +1,15 @@
-h04668
+hV6,sum=10934
 s 00059/00000/00000
-d D 1.1 18/12/05 00:34:57 joerg 1 0
+d D 1.1 2018/12/05 00:34:57+0100 joerg 1 0
+S s 61887
 c date and time created 18/12/05 00:34:57 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b6d601b
+G p sccs/tests/sccstests/sccscvt/cvtpath.sh
 t
 T
 I 1

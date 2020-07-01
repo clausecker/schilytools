@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.14 20/05/28 Copyright 2011-2020 J. Schilling
+ * @(#)sethome.c	1.17 20/06/25 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.14 20/05/28 Copyright 2011-2020 J. Schilling"
+#pragma ident "@(#)sethome.c	1.17 20/06/25 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -39,6 +39,7 @@ char	*setrhome;	/* Relative path to the project set home directory */
 char	*setahome;	/* Absolute path to the project set home directory */
 char	*cwdprefix;	/* Prefix from project set home directory to cwd */
 char	*changesetfile;	/* The path to the changeset history file */
+char	*changesetgfile; /* The path to the changeset file */
 int	homedist;	/* The # of directories to the project set home dir */
 int	setphomelen;	/* strlen(setphome) */
 int	setrhomelen;	/* strlen(setrhome) */
@@ -79,6 +80,10 @@ unsethome()
 	if (changesetfile != NULL) {
 		free(changesetfile);
 		changesetfile = NULL;
+	}
+	if (changesetgfile != NULL) {
+		free(changesetgfile);
+		changesetgfile = NULL;
 	}
 	setphome = NULL;
 	homedist = setphomelen = setrhomelen = setahomelen =
@@ -415,7 +420,7 @@ mkprefix(bp, len, n)
 		stat(bp, &sb);		/* Dir to match */
 		s[-3] = '.';
 		dp = opendir(bp);	/* one level above that dir */
-		
+
 		strlcpy(buf, bp, sizeof (buf));
 		p = buf + strlen(buf)-1;
 		found = 0;
@@ -496,7 +501,7 @@ checkdotsccs(path)
 		if (*p == 'i') {
 			sethomestat |=  SETHOME_INTREE;
 			sethomestat &= ~SETHOME_OFFTREE;
-		} else if (*p) {
+		} else if (*p == 'o') {
 			sethomestat &= ~SETHOME_INTREE;
 			sethomestat |=  SETHOME_OFFTREE;
 		}
@@ -538,4 +543,20 @@ gchangeset()
 	if (_exists(buf) && S_ISREG(_Statbuf.st_mode))
 		sethomestat |= SETHOME_CHSET_OK;
 	changesetfile = strdup(buf);
+
+	strlcpy(buf, setphome, sizeof (buf));
+	strlcat(buf, "/.sccs/changeset", sizeof (buf));
+	changesetgfile = strdup(buf);
+}
+
+EXPORT void
+setnewmode()
+{
+	sethomestat |= SETHOME_NEWMODE;
+}
+
+EXPORT void
+unsetnewmode()
+{
+	sethomestat &= ~SETHOME_NEWMODE;
 }

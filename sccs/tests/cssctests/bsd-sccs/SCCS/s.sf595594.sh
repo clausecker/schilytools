@@ -1,32 +1,40 @@
-h10090
+hV6,sum=20495
 s 00001/00001/00108
-d D 1.6 20/04/16 01:57:21 joerg 6 5
+d D 1.6 2020/04/16 01:57:21+0200 joerg 6 5
+S s 03445
 c %Z% Neu um "No id keywords" Warnung zu vermeiden
 e
 s 00002/00002/00107
-d D 1.5 15/06/03 00:06:43 joerg 5 4
+d D 1.5 2015/06/03 00:06:43+0200 joerg 5 4
+S s 00438
 c ../common/test-common -> ../../common/test-common
 e
 s 00013/00003/00096
-d D 1.4 15/04/25 18:43:53 joerg 4 3
+d D 1.4 2015/04/25 18:43:53+0200 joerg 4 3
+S s 00160
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
 e
 s 00001/00001/00098
-d D 1.3 15/01/28 20:07:29 joerg 3 2
+d D 1.3 2015/01/28 20:07:29+0100 joerg 3 2
+S s 31410
 c setup vor cleanup rufen, damit rmdir: directory "SCCS": Directory not empty nicht kommt
 e
 s 00026/00000/00073
-d D 1.2 11/05/30 19:30:32 joerg 2 1
+d D 1.2 2011/05/30 19:30:32+0200 joerg 2 1
+S s 31410
 c setup()/restore() neu um SCCS nach XSCCS und zurueck zu wandeln
 e
 s 00073/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 05813
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ebf612b
+G p sccs/tests/cssctests/bsd-sccs/sf595594.sh
 t
 T
 I 1

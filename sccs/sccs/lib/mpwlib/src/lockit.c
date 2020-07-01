@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)lockit.c	1.15 20/05/14 J. Schilling
+ * @(#)lockit.c	1.20 20/06/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.15 20/05/14 J. Schilling"
+#pragma ident "@(#)lockit.c 1.20 20/06/17 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -42,22 +42,22 @@
 #endif
 
 /*
-	Process semaphore.
-	Try repeatedly (`count' times) to create `lockfile' mode 444.
-	Sleep 10 seconds between tries.
-	If `tempfile' is successfully created, write the process ID
-	`pid' in `tempfile' (in binary), link `tempfile' to `lockfile',
-	and return 0.
-	If `lockfile' exists and it hasn't been modified within the last
-	minute, and either the file is empty or the process ID contained
-	in the file is not the process ID of any existing process,
-	`lockfile' is removed and it tries again to make `lockfile'.
-	After `count' tries, or if the reason for the create failing
-	is something other than EACCES, return xmsg().
-
-	Unlockit will return 0 if the named lock exists, contains
-	the given pid, and is successfully removed; -1 otherwise.
-*/
+ *	Process semaphore.
+ *	Try repeatedly (`count' times) to create `lockfile' mode 444.
+ *	Sleep 10 seconds between tries.
+ *	If `lockfile' is successfully created, write the process ID
+ *	`pid' in `lockfile' (in binary)and return 0.
+ *
+ *	If `lockfile' exists and it hasn't been modified within the last
+ *	minute, and either the file is empty or the process ID contained
+ *	in the file is not the process ID of any existing process,
+ *	`lockfile' is removed and it tries again to make `lockfile'.
+ *	After `count' tries, or if the reason for the create failing
+ *	is something other than EACCES, return xmsg().
+ *
+ *	Unlockit will return 0 if the named lock exists, contains
+ *	the given pid, and is successfully removed; -1 otherwise.
+ */
 
 #define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 #include	<defines.h>
@@ -86,9 +86,10 @@ lockit(lockfile, count, pid, uuname)
 	char	*uuname;		/* The hostname for this machine.    */
 {
 	int	fd;
+	int	dosleep = 0;
 	pid_t	opid;
 	char	ouuname[nodenamelength];
-	long	ltime, omtime;
+	long	ltime, omtime, onsecs;
 #ifdef	needed
 	char	uniqfilename[PATH_MAX+48];
 	char	tempfile[PATH_MAX];
@@ -119,7 +120,8 @@ lockit(lockfile, count, pid, uuname)
 		(void) unlink(uniqfilename);
 	}
 #endif
-	for (++count; --count; (void) sleep(10)) {
+	for (++count; --count; dosleep ? sleep(10) : 0) {
+		dosleep = 1;
 		if (onelock(pid, uuname, lockfile) == 0)
 			return (0);
 		if (errno == EACCES)
@@ -127,6 +129,7 @@ lockit(lockfile, count, pid, uuname)
 		if (!exists(lockfile))
 			continue;
 		omtime = Statbuf.st_mtime;
+		onsecs = stat_mnsecs(&Statbuf);
 		if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0)
 			continue;
 		opid = pid;		/* In case file is empty */
@@ -141,8 +144,10 @@ lockit(lockfile, count, pid, uuname)
 		if (equal(ouuname, uuname)) {
 			if (kill((int) opid, 0) == -1 && errno == ESRCH) {
 				if ((exists(lockfile)) &&
-				    (omtime == Statbuf.st_mtime)) {
+				    (omtime == Statbuf.st_mtime) &&
+				    (onsecs == stat_mnsecs(&Statbuf))) {
 					(void) unlink(lockfile);
+					dosleep = 0;
 					continue;
 				}
 			}
@@ -164,13 +169,32 @@ lockit(lockfile, count, pid, uuname)
 		 * If lock file is still empty and did not change, we may
 		 * remove it as we check for long delays between creation
 		 * and writing the content in onelock().
+		 * Since we only unlink() the file in case it is empty, we
+		 * do not affect lock files from different NFS participants.
+		 * If an operation takes more than 60 seconds, it is thus
+		 * important to refresh the timestamps from the lock file
+		 * after less than 60 seconds, to make NFS collaboration work.
 		 */
 		if (exists(lockfile) &&
-		    Statbuf.st_size == 0 && omtime == Statbuf.st_mtime)
+		    Statbuf.st_size == 0 &&
+		    (omtime == Statbuf.st_mtime) &&
+		    (onsecs == stat_mnsecs(&Statbuf))) {
 			(void) unlink(lockfile);
+			dosleep = 0;
+		}
 	}
 	errno = EEXIST;	/* We failed due to exhausted retry count */
 	return (-1);
+}
+
+int
+lockrefresh(lockfile)
+	char	*lockfile;		/* The z.file path (e.g. SCCS/z.foo) */
+{
+	/*
+	 * Do we need to check whether this is still our old lock?
+	 */
+	return (utimens(lockfile, NULL));
 }
 
 int
@@ -192,6 +216,10 @@ char	*uuname;
 		return (-1);
 }
 
+/*
+ * Create a lockfile using O_CREAT|O_EXC and write our identification
+ * pid/uuname into the file.
+ */
 static int
 onelock(pid, uuname, lockfile)
 pid_t	pid;
@@ -216,9 +244,21 @@ char	*lockfile;
 		lock[i] = *p++;
 	strncpy(&lock[sizeof (pid_t)], uuname, nodenamelength);
 
+	/*
+	 * Old SunOS versions from this file used O_DSYNC as open() flag.
+	 * If we do this, the write() call below becomes expensive.
+	 * Approx. 20ms on Solaris and approx. 50ms on Linux. Since with the
+	 * project mode, we need two locks, this would be too much. The only
+	 * advantage, O_DSYNC gives is on-disk consistence and since a reboot
+	 * makes the process ID in the lock file void, it seems that the in
+	 * core view of the file is sufficient for the integrity of the lock.
+	 */
 	otime = time((time_t *)0);
 	if ((fd = open(lockfile,
-		    O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
+		    O_WRONLY|O_CREAT|O_EXCL|O_BINARY, 0444)) >= 0) {
+		/*
+		 * One write, so the file is either empty or written completely
+		 */
 		if (write(fd, lock, sizeof (lock)) != sizeof (lock)) {
 			(void) close(fd);
 			(void) unlink(lockfile);
@@ -237,12 +277,33 @@ char	*lockfile;
 		return (0);
 	}
 	if ((errno == ENFILE) || (errno == EACCES) || (errno == EEXIST)) {
+		/*
+		 * This is a retryable error.
+		 */
 		return (-1);
 	} else {
+		/*
+		 * Give up for other problems.
+		 */
 		return (xmsg(lockfile, NOGETTEXT("lockit")));
 	}
 }
 
+/*
+ * Check whether a lock in lockfile exists and whether pid/uuname are equal
+ * to what's in the file.
+ *
+ * Returns:
+ *
+ *	-2	Lock hold by a currently active process on this machine.
+ *
+ *	-1	No lock file is present (ENOENT).
+ *
+ *	0	Cannot open lock file, empty file or pid/uuname do not match.
+ *		This includes a currently active lock on a different machine.
+ *
+ *	1	Lock file is present and pid/uuname match with the file.
+ */
 int
 ismylock(lockfile, pid, uuname)
 	char	*lockfile;
@@ -265,10 +326,29 @@ ismylock(lockfile, pid, uuname)
 	if (n == sizeof (opid) && opid == pid && (equal(ouuname, uuname))) {
 		return (1);
 	} else {
+		if (n == sizeof (opid) && (equal(ouuname, uuname))) {
+			/*
+			 * The case of a legally long lasting lock is finally
+			 * handled in lockit().
+			 */
+			if (kill(opid, 0) == 0) {
+				return (-2);	/* Lock is still active */
+			}
+		}
 		return (0);
 	}
 }
 
+/*
+ * Check whether a lock in lockfile exists and can be opened and whether
+ * pid/uuname are equal to what's in the file.
+ *
+ * Returns:
+ *
+ *	FALSE	Cannot open lock file, or pid/uuname do not match.
+ *
+ *	TRUE	Lock file is present and pid/uuname match with the file.
+ */
 int
 mylock(lockfile, pid, uuname)
 	char	*lockfile;

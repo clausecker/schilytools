@@ -1,20 +1,25 @@
-h31082
+hV6,sum=38901
 s 00002/00002/00070
-d D 1.3 15/06/03 00:06:43 joerg 3 2
+d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
+S s 52502
 c ../common/test-common -> ../../common/test-common
 e
 s 00004/00003/00068
-d D 1.2 11/05/30 01:19:38 joerg 2 1
+d D 1.2 2011/05/30 01:19:38+0200 joerg 2 1
+S s 52224
 c Tests ob admin -ifoo s.foo und admin -n s.foo beide mit -r2 funktionieren
 e
 s 00071/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 50635
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb8b965
+G p sccs/tests/cssctests/admin/r-option.sh
 t
 T
 I 1

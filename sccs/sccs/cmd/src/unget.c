@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)unget.c	1.39 20/05/17 J. Schilling
+ * @(#)unget.c	1.42 20/06/24 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.39 20/05/17 J. Schilling"
+#pragma ident "@(#)unget.c 1.42 20/06/24 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -284,11 +284,34 @@ char *argv[];
 		cmd = 1;
 	}
 
+	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (cmd == 0 && SETHOME_CHSET())
+		lockchset(getppid(), getpid(), uuname);
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i = 1; i < argc; i++)
 		if ((p = argv[i]) != NULL)
 			do_file(p, unget, 1, N.n_sdot, &X);
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (cmd == 0 && SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);
+		unlockchset(getpid(), uuname);
+	}
 
 	return (Fcnt ? 1 : 0);
 }
@@ -304,6 +327,19 @@ char *file;
 
 	if (setjmp(Fjmp))
 		return;
+
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (HADUCN) {
 #ifdef	__needed__
 		char	*ofile = file;
@@ -315,7 +351,11 @@ char *file;
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
 			sid.s_rel = N.n_sid.s_rel;
@@ -333,7 +373,11 @@ char *file;
 	gpkt.p_stdout = stdout;
 	gpkt.p_verbose = (HADS) ? 0 : 1;
 
-	copy(auxf(gpkt.p_file, 'g'), gfilename);
+	if (HADUCN && N.n_ifile) {
+		copy(N.n_ifile, gfilename);
+	} else {
+		copy(auxf(gpkt.p_file, 'g'), gfilename);
+	}
 	if (cmd == 0) {
 	    if (gpkt.p_verbose && (num_files > 1 || had_dir || had_standinp))
 		fprintf(gpkt.p_stdout, "\n%s:\n", gpkt.p_file);
@@ -342,10 +386,14 @@ char *file;
 	    catpfile(&gpkt);
 	    return;
 	}
-	uname(&un);
-	uuname = un.nodename;
+
+	/*
+	 * Lock out any other user who may be trying to process
+	 * the same file.
+	 */
 	if (lockit(auxf(gpkt.p_file, 'z'), SCCS_LOCK_ATTEMPTS, getpid(), uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
+
 	pp = edpfile(&gpkt, &sid);
 	if (gpkt.p_verbose) {
 		sid_ba(&pp->pf_nsid, str);
@@ -365,8 +413,7 @@ char *file;
 		xunlink(auxf(gpkt.p_file, 'q'));
 	}
 	ffreeall();
-	uname(&un);
-	uuname = un.nodename;
+
 	unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
 
 	if (!HADN) {

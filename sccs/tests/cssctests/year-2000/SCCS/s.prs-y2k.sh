@@ -1,29 +1,36 @@
-h38830
+hV6,sum=48390
 s 00016/00000/00116
-d D 1.5 19/05/17 11:05:16 joerg 5 4
+d D 1.5 2019/05/17 11:05:16+0200 joerg 5 4
+S s 54631
 c Hinweis auf date probleme in betriebssystemen
 e
 s 00006/00001/00110
-d D 1.4 19/05/12 14:12:21 joerg 4 3
+d D 1.4 2019/05/12 14:12:21+0200 joerg 4 3
+S s 02779
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00002/00002/00109
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 43237
 c ../common/test-common -> ../../common/test-common
 e
 s 00009/00000/00102
-d D 1.2 11/05/31 21:54:19 joerg 2 1
+d D 1.2 2011/05/31 21:54:19+0200 joerg 2 1
+S s 42959
 c expect_fail=true fuer AIX um einen Abbruch zu vermeiden
 e
 s 00102/00000/00000
-d D 1.1 11/04/26 11:44:52 joerg 1 0
+d D 1.1 2011/04/26 11:44:52+0200 joerg 1 0
+S s 29622
 c date and time created 11/04/26 11:44:52 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ef7106a
+G p sccs/tests/cssctests/year-2000/prs-y2k.sh
 t
 T
 I 1

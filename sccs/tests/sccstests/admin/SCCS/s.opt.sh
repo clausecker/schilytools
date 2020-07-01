@@ -1,20 +1,25 @@
-h10060
+hV6,sum=17364
 s 00004/00000/00055
-d D 1.3 16/08/18 22:20:29 joerg 3 2
+d D 1.3 2016/08/18 22:20:29+0200 joerg 3 2
+S s 35745
 c touch -t fuer gtouch
 e
 s 00006/00006/00049
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 28199
 c ../common/test-common -> ../../common/test-common
 e
 s 00055/00000/00000
-d D 1.1 11/05/29 23:25:40 joerg 1 0
+d D 1.1 2011/05/29 23:25:40+0200 joerg 1 0
+S s 27365
 c date and time created 11/05/29 23:25:40 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b56f350
+G p sccs/tests/sccstests/admin/opt.sh
 t
 T
 I 1

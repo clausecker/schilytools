@@ -20,7 +20,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cm	1.11 20/06/01 J. Schilling
+* @(#)cm	1.12 20/06/13 J. Schilling
 *
 * @(#)cm 1.2 06/12/12
 *
@@ -137,3 +137,9 @@ conversion routines from the actual operating system.
 -20
 "non directory specified as argument"
 A non-directory was specified when only directories were expected.
+-21
+"input file is missing"
+A specified input file could not be found.
+-22
+"could not make directory"
+A missing directory could not be made.

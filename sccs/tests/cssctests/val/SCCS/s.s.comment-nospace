@@ -1,12 +1,15 @@
-h15313
+hV6,sum=21868
 s 00004/00000/00000
-d D 1.1 11/05/10 23:24:24 joerg 1 0
+d D 1.1 2011/05/10 23:24:24+0200 joerg 1 0
+S s 07027
 c date and time created 11/05/10 23:24:24 by joerg
 e
 u
 U
 f e 1
 f y 
+G r 0e46e8ef39cf2
+G p sccs/tests/cssctests/val/s.comment-nospace
 t
 T
 I 1

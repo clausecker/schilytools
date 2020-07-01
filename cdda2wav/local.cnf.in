@@ -1,4 +1,4 @@
-# @(#)local.cnf.in       1.11 15/10/07 Copyright 1998-2002,2015 Heiko Eissfeldt. Copyright 2007-2015 J. Schilling
+# @(#)local.cnf.in       1.12 20/06/24 Copyright 1998-2002,2015 Heiko Eissfeldt. Copyright 2007-2015 J. Schilling
 #
 # Makefile for cdda2wav, a sampling utility.
 #
@@ -134,7 +134,7 @@ WANT_CDINDEX_SUPPORT=-DCDINDEX_SUPPORT
 # CDDB server support
 # Comment out if you don't want a network access to the cddb server
 WANT_CDDB_SUPPORT=-DCDDB_SUPPORT
-CDDB_SERVERHOST='"freedb.freedb.org"'
+CDDB_SERVERHOST='"gnudb.gnudb.org"'
 CDDB_SERVERPORT=8880
 
 # end of tunable parameters

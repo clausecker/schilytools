@@ -1,16 +1,20 @@
-h35371
+hV6,sum=42271
 s 00001/00001/00109
-d D 1.2 15/06/03 00:06:43 joerg 2 1
+d D 1.2 2015/06/03 00:06:43+0200 joerg 2 1
+S s 16868
 c ../common/test-common -> ../../common/test-common
 e
 s 00110/00000/00000
-d D 1.1 11/04/30 19:50:22 joerg 1 0
+d D 1.1 2011/04/30 19:50:22+0200 joerg 1 0
+S s 16729
 c date and time created 11/04/30 19:50:22 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb45f7c
+G p sccs/tests/cssctests/admin/init-mr.sh
 t
 T
 I 1

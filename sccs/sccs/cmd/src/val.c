@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)val.c	1.64 20/05/17 J. Schilling
+ * @(#)val.c	1.65 20/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.64 20/05/17 J. Schilling"
+#pragma ident "@(#)val.c 1.65 20/06/13 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -467,7 +467,11 @@ do_validate(c_path)
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 	}
 

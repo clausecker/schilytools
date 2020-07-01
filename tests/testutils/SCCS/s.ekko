@@ -1,15 +1,19 @@
-h26584
+hV6,sum=31736
 s 00000/00001/00010
-d D 1.2 15/06/03 20:25:36 joerg 2 1
+d D 1.2 2015/06/03 20:25:36+0200 joerg 2 1
+S s 07415
 c SRCROOT nicht mehr setzen sondern lassen wie es ist
 e
 s 00011/00000/00000
-d D 1.1 11/05/27 20:17:18 joerg 1 0
+d D 1.1 2011/05/27 20:17:18+0200 joerg 1 0
+S s 10304
 c date and time created 11/05/27 20:17:18 by joerg
 e
 u
 U
 f e 0
+G r 0e4724357df24
+G p tests/testutils/ekko
 t
 T
 I 1

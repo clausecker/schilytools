@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.126 20/06/07 J. Schilling
+ * @(#)sccs.c	1.133 20/06/24 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.126 20/06/07 J. Schilling"
+#pragma ident "@(#)sccs.c 1.133 20/06/24 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -294,6 +294,7 @@ static int diffs __PR((int nfiles, char **argv));
 static void do_diffs __PR((char *file));
 static int enter __PR((int nfiles, char **argv));
 static int editor __PR((int nfiles, char **argv));
+static int histfile __PR((int nfiles, int argc, char **argv));
 static int istext __PR((int nfiles, int argc, char **argv));
 static char *makegfile __PR((char *name));
 #ifdef	USE_RECURSIVE
@@ -321,6 +322,7 @@ static int fgetchk	__PR((char *file, int dov6, int silent));
 #define	RENAME		14	/* rename specified files on next commit */
 #define	ROOT		15	/* show project root directory */
 #define	STATUS		16	/* show changed files in the project */
+#define	HISTFILE	17	/* give history file path for s-file */
 
 /* bits for sccsflags */
 #define	NO_SDOT		0001	/* no s. in front of args */
@@ -372,6 +374,7 @@ static struct sccsprog SccsProg[] =
 #endif /* V6 */
 	{ "edit",	CMACRO,	RF_OK|NO_SDOT,		"get -e" },
 	{ "editor",	EDITOR,	NO_SDOT,		NULL },
+	{ "histfile",	HISTFILE, NO_SDOT,		NULL },
 	{ "delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
 	    "delta:mysropdfq/get:ixbeskclo -t" },
 	{ "deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
@@ -730,6 +733,7 @@ main(argc, argv)
 		exit(EX_OSERR);
 	}
 	if (NewMode) {
+		setnewmode();
 		if (NewOpt == NULL) {
 			NewOpt = malloc(strlen(SccsPath)+6);
 			if (NewOpt == NULL) {
@@ -754,6 +758,8 @@ main(argc, argv)
 		Nsd.n_parm = &NewOptsd[2];
 		parseN(&N);
 		parseN(&Nsd);
+	} else {
+		unsetnewmode();
 	}
 
 	i = command(argv, FALSE, "");
@@ -790,7 +796,11 @@ getNsid(file, user)
 	if (NewMode) {
 		file = bulkprepare(&N, file);
 		if (file == NULL) {
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 	}
 	sinit(&gpkt, file, SI_INIT);
@@ -812,6 +822,9 @@ getNsid(file, user)
 		}
 	}
 	fclose(in);
+	if (NewMode) {
+		bulkchdir(&N);	/* chdir() back to our previous "." */
+	}
 	if (!goodpf.pf_user[0])
 		return (NULL);
 	if (!goodpf.pf_nsid.s_br) {
@@ -1693,6 +1706,10 @@ command(argv, forkflag, arg0)
 		rval = editor(nfiles, ap);
 		break;
 
+	  case HISTFILE:	/* give history file path for s-file */
+		rval = histfile(nfiles, ac, ap);
+		break;
+
 	  case ISTEXT:		/* check whether file needs encoding */
 		rval = istext(nfiles, ac, ap);
 		break;
@@ -2094,7 +2111,8 @@ makefile(name, in_SccsDir)
 				gstrcpy(q, SccsPath, sizeof (buf));
 				gstrcat(buf, "/s.", sizeof (buf));
 				gstrcat(buf, p, sizeof (buf));
-			}
+			} else if (strcmp(curcmd->sccsname, "histfile") == 0)
+				gstrcpy(q, SccsPath, sizeof (buf));
 		} else {
 			/*
 			 * May be a s.file name, but a g-file may also start
@@ -2416,7 +2434,11 @@ clean(mode, argv)
 		N.n_pflags =  NP_DIR;
 		subdir = bulkprepare(&N, subdir);
 		if (subdir == NULL) {
-			fatal(gettext("non directory specified as argument (cm20)"));
+			/*
+			 * The error is typically
+			 * "non directory specified as argument (cm20)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		N.n_pflags =  0;
 		strlcpy(buf, subdir, sizeof (buf));
@@ -2671,7 +2693,7 @@ do_unedit(fn)
 	char *fn;
 {
 	register FILE *pfp;
-	char *gfile, *pfn;
+	char *gfile, *gfn, *pfn;
 	char *Gfile = NULL;
 #ifdef	PROTOTYPES
 	char   template[] = NOGETTEXT("/tmp/sccsXXXXXX");
@@ -2694,18 +2716,29 @@ do_unedit(fn)
 		return;
 
 	if (NewMode) {
+		/*
+		 * In NewMode, "fn" is always the f-file name.
+		 */
+		gfn = fn;
 		fn = bulkprepare(&N, fn);
 		if (fn == NULL) {
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
+		pfn = xstrdup(fn);
+		gfile = gfn;
+	} else {
+		pfn = xstrdup(fn);
+		if (!sccsfile(pfn)) {
+			usrerr(gettext("bad file name \"%s\""), fn);
+			free(pfn);
+			return;
+		}
+		gfile = auxf(pfn, 'g');
 	}
-	pfn = xstrdup(fn);
-	if (!sccsfile(pfn)) {
-		usrerr(gettext("bad file name \"%s\""), fn);
-		free(pfn);
-		return;
-	}
-	gfile = auxf(pfn, 'g');
 	if (Cwd && Cwd[2]) {
 		Gfile = malloc(strlen(&Cwd[2]) + strlen(gfile) + 1);
 		if (Gfile == NULL) {
@@ -3178,10 +3211,24 @@ char *file;
 	if ((diffs_ap == NULL) && (diffs_np == NULL))
 		return;
 	if (NewMode) {
+		/*
+		 * We may not do a chdir() in bulkprepare() since this would
+		 * affect subcommands like get and diff.
+		 */
+		N.n_pflags =  NP_NOCHDIR;
+		Nsd.n_pflags =  NP_NOCHDIR;
+
 		pfile = bulkprepare(&N, file);
 		if (pfile == NULL) {
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
+		N.n_pflags =  0;
+		Nsd.n_pflags =  0;
+
 		pfile = xstrdup(pfile);
 	} else if ((pfile = makefile(file, newSccsDir)) == NULL)
 		return;
@@ -3463,6 +3510,83 @@ editor(nfiles, argv)
 	}
 	if (rs)
 		free(rs);
+	return (rval);
+}
+
+static int
+histfile(nfiles, argc, argv)
+	int	nfiles;
+	int	argc;
+	char	**argv;
+{
+	int	rval;
+	char	**np;
+	char	*g_name;
+	char	*s_name;
+	bool	is_dir;
+	bool	get_g = FALSE;
+
+	optind = 1;
+	opt_sp = 1;
+	while ((rval = getopt(argc, argv, ":g")) != -1) {
+		switch (rval) {
+
+		case 'g':
+			/*
+			 * The option -g is experimental and undocumented
+			 * until it works correctly.
+			 */
+			get_g = TRUE;
+			break;
+
+		case ':':
+			usrerr("%s %s",
+				gettext("option requires an argument"),
+				argv[optind-1]);
+			rval = EX_USAGE;
+			exit(EX_USAGE);
+			/*NOTREACHED*/
+		default:
+			usrerr("%s %s",
+				gettext("unknown option"),
+				argv[optind-1]);
+			rval = EX_USAGE;
+			exit(EX_USAGE);
+			/*NOTREACHED*/
+		}
+	}
+	argc -= optind;
+
+	if (argc <= 0)
+		fatal(gettext("missing file arg (cm3)"));
+	if (argc > 1)
+		fatal(gettext("too many file args (cm18)"));
+
+	rval = 0;
+	for (np = &argv[optind]; *np != NULL; np++) {
+		g_name = *np;
+		is_dir = isdir(g_name);
+		if (NewMode) {
+			N.n_pflags =  NP_NOCHDIR;
+			Nsd.n_pflags =  NP_NOCHDIR;
+			if (is_dir) {
+				N.n_pflags |=  NP_DIR;
+				Nsd.n_pflags |=  NP_DIR;
+			}
+			s_name = bulkprepare(get_g?&Nsd:&N, g_name);
+			if (s_name == NULL)
+				fatal(gettext(bulkerror(&N)));
+			N.n_pflags =  0;
+			Nsd.n_pflags =  0;
+		} else {
+			if (get_g)
+				s_name = makegfile(g_name);
+			else
+				s_name = makefile(g_name, SccsDir);
+		}
+		printf("%s\n", s_name);
+	}
+
 	return (rval);
 }
 

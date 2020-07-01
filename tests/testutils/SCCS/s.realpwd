@@ -1,11 +1,14 @@
-h09475
+hV6,sum=14092
 s 00002/00000/00000
-d D 1.1 08/06/19 17:20:46 joerg 1 0
+d D 1.1 2008/06/19 17:20:46+0200 joerg 1 0
+S s 01452
 c date and time created 08/06/19 17:20:46 by joerg
 e
 u
 U
 f e 0
+G r 0e47243568e1d
+G p tests/testutils/realpwd
 t
 T
 I 1

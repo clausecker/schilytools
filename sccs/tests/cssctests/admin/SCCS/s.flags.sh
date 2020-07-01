@@ -1,29 +1,36 @@
-h00185
+hV6,sum=09460
 s 00004/00000/00130
-d D 1.5 19/05/12 14:28:12 joerg 5 4
+d D 1.5 2019/05/12 14:28:12+0200 joerg 5 4
+S s 17159
 c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
 e
 s 00015/00001/00115
-d D 1.4 19/05/12 14:12:22 joerg 4 3
+d D 1.4 2019/05/12 14:12:22+0200 joerg 4 3
+S s 10709
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00001/00001/00115
-d D 1.3 15/06/03 00:06:43 joerg 3 2
+d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
+S s 33696
 c ../common/test-common -> ../../common/test-common
 e
 s 00001/00001/00115
-d D 1.2 11/10/21 23:07:38 joerg 2 1
+d D 1.2 2011/10/21 23:07:38+0200 joerg 2 1
+S s 33557
 c prs -d:DI: Tests sind nun POSIX konform
 e
 s 00116/00000/00000
-d D 1.1 11/04/30 19:50:22 joerg 1 0
+d D 1.1 2011/04/30 19:50:22+0200 joerg 1 0
+S s 33463
 c date and time created 11/04/30 19:50:22 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb64c78
+G p sccs/tests/cssctests/admin/flags.sh
 t
 T
 I 1

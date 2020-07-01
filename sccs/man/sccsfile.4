@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.47 20/05/14 Copyright 2007-2019 J. Schilling */
+.\" @(#)sccsfile.4	1.48 20/06/16 Copyright 2007-2019 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2019 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2020/05/14" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2020/06/16" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -1229,7 +1229,13 @@ keyword directive are searched in this directory.
 
 .SH NOTES
 .LP
-The following SCCS programs write or modify SCCS history files:
+The following SCCS programs
+.B write
+or
+.B modify
+SCCS history files and create
+.B lock files
+for the SCCS history files:
 .TP 11
 .BR admin (1)
 create and administer SCCS history files
@@ -1245,6 +1251,25 @@ remove a delta from an SCCS file
 .TP
 .BR sccscvt (1)
 convert history files between SCCS v4 and SCCS v6
+
+.br
+.ne 5
+.LP
+The following SCCS programs do not write or modify SCCS
+history files but create
+.B lock files
+for SCCS history files since they modify
+.BI p. files\c
+:
+.TP 11
+.TP
+.BR get (1)
+when using the option
+.B \-e
+to check out a file for editing
+.TP
+.BR unget (1)
+undo a previous get of an SCCS file
 
 .SH BUGS
 .LP

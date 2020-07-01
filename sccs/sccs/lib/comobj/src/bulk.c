@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.17 20/06/01 Copyright 2011-2020 J. Schilling
+ * @(#)bulk.c	1.26 20/06/24 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.17 20/06/01 Copyright 2011-2020 J. Schilling"
+#pragma ident "@(#)bulk.c	1.26 20/06/24 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -39,14 +39,17 @@ initN(N)
 	N->n_get = 0;
 	N->n_sdot = 1;		/* file name is s.file		 */
 	N->n_subd = 0;		/* s.file is in sub-directory	 */
+	N->n_didchdir = 0;	/* bulkprepare() no chdir() yet	 */
 	N->n_prefix = NULL;
 	N->n_parm = "";		/* Parameter from -Nbulk option	 */
 	N->n_ifile = NULL;
 	N->n_dir_name = NULL;
+	N->n_dfd = -1;		/* Open file descriptor for '.'	 */
 	N->n_sid.s_rel = N->n_sid.s_lev = N->n_sid.s_br = N->n_sid.s_seq = 0;
 	N->n_mtime.tv_sec = 0;
 	N->n_mtime.tv_nsec = 0;
 	N->n_flags = N->n_pflags = 0;
+	N->n_error = 0;
 }
 
 void
@@ -101,8 +104,11 @@ parseN(N)
 	 */
 	N->n_sdot = sccsfile(parm);		/* Check last pn component */
 	if (N->n_sdot) {			/* parm ends in s.	   */
-		if (strlen(sname(parm)) > 2)
-			fatal(gettext("bad N argument (co37)"));
+		if (strlen(sname(parm)) > 2) {
+			N->n_error = BULK_BADARG;
+			fatal(gettext(bulkerror(N)));
+			return;			/* With FTLRET	*/
+		}
 		N->n_prefix = parm;		/* -Ns. / -NSCCS/s. */
 		N->n_subd = parm != sname(parm);
 	} else if (*parm == '\0') {		/* Empty parm	*/
@@ -138,31 +144,46 @@ parseN(N)
  *
  *	afile		the probably new pointer to the s. file
  *	NULL		afile/ifile is a directory, N->n_ifile != NULL -> ifile
+ *
+ * Side effects:
+ *
+ *	May do a chdir() to the directory part of "afile".
  */
 char *
 bulkprepare(N, afile)
 	Nparms	*N;
 	char	*afile;
 {
-static int	dfd = -1;
 static char	Dir[FILESIZE];		/* The directory base of the g-file */
 static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 	char	tmp[FILESIZE];		/* For resolvepath() from libschily */
 
+	N->n_error = 0;
 #ifdef	HAVE_FCHDIR
-	if (sethomestat & SETHOME_OFFTREE) {	/* Would need openat() */
+	if ((N->n_pflags & NP_NOCHDIR) != 0) {		/* Need full path */
 		;
-	} else if (dfd < 0) {
-		dfd = open(".", O_SEARCH);	/* on failure use full path */
+	} else if (sethomestat & SETHOME_OFFTREE) {	/* Would need openat() */
+		;
+	} else if (N->n_dfd < 0) {
+#ifdef	USE_CHDIR_IN_BULK
+		/*
+		 * Disable chdir() for a time until everythings works
+		 * correctly. Performance is less important than correct
+		 * behavior.
+		 */
+		N->n_dfd = open(".", O_SEARCH);	/* on failure use full path */
+#endif
 	} else {
-		if (fchdir(dfd) < 0)
-			xmsg(".", NOGETTEXT("bulkprepare"));
+		bulkchdir(N);				/* chdir() back to . */
 	}
 #endif
 	if (N->n_get == 2 && *afile == '+') {
 		afile = sid_ab(++afile, &N->n_sid);
-		if (*afile++ != '+')
-			fatal(gettext("not a SID-tagged filename (co38)"));
+		if (*afile++ != '+') {
+			N->n_error = BULK_NOSID;
+			fatal(gettext(bulkerror(N)));
+			return (NULL);		/* With FTLRET	*/
+		}
 	} else {
 		N->n_sid.s_rel =
 		N->n_sid.s_lev =
@@ -174,32 +195,44 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 	N->n_ifile = NULL;
 	N->n_mtime.tv_sec = 0;
 	if (!N->n_sdot) {			/* afile is ifile name */
+		BOOL	is_dir = FALSE;
 		char	*sn = sname(afile);
 		char	*pfx;
+		size_t	len;
 
 		if (exists(afile)) {		/* must exist */
 			N->n_mtime.tv_sec = Statbuf.st_mtime;
 			N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 
 			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
-				if ((N->n_pflags & NP_DIR) == 0)
+				is_dir = TRUE;
+				if ((N->n_pflags & NP_DIR) == 0) {
+					N->n_error = BULK_EISDIR;
 					return ((char *)NULL);
+				}
 			} else {
-				if ((N->n_pflags & NP_DIR) != 0)
+				if ((N->n_pflags & NP_DIR) != 0) {
+					N->n_error = BULK_ENOTDIR;
 					return ((char *)NULL);
+				}
 			}
 		} else {
 			N->n_mtime.tv_sec = 0;
 			N->n_mtime.tv_nsec = 0;
-			if (N->n_flags & N_IDOT)
+			if (N->n_flags & N_IDOT) {
+				N->n_error = BULK_ENOIENT;
 				xmsg(afile, NOGETTEXT("bulkprepare"));
+				return ((char *)NULL);
+			}
 		}
-		if (sn == afile) {		/* No dir for short names */
+		if (!is_dir && sn == afile) {	/* No dir for short names */
 			Dir[0] = '\0';
-		} else if (*afile == '/' && &afile[1] == sn) {
+		} else if (!is_dir && *afile == '/' && &afile[1] == sn) {
 			strlcpy(Dir, "/", sizeof (Dir));
 		} else {			/* Get dir part from afile */
-			size_t	len = sn - afile;
+			len = sn - afile;
+			if (is_dir)
+				len = strlen(afile)+1;
 			if (len > sizeof (Dir))
 				len = sizeof (Dir);
 			strlcpy(Dir, afile, len); /* replace last '/' by '\0' */
@@ -216,12 +249,17 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			strlcpy(tmp, Dir, sizeof (Dir));
 			if ((len = ((N->n_flags & N_IDOT) ?
 				    resolvepath(tmp, Dir, sizeof (Dir)):
-				    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1)
-				efatal(gettext("path conversion error (co28)"));
-			else if (len >= sizeof (Dir))
-				fatal(gettext("resolved path too long (co29)"));
-			else
+				    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1) {
+				N->n_error = BULK_EPATHCONV;
+				efatal(gettext(bulkerror(N)));
+				return ((char *)NULL);		/* With FTLRET	*/
+			} else if (len >= sizeof (Dir)) {
+				N->n_error = BULK_ETOOLONG;
+				fatal(gettext(bulkerror(N)));
+				return ((char *)NULL);		/* With FTLRET	*/
+			} else {
 				Dir[len] = '\0'; /* Solaris syscall needs it */
+			}
 		}
 		pfx = N->n_prefix;
 		N->n_ifile = sn;
@@ -231,7 +269,8 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			pfx = dirname(tmp);
 			sn = NULL;
 		}
-		if (Dir[0] != '\0' && (dfd < 0 || chdir(Dir) < 0)) {
+		if (Dir[0] != '\0' && (N->n_dfd < 0 || chdir(Dir) < 0)) {
+			N->n_didchdir = 0;
 			Nhold[0] = '\0';
 			if (sethomestat & SETHOME_OFFTREE) {
 				strlcatl(Nhold, sizeof (Nhold),
@@ -248,6 +287,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			N->n_ifile = afile;
 			N->n_dir_name = NULL;
 		} else {					/* Did chdir  */
+			N->n_didchdir = 1;
 			Nhold[0] = '\0';
 			if (sethomestat & SETHOME_OFFTREE) {
 				strlcatl(Nhold, sizeof (Nhold),
@@ -263,6 +303,25 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			if (N->n_dir_name[0] == '.' && N->n_dir_name[1] == '/')
 				N->n_dir_name += 2;
 		}
+
+		/*
+		 * We may have created a path like:
+		 *	../.sccs/data/non-exist/../SCCS/s.foo
+		 * so we call resolvenpath() to convert it to:
+		 *	../.sccs/data/SCCS/s.foo
+		 */
+		strlcpy(tmp, Nhold, sizeof(tmp));
+		if ((len = resolvenpath(tmp, Nhold, sizeof (Nhold))) == -1) {
+			N->n_error = BULK_EPATHCONV;
+			efatal(gettext(bulkerror(N)));
+			return ((char *)NULL);		/* With FTLRET	*/
+		} else if (len >= sizeof (Nhold)) {
+			N->n_error = BULK_ETOOLONG;
+			fatal(gettext(bulkerror(N)));
+			return ((char *)NULL);		/* With FTLRET	*/
+		} else {
+			Nhold[len] = '\0';	/* Solaris syscall needs it */
+		}
 		afile = Nhold;			/* Use computed s.file name */
 		if (afile[0] == '.' && afile[1] == '/')
 			afile += 2;
@@ -271,19 +330,25 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 		char	*np;
 		size_t	plen = strlen(N->n_prefix);
 
-		if (!sccsfile(afile))
-			fatal(gettext("not an SCCS file (co1)"));
+		if (!sccsfile(afile)) {
+			N->n_error = BULK_NOTSCCS;
+			fatal(gettext(bulkerror(N)));
+			return ((char *)NULL);	/* With FTLRET	*/
+		}
 
 		np = sname(afile);		/* simple-name/base-name */
 		np = np + 2 - plen;
 		if (np < afile ||
 		    ((np > afile) && (np[-1] != '/')) ||
-		    strncmp(np, N->n_prefix, plen) != 0)
-			fatal(gettext("not in specified sub directory (co36)"));
+		    strncmp(np, N->n_prefix, plen) != 0) {
+			N->n_error = BULK_NOTINSUBDIR;
+			fatal(gettext(bulkerror(N)));
+			return ((char *)NULL);	/* With FTLRET	*/
+		}
 
 		if (np > afile) {
 			np[-1] = '\0';
-			if (dfd >= 0) {
+			if (N->n_dfd >= 0) {
 				int	len;
 
 				if (afile[0] == '\0')
@@ -307,15 +372,21 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				    (((N->n_flags & (N_IFILE|N_NFILE)) == 0) ||
 				    (N->n_flags & N_IDOT) ?
 					    resolvepath(tmp, Dir, sizeof (Dir)):
-					    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1)
-					efatal(gettext("path conversion error (co28)"));
-				else if (len >= sizeof (Dir))
-					fatal(gettext("resolved path too long (co29)"));
-				else
+					    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1) {
+					N->n_error = BULK_EPATHCONV;
+					efatal(gettext(bulkerror(N)));
+					return ((char *)NULL);	/* With FTLRET	*/
+				} else if (len >= sizeof (Dir)) {
+					N->n_error = BULK_ETOOLONG;
+					fatal(gettext(bulkerror(N)));
+					return ((char *)NULL);	/* With FTLRET	*/
+				} else {
 					Dir[len] = '\0'; /* Solaris syscall needs it */
+				}
 
 				if (chdir(Dir) < 0)
 					goto nochdir;
+				N->n_didchdir = 1;
 				N->n_dir_name = Dir;
 				if (N->n_dir_name[0] == '.' && N->n_dir_name[1] == '/')
 					N->n_dir_name += 2;
@@ -323,6 +394,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				strlcpy(Nhold, auxf(np, 'g'), sizeof (Nhold));
 			} else {
 			nochdir:
+				N->n_didchdir = 0;
 				N->n_dir_name = NULL;
 				Nhold[0] = '\0';
 				strlcatl(Nhold, sizeof (Nhold),
@@ -336,17 +408,28 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 		N->n_ifile = Nhold;
 
 		if (exists(N->n_ifile)) {
+			N->n_mtime.tv_sec = Statbuf.st_mtime;
+			N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
+
 			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
-				return ((char *)NULL);
+				if ((N->n_pflags & NP_DIR) == 0) {
+					N->n_error = BULK_EISDIR;
+					return ((char *)NULL);
+				}
 			} else {
-				N->n_mtime.tv_sec = Statbuf.st_mtime;
-				N->n_mtime.tv_nsec = stat_mnsecs(&Statbuf);
+				if ((N->n_pflags & NP_DIR) != 0) {
+					N->n_error = BULK_ENOTDIR;
+					return ((char *)NULL);
+				}
 			}
 		} else {
 			N->n_mtime.tv_sec = 0;
 			N->n_mtime.tv_nsec = 0;
-			if (N->n_flags & N_IDOT)
+			if (N->n_flags & N_IDOT) {
+				N->n_error = BULK_ENOIENT;
 				xmsg(N->n_ifile, NOGETTEXT("bulkprepare"));
+				return ((char *)NULL);
+			}
 		}
 	}
 	if ((N->n_flags & (N_IFILE|N_IDOT|N_NFILE)) &&	/* Want to create new s.file */
@@ -360,8 +443,11 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			/*
 			 * Make sure that the path to the subdir is present.
 			 */
-			if (mkdirs(dbuf, 0777) < 0)
+			if (mkdirs(dbuf, 0777) < 0) {
+				N->n_error = BULK_EMKDIR;
 				xmsg(dbuf, NOGETTEXT("mkdirs"));
+				return ((char *)NULL);
+			}
 		}
 	}
 	if (N->n_flags & N_GETI) {	/* get file, but dir may be missing */
@@ -374,8 +460,11 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			/*
 			 * Make sure that the path to the subdir is present.
 			 */
-			if (mkdirs(dbuf, 0777) < 0)
+			if (mkdirs(dbuf, 0777) < 0) {
+				N->n_error = BULK_EMKDIR;
 				xmsg(dbuf, NOGETTEXT("mkdirs"));
+				return ((char *)NULL);
+			}
 		}
 	}
 #ifdef	BULK_DEBUG
@@ -385,7 +474,89 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 	fprintf(stderr, "ifile '%s' %p\n",
 				N->n_ifile?N->n_ifile:"NULL", N->n_ifile);
 #endif
-	return (afile);
+	return (afile);		/* Always != NULL */
+}
+
+/*
+ * chdir() back to the directory where we started bulkprepare()
+ */
+int
+bulkchdir(N)
+	Nparms	*N;
+{
+#ifdef	HAVE_FCHDIR
+	if (N->n_dfd >= 0 && N->n_didchdir) {
+		if (fchdir(N->n_dfd) < 0) {
+			xmsg(".", NOGETTEXT("bulkchdir"));
+			N->n_error = BULK_ECHDIR;
+			return (-1);
+		}
+		N->n_didchdir = 0;
+	}
+#endif
+	return (0);
+}
+
+/*
+ * close() directpry in Nparms
+ */
+int
+bulkclosedir(N)
+	Nparms	*N;
+{
+#ifdef	HAVE_FCHDIR
+	if (N->n_dfd >= 0) {
+		if (close(N->n_dfd) < 0) {
+			xmsg(".", NOGETTEXT("bulkclosedir"));
+			N->n_error = BULK_ECLOSE;
+			return (-1);
+		}
+		N->n_dfd = -1;
+	}
+#endif
+	return (0);
+}
+
+char *
+bulkerror(N)
+	Nparms	*N;
+{
+	switch (N->n_error) {
+
+	case BULK_OK:	return ("No error");
+
+	case BULK_BADARG:
+			return ("bad N argument (co37)");
+
+	case BULK_NOSID:
+			return ("not a SID-tagged filename (co38)");
+
+	case BULK_EPATHCONV:
+			return ("path conversion error (co28)");
+
+	case BULK_ETOOLONG:
+			return ("resolved path too long (co29)");
+
+	case BULK_NOTSCCS:
+			return ("not an SCCS file (co1)");
+
+	case BULK_NOTINSUBDIR:
+			return ("not in specified sub directory (co36)");
+
+	case BULK_EISDIR:
+			return ("directory specified as s-file (cm14)");
+
+	case BULK_ENOTDIR:
+			return ("non directory specified as argument (cm20)");
+
+	case BULK_ENOIENT:
+			return ("input file is missing (cm21)");
+
+	case BULK_EMKDIR:
+			return ("could not make directory (cm22)");
+
+	default:	return ("Unknown error");
+	}
 }
 
 #ifdef	BULK_DEBUG

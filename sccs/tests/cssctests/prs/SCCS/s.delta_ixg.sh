@@ -1,29 +1,36 @@
-h02810
+hV6,sum=12385
 s 00024/00000/00123
-d D 1.5 19/05/12 14:28:12 joerg 5 4
+d D 1.5 2019/05/12 14:28:12+0200 joerg 5 4
+S s 42040
 c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
 e
 s 00037/00002/00086
-d D 1.4 19/05/12 14:12:21 joerg 4 3
+d D 1.4 2019/05/12 14:12:21+0200 joerg 4 3
+S s 03340
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00001/00001/00087
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 52052
 c ../common/test-common -> ../../common/test-common
 e
 s 00006/00006/00082
-d D 1.2 11/10/21 23:07:38 joerg 2 1
+d D 1.2 2011/10/21 23:07:38+0200 joerg 2 1
+S s 51913
 c prs -d:DI: Tests sind nun POSIX konform
 e
 s 00088/00000/00000
-d D 1.1 11/05/10 23:24:24 joerg 1 0
+d D 1.1 2011/05/10 23:24:24+0200 joerg 1 0
+S s 51793
 c date and time created 11/05/10 23:24:24 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ee39bea
+G p sccs/tests/cssctests/prs/delta_ixg.sh
 t
 T
 I 1

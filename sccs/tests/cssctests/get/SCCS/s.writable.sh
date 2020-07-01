@@ -1,20 +1,25 @@
-h58303
+hV6,sum=00438
 s 00002/00002/00078
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 24869
 c ../common/test-common -> ../../common/test-common
 e
 s 00010/00002/00070
-d D 1.2 15/04/25 18:43:53 joerg 2 1
+d D 1.2 2015/04/25 18:43:53+0200 joerg 2 1
+S s 24591
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
 e
 s 00072/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 61310
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ed89d58
+G p sccs/tests/cssctests/get/writable.sh
 t
 T
 I 1

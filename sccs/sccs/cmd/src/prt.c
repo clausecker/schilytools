@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)prt.c	1.44 20/05/19 J. Schilling
+ * @(#)prt.c	1.45 20/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.44 20/05/19 J. Schilling"
+#pragma ident "@(#)prt.c 1.45 20/06/13 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -401,7 +401,11 @@ char *file;
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 	}
 

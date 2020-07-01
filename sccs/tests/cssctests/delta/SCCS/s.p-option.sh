@@ -1,16 +1,20 @@
-h39542
+hV6,sum=46482
 s 00001/00001/00067
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 21011
 c ../common/test-common -> ../../common/test-common
 e
 s 00068/00000/00000
-d D 1.1 10/04/18 18:20:27 joerg 1 0
+d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
+S s 20872
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ec7b266
+G p sccs/tests/cssctests/delta/p-option.sh
 t
 T
 I 1

@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.26 20/05/17 Copyright 2011-2020 J. Schilling */
+/* @(#)sccscvt.c	1.30 20/06/27 Copyright 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.26 20/05/17 Copyright 2011-2020 J. Schilling";
+	"@(#)sccscvt.c	1.30 20/06/27 Copyright 2011-2020 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
 
 #include <defines.h>
 #include <version.h>
-#include <had.h>
+#include <had.h>		/* Do we need this? We don't use getopt() */
 #include <i18n.h>
 #include <schily/getargs.h>
 #include <schily/utsname.h>
@@ -52,6 +52,7 @@ LOCAL	Xparms		X;			/* Keep -X parameters		*/
 LOCAL	BOOL	dov6	= -1;
 LOCAL	BOOL	keepold;
 LOCAL	BOOL	discardv6;
+LOCAL	int	olddate;
 
 LOCAL void
 usage(exitcode)
@@ -64,6 +65,10 @@ usage(exitcode)
 	fprintf(stderr, _("	-V6	Convert history files to SCCS v6.\n"));
 	fprintf(stderr, _("	-d	Discard SCCS v6 meta data.\n"));
 	fprintf(stderr, _("	-keep,-k Keep original history file as o.file.\n"));
+	fprintf(stderr, _("	-o	Keep original time stamp.\n"));
+	fprintf(stderr, _("	-oo	Use original time stamp + 1ns.\n"));
+	fprintf(stderr, _("	-ooo	Use original time stamp + 1us.\n"));
+	fprintf(stderr, _("	-oooo	Use original time stamp + 1s.\n"));
 	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
 	fprintf(stderr, _("	-Xxopts	Processes SCCS extended files.\n"));
 	exit(exitcode);
@@ -76,7 +81,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,V4%0,V6,d,k,keep,N&_,X&_";
+	char	*opts = "help,V,version,V4%0,V6,d,k,keep,o+,N&_,X&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nargs = 0;
@@ -120,6 +125,7 @@ main(ac, av)
 			&dov6, &dov6,
 			&discardv6,
 			&keepold, &keepold,
+			&olddate,
 			getN, &N,
 			getX, &X) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
@@ -148,6 +154,20 @@ main(ac, av)
 	xsethome(NULL);
 	if (N.n_parm && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
 		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
+	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (SETHOME_CHSET())
+		lockchset(getppid(), getpid(), uuname);
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 
@@ -167,6 +187,17 @@ main(ac, av)
 		cav++;
 		nargs++;
 	}
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (SETHOME_CHSET()) {
+		if (N.n_parm)
+			bulkchdir(&N);
+		unlockchset(getpid(), uuname);
+	}
+
 	if (nargs == 0) {
 		errmsgno(EX_BAD, _("Missing arg.\n"));
 		usage(EX_BAD);
@@ -178,34 +209,62 @@ LOCAL void
 dodir(name)
 	char	*name;
 {
-	DIR		*dp = opendir(name);
+	DIR		*dp;
 	struct dirent	*d;
 	char		*np;
 	char		fname[MAXPATHNAME+1];
 	char		*base;
 	int		len;
+	BOOL		newmode = FALSE;
 
+	if (SETHOME_CHSET() && N.n_parm && N.n_sdot == 0) {
+		newmode = TRUE;
+		N.n_pflags =  NP_NOCHDIR|NP_DIR;
+		np = bulkprepare(&N, name);
+		if (np == NULL)
+			fatal(gettext(bulkerror(&N)));
+		N.n_pflags =  0;
+		dp = opendir(np);
+	} else {
+		dp = opendir(name);
+	}
 	if (dp == NULL) {
 		errmsg(_("Cannot open directory '%s'\n"), name);
+		return;
 	}
-	strlcpy(fname, name, sizeof (fname));
-	base = &fname[strlen(fname)-1];
-	if (*base != '/')
-		*++base = '/';
-	base++;
+
+	if ((len = resolvenpath(name, fname, sizeof (fname))) == -1) {
+		N.n_error = BULK_EPATHCONV;
+		closedir(dp);
+		efatal(gettext(bulkerror(&N)));
+		return;
+	} else if (len >= sizeof (fname)) {
+		N.n_error = BULK_ETOOLONG;
+		closedir(dp);
+		fatal(gettext(bulkerror(&N)));
+		return;
+	}
+	fname[len] = '\0';
+	if (fname[0] == '.' && len == 1) {
+		fname[--len] = '\0';
+		base = fname;
+	} else {
+		base = &fname[len-1];
+		if (*base != '/')
+			*++base = '/';
+		*++base = '\0';
+	}
 	len = sizeof (fname) - strlen(fname);
 	while ((d = readdir(dp)) != NULL) {
-		char * oparm = N.n_parm;
-
 		np = d->d_name;
 
 		if (np[0] != 's' || np[1] != '.' || np[2] == '\0')
 			continue;
 
+		if (newmode)
+			np += 2;
 		strlcpy(base, np, len);
-		N.n_parm = NULL;
 		convert(fname);
-		N.n_parm = oparm;
 	}
 	closedir(dp);
 }
@@ -215,6 +274,7 @@ convert(file)
 	char	*file;
 {
 	struct stat sbuf;
+	struct timespec ts[2];
 	char	hash[32];
 	char	*xf;
 	char	*dir_name = "";
@@ -224,6 +284,19 @@ convert(file)
 	 */
 	if (setjmp(Fjmp))
 		return;
+
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (SETHOME_CHSET()) {
+		if (N.n_parm)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (N.n_parm) {
 #ifdef	__needed__
 		char	*ofile = file;
@@ -235,7 +308,11 @@ convert(file)
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		dir_name = N.n_dir_name;
 	}
@@ -254,8 +331,6 @@ convert(file)
 	/*
 	 * Obtain a lock on the SCCS history file.
 	 */
-	uname(&un);
-	uuname = un.nodename;
 	if (lockit(auxf(gpkt.p_file, 'z'),
 	    SCCS_LOCK_ATTEMPTS, getpid(), uuname))
 		efatal(_("cannot create lock file (cm4)"));
@@ -268,6 +343,7 @@ convert(file)
 		if (gpkt.p_flags & PF_V6) {
 			errmsgno(EX_BAD, _("%s: already in SCCS v6 format.\n"),
 				file);
+			clean_up();
 			sclose(&gpkt);
 			sfree(&gpkt);
 			return;
@@ -277,6 +353,7 @@ convert(file)
 		if ((gpkt.p_flags & PF_V6) == 0) {
 			errmsgno(EX_BAD, _("%s: already in SCCS v4 format.\n"),
 				file);
+			clean_up();
 			sclose(&gpkt);
 			sfree(&gpkt);
 			return;
@@ -419,6 +496,27 @@ convert(file)
 
 	chown(gpkt.p_file, (unsigned int)sbuf.st_uid,
 			(unsigned int)sbuf.st_gid);
+
+	if (olddate) {
+		ts[0].tv_sec = sbuf.st_atime;
+		ts[0].tv_nsec = stat_ansecs(&sbuf);
+		ts[1].tv_sec = sbuf.st_mtime;
+		ts[1].tv_nsec = stat_mnsecs(&sbuf);
+
+		if (olddate > 3)
+			ts[1].tv_sec += 1;
+		else if (olddate > 2)
+			ts[1].tv_nsec += 1000;
+		else if (olddate > 1)
+			ts[1].tv_nsec += 1;
+		if (ts[1].tv_nsec >= 1000000000) {
+			ts[1].tv_nsec -= 1000000000;
+			ts[1].tv_sec += 1;
+		}
+
+		utimensat(AT_FDCWD, gpkt.p_file, ts, 0);
+	}
+
 	clean_up();
 }
 

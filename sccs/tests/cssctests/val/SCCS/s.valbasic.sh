@@ -1,28 +1,35 @@
-h59476
+hV6,sum=03326
 s 00001/00001/00096
-d D 1.5 20/05/24 21:50:55 joerg 5 4
+d D 1.5 2020/05/24 21:50:55+0200 joerg 5 4
+S s 56683
 c Unbekannte Option von -X -> -Z wegen neuer Option -X
 e
 s 00001/00001/00096
-d D 1.4 15/06/03 00:06:44 joerg 4 3
+d D 1.4 2015/06/03 00:06:44+0200 joerg 4 3
+S s 56681
 c ../common/test-common -> ../../common/test-common
 e
 s 00006/00005/00091
-d D 1.3 11/06/15 23:36:37 joerg 3 2
+d D 1.3 2011/06/15 23:36:37+0200 joerg 3 2
+S s 56542
 c Test ob chmod 0 eine Datei unlesbar macht
 e
 s 00004/00000/00092
-d D 1.2 11/05/31 22:43:36 joerg 2 1
+d D 1.2 2011/05/31 22:43:36+0200 joerg 2 1
+S s 52333
 c if [ ".$CYGWIN" = '.' ]; then um Tests mit chmod 0 p.foo / s.foo
 e
 s 00092/00000/00000
-d D 1.1 10/05/03 03:11:28 joerg 1 0
+d D 1.1 2010/05/03 03:11:28+0200 joerg 1 0
+S s 42409
 c date and time created 10/05/03 03:11:28 by joerg
 e
 u
 U
 f e 0
 f y
+G r 0e46e8ef31b58
+G p sccs/tests/cssctests/val/valbasic.sh
 t
 T
 I 1

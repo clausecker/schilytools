@@ -1,16 +1,20 @@
-h38052
+hV6,sum=44233
 s 00001/00001/00014
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 19557
 c ../common/test-common -> ../../common/test-common
 e
 s 00015/00000/00000
-d D 1.1 10/05/03 03:11:28 joerg 1 0
+d D 1.1 2010/05/03 03:11:28+0200 joerg 1 0
+S s 19418
 c date and time created 10/05/03 03:11:28 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ef29708
+G p sccs/tests/cssctests/val/y2k.sh
 t
 T
 I 1

@@ -1,27 +1,34 @@
-h56053
+hV6,sum=64780
 s 00004/00001/00083
-d D 1.5 18/12/04 00:50:21 joerg 5 4
+d D 1.5 2018/12/04 00:50:21+0100 joerg 5 4
+S s 11369
 c comb neu
 e
 s 00004/00001/00080
-d D 1.4 18/12/04 00:40:29 joerg 4 3
+d D 1.4 2018/12/04 00:40:29+0100 joerg 4 3
+S s 03605
 c sccscvt neu
 e
 s 00006/00002/00075
-d D 1.3 16/11/13 23:07:18 joerg 3 2
+d D 1.3 2016/11/13 23:07:18+0100 joerg 3 2
+S s 60001
 c test-random neu
 e
 s 00004/00000/00073
-d D 1.2 16/06/20 01:39:02 joerg 2 1
+d D 1.2 2016/06/20 01:39:02+0200 joerg 2 1
+S s 51253
 c test-format neu
 e
 s 00073/00000/00000
-d D 1.1 11/05/30 00:05:02 joerg 1 0
+d D 1.1 2011/05/30 00:05:02+0200 joerg 1 0
+S s 42441
 c date and time created 11/05/30 00:05:02 by joerg
 e
 u
 U
 f e 0
+G r 0e46e89ad78fd
+G p sccs/tests/sccstests/Makefile
 t
 T
 I 1

@@ -1,11 +1,14 @@
-h22892
+hV6,sum=29264
 s 00006/00000/00000
-d D 1.1 16/06/20 01:13:32 joerg 1 0
+d D 1.1 2016/06/20 01:13:32+0200 joerg 1 0
+S s 14902
 c date and time created 16/06/20 01:13:32 by joerg
 e
 u
 U
 f e 1
+G r 0e46e8b5ddd0d
+G p sccs/tests/sccstests/format/reference-v6
 t
 T
 I 1

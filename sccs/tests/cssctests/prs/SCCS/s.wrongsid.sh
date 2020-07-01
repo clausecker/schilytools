@@ -1,20 +1,25 @@
-h30098
+hV6,sum=37837
 s 00001/00001/00032
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 04297
 c ../common/test-common -> ../../common/test-common
 e
 s 00000/00000/00033
-d D 1.2 15/06/01 23:55:23 joerg 2 1
+d D 1.2 2015/06/01 23:55:23+0200 joerg 2 1
+S s 04158
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00033/00000/00000
-d D 1.1 11/04/26 03:04:16 joerg 1 0
+d D 1.1 2011/04/26 03:04:16+0200 joerg 1 0
+S s 04158
 c date and time created 11/04/26 03:04:16 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8edc931a
+G p sccs/tests/cssctests/prs/wrongsid.sh
 t
 T
 I 1

@@ -1,20 +1,25 @@
-h03484
+hV6,sum=10974
 s 00006/00001/00057
-d D 1.3 17/02/04 01:39:45 joerg 3 2
+d D 1.3 2017/02/04 01:39:45+0100 joerg 3 2
+S s 39924
 c Neuer Test mit -fs2 und zwei Dateien bei get
 e
 s 00001/00001/00057
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 29348
 c ../common/test-common -> ../../common/test-common
 e
 s 00058/00000/00000
-d D 1.1 11/05/29 20:57:57 joerg 1 0
+d D 1.1 2011/05/29 20:57:57+0200 joerg 1 0
+S s 29209
 c date and time created 11/05/29 20:57:57 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b56901f
+G p sccs/tests/sccstests/admin/flags.sh
 t
 T
 I 1

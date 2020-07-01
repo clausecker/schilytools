@@ -1,20 +1,25 @@
-h26596
+hV6,sum=34486
 s 00001/00001/00057
-d D 1.3 15/06/03 00:06:43 joerg 3 2
+d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
+S s 60364
 c ../common/test-common -> ../../common/test-common
 e
 s 00003/00001/00055
-d D 1.2 14/08/26 20:06:34 joerg 2 1
+d D 1.2 2014/08/26 20:06:34+0200 joerg 2 1
+S s 60225
 c Zerstoerung der Checksumme hatte auch "V6" -> "V3" gewandelt
 e
 s 00056/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 49963
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y
+G r 0e46e8eb3bee5
+G p sccs/tests/cssctests/admin/admin-hz.sh
 t
 T
 I 1

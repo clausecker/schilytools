@@ -1,16 +1,20 @@
-h47472
+hV6,sum=53527
 s 00003/00004/00008
-d D 1.2 15/06/03 00:16:41 joerg 2 1
+d D 1.2 2015/06/03 00:16:41+0200 joerg 2 1
+S s 19759
 c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
 e
 s 00012/00000/00000
-d D 1.1 11/05/28 12:07:48 joerg 1 0
+d D 1.1 2011/05/28 12:07:48+0200 joerg 1 0
+S s 16740
 c date and time created 11/05/28 12:07:48 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e880ff4c7
+G p sccs/tests/common/config-data
 t
 T
 I 1

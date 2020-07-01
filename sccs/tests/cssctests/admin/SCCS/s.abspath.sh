@@ -1,24 +1,30 @@
-h02457
+hV6,sum=11107
 s 00001/00001/00015
-d D 1.4 18/04/30 13:07:11 joerg 4 3
+d D 1.4 2018/04/30 13:07:11+0200 joerg 4 3
+S s 27482
 c Pfadnamen quoten, damit SPACE darin sein kann
 e
 s 00001/00001/00015
-d D 1.3 15/06/03 00:06:43 joerg 3 2
+d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
+S s 27404
 c ../common/test-common -> ../../common/test-common
 e
 s 00001/00001/00015
-d D 1.2 15/06/01 23:55:23 joerg 2 1
+d D 1.2 2015/06/01 23:55:23+0200 joerg 2 1
+S s 27265
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00016/00000/00000
-d D 1.1 11/04/25 19:11:35 joerg 1 0
+d D 1.1 2011/04/25 19:11:35+0200 joerg 1 0
+S s 26046
 c date and time created 11/04/25 19:11:35 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eba623f
+G p sccs/tests/cssctests/admin/abspath.sh
 t
 T
 I 1

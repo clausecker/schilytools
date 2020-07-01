@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)rmchg.c	1.53 20/05/17 J. Schilling
+ * @(#)rmchg.c	1.55 20/06/18 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.53 20/05/17 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.55 20/06/18 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -317,6 +317,19 @@ char *argv[];
 		fatal(gettext("User ID not in password file (cm9)"));
 
 	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (SETHOME_CHSET())
+		lockchset(getppid(), getpid(), uuname);
+
+	/*
 	Change flags for 'fatal' so that it will return to this
 	routine (main) instead of terminating processing.
 	*/
@@ -329,6 +342,16 @@ char *argv[];
 	for (i=1; i<argc; i++)
 		if ((p = argv[i]) != NULL)
 			do_file(p, rmchg, 1, N.n_sdot, &X);
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);
+		unlockchset(getpid(), uuname);
+	}
 
 	return (Fcnt ? 1 : 0);
 }
@@ -365,6 +388,19 @@ char *file;
 
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of rmchg */
+
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (HADUCN) {
 #ifdef	__needed__
 		char	*ofile = file;
@@ -376,7 +412,11 @@ char *file;
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
 			sid.s_rel = N.n_sid.s_rel;
@@ -412,11 +452,9 @@ char *file;
 	sinit(&gpkt, file, SI_INIT);
 
 	/*
-	Lock out any other user who may be trying to process
-	the same file.
-	*/
-	uname(&un);
-	uuname = un.nodename;
+	 * Lock out any other user who may be trying to process
+	 * the same file.
+	 */
 	if (lockit(auxf(file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
 

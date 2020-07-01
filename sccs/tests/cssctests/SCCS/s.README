@@ -1,16 +1,20 @@
-h17123
+hV6,sum=22809
 s 00004/00002/00010
-d D 1.2 14/08/26 14:43:59 joerg 2 1
+d D 1.2 2014/08/26 14:43:59+0200 joerg 2 1
+S s 58229
 c Hinweis auf das original-CSSC README
 e
 s 00012/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 55150
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb31958
+G p sccs/tests/cssctests/README
 t
 T
 I 1

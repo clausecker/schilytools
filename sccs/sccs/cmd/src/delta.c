@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.91 20/05/17 J. Schilling
+ * @(#)delta.c	1.96 20/06/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.91 20/05/17 J. Schilling"
+#pragma ident "@(#)delta.c 1.96 20/06/28 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -60,6 +60,7 @@
 # define	LENMR	60
 
 static FILE	*Diffin, *Gin;
+static FILE	*Cs;			/* The changeset file		*/
 static Nparms	N;			/* Keep -N parameters		*/
 static Xparms	X;			/* Keep -X parameters		*/
 static struct packet	gpkt;
@@ -121,7 +122,7 @@ static void	skipline __PR((char *lp, int num));
 static char *	rddiff __PR((char *s, int n));
 static void	fgetchk __PR((char *file, struct packet *pkt));
 static void	warnctl __PR((char *file, off_t nline));
-static void 	fixghash __PR((struct packet *pkt, int ser));
+static int	fixghash __PR((struct packet *pkt, int ser));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -280,7 +281,7 @@ register char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_PREPEND_FILE|XO_MAIL|XO_NULLPATH;
+				X.x_flags = XO_PREPEND_FILE|XO_MAIL|XO_USER|XO_NULLPATH;
 				if (!parseX(&X))
 					goto err;
 				break;
@@ -336,11 +337,45 @@ register char *argv[];
 			fatal(gettext("-Ns. not supported in off-tree project mode"));
 	}
 
+	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (SETHOME_CHSET()) {
+		lockchset(getppid(), getpid(), uuname);
+		if (HADUCN && exists(changesetgfile)) {
+			/*
+			 * Should we open/create the file even if it does not
+			 * yet exist? This may change with the final concept.
+			 */
+			Cs = xfopen(changesetgfile, O_WRONLY|O_APPEND|O_BINARY);
+		}
+	}
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
 			do_file(p, delta, 1, N.n_sdot, &X);
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (SETHOME_CHSET()) {
+		if (HADUCN) {
+			bulkchdir(&N);
+			if (Cs)
+				fclose(Cs);
+		}
+		unlockchset(getpid(), uuname);
+	}
 
 	return (Fcnt ? 1 : 0);
 }
@@ -379,6 +414,18 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (HADUCN) {
 #ifdef	__needed__
 		char	*ofile = file;
@@ -390,7 +437,11 @@ char *file;
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		ifile = N.n_ifile;
 	} else {
@@ -403,8 +454,10 @@ char *file;
 	 */
 	sinit(&gpkt, file, SI_INIT);
 
-	uname(&un);
-	uuname = un.nodename;
+	/*
+	 * Lock out any other user who may be trying to process
+	 * the same file.
+	 */
 	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
 
@@ -770,7 +823,7 @@ command, to check the differences found between two files.
 	 * ghash.
 	 */
 	if (glist && gpkt.p_flags & PF_V6)
-		fixghash(&gpkt, newser);
+		ghash = fixghash(&gpkt, newser);
 
 	stats.s_ins = inserted;
 	stats.s_del = deleted;
@@ -824,6 +877,14 @@ command, to check the differences found between two files.
 		else {
 			xunlink(Pfilename);
 		}
+	}
+
+	if ((gpkt.p_flags & PF_V6) && Cs && gpkt.p_init_path) {
+		char	cbuf[2*MAXPATHLEN];
+
+		gpkt.p_ghash = ghash;		/* Restore correct value */
+		change_ba(&gpkt, cbuf, sizeof (cbuf));
+		fprintf(Cs, "%s\n", cbuf);
 	}
 	sclose(&gpkt);
 	clean_up();
@@ -916,7 +977,9 @@ int orig_nlines;
         if ((HADO || HADQ) && (gfile_mtime.tv_sec != 0)) {
 		time2dt(&dt.d_dtime, gfile_mtime.tv_sec, gfile_mtime.tv_nsec);
         }
-	strncpy(dt.d_pgmr,logname(),LOGSIZE-1);
+	strlcpy(dt.d_pgmr, logname(), LOGSIZE);
+	if (X.x_user)
+		strlcpy(dt.d_pgmr, X.x_user, LOGSIZE);
 	dt.d_type = 'D';
 	del_ba(&dt,str, pkt->p_flags & ~PF_GMT);
 	putline(pkt,str);
@@ -1705,7 +1768,7 @@ warnctl(file, nline)
 		file, (Intmax_t)nline);
 }
 
-static void 
+static int
 fixghash(pkt, ser)
 	struct	packet	*pkt;
 	int		ser;
@@ -1747,6 +1810,8 @@ fixghash(pkt, ser)
 	q = (signed char *) ghbuf;
 	while (*q)
 		pkt->p_nhash += *q++;
+
+	return (pk2.p_ghash);
 }
 
 /* SVR4.0 does not support getdtablesize().				  */

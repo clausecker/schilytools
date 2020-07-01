@@ -1,16 +1,20 @@
-h11934
+hV6,sum=18579
 s 00024/00000/00067
-d D 1.2 18/12/17 21:58:48 joerg 2 1
+d D 1.2 2018/12/17 21:58:48+0100 joerg 2 1
+S s 63016
 c Neuer test fuer delta -N+XXXX
 e
 s 00067/00000/00000
-d D 1.1 18/12/04 21:32:06 joerg 1 0
+d D 1.1 2018/12/04 21:32:06+0100 joerg 1 0
+S s 12782
 c date and time created 18/12/04 21:32:06 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b5ac5db
+G p sccs/tests/sccstests/delta/bulk.sh
 t
 T
 I 1

@@ -1,24 +1,30 @@
-h42414
+hV6,sum=51093
 s 00002/00002/00127
-d D 1.4 15/06/03 00:06:44 joerg 4 3
+d D 1.4 2015/06/03 00:06:44+0200 joerg 4 3
+S s 49864
 c ../common/test-common -> ../../common/test-common
 e
 s 00000/00012/00129
-d D 1.3 15/02/19 22:31:35 joerg 3 2
+d D 1.3 2015/02/19 22:31:35+0100 joerg 3 2
+S s 49586
 c Test ei27 klappt nun auch mit SCCSv6
 e
 s 00013/00000/00128
-d D 1.2 14/09/15 22:42:00 joerg 2 1
+d D 1.2 2014/09/15 22:42:00+0200 joerg 2 1
+S s 06469
 c Hinweis auf SCCSv6 Bug mit delta -gsid
 e
 s 00128/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 47660
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ecdd99f
+G p sccs/tests/cssctests/get/excl_ig_2.sh
 t
 T
 I 1

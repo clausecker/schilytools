@@ -1,24 +1,30 @@
-h07691
+hV6,sum=16762
 s 00002/00002/00077
-d D 1.4 15/06/03 00:06:43 joerg 4 3
+d D 1.4 2015/06/03 00:06:43+0200 joerg 4 3
+S s 04950
 c ../common/test-common -> ../../common/test-common
 e
 s 00009/00001/00070
-d D 1.3 15/04/25 18:43:53 joerg 3 2
+d D 1.3 2015/04/25 18:43:53+0200 joerg 3 2
+S s 04672
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
 e
 s 00010/00008/00061
-d D 1.2 15/01/28 20:08:03 joerg 2 1
+d D 1.2 2015/01/28 20:08:03+0100 joerg 2 1
+S s 40755
 c /tmp/SCCS -> /tmp/sccstest.$$/SCCS
 e
 s 00069/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 28360
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ebfe9c6
+G p sccs/tests/cssctests/bsd-sccs/delsfile.sh
 t
 T
 I 1

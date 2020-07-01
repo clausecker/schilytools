@@ -1,37 +1,46 @@
-h02169
+hV6,sum=13455
 s 00012/00000/00152
-d D 1.7 19/05/12 14:28:12 joerg 7 6
+d D 1.7 2019/05/12 14:28:12+0200 joerg 7 6
+S s 50892
 c Neuer Hinweis: :DI: Bug wurde 1984 surch AT&T eingefuehrt
 e
 s 00022/00000/00130
-d D 1.6 19/05/12 14:12:21 joerg 6 5
+d D 1.6 2019/05/12 14:12:21+0200 joerg 6 5
+S s 31542
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00001/00001/00129
-d D 1.5 18/04/30 13:07:11 joerg 5 4
+d D 1.5 2018/04/30 13:07:11+0200 joerg 5 4
+S s 55474
 c Pfadnamen quoten, damit SPACE darin sein kann
 e
 s 00001/00001/00129
-d D 1.4 15/06/03 00:06:44 joerg 4 3
+d D 1.4 2015/06/03 00:06:44+0200 joerg 4 3
+S s 55474
 c ../common/test-common -> ../../common/test-common
 e
 s 00001/00001/00129
-d D 1.3 15/06/01 23:55:23 joerg 3 2
+d D 1.3 2015/06/01 23:55:23+0200 joerg 3 2
+S s 55335
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00003/00003/00127
-d D 1.2 11/10/21 23:07:39 joerg 2 1
+d D 1.2 2011/10/21 23:07:39+0200 joerg 2 1
+S s 54116
 c prs -d:DI: Tests sind nun POSIX konform
 e
 s 00130/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 53928
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8edd1e6a
+G p sccs/tests/cssctests/prs/keywords.sh
 t
 T
 I 1

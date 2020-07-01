@@ -1,12 +1,15 @@
-h39209
+hV6,sum=45903
 s 00030/00000/00000
-d D 1.1 10/04/18 18:20:27 joerg 1 0
+d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
+S s 30906
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
 f e 1
 f y 
+G r 0e46e8ed151fb
+G p sccs/tests/cssctests/get/s.incl_excl_1.input
 t
 T
 I 1

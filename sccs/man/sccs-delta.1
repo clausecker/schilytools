@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.53 20/05/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-delta.1	1.54 20/06/11 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2020/05/16" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2020/06/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -552,6 +552,17 @@ a major performance win that is used for updating the
 .BR sccschangeset (4)
 file when in
 .BR "project mode" .
+.TP
+.BI user= name
+Use a different user name for the
+.B programmer
+field in the delta table.
+By the default, the
+.B logname
+is used for this field.
+Using a different name may however later deny the permission
+to modify a delta by programs like
+.BR cdc (1).
 .TP
 .B 0
 When reading filenames from

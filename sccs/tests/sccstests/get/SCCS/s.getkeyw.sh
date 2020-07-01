@@ -1,16 +1,20 @@
-h56667
+hV6,sum=63355
 s 00001/00001/00047
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 38139
 c ../common/test-common -> ../../common/test-common
 e
 s 00048/00000/00000
-d D 1.1 11/05/29 21:15:25 joerg 1 0
+d D 1.1 2011/05/29 21:15:25+0200 joerg 1 0
+S s 38000
 c date and time created 11/05/29 21:15:25 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b606db4
+G p sccs/tests/sccstests/get/getkeyw.sh
 t
 T
 I 1

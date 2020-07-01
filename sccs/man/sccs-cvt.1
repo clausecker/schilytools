@@ -1,4 +1,4 @@
-.\" @(#)sccs-cvt.1	1.22 20/05/16 Copyright 2011-2020 J. Schilling
+.\" @(#)sccs-cvt.1	1.26 20/06/28 Copyright 2011-2020 J. Schilling
 .\" Manual page for sccs-cvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-cvt 1 "2020/05/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-cvt 1 "2020/06/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-cvt, sccscvt \- convert SCCS history files between v4/v6
 .SH SYNOPSIS
@@ -73,8 +73,45 @@ and
 are untouched as these enhancements are not flagged by historic SCCS versions
 and retained by historic SCCS versions when a history file is modified.
 .LP
-If a file argument refers to a directory, the directory is scanned
+When in old mode, the option
+.B \-NSCCS
+is not in effect and a file argument refers to a directory, the directory is
+scanned for file names that start with ``s.'' and examines all these files.
+.LP
+When in new mode, the option
+.B \-NSCCS
+is in effect, and a file argument refers to a directory,
+.B sccs-cvt
+opens the corresponding directory with SCCS history files and scans it
 for file names that start with ``s.'' and examines all these files.
+.LP
+It is recommended not to call
+.B sccs-cvt
+directly but via
+.RB `` "sccs cvt" ''
+as this automatically adds the 
+.B \-NSCCS
+option in new mode. This is needed in order to get the path name as global
+meta data into the converted SCCSv6 history file.
+.SS "Converting an old mode project into a new mode project"
+.LP
+It is recommended to first initialize the project to use an in-tree repository
+by calling:
+.sp
+.B "    sccs init -i ."
+.sp
+in order to prepare the new mode.
+.LP
+By then calling:
+.sp
+.B "    SCCS_NMODE= sccs cvt -k -ooo ."
+.sp
+all SCCS history files from the current directory are converted.
+The environment
+.B SCCS_NMODE=
+is currently needed in order to enforce new mode in
+.BR sccs (1).
+Repeat the last command wth other directories from the project.
 .LP
 This program is a
 .B \s-1SCHILY\s+1
@@ -96,6 +133,11 @@ discard the extended
 meta data instead of converting it into special
 degenerated delta comments.
 .TP
+.B \-help
+Prints a short summary of the 
+.B sccscvt
+options and exists.
+.TP
 .B \-k
 .TP
 .B \-keep
@@ -103,6 +145,29 @@ Keep the original history file as
 .BI o. file\fR.
 When this option is missing, the original file is replaced by the
 converted file.
+.TP
+.B \-o
+Keep the old time stamp for the converted file.
+.TP
+.B \-oo
+Set the time stamp for the converted file to the time stamp
+of the original file + 1 nanosecond.
+This is sufficient for modern filesystems like
+.B ZFS
+to get a distinguishable newer time that is still similar to the old time stamp.
+.TP
+.B \-ooo
+Set the time stamp for the converted file to the time stamp
+of the original file + 1 microsecond.
+This is sufficient for older filesystems like
+.B UFS
+to get a distinguishable newer time that is still similar to the old time stamp.
+.TP
+.B \-oooo
+Set the time stamp for the converted file to the time stamp
+of the original file + 1 second.
+This is sufficient for historic filesystems
+to get a distinguishable newer time that is still similar to the old time stamp.
 .TP
 .B \-V4
 Convert a
@@ -117,11 +182,6 @@ Convert a
 history file into a
 .B SCCS\ v6
 history file.
-.TP
-.B \-help
-Prints a short summary of the 
-.B sccscvt
-options and exists.
 
 .sp
 .ne 3
@@ -351,22 +411,68 @@ after completion.
 .BI z. file
 temporary lock file contains the binary process id in host byte order
 followed by the host name
+
+.SH ATTRIBUTES
+.LP
+See 
+.BR attributes (5)
+for descriptions of the following attributes:
+.LP
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i) 
+lw(2.75i) |lw(2.75i) 
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySCHILYdeveloper-build-sccs
+_
+Interface StabilityEvolving
+.TE
+
 .SH SEE ALSO
 .nh
 .LP
 .BR sccs (1),
+.BR sccs\-add (1),
 .BR sccs\-admin (1),
+.BR sccs\-branch (1),
 .BR sccs\-cdc (1),
+.BR sccs\-check (1),
+.BR sccs\-clean (1),
 .BR sccs\-comb (1),
+.BR sccs\-commit (1),
+.BR sccs\-create (1),
+.BR sccs\-deledit (1),
+.BR sccs\-delget (1),
 .BR sccs\-delta (1),
+.BR sccs\-diffs (1),
+.BR sccs\-edit (1),
+.BR sccs\-editor (1),
+.BR sccs\-enter (1),
+.BR sccs\-fix (1),
 .BR sccs\-get (1),
 .BR sccs\-help (1),
+.BR sccs\-histfile (1),
+.BR sccs\-info (1),
+.BR sccs\-init (1),
+.BR sccs\-istext (1),
+.BR sccs\-ldiffs (1),
 .BR sccs\-log (1),
+.BR sccs\-print (1),
 .BR sccs\-prs (1),
 .BR sccs\-prt (1),
+.BR sccs\-rcs2sccs (1),
+.BR sccs\-remove (1),
+.BR sccs\-rename (1),
 .BR sccs\-rmdel (1),
+.BR sccs\-root (1),
 .BR sccs\-sact (1),
 .BR sccs\-sccsdiff (1),
+.BR sccs\-status (1),
+.BR sccs\-tell (1),
+.BR sccs\-unedit (1),
 .BR sccs\-unget (1),
 .BR sccs\-val (1),
 .BR bdiff (1), 

@@ -1,12 +1,15 @@
-h16881
+hV6,sum=23710
 s 00004/00000/00000
-d D 1.1 10/05/03 03:45:26 joerg 1 0
+d D 1.1 2010/05/03 03:45:26+0200 joerg 1 0
+S s 08587
 c date and time created 10/05/03 03:45:26 by joerg
 e
 u
 U
 f e 1
 f y 
+G r 0e46e8ee2171b
+G p sccs/tests/cssctests/prs/s_foo_bd_output.txt
 t
 T
 I 1

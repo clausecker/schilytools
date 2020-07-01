@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)parsex.c	1.5 20/05/16 Copyright 2018-2020 J. Schilling
+ * @(#)parsex.c	1.6 20/06/11 Copyright 2018-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)parsex.c	1.5 20/05/16 Copyright 2018-2020 J. Schilling"
+#pragma ident "@(#)parsex.c	1.6 20/06/11 Copyright 2018-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -110,6 +110,20 @@ parseX(X)
 				strlcpy(X->x_mail, &opts[5], l);
 			}
 			optflags |= XO_MAIL;
+
+		} else if ((flags & XO_USER) &&
+		    strncmp(opts, "user=", optlen) == 0) {
+			size_t	l = np - &opts[5];
+
+			if (optlen != 5)
+				goto bad;
+			if (opts[5]) {
+				if (*np == '\0')
+					l++;
+				X->x_user = xmalloc(l);
+				strlcpy(X->x_user, &opts[5], l);
+			}
+			optflags |= XO_USER;
 
 		} else if ((flags & XO_PREPEND_FILE) &&
 		    strncmp(opts, "prepend", optlen) == 0) {

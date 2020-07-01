@@ -1,37 +1,46 @@
-h01179
+hV6,sum=12673
 s 00007/00001/00209
-d D 1.7 19/05/12 14:12:21 joerg 7 6
+d D 1.7 2019/05/12 14:12:21+0200 joerg 7 6
+S s 33971
 c prs -D:DI: unterscheidet nun fuer non-POSIX Varianten
 c Kommentar verbessert
 e
 s 00001/00001/00209
-d D 1.6 18/04/30 13:06:44 joerg 6 5
+d D 1.6 2018/04/30 13:06:44+0200 joerg 6 5
+S s 09063
 c Quoten, demit Username mit SPACE funktioniert
 e
 s 00002/00002/00208
-d D 1.5 15/06/03 00:06:44 joerg 5 4
+d D 1.5 2015/06/03 00:06:44+0200 joerg 5 4
+S s 08985
 c ../common/test-common -> ../../common/test-common
 e
 s 00003/00003/00207
-d D 1.4 15/06/01 23:55:23 joerg 4 3
+d D 1.4 2015/06/01 23:55:23+0200 joerg 4 3
+S s 08707
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00004/00003/00206
-d D 1.3 11/06/15 23:36:37 joerg 3 2
+d D 1.3 2011/06/15 23:36:37+0200 joerg 3 2
+S s 05050
 c Test ob chmod 0 eine Datei unlesbar macht
 e
 s 00004/00000/00205
-d D 1.2 11/05/31 22:43:36 joerg 2 1
+d D 1.2 2011/05/31 22:43:36+0200 joerg 2 1
+S s 01029
 c if [ ".$CYGWIN" = '.' ]; then um Tests mit chmod 0 p.foo / s.foo
 e
 s 00205/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 56641
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y
+G r 0e46e8ec3ef99
+G p sccs/tests/cssctests/delta/errorcase.sh
 t
 T
 I 1

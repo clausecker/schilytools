@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)func.c	1.39 20/04/22 2008-2020 J. Schilling
+ * @(#)func.c	1.40 20/06/21 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.39 20/04/22 2008-2020 J. Schilling";
+	"@(#)func.c	1.40 20/06/21 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -328,6 +328,10 @@ prct(t)
 		prs_buff(UC "TNOFORK ");
 		break;
 
+	case TSETIO:
+		prs_buff(UC "TSETIO ");
+		break;
+
 	case TPAR:
 		prs_buff(UC "TPAR ");
 		break;
@@ -479,7 +483,9 @@ prf(t)
 #ifdef	PARSE_DEBUG
 			prs_buff(UC "TSETIO ");
 #endif
+			prs_buff(UC "{ ");
 			prf(forkptr(t)->forktre);
+			prs_buff(UC ";}");
 			prio(forkptr(t)->forkio);
 			if (forkptr(t)->forktyp & FAMP)
 				prs_buff(UC " &");
@@ -654,6 +660,9 @@ prf(t)
 			prs_buff(UC " esac");
 			break;
 			}
+
+		default:
+			prs_buff(UC "OOPS");
 		}
 	}
 	sigchk();

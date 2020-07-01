@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)cmdsub.sh	1.7 20/04/22 Copyright 2016-2020 J. Schilling
+# @(#)cmdsub.sh	1.8 20/06/21 Copyright 2016-2020 J. Schilling
 #
 
 # Read test core functions
@@ -89,6 +89,11 @@ cat << HERE
 HERE
 )
 echo \$( printf a; printf b ) '" 0 "ab\nab\n" ""
+
+#
+# Check whether a redirected comand group { ...; } works.
+#
+docommand cmdsub04 "$SHELL -c 'var=\$({ echo value >&3; } 3>&1); echo \$var'" 0 "value\n" ""
 
 remove x
 success

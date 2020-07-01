@@ -1,31 +1,39 @@
-h41854
+hV6,sum=52279
 s 00001/00000/00072
-d D 1.6 18/04/30 13:06:08 joerg 6 5
+d D 1.6 2018/04/30 13:06:08+0200 joerg 6 5
+S s 47788
 c Username mit SPACE wird in Underline im History File gewandelt
 e
 s 00009/00002/00063
-d D 1.5 16/08/14 23:16:32 joerg 5 4
+d D 1.5 2016/08/14 23:16:32+0200 joerg 5 4
+S s 44286
 c tail +2 -> tail $plustwo und $plustwo wird automatish angepasst
 e
 s 00005/00001/00060
-d D 1.4 16/06/23 00:34:00 joerg 4 3
+d D 1.4 2016/06/23 00:34:00+0200 joerg 4 3
+S s 34752
 c erstmal id -un statt logname
 e
 s 00001/00001/00060
-d D 1.3 16/06/22 22:25:17 joerg 3 2
+d D 1.3 2016/06/22 22:25:17+0200 joerg 3 2
+S s 30803
 c Die Sekundenbruchteile bei SCCSv6 koennen auch weniger als 10 Stellen haben
 e
 s 00001/00001/00060
-d D 1.2 16/06/21 22:14:49 joerg 2 1
+d D 1.2 2016/06/21 22:14:49+0200 joerg 2 1
+S s 30841
 c joerg: -> $logname:
 e
 s 00061/00000/00000
-d D 1.1 16/06/20 00:54:11 joerg 1 0
+d D 1.1 2016/06/20 00:54:11+0200 joerg 1 0
+S s 30611
 c date and time created 16/06/20 00:54:11 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b5ee30f
+G p sccs/tests/sccstests/format/format.sh
 t
 T
 I 1

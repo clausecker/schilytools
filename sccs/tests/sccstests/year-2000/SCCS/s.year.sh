@@ -1,19 +1,24 @@
-h38436
+hV6,sum=46031
 s 00010/00001/00039
-d D 1.3 19/11/08 01:34:41 joerg 3 2
+d D 1.3 2019/11/08 01:34:41+0100 joerg 3 2
+S s 07029
 c Mit y3000 erwarten wir nun um 32 Bit Modus exit code 1
 e
 s 00001/00001/00039
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 58856
 c ../common/test-common -> ../../common/test-common
 e
 s 00040/00000/00000
-d D 1.1 11/05/29 20:19:37 joerg 1 0
+d D 1.1 2011/05/29 20:19:37+0200 joerg 1 0
+S s 58717
 c date and time created 11/05/29 20:19:37 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b72a6e1
+G p sccs/tests/sccstests/year-2000/year.sh
 t
 T
 I 1

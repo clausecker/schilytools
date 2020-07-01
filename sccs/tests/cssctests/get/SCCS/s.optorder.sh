@@ -1,16 +1,20 @@
-h49933
+hV6,sum=56783
 s 00001/00001/00057
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 31446
 c ../common/test-common -> ../../common/test-common
 e
 s 00058/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 31307
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ecee480
+G p sccs/tests/cssctests/get/optorder.sh
 t
 T
 I 1

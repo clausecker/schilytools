@@ -1,24 +1,30 @@
-h54114
+hV6,sum=63627
 s 00002/00002/00270
-d D 1.4 15/06/03 00:06:43 joerg 4 3
+d D 1.4 2015/06/03 00:06:43+0200 joerg 4 3
+S s 50411
 c ../common/test-common -> ../../common/test-common
 e
 s 00013/00008/00259
-d D 1.3 15/04/25 18:43:53 joerg 3 2
+d D 1.3 2015/04/25 18:43:53+0200 joerg 3 2
+S s 50133
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
 e
 s 00029/00002/00238
-d D 1.2 11/05/30 19:30:32 joerg 2 1
+d D 1.2 2011/05/30 19:30:32+0200 joerg 2 1
+S s 30663
 c setup()/restore() neu um SCCS nach XSCCS und zurueck zu wandeln
 e
 s 00240/00000/00000
-d D 1.1 11/04/30 19:50:22 joerg 1 0
+d D 1.1 2011/04/30 19:50:22+0200 joerg 1 0
+S s 02378
 c date and time created 11/04/30 19:50:22 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ebedecb
+G p sccs/tests/cssctests/bsd-sccs/driver-basic.sh
 t
 T
 I 1

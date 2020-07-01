@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cmds	1.67 20/06/05 J. Schilling 
+* @(#)cmds	1.72 20/06/29 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -70,6 +70,8 @@ prepend		Prepend the current content of the g-file to the previous
 		content of that file (delta).
 
 unlink		Create an "unlink" delta in the SCCS history file (delta).
+
+user=name	Set a different user (programmer) name for a delta (admin/delta)
 
 Gp=initial_path	Set the initial path (admin).
 
@@ -251,6 +253,10 @@ options:
 options:
 	-d	Discard additional meta data when converting to SCCS v4
 	-k	Keep original history file as o.file
+	-o	Keep original time stamp.
+	-oo	Use original time stamp + 1ns.
+	-ooo	Use original time stamp + 1us.
+	-oooo	Use original time stamp + 1s.
 	-Nspec	Process a bulk of SCCS history files
 	-Xopts	Specify extended options as comma separated list
 	-V	Print version number
@@ -603,6 +609,7 @@ options:
 	sccs fix	remove a delta and reedit it
 	sccs get	retrieve a version of an SCCS file
 	sccs help	print help for SCCS commands and error messages
+	sccs histfile	print s-filename related to a g-filename
 	sccs info	give a list of all files being edited
 	sccs istext	check whether a file needs to be encoded
 	sccs ldiffs	compare edited file using local diff program from OS
@@ -692,6 +699,11 @@ options:
 
 options:
 	-b	Do not check branches to see if they are being edited
+-histfile
+	histfile <g-filename>
+
+	Converts a g-filename into the appropriate s-filename counterpart
+	that is used for SCCS history files.
 -info
 	info [-b] [-u<username>] [-U]
 
@@ -704,7 +716,7 @@ options:
 -check
 	check [-b] [-u<username>] [-U]
 
-	Similar to sccs info but silent is nothing is edited
+	Similar to sccs info but silent if nothing is edited
 
 options:
 	-b	Ignore branches

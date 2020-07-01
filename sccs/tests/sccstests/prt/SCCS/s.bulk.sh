@@ -1,12 +1,15 @@
-h13321
+hV6,sum=18862
 s 00037/00000/00000
-d D 1.1 18/12/04 21:32:06 joerg 1 0
+d D 1.1 2018/12/04 21:32:06+0100 joerg 1 0
+S s 05020
 c date and time created 18/12/04 21:32:06 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b650fba
+G p sccs/tests/sccstests/prt/bulk.sh
 t
 T
 I 1

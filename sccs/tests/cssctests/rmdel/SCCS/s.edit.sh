@@ -1,16 +1,20 @@
-h54164
+hV6,sum=60750
 s 00001/00001/00048
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 35677
 c ../common/test-common -> ../../common/test-common
 e
 s 00049/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 35538
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eed9277
+G p sccs/tests/cssctests/rmdel/edit.sh
 t
 T
 I 1

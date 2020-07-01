@@ -1,19 +1,24 @@
-h52122
+hV6,sum=60788
 s 00009/00002/00044
-d D 1.3 16/08/14 23:16:32 joerg 3 2
+d D 1.3 2016/08/14 23:16:32+0200 joerg 3 2
+S s 20789
 c tail +2 -> tail $plustwo und $plustwo wird automatish angepasst
 e
 s 00001/00001/00045
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 11264
 c ../common/test-common -> ../../common/test-common
 e
 s 00046/00000/00000
-d D 1.1 11/05/29 21:09:29 joerg 1 0
+d D 1.1 2011/05/29 21:09:29+0200 joerg 1 0
+S s 11125
 c date and time created 11/05/29 21:09:29 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b5cd863
+G p sccs/tests/sccstests/extensions/extcomment.sh
 t
 T
 I 1

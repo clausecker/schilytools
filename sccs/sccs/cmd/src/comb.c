@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)comb.c	1.42 20/06/07 J. Schilling
+ * @(#)comb.c	1.43 20/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.42 20/06/07 J. Schilling"
+#pragma ident "@(#)comb.c 1.43 20/06/13 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -293,7 +293,11 @@ static	int	idx;
 			if (N.n_ifile)
 				ofile = N.n_ifile;
 #endif
-			fatal(gettext("directory specified as s-file (cm14)"));
+			/*
+			 * The error is typically
+			 * "directory specified as s-file (cm14)"
+			 */
+			fatal(gettext(bulkerror(&N)));
 		}
 		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
 			sid.s_rel = N.n_sid.s_rel;

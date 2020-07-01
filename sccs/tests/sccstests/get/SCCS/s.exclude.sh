@@ -1,11 +1,14 @@
-h33573
+hV6,sum=39333
 s 00023/00000/00000
-d D 1.1 20/04/16 00:23:42 joerg 1 0
+d D 1.1 2020/04/16 00:23:42+0200 joerg 1 0
+S s 25587
 c date and time created 20/04/16 00:23:42 by joerg
 e
 u
 U
 f e 0
+G r 0e46e8b61731b
+G p sccs/tests/sccstests/get/exclude.sh
 t
 T
 I 1

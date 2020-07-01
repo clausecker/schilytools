@@ -1,24 +1,30 @@
-h15984
+hV6,sum=24182
 s 00011/00000/00042
-d D 1.4 18/11/27 22:02:39 joerg 4 3
+d D 1.4 2018/11/27 22:02:39+0100 joerg 4 3
+S s 35742
 c Neue Tests fuer -Xprepend
 e
 s 00004/00000/00038
-d D 1.3 16/08/18 22:20:29 joerg 3 2
+d D 1.3 2016/08/18 22:20:29+0200 joerg 3 2
+S s 07014
 c touch -t fuer gtouch
 e
 s 00006/00006/00032
-d D 1.2 15/06/03 00:06:45 joerg 2 1
+d D 1.2 2015/06/03 00:06:45+0200 joerg 2 1
+S s 65004
 c ../common/test-common -> ../../common/test-common
 e
 s 00038/00000/00000
-d D 1.1 11/05/29 20:19:37 joerg 1 0
+d D 1.1 2011/05/29 20:19:37+0200 joerg 1 0
+S s 64170
 c date and time created 11/05/29 20:19:37 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8b5be795
+G p sccs/tests/sccstests/delta/opt.sh
 t
 T
 I 1

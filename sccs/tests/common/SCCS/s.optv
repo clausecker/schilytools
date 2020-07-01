@@ -1,11 +1,14 @@
-h16669
+hV6,sum=21120
 s 00022/00000/00000
-d D 1.1 11/05/28 21:19:22 joerg 1 0
+d D 1.1 2011/05/28 21:19:22+0200 joerg 1 0
+S s 08663
 c date and time created 11/05/28 21:19:22 by joerg
 e
 u
 U
 f e 1
+G r 0e46e880e0807
+G p sccs/tests/common/optv
 t
 T
 I 1

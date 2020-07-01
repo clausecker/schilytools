@@ -1,16 +1,20 @@
-h26466
+hV6,sum=33170
 s 00001/00001/00028
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 07953
 c ../common/test-common -> ../../common/test-common
 e
 s 00029/00000/00000
-d D 1.1 11/04/26 03:04:16 joerg 1 0
+d D 1.1 2011/04/26 03:04:16+0200 joerg 1 0
+S s 07814
 c date and time created 11/04/26 03:04:16 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8edee5d7
+G p sccs/tests/cssctests/prs/cutoff.sh
 t
 T
 I 1

@@ -1,12 +1,15 @@
-h07782
+hV6,sum=13815
 s 00020/00000/00000
-d D 1.1 10/04/18 18:20:27 joerg 1 0
+d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
+S s 65016
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
 f e 1
 f y 
+G r 0e46e8ef670ea
+G p sccs/tests/cssctests/year-2000/s.y2k.txt
 t
 T
 I 1

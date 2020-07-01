@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.50 20/05/28 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs.1	4.54 20/06/29 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2020/05/28" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2020/06/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -344,6 +344,15 @@ or a
 It should be used with extreme caution,
 since any changes you made since the get
 will be irretrievably lost.
+
+.br
+.ne 3
+.TP
+.B histfile
+Converts a g-filename into the appropriate s-filename counterpart
+that is used for
+.B SCCS
+history files.
 
 .br
 .ne 3
@@ -1469,6 +1478,37 @@ utility.
 
 .br
 .ne 5
+.HP
+.BI histfile " pathname
+.sp .6
+Converts a g-filename into the appropriate s-filename counterpart
+that is used for
+.B SCCS
+history files.
+.sp
+While
+.BR sccs (1)
+in former times just added
+.B SCCS/s.
+before the last path name component, there is now support for
+.B off-tree
+history files that are located inside a directory
+.B .sccs
+in the
+.B project root
+directory.
+The
+.B histfile
+subcommand knows which operating mode is currently in use and
+returns the appropriate path to the history file.
+.sp
+If the
+.I pathname
+argument refers to a directory, the result is the directory that holds
+the SCCS history files for the files in that directory.
+
+.br
+.ne 5
 .SS "/usr/bin/sccs"
 .HP
 .BR info " [\c
@@ -2400,6 +2440,7 @@ lw(2.75i) |lw(2.75i)
 .
 ATTRIBUTE TYPEATTRIBUTE VALUE
 _
+AvailabilitySCHILYdeveloper-build-sccs
 AvailabilitySUNWsprot
 .TE
 
@@ -2411,6 +2452,7 @@ lw(2.75i) |lw(2.75i)
 .
 ATTRIBUTE TYPEATTRIBUTE VALUE
 _
+AvailabilitySCHILYdeveloper-build-sccs-xcu4
 AvailabilitySUNWxcu4t
 _
 Interface StabilityStandard
@@ -2419,21 +2461,45 @@ Interface StabilityStandard
 .SH SEE ALSO
 .nh
 .LP
+.BR sccs\-add (1),
 .BR sccs\-admin (1),
+.BR sccs\-branch (1),
 .BR sccs\-cdc (1),
+.BR sccs\-check (1),
+.BR sccs\-clean (1),
 .BR sccs\-comb (1),
+.BR sccs\-commit (1),
+.BR sccs\-create (1),
 .BR sccs\-cvt (1),
+.BR sccs\-deledit (1),
+.BR sccs\-delget (1),
 .BR sccs\-delta (1),
+.BR sccs\-diffs (1),
+.BR sccs\-edit (1),
+.BR sccs\-editor (1),
+.BR sccs\-enter (1),
+.BR sccs\-fix (1),
 .BR sccs\-get (1),
 .BR sccs\-help (1),
+.BR sccs\-histfile (1),
+.BR sccs\-info (1),
 .BR sccs\-init (1),
+.BR sccs\-istext (1),
+.BR sccs\-ldiffs (1),
 .BR sccs\-log (1),
+.BR sccs\-print (1),
 .BR sccs\-prs (1),
 .BR sccs\-prt (1),
+.BR sccs\-rcs2sccs (1),
+.BR sccs\-remove (1),
+.BR sccs\-rename (1),
 .BR sccs\-rmdel (1),
 .BR sccs\-root (1),
 .BR sccs\-sact (1),
 .BR sccs\-sccsdiff (1),
+.BR sccs\-status (1),
+.BR sccs\-tell (1),
+.BR sccs\-unedit (1),
 .BR sccs\-unget (1),
 .BR sccs\-val (1),
 .BR bdiff (1), 

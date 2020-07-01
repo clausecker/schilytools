@@ -1,16 +1,20 @@
-h63991
+hV6,sum=05484
 s 00001/00001/00053
-d D 1.2 15/06/03 00:06:44 joerg 2 1
+d D 1.2 2015/06/03 00:06:44+0200 joerg 2 1
+S s 45450
 c ../common/test-common -> ../../common/test-common
 e
 s 00054/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 45311
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ed60df8
+G p sccs/tests/cssctests/get/sid-select2.sh
 t
 T
 I 1

@@ -1,11 +1,14 @@
-h20708
+hV6,sum=24998
 s 00002/00000/00000
-d D 1.1 11/05/27 20:18:04 joerg 1 0
+d D 1.1 2011/05/27 20:18:04+0200 joerg 1 0
+S s 12711
 c date and time created 11/05/27 20:18:04 by joerg
 e
 u
 U
 f e 0
+G r 0e4724358ea40
+G p tests/testutils/README
 t
 T
 I 1

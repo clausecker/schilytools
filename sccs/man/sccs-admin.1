@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.62 20/06/09 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-admin.1	1.63 20/06/11 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2020/06/09" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2020/06/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -906,6 +906,17 @@ used in this case is
 in order to permit a
 .B 1.1
 release with file content later in the same history file.
+.TP
+.BI user= name
+Use a different user name for the
+.B programmer
+field in the delta table.
+By the default, the
+.B logname
+is used for this field.
+Using a different name may however later deny the permission
+to modify a delta by programs like
+.BR cdc (1).
 .TP
 .B 0
 When reading filenames from

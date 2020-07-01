@@ -1,16 +1,20 @@
-h17481
+hV6,sum=24405
 s 00001/00001/00037
-d D 1.2 15/06/03 00:06:43 joerg 2 1
+d D 1.2 2015/06/03 00:06:43+0200 joerg 2 1
+S s 64535
 c ../common/test-common -> ../../common/test-common
 e
 s 00038/00000/00000
-d D 1.1 10/05/11 11:30:00 joerg 1 0
+d D 1.1 2010/05/11 11:30:00+0200 joerg 1 0
+S s 64396
 c date and time created 10/05/11 11:30:00 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8eb81539
+G p sccs/tests/cssctests/admin/t-option.sh
 t
 T
 I 1

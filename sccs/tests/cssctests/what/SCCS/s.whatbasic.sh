@@ -1,20 +1,25 @@
-h40534
+hV6,sum=48507
 s 00001/00001/00134
-d D 1.3 15/06/03 00:06:44 joerg 3 2
+d D 1.3 2015/06/03 00:06:44+0200 joerg 3 2
+S s 37432
 c ../common/test-common -> ../../common/test-common
 e
 s 00011/00011/00124
-d D 1.2 15/06/01 23:55:23 joerg 2 1
+d D 1.2 2015/06/01 23:55:23+0200 joerg 2 1
+S s 37293
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00135/00000/00000
-d D 1.1 10/05/16 00:06:03 joerg 1 0
+d D 1.1 2010/05/16 00:06:03+0200 joerg 1 0
+S s 23884
 c date and time created 10/05/16 00:06:03 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ef4cef5
+G p sccs/tests/cssctests/what/whatbasic.sh
 t
 T
 I 1

@@ -1,32 +1,40 @@
-h27053
+hV6,sum=37656
 s 00003/00003/00241
-d D 1.6 15/06/03 00:06:43 joerg 6 5
+d D 1.6 2015/06/03 00:06:43+0200 joerg 6 5
+S s 58793
 c ../common/test-common -> ../../common/test-common
 e
 s 00002/00002/00242
-d D 1.5 15/06/01 23:55:23 joerg 5 4
+d D 1.5 2015/06/01 23:55:23+0200 joerg 5 4
+S s 58376
 c ../../testutils/ -> ${SRCROOT}/tests/testutils/
 e
 s 00078/00010/00166
-d D 1.4 14/08/26 20:19:40 joerg 4 3
+d D 1.4 2014/08/26 20:19:40+0200 joerg 4 3
+S s 55938
 c ascii/binary Unterschiede bei SCCSv4 <-> SCCSv6 beruecksichtigen
 e
 s 00001/00001/00175
-d D 1.3 11/06/18 16:06:36 joerg 3 2
+d D 1.3 2011/06/18 16:06:36+0200 joerg 3 2
+S s 35286
 c x=z.$g -> x=x.$g
 e
 s 00001/00001/00175
-d D 1.2 11/05/30 01:17:27 joerg 2 1
+d D 1.2 2011/05/30 01:17:27+0200 joerg 2 1
+S s 35288
 c if ( ${admin} -V 2>&1 ; echo umsp )  | grep CSSC >/dev/null -> if $TESTING_CSSC
 e
 s 00176/00000/00000
-d D 1.1 10/04/29 02:05:14 joerg 1 0
+d D 1.1 2010/04/29 02:05:14+0200 joerg 1 0
+S s 38614
 c date and time created 10/04/29 02:05:14 by joerg
 e
 u
 U
 f e 0
 f y 
+G r 0e46e8ebcd31f
+G p sccs/tests/cssctests/binary/seeking.sh
 t
 T
 I 1

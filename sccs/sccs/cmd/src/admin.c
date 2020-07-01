@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.129 20/06/08 J. Schilling
+ * @(#)admin.c	1.134 20/06/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.129 20/06/08 J. Schilling"
+#pragma ident "@(#)admin.c 1.134 20/06/26 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -100,6 +100,7 @@ should appear exactly as they do in the msgid string:
 
 # define MAXNAMES 9
 
+static FILE	*Cs;			/* The changeset file		*/
 static char	stdin_file_buf [20];	/* For "/tmp/admin.XXXXXX"	*/
 static char	*ifile;			/* -i argument			*/
 static char	*tfile;			/* -t argument			*/
@@ -536,7 +537,7 @@ char *argv[];
 			case 'X':
 				X.x_parm = optarg;
 				X.x_flags = XO_INIT_PATH|XO_URAND|\
-					XO_UNLINK|XO_MAIL|XO_NULLPATH;
+					XO_UNLINK|XO_MAIL|XO_USER|XO_NULLPATH;
 				if (!parseX(&X))
 					goto err;
 				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
@@ -569,9 +570,11 @@ char *argv[];
 				 * Check whether "-V" was last arg...
 				 */
 				if (optind == argc &&
-				    argv[argc-1][0] == '-' &&
+				    ((argv[argc-1][0] == '-' &&
 				    argv[argc-1][1] == 'V' &&
-				    argv[argc-1][2] == '\0')
+				    argv[argc-1][2] == '\0') ||
+				    strcmp(argv[argc-1], "-version") == 0 ||
+				    strcmp(argv[argc-1], "--version") == 0))
 					goto doversion;
 				fatal(gettext("Usage: admin [ -bhknoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]][ -Xxopts ] [ -y[comment]] s.filename ..."));
 			}
@@ -643,6 +646,27 @@ char *argv[];
 		fatal(gettext("USER ID not in password file (cm9)"));
 
 	/*
+	 * Get the name of our machine to be used for the lockfile.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+
+	/*
+	 * Set up a project global lock on the changeset file.
+	 * Since we set FTLJMP, we do not need to unlockchset() from clean_up().
+	 */
+	if (!HADH && SETHOME_CHSET()) {
+		lockchset(getppid(), getpid(), uuname);
+		if (HADUCN && exists(changesetgfile)) {
+			/*
+			 * Should we open/create the file even if it does not
+			 * yet exist? This may change with the final concept.
+			 */
+			Cs = xfopen(changesetgfile, O_WRONLY|O_APPEND|O_BINARY);
+		}
+	}
+
+	/*
 	Change flags for 'fatal' so that it will return to this
 	routine (main) instead of terminating processing.
 	*/
@@ -658,6 +682,19 @@ char *argv[];
 
 	if (num_files == 0 && HADUCN)
 		do_file("-", admin, 0, N.n_sdot, &X);
+
+	/*
+	 * Only remove the global lock it it was created by us and not by
+	 * our parent.
+	 */
+	if (!HADH && SETHOME_CHSET()) {
+		if (HADUCN) {
+			bulkchdir(&N);
+			if (Cs)
+				fclose(Cs);
+		}
+		unlockchset(getpid(), uuname);
+	}
 
 	return (Fcnt ? 1 : 0);
 }
@@ -716,11 +753,25 @@ char	*afile;
 
 	zero((char *) &stats,sizeof(stats));
 
+	/*
+	 * In order to make the global lock with a potentially long duration
+	 * not look as if it was expired, we refresh it for every file in our
+	 * task list. This is needed since another SCCS instance on a different
+	 * NFS machine cannot use kill() to check for a still active process.
+	 */
+	if (!HADH && SETHOME_CHSET()) {
+		if (HADUCN)
+			bulkchdir(&N);	/* Done by bulkprepare() anyway */
+		refreshchsetlock();
+	}
+
 	if (HADUCN) {
 		char	*oafile = afile;
 
 		afile = bulkprepare(&N, afile);
-		if (afile == NULL) {
+		if (N.n_error != 0 && N.n_error != BULK_EISDIR) {
+			fatal(gettext(bulkerror(&N)));
+		} else if (afile == NULL) {
 			if (N.n_ifile)
 				direrror(N.n_ifile, 'i');
 			else
@@ -808,11 +859,9 @@ char	*afile;
 	}
 
 	/*
-	Lock out any other user who may be trying to process
-	the same file.
-	*/
-	uname(&un);
-	uuname = un.nodename;
+	 * Lock out any other user who may be trying to process
+	 * the same file.
+	 */
 	if (!HADH && lockit(copy(auxf(afile,'z'),Zhold),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
 
@@ -963,7 +1012,9 @@ char	*afile;
 				ifile_mtime.tv_sec, ifile_mtime.tv_nsec);
                 }
 
-		copy(logname(),dt.d_pgmr);	/* get user's name */
+		strlcpy(dt.d_pgmr, logname(), LOGSIZE);	/* get user's name */
+		if (X.x_user)				/* from -Xuser=	*/
+			strlcpy(dt.d_pgmr, X.x_user, LOGSIZE);
 
 		dt.d_serial = 1;
 		dt.d_pred = 0;
@@ -1478,14 +1529,6 @@ char	*afile;
 			while (*q)
 				gpkt.p_nhash += *q++;
 		}
-
-#ifdef	TEST_CHANGE
-		if (versflag == 6) {
-			char	cbuf[MAXPATHLEN];
-			change_ba(&gpkt, cbuf, sizeof (cbuf));
-			fprintf(stderr, "%s\n", cbuf);
-		}
-#endif
 	} else {
 		/*
 		Indicate that EOF at this point is ok, and
@@ -1582,9 +1625,14 @@ char	*afile;
 			}
 		}
 		xrm(&gpkt);
-		uname(&un);
-		uuname = un.nodename;
 		unlockit(auxf(afile,'z'),getpid(),uuname);
+
+		if ((gpkt.p_flags & PF_V6) && Cs && gpkt.p_init_path) {
+			char	cbuf[2*MAXPATHLEN];
+
+			change_ba(&gpkt, cbuf, sizeof (cbuf));
+			fprintf(Cs, "%s\n", cbuf);
+		}
 	}
 
 	if (HADI)
