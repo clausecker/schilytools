@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.169 20/06/05 Copyright 1985-2020 J. Schilling */
+/* @(#)extract.c	1.170 20/07/08 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.169 20/06/05 Copyright 1985-2020 J. Schilling";
+	"@(#)extract.c	1.170 20/07/08 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -84,7 +84,7 @@ extern	FILE	*vpr;
 
 extern	char	*listfile;
 
-extern	int	bufsize;
+extern	long	bufsize;
 extern	char	*bigptr;
 
 extern	uid_t	dir_uid;
@@ -168,12 +168,12 @@ LOCAL	BOOL	install_rename	__PR((FINFO *info, char *xname));
 LOCAL	BOOL	name_exists	__PR((char *name));
 LOCAL	void	remove_tmpname	__PR((char *name));
 LOCAL	BOOL	get_ofile	__PR((FILE *f, FINFO *info));
-LOCAL	int	void_func	__PR((void *vp, char *p, int amount));
+LOCAL	ssize_t	void_func	__PR((void *vp, char *p, size_t amount));
 EXPORT	BOOL	void_file	__PR((FINFO * info));
 LOCAL	BOOL	void_bad	__PR((FINFO * info));
 EXPORT	int	xt_file		__PR((FINFO * info,
-					int (*)(void *, char *, int),
-					void *arg, int amt, char *text));
+					ssize_t (*)(void *, char *, size_t),
+					void *arg, long amt, char *text));
 EXPORT	void	skip_slash	__PR((FINFO * info));
 LOCAL	BOOL	has_dotdot	__PR((char *name));
 LOCAL	BOOL	inside_tree	__PR((FINFO * info));
@@ -1981,7 +1981,7 @@ get_ofile(f, info)
 		else
 			ret = get_forced_hole(f, info);
 	} else {
-		ret = xt_file(info, (int(*)__PR((void *, char *, int)))ffilewrite,
+		ret = xt_file(info, (ssize_t(*)__PR((void *, char *, size_t)))ffilewrite,
 						f, 0, "writing");
 	}
 	if (ret < 0) {
@@ -2023,11 +2023,11 @@ get_ofile(f, info)
 }
 
 /* ARGSUSED */
-LOCAL int
+LOCAL ssize_t
 void_func(vp, p, amount)
 	void	*vp;
 	char	*p;
-	int	amount;
+	size_t	amount;
 {
 	return (amount);
 }
@@ -2100,14 +2100,14 @@ void_bad(info)
 EXPORT int
 xt_file(info, func, arg, amt, text)
 		FINFO	*info;
-		int	(*func) __PR((void *, char *, int));
+		ssize_t	(*func) __PR((void *, char *, size_t));
 		void	*arg;
-		int	amt;
+		long	amt;
 		char	*text;
 {
-	register int	amount; /* XXX ??? */
+	register long	amount; /* XXX ??? */
 	register off_t	size;
-	register int	tasize;
+	register long	tasize;
 		BOOL	ret = TRUE;
 
 	size = info->f_rsize;
@@ -2167,7 +2167,7 @@ xt_file(info, func, arg, amt, text)
 	}
 	return (ret);
 waseof:
-	errmsgno(EX_BAD, "Tar file too small (amount: %d bytes).\n", amount);
+	errmsgno(EX_BAD, "Tar file too small (amount: %ld bytes).\n", amount);
 	errmsgno(EX_BAD, "Unexpected EOF on input.\n");
 	return (-1);
 }

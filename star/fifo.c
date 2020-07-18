@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.109 20/06/05 Copyright 1989, 1994-2020 J. Schilling */
+/* @(#)fifo.c	1.110 20/07/08 Copyright 1989, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.109 20/06/05 Copyright 1989, 1994-2020 J. Schilling";
+	"@(#)fifo.c	1.110 20/07/08 Copyright 1989, 1994-2020 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -115,7 +115,7 @@ static	UConst char sccsid[] =
 
 char	*buf;
 m_head	*mp;
-int	buflen;
+long	buflen;
 
 extern	BOOL	multivol;
 extern	BOOL	debug;
@@ -126,8 +126,8 @@ extern	long	fs;
 extern	long	bs;
 extern	long	ibs;
 extern	long	obs;
-extern	int	hiw;
-extern	int	low;
+extern	long	hiw;
+extern	long	low;
 extern	BOOL	copyflag;
 extern	long	chdrtype;
 
@@ -138,14 +138,14 @@ extern	GINFO	*gip;
 
 long	ibs;
 long	obs;
-int	hiw;
-int	low;
+long	hiw;
+long	low;
 
 LOCAL	int	waitchan;	/* Current waiting channel for debugging */
 
 EXPORT	void	initfifo	__PR((void));
 LOCAL	void	fifo_setparams	__PR((void));
-EXPORT	void	fifo_ibs_shrink	__PR((int newsize));
+EXPORT	void	fifo_ibs_shrink	__PR((long newsize));
 EXPORT	void	runfifo		__PR((int ac, char *const *av));
 #ifdef	HANG_DEBUG
 LOCAL	char	*prgflags	__PR((int f, char *fbuf));
@@ -156,32 +156,32 @@ EXPORT	void	fifo_prmp	__PR((int sig));
 EXPORT	void	fifo_stats	__PR((void));
 LOCAL	int	swait		__PR((int f, int chan));
 LOCAL	int	swakeup		__PR((int f, int c));
-EXPORT	int	fifo_amount	__PR((void));
-EXPORT	int	fifo_iwait	__PR((int amount));
-EXPORT	void	fifo_owake	__PR((int amount));
+EXPORT	size_t	fifo_amount	__PR((void));
+EXPORT	long	fifo_iwait	__PR((long amount));
+EXPORT	void	fifo_owake	__PR((long amount));
 EXPORT	void	fifo_oflush	__PR((void));
 EXPORT	void	fifo_oclose	__PR((void));
-EXPORT	int	fifo_owait	__PR((int amount));
-EXPORT	void	fifo_iwake	__PR((int amt));
+EXPORT	long	fifo_owait	__PR((long amount));
+EXPORT	void	fifo_iwake	__PR((long amt));
 EXPORT	void	fifo_reelwake	__PR((void));
 EXPORT	void	fifo_resume	__PR((void));
-EXPORT	void	fifo_sync	__PR((int size));
+EXPORT	void	fifo_sync	__PR((long size));
 EXPORT	void	fifo_chitape	__PR((void));
 EXPORT	void	fifo_chotape	__PR((void));
 LOCAL	void	do_in		__PR((void));
 LOCAL	void	do_out		__PR((void));
-LOCAL	void	fbit_nclear	__PR((bitstr_t *name, int startb, int stopb));
+LOCAL	void	fbit_nclear	__PR((bitstr_t *name, long startb, long stopb));
 #ifdef	USE_MMAP
-LOCAL	char	*mkshare	__PR((int size));
+LOCAL	char	*mkshare	__PR((long size));
 #endif
 #ifdef	USE_USGSHM
-LOCAL	char	*mkshm		__PR((int size));
+LOCAL	char	*mkshm		__PR((long size));
 #endif
 #ifdef	USE_OS2SHM
-LOCAL	char	*mkos2shm	__PR((int size));
+LOCAL	char	*mkos2shm	__PR((long size));
 #endif
 #ifdef	USE_BEOS_AREAS
-LOCAL	char	*mkbeosshm	__PR((int size));
+LOCAL	char	*mkbeosshm	__PR((long size));
 LOCAL	void	beosshm_child	__PR((void));
 #endif
 
@@ -256,7 +256,7 @@ extern	BOOL	cflag;
 
 	buflen = roundup(fs, pagesize) + addsize;
 	/* CSTYLED */
-	EDEBUG(("bs: %ld obs: %ld fs: %ld buflen: %d addsize: %d bitstr size: %ld\n", bs, obs, fs, buflen, addsize, bitstr_size(fs/TBLOCK)));
+	EDEBUG(("bs: %ld obs: %ld fs: %ld buflen: %ld addsize: %d bitstr size: %ld\n", bs, obs, fs, buflen, addsize, bitstr_size(fs/TBLOCK)));
 	/*
 	 * llitos() overshoots by one space (' ') in cpio mode, add pagesize.
 	 * See also fifo_setparams().
@@ -336,7 +336,7 @@ extern	BOOL	cflag;
 	fifo_prmp(0);			/* Print FIFO information with -debug */
 	{
 		/* Temporary until all modules know about mp->xxx */
-		extern int	bufsize;
+		extern long	bufsize;
 		extern char	*bigbuf;
 		extern char	*bigptr;
 
@@ -386,7 +386,7 @@ fifo_setparams()
 
 EXPORT void
 fifo_ibs_shrink(newsize)
-	int	newsize;
+	long	newsize;
 {
 	ibs = newsize;
 	fs = (fs/newsize)*newsize;
@@ -593,7 +593,7 @@ extern	BOOL	cflag;
 		return;
 
 #ifdef	FIFO_STANDALONE
-	if (pid != 0) 
+	if (pid != 0)
 		isget = TRUE;
 #else
 	if ((pid != 0) ^ cflag)
@@ -608,9 +608,9 @@ extern	BOOL	cflag;
 	error("getptr:   %p\n", mp->getptr);
 	error("base:     %p\n", mp->base);
 	error("end:      %p\n", mp->end);
-	error("size:     %d\n", mp->size);
-	error("ibs:      %d\n", mp->ibs);
-	error("obs:      %d\n", mp->obs);
+	error("size:     %ld\n", mp->size);
+	error("ibs:      %ld\n", mp->ibs);
+	error("obs:      %ld\n", mp->obs);
 	error("amt:      %ld\n", FIFO_AMOUNT(mp));
 	error("icnt:     %ld\n", mp->icnt);
 	error("ocnt:     %ld\n", mp->ocnt);
@@ -624,14 +624,14 @@ extern	BOOL	cflag;
 	error("eflags:   %2.2X%s\n", mp->eflags, preflags(mp->eflags, fbuf));
 	error("pflags:   %2.2X%s\n", mp->pflags, prpflags(mp->pflags, fbuf));
 	error("flags:    %2.2X%s\n", mp->gflags, prgflags(mp->gflags, fbuf));
-	error("hiw:      %d\n", mp->hiw);
-	error("low:      %d\n", mp->low);
-	error("puts:     %d\n", mp->puts);
-	error("gets:     %d\n", mp->gets);
-	error("empty:    %d\n", mp->empty);
-	error("full:     %d\n", mp->full);
-	error("maxfill:  %d\n", mp->maxfill);
-	error("moves:    %d\n", mp->moves);
+	error("hiw:      %ld\n", mp->hiw);
+	error("low:      %ld\n", mp->low);
+	error("puts:     %ld\n", mp->puts);
+	error("gets:     %ld\n", mp->gets);
+	error("empty:    %ld\n", mp->empty);
+	error("full:     %ld\n", mp->full);
+	error("maxfill:  %ld\n", mp->maxfill);
+	error("moves:    %ld\n", mp->moves);
 	error("mbytes:   %lld\n", mp->mbytes);
 #ifdef	TEST
 	error("wpin:     %d\n", mp->wpin);
@@ -648,20 +648,20 @@ fifo_stats()
 	if (no_stats)
 		return;
 
-	errmsgno(EX_BAD, "fifo had %d puts %d gets.\n", mp->puts, mp->gets);
-	errmsgno(EX_BAD, "fifo was %d times empty and %d times full.\n",
+	errmsgno(EX_BAD, "fifo had %ld puts %ld gets.\n", mp->puts, mp->gets);
+	errmsgno(EX_BAD, "fifo was %ld times empty and %ld times full.\n",
 						mp->empty, mp->full);
-	errmsgno(EX_BAD, "fifo held %d bytes max, size was %d bytes\n",
+	errmsgno(EX_BAD, "fifo held %ld bytes max, size was %ld bytes\n",
 						mp->maxfill, mp->size);
 	if (mp->moves) {
 		errmsgno(EX_BAD,
-			"fifo had %d moves, total of %lld moved bytes\n",
+			"fifo had %ld moves, total of %lld moved bytes\n",
 						mp->moves, mp->mbytes);
 	}
 	if (((mp->pflags & FIFO_MEOF) == 0 &&
 	    (mp->eflags & FIFO_EXIT) == 0) ||
 	    FIFO_AMOUNT(mp) > 0) {
-		errmsgno(EX_BAD, "fifo is %lld%% full (%luk), size %dk.\n",
+		errmsgno(EX_BAD, "fifo is %lld%% full (%luk), size %ldk.\n",
 				(Llong)FIFO_AMOUNT(mp) * (Llong)100 / mp->size,
 				FIFO_AMOUNT(mp)/1024, mp->size/1024);
 	}
@@ -766,7 +766,7 @@ swakeup(f, c)
 /*
  * Return the amount of data from the FIFO available to the reader process.
  */
-EXPORT int
+EXPORT size_t
 fifo_amount()
 {
 	return (FIFO_AMOUNT(mp));
@@ -781,11 +781,11 @@ fifo_amount()
  * If we are in "-c reate" mode, it is used by the tar process that reads files
  * If we are in "-x tract" mode, it is used by the process that reads the tape
  */
-EXPORT int
+EXPORT long
 fifo_iwait(amount)
-	int	amount;
+	long	amount;
 {
-	register int	cnt;
+	register long	cnt;
 	register m_head *rmp = mp;
 
 	if (rmp->chreel) {	/* Block FIFO to allow to change reel */
@@ -812,7 +812,7 @@ fifo_iwait(amount)
 #endif
 			comerrno(EX_BAD,
 			"Did not wake up from fifo_chitape() - got '%c'.\n",
-				cnt);
+				(int) cnt);
 		}
 		if (rmp->gflags & FIFO_I_CHREEL) {
 			changetape(TRUE);
@@ -861,7 +861,7 @@ fifo_iwait(amount)
  */
 EXPORT void
 fifo_owake(amount)
-	int	amount;
+	long	amount;
 {
 	register m_head *rmp = mp;
 	register int	iwait;
@@ -961,12 +961,12 @@ fifo_oclose()
  * If we are in "-c reate" mode, it is used by the process that writes the tape
  * If we are in "-x tract" mode, it is used by the tar process that writes files
  */
-EXPORT int
+EXPORT long
 fifo_owait(amount)
-	int	amount;
+	long	amount;
 {
-	int	c;
-	register int	cnt;
+	long	c;
+	register long	cnt;
 	register m_head *rmp = mp;
 
 again:
@@ -1069,7 +1069,7 @@ again:
 		cnt = c;
 
 	if (rmp->getptr + cnt > rmp->end) {
-		errmsgno(EX_BAD, "getptr >: %p %p %d end: %p\n",
+		errmsgno(EX_BAD, "getptr >: %p %p %ld end: %p\n",
 				(void *)rmp->getptr, (void *)&rmp->getptr[cnt],
 				cnt, (void *)rmp->end);
 	}
@@ -1090,7 +1090,7 @@ again:
  */
 EXPORT void
 fifo_iwake(amt)
-	int	amt;
+	long	amt;
 {
 	register m_head *rmp = mp;
 
@@ -1163,12 +1163,12 @@ fifo_resume()
  */
 EXPORT void
 fifo_sync(size)
-	int	size;
+	long	size;
 {
 	register m_head *rmp = mp;
-		int	rest = 0;
-		int	smax = rmp->end - rmp->putptr;
-		int	amt  = FIFO_AMOUNT(rmp);
+		long	rest = 0;
+		long	smax = rmp->end - rmp->putptr;
+		long	amt  = FIFO_AMOUNT(rmp);
 
 	if (size) {
 		if ((amt % size) != 0)
@@ -1339,8 +1339,8 @@ fifo_chotape()
 LOCAL void
 do_in()
 {
-	int	amt;
-	int	cnt;
+	long	amt;
+	long	cnt;
 extern	int	tarfindex;
 
 	/*
@@ -1404,8 +1404,8 @@ owake:
 LOCAL void
 do_out()
 {
-	int	cnt;
-	int	amt;
+	long	cnt;
+	long	amt;
 extern	int	tarfindex;
 
 	for (;;) {
@@ -1420,8 +1420,8 @@ nextwrite:
 				goto nextwrite;
 		}
 		if (multivol) {
-			int	startb = (mp->getptr - mp->base) / TBLOCK;
-			int	stopb = startb - 1 + amt / TBLOCK;
+			long	startb = (mp->getptr - mp->base) / TBLOCK;
+			long	stopb = startb - 1 + amt / TBLOCK;
 
 			if (mp->getptr < mp->base) {
 				stopb = mp->bmlast;
@@ -1451,10 +1451,10 @@ nextwrite:
 LOCAL void
 fbit_nclear(name, startb, stopb)
 	register bitstr_t *name;
-	register int	startb;
-	register int	stopb;
+	register long	startb;
+	register long	stopb;
 {
-	bit_nclear(name, startb, stopb);
+	bit_lnclear(name, startb, stopb);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1465,7 +1465,7 @@ fbit_nclear(name, startb, stopb)
 #ifdef	USE_MMAP
 LOCAL char *
 mkshare(size)
-	int	size;
+	long	size;
 {
 	int	f;
 	char	*addr;
@@ -1481,13 +1481,13 @@ mkshare(size)
 					MAP_SHARED, f, 0);
 #endif
 	if (addr == (char *)-1)
-		comerr("Cannot get mmap for %d Bytes on /dev/zero.\n", size);
+		comerr("Cannot get mmap for %ld Bytes on /dev/zero.\n", size);
 	if (f >= 0)
 		close(f);
 
 	if (debug) {
 		errmsgno(EX_BAD,
-			"shared memory segment attached at: %p size %d\n",
+			"shared memory segment attached at: %p size %ld\n",
 			(void *)addr, size);
 	}
 
@@ -1505,7 +1505,7 @@ mkshare(size)
 #include <schily/shm.h>
 LOCAL char *
 mkshm(size)
-	int	size;
+	long	size;
 {
 	int	id;
 	char	*addr;
@@ -1538,7 +1538,7 @@ mkshm(size)
 
 	if (debug) {
 		errmsgno(EX_BAD,
-			"shared memory segment attached at: %p size %d\n",
+			"shared memory segment attached at: %p size %ld\n",
 			(void *)addr, size);
 	}
 
@@ -1561,7 +1561,7 @@ mkshm(size)
 #ifdef	USE_OS2SHM
 LOCAL char *
 mkos2shm(size)
-	int	size;
+	long	size;
 {
 	char	*addr;
 
@@ -1576,7 +1576,7 @@ mkos2shm(size)
 
 	if (debug) {
 		errmsgno(EX_BAD,
-			"shared memory allocated attached at: %p size %d\n",
+			"shared memory allocated attached at: %p size %ld\n",
 			(void *)addr, size);
 	}
 
@@ -1591,7 +1591,7 @@ LOCAL	char	fifo_name[32];
 
 LOCAL char *
 mkbeosshm(size)
-	int	size;
+	long	size;
 {
 	snprintf(fifo_name, sizeof (fifo_name), "star FIFO %lld",
 		(Llong)getpid());
@@ -1602,11 +1602,11 @@ mkbeosshm(size)
 			B_NO_LOCK, B_READ_AREA|B_WRITE_AREA);
 	if (fifo_addr == NULL) {
 		comerrno(fifo_aid,
-			"Cannot get create_area for %d Bytes FIFO.\n", size);
+			"Cannot get create_area for %ld Bytes FIFO.\n", size);
 	}
 	if (debug) {
 		errmsgno(EX_BAD,
-			"shared memory allocated attached at: %p size %d\n",
+			"shared memory allocated attached at: %p size %ld\n",
 			(void *)fifo_addr, size);
 	}
 

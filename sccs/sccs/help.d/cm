@@ -20,7 +20,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cm	1.12 20/06/13 J. Schilling
+* @(#)cm	1.13 20/07/12 J. Schilling
 *
 * @(#)cm 1.2 06/12/12
 *
@@ -143,3 +143,16 @@ A specified input file could not be found.
 -22
 "could not make directory"
 A missing directory could not be made.
+-23
+"recursive dead lock attempt"
+An attempt was made to create a lock file we did already create.
+This would cause a deadlock situation and is an implementation bug.
+
+Please report this problem.
+-24
+"parent dead lock attempt"
+An attempt was made to create a lock file that was
+already created by our parent.
+This would cause a deadlock situation and is an implementation bug.
+
+Please report this problem.

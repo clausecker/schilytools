@@ -1,8 +1,8 @@
-/* @(#)diff.c	1.109 20/02/05 Copyright 1993-2020 J. Schilling */
+/* @(#)diff.c	1.110 20/07/08 Copyright 1993-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.109 20/02/05 Copyright 1993-2020 J. Schilling";
+	"@(#)diff.c	1.110 20/07/08 Copyright 1993-2020 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -80,7 +80,7 @@ extern	char	*listfile;
 extern	int	version;
 
 extern	long	bigcnt;
-extern	int	bigsize;
+extern	long	bigsize;
 extern	char	*bigptr;
 
 extern	BOOL	havepat;
@@ -118,7 +118,7 @@ LOCAL	void	diff_tcb	__PR((FINFO *info));
 LOCAL	BOOL	linkeql		__PR((char *n1, char *n2));
 LOCAL	BOOL	patheql		__PR((char *n1, char *n2));
 LOCAL	BOOL	dirdiffs	__PR((FILE *f, FINFO *info));
-LOCAL	int	cmp_func	__PR((cmp_t *cmp, char *p, int amount));
+LOCAL	ssize_t	cmp_func	__PR((cmp_t *cmp, char *p, size_t amount));
 LOCAL	BOOL	cmp_file	__PR((FINFO *info));
 EXPORT	void	prdiffopts	__PR((FILE *f, char *label, int flags));
 LOCAL	void	prdopt		__PR((FILE *f, char *name, int printed));
@@ -816,15 +816,15 @@ no_dircmp:
 	return (diffs);
 }
 
-#define	vp_cmp_func	((int(*)__PR((void *, char *, int)))cmp_func)
+#define	vp_cmp_func	((ssize_t(*)__PR((void *, char *, size_t)))cmp_func)
 
-LOCAL int
+LOCAL ssize_t
 cmp_func(cmp, p, amount)
 	register cmp_t	*cmp;
 	register char	*p;
-		int	amount;
+		size_t	amount;
 {
-	register int	cnt;
+	register ssize_t	cnt;
 
 	/*
 	 * If we already found diffs we save time and only pass tape ...

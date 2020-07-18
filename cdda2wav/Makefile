@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.32 18/12/23 
+#ident @(#)Makefile	1.33 20/07/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,7 +10,8 @@ all:
 all clean depend config install: install-sh scsi_scan.c scsi_cdr.c priv.c
 
 install-sh scsi_scan.c scsi_cdr.c cd_misc.c priv.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
+$(SRCROOT)/$(RULESDIR)/rules.cmd: install-sh
 ###########################################################################
 
 include		$(SRCROOT)/$(RULESDIR)/rules.top

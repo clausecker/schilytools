@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.49 20/06/27 Copyright 1997-2020 J. Schilling */
+/* @(#)sccslog.c	1.55 20/07/17 Copyright 1997-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.49 20/06/27 Copyright 1997-2020 J. Schilling";
+	"@(#)sccslog.c	1.55 20/07/17 Copyright 1997-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2020 J. Schilling
@@ -22,23 +22,44 @@ static	UConst char sccsid[] =
 #include <schily/maxpath.h>
 #include <schily/getargs.h>
 #include <schily/schily.h>
+#include <schily/wait.h>
 #include <version.h>
 #include <i18n.h>
+
+#ifdef	INS_BASE
+#if defined(__STDC__) || defined(PROTOTYPES)
+#define	PROGPATH(name)	INS_BASE "/" SCCS_BIN_PRE "bin/" #name /* place to find binaries */
+#else
+/*
+ * XXX With a K&R compiler, you need to edit the following string in case
+ * XXX you like to change the install path.
+ */
+#define	PROGPATH(name) "/usr/ccs/bin/name"	/* place to find binaries */
+#endif
+#endif
 
 #define	streql(s1, s2)	(strcmp((s1), (s2)) == 0)
 #undef	fgetline			/* May be #defined by schily.h */
 #define	fgetline	log_fgetline
 
+struct filedata {
+	urand_t	urand;			/* Unified random number for file */
+	char	*init_path;		/* Initial path name from SCCSv6 */
+};
+
 struct xx {
-	time_t	time;
-	Llong	ltime;
-	int	gmtoff;
-	struct tm tm;
-	char	*user;
-	char	*file;
-	char	*vers;
-	char	*comment;
-	int	flags;
+	time_t	time;			/* The time the way UNIX counts */
+	long	nsec;			/* Nanoseconds if available	*/
+	Llong	ltime;			/* Time with larger time range	*/
+	int	gmtoff;			/* GMT offset when in SCCSv6 mode */
+	struct tm tm;			/* Struct tm as read from delta	*/
+	char	*user;			/* User name from delta		*/
+	char	*file;			/* Filename for this delta	*/
+	char	*vers;			/* Version string for this delta */
+	char	*comment;		/* Comment for this delta	*/
+	int	flags;			/* Flags like PRINTED		*/
+	int	ghash;			/* Delta specific checksum	*/
+	struct filedata *fdata;
 };
 
 #define	PRINTED	0x01
@@ -50,18 +71,22 @@ LOCAL	int		listsize;
 LOCAL	char		*Cwd;
 LOCAL	char		*SccsPath = "";
 LOCAL	BOOL		extended = FALSE;
+LOCAL	BOOL		changeset = FALSE;
 LOCAL	Nparms		N;			/* Keep -N parameters		*/
 LOCAL	Xparms		X;			/* Keep -X parameters		*/
 
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
+LOCAL	int	rrcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
 LOCAL	void	usage		__PR((int exitcode));
 EXPORT	int	main		__PR((int ac, char *av[]));
 LOCAL	void	dodir		__PR((char *name));
 LOCAL	void	dofile		__PR((char *name));
 LOCAL	int	fgetline	__PR((FILE *, char *, int));
+LOCAL	void	handle_created_msg __PR((char *));
 LOCAL	int	getN		__PR((const char *, void *));
 LOCAL	int	getX		__PR((const char *, void *));
+LOCAL	void	print_changeset	__PR((FILE *, struct xx *));
 
 /*
  * XXX With SCCS v6 local time + GMT off, we should not compare struct tm
@@ -115,6 +140,14 @@ xxcmp(vp1, vp2)
 #endif
 }
 
+LOCAL int
+rrcmp(vp1, vp2)
+	const void	*vp1;
+	const void	*vp2;
+{
+	return (xxcmp(vp1, vp2) * -1);
+}
+
 LOCAL char *
 mapuser(name)
 	char	*name;
@@ -158,7 +191,7 @@ static	char	*lastuser = NULL;
 		*p++ = '\0';
 		if (!streql(nbuf, name))
 			continue;
-		while (*p == ' ' || *p =='\t')
+		while (*p == ' ' || *p == '\t')
 			p++;
 		lastname = name;
 		lastuser = p;
@@ -179,6 +212,7 @@ usage(exitcode)
 	fprintf(stderr, _("	-aa	Print all deltas with different times separately.\n"));
 	fprintf(stderr, _("	-Cdir	Base dir for printed filenames.\n"));
 	fprintf(stderr, _("	-p subdir	Define SCCS subdir.\n"));
+	fprintf(stderr, _("	-R	Reverse sorting: oldest entries first.\n"));
 	fprintf(stderr, _("	-x	Include all comment, even SCCSv6 metadata.\n"));
 	fprintf(stderr, _("	-Nbulk-spec Processes a bulk of SCCS history files.\n"));
 	fprintf(stderr, _("	-Xxopts	Processes SCCS extended files.\n"));
@@ -192,12 +226,15 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,a+,x,C*,p*,N&_,X&_";
+	char	*opts = "help,V,version,a+,R,reverse,changeset,x,C*,p*,N&_,X&_";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
+	BOOL	reverse = FALSE;
 	int	nopooling = 0;
 	int	i;
 	int	j;
+	FILE	*Cs = NULL;
+	char	csname[30];
 
 	save_args(ac, av);
 
@@ -231,7 +268,10 @@ main(ac, av)
 
 	if (getallargs(&cac, &cav, opts,
 			&help, &pversion, &pversion,
-			&nopooling, &extended,
+			&nopooling,
+			&reverse, &reverse,
+			&changeset,
+			&extended,
 			&Cwd, &SccsPath,
 			getN, &N,
 			getX, &X) < 0) {
@@ -249,6 +289,11 @@ main(ac, av)
 			HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
+	if (changeset) {
+		reverse = TRUE;
+		snprintf(csname, sizeof (csname), "/tmp/cs.%d", (int)getpid());
+	}
+
 	if (N.n_parm) {					/* Parse -N args  */
 		parseN(&N);
 	}
@@ -282,45 +327,174 @@ main(ac, av)
 	if (i == 0 && *SccsPath)
 		dodir(SccsPath);
 
-	qsort(list, listsize, sizeof (struct xx), xxcmp);
+	qsort(list, listsize, sizeof (struct xx), reverse?rrcmp:xxcmp);
 
 #ifdef	SCCSLOG_DEBUG
 	printf("%d Einträge\n", listsize);
 #endif
 	for (i = 0; i < listsize; i++) {
+		time_t	xt;
+		long	xns;
+		struct tm xtm;
+		int	xgmtoff;
+
 		if (list[i].flags & PRINTED)
 			continue;
 
+		if (changeset && Cs == NULL) {
+			/*
+			 * Open file to collect changeset entries for the next
+			 * commit.
+			 */
+			if ((Cs = fopen(csname, "wb")) == NULL)
+				comerr("Cannot open '%s'.\n", csname);
+		}
+		xt = list[i].time;
+		xns = list[i].nsec;
+		xgmtoff = list[i].gmtoff;
+		xtm = list[i].tm;
 		/*
 		 * XXX Should we implement a variant with local time +GMT off?
 		 */
 		printf("%.20s%d %s\n",
 			ctime(&list[i].time), list[i].tm.tm_year + 1900,
 			mapuser(list[i].user));
+		if (changeset)
+			print_changeset(Cs, &list[i]);
+		else
 		printf("	* %s %s\n",
 			list[i].file,
 			list[i].vers);
 		for (j = i+1; j < listsize; j++) {
-			if (nopooling &&
-			    list[i].time - list[j].time > 60)
-				break;
+			if (nopooling) {
+				if (list[i].time - list[j].time > 60)
+					break;
+				if (list[j].time - list[i].time > 60)
+					break;
+			}
 			if (nopooling > 1 &&
 			    list[i].time != list[j].time)
 				break;
 			if (list[i].time - list[j].time > 24*60*60)
 				break;
+			if (list[j].time - list[i].time > 24*60*60)
+				break;
 			if (list[i].comment == NULL || list[j].comment == NULL)
 				continue;
 			if (streql(list[i].comment, list[j].comment)) {
+				if (xt < list[j].time) {
+					xt = list[j].time;
+					xns = list[j].nsec;
+					xgmtoff = list[j].gmtoff;
+					xtm = list[j].tm;
+				} else if ((xt == list[j].time) &&
+					    (xns < list[j].nsec)) {
+					xns = list[j].nsec;
+					xgmtoff = list[j].gmtoff;
+					xtm = list[j].tm;
+				}
+				if (changeset)
+					print_changeset(Cs, &list[j]);
+				else
 				printf("	* %s %s\n",
 					list[j].file,
 					list[j].vers);
 				list[j].flags |= PRINTED;
+			} else if (changeset) {
+				/*
+				 * When creating a changeset, we cannot allow
+				 * a commit with a different delta comment
+				 * inside our timeline.
+				 */
+				break;
+			}
+			if (changeset &&
+			    !streql(list[i].user, list[j].user)) {
+				/*
+				 * When creating a changeset, we cannot allow
+				 * a commit with a different user name
+				 * inside our timeline.
+				 */
+				break;
 			}
 		}
 
 		printf("	  %s\n\n",
 			list[i].comment);
+
+		/*
+		 * Make a delta for the next collection of changeset entries.
+		 * This simulates an "sccs commit" for that bundle.
+		 */
+		if (changeset) {
+			char	cm[10240];	/* Comment */
+			char	dy[100];	/* Datetime */
+			char	cs[100];	/* gpath, mapped user, user */
+			char	us[100];	/* mapped user */
+			char	nm[100];	/* user name */
+			char	*mu;
+			pid_t	pid;
+
+			fflush(Cs);
+			fclose(Cs);
+			Cs = NULL;
+
+
+			snprintf(cm, sizeof (cm),
+				"-y%s", list[i].comment);
+
+			us[0] = '\0';
+			if ((mu = mapuser(list[i].user)) != list[i].user) {
+				snprintf(us, sizeof (us), ",mail=%s", mu);
+			}
+
+			snprintf(nm, sizeof (nm), ",user=%s", list[i].user);
+
+			snprintf(cs, sizeof (cs),
+				"-Xgpath=%s%s%s", csname, us, nm);
+
+			snprintf(dy, sizeof (dy),
+			"%s=%d/%2.2d%2.2d%2.2d%2.2d%2.2d.%9.9ld%c%2.2d%2.2d",
+				"-Xdate",
+				xtm.tm_year + 1900,
+				xtm.tm_mon + 1,
+				xtm.tm_mday,
+				xtm.tm_hour,
+				xtm.tm_min,
+				xtm.tm_sec,
+				xns,
+				xgmtoff < 0 ? '-':'+',
+				xgmtoff / 3600,
+				(xgmtoff % 3600) / 60);
+
+			/*
+			 * /opt/schily/ccs/bin/delta -q -f \
+			 * 	-Xprepend,nobulk,gpath=/tmp/cs.$$ \
+			 *	-Xmail=mmm -Xdate=xxx -ycomment
+			 */
+			if ((pid = vfork()) == 0) {
+				execl(PROGPATH(delta), "delta",
+					"-q", "-f",
+					"-Xprepend,nobulk",
+					cs,	/* -Xgpath=%s,mail=%s,user=%s */
+					dy,	/* -Xdate=%s		    */
+					cm,	/* -ycomment		    */
+					".sccs/SCCS/s.changeset",
+					(char *)NULL);
+				_exit(1);
+			} else if (pid < 0) {
+				comerr("Cannot fork().\n");
+			} else {
+				WAIT_T	w;
+
+				wait(&w);
+				if (*((int *)(&w)) != 0) {
+					comerrno(EX_BAD,
+						"Cannot run %s.\n",
+						PROGPATH(delta));
+				}
+			}
+		}
 	}
 	return (0);
 }
@@ -370,9 +544,11 @@ dofile(name)
 	char	buf[8192];
 	int	len;
 	BOOL	firstline = TRUE;
+	BOOL	globalsection = FALSE;
 	struct tm tm;
 	char	*bname;
 	char	*pname;
+	struct filedata *fdata;
 
 	if (setjmp(Fjmp))
 		return;
@@ -416,7 +592,7 @@ dofile(name)
 		pname += 2;
 	if (*SccsPath && (pname != &name[2])) {
 		char	*p = malloc(strlen(name) + 2);
-		
+
 		if (p) {
 			char	*sp;
 
@@ -440,6 +616,11 @@ dofile(name)
 	if (pname == NULL)
 		comerr("No memory.\n");
 
+	fdata = malloc(sizeof (struct filedata));
+	if (fdata == NULL)
+		comerr("No memory.\n");
+	fdata->init_path = pname;	/* Cheat at the beginning */
+
 	while ((len = fgetline(f, buf, sizeof (buf))) >= 0) {
 		if (firstline) {
 			firstline = FALSE;
@@ -450,13 +631,15 @@ dofile(name)
 		}
 		if (len == 0)
 			continue;
-		if (buf[0] != 1)
+		if (buf[0] != 1)	/* Not a SCCS control line */
 			continue;
+		if (buf[1] == 't')	/* End of meta data reached */
+			break;
 
 /*		if (buf[1] == 'd' || buf[1] == 'c')*/
 /*			error("%s\n", &buf[1]);*/
 
-		if (buf[1] == 'd') {
+		if (buf[1] == 'd') {	/* Delta entry star line */
 			char	vers[256];
 			char	user[256];
 			time_t	t;
@@ -479,6 +662,7 @@ dofile(name)
 				gmtoffs = hours * 3600 + mins * 60;
 			} else {
 				gmtoffs = 1;
+				nsecs = 0;
 			}
 			if (len < 10)
 				len = sscanf(p, "%s %d/%d/%d %d:%d:%d%d %s",
@@ -572,6 +756,7 @@ dofile(name)
 			if (list == NULL)
 				comerr("No memory.\n");
 			list[listsize].time = t;
+			list[listsize].nsec = 0;
 			list[listsize].ltime = lt;
 			list[listsize].gmtoff = gmtoffs;
 			list[listsize].tm   = tm;
@@ -579,13 +764,37 @@ dofile(name)
 			list[listsize].vers = strdup(vers);
 			list[listsize].comment = NULL;
 			list[listsize].flags = 0;
+			list[listsize].ghash = -1;
 			list[listsize].file = pname;
-		}
-		if (buf[1] == 'c') {
+			list[listsize].fdata = fdata;
+
+			if (nsecs && changeset) {
+				dtime_t	dt;
+
+				p = &buf[4];
+				NONBLANK(p);
+				while (*p != '\0' && *p != ' ' && *p != '\t')
+					p++;
+				NONBLANK(p);
+				date_abz(p, &dt, 0);
+				list[listsize].nsec = dt.dt_nsec;
+			}
+
+		} else if (buf[1] == 'S') {	/* SID specific metadata */
+			if (buf[2] == ' ' && buf[3] == 's') {
+				long	l = -1;
+
+				astolb(&buf[4], &l, 10);
+				if (l >= 0 && l <= 0xFFFF)
+					list[listsize].ghash = l;
+			}
+
+		} else if (buf[1] == 'c') {		/* Comment */
 			if (buf[2] == '_' && !extended)
 				continue;
 			if (list[listsize].comment == NULL) {
 				list[listsize].comment = strdup(&buf[3]);
+				handle_created_msg(list[listsize].comment);
 			} else {
 				/*
 				 * multi line comments
@@ -597,11 +806,14 @@ dofile(name)
 				if (list[listsize].comment == NULL)
 					comerr("No memory.\n");
 							    /* 4 bytes */
-				strcat(list[listsize].comment, "\n\t  ");
+				if (changeset)
+					strcat(list[listsize].comment, "\n");
+				else
+					strcat(list[listsize].comment, "\n\t  ");
 				strcat(list[listsize].comment, &buf[3]);
 			}
-		}
-		if (buf[1] == 'e') {
+
+		} else if (buf[1] == 'e') {
 			if (list[listsize].user == NULL) {
 				errmsgno(EX_BAD, "Corrupt file '%s'.\n", name);
 				continue;
@@ -613,6 +825,32 @@ dofile(name)
 			if (list[listsize].comment == NULL)
 				list[listsize].comment = strdup("");
 			listsize++;
+		} else if (buf[1] == 'u') {		/* End of delta table */
+			globalsection = TRUE;
+
+		} else if (globalsection && buf[1] == 'G') {
+			char	*p;
+
+			if (buf[2] != ' ')
+				continue;
+			if (buf[3] == 'r') {		/* urand number */
+				p = &buf[4];
+				NONBLANK(p);
+				urand_ab(p, &fdata->urand);
+				if (urand_valid(&fdata->urand)) {
+					char	ubuf[100];
+
+					urand_ba(&fdata->urand,
+						ubuf, sizeof (ubuf));
+				}
+
+			} else if (buf[3] == 'p') {	/* inital path */
+				p = &buf[4];
+				NONBLANK(p);
+				fdata->init_path = strdup(p);
+				if (fdata->init_path == NULL)
+					comerr("No memory.\n");
+			}
 		}
 	}
 	fclose(f);
@@ -632,6 +870,35 @@ fgetline(f, buf, len)
 	if (len > 0 && buf[len-1] == '\n')
 		buf[--len] = '\0';
 	return (len);
+}
+
+/*
+ * Handle the initial "date and time created ..." message.
+ */
+LOCAL void
+handle_created_msg(s)
+	char	*s;
+{
+	if (strncmp(s, "date and time created ",
+		    strlen("date and time created ")) == 0) {
+		char	*p1;
+		char	*p2;
+
+		/*
+		 * If it includes nanoseconds, remove the nanoseconds.
+		 */
+		if ((p1 = strchr(s, '.'))) {
+			if ((p2 = strstr(p1, " by "))) {
+				/*
+				 * But keep the timezone offset.
+				 */
+				if ((p2 > (p1+5)) &&
+				    (p2[-5] == '+' || p2[-5] == '-'))
+					p2 -= 5;
+				strcpy(p1, p2);
+			}
+		}
+	}
 }
 
 LOCAL int
@@ -654,4 +921,17 @@ getX(argp, valp)
 	if (!parseX(&X))
 		return (BADFLAG);
 	return (TRUE);
+}
+
+LOCAL void
+print_changeset(fp, lp)
+	FILE		*fp;
+	struct	xx	*lp;
+{
+	char	ubuf[20];
+	char	*p  = lp->fdata->init_path;
+
+	urand_ba(&lp->fdata->urand, ubuf, sizeof (ubuf));
+	fprintf(fp, "%s|%s|%5.5d|%zd|%s\n",
+		ubuf, lp->vers, lp->ghash, strlen(p), p);
 }

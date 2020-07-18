@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.162 20/04/10  Copyright (c) 2006-2020 J. Schilling"
+#ident "@(#)Makefile	1.164 20/07/08  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -198,8 +198,14 @@ LIBS=		$(LIB_SECDB) -lshedit -lxtermcap -lgetopt \
 XMK_FILE=	Makefile.dot Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
 
 signames.c abbrev.c abbrev.h:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
 $(ALLTARGETS): signames.c abbrev.c abbrev.h
+$(SRCROOT)/$(RULESDIR)/rules.cmd: signames.c
+
+symlinks: xpg4symlink
+
+xpg4symlink: $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
+	$(SYMLINK) sh $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

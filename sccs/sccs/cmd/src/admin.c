@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.134 20/06/26 J. Schilling
+ * @(#)admin.c	1.138 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.134 20/06/26 J. Schilling"
+#pragma ident "@(#)admin.c 1.138 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -537,7 +537,8 @@ char *argv[];
 			case 'X':
 				X.x_parm = optarg;
 				X.x_flags = XO_INIT_PATH|XO_URAND|\
-					XO_UNLINK|XO_MAIL|XO_USER|XO_NULLPATH;
+					XO_UNLINK|XO_MAIL|XO_USER|XO_DATE|\
+					XO_NULLPATH|XO_NOBULK;
 				if (!parseX(&X))
 					goto err;
 				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
@@ -583,8 +584,10 @@ char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 
 	for (i = 1; i < argc; i++){
@@ -665,6 +668,7 @@ char *argv[];
 			Cs = xfopen(changesetgfile, O_WRONLY|O_APPEND|O_BINARY);
 		}
 	}
+	timerchsetlock();
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -765,7 +769,7 @@ char	*afile;
 		refreshchsetlock();
 	}
 
-	if (HADUCN) {
+	if (HADUCN && !(X.x_opts & XO_NOBULK)) {
 		char	*oafile = afile;
 
 		afile = bulkprepare(&N, afile);
@@ -862,8 +866,12 @@ char	*afile;
 	 * Lock out any other user who may be trying to process
 	 * the same file.
 	 */
-	if (!HADH && lockit(copy(auxf(afile,'z'),Zhold),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		efatal(gettext("cannot create lock file (cm4)"));
+	if (!HADH && !islockchset(copy(auxf(afile, 'z'), Zhold))) {
+		if (lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+			lockfatal(Zhold, getpid(), uuname);
+		}
+		timersetlockfile(Zhold);
+	}
 
 	if (fexists) { /* modifying */
 		int	cklen = 8;
@@ -919,7 +927,7 @@ char	*afile;
 		if (versflag == 6) {
 			if (X.x_opts & XO_INIT_PATH) {
 				gpkt.p_init_path = X.x_init_path;
-			} else if (HADUCN) {
+			} else if (HADUCN && !(X.x_opts & XO_NOBULK)) {
 				/*
 				 * Only if we have been called with -N..., we
 				 * know the real g-file name. We cannot derive
@@ -1011,6 +1019,9 @@ char	*afile;
 			time2dt(&dt.d_dtime,
 				ifile_mtime.tv_sec, ifile_mtime.tv_nsec);
                 }
+		if (HADN && (X.x_opts & XO_DATE)) {
+			dt.d_dtime = X.x_dtime;
+		}
 
 		strlcpy(dt.d_pgmr, logname(), LOGSIZE);	/* get user's name */
 		if (X.x_user)				/* from -Xuser=	*/
@@ -1625,7 +1636,9 @@ char	*afile;
 			}
 		}
 		xrm(&gpkt);
-		unlockit(auxf(afile,'z'),getpid(),uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 
 		if ((gpkt.p_flags & PF_V6) && Cs && gpkt.p_init_path) {
 			char	cbuf[2*MAXPATHLEN];
@@ -1889,7 +1902,9 @@ clean_up()
 	if (!HADH) {
 		uname(&un);
 		uuname = un.nodename;
-		unlockit(Zhold, getpid(),uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 	sclose(&gpkt);
 	sfree(&gpkt);

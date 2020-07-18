@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.2 19/12/03 
+#ident @(#)Makefile	1.3 20/07/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -19,7 +19,8 @@ LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 fifo.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
+$(SRCROOT)/$(RULESDIR)/rules.cmd: fifo.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

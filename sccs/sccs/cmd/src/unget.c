@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)unget.c	1.42 20/06/24 J. Schilling
+ * @(#)unget.c	1.45 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.42 20/06/24 J. Schilling"
+#pragma ident "@(#)unget.c 1.45 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -72,6 +72,7 @@ static int	num_files;
 static int	cmd;
 static off_t	Szqfile;
 static char	Pfilename[FILESIZE];
+static char	Zhold[MAXPATHLEN];	/* temporary z-file name */
 static struct packet	gpkt;
 static struct sid	sid;
 static struct utsname 	un;
@@ -254,8 +255,10 @@ char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 
 	for (i = 1; i < argc; i++) {
@@ -296,6 +299,7 @@ char *argv[];
 	 */
 	if (cmd == 0 && SETHOME_CHSET())
 		lockchset(getppid(), getpid(), uuname);
+	timerchsetlock();
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -391,8 +395,12 @@ char *file;
 	 * Lock out any other user who may be trying to process
 	 * the same file.
 	 */
-	if (lockit(auxf(gpkt.p_file, 'z'), SCCS_LOCK_ATTEMPTS, getpid(), uuname))
-		efatal(gettext("cannot create lock file (cm4)"));
+	if (!islockchset(copy(auxf(gpkt.p_file, 'z'), Zhold)) &&
+	    lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+		lockfatal(Zhold, getpid(), uuname);
+	} else {
+		timersetlockfile(Zhold);
+	}
 
 	pp = edpfile(&gpkt, &sid);
 	if (gpkt.p_verbose) {
@@ -414,7 +422,9 @@ char *file;
 	}
 	ffreeall();
 
-	unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
+	timersetlockfile(NULL);
+	if (!islockchset(Zhold))
+		unlockit(Zhold, getpid(), uuname);
 
 	if (!HADN) {
 		fflush(gpkt.p_stdout);
@@ -502,7 +512,9 @@ clean_up()
 	if (mylock(auxf(gpkt.p_file, 'z'), getpid(), uuname)) {
 		unlink(auxf(gpkt.p_file, 'q'));
 		ffreeall();
-		unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 }
 

@@ -1,4 +1,4 @@
-.\" @(#)sccs-log.1	1.30 20/06/28 Copyr 1997-2020 J. Schilling
+.\" @(#)sccs-log.1	1.31 20/07/10 Copyr 1997-2020 J. Schilling
 .\" Manual page for sccs-log
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-log 1 "2020/06/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-log 1 "2020/07/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-log, sccslog \- create changelog from SCCS history files
 .SH SYNOPSIS
@@ -81,6 +81,9 @@ Tell
 to use 
 .I subdir
 when dealing with file names.
+.TP
+.B \-R
+Inverts the order of the output. This prints older entries first.
 .TP
 .B \-x
 Print all comment lines, even those lines that start with

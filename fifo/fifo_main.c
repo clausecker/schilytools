@@ -1,8 +1,8 @@
-/* @(#)fifo_main.c	1.2 20/01/23 Copyright 1989, 2019-2020 J. Schilling */
+/* @(#)fifo_main.c	1.3 20/07/08 Copyright 1989, 2019-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo_main.c	1.2 20/01/23 Copyright 1989, 2019-2020 J. Schilling";
+	"@(#)fifo_main.c	1.3 20/07/08 Copyright 1989, 2019-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1989, 2019-2020 J. Schilling
@@ -53,7 +53,7 @@ EXPORT	void	setprops	__PR((long htype));
 EXPORT	void	changetape	__PR((BOOL donext));
 EXPORT	void	closetape	__PR((void));
 EXPORT	void	runnewvolscript	__PR((int volno, int nindex));
-EXPORT	int	startvol	__PR((char *buf, int amount));
+EXPORT	long	startvol	__PR((char *buf, long amount));
 EXPORT	BOOL	verifyvol	__PR((char *buf, int amt, int volno,
 								int *skipp));
 LOCAL	BOOL	ispipe		__PR((int));
@@ -79,7 +79,7 @@ GINFO	_grinfo;			/* Global read information	*/
 GINFO	*gip  = &_ginfo;		/* Global information pointer	*/
 GINFO	*grip = &_grinfo;		/* Global read info pointer	*/
 
-int	bufsize	= 0;		/* Available buffer size */
+long	bufsize	= 0;		/* Available buffer size */
 char	*bigbuf	= NULL;
 char	*bigptr	= NULL;
 
@@ -163,7 +163,7 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2020/01/23", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2020/07/08", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1989, 2019-2020 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -246,10 +246,10 @@ runnewvolscript(volno, nindex)
 {
 }
 
-EXPORT int
+EXPORT long
 startvol(buf, amount)
 	char	*buf;		/* The original buffer address		*/
-	int	amount;		/* The related requested transfer count	*/
+	long	amount;		/* The related requested transfer count	*/
 {
 	return (1);
 }
@@ -279,10 +279,10 @@ ispipe(f)
 	return (FALSE);
 }
 
-EXPORT int
+EXPORT ssize_t
 readtape(buf, amount)
 	char	*buf;
-	int	amount;
+	size_t	amount;
 {
 	register ssize_t	ret;
 		int		oerrno = geterrno();
@@ -296,10 +296,10 @@ readtape(buf, amount)
 	return (ret);
 }
 
-EXPORT int
+EXPORT ssize_t
 writetape(buf, amount)
 	char	*buf;
-	int	amount;
+	size_t	amount;
 {
 	register ssize_t	ret;
 		int		oerrno = geterrno();

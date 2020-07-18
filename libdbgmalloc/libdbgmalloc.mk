@@ -1,4 +1,4 @@
-#ident @(#)libdbgmalloc.mk	1.2 11/08/02 
+#ident @(#)libdbgmalloc.mk	1.3 20/07/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -16,7 +16,8 @@ include		Targets
 LIBS=		
 
 alloc.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
+$(SRCROOT)/$(RULESDIR)/rules.lib: alloc.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.lib

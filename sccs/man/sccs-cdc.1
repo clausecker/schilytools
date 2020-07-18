@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-cdc.1	1.29 20/05/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-cdc.1	1.30 20/07/14 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-cdc 1 "2020/05/16" "SunOS 5.11" "User Commands"
+.TH sccs-cdc 1 "2020/07/14" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-cdc, cdc \- change the delta commentary of an SCCS delta
 .SH SYNOPSIS
@@ -46,7 +46,10 @@ sccs-cdc, cdc \- change the delta commentary of an SCCS delta
 .br
 .RB "    [" -y [\c
 .IR comment "]] \c
-.RB [ -z "] \c
+.RB [ -z "]\c
+.br
+.RB "    [" \-X\c
+.IR extended-options "] \c
 .RB [ -N\c
 .IR bulk-spec "] \c
 .IR s.filename ...

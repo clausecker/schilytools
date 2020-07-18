@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prs.1	1.38 20/05/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-prs.1	1.39 20/07/14 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2020/05/16" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2020/07/14" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -47,7 +47,10 @@ sccs-prs, prs \- display selected portions of an SCCS history
 .RB "    [" -q\c
 .RI [ nsedelim "]] \c
 .RB [ -r\c
-.IR sid "] \c
+.IR sid "]\c
+.br
+.RB "    [" \-X\c
+.IR extended-options "] \c
 .RB [ -N\c
 .IR bulk-spec "] \c
 .IR s.filename ...

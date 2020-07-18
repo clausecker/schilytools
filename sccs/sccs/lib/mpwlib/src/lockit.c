@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2020 J. Schilling
  *
- * @(#)lockit.c	1.20 20/06/17 J. Schilling
+ * @(#)lockit.c	1.22 20/07/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.20 20/06/17 J. Schilling"
+#pragma ident "@(#)lockit.c 1.22 20/07/12 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -120,6 +120,9 @@ lockit(lockfile, count, pid, uuname)
 		(void) unlink(uniqfilename);
 	}
 #endif
+	if (lockfile == NULL)
+		return (-1);
+
 	for (++count; --count; dosleep ? sleep(10) : 0) {
 		dosleep = 1;
 		if (onelock(pid, uuname, lockfile) == 0)
@@ -142,6 +145,10 @@ lockit(lockfile, count, pid, uuname)
 		 * If lockfile is empty, ouuname and uuname are not equal.
 		 */
 		if (equal(ouuname, uuname)) {
+			if (opid == pid)	/* Recursive lock attempt */
+				return (-2);
+			if (opid == getppid())	/* Lock held by our parent */
+				return (-3);
 			if (kill((int) opid, 0) == -1 && errno == ESRCH) {
 				if ((exists(lockfile)) &&
 				    (omtime == Statbuf.st_mtime) &&
@@ -207,7 +214,7 @@ char	*uuname;
 	 * Do nothing if just called from a clean up handler that does
 	 * not yet have a lockfile name.
 	 */
-	if (lockfile[0] == '\0')
+	if (lockfile == NULL || lockfile[0] == '\0')
 		return (-1);
 
 	if (mylock(lockfile, pid, uuname))
@@ -356,4 +363,22 @@ mylock(lockfile, pid, uuname)
 	char	*uuname;
 {
 	return (ismylock(lockfile, pid, uuname) > 0);
+}
+
+/*
+ * Generic lock file error routine.
+ */
+void
+lockfatal(lockfile, pid, uuname)
+	char	*lockfile;
+	pid_t	pid;
+	char	*uuname;
+{
+	if (ismylock(lockfile, pid, uuname) > 0)
+		fatal(gettext("recursive dead lock attempt (cm23)"));
+
+	if (ismylock(lockfile, getppid(), uuname) > 0)
+		fatal(gettext("parent dead lock attempt (cm24)"));
+
+	efatal(gettext("cannot create lock file (cm4)"));
 }

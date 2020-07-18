@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.106 20/02/26 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling */
+/* @(#)toc.c	1.107 20/07/16 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.106 20/02/26 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling";
+"@(#)toc.c	1.107 20/07/16 Copyright 1998-2003,2017 Heiko Eissfeldt, Copyright 2004-2020 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -2003,6 +2003,9 @@ dump_cdtext_info()
 	int		inlinecount = 0;
 	int		outlinecount = 0;
 
+	if (p == NULL) {
+		comerrno(EX_BAD, "CD-text only works with SCSI transport.\n");
+	}
 	lastline[0] = '\0';
 	datalength = ((p[0] << 8) + p[1]) + 2;
 	datalength = min(datalength, global.bufsize);

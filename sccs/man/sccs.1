@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.54 20/06/29 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs.1	4.55 20/07/16 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,12 +32,14 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2020/06/29" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2020/07/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
 .LP
 .B /usr/bin/sccs
+.RB [ \-N ]
+.RB [ \-O ]
 .RB [ \-R ]
 .RB [ \-r ]
 .RB [ \-d\c
@@ -51,6 +53,8 @@ sccs \- front end for the Source Code Control System (SCCS)
 .RI [ file ]...
 .LP
 .B /usr/xpg4/bin/sccs
+.RB [ \-N ]
+.RB [ \-O ]
 .RB [ \-R ]
 .RB [ \-r ]
 .RB [ \-d
@@ -539,6 +543,38 @@ is an absolute path name.
 overrides any directory specified by the
 .B PROJECTDIR
 environment variable (see ENVIRONMENT VARIABLES below).
+
+.br
+.ne 3
+.TP
+.B \-N
+Enforce
+.BR sccs (1)
+to use the new mode. This is the mode that has been introduced to support
+projects with atomic commits.
+In this mode, file name arguments are always the names of the plain files.
+This is reliable since the file names are not converted by
+.BR sccs (1)
+but passed unmodified to the SCCS low level utilities, that are called with
+the
+.B \-N
+option to switch them into the new mode.
+
+.br
+.ne 3
+.TP
+.B \-O
+Enforce
+.BR sccs (1)
+to use the old mode. This is how it has been implemented by
+Eric Allman in 1980.
+In this mode, file name arguments are usually the names of the plain files,
+but the
+.BI s. file
+names are also accepted and as a result, there may be problems, in case that
+a file name has been incorrectly converted by 
+.BR sccs (1)
+before calling the SCCS low level utilities.
 
 .SS "/usr/bin/sccs"
 .TP

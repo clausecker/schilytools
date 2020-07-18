@@ -1,9 +1,9 @@
-/* @(#)fifo.h	1.38 19/06/06 Copyright 1989-2018 J. Schilling */
+/* @(#)fifo.h	1.39 20/07/08 Copyright 1989-2020 J. Schilling */
 /*
  *	Definitions for a "fifo" that uses
  *	shared memory between two processes
  *
- *	Copyright (c) 1989-2018 J. Schilling
+ *	Copyright (c) 1989-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -96,10 +96,10 @@ typedef struct {
 	char	* V getptr;	/* G  get pointer within shared memory	    */
 	char	*base;		/*    fifobase within shared memory segment */
 	char	*end;		/*    end of real shared memory segment	    */
-	int	size;		/*    fifosize within shared memory segment */
-	int	ibs;		/*    input transfer size		    */
-	int	obs;		/*    output transfer size		    */
-	int	rsize;		/*    restsize between head struct and .base */
+	long	size;		/*    fifosize within shared memory segment */
+	long	ibs;		/*    input transfer size		    */
+	long	obs;		/*    output transfer size		    */
+	long	rsize;		/*    restsize between head struct and .base */
 	V unsigned long	icnt;	/* P  input count (incremented on each put) */
 	V unsigned long	ocnt;	/* G  output count (incremented on each get) */
 	V char	iblocked;	/* P- input  (put side) is blocked	    */
@@ -114,20 +114,20 @@ typedef struct {
 	V char	gflags;		/*    fifo get flags			    */
 				/*    2 or 6 bytes of padding		    */
 	V int	ferrno;		/*    errno from fifo background process    */
-	int	hiw;		/*    highwater mark			    */
-	int	low;		/*    lowwater mark			    */
+	long	hiw;		/*    highwater mark			    */
+	long	low;		/*    lowwater mark			    */
 	int	gp[2];		/*    sync pipe for get process		    */
 	int	pp[2];		/*    sync pipe for put process		    */
-	V int	puts;		/*    fifo put count statistic		    */
-	V int	gets;		/*    fifo get get statistic		    */
-	V int	empty;		/*    fifo was empty count statistic	    */
-	V int	full;		/*    fifo was full count statistic	    */
-	V int	maxfill;	/*    max # of bytes in fifo		    */
-	V int	moves;		/*    # of moves of residual bytes	    */
+	V long	puts;		/*    fifo put count statistic		    */
+	V long	gets;		/*    fifo get get statistic		    */
+	V long	empty;		/*    fifo was empty count statistic	    */
+	V long	full;		/*    fifo was full count statistic	    */
+	V long	maxfill;	/*    max # of bytes in fifo		    */
+	V long	moves;		/*    # of moves of residual bytes	    */
 	V Llong	mbytes;		/*    # of residual bytes moved		    */
 	m_stats	stats;		/*    statistics			    */
 	bitstr_t *bmap;		/*    Bitmap used to store TCB positions    */
-	int	bmlast;		/*    Last bits # in use in above Bitmap    */
+	long	bmlast;		/*    Last bits # in use in above Bitmap    */
 	GINFO	ginfo;		/*    To share GINFO for P.1-2001 'g' headers */
 } m_head;
 #undef	V

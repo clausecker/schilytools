@@ -1,0 +1,219 @@
+.\" @(#)sccs-clean.1	1.2 20/07/05 Copyr 2020 J. Schilling
+.\" Manual page for sccs-clean
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License, Version 1.0 only
+.\" (the "License").  You may not use this file except in compliance
+.\" with the License.
+.\"
+.\" See the file CDDL.Schily.txt in this distribution for details.
+.\" A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file CDDL.Schily.txt from this distribution.
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs-clean 1 "2020/07/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sccs-clean \- Remove everything from a directory that can be retrieved from SCCS history
+.SH SYNOPSIS
+.B
+sccs clean
+.RI [ options ]
+.RI [ subdirectory  ]
+.SH DESCRIPTION
+.LP
+.sp .6
+The
+.B clean
+subcommand removes everything from the current directory
+that can be recreated from SCCS history files.
+It will not remove any files being edited.
+If the
+.B \-b
+flag is given, branches are ignored in the determination
+of whether they are being edited;
+this is dangerous if you are keeping the branches in the
+same directory.
+.LP
+If the 
+.I subdirectory
+argument is omitted,
+.RB `` . ''
+is assumed.
+
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.LP
+.br
+.ne 3
+.TP
+.B -b
+Do not check branches to see if they are being edited.
+.RB ` "clean -b" '
+is dangerous when branch versions are kept in the same directory.
+
+.SH EXAMPLES
+.LP
+To create a new
+.B SCCS
+repository in the current directory call:
+.IP
+.B "sccs clean ."
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR sccs-clean (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.B sccs clean
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+.SH FILES
+
+.SH ATTRIBUTES
+.LP
+See 
+.BR attributes (5)
+for descriptions of the following attributes:
+.LP
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i) 
+lw(2.75i) |lw(2.75i) 
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+AvailabilitySCHILYdeveloper-build-sccs
+_
+Interface StabilityCommitted
+.TE
+
+.SH SEE ALSO
+.nh
+.LP
+.BR sccs (1),
+.BR sccs\-add (1),
+.BR sccs\-admin (1),
+.BR sccs\-branch (1),
+.BR sccs\-cdc (1),
+.BR sccs\-check (1),
+.BR sccs\-comb (1),
+.BR sccs\-commit (1),
+.BR sccs\-create (1),
+.BR sccs\-cvt (1),
+.BR sccs\-deledit (1),
+.BR sccs\-delget (1),
+.BR sccs\-delta (1),
+.BR sccs\-diffs (1),
+.BR sccs\-edit (1),
+.BR sccs\-editor (1),
+.BR sccs\-enter (1),
+.BR sccs\-fix (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-histfile (1),
+.BR sccs\-info (1),
+.BR sccs\-init (1),
+.BR sccs\-istext (1),
+.BR sccs\-ldiffs (1),
+.BR sccs\-log (1),
+.BR sccs\-print (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rcs2sccs (1),
+.BR sccs\-remove (1),
+.BR sccs\-rename (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-root (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-status (1),
+.BR sccs\-tell (1),
+.BR sccs\-unedit (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
+.BR what (1),
+.BR sccschangeset (4),
+.BR sccsfile (4).
+.hy 14
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.SH AUTHOR
+.B sccs clean
+was originally written by Eric Allman at UCB in 1980. It was later
+maintained by various people at AT&T and Sun Microsystems.
+Since 2006, it is maintained by J\*org Schilling.
+
+.br
+.ne 7
+.SH "SOURCE DOWNLOAD"
+A frequently updated source code for the
+.B SCCS
+suite is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Less frequently updated source code for the
+.B SCCS
+suite is at:
+.LP
+.B
+    http://sourceforge.net/projects/sccs/files/
+.LP
+Separate project informations for the
+.B SCCS
+project may be retrieved from:
+.LP
+.B
+    http://sccs.sf.net
+.br

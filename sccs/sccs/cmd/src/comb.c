@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)comb.c	1.43 20/06/13 J. Schilling
+ * @(#)comb.c	1.44 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.43 20/06/13 J. Schilling"
+#pragma ident "@(#)comb.c 1.44 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -230,8 +230,10 @@ register char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 
 	for (i = 1; i < argc; i++) {

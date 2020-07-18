@@ -29,10 +29,10 @@
 /*
  * Copyright 2009-2018 J. Schilling
  *
- * @(#)auxf.c	1.6 18/04/29 J. Schilling
+ * @(#)auxf.c	1.7 20/07/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)auxf.c 1.6 18/04/29 J. Schilling"
+#pragma ident "@(#)auxf.c 1.7 20/07/07 J. Schilling"
 #endif
 /*
  * @(#)auxf.c 1.5 06/12/12
@@ -64,7 +64,7 @@ register char ch;
 	register char *snp;
 
 	auxfile[0] = '\0';
-	if (sfile[0] == '\0')
+	if (sfile == NULL || sfile[0] == '\0')
 		return (auxfile);
 
 	snp = sname(sfile);

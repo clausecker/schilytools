@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.133 20/06/24 J. Schilling
+ * @(#)sccs.c	1.134 20/07/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.133 20/06/24 J. Schilling"
+#pragma ident "@(#)sccs.c 1.134 20/07/16 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -495,6 +495,8 @@ main(argc, argv)
 	register int i;
 	int current_optind, c;
 	register char *argp;
+	bool	use_old = FALSE;
+	bool	use_new = FALSE;
 
 #ifndef V6
 #ifndef SCCSDIR
@@ -632,7 +634,7 @@ main(argc, argv)
 				}
 				i = current_optind;
 			}
-			c = getopt(argc, argv, "()-rp:d:RTV(version)");
+			c = getopt(argc, argv, "()-rp:d:NORTV(version)");
 			if (c == EOF) {
 				break;
 			}
@@ -661,6 +663,15 @@ main(argc, argv)
 				break;
 #endif
 
+			  case 'N':
+				use_old = FALSE;
+				use_new = TRUE;
+				break;
+			  case 'O':
+				use_old = TRUE;
+				use_new = FALSE;
+				break;
+
 #ifdef	USE_RECURSIVE
 			  case 'R':		/* recursion */
 				Rflag++;
@@ -679,7 +690,7 @@ main(argc, argv)
 			  default:
 				usrerr("%s %s", gettext("unknown option"), argv[i]);
 #ifdef	USE_RECURSIVE
-				fprintf(stderr, gettext("Usage: sccs [ -R ][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+				fprintf(stderr, gettext("Usage: sccs [-N][-O][-R][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
 #else
 				fprintf(stderr, gettext("Usage: sccs [ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
 #endif
@@ -696,7 +707,7 @@ main(argc, argv)
 	if (*argv == NULL)
 	{
 #ifdef	USE_RECURSIVE
-		fprintf(stderr, gettext("Usage: sccs [ -R ][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+		fprintf(stderr, gettext("Usage: sccs [-N][-O][-R][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
 #else
 		fprintf(stderr, gettext("Usage: sccs [ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
 #endif
@@ -707,7 +718,12 @@ main(argc, argv)
 
 	if (xsethome(NULL) > 0)
 		NewMode = TRUE;
-	if ((p = getenv("SCCS_NMODE")) != NULL) {
+
+	if (use_old) {
+		NewMode = FALSE;
+	} else if (use_new) {
+		NewMode = TRUE;
+	} else if ((p = getenv("SCCS_NMODE")) != NULL) {
 		/*
 		 * XXX Should we also disable any other SCCS v6 extensions
 		 * XXX instead of just disabling the use of -NSCCS?

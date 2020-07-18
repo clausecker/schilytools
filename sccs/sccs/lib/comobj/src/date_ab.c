@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2019 J. Schilling
  *
- * @(#)date_ab.c	1.22 19/05/15 J. Schilling
+ * @(#)date_ab.c	1.25 20/07/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ab.c 1.22 19/05/15 J. Schilling"
+#pragma ident "@(#)date_ab.c 1.25 20/07/12 J. Schilling"
 #endif
 /*
  * @(#)date_ab.c 1.8 06/12/12
@@ -185,6 +185,19 @@ int	flags;			/* Flags from packet		*/
 	return (warn);
 }
 
+int
+parse_date(adt, bdt, flags)
+char	*adt;
+time_t	*bdt;
+int	flags;
+{
+	dtime_t	dt;
+	int	ret = parse_datez(adt, &dt, flags);
+
+	*bdt = dt.dt_sec;
+	return (ret);
+}
+
 /*
  *	Function to convert date in the form "yymmddhhmmss" to
  *	standard UNIX time (seconds since Jan. 1, 1970 GMT).
@@ -199,12 +212,14 @@ int	flags;			/* Flags from packet		*/
  *	Function returns -1 if bad time is given (i.e., "730229").
  */
 int
-parse_date(adt, bdt, flags)
-char	*adt;
-time_t	*bdt;
+parse_datez(adt, bdt, flags)
+char	*adt;			/* Begin of date time string	*/
+dtime_t	*bdt;			/* Returned time information	*/
 int	flags;
 {
 	int	y;
+	int	ns = 0;
+	int	tz = DT_NO_ZONE;
 	time_t	tim;
 	struct tm tm;
 	char	*sl;
@@ -268,7 +283,15 @@ int	flags;
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
 	tm.tm_isdst = -1;	/* let mktime() find out */
 
-	if (flags & PF_GMT) {
+	if (*adt == '.')
+		ns = gns(adt, &adt);
+	if (*adt == '+' || *adt == '-')
+		tz = gtz(adt, &adt);
+
+	if (tz != DT_NO_ZONE && (flags & PF_V6)) {
+		tim = mklgmtime(&tm);	/* Never "fails" */
+		tim -= tz;
+	} else if (flags & PF_GMT) {
 		tim = mklgmtime(&tm);	/* Never "fails" */
 	} else {
 		int	oerr = errno;
@@ -277,11 +300,18 @@ int	flags;
 		tim = mktime(&tm);
 		if (errno)
 			fatal(gettext("time stamp conversion error (cm19)"));
-		else
-			errno = oerr;
+
+		if (flags & PF_V6) {
+			time_t	off = gmtoff(tim);
+
+			tz = off;
+		}
+		errno = oerr;
 	}
 
-	*bdt = tim;
+	bdt->dt_sec = tim;
+	bdt->dt_nsec = ns;
+	bdt->dt_zone = tz;
 	return (0);
 }
 

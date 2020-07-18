@@ -1,14 +1,14 @@
-/* @(#)cpiohdr.c	1.34 18/07/15 Copyright 1994-2018 J. Schilling */
+/* @(#)cpiohdr.c	1.35 20/07/08 Copyright 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.34 18/07/15 Copyright 1994-2018 J. Schilling";
+	"@(#)cpiohdr.c	1.35 20/07/08 Copyright 1994-2020 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	cpio archive headers
  *
- *	Copyright (c) 1994-2018 J. Schilling
+ *	Copyright (c) 1994-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -73,7 +73,7 @@ put_cpioh(ptb, info)
 	if ((info->f_flags & F_TCB_BUF) != 0) {	/* TCB is on buffer */
 		put_block(props.pr_hdrsize);
 	} else {
-		int	i;
+		size_t	i;
 	extern char	*bigptr;
 
 		/*

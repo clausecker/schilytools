@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.63 20/06/11 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-admin.1	1.64 20/07/12 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2020/06/11" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2020/07/12" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -880,6 +880,28 @@ to reatain the
 .I unified random
 from the original file.
 If this option was specified, only one file type argument is permitted.
+.TP
+.BI date= datetime
+Allows to overwrite the usual methods to determine the
+time stamp used for a new delta. This is needed
+to e.g. convert a historic SCCS history into a
+new project oriented bundle history.
+The format of the
+.I datetime
+argument is the same as for cutoff times but nanoseconds and
+a time zone offset are permitted in addition.
+.TP
+.B nobulk
+Disables the
+.B \-N
+(bulkmode) filename translations.
+This is needed to disable a
+.B \-N
+option that is automatically added by
+.BR sccs (1)
+in NewMode and would otherwise make it impossible to deal with the
+changeset file 
+.RB  `` .sccs/SCCS/s.changeset ''.
 .TP
 .BI mail= address
 Set

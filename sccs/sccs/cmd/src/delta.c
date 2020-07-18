@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.96 20/06/28 J. Schilling
+ * @(#)delta.c	1.102 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.96 20/06/28 J. Schilling"
+#pragma ident "@(#)delta.c 1.102 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -70,6 +70,7 @@ static int	number_of_lines;
 static off_t	size_of_file;
 static off_t	Szqfile;
 static off_t	Checksum_offset;
+static char	Zhold[MAXPATHLEN];	/* temporary z-file name */
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	BDiffpgmp[]  =   NOGETTEXT(INS_BASE "/" SCCS_BIN_PRE "bin/" "bdiff");
 #else
@@ -281,7 +282,9 @@ register char *argv[];
 
 			case 'X':
 				X.x_parm = optarg;
-				X.x_flags = XO_PREPEND_FILE|XO_MAIL|XO_USER|XO_NULLPATH;
+				X.x_flags = XO_PREPEND_FILE|XO_MAIL|\
+					XO_USER|XO_DATE|XO_NULLPATH|\
+					XO_NOBULK|XO_G_PATH;
 				if (!parseX(&X))
 					goto err;
 				break;
@@ -305,8 +308,10 @@ register char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 #ifdef	NO_BDIFF
 #if	!(defined(SVR4) && defined(sun))
@@ -357,6 +362,7 @@ register char *argv[];
 			Cs = xfopen(changesetgfile, O_WRONLY|O_APPEND|O_BINARY);
 		}
 	}
+	timerchsetlock();
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -426,7 +432,7 @@ char *file;
 		refreshchsetlock();
 	}
 
-	if (HADUCN) {
+	if (HADUCN && !(X.x_opts & XO_NOBULK)) {
 #ifdef	__needed__
 		char	*ofile = file;
 #endif
@@ -447,6 +453,8 @@ char *file;
 	} else {
 		ifile = NULL;
 	}
+	if (X.x_opts & XO_G_PATH)
+		ifile = X.x_gpath;
 
 	/*
 	 * Init and check for validity of file name but do not open the file.
@@ -458,8 +466,22 @@ char *file;
 	 * Lock out any other user who may be trying to process
 	 * the same file.
 	 */
-	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		efatal(gettext("cannot create lock file (cm4)"));
+	if (!islockchset(copy(auxf(gpkt.p_file, 'z'), Zhold))) {
+		if (lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+			lockfatal(Zhold, getpid(), uuname);
+		} else {
+			timersetlockfile(Zhold);
+		}
+	} else {
+		/*
+		 * We are updating the changeset history file and thus should
+		 * not append changeset records to the changeset file.
+		 */
+		if (Cs) {
+			fclose(Cs);
+			Cs = NULL;
+		}
+	}
 
 	sinit(&gpkt, file, SI_OPEN);
 	gpkt.p_enter = enter;
@@ -977,6 +999,9 @@ int orig_nlines;
         if ((HADO || HADQ) && (gfile_mtime.tv_sec != 0)) {
 		time2dt(&dt.d_dtime, gfile_mtime.tv_sec, gfile_mtime.tv_nsec);
         }
+	if (X.x_opts & XO_DATE) {
+		dt.d_dtime = X.x_dtime;
+	}
 	strlcpy(dt.d_pgmr, logname(), LOGSIZE);
 	if (X.x_user)
 		strlcpy(dt.d_pgmr, X.x_user, LOGSIZE);
@@ -1566,7 +1591,9 @@ clean_up()
 		ffreeall();
 		uname(&un);
 		uuname = un.nodename;
-		unlockit(auxf(gpkt.p_file,'z'), getpid(),uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 }
 

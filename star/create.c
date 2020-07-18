@@ -1,8 +1,8 @@
-/* @(#)create.c	1.161 20/02/05 Copyright 1985, 1995, 2001-2020 J. Schilling */
+/* @(#)create.c	1.162 20/07/08 Copyright 1985, 1995, 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.161 20/02/05 Copyright 1985, 1995, 2001-2020 J. Schilling";
+	"@(#)create.c	1.162 20/07/08 Copyright 1985, 1995, 2001-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2020 J. Schilling
@@ -113,7 +113,7 @@ extern	dev_t	tape_dev;
 extern	ino_t	tape_ino;
 #define	is_tape(info)		((info)->f_dev == tape_dev && (info)->f_ino == tape_ino)
 
-extern	int	bufsize;
+extern	long	bufsize;
 extern	char	*bigptr;
 
 extern	BOOL	havepat;
@@ -174,7 +174,7 @@ LOCAL	mode_t	statmode = _BAD_MODE;
 
 EXPORT	void	checklinks	__PR((void));
 LOCAL	int	take_file	__PR((char *name, FINFO *info));
-EXPORT	int	_fileread	__PR((int *fp, void *buf, int len));
+EXPORT	ssize_t	_fileread	__PR((int *fp, void *buf, size_t len));
 EXPORT	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
 LOCAL	void	createi		__PR((char *sname, char *name, int namlen,
 					FINFO *info, pathstore_t *pathp,
@@ -190,11 +190,11 @@ EXPORT	void	flushlinks	__PR((void));
 LOCAL	void	flush_link	__PR((LINKS *lp));
 EXPORT	BOOL	read_link	__PR((char *name, int namlen, FINFO *info,
 								TCB *ptb));
-LOCAL	int	nullread	__PR((void *vp, char *cp, int amt));
+LOCAL	ssize_t	nullread	__PR((void *vp, char *cp, size_t amt));
 EXPORT	void	put_file	__PR((int *fp, FINFO *info));
 EXPORT	void	cr_file		__PR((FINFO *info,
-					int (*)(void *, char *, int),
-					void *arg, int amt, char *text));
+					ssize_t (*)(void *, char *, size_t),
+					void *arg, long amt, char *text));
 LOCAL	void	put_dir		__PR((char *sname, char *dname, int namlen,
 					FINFO *info, TCB *ptb,
 					pathstore_t *pathp, struct pdirs *last));
@@ -413,15 +413,15 @@ take_file(name, info)
 	return (TRUE);
 }
 
-int
+ssize_t
 _fileread(fp, buf, len)
 	register int	*fp;
 	void	*buf;
-	int	len;
+	size_t	len;
 {
-	register int	fd = *fp;
-	register int	ret;
-		int	errcnt = 0;
+	register int		fd = *fp;
+	register ssize_t	ret;
+		int		errcnt = 0;
 
 retry:
 	while ((ret = read(fd, buf, len)) < 0 && geterrno() == EINTR)
@@ -1314,11 +1314,11 @@ read_link(name, namlen, info, ptb)
 }
 
 /* ARGSUSED */
-LOCAL int
+LOCAL ssize_t
 nullread(vp, cp, amt)
 	void	*vp;
 	char	*cp;
-	int	amt;
+	size_t	amt;
 {
 	return (amt);
 }
@@ -1329,10 +1329,10 @@ put_file(fp, info)
 	register FINFO	*info;
 {
 	if (nullout) {
-		cr_file(info, (int(*)__PR((void *, char *, int)))nullread,
+		cr_file(info, (ssize_t(*)__PR((void *, char *, size_t)))nullread,
 							fp, 0, "reading");
 	} else {
-		cr_file(info, (int(*)__PR((void *, char *, int)))_fileread,
+		cr_file(info, (ssize_t(*)__PR((void *, char *, size_t)))_fileread,
 							fp, 0, "reading");
 	}
 }
@@ -1340,12 +1340,12 @@ put_file(fp, info)
 EXPORT void
 cr_file(info, func, arg, amt, text)
 		FINFO	*info;
-		int	(*func) __PR((void *, char *, int));
+		ssize_t	(*func) __PR((void *, char *, size_t));
 	register void	*arg;
-		int	amt;
+		long	amt;
 		char	*text;
 {
-	register int	amount;
+	register long	amount;
 	register off_t	blocks;
 	register off_t	size;
 	register int	i = 0;

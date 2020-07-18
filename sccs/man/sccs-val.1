@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-val.1	1.33 20/05/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-val.1	1.34 20/07/14 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-val 1 "2020/05/16" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2020/07/14" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -51,6 +51,8 @@ sccs-val, val \- validate an SCCS file
 .br
 .RB "    [" "-y \c
 .IR type "] ["\c
+.B \-X\c
+.IR extended-options "] ["\c
 .B -N\c
 .IR bulk-spec "] \c
 s.filename ...

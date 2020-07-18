@@ -1,13 +1,13 @@
-/* @(#)lpath_unix.c	1.14 19/07/07 Copyright 2018-2019 J. Schilling */
+/* @(#)lpath_unix.c	1.15 20/07/01 Copyright 2018-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lpath_unix.c	1.14 19/07/07 Copyright 2018-2019 J. Schilling";
+	"@(#)lpath_unix.c	1.15 20/07/01 Copyright 2018-2020 J. Schilling";
 #endif
 /*
  *	Routines for long path names on unix like operating systems
  *
- *	Copyright (c) 2018-2018 J. Schilling
+ *	Copyright (c) 2018-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,7 +53,7 @@ EXPORT	int	laccess		__PR((char *name, int amode));
 EXPORT	int	lstatat		__PR((char *name, struct stat *buf, int flag));
 EXPORT	int	lchmodat	__PR((char *name, mode_t mode, int flag));
 EXPORT	int	lutimensat	__PR((char *name, struct timespec *ts, int flag));
-EXPORT	int	lreadlink	__PR((char *name, char *buf, size_t bufsize));
+EXPORT	int	lreadlink	__PR((char *name, char *buf, size_t bfsize));
 EXPORT	int	lsymlink	__PR((char *name, char *name2));
 EXPORT	int	llink		__PR((char *name, char *name2));
 EXPORT	int	lrename		__PR((char *name, char *name2));
@@ -329,10 +329,10 @@ lutimensat(name, ts, flag)
 
 #ifdef	HAVE_READLINK
 EXPORT int
-lreadlink(name, buf, bufsize)
+lreadlink(name, buf, bfsize)
 	char		*name;
 	char		*buf;
-	size_t		bufsize;
+	size_t		bfsize;
 {
 #ifdef	HAVE_FCHDIR
 	char	*p;
@@ -341,7 +341,7 @@ lreadlink(name, buf, bufsize)
 #endif
 	int	ret;
 
-	if ((ret = readlink(name, buf, bufsize)) < 0 &&
+	if ((ret = readlink(name, buf, bfsize)) < 0 &&
 	    geterrno() != ENAMETOOLONG) {
 		return (ret);
 	}
@@ -351,7 +351,7 @@ lreadlink(name, buf, bufsize)
 		return (ret);
 
 	fd = hop_dirs(name, &p);
-	ret = readlinkat(fd, p, buf, bufsize);
+	ret = readlinkat(fd, p, buf, bfsize);
 	err = geterrno();
 	close(fd);
 	seterrno(err);

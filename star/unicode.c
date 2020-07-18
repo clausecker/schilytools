@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.22 19/12/03 Copyright 2001-2019 J. Schilling */
+/* @(#)unicode.c	1.23 20/07/03 Copyright 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.22 19/12/03 Copyright 2001-2019 J. Schilling";
+	"@(#)unicode.c	1.23 20/07/03 Copyright 2001-2020 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  *	handles ISO-8859-1 coding using intrinsic code and using
  *	iconv() in case of other encodings.
  *
- *	Copyright (c) 2001-2019 J. Schilling
+ *	Copyright (c) 2001-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -260,6 +260,10 @@ _to_none(to, tolen, from, len)
 	Uchar	*from;
 	size_t	len;
 {
+	if (tolen < len) {
+		movebytes(from, to, tolen);
+		return (tolen);
+	}
 	*movebytes(from, to, len) = '\0';
 	return (len);
 }
@@ -434,6 +438,13 @@ _from_none(to, tolen, from, len)
 	Uchar	*from;
 	size_t	*len;
 {
-	*movebytes(from, to, *len) = '\0';
+	size_t	clen = *len;
+
+	if (tolen < clen) {
+		movebytes(from, to, tolen);
+		*len = tolen;
+		return (TRUE);
+	}
+	*movebytes(from, to, clen) = '\0';
 	return (TRUE);
 }

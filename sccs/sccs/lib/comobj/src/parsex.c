@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)parsex.c	1.6 20/06/11 Copyright 2018-2020 J. Schilling
+ * @(#)parsex.c	1.9 20/07/12 Copyright 2018-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)parsex.c	1.6 20/06/11 Copyright 2018-2020 J. Schilling"
+#pragma ident "@(#)parsex.c	1.9 20/07/12 Copyright 2018-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -36,7 +36,13 @@ parseX(X)
 	BOOL	not = FALSE;
 
 	while (*opts) {
-		if ((ep = strchr(opts, '=')) != NULL) {
+		/*
+		 * If '=' appears in the string to the right of a ',', this
+		 * would be a wrong match.
+		 */
+		np = strchr(opts, ',');
+		if ((ep = strchr(opts, '=')) != NULL &&
+		    (np == NULL || np > ep)) {
 			Intptr_t	pdiff = ep - opts;
 
 			optlen = (int)pdiff;
@@ -48,7 +54,7 @@ parseX(X)
 			} else {
 				np++;
 			}
-		} else if ((ep = strchr(opts, ',')) != NULL) {
+		} else if ((ep = np) != NULL) {	/* pointer to ',' */
 			Intptr_t	pdiff = ep - opts;
 
 			optlen = (int)pdiff;
@@ -97,6 +103,20 @@ parseX(X)
 			}
 			optflags |= XO_URAND;
 
+		} else if ((flags & XO_G_PATH) &&
+		    strncmp(opts, "gpath=", optlen) == 0) {
+			size_t	l = np - &opts[6];
+
+			if (optlen != 6)
+				goto bad;
+			if (opts[6]) {
+				if (*np == '\0')
+					l++;
+				X->x_gpath = xmalloc(l);
+				strlcpy(X->x_gpath, &opts[6], l);
+			}
+			optflags |= XO_G_PATH;
+
 		} else if ((flags & XO_MAIL) &&
 		    strncmp(opts, "mail=", optlen) == 0) {
 			size_t	l = np - &opts[5];
@@ -125,6 +145,14 @@ parseX(X)
 			}
 			optflags |= XO_USER;
 
+		} else if ((flags & XO_DATE) &&
+		    strncmp(opts, "date=", optlen) == 0) {
+			if (optlen != 5)
+				goto bad;
+			if (opts[5])
+				parse_datez(&opts[5], &X->x_dtime, PF_V6);
+			optflags |= XO_DATE;
+
 		} else if ((flags & XO_PREPEND_FILE) &&
 		    strncmp(opts, "prepend", optlen) == 0) {
 			optflags |= XO_PREPEND_FILE;
@@ -134,6 +162,9 @@ parseX(X)
 		} else if ((flags & XO_NULLPATH) &&
 		    strncmp(opts, "0", optlen) == 0) {
 			optflags |= XO_NULLPATH;
+		} else if ((flags & XO_NOBULK) &&
+		    strncmp(opts, "nobulk", optlen) == 0) {
+			optflags |= XO_NOBULK;
 		} else if (strncmp(opts, "help", optlen) == 0) {
 			sccshelp(stdout, "Xopts");
 			exit(0);

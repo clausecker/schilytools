@@ -1,4 +1,4 @@
-#ident "@(#)shlshedit.mk	1.8 16/07/27 "
+#ident "@(#)shlshedit.mk	1.9 20/07/08 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -47,9 +47,9 @@ LIBS=		-lxtermcap -lschily -lc
 XMK_FILE=	
 
 inputc.c map.c bsh.h comerr.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
 $(ALLTARGETS): inputc.c map.c
-$(SRCROOT)/$(RULESDIR)/rules.lib: bsh.h
+$(SRCROOT)/$(RULESDIR)/rules.shl: bsh.h
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

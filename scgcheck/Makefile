@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.15 13/04/21 
+#ident @(#)Makefile	1.16 20/07/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -25,8 +25,9 @@ LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lschily $(SCSILIB) $(LIB_SOCKET) $(L
 XMK_FILE=	Makefile.man
 
 scsi_scan.c scsi_cdr.c cd_misc.c:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
 $(ALLTARGETS): scsi_scan.c scsi_cdr.c
+$(SRCROOT)/$(RULESDIR)/rules.cmd: scsi_scan.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

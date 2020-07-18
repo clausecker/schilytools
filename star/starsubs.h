@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.142 20/05/24 Copyright 1996-2020 J. Schilling */
+/* @(#)starsubs.h	1.143 20/07/08 Copyright 1996-2020 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -69,31 +69,31 @@ extern	void	changetape	__PR((BOOL donext));
 extern	void	runnewvolscript	__PR((int volno, int nindex));
 extern	void	nextitape	__PR((void));
 extern	void	nextotape	__PR((void));
-extern	int	startvol	__PR((char *buf, int amount));
-extern	void	newvolhdr	__PR((char *buf, int amount, BOOL do_fifo));
+extern	long	startvol	__PR((char *buf, long amount));
+extern	void	newvolhdr	__PR((char *buf, long amount, BOOL do_fifo));
 extern	void	initbuf		__PR((int nblocks));
 extern	void	markeof		__PR((void));
 extern	void	marktcb		__PR((char *addr));
 extern	void	syncbuf		__PR((void));
-extern	int	peekblock	__PR((char *buf, int amount));
-extern	int	readblock	__PR((char *buf, int amount));
-extern	int	readtape	__PR((char *buf, int amount));
+extern	long	peekblock	__PR((char *buf, long amount));
+extern	long	readblock	__PR((char *buf, long amount));
+extern	ssize_t	readtape	__PR((char *buf, size_t amount));
 #ifdef _STAR_H
 extern	void	filltcb		__PR((TCB *ptb));
 extern	void	movetcb		__PR((TCB *from_ptb, TCB *to_ptb));
 #endif
-extern	void	*get_block	__PR((int amount));
-extern	void	put_block	__PR((int amount));
+extern	void	*get_block	__PR((long amount));
+extern	void	put_block	__PR((long amount));
 extern	char	*writeblock	__PR((char *buf));
-extern	int	writetape	__PR((char *buf, int amount));
+extern	ssize_t	writetape	__PR((char *buf, size_t amount));
 extern	void	writeempty	__PR((void));
 extern	void	weof		__PR((void));
-extern	void	buf_sync	__PR((int size));
+extern	void	buf_sync	__PR((long size));
 extern	void	buf_drain	__PR((void));
-extern	int	buf_wait	__PR((int amount));
-extern	void	buf_wake	__PR((int amount));
-extern	int	buf_rwait	__PR((int amount));
-extern	void	buf_rwake	__PR((int amount));
+extern	long	buf_wait	__PR((long amount));
+extern	void	buf_wake	__PR((long amount));
+extern	long	buf_rwait	__PR((long amount));
+extern	void	buf_rwake	__PR((long amount));
 extern	void	buf_resume	__PR((void));
 extern	void	backtape	__PR((void));
 extern	int	mtioctl		__PR((int cmd, int count));
@@ -119,7 +119,7 @@ extern	BOOL	update_newer	__PR((FINFO *info));
  * create.c
  */
 extern	void	checklinks	__PR((void));
-extern	int	_fileread	__PR((int *fp, void *buf, int len));
+extern	ssize_t	_fileread	__PR((int *fp, void *buf, size_t len));
 extern	void	create		__PR((char *name, BOOL Hflag, BOOL forceadd));
 #if	defined(_SCHILY_WALK_H)
 extern	void	createlist	__PR((struct WALK *state));
@@ -136,8 +136,8 @@ extern	BOOL	read_link	__PR((char *name, int namlen, FINFO *info,
 extern	void	put_file	__PR((int *fp, FINFO *info));
 #endif
 extern	void	cr_file		__PR((FINFO *info,
-					int (*)(void *, char *, int),
-					void *arg, int amt, char *text));
+					ssize_t (*)(void *, char *, size_t),
+					void *arg, long amt, char *text));
 #endif
 #if defined(_SCHILY_STAT_H) && defined(_SCHILY_WALK_H)
 extern	int	walkfunc	__PR((char *nm, struct stat *fs,
@@ -195,8 +195,8 @@ extern	BOOL	create_dirs	__PR((char *name));
 extern	BOOL	make_adir	__PR((FINFO *info));
 extern	BOOL	void_file	__PR((FINFO *info));
 extern	int	xt_file		__PR((FINFO *info,
-					int (*)(void *, char *, int),
-					void *arg, int amt, char *text));
+					ssize_t (*)(void *, char *, size_t),
+					void *arg, long amt, char *text));
 extern	void	skip_slash	__PR((FINFO *info));
 #endif
 
@@ -205,20 +205,20 @@ extern	void	skip_slash	__PR((FINFO *info));
  */
 #ifdef	FIFO
 extern	void	initfifo	__PR((void));
-extern	void	fifo_ibs_shrink	__PR((int newsize));
+extern	void	fifo_ibs_shrink	__PR((long newsize));
 extern	void	runfifo		__PR((int ac, char *const *av));
 extern	void	fifo_prmp	__PR((int sig));
 extern	void	fifo_stats	__PR((void));
-extern	int	fifo_amount	__PR((void));
-extern	int	fifo_iwait	__PR((int amount));
-extern	void	fifo_owake	__PR((int amount));
+extern	size_t	fifo_amount	__PR((void));
+extern	long	fifo_iwait	__PR((long amount));
+extern	void	fifo_owake	__PR((long amount));
 extern	void	fifo_oflush	__PR((void));
 extern	void	fifo_oclose	__PR((void));
-extern	int	fifo_owait	__PR((int amount));
-extern	void	fifo_iwake	__PR((int amt));
+extern	long	fifo_owait	__PR((long amount));
+extern	void	fifo_iwake	__PR((long amt));
 extern	void	fifo_reelwake	__PR((void));
 extern	void	fifo_resume	__PR((void));
-extern	void	fifo_sync	__PR((int size));
+extern	void	fifo_sync	__PR((long size));
 extern	int	fifo_errno	__PR((void));
 extern	void	fifo_onexit	__PR((int err, void *ignore));
 extern	void	fifo_exit	__PR((int err));

@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.127 20/06/25 J. Schilling
+ * @(#)defines.h	1.132 20/07/12 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.127 20/06/25 J. Schilling"
+#pragma ident "@(#)defines.h 1.132 20/07/12 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -440,6 +440,8 @@ typedef struct Xparms {
 	char	*x_parm;		/* -X argument			*/
 	char	*x_mail;		/* -Xmail Email address		*/
 	char	*x_user;		/* -Xuser User name		*/
+	char	*x_gpath;		/* -Xgpath g-path		*/
+	dtime_t	x_dtime;		/* -Xdate datetime		*/
 	char	*x_init_path;		/* -XGp Initial path		*/
 	urand_t	x_rand;			/* -XGr Unified random number	*/
 	unsigned x_opts;		/* Options seen			*/
@@ -455,7 +457,10 @@ typedef struct Xparms {
 #define	XO_UNLINK	0x40		/* -Xunlink create an unlink delta */
 #define	XO_MAIL		0x80		/* -Xmail= e-mail address	*/
 #define	XO_USER		0x100		/* -Xuser= user name		*/
-#define	XO_NULLPATH	0x200		/* -X0 read '\0' terminated pathnames */
+#define	XO_DATE		0x200		/* -Xdate= commit date		*/
+#define	XO_NULLPATH	0x400		/* -X0 read '\0' terminated pathnames */
+#define	XO_NOBULK	0x800		/* -Xnobulk Disable bulkprepare() */
+#define	XO_G_PATH	0x1000		/* -Xgpath=g-path		*/
 
 
 struct	deltab {
@@ -772,6 +777,7 @@ extern	void	encode	__PR((FILE *, FILE *));
 extern	void	decode	__PR((char *, FILE *));
 extern	int	readmod	__PR((struct packet *));
 extern	int	parse_date __PR((char *, time_t *, int flags));
+extern	int	parse_datez __PR((char *, dtime_t *, int flags));
 extern	int	cmpdate	__PR((struct tm *, struct tm *));
 extern	void	addq	__PR((struct packet *, int, int, int, int));
 extern	void	remq	__PR((struct packet *, int));
@@ -822,7 +828,10 @@ extern	char *	bulkerror __PR((Nparms *N));
 extern	int	parseX	__PR((Xparms *X));
 extern	int	lockchset	__PR((pid_t ppid, pid_t pid, char *uuname));
 extern	int	unlockchset	__PR((pid_t pid, char *uuname));
+extern	int	islockchset	__PR((char *fname));
 extern	int	refreshchsetlock __PR((void));
+extern	void	timersetlockfile __PR((char *name));
+extern	void	timerchsetlock	__PR((void));
 	
 extern	int	opendirfd	__PR((const char *name));
 extern	int	closedirfd	__PR((int fd));
@@ -866,6 +875,7 @@ extern	int	lockrefresh __PR((char *));
 extern	int	unlockit __PR((char *, pid_t, char *));
 extern	int	ismylock __PR((char *, pid_t, char *));
 extern	int	mylock	__PR((char *, pid_t, char *));
+extern	void	lockfatal __PR((char *, pid_t, char *));
 extern	int	sccs_index __PR((char *, char *));
 extern	int	imatch	__PR((char *, char *));
 extern	int	xmsg	__PR((const char *, const char *));

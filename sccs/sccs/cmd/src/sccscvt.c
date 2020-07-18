@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.30 20/06/27 Copyright 2011-2020 J. Schilling */
+/* @(#)sccscvt.c	1.32 20/07/12 Copyright 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.30 20/06/27 Copyright 2011-2020 J. Schilling";
+	"@(#)sccscvt.c	1.32 20/07/12 Copyright 2011-2020 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -46,6 +46,7 @@ LOCAL	int	getX		__PR((const char *, void *));
 LOCAL	struct utsname	un;
 LOCAL	char		*uuname;
 LOCAL	struct packet	gpkt;
+LOCAL	char		Zhold[MAXPATHLEN];	/* temporary z-file name	*/
 LOCAL	Nparms		N;			/* Keep -N parameters		*/
 LOCAL	Xparms		X;			/* Keep -X parameters		*/
 
@@ -167,6 +168,7 @@ main(ac, av)
 	 */
 	if (SETHOME_CHSET())
 		lockchset(getppid(), getpid(), uuname);
+	timerchsetlock();
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -331,9 +333,12 @@ convert(file)
 	/*
 	 * Obtain a lock on the SCCS history file.
 	 */
-	if (lockit(auxf(gpkt.p_file, 'z'),
-	    SCCS_LOCK_ATTEMPTS, getpid(), uuname))
-		efatal(_("cannot create lock file (cm4)"));
+	if (!islockchset(copy(auxf(gpkt.p_file, 'z'), Zhold)) &&
+	    lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+		lockfatal(Zhold, getpid(), uuname);
+	} else {
+		timersetlockfile(Zhold);
+	}
 
 	/*
 	 * Open s. file.
@@ -852,7 +857,9 @@ clean_up()
 		sfree(&pk2);
 		xrm(&gpkt);
 		ffreeall();
-		unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 }
 

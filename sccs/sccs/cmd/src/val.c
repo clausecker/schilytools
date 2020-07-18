@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)val.c	1.65 20/06/13 J. Schilling
+ * @(#)val.c	1.66 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.65 20/06/13 J. Schilling"
+#pragma ident "@(#)val.c 1.66 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -367,9 +367,14 @@ char	*argv[];
 			 */
 			if (ALPHA(c) &&
 			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
-				if (debug)
-					printf(gettext("Duplicate option '%c'.\n"), c);
-				inline_err |= UNKDUP_ERR;
+				if (c != 'X') {
+					if (debug) {
+						printf(gettext(
+						    "Duplicate option '%c'.\n"),
+						    c);
+					}
+					inline_err |= UNKDUP_ERR;
+				}
 			}
 	}
 

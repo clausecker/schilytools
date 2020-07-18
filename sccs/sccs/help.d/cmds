@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cmds	1.72 20/06/29 J. Schilling 
+* @(#)cmds	1.76 20/07/16 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -72,6 +72,10 @@ prepend		Prepend the current content of the g-file to the previous
 unlink		Create an "unlink" delta in the SCCS history file (delta).
 
 user=name	Set a different user (programmer) name for a delta (admin/delta)
+
+date=datetime	Set a user specified timestamp
+
+nobulk		Disable bulkmode pathname translation
 
 Gp=initial_path	Set the initial path (admin).
 
@@ -576,7 +580,7 @@ basic project oriented sub-commands:
 	(do 'help get_kywds'    for a description of recognized ID keywords)
 	(do 'help prs_kywds'    for a description of recognized data keywords)
 -sccs
-	sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>]
+	sccs [-N] [-O] [-R] [-T] [-r] [-d<rdir>] [-p<sdir>]
 		subcommand [option ...] [file ...]
 
 		Front end for the Source Code Control System
@@ -584,6 +588,8 @@ options:
 	-d<rdir>	Root path portion for SCCS history files (default ".")
 	-p<sdir>	Sub directory for SCCS history files (default "SCCS")
 	-r		Run sccs with the real user ID of the caller
+	-N		Enforce NewMode
+	-O		Enforce Old Mode (the mode from Eric Allman from 1980)
 	-R		Run sccs in recursive mode via libfind.
 	-T		Trace mode. Print extra debug messages.
 	-V		Print version number
@@ -829,9 +835,9 @@ options:
 
 	Add files to the project list for the next commit
 -commit
-	commit
+	commit [file...]
 
-	Commit changes in project files  to the project repository
+	Commit changes in project files to the project repository
 -remove
 	remove file...
 

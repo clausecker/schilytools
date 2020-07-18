@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.163 20/04/10  Copyright (c) 2006-2020 J. Schilling"
+#ident "@(#)Makefile	1.164 20/07/08  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -196,8 +196,9 @@ LIBS=		$(LIB_SECDB) -lshedit -lxtermcap -lgetopt \
 XMK_FILE=	Makefile.man
 
 signames.c abbrev.c abbrev.h:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in ."; sh ./MKLINKS
 $(ALLTARGETS): signames.c abbrev.c abbrev.h
+$(SRCROOT)/$(RULESDIR)/rules.cmd: signames.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

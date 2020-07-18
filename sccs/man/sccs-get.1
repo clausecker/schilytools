@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.49 20/06/28 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-get.1	1.50 20/07/14 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2020/06/28" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2020/07/14" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -72,7 +72,9 @@ sccs-get, get \- retrieve a version of an SCCS file
 .RB [ -z\c
 .RI [ cmr "]]
 .br
-.RB "    [" -N\c
+.RB "    [" \-X\c
+.IR extended-options "] \c
+.RB [ -N\c
 .IR bulk-spec "] \c
 .IR s.filename ...
 
@@ -116,7 +118,9 @@ sccs-get, get \- retrieve a version of an SCCS file
 .RB [ -z\c
 .RI [ cmr "]]
 .br
-.RB "    [" -N\c
+.RB "    [" \-X\c
+.IR extended-options "] \c
+.RB [ -N\c
 .IR bulk-spec "] \c
 .IR s.filename ...
 .fi

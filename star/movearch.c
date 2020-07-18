@@ -1,13 +1,13 @@
-/* @(#)movearch.c	1.35 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling */
+/* @(#)movearch.c	1.36 20/07/08 Copyright 1993, 1995, 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)movearch.c	1.35 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling";
+	"@(#)movearch.c	1.36 20/07/08 Copyright 1993, 1995, 2001-2020 J. Schilling";
 #endif
 /*
  *	Handle non-file type data that needs to be moved from/to the archive.
  *
- *	Copyright (c) 1993, 1995, 2001-2009 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,18 +33,18 @@ static	UConst char sccsid[] =
 #include "starsubs.h"
 #include "movearch.h"
 
-EXPORT	int	move_from_arch	__PR((move_t *move, char *p, int amount));
-EXPORT	int	move_to_arch	__PR((move_t *move, char *p, int amount));
+EXPORT	ssize_t	move_from_arch	__PR((move_t *move, char *p, size_t amount));
+EXPORT	ssize_t	move_to_arch	__PR((move_t *move, char *p, size_t amount));
 
 
 /*
  * Move data from archive.
  */
-EXPORT int
+EXPORT ssize_t
 move_from_arch(move, p, amount)
 	move_t	*move;
 	char	*p;
-	int	amount;
+	size_t	amount;
 {
 	movebytes(p, move->m_data, amount);
 	move->m_data += amount;
@@ -66,11 +66,11 @@ move_from_arch(move, p, amount)
 /*
  * Move data to archive.
  */
-EXPORT int
+EXPORT ssize_t
 move_to_arch(move, p, amount)
 	move_t	*move;
 	char	*p;
-	int	amount;
+	size_t	amount;
 {
 	if (amount > move->m_size)
 		amount = move->m_size;

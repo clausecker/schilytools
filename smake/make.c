@@ -1,8 +1,8 @@
-/* @(#)make.c	1.215 20/03/30 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
+/* @(#)make.c	1.216 20/07/12 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.215 20/03/30 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
+	"@(#)make.c	1.216 20/07/12 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
 #endif
 /*
  *	Make program
@@ -219,6 +219,7 @@ usage(exitcode)
 {
 	error("Usage:	smake [options] [target...] [macro=value...]\n");
 	error("Options:\n");
+	error("	-a	Do not set up architecture specific make macros.\n");
 	error("	-e	Environment overrides variables in Makefile.\n");
 	error("	-i	Ignore errors from commands.\n");
 	error("	-k	Ignore target errors, continue on unrelated targets.\n");

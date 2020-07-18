@@ -1,13 +1,13 @@
-/* @(#)hole.c	1.67 18/11/28 Copyright 1993-2018 J. Schilling */
+/* @(#)hole.c	1.68 20/07/08 Copyright 1993-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.67 18/11/28 Copyright 1993-2018 J. Schilling";
+	"@(#)hole.c	1.68 20/07/08 Copyright 1993-2020 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2018 J. Schilling
+ *	Copyright (c) 1993-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,13 +90,13 @@ typedef	struct {
 	int	fh_diffs;
 } fh_t;
 
-LOCAL	int	force_hole_func	__PR((fh_t *fh, char *p, int amount));
+LOCAL	ssize_t	force_hole_func	__PR((fh_t *fh, char *p, size_t amount));
 EXPORT	int	get_forced_hole	__PR((FILE *f, FINFO *info));
 LOCAL	void	bad_sparse_index __PR((fh_t *fh));
-LOCAL	int	get_sparse_func	__PR((fh_t *fh, char *p, int amount));
-LOCAL	int	get_ssparse_func __PR((fh_t *fh, char *p, int amount));
-LOCAL	int	cmp_sparse_func	__PR((fh_t *fh, char *p, int amount));
-LOCAL	int	put_sparse_func	__PR((fh_t *fh, char *p, int amount));
+LOCAL	ssize_t	get_sparse_func	__PR((fh_t *fh, char *p, size_t amount));
+LOCAL	ssize_t	get_ssparse_func __PR((fh_t *fh, char *p, size_t amount));
+LOCAL	ssize_t	cmp_sparse_func	__PR((fh_t *fh, char *p, size_t amount));
+LOCAL	ssize_t	put_sparse_func	__PR((fh_t *fh, char *p, size_t amount));
 LOCAL	sp_t	*grow_sp_list	__PR((sp_t *sparse, int *nspp));
 LOCAL	sp_t	*get_sp_list	__PR((FINFO *info, int *nsparsep));
 LOCAL	int	mk_sp_list	__PR((int *fp, FINFO *info, sp_t **spp));
@@ -113,15 +113,15 @@ EXPORT	void	put_sparse	__PR((int *fp, FINFO *info));
 LOCAL	void	put_sp_list	__PR((FINFO *info, sp_t *sparse, int nsparse));
 EXPORT	BOOL	sparse_file	__PR((int *fp, FINFO *info));
 
-#define	vp_force_hole_func ((int(*)__PR((void *, char *, int)))force_hole_func)
+#define	vp_force_hole_func ((ssize_t(*)__PR((void *, char *, size_t)))force_hole_func)
 
-LOCAL int
+LOCAL ssize_t
 force_hole_func(fh, p, amount)
 	register fh_t	*fh;
 	register char	*p;
-		int	amount;
+		size_t	amount;
 {
-	register int	cnt;
+	register ssize_t	cnt;
 
 	fh->fh_newpos += amount;
 	if (amount < fh->fh_size &&
@@ -172,17 +172,17 @@ bad_sparse_index(fh)
  * cut it into several chunks that probably start with a seek and get this
  * done by get_ssparse_func().
  */
-#define	vp_get_sparse_func ((int(*)__PR((void *, char *, int)))get_sparse_func)
-LOCAL int
+#define	vp_get_sparse_func ((ssize_t(*)__PR((void *, char *, size_t)))get_sparse_func)
+LOCAL ssize_t
 get_sparse_func(fh, p, amount)
 	register fh_t	*fh;
 	register char	*p;
-	register int	amount;
+	register size_t	amount;
 {
-	register int	cnt = 0;
-	register int	amt;
-	off_t		next_hole;
-	off_t		newpos = fh->fh_newpos;
+	register ssize_t	cnt = 0;
+	register ssize_t	amt;
+	off_t			next_hole;
+	off_t			newpos = fh->fh_newpos;
 
 	do {
 		if (fh->fh_spindex >= fh->fh_nsparse) {
@@ -212,15 +212,15 @@ get_sparse_func(fh, p, amount)
 /*
  * Get a single chunk of data from the buffer and write it into the file.
  */
-LOCAL int
+LOCAL ssize_t
 get_ssparse_func(fh, p, amount)
 	register fh_t	*fh;
 	register char	*p;
-		int	amount;
+		size_t	amount;
 {
-	register int	cnt;
+	register ssize_t	cnt;
 
-	EDEBUG(("amount: %d newpos: %lld index: %d\n",
+	EDEBUG(("amount: %zd newpos: %lld index: %d\n",
 					amount, (Llong)fh->fh_newpos, fh->fh_spindex));
 
 	if (fh->fh_sparse[fh->fh_spindex].sp_offset > fh->fh_newpos) {
@@ -240,13 +240,13 @@ get_ssparse_func(fh, p, amount)
 
 		fh->fh_newpos = fh->fh_sparse[fh->fh_spindex].sp_offset;
 	}
-	EDEBUG(("write %d at: %lld\n", amount, (Llong)fh->fh_newpos));
+	EDEBUG(("write %zd at: %lld\n", amount, (Llong)fh->fh_newpos));
 
 	cnt = ffilewrite(fh->fh_file, p, amount);
 	fh->fh_size -= cnt;
 	fh->fh_newpos += cnt;
 
-	EDEBUG(("off: %lld numb: %lld cnt: %d off+numb: %lld newpos: %lld index: %d\n",
+	EDEBUG(("off: %lld numb: %lld cnt: %zd off+numb: %lld newpos: %lld index: %d\n",
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_offset,
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_numbytes, cnt,
 		(Llong)(fh->fh_sparse[fh->fh_spindex].sp_offset +
@@ -262,22 +262,22 @@ get_ssparse_func(fh, p, amount)
 
 		EDEBUG(("new index: %d\n", fh->fh_spindex));
 	}
-	EDEBUG(("return (%d)\n", cnt));
+	EDEBUG(("return (%zd)\n", cnt));
 	return (cnt);
 }
 
-#define	vp_cmp_sparse_func ((int(*)__PR((void *, char *, int)))cmp_sparse_func)
+#define	vp_cmp_sparse_func ((ssize_t(*)__PR((void *, char *, size_t)))cmp_sparse_func)
 
-LOCAL int
+LOCAL ssize_t
 cmp_sparse_func(fh, p, amount)
 	register fh_t	*fh;
 	register char	*p;
-		int	amount;
+		size_t	amount;
 {
-	register int	cnt;
-		char	*cmp_buf[TBLOCK];
+	register ssize_t	cnt;
+		char		*cmp_buf[TBLOCK];
 
-	EDEBUG(("amount: %d newpos: %lld index: %d\n",
+	EDEBUG(("amount: %zd newpos: %lld index: %d\n",
 					amount,
 					(Llong)fh->fh_newpos, fh->fh_spindex));
 
@@ -298,7 +298,7 @@ cmp_sparse_func(fh, p, amount)
 				(Llong)fh->fh_sparse[fh->fh_spindex].sp_offset));
 
 		while (fh->fh_newpos < fh->fh_sparse[fh->fh_spindex].sp_offset) {
-			register int	amt;
+			register size_t	amt;
 
 			amt = min(TBLOCK,
 				fh->fh_sparse[fh->fh_spindex].sp_offset -
@@ -317,7 +317,7 @@ cmp_sparse_func(fh, p, amount)
 				return (amount);
 		}
 	}
-	EDEBUG(("read %d at: %lld\n", amount, (Llong)fh->fh_newpos));
+	EDEBUG(("read %zd at: %lld\n", amount, (Llong)fh->fh_newpos));
 
 	cnt = ffileread(fh->fh_file, cmp_buf, amount);
 	if (cnt != amount)
@@ -329,7 +329,7 @@ cmp_sparse_func(fh, p, amount)
 	fh->fh_size -= cnt;
 	fh->fh_newpos += cnt;
 
-	EDEBUG(("off: %lld numb: %lld cnt: %d off+numb: %lld newpos: %lld index: %d\n",
+	EDEBUG(("off: %lld numb: %lld cnt: %zd off+numb: %lld newpos: %lld index: %d\n",
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_offset,
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_numbytes, cnt,
 		(Llong)(fh->fh_sparse[fh->fh_spindex].sp_offset +
@@ -345,21 +345,21 @@ cmp_sparse_func(fh, p, amount)
 
 		EDEBUG(("new index: %d\n", fh->fh_spindex));
 	}
-	EDEBUG(("return (%d) diffs: %d\n", cnt, fh->fh_diffs));
+	EDEBUG(("return (%zd) diffs: %d\n", cnt, fh->fh_diffs));
 	return (cnt);
 }
 
-#define	vp_put_sparse_func ((int(*)__PR((void *, char *, int)))put_sparse_func)
+#define	vp_put_sparse_func ((ssize_t(*)__PR((void *, char *, size_t)))put_sparse_func)
 
-LOCAL int
+LOCAL ssize_t
 put_sparse_func(fh, p, amount)
 	register fh_t	*fh;
 	register char	*p;
-		int	amount;
+		size_t	amount;
 {
-	register int	cnt;
+	register ssize_t	cnt;
 
-	EDEBUG(("amount: %d newpos: %lld index: %d\n",
+	EDEBUG(("amount: %zd newpos: %lld index: %d\n",
 					amount,
 					(Llong)fh->fh_newpos, fh->fh_spindex));
 
@@ -397,7 +397,7 @@ put_sparse_func(fh, p, amount)
 			    fh->fh_sparse[fh->fh_spindex].sp_numbytes) -
 			    fh->fh_newpos;
 	}
-	EDEBUG(("read %d at: %lld\n", amount, (Llong)fh->fh_newpos));
+	EDEBUG(("read %zd at: %lld\n", amount, (Llong)fh->fh_newpos));
 
 	if (nullout) {
 		cnt = amount;
@@ -409,7 +409,7 @@ put_sparse_func(fh, p, amount)
 	fh->fh_size -= cnt;
 	fh->fh_newpos += cnt;
 
-	EDEBUG(("off: %lld numb: %lld cnt: %d off+numb: %lld newpos: %lld index: %d\n",
+	EDEBUG(("off: %lld numb: %lld cnt: %zd off+numb: %lld newpos: %lld index: %d\n",
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_offset,
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_numbytes, cnt,
 		(Llong)(fh->fh_sparse[fh->fh_spindex].sp_offset +
@@ -425,7 +425,7 @@ put_sparse_func(fh, p, amount)
 
 		EDEBUG(("new index: %d\n", fh->fh_spindex));
 	}
-	EDEBUG(("return (%d)\n", cnt));
+	EDEBUG(("return (%zd)\n", cnt));
 	return (cnt);
 }
 
@@ -732,14 +732,14 @@ mk_sp_list(fp, info, spp)
 	long	rbuf[32*1024/sizeof (long)];	/* Force it be long aligned */
 	sp_t	*sparse;
 	int	nsparse = NSPARSE_INIT;
-	register int	amount = 0;
-	register int	cnt = 0;
-	register char	*rbp = (char *)rbuf;
-	register off_t	pos = (off_t)0;
-	register int	i = 0;
-	register BOOL	data = FALSE;
-	register BOOL	use_ai = FALSE;
-	register BOOL	is_hole = FALSE;
+	register ssize_t	amount = 0;
+	register ssize_t	cnt = 0;
+	register char		*rbp = (char *)rbuf;
+	register off_t		pos = (off_t)0;
+	register int		i = 0;
+	register BOOL		data = FALSE;
+	register BOOL		use_ai = FALSE;
+	register BOOL		is_hole = FALSE;
 #if	defined(SEEK_HOLE) && defined(SEEK_DATA)
 #else
 #ifdef	_FIOAI

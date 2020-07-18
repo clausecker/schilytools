@@ -1,11 +1,11 @@
-/* @(#)lhash.c	1.22 18/07/17 Copyright 1988, 1993-2018 J. Schilling */
+/* @(#)lhash.c	1.23 20/07/01 Copyright 1988, 1993-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lhash.c	1.22 18/07/17 Copyright 1988, 1993-2018 J. Schilling";
+	"@(#)lhash.c	1.23 20/07/01 Copyright 1988, 1993-2020 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988, 1993-2018 J. Schilling
+ *	Copyright (c) 1988, 1993-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -122,11 +122,11 @@ _hash_build(fp, htab)
 	register	int	len;
 	register	int	hv;
 			char	*buf = NULL;
-			size_t	bufsize = 0;
+			size_t	bfsize = 0;
 	register	size_t	size;
 
 	size = hash_size(HASH_DFLT_SIZE);
-	while ((len = getdelim(&buf, &bufsize,
+	while ((len = getdelim(&buf, &bfsize,
 				readnull ? '\0' : '\n', fp)) >= 0) {
 		if (len == 0)
 			continue;

@@ -1,4 +1,4 @@
-/* @(#)star.h	1.150 20/05/12 Copyright 1985, 1995-2020 J. Schilling */
+/* @(#)star.h	1.151 20/07/08 Copyright 1985, 1995-2020 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2020 J. Schilling
  */
@@ -959,6 +959,9 @@ extern	struct	star_stats	xstats;
 #include <selinux/selinux.h>
 #endif
 
+extern	char	*bigbuf;
+extern	long	bigsize;
+extern	long	bufsize;
 
 #ifdef	__cplusplus
 }

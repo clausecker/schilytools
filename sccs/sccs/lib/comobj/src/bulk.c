@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)bulk.c	1.26 20/06/24 Copyright 2011-2020 J. Schilling
+ * @(#)bulk.c	1.27 20/07/16 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bulk.c	1.26 20/06/24 Copyright 2011-2020 J. Schilling"
+#pragma ident "@(#)bulk.c	1.27 20/07/16 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -190,6 +190,9 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 		N->n_sid.s_br =
 		N->n_sid.s_seq = 0;
 	}
+
+	while (afile[0] == '.' && afile[1] == '/' && afile[2] != '0')
+		afile += 2;
 
 	Dir[0] = '\0';
 	N->n_ifile = NULL;

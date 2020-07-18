@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)rmchg.c	1.55 20/06/18 J. Schilling
+ * @(#)rmchg.c	1.58 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.55 20/06/18 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.58 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -277,8 +277,10 @@ char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 
 	for(i=1; i<argc; i++){
@@ -328,6 +330,7 @@ char *argv[];
 	 */
 	if (SETHOME_CHSET())
 		lockchset(getppid(), getpid(), uuname);
+	timerchsetlock();
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -371,6 +374,7 @@ char *argv[];
 */
 
 static struct packet gpkt;	/* see file s.h */
+static char Zhold[MAXPATHLEN];	/* temporary z-file name */
 static char line[BUFSIZ];
 
 static void
@@ -455,8 +459,12 @@ char *file;
 	 * Lock out any other user who may be trying to process
 	 * the same file.
 	 */
-	if (lockit(auxf(file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		efatal(gettext("cannot create lock file (cm4)"));
+	if (!islockchset(copy(auxf(file, 'z'), Zhold)) &&
+	    lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+		lockfatal(Zhold, getpid(), uuname);
+	} else {
+		timersetlockfile(Zhold);
+	}
 
 	sinit(&gpkt, file, SI_OPEN);	/* initialize packet and open s-file */
 
@@ -1023,7 +1031,9 @@ clean_up()
 	if (gpkt.p_file[0]) {
 		uname(&un);
 		uuname = un.nodename;
-		unlockit(auxf(gpkt.p_file,'z'),getpid(),uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 }
 

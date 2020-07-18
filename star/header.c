@@ -1,8 +1,8 @@
-/* @(#)header.c	1.205 20/06/05 Copyright 1985, 1994-2020 J. Schilling */
+/* @(#)header.c	1.206 20/07/08 Copyright 1985, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.205 20/06/05 Copyright 1985, 1994-2020 J. Schilling";
+	"@(#)header.c	1.206 20/07/08 Copyright 1985, 1994-2020 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -137,7 +137,7 @@ extern	BOOL	linkdata;
 extern	Ullong	tsize;
 
 extern	char	*bigbuf;
-extern	int	bigsize;
+extern	long	bigsize;
 
 LOCAL	Ulong	checksum	__PR((TCB *ptb));
 LOCAL	Ulong	bar_checksum	__PR((TCB *ptb));

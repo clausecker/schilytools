@@ -1,8 +1,8 @@
-/* @(#)star.c	1.410 20/06/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2020 J. Schilling */
+/* @(#)star.c	1.411 20/07/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.410 20/06/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2020 J. Schilling";
+	"@(#)star.c	1.411 20/07/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2020 J. Schilling
@@ -1099,12 +1099,16 @@ susage(ret)
 
 	case P_SUNTAR:
 		suntar_susage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_GNUTAR:
 		gnutar_susage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_PAX:
 		pax_susage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_CPIO:
 		cpio_susage(ret); exit(ret);
+		/* NOTREACHED */
 	}
 #endif
 #ifdef	USE_FIND
@@ -1133,12 +1137,16 @@ usage(ret)
 
 	case P_SUNTAR:
 		suntar_usage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_GNUTAR:
 		gnutar_usage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_PAX:
 		pax_usage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_CPIO:
 		cpio_usage(ret); exit(ret);
+		/* NOTREACHED */
 	}
 #endif
 #ifdef	USE_FIND
@@ -1226,12 +1234,16 @@ xusage(ret)
 
 	case P_SUNTAR:
 		suntar_xusage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_GNUTAR:
 		gnutar_xusage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_PAX:
 		pax_xusage(ret); exit(ret);
+		/* NOTREACHED */
 	case P_CPIO:
 		cpio_xusage(ret); exit(ret);
+		/* NOTREACHED */
 	}
 #endif
 #ifdef	USE_FIND

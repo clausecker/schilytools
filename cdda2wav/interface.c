@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.83 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling */
+/* @(#)interface.c	1.84 20/07/16 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.83 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling";
+"@(#)interface.c	1.84 20/07/16 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling";
 
 #endif
 /*
@@ -520,6 +520,10 @@ Check_interface_for_device(statstruct, pdev_name)
 	struct stat	*statstruct;
 	char		*pdev_name;
 {
+#if !(defined(__FreeBSD__) || \
+	defined(__FreeBSD_kernel__) || \
+	defined(__DragonFly__)) || \
+	__FreeBSD_version < 600000 
 
 #if !defined(STAT_MACROS_BROKEN) || (STAT_MACROS_BROKEN != 1)
 	if (!S_ISCHR(statstruct->st_mode) &&
@@ -621,6 +625,7 @@ Setting interface to cooked_ioctl.\n"), pdev_name);
 		break;
 #endif
 	}
+#endif
 #endif
 	if (global.overlap >= global.nsectors)
 		global.overlap = global.nsectors-1;

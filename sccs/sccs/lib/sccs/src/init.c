@@ -22,10 +22,10 @@
 /*
  * Copyright 2015-2020 J. Schilling
  *
- * @(#)init.c	1.7 20/06/25 J. Schilling
+ * @(#)init.c	1.8 20/07/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)init.c 1.7 20/06/25 J. Schilling"
+#pragma ident "@(#)init.c 1.8 20/07/11 J. Schilling"
 #endif
 #include <defines.h>
 #include <version.h>
@@ -157,7 +157,7 @@ initdir(hpath, flags)
 		xsethome(hpath);			/* sets changesetfile */
 		av[0] = "admin";
 		av[1] = "-V6";
-		av[2] = "-Xunlink";
+		av[2] = "-Xunlink,nobulk,Gp=.sccs/changeset";
 		av[3] = "-n";
 		av[4] = changesetfile;
 		av[5] = NULL;

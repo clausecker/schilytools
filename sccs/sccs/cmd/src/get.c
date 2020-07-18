@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.91 20/06/18 J. Schilling
+ * @(#)get.c	1.94 20/07/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.91 20/06/18 J. Schilling"
+#pragma ident "@(#)get.c 1.94 20/07/14 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -75,6 +75,7 @@
  */
 
 static struct packet gpkt;		/* libcomobj data for get()	*/
+static char	Zhold[MAXPATHLEN];	/* temporary z-file name */
 
 static Nparms	N;			/* Keep -N parameters		*/
 static Xparms	X;			/* Keep -X parameters		*/
@@ -345,8 +346,10 @@ register char *argv[];
 			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
 			if (ALPHA(c) &&
-			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
-				fatal(gettext("key letter twice (cm2)"));
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
+				if (c != 'X')
+					fatal(gettext("key letter twice (cm2)"));
+			}
 	}
 	for (i=1; i<argc; i++) {
 		if (argv[i]) {
@@ -389,6 +392,7 @@ register char *argv[];
 	 */
 	if (HADE && SETHOME_CHSET())
 		lockchset(getppid(), getpid(), uuname);
+	timerchsetlock();
 
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
@@ -494,8 +498,12 @@ get(pkt, file)
 		 * Lock out any other user who may be trying to process
 		 * the same file.
 		 */
-		if (lockit(auxf(file, 'z'), 10, getpid(), uuname))
-			efatal(gettext("cannot create lock file (cm4)"));
+		if (!islockchset(copy(auxf(file, 'z'), Zhold)) &&
+		    lockit(Zhold, SCCS_LOCK_ATTEMPTS, getpid(), uuname)) {
+			lockfatal(Zhold, getpid(), uuname);
+		} else {
+			timersetlockfile(Zhold);
+		}
 	}
 	/*
 	Open SCCS file and initialize packet
@@ -768,7 +776,9 @@ unlock:
 	if (HADE) {
 		copy(auxf(pkt->p_file, 'p'), Pfilename);
 		rename(auxf(pkt->p_file, 'q'), Pfilename);
-		unlockit(auxf(pkt->p_file, 'z'), getpid(), uuname);
+		timersetlockfile(NULL);
+		if (!islockchset(Zhold))
+			unlockit(Zhold, getpid(), uuname);
 	}
 	sclose(pkt);
 	sfree(pkt);
@@ -990,7 +1000,9 @@ clean_up()
 		uuname = un.nodename;
 		if (mylock(auxf(gpkt.p_file,'z'), getpid(), uuname)) {
 			unlink(auxf(gpkt.p_file,'q'));
-			unlockit(auxf(gpkt.p_file,'z'), getpid(), uuname);
+			timersetlockfile(NULL);
+			if (!islockchset(Zhold))
+				unlockit(Zhold, getpid(), uuname);
 		}
 	}
 	sclose(&gpkt);
