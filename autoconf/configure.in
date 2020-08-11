@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.297 19/10/22 Copyright 1998-2019 J. Schilling
+dnl @(#)configure.in	1.298 20/07/22 Copyright 1998-2020 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.297)dnl
+AC_REVISION(1.298)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -107,7 +107,7 @@ AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
 AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h libproc.h)
 AC_CHECK_HEADERS(ulimit.h)
 AC_CHECK_HEADERS(process.h)
-AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
+AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h sys/auxv.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
 AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h semaphore.h)
 AC_CHECK_HEADERS(sys/dkio.h sys/dklabel.h sun/dkio.h sun/dklabel.h)
@@ -548,7 +548,7 @@ AC_CHECK_FUNCS(spawnv spawnve spawnvp spawnvpe)
 AC_CHECK_FUNCS(cwait)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
-AC_CHECK_FUNCS(proc_pidpath)
+AC_CHECK_FUNCS(proc_pidpath getauxval elf_aux_info)
 AC_CHECK_FUNCS(getloadavg)
 AC_CHECK_FUNCS(gethostid gethostname getdomainname getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)

@@ -13,10 +13,10 @@
  *	Lock the project via the changeset file in lock:
  *	$SET_HOME/.sccs/SCCS/z.changeset
  *
- * @(#)lockchset.c	1.5 20/07/12 Copyright 2020 J. Schilling
+ * @(#)lockchset.c	1.6 20/08/10 Copyright 2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockchset.c	1.5 20/07/12 Copyright 2020 J. Schilling"
+#pragma ident "@(#)lockchset.c	1.6 20/08/10 Copyright 2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -24,6 +24,7 @@
 #pragma ident	"@(#)sccs:lib/comobj/lockchset.c"
 #endif
 #include	<defines.h>
+#include	<schily/signal.h>
 
 LOCAL	RETSIGTYPE	siglock	__PR((int));
 

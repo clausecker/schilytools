@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.132 20/07/12 J. Schilling
+ * @(#)defines.h	1.137 20/08/06 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.132 20/07/12 J. Schilling"
+#pragma ident "@(#)defines.h 1.137 20/08/06 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -63,6 +63,9 @@
 # undef		abs
 # include	<fatal.h>
 # include	<schily/time.h>
+#ifdef	HAVE_MMAP
+# include	<schily/mman.h>
+#endif
 
 #ifdef	HAVE_LONG_LONG
 typedef	unsigned long long urand_t;
@@ -290,6 +293,7 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 # define SI_INIT		0	/* Check filename and init pkt	    */
 # define SI_OPEN		1	/* Check filename init pkt open file */
 # define SI_FORCE		2	/* Init pkt & open any file name    */
+# define SI_NOMAP		4	/* Do not mmap() file		    */
 
 # define SI_FORCEOPEN		(SI_OPEN|SI_FORCE)
 
@@ -505,7 +509,11 @@ struct	idel {
  * setvbuf, we no longer need packet.p_buf.
  */
 #ifdef	HAVE_SETVBUF
+#ifdef	VBUF_BUFSIZE
+#define	VBUF_SIZE	VBUF_BUFSIZE
+#else
 #define	VBUF_SIZE	(32*1024)
+#endif
 #define	USE_SETVBUF
 #else
 #define	VBUF_SIZE	BUFSIZ
@@ -526,6 +534,13 @@ struct packet {
 	struct	sid p_reqsid;	/* requested SID, then new SID */
 	struct	sid p_gotsid;	/* gotten SID */
 	struct	sid p_inssid;	/* SID which inserted current line */
+#ifdef	HAVE_MMAP
+	off_t	p_mmsize;	/* size of mmap()ed area */
+	char	*p_mmbase;	/* mmap() base address for file */
+	char	*p_mmend;	/* mmap() end address for file */
+	char	*p_mmnext;	/* next "read" position in mmapped file */
+	char	p_savec;	/* saved char from *p_mmnext */
+#endif
 	char	*p_sflags[NFLAGS]; /* SCCS s.file flags */
 	char	p_verbose;	/* verbose flags (see #define's below) */
 	char	p_upd;		/* update flag (!0 = update mode) */
@@ -538,6 +553,7 @@ struct packet {
 	int	p_clhash;	/* current (input) line hash */
 	int	p_uclhash;	/* current unsigned (input) line hash */
 	int	p_nhash;	/* new (output) hash */
+	int	p_onhash;	/* saved (output) hash */
 	int	p_ghash;	/* current gfile hash */
 	int	p_glines;	/* number of lines in current gfile */
 	int	p_glnno;	/* line number of current gfile line */
@@ -573,6 +589,7 @@ struct packet {
 	int	p_reopen;	/* reopen flag used by getline on eof */
 	int	p_ixuser;	/* HADI | HADX (in get) */
 	int	do_chksum;	/* for getline(), 1 = do check sum */
+	int	no_chksum;	/* for getline(), 1 = don't compute check sum */
 	/*
 	 * Global meta data
 	 */
@@ -840,6 +857,9 @@ extern	int	openphome	__PR((void));
 extern	BOOL	has_dotdot	__PR((const char *name));
 extern	BOOL	in_tree		__PR((const char *name));
 extern	void	make_relative	__PR((char *name));
+extern	off_t	stell	__PR((struct packet *));
+extern	int	sseek	__PR((struct packet *, off_t, int));
+extern	int	srewind	__PR((struct packet *));
 
 /*
  * Declares for external variables in lib/mpwlib
@@ -901,6 +921,9 @@ extern	void	unsethome __PR((void));
 extern	int	xsethome __PR((char *path));
 extern	void	setnewmode __PR((void));
 extern	void	unsetnewmode __PR((void));
+extern	pid_t	xpopen(FILE **pfpin, FILE **pfpout, FILE **pfperr,
+				const char *cmd, char *const argv[]);
+extern	int	xpclose(FILE *fpin, FILE *fpout, FILE *fperr, pid_t child);
 
 #ifdef	DBG_MALLOC
 extern	void	*dbg_fmalloc __PR((unsigned, char *, int));

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)putline.c	1.16 18/04/29 J. Schilling
+ * @(#)putline.c	1.18 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.16 18/04/29 J. Schilling"
+#pragma ident "@(#)putline.c 1.18 20/07/27 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -148,8 +148,14 @@ char *newline;
 		}
 	}
 	if (p) {
-		if (fputs((const char *)p, pkt->p_xiop) == EOF)
-			FAILPUT;
+		if (newline) {
+			if (fputs((const char *)p, pkt->p_xiop) == EOF)
+				FAILPUT;
+		} else {
+			if (fwrite(p, 1, pkt->p_line_length,
+			    pkt->p_xiop) != pkt->p_line_length)
+				FAILPUT;
+		}
 		if (pkt->p_xcreate) {
 			if (newline) {
 				register int	hash = 0;
@@ -184,9 +190,6 @@ char *newline;
 	}
 	pkt->p_xcreate = 1;
 }
-int org_ihash;
-int org_chash;
-int org_uchash;
 
 void
 flushline(pkt, stats)

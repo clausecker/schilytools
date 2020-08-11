@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.110 20/07/08 Copyright 1989, 1994-2020 J. Schilling */
+/* @(#)fifo.c	1.111 20/07/19 Copyright 1989, 1994-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.110 20/07/08 Copyright 1989, 1994-2020 J. Schilling";
+	"@(#)fifo.c	1.111 20/07/19 Copyright 1989, 1994-2020 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -662,7 +662,8 @@ fifo_stats()
 	    (mp->eflags & FIFO_EXIT) == 0) ||
 	    FIFO_AMOUNT(mp) > 0) {
 		errmsgno(EX_BAD, "fifo is %lld%% full (%luk), size %ldk.\n",
-				(Llong)FIFO_AMOUNT(mp) * (Llong)100 / mp->size,
+				(Llong)FIFO_AMOUNT(mp) * (Llong)100 /
+				(Llong)mp->size,
 				FIFO_AMOUNT(mp)/1024, mp->size/1024);
 	}
 }

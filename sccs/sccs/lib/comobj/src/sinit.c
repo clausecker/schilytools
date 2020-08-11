@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)sinit.c	1.14 18/11/14 J. Schilling
+ * @(#)sinit.c	1.15 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sinit.c 1.14 18/11/14 J. Schilling"
+#pragma ident "@(#)sinit.c 1.15 20/07/27 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
@@ -92,6 +92,31 @@ extern	void __comobj __PR((void));
 		fstat((int)fileno(pkt->p_iop),&Statbuf);
 		if (Statbuf.st_nlink > 1)
 			fatal(gettext("more than one link (co3)"));
+
+#ifdef	HAVE_MMAP
+		pkt->p_mmsize = Statbuf.st_size;
+		if ((openflag & SI_NOMAP) == 0 &&
+		    pkt->p_mmsize < (1024*1024*1024)) {
+			/*
+			 * Do not try to mmap() huge files.
+			 * If we ever allow to mmap() files > 2G, we still need
+			 * to prevent this for 32 bit binaries.
+			 */
+			pkt->p_mmbase = mmap((void *)0, pkt->p_mmsize,
+					PROT_READ|PROT_WRITE, MAP_PRIVATE,
+					fileno(pkt->p_iop),
+					(off_t)0);
+		}
+		if (pkt->p_mmbase == MAP_FAILED) {
+			/*
+			 * Silently fall back to the read method.
+			 */
+			pkt->p_mmbase = NULL;
+		} else if (pkt->p_mmbase) {
+			pkt->p_mmnext = pkt->p_mmbase;
+			pkt->p_mmend = pkt->p_mmbase + pkt->p_mmsize;
+		}
+#endif
 		p = getline(pkt);
 		if (p == NULL || (p = checkmagic(pkt, p)) == NULL) {
 			sclose(pkt);
@@ -125,7 +150,7 @@ checkmagic(pkt, p)
 	for (i = 5; --i >= 0; ) {
 		c = *p++ - '0';
 		if (c < 0 || c > 9)
-			return (NULL);		
+			return (NULL);
 	}
 	if (*p == '\n')
 		return (&p[-5]);

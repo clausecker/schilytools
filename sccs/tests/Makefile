@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.12 20/06/24 "
+#ident "@(#)Makefile	1.13 20/07/18 "
 ###########################################################################
 tests:		# Make "tests" the default target
 ###########################################################################
@@ -56,14 +56,16 @@ sccs-v6-tests:
 
 bins: /tmp/SCCSTEST
 
-/tmp/SCCSTEST:
+/tmp/SCCSTEST: /tmp/SCCSTEST/bin
+
+/tmp/SCCSTEST/bin:
 	cd ..; "$(MAKE)" clean rmtarget INS_BASE=/tmp/SCCSTEST install; "$(MAKE)" clean rmtarget all
 
 copy: /tmp/sccstests
 
-/tmp/sccstests:
+/tmp/sccstests: /tmp/sccstests/sccs
 	star -version > /dev/null || (echo "Please install star"; exit 1)
-	mkdir /tmp/sccstests && star -no-fsync -C /tmp/sccstests -xp -bz < $(SRCROOT)/makefiles.tar.bz2
+	mkdir -p /tmp/sccstests/sccs && star -no-fsync -C /tmp/sccstests -xp -bz < $(SRCROOT)/makefiles.tar.bz2
 	star -no-fsync -copy -C ../../ incs tests /tmp/sccstests/
 	mkdir -p /tmp/sccstests/sccs/tests/ && star -no-fsync -copy -C . Makefile README common cssctests sccstests /tmp/sccstests/sccs/tests/
 

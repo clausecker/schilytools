@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.43 20/05/25 Copyright 1986-2020 J. Schilling */
+/* @(#)hdump.c	1.45 20/07/27 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.43 20/05/25 Copyright 1986-2020 J. Schilling";
+	"@(#)hdump.c	1.45 20/07/27 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -387,10 +387,17 @@ main(ac, av)
 	 * First set defaults related to the current CLI variant.
 	 */
 	if (streql(filename(av[0]), "od")) {		/* "od" interface? */
+		const char	*exname;
+
 		is_od = TRUE;				/* "od" behavior   */
 		lradix = 8;				/* "od" def is octal */
 #ifdef	HAVE_GETEXECNAME
-		if (strstr(getexecname(), "/xpg4")) {	/* X-Open interface? */
+		exname = getexecname();
+#else
+		exname = getexecpath();
+#endif
+		if (exname &&
+		    strstr(exname, "/xpg4")) {		/* X-Open interface? */
 			/*
 			 * This makes the behavior for the -c option depend
 			 * on the current locale instead of using single byte
@@ -402,7 +409,6 @@ main(ac, av)
 			 */
 			is_xpg4 = TRUE;
 		}
-#endif
 	}
 
 	cac = --ac;
@@ -441,7 +447,7 @@ main(ac, av)
 		printf(
 		_("%s release %s %s (%s-%s-%s) Copyright (C) 1986-2020 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.43", "2020/05/25",
+				"1.45", "2020/07/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);

@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.280 19/11/21 Copyright 1998-2019 J. Schilling */
+/* @(#)xconfig.h.in	1.281 20/07/22 Copyright 1998-2020 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2019 J. Schilling
+ *	Copyright (c) 1998-2020 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -97,6 +97,7 @@
 #undef HAVE_SYS_RTPRIOCNTL_H	/* if the system supports SVr4 real time classes */
 #undef HAVE_SYS_PROCSET_H	/* if the system supports SVr4 process sets */
 #undef HAVE_SYS_LOADAVG_H	/* to use getloadavg() */
+#undef HAVE_SYS_AUXV_H		/* whether we have sys/auxv.h */
 #undef HAVE_SYS_SYSCALL_H	/* to use syscall() */
 #undef HAVE_SYS_MTIO_H		/* to use mtio definitions from sys/mtio.h */
 #undef HAVE_SYS_TAPE_H		/* to use mtio definitions from AIX sys/tape.h */
@@ -539,6 +540,8 @@
 #undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
 #undef HAVE_SETPROGNAME		/* setprogname() is present in libc */
 #undef HAVE_PROC_PIDPATH	/* proc_pidpath() is present in libc */
+#undef HAVE_GETAUXVAL		/* getauxval() is present in libc (Linux) */
+#undef HAVE_ELF_AUX_INFO	/* elf_aux_info() is present in libc (FreeBSD) */
 #undef HAVE_VAR_PROGNAME	/* extern char *__progname is present in libc */
 #undef HAVE_VAR_PROGNAME_FULL	/* extern char *__progname_full is present in libc */
 #undef HAVE_GETLOADAVG		/* getloadavg() is present in libc */

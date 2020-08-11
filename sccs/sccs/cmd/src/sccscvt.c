@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.32 20/07/12 Copyright 2011-2020 J. Schilling */
+/* @(#)sccscvt.c	1.33 20/07/27 Copyright 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.32 20/07/12 Copyright 2011-2020 J. Schilling";
+	"@(#)sccscvt.c	1.33 20/07/27 Copyright 2011-2020 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -808,7 +808,7 @@ get_setup(file)
 	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
 		fmterr(&pk2);
 	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
-	get_off = ftell(pk2.p_iop);
+	get_off = stell(&pk2);
 	slnno = pk2.p_slnno;
 }
 
@@ -821,7 +821,7 @@ get_hash(ser)
 	if (ser > max_ser)
 		return (-1);
 
-	fseek(pk2.p_iop, get_off, SEEK_SET);
+	sseek(&pk2, get_off, SEEK_SET);
 	pk2.p_slnno = slnno;
 
 	pk2.p_reopen = 1;

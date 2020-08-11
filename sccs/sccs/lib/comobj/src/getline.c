@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)getline.c	1.17 18/11/13 J. Schilling
+ * @(#)getline.c	1.21 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.17 18/11/13 J. Schilling"
+#pragma ident "@(#)getline.c 1.21 20/07/27 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -72,6 +72,43 @@ register struct packet *pkt;
 	if (pkt->p_wrttn == 0)
 		putline(pkt, (char *) 0);
 
+#ifdef	HAVE_MMAP
+	if (pkt->p_mmbase) {
+		char	*p;
+		ssize_t	siz;
+
+		if (pkt->p_savec) {
+			*pkt->p_mmnext = pkt->p_savec;
+			pkt->p_savec = '\0';
+		}
+		siz = pkt->p_mmend - pkt->p_mmnext;
+		pkt->p_line = pkt->p_mmnext;
+		p = findbytes(pkt->p_mmnext, siz, '\n');
+		if (p == NULL) {
+			used = siz;
+			pkt->p_mmnext = pkt->p_mmend;
+		} else {
+			used = ++p - pkt->p_line;
+			pkt->p_mmnext = p;
+			if (pkt->p_mmnext < pkt->p_mmend) {
+				/*
+				 * We cannot nul terminate the string
+				 * if this is past the last byte in the file.
+				 * We typically get a SIGSEGV if the last
+				 * byte is the last byte in the last MMU page.
+				 * XXX: should we check if we are at pageend?
+				 */
+				pkt->p_savec = *pkt->p_mmnext;
+				*pkt->p_mmnext = '\0';
+			}
+		}
+		pkt->p_line_length = used;
+		if (used == 0)
+			pkt->p_line = "";
+		eof = pkt->p_mmnext >= pkt->p_mmend;
+	} else
+#endif
+	{					/* pkt->p_mmbase == NULL */
 	line_size = pkt->p_line_size;
 	if (line_size == 0) {
 		line_size = DEF_LINE_SIZE;
@@ -126,6 +163,7 @@ register struct packet *pkt;
 	pkt->p_linebase = line;
 	pkt->p_line_size = line_size;
 	pkt->p_line_length = used;
+	}					/* pkt->p_mmbase == NULL */
 
 	/* check end of file condition */
 	if (eof && (used == 0)) {
@@ -145,6 +183,9 @@ register struct packet *pkt;
 
 	pkt->p_wrttn = 0;
 	pkt->p_slnno++;
+
+	if (pkt->no_chksum)
+		return (pkt->p_line);
 
 	/* update check sum */
 	{
@@ -184,7 +225,9 @@ void
 grewind(pkt)
 	register struct packet *pkt;
 {
-	rewind(pkt->p_iop);
+	srewind(pkt);
+	pkt->p_onhash = pkt->p_nhash;	/* Remember value, delta(1) needs it */
+
 	pkt->p_reopen = 0;
 	pkt->p_slnno = 0;
 	pkt->p_ihash = 0;
@@ -193,4 +236,5 @@ grewind(pkt)
 	pkt->p_nhash = 0;
 	pkt->p_keep = 0;
 	pkt->do_chksum = 0;
+	pkt->no_chksum = 0;
 }

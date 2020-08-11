@@ -1,4 +1,4 @@
-# @(#)Targets	1.26 20/06/18 Copyright 2006-2015 J. Schilling
+# @(#)Targets	1.27 20/07/26 Copyright 2006-2015 J. Schilling
 
 CFILES=	auxf.c \
 	bulk.c \
@@ -17,6 +17,8 @@ CFILES=	auxf.c \
 	rdmod.c \
 	sclose.c sethome.c setinitpath.c setup.c sfree.c sid_ab.c \
 	sid_ba.c sidext_ab.c sidext_ba.c sidtoser.c sinit.c stats_ab.c strptim.c \
+	sseek.c \
 	ssum.c \
+	stell.c \
 	urand_ab.c urand_ba.c usum.c \
 	xgmtime.c xlocaltime.c xmktime.c xtzset.c

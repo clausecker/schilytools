@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)val.c	1.66 20/07/14 J. Schilling
+ * @(#)val.c	1.68 20/08/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.66 20/07/14 J. Schilling"
+#pragma ident "@(#)val.c 1.68 20/08/03 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -91,12 +91,12 @@ static char	line[BUFSIZ];
 static char	save_line[BUFSIZ];
 
 static struct delent {		/* structure for delta table entry */
-	char type;
-	char *osid;
-	char *datetime;
-	char *pgmr;
-	char *serial;
-	char *pred;
+	char type;		/* Type: D, R or U		*/
+	char *osid;		/* SID from delta		*/
+	char *datetime;		/* Whole datetime string	*/
+	char *pgmr;		/* Programmer name		*/
+	char *serial;		/* Serial number for this delta	*/
+	char *pred;		/* Serial # for predecessor	*/
 } del;
 
 	int	main __PR((int argc, char **argv));
@@ -732,7 +732,7 @@ struct packet *pkt;
 		*lp++ = '\0';
 	else
 		missfld++;
-	NONBLANK(lp);
+	NONBLANK(lp);				/* Find date time string */
 	delp->datetime = lp;			/* Date	"06/12/20 23:46:27" */
 	BLANK(lp);				/* Skip past date	*/
 	NONBLANK(lp);				/* Find time		*/
@@ -750,7 +750,7 @@ struct packet *pkt;
 	 * are too few fields.
 	 */
 	if (lp != p && *p == ' ')
-		dflags |= 1;
+		dflags |= 1;			/* Mark as double space	*/
 	delp->pgmr = lp;			/* Programmer	"bill"	*/
 	BLANK(lp);				/* Skip past programmer	*/
 	if (*lp)
@@ -1345,7 +1345,7 @@ get_setup(file)
 	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
 		fmterr(&pk2);
 	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
-	get_off = ftell(pk2.p_iop);
+	get_off = stell(&pk2);
 	slnno = pk2.p_slnno;
 
 	if (pk2.p_hash == NULL) {
@@ -1378,7 +1378,7 @@ get_hashtest(ser)
 	if (pk2.p_hash == NULL)
 		return (-1);
 
-	fseek(pk2.p_iop, get_off, SEEK_SET);
+	sseek(&pk2, get_off, SEEK_SET);
 	pk2.p_slnno = slnno;
 
 	pk2.p_reopen = 1;

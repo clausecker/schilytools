@@ -1,12 +1,12 @@
-/* @(#)util.c	1.39 19/06/12 2011-2019 J. Schilling */
+/* @(#)util.c	1.40 20/07/23 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.39 19/06/12 2011-2019 J. Schilling";
+	"@(#)util.c	1.40 20/07/23 2011-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
- *	Copyright (c) 2011-2019 J. Schilling
+ *	Copyright (c) 2011-2020 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -850,7 +850,9 @@ pspawn(av)
 	int	status;
 	sigtype	sint;
 	sigtype	squit;
+#ifdef	SIGCHLD
 	sigtype	schld;
+#endif
 
 	if ((pid = vfork()) == 0) {
 		execvp(av[0], av);
@@ -859,12 +861,16 @@ pspawn(av)
 
 	sint = signal(SIGINT, SIG_IGN);
 	squit = signal(SIGQUIT, SIG_IGN);
+#ifdef	SIGCHLD
 	schld = signal(SIGCHLD, SIG_DFL);
+#endif
 	while ((p = wait(&status)) != pid && p != (pid_t)-1)
 		;
 	(void) signal(SIGINT, sint);
 	(void) signal(SIGQUIT, squit);
+#ifdef	SIGCHLD
 	(void) signal(SIGCHLD, schld);
+#endif
 
 	if (p == (pid_t)-1)
 		return (-1);

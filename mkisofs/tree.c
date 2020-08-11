@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.142 20/03/26 joerg */
+/* @(#)tree.c	1.143 20/07/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.142 20/03/26 joerg";
+	"@(#)tree.c	1.143 20/07/23 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -2422,6 +2422,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		 * full size UDF version
 		 */
 		s_entry->de_flags |= INHIBIT_ISO9660_ENTRY|INHIBIT_JOLIET_ENTRY;
+#ifdef	HAVE_LARGEFILES
 		if (s_entry->size > (((off_t)190)*(off_t)0x3FFFF800)) {
 #ifndef	EOVERFLOW
 #define	EOVERFLOW	EFBIG
@@ -2431,6 +2432,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 							whole_path);
 			s_entry->de_flags |= INHIBIT_UDF_ENTRY;
 		}
+#endif
 
 		/*
 		 * Prepare the first file multi-extent section of the file.

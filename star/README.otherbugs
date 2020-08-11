@@ -1,12 +1,22 @@
-I have compared several tar implementations with the standard.
+#
+# @(#)README.otherbugs 1.3 20/08/09 Copyright 2001-2020 J. Schilling
+#
+
+I compared several tar implementations with the standard.
 
 	(IEEE/Posix1003/IEC-9945-1 Standard Data Interchange format)
 
 Although the POSIX.1-1988 standard now also defines cpio as an exchange format,
 I cannot recommend the cpio archive format for data exchange. There are at
 least 6 totally incompatible archive formats - all covered by the name "cpio".
-It is most likely, that you are using an archive format that other cpio
-implementations will not understand at all.
+Not all of these formats are supported by all implementations. If you like to
+extend the cpio archive format, you need to introduce a completely new variant
+that is most likely not understood by other implementations.
+
+David Korn introduced a cpio based format that cheats with the filename length
+and adds more meta data after the nul byte from the filename. This proposal has
+been discussed by the POSIX committee and given up in favor of the current
+enhanced tar.
 
 Note that POSIX.1-2001 will drop the cpio format from the standard as it
 is not extendible (e.g. for large files > 8 GB and UID's > 2097151).
@@ -32,7 +42,7 @@ Summary:
 		- Miscomputes the checksum. Therefore it is not able to extract
 		  standard conforming tar archives if they contain 8bit chars
 		  in the filename. This is a common bug found in many other
-		  implementations too.
+		  implementations as well.
 
 		No additional problems on portability except with gnutar
 		archives. But this is not a problem of BSD tar.
@@ -53,20 +63,21 @@ Summary:
 		- Transfers more than 12 Bit from stat.st_mode (violating Posix)
 		- Complains about "impossible file type" when reading 
 		  tar archives which do not contain these illegal upper bits.
-		  This problem is still present in Solaris 7 & Solaris 8
+		  This problem is still present in Solaris 7 & Solaris 8,
+		  it has been fixed with Solaris 11 (OpenSolaris).
 
 		- Does not handle non null terminated filenames correctly.
 		  The standard allows filenames that are exactly 100 chars
 		  and therefore are not null terminated. (Fixed in Solaris 2.5)
 
-		For the above reasons, Sun's tar is not conforming to
-		Posix 1003.1.
+		For the above reasons, Sun's older tar versions are not
+		conforming to Posix 1003.1.
 
 		- Loops infinitely when trying to dump /dev/fd.
 		  Caused by incorrect handling of nested directories (assumes 
 		  all directories seekable).
 		  This makes it impossible to use Solaris tar on the root file
-		  system.
+		  system. This has been fixed with Solaris 11 (OpenSolaris).
 
 
 	4)	gnutar
@@ -149,6 +160,17 @@ Summary:
 		  POSIX.1 standard. I strongly recommend not to use GNU-tar 
 		  to create archives for source exchange for this reason.
 
+		- Newer version of GNU-tar support to archive files with
+		  a filename longer than PATH_MAX, but they are unable to
+		  unpack these own archives.
+
+		- GNU-tar claims to implement support for the base-256
+		  encoding scheme for numbers, introduced in 1999 by star
+		  but GNU-tar does not correctly handle these numbers in
+		  case they are negative. As a result, GNU-tar cannot handle
+		  time stamps from before Jan 1 1970 if the archive is not
+		  including POSIX.1-2001 extended headers.
+
 		It is bad to see that now (in 2001), 11 years after the 
 		POSIX.1-1988 standard has become accepted, GNU-tar still does
 		not conform to this POSIX standard. Even worse: the first 
@@ -166,7 +188,7 @@ Summary:
 		GNU-tar history to FSF in 1994, FSF still has to correct their 
 		false claims about GNU-tar history.
 
-		See also http://www.geocrawler.com/archives/3/92/1997/2/0/2217471/
+		See also https://web.archive.org/web/20000606160915/http://www.geocrawler.com/archives/3/92/1997/2/0/2217471/
 		as a proof that a previous GNU tar maintainer did admit the
 		wrong design done by FSF members in the past.
 

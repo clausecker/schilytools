@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in 1.297
+# From configure.in 1.298
 
 
 
@@ -3588,7 +3588,7 @@ else
 fi
 done
 
-for ac_hdr in sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h
+for ac_hdr in sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h sys/auxv.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
@@ -15521,7 +15521,7 @@ else
 fi
 done
 
-for ac_func in proc_pidpath
+for ac_func in proc_pidpath getauxval elf_aux_info
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 echo "configure:15528: checking for $ac_func" >&5

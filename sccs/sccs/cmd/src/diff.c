@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)diff.c	1.79 19/12/07 J. Schilling
+ * @(#)diff.c	1.82 20/07/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.79 19/12/07 J. Schilling"
+#pragma ident "@(#)diff.c 1.82 20/07/29 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -251,6 +251,11 @@
 #define	ftell		ftello
 #endif
 
+#ifndef	HAVE_GETEXECNAME
+#define	error	__none_
+#include <schily/schily.h>	/* For getexecpath() */
+#undef	error
+#endif
 #include "diff.h"
 
 #ifndef	PATH_MAX
@@ -2361,6 +2366,7 @@ static int
 calldiff(wantpr)
 	char	*wantpr;
 {
+	const char	*exname;
 	pid_t pid;
 	int diffstatus, pv[2];
 
@@ -2396,6 +2402,11 @@ calldiff(wantpr)
 			done();
 		}
 	}
+#ifdef	HAVE_GETEXECNAME
+	exname = getexecname();
+#else
+	exname = getexecpath();
+#endif
 	pid = vfork();
 	if (pid == (pid_t)-1)
 		error(gettext(NO_PROCS_ERR));
@@ -2406,9 +2417,7 @@ calldiff(wantpr)
 			(void) close(pv[0]);
 			(void) close(pv[1]);
 		}
-#ifdef	HAVE_GETEXECNAME
-		(void) execv(getexecname(), diffargv);
-#endif
+		(void) execv(exname, diffargv);
 		(void) execv(diff+4, diffargv);
 		(void) execv(diff, diffargv);
 		perror(diff);
@@ -2426,6 +2435,10 @@ calldiff(wantpr)
 		continue;
 	while (wait((int *)0) != (pid_t)-1)
 		continue;
+#ifndef	HAVE_GETEXECNAME
+	if (exname)
+		free((char *)exname);
+#endif
 	if (WIFEXITED(diffstatus))
 		return (WEXITSTATUS(diffstatus));
 	else

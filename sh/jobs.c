@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)jobs.c	1.112 20/04/26 2008-2020 J. Schilling
+ * @(#)jobs.c	1.116 20/07/25 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.112 20/04/26 2008-2020 J. Schilling";
+	"@(#)jobs.c	1.116 20/07/25 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -876,10 +876,12 @@ restartjob(jp, fg)
 	 * get a CLD_STOPPED message from waitid() in case of a longer pipeline
 	 * where it may take some time to wakeup all processes from a group.
 	 */
+#ifdef	SIGCONT
 	(void) kill(thisjob->j_pid, SIGCONT);
 	(void) kill(-(jp->j_pgid), SIGCONT);
 	if (jp->j_tgid != jp->j_pgid)
 		(void) kill(-(jp->j_tgid), SIGCONT);
+#endif
 	jp->j_flag &= ~(J_STOPPED|J_SIGNALED|J_SAVETTY);
 	jp->j_flag |= J_RUNNING;
 	if (fg)  {
@@ -1016,8 +1018,12 @@ startjobs()
 
 	flags |= jcflg;
 
+#ifdef	SIGTTOU
 	handle(SIGTTOU, SIG_IGN);
+#endif
+#ifdef	SIGTSTP
 	handle(SIGTSTP, SIG_DFL);
+#endif
 
 	if (mysid != mypgid) {
 		setpgid(0, 0);		/* Make me a process group leader */
@@ -1219,8 +1225,12 @@ makejob(monitor, fg)
 		if (fg)
 			tcsetpgrp(STDIN_FILENO, mypid);
 #endif
+#ifdef	SIGTTOU
 		handle(SIGTTOU, SIG_DFL);
+#endif
+#ifdef	SIGTSTP
 		handle(SIGTSTP, SIG_DFL);
+#endif
 	} else if (!fg) {
 #ifdef	HAVE_NICE
 #ifdef	DO_BGNICE
@@ -1232,7 +1242,9 @@ makejob(monitor, fg)
 #endif
 #endif
 #endif
+#ifdef	SIGTTIN
 		handle(SIGTTIN, SIG_IGN);
+#endif
 		handle(SIGINT,  SIG_IGN);
 		handle(SIGQUIT, SIG_IGN);
 		if (!ioset)
@@ -1542,6 +1554,7 @@ sigv(cmdp, sig, f, args)
 	}
 #endif
 
+#ifdef	SIGSTOP
 	if (sig == SIGSTOP) {
 		/*
 		 * If the id equals our session group id, this is the id
@@ -1569,6 +1582,7 @@ sigv(cmdp, sig, f, args)
 				id = svpgid;	/* Stop our caller as well */
 		}
 	}
+#endif
 
 	if (pgrp || f == F_KILLPG) {
 		pgrp++;
@@ -1597,8 +1611,11 @@ sigv(cmdp, sig, f, args)
 				break;
 		}
 
-	} else if (sig == SIGTERM && pgrp)
+#ifdef	SIGCONT
+	} else if (sig == SIGTERM && pgrp) {
 		(void) kill(id, SIGCONT);
+#endif
+	}
 
 	if (stopme) {
 		setpgid(0, mypgid);
@@ -1624,8 +1641,10 @@ sysstop(argc, argv)
 		gfailure((unsigned char *)usage, stopuse);
 		return;
 	}
+#ifdef	SIGSTOP
 	while (*++argv)
 		sigv(cmdp, SIGSTOP, F_KILL, *argv);
+#endif
 }
 
 /*
@@ -1808,7 +1827,9 @@ syssusp(argc, argv)
 		Failure((unsigned char *)cmdp, badopt);
 		return;
 	}
+#ifdef	SIGSTOP
 	sigv(cmdp, SIGSTOP, F_SUSPEND, "0");
+#endif
 }
 
 #ifdef	DO_SYSPGRP
@@ -1898,6 +1919,7 @@ void
 hupforegnd()
 {
 	struct job *jp;
+#ifdef	SIGCHLD
 	sigset_t set, oset;
 
 	/*
@@ -1906,13 +1928,16 @@ hupforegnd()
 	sigemptyset(&set);
 	sigaddset(&set, SIGCHLD);
 	sigprocmask(SIG_BLOCK, &set, &oset);
+#endif
 	for (jp = joblst; jp != NULL; jp = jp->j_nxtp) {
 		if (jp->j_flag & J_FOREGND) {
 			(void) kill(jp->j_pid, SIGHUP);
 			break;
 		}
 	}
+#ifdef	SIGCHLD
 	sigprocmask(SIG_SETMASK, &oset, 0);
+#endif
 }
 
 /*

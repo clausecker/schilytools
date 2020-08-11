@@ -1,4 +1,4 @@
-/* @(#)fifo.h	1.39 20/07/08 Copyright 1989-2020 J. Schilling */
+/* @(#)fifo.h	1.40 20/07/22 Copyright 1989-2020 J. Schilling */
 /*
  *	Definitions for a "fifo" that uses
  *	shared memory between two processes
@@ -178,7 +178,6 @@ typedef struct {
  * this only may block when a media change is done, the delay time is not
  * important or critical.
  */
-extern	BOOL	use_fifo;
 
 #define	fifo_enter_critical()	if (use_fifo) { \
 				extern  m_head  *mp;		\
@@ -213,5 +212,10 @@ extern	BOOL	use_fifo;
 #define	fifo_lock_critical()
 #define	fifo_unlock_critical()
 #endif
+
+/*
+ * we always need this external variable.
+ */
+extern	BOOL	use_fifo;
 
 #endif /* _FIFO_H */

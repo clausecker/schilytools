@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.102 20/07/14 J. Schilling
+ * @(#)delta.c	1.106 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.102 20/07/14 J. Schilling"
+#pragma ident "@(#)delta.c 1.106 20/07/27 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -66,8 +66,8 @@ static Xparms	X;			/* Keep -X parameters		*/
 static struct packet	gpkt;
 static struct utsname	un;
 static int	num_files;
-static int	number_of_lines;
-static off_t	size_of_file;
+static int	number_of_lines;	/* # of lines in the g-file	*/
+static off_t	size_of_file;		/* The size of the g-file	*/
 static off_t	Szqfile;
 static off_t	Checksum_offset;
 static char	Zhold[MAXPATHLEN];	/* temporary z-file name */
@@ -124,10 +124,6 @@ static char *	rddiff __PR((char *s, int n));
 static void	fgetchk __PR((char *file, struct packet *pkt));
 static void	warnctl __PR((char *file, off_t nline));
 static int	fixghash __PR((struct packet *pkt, int ser));
-
-extern int	org_ihash;
-extern int	org_chash;
-extern int	org_uchash;
 
 int
 main(argc,argv)
@@ -492,6 +488,10 @@ char *file;
 		dohist(file);
 	}
 	gpkt.p_reopen = 1;
+	if (X.x_opts & XO_PREPEND_FILE) {
+		gpkt.no_chksum = 1;
+		gpkt.do_chksum = 0;
+	}
 	gpkt.p_stdout = stdout;
 	gfilename[0] = '\0';
 	strlcatl(gfilename, sizeof (gfilename),
@@ -694,11 +694,13 @@ char *file;
 	difflim = 24000;
 	diffloop = 0;
 	ghash = gpkt.p_ghash;			/* Save ghash value */
+	gpkt.p_reopen = 1;			/* Let it stay open */
 
 	if (X.x_opts & XO_PREPEND_FILE) {
 		int	oihash = gpkt.p_ihash;	/* Remember hash from sinit() */
 
 		grewind(&gpkt);
+		gpkt.p_reopen = 1;		/* Let it stay open */
 		gpkt.do_chksum = 1;		/* No old g-file, do it now */
 		gpkt.p_ihash = oihash;		/* Restore hash */
 		if (gpkt.p_flags & PF_V6) {
@@ -726,6 +728,7 @@ char *file;
 		gpkt.p_uchash = 0; 	/* Reset unsigned hash */
 		gpkt.p_wrttn = 1;
 		gpkt.p_ghash = ghash;	/* ghash may be destroyed in loop */
+
 		if (glist && gpkt.p_flags & PF_V6) {
 			gpkt.p_ghash = 0; /* write 00000 before correcting */
 		}
@@ -798,27 +801,10 @@ char *file;
 					difflim);
 				xrm(&gpkt);		/* Close x-file */
 				/*
-				 * Re-open s-file.
+				 * Rewind s-file.
 				 */
-				sclose(&gpkt);
-				gpkt.p_iop = xfopen(gpkt.p_file, O_RDONLY|O_BINARY);
-#ifdef	USE_SETVBUF
-				setvbuf(gpkt.p_iop, NULL, _IOFBF, VBUF_SIZE);
-#else
-				setbuf(gpkt.p_iop, gpkt.p_buf);
-#endif
-				/*
-				Reset counters.
-				*/
-				org_ihash = gpkt.p_ihash;
-				org_chash = gpkt.p_chash;
-				org_uchash = gpkt.p_uchash;
-				gpkt.p_slnno = 0;
-				gpkt.p_ihash = 0;
-				gpkt.p_chash = 0;
-				gpkt.p_uchash = 0;
-				gpkt.p_nhash = 0;
-				gpkt.p_keep = 0;
+				grewind(&gpkt);
+				gpkt.p_reopen = 1;	/* Let it stay open */
 			}
 			else
 				/* tried up to 500 lines, can't go on */
@@ -832,6 +818,11 @@ command, to check the differences found between two files.
 			break;			/* exit while loop */
 		}
 	}
+	/*
+	 * gpkt.p_nhash has been cleared by grewind(), restore remembered value.
+	 */
+	gpkt.p_nhash = gpkt.p_onhash;
+
 	if (gpkt.p_encoding & EF_UUENCODE) {
 		unlink(auxf(gpkt.p_file,'e'));
 	}

@@ -1,4 +1,4 @@
-.\" @(#)sccs-log.1	1.31 20/07/10 Copyr 1997-2020 J. Schilling
+.\" @(#)sccs-log.1	1.34 20/08/05 Copyr 1997-2020 J. Schilling
 .\" Manual page for sccs-log
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-log 1 "2020/07/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-log 1 "2020/08/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-log, sccslog \- create changelog from SCCS history files
 .SH SYNOPSIS
@@ -75,6 +75,58 @@ to tell
 .B sccslog
 to print filenames that are suitable for complete project changelog files.
 .TP
+.BI maxdelta= time-spec
+Set up a dedicated time delta while collecting deltas with the same delta
+comment to prints them as one log table entry.
+.sp
+If
+.I n
+is a simple number, the delta is set to the number of seconds.
+.sp
+If
+.I n
+is a number like
+.B 3h10m
+then it is representing a number of seconds that is evaluated
+as a human readable time spec.
+The letters that are recognised in the time spec are taken from
+.B smhdwy
+with the following meaning for time units:
+.RS
+.TP
+.B s
+seconds
+.TP
+.B m
+minutes (60 seconds)
+.TP
+.B h
+hours (60 minutes)
+.TP
+.B d
+days (24 hours)
+.TP
+.B w
+weeks (7 days)
+.TP
+.B y
+years (365 days - a non-leap year)
+.LP
+If neither
+.BI maxdelta= time-spec
+nor
+.B \-a
+are specified, the default time delta is one day.
+.RE
+.TP
+.B \-multfile
+Allow multiple versions of the same file in a commit.
+By default, when bundling SCCS deltas with the same delta comment, each file
+can only appear once. When
+.B \-multfile
+has been specified, the same file can appear multiple times if the delta
+comment is the same.
+.TP
 .BI \-p " subdir"
 Tell
 .B sccslog
@@ -84,6 +136,15 @@ when dealing with file names.
 .TP
 .B \-R
 Inverts the order of the output. This prints older entries first.
+.TP
+.BI usermap= file
+Use
+.I file
+instead of the default user map file.
+This allowd to create dedicated user map files for projects, e.g. to convert
+the CSRG BSD source code history. See
+.B FILES
+section for the format of the file.
 .TP
 .B \-x
 Print all comment lines, even those lines that start with

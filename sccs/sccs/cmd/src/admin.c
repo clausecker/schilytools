@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.138 20/07/14 J. Schilling
+ * @(#)admin.c	1.140 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.138 20/07/14 J. Schilling"
+#pragma ident "@(#)admin.c 1.140 20/07/27 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -149,10 +149,6 @@ static	int	pos_ser __PR((char *s1, char *s2));
 static	int	range __PR((register char *line));
 static	FILE *	code __PR((FILE *iptr, char *afile, off_t offset, int thash, struct packet *pktp));
 static	void	direrror __PR((char *dir, int keylet));
-
-extern int	org_ihash;
-extern int	org_chash;
-extern int	org_uchash;
 
 int
 main(argc,argv)
@@ -538,7 +534,7 @@ char *argv[];
 				X.x_parm = optarg;
 				X.x_flags = XO_INIT_PATH|XO_URAND|\
 					XO_UNLINK|XO_MAIL|XO_USER|XO_DATE|\
-					XO_NULLPATH|XO_NOBULK;
+					XO_NULLPATH|XO_NOBULK|XO_G_PATH;
 				if (!parseX(&X))
 					goto err;
 				had[NLOWER+c-'A'] = 0;	/* Allow mult -X */
@@ -790,6 +786,8 @@ char	*afile;
 		if (N.n_flags & N_IDOT)
 			ifile = N.n_ifile;
 	}
+	if (X.x_opts & XO_G_PATH)
+		ifile = X.x_gpath;
 
 	if (HADI && had_dir) /* directory not allowed with `i' keyletter */
 		fatal(gettext("directory named with `i' keyletter (ad26)"));
@@ -954,7 +952,6 @@ char	*afile;
 
 	if (HADZ) {
 		gpkt.do_chksum = 0;	/* ignore checksum processing */
-		org_ihash = gpkt.p_ihash;
 		gpkt.p_ihash = 0;
 	}
 
@@ -1572,8 +1569,6 @@ char	*afile;
 	Flush the buffer, take care of rewinding to insert
 	checksum and statistics in file, and close.
 	*/
-	org_chash = gpkt.p_chash;
-	org_uchash = gpkt.p_uchash;
 	flushline(&gpkt,&stats);
 
 	/*

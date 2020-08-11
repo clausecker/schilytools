@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.143 20/07/08 Copyright 1996-2020 J. Schilling */
+/* @(#)starsubs.h	1.144 20/07/19 Copyright 1996-2020 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -427,7 +427,7 @@ extern	int	lchmodat	__PR((char *name, mode_t mode, int flag));
 extern	int	lutimensat	__PR((char *name, struct timespec *ts,
 					int flag));
 #endif
-extern	int	lreadlink	__PR((char *name, char *buf, size_t bufsize));
+extern	int	lreadlink	__PR((char *name, char *buf, size_t _bufsize));
 extern	int	lsymlink	__PR((char *name, char *name2));
 extern	int	llink		__PR((char *name, char *name2));
 extern	int	lrename		__PR((char *name, char *name2));

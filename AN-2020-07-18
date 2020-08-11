@@ -407,7 +407,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		to convert all history files into SCCSv6 history files.
 
 		For the complete "schilytools" project with 4200 SCCS history
-		files in 55 Mbytes, this takes 5 minutes for the SCCS history
+		files in 55 Mbytes, this takes 2 minutes for the SCCS history
 		from 1984 .. 2020, but note that most of the edits from the
 		1980s are lost.
 
@@ -415,7 +415,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		from December 1979 up to June 1995 is in 12600 SCCS history
 		files that take up 125 MB.
 		The conversion time to the SCCSv6 history file format is
-		37 seconds.
+		18 seconds.
 
 	-	Call:
 
@@ -423,14 +423,14 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 		to populate the changeset file from the existing deltas.
 
-		For the complete "schilytools" project with 20500 commits,
-		this takes 18 minutes. The resulting file .sccs/SCCS/s.changeset
+		For the complete "schilytools" project with 19600 commits,
+		this takes 9 minutes. The resulting file .sccs/SCCS/s.changeset
 		has a size of approx. 7 MBytes.
 
 		An alternate example: the SCCS history from the BSD-4.4 project
-		from December 1979 up to June 1995 has 55000 commits.
-		The conversion time is approx. 105 minutes.
-		The size of the resulting changeset file is aprox. 14 MBytes.
+		from December 1979 up to June 1995 has 49500 commits.
+		The conversion time is approx. 50 minutes.
+		The size of the resulting changeset file is aprox. 13.5 MBytes.
 
 	-	convert the in-tree repository into an off-tree repository.
 		This final step is not yet needed and there is currently no
@@ -445,6 +445,9 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		The next task is to develop an enhancement to "sccs log"
 		that prints the changeset in a way similar to what "hg log -v"
 		prints.
+
+	-	Normal filesystems on Linux are slow, it is advised to
+		make the conversions on tmpfs for permformance reasons.
 
 	Please however keep in mind that this is still experimental and there is
 	absolutely no grant that a changelog created with current experimental

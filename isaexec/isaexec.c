@@ -25,16 +25,16 @@
  */
 
 /*
- * Copyright 2010 J. Schilling
+ * Copyright 2010-2020 J. Schilling
  *
  * Be very careful with modifications as the code has been optimized
  * to fit into a single page on Solaris.
  *
- * @(#)isaexec.c	1.5 10/12/29 J. Schilling
+ * @(#)isaexec.c	1.6 20/07/22 J. Schilling
  */
 
 #if defined(sun)
-#pragma ident	"@(#)isaexec.c 1.5 10/12/29 J. Schilling"
+#pragma ident	"@(#)isaexec.c 1.6 20/07/22 J. Schilling"
 #pragma ident	"@(#)isaexec.c	1.3	05/06/08 SMI"
 #endif
 
@@ -46,6 +46,9 @@
 #include <schily/systeminfo.h>
 
 int	main __PR((int argc, char **argv, char **envp));
+#ifndef	HAVE_GETEXECNAME
+static char	*getexecpath __PR((void));
+#endif
 
 /*ARGSUSED*/
 int
@@ -84,7 +87,8 @@ main(argc, argv, envp)
 		return (1);
 	}
 #else
-	execname = argv[0];
+	if ((execname = getexecpath()) == NULL)
+		execname = argv[0];
 #endif
 
 	/*
@@ -97,6 +101,7 @@ main(argc, argv, envp)
 	 * Get the isa list.
 	 */
 #ifdef	SI_ISALIST
+#define	NEEDCANNOT
 	if ((isalen = sysinfo(SI_ISALIST, scratch, 1)) == -1 ||
 	    (isalist = malloc(isalen)) == NULL ||
 	    sysinfo(SI_ISALIST, isalist, isalen) == -1) {
@@ -150,10 +155,57 @@ main(argc, argv, envp)
 		}
 	} while ((str = strtok(NULL, " ")) != NULL);
 
+#ifdef	NEEDCANNOT
 cannotfind:
+#endif
 	(void) fprintf(stderr,
 	    gettext("%s: cannot find/execute \"%s\" in ISA subdirectories\n"),
 	    argv[0], fname);
 
 	return (1);
 }
+
+#ifndef	HAVE_GETEXECNAME
+
+#if defined(HAVE_SYS_AUXV_H)
+/*
+ * Methods based on the ELF Aux Vector give the best results.
+ */
+#include <sys/auxv.h>
+
+#if defined(HAVE_GETAUXVAL) && defined(AT_EXECFN) /* Linux */
+#define	PATH_IMPL
+#define	METHOD_GETAUXVAL
+#else
+#if defined(HAVE_ELF_AUX_INFO) && defined(AT_EXECPATH) /* FreeBSD */
+#define	PATH_IMPL
+#define	METHOD_ELF_AUX_INFO
+#else
+/*
+ * No Solution yet
+ */
+#endif
+#endif
+
+#endif	/* HAVE_SYS_AUXV_H */
+
+static char *
+getexecpath()
+{
+#ifdef	METHOD_GETAUXVAL			/* Linux */
+	return ((char *)getauxval(AT_EXECFN));
+#endif
+#ifdef	METHOD_ELF_AUX_INFO			/* FreeBSD */
+	char	buf[256];
+	int	ret;
+
+	ret = elf_aux_info(AT_EXECPATH, buf, sizeof (buf));
+	if (ret != 0)
+		return (NULL);
+	return (strdup(buf));
+#endif
+#ifndef	PATH_IMPL
+	return (NULL);
+#endif
+}
+#endif	/* !HAVE_GETEXECNAME */

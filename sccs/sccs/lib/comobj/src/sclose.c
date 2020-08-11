@@ -10,19 +10,19 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * Copyright 2018 J. Schilling
+ * Copyright 2018-2020 J. Schilling
  *
- * @(#)sclose.c	1.1 18/11/13 J. Schilling
+ * @(#)sclose.c	1.2 20/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sclose.c 1.1 18/11/13 J. Schilling"
+#pragma ident "@(#)sclose.c 1.2 20/07/27 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)sclose.c"
 #pragma ident	"@(#)sccs:lib/comobj/sclose.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 	void	sclose		__PR((struct packet *pkt));
 
@@ -33,4 +33,13 @@ register struct packet *pkt;
 	if (pkt->p_iop)
 		(void) fclose(pkt->p_iop);
 	pkt->p_iop = NULL;
+#ifdef	HAVE_MMAP
+	if (pkt->p_mmbase) {
+		munmap(pkt->p_mmbase, pkt->p_mmsize);
+		pkt->p_mmbase = NULL;
+		pkt->p_mmnext = NULL;
+		pkt->p_mmend = NULL;
+		pkt->p_mmsize = 0;
+	}
+#endif
 }

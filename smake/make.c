@@ -1,8 +1,8 @@
-/* @(#)make.c	1.216 20/07/12 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
+/* @(#)make.c	1.218 20/07/27 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.216 20/07/12 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
+	"@(#)make.c	1.218 20/07/27 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1023,7 +1023,7 @@ check_old_makefiles()
  * -	"-et..."		Options as they appear on the command line.
  *				Space and multiple '-' are allowed.
  *	"-et -- NAME=value..."	A complete make command line (except
- *				-f filename options).
+ *				-f filename options and target arguments).
  */
 LOCAL void
 getmakeflags()
@@ -1047,8 +1047,13 @@ getmakeflags()
 		if (eql != NULL && (p == NULL || eql < p)) {
 			/*
 			 * No options at all, only cmdline macros.
+			 *
+			 * The content returned from getenv("MAKEFLAGS")
+			 * has been reported to change on DJGPP.
 			 */
-			MFCmdline = mf;
+			MFCmdline = strdup(mf);
+			if (MFCmdline == NULL)
+				MFCmdline = mf;
 			goto out;	/* Allow debug prints */
 		}
 	}
@@ -1083,7 +1088,13 @@ getmakeflags()
 					}
 					goto out; /* Allow debug prints */
 				}
-				MFCmdline = &mf[3];
+				/*
+				 * The content returned from getenv("MAKEFLAGS")
+				 * has been reported to change on DJGPP.
+				 */
+				MFCmdline = strdup(&mf[3]);
+				if (MFCmdline == NULL)
+					MFCmdline = &mf[3];
 				goto out;	/* Allow debug prints */
 			}
 			break;		/* Ignore single '-' */
@@ -1196,12 +1207,19 @@ read_makemacs()
 	while (*mf) {
 		p = nextmakemac(mf);
 		if (p == NULL) {	/* No other macro def follows */
-			if (!read_mac(mf))
+			if (!read_mac(mf)) {
+				errmsgno(EX_BAD,
+					"Bad MAKEFLAGS= environment '%s'.\n",
+					getenv(Makeflags));
 				*mf = '\0';
+			}
 			break;
 		} else {		/* Need to temporarily null terminate */
 			*p = '\0';
 			if (!read_mac(mf)) {
+				errmsgno(EX_BAD,
+					"Bad MAKEFLAGS= environment '%s'.\n",
+					getenv(Makeflags));
 				ovstrcpy(mf, &p[1]);
 			} else {
 				*p = ' ';
@@ -1242,6 +1260,7 @@ LOCAL BOOL
 read_mac(mf)
 	char	*mf;
 {
+	char	*omf = mf;
 	char	macdef[NAMEMAX*2+1];
 	char	*p;
 
@@ -1265,6 +1284,7 @@ read_mac(mf)
 		errmsgno(EX_BAD,
 			"Found illegal macro definition '%s' in MAKEFLAGS.\n",
 			macdef);
+		errmsgno(EX_BAD, "The raw macro definition was '%s'.\n", omf);
 		return (FALSE);
 	}
 

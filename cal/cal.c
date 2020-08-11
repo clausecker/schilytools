@@ -28,9 +28,9 @@
 /*	  All Rights Reserved  	*/
 
 /*
- * Copyright 2019 J. Schilling
+ * Copyright 2019-2020 J. Schilling
  *
- * @(#)cal.c       1.7 19/08/28 J. Schilling
+ * @(#)cal.c       1.8 20/07/24 J. Schilling
  *
  * From @(#)cal.c      1.14    05/06/08 SMI
  */
@@ -530,10 +530,14 @@ load_months(void)
 {
 	int month;
 
+#ifdef	MON_1
 	for (month = MON_1; month <= MON_12; month++)
 		months[month - MON_1] = nl_langinfo(month);
+#endif
+#ifdef	ABMON_1
 	for (month = ABMON_1; month <= ABMON_12; month++)
 		short_months[month - ABMON_1] = nl_langinfo(month);
+#endif
 }
 
 static void
