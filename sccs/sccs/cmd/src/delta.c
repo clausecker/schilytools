@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.106 20/07/27 J. Schilling
+ * @(#)delta.c	1.110 20/09/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.106 20/07/27 J. Schilling"
+#pragma ident "@(#)delta.c 1.110 20/09/01 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -45,6 +45,7 @@
 
 # define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<schily/resource.h>
+# define	SCCS_MAIN
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>
@@ -57,7 +58,11 @@
 # include	<ccstypes.h>
 # include	<schily/sysexits.h>
 
-# define	LENMR	60
+#ifdef		NO_FSDIFF
+#undef		USE_FSDIFF
+#endif
+
+# define	LENMR	60		/* Maximum length of an MR record */
 
 static FILE	*Diffin, *Gin;
 static FILE	*Cs;			/* The changeset file		*/
@@ -82,6 +87,13 @@ static char	BDiffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/bdiff");
 #endif
 static char	BDiffpgm[]  =   NOGETTEXT("/usr/bin/bdiff");
 static char	BDiffpgm2[]  =   NOGETTEXT("/bin/bdiff");
+#ifdef	USE_FSDIFF
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+static char	FDiffpgmp[]  =   NOGETTEXT(INS_BASE  "/" SCCS_BIN_PRE "bin/" "fsdiff");
+#else
+static char	FDiffpgmp[]  =   NOGETTEXT("/usr/ccs/bin/fsdiff");
+#endif
+#endif
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	Diffpgmp[]  =   NOGETTEXT(INS_BASE  "/" SCCS_BIN_PRE "bin/" "diff");
 #else
@@ -189,7 +201,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "()-r:dpsnm:g:y:fhoqkzC:D:N:X:V(version)");
+		        c = getopt(argc, argv, "()-r:bdpsnm:g:y:fhoqkzC:D:N:X:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -231,6 +243,7 @@ register char *argv[];
 				Mrs = p;
 				repl(Mrs,'\n',' ');
 				break;
+ 			case 'b':
  			case 'd':
 			case 'p':
 			case 'n':
@@ -296,7 +309,7 @@ register char *argv[];
 
 			default:
 			err:
-				fatal(gettext("Usage: delta [ -dknops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ][ -N[bulk-spec]][ -Xxopts ] s.filename..."));
+				fatal(gettext("Usage: delta [ -bdknops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ][ -N[bulk-spec]][ -Xxopts ] s.filename..."));
 			}
 
 			/*
@@ -592,6 +605,8 @@ char *file;
 				gpkt.p_line[gpkt.p_line_length-1] = '\0';
 			if(fputs(gpkt.p_lineptr, gpkt.p_gout) == EOF)
 				xmsg(dfilename, NOGETTEXT("delta"));
+			if (gpkt.p_flags & PF_NONL)
+				gpkt.p_line[gpkt.p_line_length-1] = '\n';
 		}
 		if (fflush(gpkt.p_gout) == EOF)
 			xmsg(dfilename, NOGETTEXT("delta"));
@@ -770,10 +785,22 @@ char *file;
 				}
 			}
 		}
+		/*
+		 * If the modifications added lines via putline() after the
+		 * code above did hit EOF in the input s.file and thus caused
+		 * a grewind(), we need to fix gpkt.p_onhash by the delta
+		 * that results from these putline() calls.
+		 */
+		gpkt.p_onhash += gpkt.p_nhash;
 		if (Diffin)
 			fclose(Diffin);
 		Diffin = NULL;
-		if (gpkt.p_iop)
+		/*
+		 * Call readmod() only if there is remaining input from the
+		 * s.file. This happens in case that we did not hit EOF on the
+		 * input before.
+		 */
+		if (gpkt.p_iop && stell(&gpkt) > 0)
 			while (readmod(&gpkt))
 				;
 		if ((X.x_opts & XO_PREPEND_FILE) == 0)
@@ -1288,7 +1315,11 @@ int difflim;
  		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
 		   diffpgm = Diffpgm2;
  		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
+#ifdef	USE_FSDIFF
+ 		} else if (HADB) {
+#else
  		} else {
+#endif
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 		   diffpgm = BDiffpgmp;
  		   execl(BDiffpgmp,BDiffpgmp,oldf,newf,num,"-s", (char *)0);
@@ -1297,7 +1328,12 @@ int difflim;
  		   execl(BDiffpgm,BDiffpgm,oldf,newf,num,"-s", (char *)0);
 		   diffpgm = BDiffpgm2;
  		   execl(BDiffpgm2,BDiffpgm2,oldf,newf,num,"-s", (char *)0);
- 		}
+#ifdef	USE_FSDIFF
+ 		} else {
+		   diffpgm = FDiffpgmp;
+ 		   execl(FDiffpgmp, FDiffpgmp, oldf, newf, (char *)0);
+#endif
+		}
 		close(1);
 		_exit(32);	/* tell parent that 'execl' failed */
 	}
@@ -1578,6 +1614,9 @@ clean_up()
 		}
 		unlink(auxf(gpkt.p_file,'d'));
 		unlink(auxf(gpkt.p_file,'q'));
+		if (gpkt.p_encoding & EF_UUENCODE) {
+			unlink(auxf(gpkt.p_file,'e'));
+		}
 		xrm(&gpkt);
 		ffreeall();
 		uname(&un);

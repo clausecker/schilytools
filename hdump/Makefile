@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.11 15/06/08 
+#ident @(#)Makefile	1.12 20/08/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,7 +7,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		hdump
-HARDLINKS=	od
+HARDLINKS=	od ../xpg4/bin/od
 #HARDLINKS=	../xpg4/bin/od
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT

@@ -1,20 +1,33 @@
-hV6,sum=23710
+hV6,sum=21331
 s 00004/00000/00000
 d D 1.1 2010/05/03 03:45:26+0200 joerg 1 0
-S s 08587
+S s 06238
 c date and time created 10/05/03 03:45:26 by joerg
 e
 u
 U
-f e 1
-f y 
+f e 0
+f y
 G r 0e46e8ee2171b
 G p sccs/tests/cssctests/prs/s_foo_bd_output.txt
 t
 T
 I 1
-M 4D@,@H!1" S"FAE;&QO("5!)2 E6B4@=V]R;&0N"@%%(#,* 4D@,PH!1" T
-M"FAE;&QO("5!)2!W;W)L9"X* 44@- H!22 T"FAE;&QO("5:)2!W;W)L9"X*
-; 44@- H!12 S"@H!12 R"@%)(#$* 44@,0H*
- 
+I 2
+D 3
+hello %A% %Z% world.
+E 3
+I 3
+D 4
+hello %A% world.
+E 4
+I 4
+hello %Z% world.
+E 4
+E 3
+
+E 2
+I 1
+E 1
+
 E 1

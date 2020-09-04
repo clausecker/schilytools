@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)rmchg.c	1.58 20/07/14 J. Schilling
+ * @(#)rmchg.c	1.59 20/08/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.58 20/07/14 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.59 20/08/23 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -42,6 +42,7 @@
 #pragma ident	"@(#)rmchg.c"
 #pragma ident	"@(#)sccs:cmd/rmchg.c"
 #endif
+# define	SCCS_MAIN			/* define global vars */
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>

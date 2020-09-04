@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)prt.c	1.46 20/07/14 J. Schilling
+ * @(#)prt.c	1.47 20/08/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.46 20/07/14 J. Schilling"
+#pragma ident "@(#)prt.c 1.47 20/08/23 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -62,6 +62,8 @@
 	Non-SCCS files are ignored.
 */
 
+
+#define		SCCS_MAIN			/* define global vars */
 #include	<defines.h>
 #include	<version.h>
 #include	<had.h>

@@ -1,13 +1,13 @@
-/* @(#)datio.c	1.27 18/10/14 Copyright 1988-2018 J. Schilling */
+/* @(#)datio.c	1.28 20/08/15 Copyright 1988-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)datio.c	1.27 18/10/14 Copyright 1988-2018 J. Schilling";
+	"@(#)datio.c	1.28 20/08/15 Copyright 1988-2020 J. Schilling";
 #endif
 /*
  *	IO routines for database
  *
- *	Copyright (c) 1988-2018 J. Schilling
+ *	Copyright (c) 1988-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -83,6 +83,7 @@ char	*datpath[] = {
 		"/usr/bert/etc/",
 		"/etc/",
 		"/usr/etc/",
+		"/opt/csw/etc/",
 		"/opt/schily/etc/",
 		NULL
 	};

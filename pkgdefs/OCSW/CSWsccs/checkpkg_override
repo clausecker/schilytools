@@ -1,24 +1,4 @@
 CSWsccs: bad-location-of-file file=/opt
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/admin
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/bdiff
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/comb
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/delta
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/diff
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/get
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/help
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/prs
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/prt
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/rmdel
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/sccs
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/sccscvt
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/sccslog
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/unget
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/val
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/vc
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/bin/what
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/ccs/lib/diffh
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/xpg4/bin/get
-CSWsccs: bad-rpath-entry $ORIGIN/../lib opt/csw/xpg4/bin/sccs
 CSWsccs: disallowed-path opt
 CSWsccs: disallowed-path opt/csw
 CSWsccs: disallowed-path opt/csw/bin
@@ -29,8 +9,10 @@ CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libcassi.a
 CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libcomobj.a
 CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libmpw.a
 CSWsccs: pkginfo-opencsw-repository-missing
+CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man4

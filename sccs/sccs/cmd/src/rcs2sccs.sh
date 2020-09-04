@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)rcs2sccs.sh	1.19 18/11/08 Copyright 2011-2018 J. Schilling
+# @(#)rcs2sccs.sh	1.20 20/08/25 Copyright 2011-2018 J. Schilling
 #
 #
 # Id: rcs2sccs,v 1.12 90/10/04 20:52:23 kenc Exp Locker: kenc
@@ -88,7 +88,10 @@ rm -f $revfile
 commentfile=/tmp/rcs2sccs_$$_comment
 rm -f $commentfile
 
-trap "rm -f $logfile $tmpfile $emptyfile $initialfile $sedfile $revfile $commentfile" 0 1 2 3 15
+#
+# NOTE: Signal numbers other then 1, 2, 3, 6, 9, 14, and 15 are not portable.
+#
+trap "rm -f $logfile $tmpfile $emptyfile $initialfile $sedfile $revfile $commentfile; exit" 0 1 2 3 15
 
 # create the sed script
 cat > $sedfile << EOF

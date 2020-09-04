@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)unget.c	1.45 20/07/14 J. Schilling
+ * @(#)unget.c	1.46 20/08/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.45 20/07/14 J. Schilling"
+#pragma ident "@(#)unget.c 1.46 20/08/23 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -42,6 +42,7 @@
 #pragma ident	"@(#)unget.c"
 #pragma ident	"@(#)sccs:cmd/unget.c"
 #endif
+#define		SCCS_MAIN			/* define global vars */
 #include	<defines.h>
 #include	<version.h>
 #include	<had.h>

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.9 16/11/07 Copyright 2015-2016 J. Schilling
+# cmptest @(#)cmptest.sh	1.5 20/08/25 Copyright 2015-2020 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -30,7 +30,7 @@ $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=nawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=gawk
 $AWK 'BEGIN {print rand()}' < /dev/null > /dev/null 2> /dev/null || AWK=awk
 
-trap cleanup EXIT INT HUP
+trap 'cleanup; exit' EXIT INT HUP
 
 cleanup() {
 	rm -f saved_orig changed patch_file expected original original.* failure xo xm xof xmf xef

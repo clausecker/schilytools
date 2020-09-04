@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.137 20/08/06 J. Schilling
+ * @(#)defines.h	1.139 20/09/04 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.137 20/08/06 J. Schilling"
+#pragma ident "@(#)defines.h 1.139 20/09/04 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -76,13 +76,16 @@ typedef struct urand {
 } urand_t;
 #endif
 
-#ifdef	HAVE_VAR_TIMEZONE
-#ifndef	HAVE_VAR_TIMEZONE_DEF		/* IRIX has extern time_t timezone */
-extern long timezone;
+#ifdef	HAVE_VAR_TIMEZONE		/* SysV compatible: timezone is var */
+#ifndef	HAVE_VAR_TIMEZONE_DEF		/* IRIX has extern time_t timezone  */
+extern long timezone;			/* Solaris and others use long	    */
 #endif
-#else
-#define	timezone	xtimezone
-long	timezone;
+#else					/* Other platforms have timezone()  */
+#define	timezone	xtimezone	/* so use a different name inside.  */
+extern	long	xtimezone;		/* Provide extern for all files	    */
+#ifdef	SCCS_MAIN
+long	xtimezone;			/* Avoid common variables for libs  */
+#endif
 #endif
 #define	tzset		xtzset
 
@@ -116,6 +119,10 @@ extern char *optarg;
 
 #ifdef	NO_SCCS_FATALHELP
 #undef	SCCS_FATALHELP
+#endif
+
+#ifdef	NO_MMAP
+#undef	HAVE_MMAP
 #endif
 
 #if	(!defined(HAVE_SNPRINTF) && !defined(NO_SNPRINTF)) || \

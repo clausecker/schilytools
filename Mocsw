@@ -1,4 +1,4 @@
-#ident "@(#)Mocsw	1.5 18/12/23 "
+#ident "@(#)Mocsw	1.6 20/09/03 "
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -11,11 +11,14 @@ USER_NAME	:sh=	/usr/ucb/whoami || whoami
 HOST_NAME	:sh=	uname -n
 DATE		:sh=	date '+%Y%m%d%H%M%S'
 
-
+#
+# RUNPATH is suppresses as long as we do not deliver own share libs.
+#
 deftgt $(ALLTARGETS):
 	"$(MAKE)" -f Mcsw DEFAULTSDIR=DEFAULTS_CSW EMAIL=joerg@opencsw.org \
 			HOTLINE=http://www.opencsw.org/bugtrack/ 	\
 			PKG_TYPE=OCSW \
-			PKGOPTX=PSTAMP=$(USER_NAME)@$(HOST_NAME)-$(DATE) \
+			"PKGOPTX=PSTAMP=$(USER_NAME)@$(HOST_NAME)-$(DATE) OPENCSW_MODE64=32" \
 			LDOPTX=-Bdirect \
+			RUNPATH= \
 			$@

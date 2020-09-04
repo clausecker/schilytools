@@ -1,8 +1,8 @@
-/* @(#)version.h	1.3 19/01/08 Copyright 2018-2019 J. Schilling */
+/* @(#)version.h	1.4 20/09/03 Copyright 2018-2020 J. Schilling */
 
 /*
  * The version for libfind/sfind
  */
-#define	VERSION		"1.7"
-#define	VERSION_NUM	0x10007
-#define	VERSION_DATE	"2019/01/08"
+#define	VERSION		"1.8"
+#define	VERSION_NUM	0x1008
+#define	VERSION_DATE	"2020/09/03"

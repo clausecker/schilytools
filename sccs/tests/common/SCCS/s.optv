@@ -1,37 +1,51 @@
-hV6,sum=21120
+hV6,sum=20258
 s 00022/00000/00000
 d D 1.1 2011/05/28 21:19:22+0200 joerg 1 0
-S s 08663
+S s 07805
 c date and time created 11/05/28 21:19:22 by joerg
 e
 u
 U
-f e 1
+f e 0
 G r 0e46e880e0807
 G p sccs/tests/common/optv
 t
 T
 I 1
-M(PHC($-H96-K:6YG('=H971H97(@4T-#4R D>V-M9'T@<W5P<&]R=',@97AT
-M96YD960@;W!T:6]N<PHC"FEF('1E<W0@(2 M>" D>V]C;61]"G1H96X*"65C
-M:&\@(EA&04E,(%-#0U,@8V]M;6%N9"!<(B1[8VUD?5PB(&YO="!F;W5N9"(*
-M96QS90H)97AP96-T7V9A:6P]=')U90H)9&]C;VUM86YD("TM<VEL96YT(&=O
-M," B)'MO8VUD?2 M5B ^("1O=71P=70@,CX@)&5R<F]R(B!)1TY/4D4@(B(@
-M24=.3U)%"@EE>'!E8W1?9F%I;#UF86QS90H):68@=&5S=" D8VUD7V5X:70@
-M+6YE(# *"71H96X*"0EI9B!G<F5P(")#4U-#("(@)&5R<F]R(#X@+V1E=B]N
-M=6QL"@D)=&AE;@H)"0EE8VAO(")81D%)3"!30T-3("1[8VUD?2!C;&]N92!S
-M=7!P;W)T<R M5B!B=70@97AI="!C;V1E(&ES("1C;61?97AI="(*"0D)96-H
-M;U]N;VYL(")/=71P=70@=V%S.B B"@D)"6=R97 @(D-34T,@(B D97)R;W(@
-M?"!H96%D("TQ"@D)96QS90H)"0EE8VAO(")81D%)3"!/;&0@4T-#4R D>V-M
-M9'T@=VET:&]U=" M5B!S=7!P;W)T(&1E=&5C=&5D+"!E>&ET(&-O9&4@:7,@
-M)&-M9%]E>&ET(@H)"69I"@EE;'-E"@D):68@9W)E<"!30T-3("1O=71P=70@
-M/B O9&5V+VYU;&P*"0ET:&5N"@D)"65C:&\@(E-#0U,@)'MC;61]('-U<'!O
-M<G1I;F<@+58@9&5T96-T960B"@D)"65C:&]?;F]N;" B3W5T<'5T('=A<SH@
-M(@H)"0EG<F5P(%-#0U,@)&]U='!U= H)"65L:68@9W)E<" B0U-30R B("1E
-M<G)O<B ^("]D978O;G5L; H)"71H96X*"0D)96-H;R B4T-#4R D>V-M9'T@
-M8VQO;F4@<W5P<&]R=&EN9R M5B!D971E8W1E9"(*"0D)96-H;U]N;VYL(")/
-M=71P=70@=V%S.B B"@D)"6=R97 @(D-34T,@(B D97)R;W(@?"!H96%D("TQ
-M"@D)96QS90H)"0EE8VAO(")/;&0@4T-#4R D>V-M9'T@=VET:&]U=" M5B!S
-<=7!P;W)T(&1E=&5C=&5D(@H)"69I"@EF:0IF:6-M
- 
+#
+# Checking whether SCCS ${cmd} supports extended options
+#
+if test ! -x ${ocmd}
+then
+	echo "XFAIL SCCS command \"${cmd}\" not found"
+else
+	expect_fail=true
+	docommand --silent go0 "${ocmd} -V > $output 2> $error" IGNORE "" IGNORE
+	expect_fail=false
+	if test $cmd_exit -ne 0
+	then
+		if grep "CSSC " $error > /dev/null
+		then
+			echo "XFAIL SCCS ${cmd} clone supports -V but exit code is $cmd_exit"
+			echo_nonl "Output was: "
+			grep "CSSC " $error | head -1
+		else
+			echo "XFAIL Old SCCS ${cmd} without -V support detected, exit code is $cmd_exit"
+		fi
+	else
+		if grep SCCS $output > /dev/null
+		then
+			echo "SCCS ${cmd} supporting -V detected"
+			echo_nonl "Output was: "
+			grep SCCS $output
+		elif grep "CSSC " $error > /dev/null
+		then
+			echo "SCCS ${cmd} clone supporting -V detected"
+			echo_nonl "Output was: "
+			grep "CSSC " $error | head -1
+		else
+			echo "Old SCCS ${cmd} without -V support detected"
+		fi
+	fi
+fi
 E 1

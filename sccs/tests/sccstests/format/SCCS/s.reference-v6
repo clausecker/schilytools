@@ -1,21 +1,27 @@
-hV6,sum=29264
+hV6,sum=28410
 s 00006/00000/00000
 d D 1.1 2016/06/20 01:13:32+0200 joerg 1 0
-S s 14902
+S s 14042
 c date and time created 16/06/20 01:13:32 by joerg
 e
 u
 U
-f e 1
+f e 0
 G r 0e46e8b5ddd0d
 G p sccs/tests/sccstests/format/reference-v6
 t
 T
 I 1
-M 7,@,# P,# O,# P,# O,# P,# * 60@1" Q+C$@>7DO;6TO9&0@:&@Z;6TZ
-M<W,N9F9F9F9F9F9F*WIZ>GH@=75U(#$@, H!4R!S(# P,# P"@%C(&1A=&4@
-M86YD('1I;64@8W)E871E9"!Y>2]M;2]D9"!H:#IM;3IS<RYF9F9F9F9F9F8K
-M>GIZ>B!B>2!U=74* 64* 74* 54* 4<@<B!X>'AX>'AX>'AX>'AX"@%T"@%4
-+"@%)(#$* 44@,0H*
- 
+s 00000/00000/00000
+d D 1.1 yy/mm/dd hh:mm:ss.fffffffff+zzzz uuu 1 0
+S s 00000
+c date and time created yy/mm/dd hh:mm:ss.fffffffff+zzzz by uuu
+e
+u
+U
+G r xxxxxxxxxxxxx
+t
+T
+I 1
+E 1
 E 1

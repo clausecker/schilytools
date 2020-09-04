@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.53 15/10/08 Copyright 1997-2015 J. Schilling */
+/* @(#)scsi-bsd.c	1.54 20/09/04 Copyright 1997-2020 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.53 15/10/08 Copyright 1997-2015 J. Schilling";
+	"@(#)scsi-bsd.c	1.54 20/09/04 Copyright 1997-2020 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -18,7 +18,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2015 J. Schilling
+ *	Copyright (c) 1997-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,7 +59,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.53";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.54";	/* The version for this transport*/
 
 #define	MAX_SCG		32	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -664,7 +664,7 @@ scgo_send(scgp)
  *
  * Copyright (c) 1998 Michael Smith <msmith@freebsd.org>
  * Copyright (c) 1998 Kenneth D. Merry <ken@kdm.org>
- * Copyright (c) 1998-2011 Joerg Schilling <joerg.schilling@fokus.fraunhofer.de>
+ * Copyright (c) 1998-2011 Joerg Schilling <joerg@schily.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -707,7 +707,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.53";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.54";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {

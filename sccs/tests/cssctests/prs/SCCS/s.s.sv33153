@@ -1,29 +1,48 @@
-hV6,sum=53201
+hV6,sum=42716
 s 00013/00000/00000
 d D 1.1 2011/04/30 16:33:45+0200 joerg 1 0
-S s 39373
+S s 28884
 c date and time created 11/04/30 16:33:45 by joerg
 e
 u
 U
-f e 1
-f y 
+f e 0
+f y
 G r 0e46e8edd9e84
 G p sccs/tests/cssctests/prs/s.sv33153
 t
 T
 I 1
-M 6@R.#4P-PH!<R P,# P,"\P,# P,"\P,# P, H!9"!$(#8N,2 Q,2\P-"\R
-M." R,SHU-3HU-B!J86UE<R V(#4* 64* 7,@,# P,# O,# P,# O,# P,# *
-M 60@1" U+C$@,3$O,#0O,C@@,C,Z-34Z-38@:F%M97,@-2 T"@%C($%55$\@
-M3E5,3"!$14Q400H!90H!<R P,# P,"\P,# P,"\P,# P, H!9"!$(#0N,2 Q
-M,2\P-"\R." R,SHU-3HU-B!J86UE<R T(#,* 6,@05543R!.54Q,($1%3%1!
-M"@%E"@%S(# P,# P+S P,# P+S P,# P"@%D($0@,RXQ(#$Q+S T+S(X(#(S
-M.C4U.C4V(&IA;65S(#,@,@H!8R!!551/($Y53$P@1$5,5$$* 64* 7,@,# P
-M,# O,# P,# O,# P,# * 60@1" R+C$@,3$O,#0O,C@@,C,Z-34Z-38@:F%M
-M97,@,B Q"@%C($%55$\@3E5,3"!$14Q400H!90H!<R P,# P,"\P,# P,"\P
-M,# P, H!9"!$(#$N,2 Q,2\P-"\R." R,SHU-3HU-B!J86UE<R Q(# * 6,@
-M9&%T92!A;F0@=&EM92!C<F5A=&5D(#$Q+S T+S(X(#(S.C4U.C4V(&)Y(&IA
-I;65S"@%E"@%U"@%5"@%F(&X* 68@92 P"@%T"@%4"@%)(#$* 44@,0IY
- 
+h28507
+s 00000/00000/00000
+d D 6.1 11/04/28 23:55:56 james 6 5
+e
+s 00000/00000/00000
+d D 5.1 11/04/28 23:55:56 james 5 4
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 4.1 11/04/28 23:55:56 james 4 3
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 3.1 11/04/28 23:55:56 james 3 2
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 2.1 11/04/28 23:55:56 james 2 1
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 1.1 11/04/28 23:55:56 james 1 0
+c date and time created 11/04/28 23:55:56 by james
+e
+u
+U
+f n
+f e 0
+t
+T
+I 1
+E 1
 E 1

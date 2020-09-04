@@ -146,9 +146,11 @@ f none share/man/man3/resolvenpath.3 0444 root bin
 f none share/man/man3/spawnl.3 0444 root bin
 f none share/man/man3/spawnv.3 0444 root bin
 f none share/man/man3/sprintf.3 0444 root bin
+f none share/man/man3/starthandlecond.3 0444 root bin
 f none share/man/man3/strcatl.3 0444 root bin
 f none share/man/man3/streql.3 0444 root bin
 f none share/man/man3/strlen.3 0444 root bin
+f none share/man/man3/unhandlecond.3 0444 root bin
 #
 f none share/man/man3/getopt.3 0444 root bin
 f none share/man/man3/getsubopt.3 0444 root bin

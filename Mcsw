@@ -1,4 +1,4 @@
-#ident @(#)Mcsw	1.5 18/12/23 
+#ident @(#)Mcsw	1.6 20/08/14 
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -17,11 +17,11 @@ COPTX="-DSEEK_DATA=3 -DSEEK_HOLE=4 -D_PC_MIN_HOLE_SIZE=21 -DNO_DOIT -DNO_DEFAULT
 PKG_TYPE=CSW
 
 deftgt:
-	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		all
-	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		all
+	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) INS_RBASE=$(INS_BASE) COPTX=$(COPTX)		all
+	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) INS_RBASE=$(INS_BASE) COPTX=$(COPTX)		all
 	#"$(MAKE)" -f Mcsw INS_BASE=/	     COPTX=$(COPTX)		pkg1
-	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		pkg1
-	fakeroot '"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)	package PKGTYPE=$(PKG_TYPE)'
+	"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) INS_RBASE=$(INS_BASE) COPTX=$(COPTX)		pkg1
+	fakeroot '"$(MAKE)" -f Mcsw INS_BASE=$(INS_BASE) INS_RBASE=$(INS_BASE) COPTX=$(COPTX)	package PKGTYPE=$(PKG_TYPE)'
 
 STRIPLIST=      ./$(INS_BASE)/*bin/* ./$(INS_BASE)/ccs/bin/*
 STRIPXLIST=      ./$(INS_BASE)/lib/*.so.*

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.13 20/07/18 "
+#ident "@(#)Makefile	1.14 20/08/25 "
 ###########################################################################
 tests:		# Make "tests" the default target
 ###########################################################################
@@ -64,6 +64,8 @@ bins: /tmp/SCCSTEST
 copy: /tmp/sccstests
 
 /tmp/sccstests: /tmp/sccstests/sccs
+
+/tmp/sccstests/sccs:
 	star -version > /dev/null || (echo "Please install star"; exit 1)
 	mkdir -p /tmp/sccstests/sccs && star -no-fsync -C /tmp/sccstests -xp -bz < $(SRCROOT)/makefiles.tar.bz2
 	star -no-fsync -copy -C ../../ incs tests /tmp/sccstests/

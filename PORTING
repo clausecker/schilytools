@@ -1,4 +1,4 @@
-# @(#)PORTING	1.7 18/09/17 Copyright 1997-2018 J. Schilling
+# @(#)PORTING	1.8 20/09/04 Copyright 1997-2020 J. Schilling
 
 Porting FAQ for SING (Schily Is Not Gnu) utilities.
 
@@ -137,5 +137,4 @@ II)	Implementing a SCSI Transport Layer for your architecture:
 
 Joerg Schilling
 
-joerg.schilling@fokus.fraunhofer.de
 joerg@schily.net

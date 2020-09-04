@@ -1,6 +1,6 @@
 ARCH=i386
 PKG=CSWmake
-NAME=make - The SunOS make program enabled for parallel execution
+NAME=make - The SunOS make program enabled for parallel execution, enhanced by POSIX Issue-8
 VERSION=1.1
 CATEGORY=application
 VENDOR=http://schilytools.sourceforge.net/  packaged for CSW by Jörg Schilling

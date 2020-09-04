@@ -2,8 +2,13 @@ i pkginfo
 i depend
 #i copyright
 i checkpkg_override
+i i.preserve
 d none share/doc/star 0755 root bin
 f none share/doc/star/license=$pkgbase/copyright 0444 root bin
+d none etc ? ? ?
+d none etc/default ? ? ?
+e preserve etc/default/star 644 root sys
+e preserve etc/default/rmt 644 root sys
 d none bin ? ? ?
 f none bin/star 4711 root bin
 s none bin/ustar=star
@@ -82,6 +87,7 @@ f none share/doc/star/testscripts/not_a_tar_file3 0644 root bin
 f none share/doc/star/testscripts/old-file.tar 0644 root bin
 f none share/doc/star/testscripts/remove.tar 0644 root bin
 f none share/doc/star/testscripts/pax-big-10g.tar.bz2 0644 root bin
+f none share/doc/star/testscripts/pax-rename.tar.gz 0644 root bin
 f none share/doc/star/testscripts/quicktest.filelist 0644 root bin
 f none share/doc/star/testscripts/tartest-quicktest.out 0644 root bin
 f none share/doc/star/testscripts/typescript 0644 root bin

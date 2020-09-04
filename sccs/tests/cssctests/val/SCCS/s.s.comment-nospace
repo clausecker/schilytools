@@ -1,20 +1,27 @@
-hV6,sum=21868
+hV6,sum=19149
 s 00004/00000/00000
 d D 1.1 2011/05/10 23:24:24+0200 joerg 1 0
-S s 07027
+S s 04333
 c date and time created 11/05/10 23:24:24 by joerg
 e
 u
 U
-f e 1
-f y 
+f e 0
+f y
 G r 0e46e8ef39cf2
 G p sccs/tests/cssctests/val/s.comment-nospace
 t
 T
 I 1
-M 6@P,SDV, H!<R P,# P,"\P,# P,"\P,# P, H!9"!$(#$N,2 Q,2\P-"\S
-M," Q.3HP.3HT-"!J86UE<R Q(# * 6,* 64* 74* 54* 70* 50* 4D@,0H!
-$12 Q"CHP
- 
+h03960
+s 00000/00000/00000
+d D 1.1 11/04/30 19:09:44 james 1 0
+c
+e
+u
+U
+t
+T
+I 1
+E 1
 E 1

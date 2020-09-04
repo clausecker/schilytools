@@ -1,4 +1,3 @@
-CSWsmake: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/smake
 CSWsmake: disallowed-path opt/csw/bin
 CSWsmake: disallowed-path opt/csw/lib
 CSWsmake: disallowed-path opt/csw/share
@@ -8,6 +7,9 @@ CSWsmake: pkginfo-opencsw-repository-missing
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
+CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/lib
+CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/lib/smake
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
 CSWsmake: surplus-dependency CSWschilybase

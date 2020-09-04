@@ -1,46 +1,94 @@
-hV6,sum=45903
+hV6,sum=27220
 s 00030/00000/00000
 d D 1.1 2010/04/18 18:20:27+0200 joerg 1 0
-S s 30906
+S s 12191
 c date and time created 10/04/18 18:20:27 by joerg
 e
 u
 U
-f e 1
-f y 
+f e 0
+f y
 G r 0e46e8ed151fb
 G p sccs/tests/cssctests/get/s.incl_excl_1.input
 t
 T
 I 1
-M 6@Q,3@R,@H!<R P,# P,2\P,# P,"\P,# P,@H!9"!$(#$N,RXQ+C,@,# O
-M,3(O,#,@,# Z-#DZ-#0@>&IA;65S(#$P(#<* 7@@-PH!8R * 64* 7,@,# P
-M,#$O,# P,# O,# P,#0* 60@1" Q+C<@,# O,3(O,#,@,# Z-#DZ-#,@>&IA
-M;65S(#D@. H!8R * 64* 7,@,# P,#$O,# P,# O,# P,#0* 60@1" Q+C8@
-M,# O,3(O,#,@,# Z-#DZ-#(@>&IA;65S(#@@-0H!9R R"@%C( H!90H!<R P
-M,# P,2\P,# P,"\P,# P,@H!9"!$(#$N,RXQ+C(@,# O,3(O,#,@,# Z-#DZ
-M-#(@>&IA;65S(#<@-@H!8R * 64* 7,@,# P,#$O,# P,#$O,# P,#$* 60@
-M1" Q+C,N,2XQ(# P+S$R+S S(# P.C0Y.C0Q('AJ86UE<R V(#,* 6,@"@%E
-M"@%S(# P,# Q+S P,# P+S P,# S"@%D($0@,2XU(# P+S$R+S S(# P.C0Y
-M.C0P('AJ86UE<R U(#0* 6,@"@%E"@%S(# P,# Q+S P,# P+S P,# R"@%D
-M($0@,2XT(# P+S$R+S S(# P.C0Y.C,Y('AJ86UE<R T(#,* 6,@"@%E"@%S
-M(# P,# Q+S P,# P+S P,# Q"@%D($0@,2XS(# P+S$R+S S(# P.C0Y.C,Y
-M('AJ86UE<R S(#(* 6,@"@%E"@%S(# P,# Q+S P,# P+S P,# P"@%D($0@
-M,2XR(# P+S$R+S S(# P.C0Y.C,X('AJ86UE<R R(#$* 6,@"@%E"@%S(# P
-M,# P+S P,# P+S P,# P"@%D($0@,2XQ(# P+S$R+S S(# P.C0Y.C,W('AJ
-M86UE<R Q(# * 6,@9&%T92!A;F0@=&EM92!C<F5A=&5D(# P+S$R+S S(# P
-M.C0Y.C,W(&)Y('AJ86UE<PH!90H!=0H!50H!= H!5 H!22 R"E1H:7,@;&EN
-M92!W87,@861D960@:6X@=F5R<VEO;B Q+C(* 4D@,PH!1" V"E1H:7,@;&EN
-M92!W87,@861D960@:6X@=F5R<VEO;B Q+C,* 44@-@H!22 V"E1H:7,@;&EN
-M92!W87,@861D960@:6X@=F5R<VEO;B Q+C,@86YD(&-H86YG960@:6X@,2XS
-M+C$N,0H!22 Q, I4:&ES(&QI;F4@=V%S(&%D9&5D(&EN('9E<G-I;VX@,2XS
-M+C$N,SL@=&AA="!V97)S:6]N(&%L<V\@97AC;'5D97,@,2XS+C$N,@H!12 Q
-M, H!22 W"E1H:7,@;&EN92!W87,@861D960@:6X@=F5R<VEO;B Q+C,N,2XR
-M"@%%(#<* 44@-@H!22 T"E1H:7,@;&EN92!W87,@861D960@:6X@=F5R<VEO
-M;B Q+C0* 4D@-0I4:&ES(&QI;F4@=V%S(&%D9&5D(&EN('9E<G-I;VX@,2XU
-M"@%)(#@*5&AI<R!L:6YE('=A<R!A9&1E9"!I;B!V97)S:6]N(#$N-CL@=&AA
-M="!V97)S:6]N(&%L<V\@:6=N;W)E<R Q+C(* 4D@.0I4:&ES(&QI;F4@=V%S
-M(&%D9&5D(&EN('9E<G-I;VX@,2XW"@%%(#D* 44@. H!12 U"@%%(#0* 44@
-1,PH!12 R"@%)(#$* 44@,0H@
- 
+h11822
+s 00001/00000/00002
+d D 1.3.1.3 00/12/03 00:49:44 xjames 10 7
+x 7
+c 
+e
+s 00001/00000/00004
+d D 1.7 00/12/03 00:49:43 xjames 9 8
+c 
+e
+s 00001/00000/00004
+d D 1.6 00/12/03 00:49:42 xjames 8 5
+g 2
+c 
+e
+s 00001/00000/00002
+d D 1.3.1.2 00/12/03 00:49:42 xjames 7 6
+c 
+e
+s 00001/00001/00001
+d D 1.3.1.1 00/12/03 00:49:41 xjames 6 3
+c 
+e
+s 00001/00000/00003
+d D 1.5 00/12/03 00:49:40 xjames 5 4
+c 
+e
+s 00001/00000/00002
+d D 1.4 00/12/03 00:49:39 xjames 4 3
+c 
+e
+s 00001/00000/00001
+d D 1.3 00/12/03 00:49:39 xjames 3 2
+c 
+e
+s 00001/00000/00000
+d D 1.2 00/12/03 00:49:38 xjames 2 1
+c 
+e
+s 00000/00000/00000
+d D 1.1 00/12/03 00:49:37 xjames 1 0
+c date and time created 00/12/03 00:49:37 by xjames
+e
+u
+U
+t
+T
+I 2
+This line was added in version 1.2
+I 3
+D 6
+This line was added in version 1.3
+E 6
+I 6
+This line was added in version 1.3 and changed in 1.3.1.1
+I 10
+This line was added in version 1.3.1.3; that version also excludes 1.3.1.2
+E 10
+I 7
+This line was added in version 1.3.1.2
+E 7
+E 6
+I 4
+This line was added in version 1.4
+I 5
+This line was added in version 1.5
+I 8
+This line was added in version 1.6; that version also ignores 1.2
+I 9
+This line was added in version 1.7
+E 9
+E 8
+E 5
+E 4
+E 3
+E 2
+I 1
+E 1
 E 1

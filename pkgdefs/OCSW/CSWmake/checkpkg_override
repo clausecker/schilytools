@@ -1,13 +1,17 @@
-CSWsmake: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/smake
-CSWsmake: disallowed-path opt/csw/bin
-CSWsmake: disallowed-path opt/csw/lib
-CSWsmake: disallowed-path opt/csw/share
-CSWsmake: disallowed-path opt/csw/share/doc
-CSWsmake: disallowed-path opt/csw/share/man
-CSWsmake: pkginfo-opencsw-repository-missing
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
-CSWsmake: surplus-dependency CSWschilybase
+CSWmake: file-with-bad-content /usr/share reloc/bin/make
+CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/sysV-make.1
+CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/make.1
+CSWmake: disallowed-path opt/csw/share/doc
+CSWmake: disallowed-path opt/csw/bin
+CSWmake: disallowed-path opt/csw/lib
+CSWmake: disallowed-path opt/csw/share
+CSWmake: disallowed-path opt/csw/share/man
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/lib
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/xpg4
+CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/xpg4/bin

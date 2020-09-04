@@ -1,4 +1,4 @@
-. \" @(#)udiff.1	1.6 18/11/17 Copyright 1985-2010 J. Schilling
+. \" @(#)udiff.1	1.8 20/09/02 Copyright 1985-2020 J. Schilling
 . \"  Manual page for udiff
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,9 +13,9 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH UDIFF 1 "2018/11/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH UDIFF 1 "2020/09/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
-udiff \- shows where two files differ
+udiff, fdiff, fsdiff \- shows where two files differ
 .SH SYNOPSIS
 .B
 .B udiff
@@ -23,9 +23,152 @@ udiff \- shows where two files differ
 .I options 
 ]
 .I file1 file2
+.sp
+.B
+.B fdiff
+[ 
+.I options 
+]
+.I file1 file2
+.sp
+.B
+.B fsdiff
+[ 
+.I options 
+]
+.I file1 file2
 .SH DESCRIPTION
 .B udiff
 shows what lines differ between two files.
+.B udiff
+supports arbitrary line lengths and treats binary files the same as text files.
+.LP
+It does not support many options or features and there is no best match resync
+mechanism, but the output is typically identical to the output from the
+classical UNIX
+.BR diff (1).
+.LP
+If called as
+.BR fdiff " or
+.BR fsdiff ,
+the POSIX output style is used and the 
+.BI nmatch= #
+resync default value is set to 1 line.
+.LP
+If called as
+.BR fsdiff ,
+the exit code is compatible to
+.BR bdiff (1)
+and differences in the files still result in a zero exit code;
+only an error causes a non-zero exit code.
+This allows
+.B fsdiff
+to be used as a replacement for the 
+.B bdiff
+program for
+.BR SCCS .
+.LP
+Since the performance of
+.B udiff
+is only a linear function of the file size, using
+.B fsdiff
+speeds up
+.B SCCS
+with large files.
+.LP
+Since the differences reported by
+.B fsdiff
+are smaller that what
+.B bdiff
+reports, this helps to keep 
+.B SCCS
+history files smaller.
+
+.LP
+The normal output if called as
+.B udiff
+contains lines of these forms:
+.sp
+.RS 2
+.nf
+-------- 1 line deleted at %ld:
+-------- %ld lines deleted at %ld:
+-------- 1 line added at %ld:
+-------- %ld lines added at %ld:
+-------- 1 line changed at %ld from:
+-------- %ld lines changed at %ld-%ld from:
+-------- 1 line changed to %ld lines at %ld from:
+-------- %ld lines changed to 1 line at %ld-%ld from:
+-------- %ld lines changed to %ld lines at %ld-%ld from:
+-------- to:
+.fi
+.RE
+.sp
+followed by blocks with the changed text.
+This is easier to read by humans than the POSIX output variant.
+.sp
+
+.LP
+The POSIX output variant contains lines of these forms:
+.sp
+.in +2
+.nf
+.I n1\c
+.B " a \c
+.IR n3 , n4
+.IR n1 , n2\c
+.B " d \c
+.I n3
+.IR n1 , n2\c
+.B " c \c
+.IR n3 , n4
+.fi
+.in -2
+
+.sp
+.LP
+where
+.I n1
+and
+.I n2
+represent lines
+.I file1
+and
+.I n3
+and
+.I n4
+represent lines in
+.I file2
+These lines resemble
+.BR ed (1)
+commands to convert
+.I file1
+to
+.IR file2 .
+By exchanging
+.B a
+for
+.B d
+and reading backward,
+.I file2
+can be converted to
+.IR file1 .
+As
+in
+.BR ed ,
+identical pairs, where
+.IR n1 = n2
+or
+.IR n3 = n4 ,
+are abbreviated as a single number.
+.sp
+.LP
+Following each of these lines come all the lines that are affected in the
+first file flagged by
+.RB ` \|<\| ',
+then all the lines that are affected in
+the second file flagged by
+.RB ` \|\>\| '.
 .SH OPTIONS
 .TP
 .B \-help
@@ -47,8 +190,37 @@ is called as
 the default is two lines, otherwise it is one line.
 .TP
 .B \-posix
-Outut the differences in POSIX style instead of using
+Output the differences in POSIX style instead of using
 .B udiff
 style.
+.SH EXIT STATUS
+.LP
+The following exit values are returned:
+.LP
+.TP
+.B 0
+No differences were found
+.RB ( udiff
+and
+.BR fdiff " only).
+.TP
+.B 0
+No error occurred
+.RB ( fsdiff " only).
+.TP
+.B 1
+Differences were found
+.RB ( udiff
+and
+.BR fdiff " only).
+.TP
+.I other
+An error occurred.
+
 .SH NOTES
 No output is generated if the files are the same.
+.SH AUTHOR
+.LP
+.B udiff
+was written 1985 - 2020 by
+J\*org Schilling

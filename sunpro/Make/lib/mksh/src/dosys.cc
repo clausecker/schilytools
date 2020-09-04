@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)dosys.cc	1.38	06/12/12"
 
 /*
- * Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)dosys.cc	1.15 19/10/17 2017-2019 J. Schilling
+ * @(#)dosys.cc	1.17 20/08/15 2017-2010 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.15 19/10/17 2017-2019 J. Schilling";
+	"@(#)dosys.cc	1.17 20/08/15 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -119,7 +119,11 @@ my_open(const char *path, int oflag, mode_t mode) {
 		}
 		sleep(1);
 #else
+#ifdef	ESTALE
 	if (res < 0 && (errno == ESTALE || errno == EAGAIN)) {
+#else
+	if (res < 0 && (errno == EAGAIN)) {
+#endif
 #endif
 		/* Stale NFS file handle. Try again */
 		res = open(path, oflag, mode);
@@ -151,6 +155,9 @@ redirect_io(char *stdout_file, char *stderr_file)
          *  HP-UX does not support the UL_GDESLIM command for ulimit().
 	 *  NOFILE == max num open files per process (from <sys/param.h>)
          */
+#ifndef	NOFILE
+#define	NOFILE	20	/* Make a plausible guess */
+#endif
 	descriptor_limit = NOFILE;
 #else
 	if ((descriptor_limit = ulimit(UL_GDESLIM)) < 0) {
@@ -167,6 +174,8 @@ redirect_io(char *stdout_file, char *stderr_file)
 #else
 #ifdef	O_FSYNC
 #define	O_DSYNC	O_FSYNC
+#else
+#define	O_DSYNC	0
 #endif	/* O_FSYNC */
 #endif	/* O_SYNC */
 #endif	/* O_DSYNC */
@@ -489,12 +498,14 @@ exec_vp(register char *name, register char **argv, char **envp, register Boolean
 					    vroot_path,
 					    VROOT_DEFAULT);
 			return failed;
+#ifdef	ETXTBSY
 		case ETXTBSY:
 			/*
 			 * The program is busy (debugged?).
 			 * Wait and then try again.
 			 */
 			(void) sleep((unsigned) i);
+#endif
 		case EAGAIN:
 			break;
 		default:

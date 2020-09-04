@@ -2,8 +2,13 @@ i pkginfo
 i depend
 #i copyright
 i checkpkg_override
+i i.preserve
 d none share/doc/cdrtools 0755 root bin
 f none share/doc/cdrtools/license=$pkgbase/copyright 0444 root bin
+d none etc ? ? ?
+d none etc/default ? ? ?
+e preserve etc/default/cdrecord 644 root sys
+e preserve etc/default/rscsi 644 root sys
 d none bin ? ? ?
 f none bin/cdda2wav 04755 root bin
 f none bin/cdda2mp3 0755 root bin

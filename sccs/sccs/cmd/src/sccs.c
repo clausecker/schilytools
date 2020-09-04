@@ -25,14 +25,15 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.134 20/07/16 J. Schilling
+ * @(#)sccs.c	1.135 20/08/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.134 20/07/16 J. Schilling"
+#pragma ident "@(#)sccs.c 1.135 20/08/23 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
  */
+#define	SCCS_MAIN			/* define global vars */
 #include <defines.h>
 #ifndef lint
 static UConst char sccsid[] = "@(#)sccs.c 1.2 2/27/90";

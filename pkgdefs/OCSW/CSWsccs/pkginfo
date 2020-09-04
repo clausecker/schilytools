@@ -1,7 +1,7 @@
 ARCH=i386
 PKG=CSWsccs
 #PKG=XXXsccs
-NAME=sccs - The Source Code Control System (SCCS)
+NAME=sccs - The Source Code Control System (SCCS), recent enhanced version
 VERSION=1.00.02
 CATEGORY=application
 VENDOR=http://sccs.sourceforge.net/ packaged for CSW by Jörg Schilling

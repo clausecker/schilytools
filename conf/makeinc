@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# @(#)makeinc	1.9 19/10/16 Copyright 1998-2019 J. Schilling
+# @(#)makeinc	1.10 20/09/04 Copyright 1998-2020 J. Schilling
 ###########################################################################
-# Copyright 1998-2019 by J. Schilling
+# Copyright 1998-2020 by J. Schilling
 ###########################################################################
 #
 # Automake script for the Schily (SING) makefile system
@@ -32,7 +32,7 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-MAILADDR=joerg.schilling@fokus.fraunhofer.de
+MAILADDR=joerg@schily.net
 
 ###########################################################################
 # Option processing

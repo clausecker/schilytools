@@ -2,8 +2,11 @@ i pkginfo
 i depend
 #i copyright
 i checkpkg_override
+i i.preserve
 d none share/doc/schilyutils 0755 root bin
 f none share/doc/schilyutils/license=$pkgbase/copyright 0444 root bin
+d none etc ? ? ?
+e preserve etc/sformat.dat 644 root sys
 d none bin ? ? ?
 f none bin/bsh 0755 root bin
 s none bin/pfbsh=bsh
@@ -22,6 +25,8 @@ f none bin/count 0755 root bin
 f none bin/cstyle.js 0755 root bin
 s none bin/cstyle=cstyle.js
 f none bin/Cstyle 0755 root bin
+s none bin/fdiff=udiff
+s none bin/fsdiff=udiff
 f none bin/fifo 0755 root bin
 f none bin/hdump 0755 root bin
 f none bin/lndir 0755 root bin
@@ -36,6 +41,8 @@ f none bin/scut 0755 root bin
 f none bin/sdd 4711 root bin
 f none bin/sfind 0755 root bin
 f none bin/spaste 0755 root bin
+f none bin/spatch 0755 root bin
+s none bin/opatch=spatch
 f none bin/sformat 0755 root bin
 f none bin/sgrow 0755 root bin
 f none bin/strar 0755 root bin
@@ -69,7 +76,9 @@ f none share/man/man1/compare.1 0444 root bin
 f none share/man/man1/copy.1 0444 root bin
 f none share/man/man1/count.1 0444 root bin
 f none share/man/man1/cstyle.1 0444 root bin
+f none share/man/man1/fdiff.1 0444 root bin
 f none share/man/man1/fifo.1 0444 root bin
+f none share/man/man1/fsdiff.1 0444 root bin
 f none share/man/man1/hdump.1 0444 root bin
 f none share/man/man1/jsh.1 0444 root bin
 f none share/man/man1/label.1 0444 root bin
@@ -78,15 +87,18 @@ f none share/man/man1/match.1 0444 root bin
 f none share/man/man1/mdigest.1 0444 root bin
 f none share/man/man1/mountcd.1 0444 root bin
 f none share/man/man1/od.1 0444 root bin
+f none share/man/man1/opatch.1 0444 root bin
 f none share/man/man1/p.1 0444 root bin
 f none share/man/man1/pfbsh.1 0444 root bin
 f none share/man/man1/pfsh.1 0444 root bin
 f none share/man/man1/printf.1 0444 root bin
+f none share/man/man1/sccspatch.1 0444 root bin
 f none share/man/man1/scut.1 0444 root bin
 f none share/man/man1/sdd.1 0444 root bin
 f none share/man/man1/sfind.1 0444 root bin
 f none share/man/man1/sgrow.1 0444 root bin
 f none share/man/man1/spaste.1 0444 root bin
+f none share/man/man1/spatch.1 0444 root bin
 f none share/man/man1/strar.1 0444 root bin
 f none share/man/man1/termcap.1 0444 root bin
 f none share/man/man1/translit.1 0444 root bin
@@ -98,8 +110,8 @@ d none share/doc/bosh 0755 root bin
 f none share/doc/bosh/dotfiles.tar.bz2 0644 root bin
 d none share/doc/bsh 0755 root bin
 f none share/doc/bsh/dotfiles.tar.bz2 0644 root bin
-d none share/doc/ved 0755 root bin
-f none share/doc/ved/dotfiles.tar.bz2 0644 root bin
 d none xpg4 ? ? ?
 d none xpg4/bin ? ? ?
 l none xpg4/bin/od=../../bin/hdump
+l none xpg4/bin/sh=../../bin/sh
+s none xpg4/bin/bosh=sh

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.164 20/07/08  Copyright (c) 2006-2020 J. Schilling"
+#ident "@(#)Makefile	1.165 20/08/14  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -205,6 +205,7 @@ $(SRCROOT)/$(RULESDIR)/rules.cmd: signames.c
 symlinks: xpg4symlink
 
 xpg4symlink: $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
+	$(RM) -f $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
 	$(SYMLINK) sh $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
 
 ###########################################################################

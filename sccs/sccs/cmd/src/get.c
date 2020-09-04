@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.94 20/07/14 J. Schilling
+ * @(#)get.c	1.96 20/08/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.94 20/07/14 J. Schilling"
+#pragma ident "@(#)get.c 1.96 20/08/29 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -43,6 +43,7 @@
 #pragma ident	"@(#)sccs:cmd/get.c"
 #endif
 
+#define		SCCS_MAIN			/* define global vars */
 #include	<defines.h>
 #include	<version.h>
 #include	<had.h>
@@ -667,6 +668,8 @@ get(pkt, file)
 				p = idsubst(pkt, pkt->p_lineptr);
 				if (fputs(p, pkt->p_gout) == EOF)
 					xmsg(gfile, NOGETTEXT("get"));
+				if (pkt->p_flags & PF_NONL)
+					pkt->p_line[pkt->p_line_length-1] = '\n';
 			}
 		}
 		if ((pkt->p_flags & (PF_V6 | PF_V6TAGS)) && pkt->p_hash) {

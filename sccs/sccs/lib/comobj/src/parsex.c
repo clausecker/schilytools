@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)parsex.c	1.9 20/07/12 Copyright 2018-2020 J. Schilling
+ * @(#)parsex.c	1.10 20/08/24 Copyright 2018-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)parsex.c	1.9 20/07/12 Copyright 2018-2020 J. Schilling"
+#pragma ident "@(#)parsex.c	1.10 20/08/24 Copyright 2018-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -84,8 +84,8 @@ parseX(X)
 					l++;
 				X->x_init_path = xmalloc(l);
 				strlcpy(X->x_init_path, &opts[3], l);
+				optflags |= XO_INIT_PATH;
 			}
-			optflags |= XO_INIT_PATH;
 
 		} else if ((flags & XO_URAND) &&
 		    strncmp(opts, "Gr=", optlen) == 0) {
@@ -100,8 +100,8 @@ parseX(X)
 				strlcpy(buf, &opts[3], l);
 				if (*urand_ab(buf, &X->x_rand))
 					goto bad;
+				optflags |= XO_URAND;
 			}
-			optflags |= XO_URAND;
 
 		} else if ((flags & XO_G_PATH) &&
 		    strncmp(opts, "gpath=", optlen) == 0) {
@@ -114,8 +114,8 @@ parseX(X)
 					l++;
 				X->x_gpath = xmalloc(l);
 				strlcpy(X->x_gpath, &opts[6], l);
+				optflags |= XO_G_PATH;
 			}
-			optflags |= XO_G_PATH;
 
 		} else if ((flags & XO_MAIL) &&
 		    strncmp(opts, "mail=", optlen) == 0) {
@@ -128,8 +128,8 @@ parseX(X)
 					l++;
 				X->x_mail = xmalloc(l);
 				strlcpy(X->x_mail, &opts[5], l);
+				optflags |= XO_MAIL;
 			}
-			optflags |= XO_MAIL;
 
 		} else if ((flags & XO_USER) &&
 		    strncmp(opts, "user=", optlen) == 0) {
@@ -142,17 +142,17 @@ parseX(X)
 					l++;
 				X->x_user = xmalloc(l);
 				strlcpy(X->x_user, &opts[5], l);
+				optflags |= XO_USER;
 			}
-			optflags |= XO_USER;
 
 		} else if ((flags & XO_DATE) &&
 		    strncmp(opts, "date=", optlen) == 0) {
 			if (optlen != 5)
 				goto bad;
-			if (opts[5])
+			if (opts[5]) {
 				parse_datez(&opts[5], &X->x_dtime, PF_V6);
-			optflags |= XO_DATE;
-
+				optflags |= XO_DATE;
+			}
 		} else if ((flags & XO_PREPEND_FILE) &&
 		    strncmp(opts, "prepend", optlen) == 0) {
 			optflags |= XO_PREPEND_FILE;

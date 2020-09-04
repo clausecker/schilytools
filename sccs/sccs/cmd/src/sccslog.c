@@ -1,14 +1,27 @@
-/* @(#)sccslog.c	1.68 20/08/10 Copyright 1997-2020 J. Schilling */
+/* @(#)sccslog.c	1.69 20/08/23 Copyright 1997-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.68 20/08/10 Copyright 1997-2020 J. Schilling";
+	"@(#)sccslog.c	1.69 20/08/23 Copyright 1997-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2020 J. Schilling
  */
-/*@@C@@*/
+/*
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
+ *
+ * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file CDDL.Schily.txt from this distribution.
+ */
 
+#define	SCCS_MAIN			/* define global vars */
 #include <defines.h>
 #include <schily/stdio.h>
 #include <schily/stdlib.h>

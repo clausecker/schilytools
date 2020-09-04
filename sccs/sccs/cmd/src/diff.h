@@ -42,10 +42,10 @@
 /*
  * Copyright 2006-2018 J. Schilling
  *
- * @(#)diff.h	1.18 18/04/04 J. Schilling
+ * @(#)diff.h	1.19 20/08/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.h 1.18 18/04/04 J. Schilling"
+#pragma ident "@(#)diff.h 1.19 20/08/30 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -61,7 +61,7 @@ extern "C" {
  * Output format options
  */
 
-int	opt;
+int	opt;			/* Holds one of the definitions from below */
 
 #define	D_NORMAL	0	/* Normal output */
 #define	D_EDIT		-1	/* Editor script out */
@@ -175,9 +175,9 @@ char **diffargv;	/* keep track of argv for diffdir */
 char *start;		/* specify where to start, used with -S */
 
 FILE *input[2];		/* two input files */
-int  len[2];
+int  len[2];		/* The number of lines in the two input files */
 struct line *sfile[2];  /* shortened by pruning common prefix and suffix */
-int  slen[2];
+int  slen[2];		/* Shortened (by pref and suff) number of lines */
 
 /*
  * Input file names.

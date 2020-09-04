@@ -1,4 +1,4 @@
-# @(#)README.install	1.6 20/05/21 Copyright 1997-2020 J. Schilling
+# @(#)README.install	1.7 20/09/04 Copyright 1997-2020 J. Schilling
 
 To install makefiles, just take the tar archive makefiles.tar
 and untar it on the source root of your new project.
@@ -28,6 +28,6 @@ Joerg Schilling
 D-13353 Berlin
 Germany
 
-Email: 	joerg.schilling@fokus.fraunhofer.de, joerg@schily.net
+Email: 	joerg@schily.net
 
 Please mail bugs and suggestions to me.

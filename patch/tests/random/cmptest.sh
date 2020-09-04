@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# cmptest @(#)cmptest.sh	1.14 18/11/27 Copyright 2015-2017 J. Schilling
+# cmptest @(#)cmptest.sh	1.15 20/08/25 Copyright 2015-2020 J. Schilling
 #
 # Usage: cmptest	---> runs 1000 test loops
 #	 cmptest #	---> runs # test loops
@@ -39,7 +39,7 @@ $CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/sfw/bin/cpp
 $CPP < /dev/null > /dev/null 2> /dev/null || CPP=/usr/gnu/bin/cpp
 $CPP < /dev/null > /dev/null 2> /dev/null || CPP=cpp
 
-trap cleanup EXIT INT HUP
+trap 'cleanup; exit' EXIT INT HUP
 
 cleanup() {
 	rm -f saved_orig changed patch_file expected original original.* failure xo xm xof xmf xef

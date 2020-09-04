@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.140 20/07/27 J. Schilling
+ * @(#)admin.c	1.142 20/08/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.140 20/07/27 J. Schilling"
+#pragma ident "@(#)admin.c 1.142 20/08/29 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -44,6 +44,7 @@
 #endif
 
 # define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
+# define	SCCS_MAIN		/* define global vars */
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>
@@ -783,6 +784,8 @@ char	*afile;
 		}
 		had_dir = 0;
 		dir_name = N.n_dir_name;
+		if (dir_name == NULL)
+			dir_name = "";
 		if (N.n_flags & N_IDOT)
 			ifile = N.n_ifile;
 	}

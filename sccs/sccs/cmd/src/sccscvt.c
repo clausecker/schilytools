@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.33 20/07/27 Copyright 2011-2020 J. Schilling */
+/* @(#)sccscvt.c	1.34 20/08/23 Copyright 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.33 20/07/27 Copyright 2011-2020 J. Schilling";
+	"@(#)sccscvt.c	1.34 20/08/23 Copyright 2011-2020 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -24,6 +24,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#define	SCCS_MAIN		/* define global vars */
 #include <defines.h>
 #include <version.h>
 #include <had.h>		/* Do we need this? We don't use getopt() */

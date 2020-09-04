@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)diff.c	1.82 20/07/29 J. Schilling
+ * @(#)diff.c	1.83 20/08/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.82 20/07/29 J. Schilling"
+#pragma ident "@(#)diff.c 1.83 20/08/30 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2793,10 +2793,19 @@ prune()
 {
 	int i, j;
 
+	/*
+	 * Compute the unmodified common prefix, the # of common lines at the
+	 * the beginning of both files.
+	 */
 	for (pref = 0; pref < len[0] && pref < len[1] &&
 	    file[0][pref + 1].value == file[1][pref + 1].value;
 	    pref++)
 		;
+
+	/*
+	 * Compute the unmodified common suffix, the # of common lines at the
+	 * the end of both files.
+	 */
 	for (suff = 0; (suff < len[0] - pref) &&
 	    (suff < len[1] - pref) &&
 	    (file[0][len[0] - suff].value ==
@@ -2804,9 +2813,20 @@ prune()
 	    suff++)
 		;
 
+	/*
+	 * The folowing change is supposed (by Sun Microsystems) to fix
+	 * a problem with diff3 that is claimed to silently mismerge files.
+	 * If we however enable this code, the stone algorithm to find the
+	 * longest identical subsequences does not always work and a resync
+	 * may occur with a single common line already.
+	 * Even though this looks like a bug, we leave the code for now
+	 * as it helps to get the same output as from the simpler udiff(1).
+	 */
+#if 1
 	/* decremnt suff by 2 iff suff >= 2, ensure that suff is never < 0 */
 	if (suff >= 2)
 		suff -= 2;
+#endif
 
 	for (j = 0; j < 2; j++) {
 		sfile[j] = file[j] + pref;

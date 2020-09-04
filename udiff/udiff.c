@@ -1,13 +1,13 @@
-/* @(#)udiff.c	1.29 18/11/17 Copyright 1985-2018 J. Schilling */
+/* @(#)udiff.c	1.32 20/08/27 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.29 18/11/17 Copyright 1985-2018 J. Schilling";
+	"@(#)udiff.c	1.32 20/08/27 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
  *
- *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 1985-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -62,8 +62,14 @@ typedef struct line {
 	long	hash;
 } line;
 
+LOCAL	char	*olbf;		/* "old" line buffer		*/
+LOCAL	char	*nlbf;		/* "new" line buffer		*/
+LOCAL	size_t	olsz;		/* "old" line buffer size	*/
+LOCAL	size_t	nlsz;		/* "new" line buffer size	*/
+
 LOCAL	BOOL	posix;		/* -posix flag */
 LOCAL	int	nmatch = 2;
+LOCAL	BOOL	bdiffmode = FALSE;
 
 LOCAL	line	*oldfile;	/* Offsets and hashes for old file */
 LOCAL	char	*oldname;	/* Old file name */
@@ -86,9 +92,9 @@ LOCAL	const char *filename	__PR((const char *name));
 LOCAL	off_t	readcommon	__PR((FILE *ofp, char *oname,
 				    FILE *nfp, char *nname));
 LOCAL	long	readfile	__PR((FILE *f, char *fname, line **hline));
-LOCAL	void	addline		__PR((char *s, off_t loff, long lc,
+LOCAL	void	addline		__PR((char *s, size_t ll, off_t loff, long lc,
 				    line *hline));
-LOCAL	long	hash		__PR((char *s));
+LOCAL	long	hash		__PR((char *s, size_t ll));
 LOCAL	BOOL	linecmp		__PR((line *olp, line *nlp));
 LOCAL	int	diff		__PR((void));
 LOCAL	void	showdel		__PR((long o, long n, long c));
@@ -132,22 +138,25 @@ main(ac, av)
 		nmatch = 1;
 		posix = 1;
 	}
+	if (av0[0] == 'f' && av0[1] == 's') {
+		bdiffmode = TRUE;
+	}
 	fac = --ac;
 	fav = ++av;
 	if (getallargs(&fac, &fav, options, &posix, &nmatch,
 	    &help, &prversion) < 0) {
-		errmsgno(EX_BAD, "Bad option: '%s'\n", av[0]);
+		errmsgno(EX_BAD, "Bad option: '%s'\n", fav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (nmatch <= 0) {
-		errmsgno(EX_BAD, "Bad nmatch value: '%s'\n", av[0]);
+		errmsgno(EX_BAD, "Bad nmatch value: %d\n", nmatch);
 		usage(EX_BAD);
 	}
 	if (prversion) {
-		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2018 Jörg Schilling\n",
-				"1.29", "2018/11/17",
+		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2020 Jörg Schilling\n",
+				"1.32", "2020/08/27",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -208,7 +217,8 @@ main(ac, av)
 		goto same;
 	}
 notsame:
-	ret = 1;
+	if (!bdiffmode)
+		ret = 1;
 	if (fileseek(of, (off_t)0) == (off_t)-1 ||
 	    fileseek(nf, (off_t)0) == (off_t)-1)
 		comerr("Cannot seek.\n");
@@ -274,8 +284,8 @@ readcommon(ofp, oname, nfp, nname)
 			op = nl + 1;
 			clc++;
 		}
-		if (n2 < n1)
-			break;
+		if (n2 != n1)	/* cmpbytes() signalled a difference	*/
+			break;	/* or n1 was less than n2		*/
 		readoff += n2;
 	}
 	return (lineoff);
@@ -287,10 +297,8 @@ readfile(f, fname, hlinep)
 		char	*fname;
 		line	**hlinep;
 {
-		char	lbuf[MAXLINE];
-	register char	*rb = lbuf;
-	register int	len;
-	register int	maxlen = sizeof (lbuf);
+	register ssize_t len;
+	register int	lch = -1;	/* Last character from last read line */
 		off_t	loff = 0;
 		long	lc = 0;
 
@@ -300,37 +308,38 @@ readfile(f, fname, hlinep)
 	loff = filepos(f);
 
 	/*
-	 * Use fgetstr() to include the newline in the hash.
+	 * Use getdelim() to include the newline in the hash.
 	 * This allows to correctly deal with files that do not end in a newline
+	 * and this allows to handle nul bytes in the line.
 	 */
 	for (;;) {
-		if ((len = fgetstr(f, rb, maxlen)) < 0) {
+		if ((len = getdelim(&olbf, &olsz, '\n', f)) < 0) {
 			if (ferror(f))
 				comerr("Cannot read '%s'.\n", fname);
 			break;
 		}
+		lch = ((unsigned char *)olbf)[len-1];
 		if (lc % 1024 == 0)
 			*hlinep = ___realloc(*hlinep,
 					(lc + 1024) * sizeof (line),
 					"new line");
-		addline(rb, loff, lc++, *hlinep);
+		addline(olbf, len, loff, lc++, *hlinep);
 #ifdef	USE_CRLF
 		loff = filepos(f);
 #else	/* USE_CRLF */
-#ifndef	tos
-		if (len < maxlen)
-			loff += len;
-		else
-#endif
-			loff = filepos(f);
+		loff += len;
 #endif	/* USE_CRLF */
+	}
+	if (lch >= 0 && lch != '\n') {
+		error("Warning: missing newline at end of file %s\n", fname);
 	}
 	return (lc);
 }
 
 LOCAL void
-addline(s, loff, lc, hline)
+addline(s, ll, loff, lc, hline)
 	register char	*s;
+	size_t	ll;
 	off_t	loff;
 	long	lc;
 	line	*hline;
@@ -339,17 +348,18 @@ addline(s, loff, lc, hline)
 
 	lp = glinep(lc, hline);
 	lp->off = loff;
-	lp->hash = hash(s);
+	lp->hash = hash(s, ll);
 }
 
 
 LOCAL long
-hash(s)
+hash(s, ll)
 	register char	*s;
+	register size_t	ll;
 {
 	register long	h;
 
-	for (h = 0; *s; ) {
+	for (h = 0; ll-- > 0; ) {
 		if (h < 0) {
 			h <<= 1;
 			h += (*s++ & 255)+1;	/* rotate sign bit */
@@ -367,8 +377,8 @@ linecmp(olp, nlp)
 	line	*olp;
 	line	*nlp;
 {
-	long	olb[MAXLINE / sizeof (long)];
-	long	nlb[MAXLINE / sizeof (long)];
+	ssize_t	lo;
+	ssize_t	ln;
 
 	if (olp->hash != nlp->hash)
 		return (FALSE);
@@ -377,8 +387,10 @@ linecmp(olp, nlp)
 		fileseek(of, olp->off);
 		ooff = olp->off;
 	}
-	ooff += 1 +
-		fgetline(of, (char *)olb, sizeof (olb));
+	lo = getdelim(&olbf, &olsz, '\n', of);
+	if (lo < 0)
+		return (FALSE);
+	ooff += lo;
 #ifdef	USE_CRLF
 	ooff = filepos(of);
 #endif
@@ -387,13 +399,17 @@ linecmp(olp, nlp)
 		fileseek(nf, nlp->off);
 		noff = nlp->off;
 	}
-	noff += 1 +
-		fgetline(nf, (char *)nlb, sizeof (nlb));
+	ln = getdelim(&nlbf, &nlsz, '\n', nf);
+	if (ln < 0)
+		return (FALSE);
+	noff += ln;
 #ifdef	USE_CRLF
 	ooff = filepos(nf);
 #endif
 
-	return (streql((char *)olb, (char *)nlb));
+	if (lo != ln)
+		return (FALSE);
+	return (cmpbytes(olbf, nlbf, lo) >= lo);
 }
 
 
@@ -487,7 +503,7 @@ showdel(o, n, c)
 {
 	long	i;
 	line	*lp;
-	char	lbuf[MAXLINE];
+	ssize_t	lo;
 
 	o += clc;
 	n += clc;
@@ -509,14 +525,16 @@ showdel(o, n, c)
 			fileseek(of, lp->off);
 			ooff = lp->off;
 		}
-		ooff += 1 +
-		fgetline(of, lbuf, sizeof (lbuf));
+		lo = getdelim(&olbf, &olsz, '\n', of);
+		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
 #endif
 		if (posix)
 			printf("< ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, olbf, lo);
+		if (olbf[lo-1] !=  '\n')
+			putchar('\n');
 	}
 }
 
@@ -529,7 +547,7 @@ showadd(o, n, c)
 {
 	long	i;
 	line	*lp;
-	char	lbuf[MAXLINE];
+	ssize_t	ln;
 
 	o += clc;
 	n += clc;
@@ -551,14 +569,16 @@ showadd(o, n, c)
 			fileseek(nf, lp->off);
 			noff = lp->off;
 		}
-		noff += 1 +
-		fgetline(nf, lbuf, sizeof (lbuf));
+		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
 #endif
 		if (posix)
 			printf("> ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, nlbf, ln);
+		if (nlbf[ln-1] !=  '\n')
+			putchar('\n');
 	}
 }
 
@@ -571,7 +591,8 @@ showchange(o, n, c)
 {
 	long	i;
 	line	*lp;
-	char	lbuf[MAXLINE];
+	ssize_t	lo;
+	ssize_t	ln;
 
 	o += clc;
 	n += clc;
@@ -594,14 +615,16 @@ showchange(o, n, c)
 			fileseek(of, lp->off);
 			ooff = lp->off;
 		}
-		ooff += 1 +
-		fgetline(of, lbuf, sizeof (lbuf));
+		lo = getdelim(&olbf, &olsz, '\n', of);
+		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
 #endif
 		if (posix)
 			printf("< ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, olbf, lo);
+		if (olbf[lo-1] !=  '\n')
+			putchar('\n');
 	}
 	if (posix)
 		printf("---\n");
@@ -613,14 +636,16 @@ showchange(o, n, c)
 			fileseek(nf, lp->off);
 			noff = lp->off;
 		}
-		noff += 1 +
-		fgetline(nf, lbuf, sizeof (lbuf));
+		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
 #endif
 		if (posix)
 			printf("> ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, nlbf, ln);
+		if (nlbf[ln-1] !=  '\n')
+			putchar('\n');
 	}
 }
 
@@ -634,7 +659,8 @@ showxchange(o, n, oc, nc)
 {
 	long	i;
 	line	*lp;
-	char	lbuf[MAXLINE];
+	ssize_t	lo;
+	ssize_t	ln;
 
 	o += clc;
 	n += clc;
@@ -663,14 +689,16 @@ showxchange(o, n, oc, nc)
 			fileseek(of, lp->off);
 			ooff = lp->off;
 		}
-		ooff += 1 +
-		fgetline(of, lbuf, sizeof (lbuf));
+		lo = getdelim(&olbf, &olsz, '\n', of);
+		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
 #endif
 		if (posix)
 			printf("< ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, olbf, lo);
+		if (olbf[lo-1] !=  '\n')
+			putchar('\n');
 	}
 	if (posix)
 		printf("---\n");
@@ -682,13 +710,15 @@ showxchange(o, n, oc, nc)
 			fileseek(nf, lp->off);
 			noff = lp->off;
 		}
-		noff += 1 +
-		fgetline(nf, lbuf, sizeof (lbuf));
+		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
 #endif
 		if (posix)
 			printf("> ");
-		printf("%s\n", lbuf);
+		filewrite(stdout, nlbf, ln);
+		if (nlbf[ln-1] !=  '\n')
+			putchar('\n');
 	}
 }

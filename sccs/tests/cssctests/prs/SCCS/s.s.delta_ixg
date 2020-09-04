@@ -1,43 +1,108 @@
-hV6,sum=33411
+hV6,sum=09329
 s 00027/00000/00000
 d D 1.1 2011/05/10 23:24:24+0200 joerg 1 0
-S s 19192
+S s 60602
 c date and time created 11/05/10 23:24:24 by joerg
 e
 u
 U
-f e 1
-f y 
+f e 0
+f y
 G r 0e46e8ee29a54
 G p sccs/tests/cssctests/prs/s.delta_ixg
 t
 T
 I 1
-M 6@V,#(S,PH!<R P,# P,"\P,# P,"\P,# P,@H!9"!$(#$N,BXR+C$@,3$O
-M,#4O,#(@,C,Z-#(Z-#,@:F%M97,@,3(@,@H!:2 S"@%X(#$* 6,@;F\M;W *
-M 64* 7,@,# P,# O,# P,# O,# P,#$* 60@1" Q+C$N,2XR(#$Q+S U+S R
-M(#(S.C0Q.C,R(&IA;65S(#$Q(#<* 7@@,@H!9R Q"@%C(&YO+6]P"@%E"@%S
-M(# P,# P+S P,# P+S P,# Q"@%D($0@,2XR+C$N,2 Q,2\P-2\P,B R,SHS
-M-SHT-2!J86UE<R Q," R"@%X(#$* 6,@;F\M;W * 64* 7,@,# P,#$O,# P
-M,#,O,# P,# * 60@1" Q+C,N,2XQ(#$Q+S U+S R(#(S.C,U.C0S(&IA;65S
-M(#D@,PH!:2 T"@%G(#(* 6,@<F5P;&%C960@8F]D>0H!90H!<R P,# P,2\P
-M,# P,R\P,# P, H!9"!2(#$N-"XQ+C$@,3$O,#4O,#(@,C,Z,S,Z,SD@:F%M
-M97,@." T"@%G(#(* 6,@<F5P;&%C960@8F]D>0H!90H!<R P,# P,2\P,# P
-M,"\P,# P,0H!9"!$(#$N,2XQ+C$@,3$O,#4O,#(@,C,Z,C8Z-3 @:F%M97,@
-M-R Q"@%I(#(* 6,@;F5W+6)R86YC: H!90H!<R P,# P,2\P,# P,"\P,# P
-M- H!9"!$(#$N-B Q,2\P-2\P,B R,CHR.#HT."!J86UE<R V(#4* 6D@,PH!
-M>" Q"@%G(#(* 6,@:7AT97-T"@%E"@%S(# P,# Q+S P,# P+S P,# S"@%D
-M($0@,2XU(#$Q+S U+S R(#(R.C(T.C,T(&IA;65S(#4@- H!9R S"@%C(&1O
-M= H!90H!<R P,# P,2\P,# P,"\P,# P,@H!9"!$(#$N-" Q,2\P-2\P,B R
-M,CHR,SHS-2!J86UE<R T(#,* 6,@"@%E"@%S(# P,# Q+S P,# P+S P,# Q
-M"@%D($0@,2XS(#$Q+S U+S R(#(R.C(S.C$Y(&IA;65S(#,@,@H!8R * 64*
-M 7,@,# P,#$O,# P,# O,# P,# * 60@1" Q+C(@,3$O,#4O,#(@,C(Z,C(Z
-M-#4@:F%M97,@,B Q"@%C( H!90H!<R P,# P,"\P,# P,"\P,# P, H!9"!$
-M(#$N,2 Q,2\P-2\P,B R,CHR,CHS,B!J86UE<R Q(# * 6,@9&%T92!A;F0@
-M=&EM92!C<F5A=&5D(#$Q+S U+S R(#(R.C(R.C,R(&)Y(&IA;65S"@%E"@%U
-M"@%5"@%F(&H@"@%T"@%4"@%)(#(* 40@.0IH96QL;PH!22 W"FYE=RUB<F%N
-M8V@* 44@-PH!22 S"G1H97)E"@%)(#0*=V]R;&0* 44@.0H!22 Y"FYE=R!B
-M;V1Y"@%%(#D* 4D@-0HN"@%)(#8*:7AT97-T"@%%(#8* 44@-0H!12 T"@%%
-2(#,* 44@,@H!22 Q"@%%(#$*
- 
+h60233
+s 00000/00000/00002
+d D 1.2.2.1 11/05/02 23:42:43 james 12 2
+i 3
+x 1
+c no-op
+e
+s 00000/00000/00001
+d D 1.1.1.2 11/05/02 23:41:32 james 11 7
+x 2
+g 1
+c no-op
+e
+s 00000/00000/00001
+d D 1.2.1.1 11/05/02 23:37:45 james 10 2
+x 1
+c no-op
+e
+s 00001/00003/00000
+d D 1.3.1.1 11/05/02 23:35:43 james 9 3
+i 4
+g 2
+c replaced body
+e
+s 00001/00003/00000
+d R 1.4.1.1 11/05/02 23:33:39 james 8 4
+g 2
+c replaced body
+e
+s 00001/00000/00001
+d D 1.1.1.1 11/05/02 23:26:50 james 7 1
+i 2
+c new-branch
+e
+s 00001/00000/00004
+d D 1.6 11/05/02 22:28:48 james 6 5
+i 3
+x 1
+g 2
+c ixtest
+e
+s 00001/00000/00003
+d D 1.5 11/05/02 22:24:34 james 5 4
+g 3
+c dot
+e
+s 00001/00000/00002
+d D 1.4 11/05/02 22:23:35 james 4 3
+c 
+e
+s 00001/00000/00001
+d D 1.3 11/05/02 22:23:19 james 3 2
+c 
+e
+s 00001/00000/00000
+d D 1.2 11/05/02 22:22:45 james 2 1
+c 
+e
+s 00000/00000/00000
+d D 1.1 11/05/02 22:22:32 james 1 0
+c date and time created 11/05/02 22:22:32 by james
+e
+u
+U
+f j 
+t
+T
+I 2
+D 9
+hello
+I 7
+new-branch
+E 7
+I 3
+there
+I 4
+world
+E 9
+I 9
+new body
+E 9
+I 5
+.
+I 6
+ixtest
+E 6
+E 5
+E 4
+E 3
+E 2
+I 1
+E 1
 E 1
