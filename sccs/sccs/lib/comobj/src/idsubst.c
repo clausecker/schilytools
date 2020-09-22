@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2019 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)idsubst.c	1.75 19/12/19 J. Schilling
+ * @(#)idsubst.c	1.76 20/09/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)idsubst.c 1.75 19/12/19 J. Schilling"
+#pragma ident "@(#)idsubst.c 1.76 20/09/14 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -294,6 +294,8 @@ char line[];
 		if (!expand_IDs)
 			return (line);
 	} else {
+		if (list_expand_IDs && *list_expand_IDs == '\0')
+			return (line);
 		if (!any('%', line))
 			return (line);
 	}

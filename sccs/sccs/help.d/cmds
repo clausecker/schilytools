@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2020 J. Schilling
 *
-* @(#)cmds	1.78 20/08/05 J. Schilling 
+* @(#)cmds	1.81 20/09/14 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -33,11 +33,12 @@
 -delta
 	delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-q[nsedelim]]
 		[-y<comment>] [-D diff-file] [-N[bulk-spec]]
-		[-d] [-f] [-h] [-p] [-z] [-Cdir] [-Xopts] file ...
+		[-b] [-d] [-f] [-h] [-p] [-z] [-Cdir] [-Xopts] file ...
 
 	Make a delta to an SCCS file
 
 options:
+	-b	Use bdiff(1) instead of fsdiff(1)
 	-d	Use diff(1) instead of bdiff(1)
 	-f	In NSE mode, enforce a delta even when no p.file exists
 	-h	In NSE mode, allow diffh for large files (currently defunct)
@@ -64,7 +65,14 @@ X options may be specified as a comma separated list. The following
 options are available, they can be abbreviated as long as the abbreviation
 is still unique:
 
+date=datetime	Set a user specified timestamp
+
+gpath=g-path	Specify a different path to the g-file instead of deriving the
+		path from the s-file
+
 mail=address	Set e-mail address for a delta (admin/delta).
+
+nobulk		Disable bulkmode pathname translation
 
 prepend		Prepend the current content of the g-file to the previous
 		content of that file (delta).
@@ -72,10 +80,6 @@ prepend		Prepend the current content of the g-file to the previous
 unlink		Create an "unlink" delta in the SCCS history file (delta).
 
 user=name	Set a different user (programmer) name for a delta (admin/delta)
-
-date=datetime	Set a user specified timestamp
-
-nobulk		Disable bulkmode pathname translation
 
 Gp=initial_path	Set the initial path (admin).
 
@@ -808,12 +812,13 @@ options:
 options:
 	-o	Use original time of edited file to apply to initial delta
 -istext
-	istext [-s] [-V4/-V6] file...
+	istext [-D] [-s] [-V4/-V6] file...
 
 	Checks whether the files need to be encoded or whether they may
 	be archived as pure text files
 
 options:
+	-D	Print current default history format (v4/v6).
 	-s	Be silent
 	-V4	Check against SCCS v4 rules
 	-V6	Check against SCCS v6 rules

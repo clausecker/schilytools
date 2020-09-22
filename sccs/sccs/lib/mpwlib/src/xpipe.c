@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2020 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)xpipe.c	1.7 20/05/17 J. Schilling
+ * @(#)xpipe.c	1.8 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xpipe.c 1.7 20/05/17 J. Schilling"
+#pragma ident "@(#)xpipe.c 1.8 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)xpipe.c 1.4 06/12/12

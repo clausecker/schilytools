@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)dometa.c	1.2 18/11/25 Copyright 2011-2018 J. Schilling
+ * @(#)dometa.c	1.3 20/09/16 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dometa.c	1.2 18/11/25 Copyright 2011-2018 J. Schilling"
+#pragma ident "@(#)dometa.c	1.3 20/09/16 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -81,6 +81,7 @@ dometa(pkt)
 				"WARNING: unsupported global meta data '%s' at line %d\n"),
 				p, pkt->p_slnno);
 		}
+		pkt->p_line[pkt->p_line_length-1] = '\n'; /* Restore newline */
 	} while ((p = getline(pkt)) != NULL &&
 				*p++ == CTLCHAR && *p++ == GLOBALEXTENS);
 }

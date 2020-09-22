@@ -6,6 +6,51 @@ CSWschilyutils: disallowed-path opt/csw/sbin
 CSWschilyutils: disallowed-path opt/csw/share
 CSWschilyutils: disallowed-path opt/csw/share/doc
 CSWschilyutils: disallowed-path opt/csw/share/man
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/bsh'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/btcflash'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/cal'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/calc'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/calltree'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/change'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/compare'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/copy'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/count'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/fifo'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/hdump'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/label'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/lndir'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/match'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/mdigest'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/obosh'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/p'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/pbosh'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/printf'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/scut'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/sdd'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/sfind'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/sformat'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/sgrow'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/sh'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/spaste'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/spatch'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/strar'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/termcap'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/translit'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/bin/udiff'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/lib/cpp'
+CSWschilyutils: elf-info-missing binary_path='opt/csw/sbin/mountcd'
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/bsh CSWschilyutils contains symlink /opt/csw/bin/pfbsh which needs the target file: bin/bsh
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/cstyle.js CSWschilyutils contains symlink /opt/csw/bin/cstyle which needs the target file: bin/cstyle.js
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/hdump CSWschilyutils contains hardlink /opt/csw/bin/od which needs the target file: bin/hdump
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/hdump CSWschilyutils contains hardlink /opt/csw/xpg4/bin/od which needs the target file: bin/hdump
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/sh CSWschilyutils contains hardlink /opt/csw/xpg4/bin/sh which needs the target file: bin/sh
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/sh CSWschilyutils contains symlink /opt/csw/bin/bosh which needs the target file: bin/sh
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/sh CSWschilyutils contains symlink /opt/csw/bin/jsh which needs the target file: bin/sh
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/sh CSWschilyutils contains symlink /opt/csw/bin/pfsh which needs the target file: bin/sh
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/spatch CSWschilyutils contains symlink /opt/csw/bin/opatch which needs the target file: bin/spatch
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/udiff CSWschilyutils contains symlink /opt/csw/bin/fdiff which needs the target file: bin/udiff
+CSWschilyutils: file-needed-but-no-package-satisfies-it bin/udiff CSWschilyutils contains symlink /opt/csw/bin/fsdiff which needs the target file: bin/udiff
+CSWschilyutils: file-needed-but-no-package-satisfies-it xpg4/bin/sh CSWschilyutils contains symlink /opt/csw/xpg4/bin/bosh which needs the target file: xpg4/bin/sh
 CSWschilyutils: pkginfo-opencsw-repository-missing
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/etc
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
@@ -21,4 +66,3 @@ CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man3
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man8
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/xpg4
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/xpg4/bin
-CSWschilyutils: soname-unused libelf.so.1 is needed by /opt/csw/bin/sformat but never used

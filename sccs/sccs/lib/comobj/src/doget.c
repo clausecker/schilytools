@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)doget.c	1.2 18/12/16 Copyright 2015-2018 J. Schilling
+ * @(#)doget.c	1.4 20/09/07 Copyright 2015-2018 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)doget.c	1.2 18/12/16 Copyright 2015-2018 J. Schilling"
+#pragma ident "@(#)doget.c	1.4 20/09/07 Copyright 2015-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -24,6 +24,9 @@
 #include	<had.h>
 #include	<i18n.h>
 
+/*
+ * Library version of get(1)
+ */
 void
 doget(afile, gname, ser)
 	char		*afile;
@@ -78,11 +81,23 @@ doget(afile, gname, ser)
 		while (readmod(&pk2)) {
 			char	*p;
 
-			if (pk2.p_flags & PF_NONL)
-				pk2.p_line[pk2.p_line_length-1] = '\0';
+			if (pk2.p_flags & PF_NONL) {
+				pk2.p_line[--(pk2.p_line_length)] = '\0';
+				pk2.p_line_length -= 2;	/* ^AN */
+			}
 			p = idsubst(&pk2, pk2.p_lineptr);
-			if (fputs(p, pk2.p_gout) == EOF)
-				xmsg(gname, NOGETTEXT("get"));
+			if (p != pk2.p_lineptr) {
+				if (fputs(p, pk2.p_gout) == EOF)
+					xmsg(gname, NOGETTEXT("get"));
+			} else {
+				if (fwrite(p, 1, pk2.p_line_length,
+				    pk2.p_gout) != pk2.p_line_length)
+					xmsg(gname, NOGETTEXT("get"));
+			}
+			if (pk2.p_flags & PF_NONL) {
+				pk2.p_line_length += 2;	/* ^AN */
+				pk2.p_line[(pk2.p_line_length)++] = '\n';
+			}
 		}
 	}
 	if (fflush(pk2.p_gout) == EOF)

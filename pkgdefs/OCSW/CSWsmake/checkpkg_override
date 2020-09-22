@@ -1,11 +1,10 @@
 CSWsmake: disallowed-path opt/csw/bin
-CSWsmake: disallowed-path opt/csw/lib
 CSWsmake: disallowed-path opt/csw/share
 CSWsmake: disallowed-path opt/csw/share/doc
 CSWsmake: disallowed-path opt/csw/share/man
+CSWsmake: elf-info-missing binary_path='opt/csw/bin/smake'
 CSWsmake: pkginfo-opencsw-repository-missing
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
-CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
 CSWsmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/lib

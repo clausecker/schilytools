@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)dohist.c	1.11 15/02/08 J. Schilling
+ * @(#)dohist.c	1.12 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dohist.c 1.11 15/02/08 J. Schilling"
+#pragma ident "@(#)dohist.c 1.12 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)dohist.c 1.7 06/12/12

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)rdmod.c	1.9 15/01/26 J. Schilling
+ * @(#)rdmod.c	1.11 20/09/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rdmod.c 1.9 15/01/26 J. Schilling"
+#pragma ident "@(#)rdmod.c 1.11 20/09/13 J. Schilling"
 #endif
 /*
  * @(#)rdmod.c 1.11 06/12/12
@@ -82,6 +82,7 @@ found_esc:
 	      iord = *p++;
 	      if (iord == CTLCHAR) {	/* "^A^Atext\n" -> "^Atext\n"	*/
 		 pkt->p_lineptr++;
+		 pkt->p_line_length--;
 		 lhash -= CTLCHAR;
 		 goto found_esc;
 	      } else if (iord == NONL) { /* "^ANtext\n" -> "text"	*/

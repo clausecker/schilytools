@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)admin.c	1.142 20/08/29 J. Schilling
+ * @(#)admin.c	1.148 20/09/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.142 20/08/29 J. Schilling"
+#pragma ident "@(#)admin.c 1.148 20/09/16 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -134,12 +134,14 @@ static struct	utsname	un;		/* uname for lockit()		*/
 static char	*uuname;		/* un.nodename			*/
 static int 	Encoded = EF_TEXT;	/* Default encoding is '0'	*/
 static off_t	Encodeflag_offset;	/* offset in file where encoded flag is stored */
+static off_t	Flagdummy_offset;	/* offset in file where dummy flag is stored */
 static off_t	Checksum_offset;	/* offset in file where g-file hash is stored */
 
 	int	main __PR((int argc, char **argv));
 static	void	admin __PR((char *afile));
 static	int	fgetchk __PR((FILE *inptr, char *file, struct packet *pkt, int fflag));
 static	void	warnctl __PR((char *file, off_t nline));
+static	void	warnnull __PR((char *file, off_t nline));
 static	void	clean_up __PR((void));
 static	void	cmt_ba __PR((register struct deltab *dt, char *str, int flags));
 static	void	putmrs __PR((struct packet *pkt));
@@ -1300,6 +1302,14 @@ char	*afile;
 			sprintf(line,"%c%c %c %d\n",
 				CTLCHAR, FLAG, ENCODEFLAG, Encoded);
 			putline(&gpkt,line);
+
+			if (HADI && !HADB && (gpkt.p_flags & PF_V6) &&
+			    (had_flag[EXPANDFLAG - 'a'] == 0)) {
+				Flagdummy_offset = ftell(gpkt.p_xiop);
+				sprintf(line,"%c%c   \n",
+					CTLCHAR, NAMEDFLAG);
+				putline(&gpkt,line);
+			}
 		}
 		/*
 		 * Writing out SCCS v6 flags belongs here.
@@ -1327,7 +1337,21 @@ char	*afile;
 		while (gpkt.p_line_length > 1 &&
 			    gpkt.p_line[0] == CTLCHAR &&
 			    gpkt.p_line[1] == NAMEDFLAG) {
+			if (gpkt.p_line[1] == NAMEDFLAG) {
+				q = (signed char *)&gpkt.p_line[2];
+				NONBLANK(q);
+				if (*q == '\n') {
+					/*
+					 * Skip dummy flag, it is only needed
+					 * as a placeholder by "admin -i...".
+					 */
+					gpkt.p_wrttn = 1;
+					getline(&gpkt);
+					continue;
+				}
+			}
 			getline(&gpkt);
+
 		}
 
 		/*
@@ -1508,6 +1532,7 @@ char	*afile;
 			 * empty 'y' flag value.
 			 */
 			if (!gpkt.p_did_id && !HADQ &&
+			    (!Flagdummy_offset || !(gpkt.p_props & CK_NULL)) &&
 			    (!flag_p[EXPANDFLAG - 'a'] ||
 			    *(flag_p[EXPANDFLAG - 'a']))) {
 				if (had_flag[IDFLAG - 'a']) {
@@ -1566,6 +1591,18 @@ char	*afile;
 		fseek(gpkt.p_xiop, Encodeflag_offset, SEEK_SET);
 		fprintf(gpkt.p_xiop,"%c%c %c %d\n",
 			CTLCHAR, FLAG, ENCODEFLAG, Encoded);
+	} else if (Flagdummy_offset && (gpkt.p_props & CK_NULL)) {
+		strcpy(line,"F   ");
+		q = (signed char *) line;
+		while (*q)
+			gpkt.p_nhash -= *q++;
+		strcpy(line,"f y ");
+		q = (signed char *) line;
+		while (*q)
+			gpkt.p_nhash += *q++;
+		fseek(gpkt.p_xiop, Flagdummy_offset, SEEK_SET);
+		fprintf(gpkt.p_xiop,"%c%c %c \n",
+			CTLCHAR, FLAG, EXPANDFLAG);
 	}
 
 	/*
@@ -1672,6 +1709,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 	off_t	nline;
 	int	idx = 0;
 	int	warned = 0;
+	int	nwarned = 0;
 	char	chkflags = 0;
 	char	lastchar;
 #ifndef	RECORD_IO
@@ -1681,12 +1719,15 @@ struct	packet	*pkt;		/* struct paket for output	*/
 	char	*lastline = line; /* Init to make GCC quiet */
 #else
 	int	search_on = 0;
-	char	line[256];	/* Avoid a too long buffer for speed */
+	int	llen;
+	char	line[256+1];	/* Avoid a too long buffer for speed */
 #endif
 	off_t	ibase = 0;	/* Ifile off from last read operation	*/
 	off_t	ioff = 0;	/* Ifile offset past last newline	*/
 	off_t	soff = ftell(pkt->p_xiop); /* Ofile (s. file) base offset */
+	off_t	coff = 0;	/* Offset from additional ^A escapes	*/
 	unsigned int sum = 0;
+	int	pktv6 = pkt->p_flags & PF_V6;
 
 	/*
 	 * This gives the illusion that a zero-length file ends
@@ -1709,12 +1750,13 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		lastline = line;
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
 			chkflags |= CK_CTLCHAR;
-			if (fflag && (pkt->p_flags & PF_V6)) {
+			if (fflag && pktv6) {
 				if (!warned) {
 					warnctl(file, nline+1);
 					warned = 1;
 				}
 				putctl(pkt);
+				coff++;
 			} else {
 				goto err;
 			}
@@ -1728,25 +1770,34 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		for (p = line;
 		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
 			ioff = ibase + (p - line) + 1;
-			if (pn && p > pn)
-				goto err;
+			if (pn && p > pn) {		/* '\0' before '\n' */
+				if (pktv6) {
+					if (!nwarned) {
+						warnnull(file, nline+1);
+						nwarned = 1;
+					}
+				} else {
+					goto err;
+				}
+			}
 			nline++;
-			if ((p - line) >= (idx-1))
+			if ((p - line) >= (idx-1))	/* '\n' last in buf */
 				break;
 
 			if (p[1] == CTLCHAR) {
 				chkflags |= CK_CTLCHAR;
-				if (fflag && (pkt->p_flags & PF_V6) &&
-				    (chkflags & CK_NULL) == 0) {
+				if (fflag && pktv6 &&
+				    (p[1] == CTLCHAR)) {
 					if (!warned) {
 						warnctl(file, nline+1);
 						warned = 1;
 					}
 					p[1] = '\0';
-					putline(pkt, lastline);
+					putlline(pkt, lastline, &p[1] - lastline);
 					p[1] = CTLCHAR;
 					lastline = &p[1];
 					putctl(pkt);
+					coff++;
 					continue;
 				}
 	err:
@@ -1762,7 +1813,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 			}
 		}
 		line[idx] = '\0';
-		putline(pkt, lastline);
+		putlline(pkt, lastline, &line[idx] - lastline);
 
 		if (check_id && pkt->p_did_id == 0) {
 			pkt->p_did_id =
@@ -1771,15 +1822,19 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		ibase += idx;
 	}
 #else	/* !RECORD_IO */
+	/*
+	 * We support nul bytes with fgets() by pre-filling the buffer.
+	 */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
 	   if (lastchar == '\n' && line[0] == CTLCHAR) {
 		chkflags |= CK_CTLCHAR;
-		if (fflag && (pkt->p_flags & PF_V6)) {
+		if (fflag && pktv6) {
 			if (!warned) {
 				warnctl(file, nline+1);
 				warned = 1;
 			}
 			putctl(pkt);
+			coff++;
 		} else {
 			nline++;
 			goto err;
@@ -1792,6 +1847,13 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		    chkflags |= CK_NULL;
 	err:
 		    if (fflag) {
+			if (pktv6) {
+				if ((chkflags & CK_NULL) && !nwarned) {
+					warnnull(file, nline);
+					nwarned = 1;
+				}
+				continue;
+			}
 		       return(-1);
 		    } else {
 		       sprintf(SccsError,
@@ -1811,6 +1873,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 
 		    }
 		    ibase += idx;
+		    llen = idx;
 		 }
 	      }
 	   }
@@ -1818,7 +1881,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		pkt->p_did_id =
 			chkid(line, flag_p[IDFLAG - 'a'], flag_p);
 	   }
-	   putline(pkt, line);
+	   putlline(pkt, line, llen);
 	   (void)memset(line, '\377', sizeof (line));
 	}
 #endif	/* !RECORD_IO */
@@ -1829,20 +1892,33 @@ struct	packet	*pkt;		/* struct paket for output	*/
 
 	if (chkflags & CK_NONL) {
 #ifndef	RECORD_IO
-		if (pn)		/* Found null byte but no newline past null */
+		if (!pktv6)
+		if (pn && nline == 0)		/* Found null byte but no newline past null */
 			goto err;
 #endif
-		if (fflag && (pkt->p_flags & PF_V6)) {
-			fseek(inptr, ioff, SEEK_SET);
-			fseek(pkt->p_xiop, ioff + soff, SEEK_SET);
+		if (fflag && pktv6) {
+			int	first = 1;
 
-			putctlnnl(pkt);
+			fseek(inptr, ioff, SEEK_SET);
+			fseek(pkt->p_xiop, ioff + soff + coff, SEEK_SET);
+
 			/*
 			 * Write again already written text without recomputing
 			 * the checksum for this part of the text.
 			 */
 			while ((idx =
 			    fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
+				if (first) {
+					first = 0;
+					if (line[0] == CTLCHAR) {
+						/*
+						 * ^A escape is already present
+						 */
+						putchr(pkt, NONL);
+					} else {
+						putctlnnl(pkt);
+					}
+				}
 				if (fwrite(line, 1, idx, pkt->p_xiop) <= 0)
 					FAILPUT;
 			}
@@ -1852,7 +1928,6 @@ struct	packet	*pkt;		/* struct paket for output	*/
 				dir_name,
 				*dir_name?"/":"",
 				file);
-			(void) sccsfatalhelp("(ad31)");
 			return (nline);
 		}
 
@@ -1880,6 +1955,18 @@ warnctl(file, nline)
 		*dir_name?"/":"",
 		file, (Intmax_t)nline);
 }
+
+static void
+warnnull(file, nline)
+	char	*file;
+	off_t	nline;
+{
+	fprintf(stderr,
+		gettext(
+		"WARNING [%s]: line %jd contains a '\\000'\n"),
+		file, (Intmax_t)nline);
+}
+
 
 static void
 clean_up()

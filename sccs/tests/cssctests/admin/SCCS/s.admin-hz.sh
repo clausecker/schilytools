@@ -1,4 +1,9 @@
-hV6,sum=34486
+hV6,sum=05436
+s 00008/00000/00058
+d D 1.4 2020/09/17 02:02:00.728863077+0200 joerg 4 3
+S s 20842
+c Zusaetzliches "admin -z" beseitigt "^AF   " Platzhalter zeitig
+e
 s 00001/00001/00057
 d D 1.3 2015/06/03 00:06:43+0200 joerg 3 2
 S s 60364
@@ -50,6 +55,16 @@ remove foo
 # Make sure the checksum is checked as correct.
 docommand c2 "${vg_admin} -h $s" 0 "" ""
 
+I 4
+#
+# If we are testing SCCS v6, a new SCCS history file may contain a "^AF   "
+# placeholder line that gets automatically removed with the next "admin -z"
+# or delta(1) call. Enforce this to happen now to let our comparisons pass.
+#
+docommand c2a "${vg_admin} -z $s" 0 "" ""
+docommand c2b "${vg_admin} -h $s" 0 "" ""
+
+E 4
 # Now, create a copy with a changed checksum, but no other 
 # differences.
 D 2

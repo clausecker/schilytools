@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.61	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.11 20/03/29 2017-2020 J. Schilling
+ * @(#)defs.h	1.12 20/09/06 2017-2020 J. Schilling
  */
 
 /*

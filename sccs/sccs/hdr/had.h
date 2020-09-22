@@ -25,15 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009-2011 J. Schilling
+ * Copyright 2009-2020 J. Schilling
  *
- * @(#)had.h	1.6 11/06/06 J. Schilling
+ * @(#)had.h	1.7 20/09/06 J. Schilling
  */
 #ifndef	_HDR_HAD_H
 #define	_HDR_HAD_H
 
 #if defined(sun)
-#pragma ident "@(#)had.h 1.6 11/06/06 J. Schilling"
+#pragma ident "@(#)had.h 1.7 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)had.h 1.4 06/12/12

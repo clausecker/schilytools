@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)val.c	1.69 20/08/23 J. Schilling
+ * @(#)val.c	1.71 20/09/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.69 20/08/23 J. Schilling"
+#pragma ident "@(#)val.c 1.71 20/09/10 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -899,13 +899,11 @@ get_line(pkt)
 register struct packet *pkt;
 {
 #ifdef	NO_GETDELIM
-	char	buf[DEF_LINE_SIZE];
+	char	buf[DEF_LINE_SIZE+1];
 	register size_t nread = 0;
 #endif
 	int	eof = 0;
 	register size_t used = 0;
-	register signed char *p;
-	register unsigned char *u_p;
 
 #ifndef	NO_GETDELIM
 	/*
@@ -927,8 +925,11 @@ register struct packet *pkt;
 #else
 	/* read until EOF or newline encountered */
 	do {
+		(void)memset(buf, '\377', sizeof (buf));
 		if (!(eof = (fgets(buf, sizeof (buf), pkt->p_iop) == NULL))) {
-			nread = strlen(buf);
+			for (nread = sizeof (buf); --nread > 0; )
+				if (buf[nread] == '\0')
+					break;
 
 			if ((used + nread) >=  pkt->p_line_size) {
 				pkt->p_line_size += sizeof (buf);
@@ -938,7 +939,7 @@ register struct packet *pkt;
 				}
 			}
 
-			strcpy(pkt->p_line + used, buf);
+			memcpy(pkt->p_line + used, buf, nread);
 			used += nread;
 		}
 	} while (!eof && (pkt->p_line[used-1] != '\n'));
@@ -975,10 +976,8 @@ register struct packet *pkt;
 	}
 
 	/* update check sum */
-	for (p = (signed char *)pkt->p_line, u_p = (unsigned char *)pkt->p_line; *p; ) {
-		pkt->p_chash += *p++;
-		pkt->p_uchash += *u_p++;
-	}
+	pkt->p_chash += ssum((char *)pkt->p_line, pkt->p_line_length);
+	pkt->p_uchash += usum((char *)pkt->p_line, pkt->p_line_length);
 
 	return (pkt->p_line);
 }

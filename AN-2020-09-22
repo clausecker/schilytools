@@ -1,4 +1,4 @@
-New features with AN-2020-08-99:
+New features with AN-2020-09-22:
 
 This is the first localization step for the schily source consolidation. Many
 programs now (hopefully) call gettext() for all strings that need localization.
@@ -87,202 +87,245 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		fact exist already.
 
 
--	hdump/od: added a new hardlink xpg4/bin/od to "od" for 100% POSIX
-	compliant behavior. The default behavior of "od" is to be SVID-3
-	compatible, since the "od" personality of "hdump" has been written to
-	replace the closed source od from OpenSolaris.
+-	Schily.Copyright: various Copyright dates have been refreshed as
+	the related software has been recently modified.
 
--	Bourne Shell: added $(RM) -f $(DEST_DIR)$(INSBASE)/xpg4/bin/bosh
-	before creating the symlink xpg4/bin/bosh to bosh to permit to call
-	"make install" more than once without causing an error.
+-	Makefile system: RULES/rules.env The environment variables FIGNORE, 
+	LD_LIBRARY_PATH LD_LIBRARY_PATH_32 and LD_LIBRARY_PATH_64 are now
+	unexported from the environment.
 
--	OpenCSW compile Makefile Mcsw: The make macro INS_RBASE is now
-	set to /opt/csw in order to have configuration files inside the
-	csw tree.
+	In special FIGNORE is dangerous, as it is frequently used by bash
+	users for a completely different purpose, but it tells ksh93 to 
+	modify it's behavior with e.g. "echo *" and this may cause strange
+	things with our makefiles in case that /bin/sh is ksh92. This 
+	applies e.g. to OpenSolaris and Oracle Solaris 11.
 
--	CSWcdrtools package: added etc/default/cdrecord and etc/default/rscsi
+-	OpenCSW package meta data: next attempt to deal with the strange
+	rules. This finally resulted in a new set of OpenCSW packages
+	published on September 16 2020.
 
--	CSWsccs package: added the new man pages to the list of files.
+-	udiff: The program now tries to mmap() the files to speed up
+	comparison. This typically speeds up udiff by 5-10%.
 
--	CSWschilyutils package: added "patch" to the list of programs
-	in that package.
+-	udiff: files are now opened in binary mode to support binary diffs
+	on DOS like operating systems as well.
 
--	CSWschilyutils package: added the xpg4/bin/sh and xpg4/bin/bosh
-	links.
+-	udiff: the malloc strategy for struct line has changed and now
+	increases the amount in order to avoid too many realloc() calls.
 
--	CSWschilyutils package: added etc/sformat.dat
+-	SCCS: diff: files are now opened in binary mode to support binary diffs
+	on DOS like operating systems as well.
 
--	CSWschilybase package: added the man pages starthandlecond.3
-	and unhandlecond.3
+-	SCCS: The Copyright notices for several files have been updated.
 
--	CSWstar package: added share/doc/star/testscripts/pax-rename.tar.gz
+-	SCCS: Nul byte background: SCCS supports binary data since approx.
+	1986. This is a feature introduced by Sun Microsystems with SunOS-3.0.
+	At that time, this has been implemented by introducing intrinsic 
+	uu-encoding of the payload.
 
--	CSWstar package: added etc/default/star and etc/default/rmt
+	SCCSv6 history now supports un-uuencoded binary data in the payload.
+	This typically reduces the history file size in such a case by 
+	at least 30% and it permits to achieve better delta data by handling
+	the binary data with diff(1) directly.
 
--	CSWmake package: now includes a license file that is compatible 
-	to the csw rules.
+-	SCCS: The option -Xgpath=g-pat was missing from "sccs help Xopts".
+	It was now added.
 
--	CSWsccs package: now includes "ccs/bin/fsdiff" (see below).
+-	SCCS: all libraries: The file Targets now uses CFILES += ... instead of
+	CFILES= ... in order to permit to create a Makefile that includes all
+	of them in order to compile a single SCCS library.
 
--	sformat: the file sformat.dat is now also searched for in
-	/opt/csw/etc/
+-	SCCS: libcomobj: added a new function putlline() to put a line
+	with the length as a parameter. This way, the line may contain nul
+	bytes.
 
--	SunPro Make: libmksh now compiles even if ESTALE, NOFILE, O_DSYNC or
-	ETXTBSY are undefined.
+-	SCCS libcomobj: doget.c (the simple get(1) library implementation)
+	now supports nul bytes in the weave data.
 
-	Thanks to a hint from Albert Wik.
+-	SCCS libcomobj: rdmod.c the readmod() function which is the low
+	level base for every gotten line from get(1) now correctly supports
+	lines that start with ^A. As long as we could output the data using
+	fputs(), things worked OK. The fact that the last release changed this
+	to fwrite() in preparation to support nul bytes, we need the correct
+	line length to support nul bytes in data. As a side effect, the last
+	version from get(1) appended a nul byte to every line that starts with
+	a ^A. We now reduce the line length of such lines by one to let
+	fwrite() write the right amount of data.
 
--	autoconf: congig.guess: FreeBSD on 64 bit ARM returns arm64 from
-	uname -m; this was previously not supported and rejected by config.sub.
-	We now convert "arm64" into "aarch64" in config.guess to get the usual
-	expected results.
+-	SCCS: Unit Tests: The tests for files with problematic content:
 
--	udiff: udiff is now using getdelim() and thus supports to compare
-	files with arbitrary line length.
+	-	nul bytes
+	-	^A at the beginning of lines
+	-	file does not end in a newline
 
--	udiff: The code now supports to correctly diff files with nul bytes
-	inside lines. This is done by using cmpbytes() instead of streql() and
-	by honoring the real line length (from getdelim) while computing the 
-	line hash.
+	have been enhanced by a comparison of the gotten content with
+	the orignal content. This discovered the bug above.
 
-	As a result, "udiff" by default behaves similar to "diff -a" as
-	implemented in newer diff(1) versions.
+-	SCCS libcomobj: idsubst.c the idsubst() function now early rejects
+	to expand keywords if an empty 'y' flag is set in the SCCS history
+	file, using "admin -fy ...". This is needed as idsubst() would
+	otherwise return a C-string of unknown length that cannot handle
+	nul bytes. Before, a line that contains a '%' caused idsubst() to
+	return an unmodified simple copy of the line, even with an empty 
+	'y' flag, but this old method would prevent nul bytes from being
+	passed correctly.
 
--	udiff: A warning is now printed if one or both files do not end in a
-	newline. This is to make "udiff", when called as "fdiff" to become
-	100% compatible to a POSIX "diff file1 file2".
+-	SCCS: Unit Tests: New tests for binary files that contain nul bytes
+	have been added to the tests.
 
--	udiff: The above changes, as a side effect, also result in a
-	performance win with a factor of approx. 3.5x.
+-	SCCS: the unit test binary/auto.sh added a test with a binary file
+	that checks whether "admin -fy ..." works as expected.
 
--	udiff: The man page has been enhanced.
+-	SCCS libcomobj: dometa.c In case that an unknown entry for SCCSv6
+	meta data is present in the SCCS history files, the two versions
+	starting from 2020-08-12 did destroy the SCCS history file while
+	modifying it. WARNING: Do not use these two SCCS versions from 
+	schilytools 2020-08-12 or 2020-09-04.
 
--	udiff: "make install" now installs a symlink named "fdiff". If "udiff"
-	is called as "fdiff", then the output is written in -posix diff format
-	and the "nmatch" parameter is set to a value of 1 in order to give
-	best POSIX diff(1) compatibility.
+	The new version restores the removed newline from such entries
+	before returning.
 
--	udiff: "make install" now installs a symlink named "fsdiff". If "udiff"
-	is called as "fsdiff", then the exit code is compatible to bdiff(1) and
-	this allows it to be used as the "diff" program for SCCS delta(1).
+-	SCCS libcomobj: namedflags.c In case that an unknown entry for SCCSv6
+	meta data is present in the SCCS history files, the two versions
+	starting from 2020-08-12 did destroy the SCCS history file wile
+	modifying it. WARNING: Do not use these two SCCS versions from 
+	schilytools 2020-08-12 or 2020-09-04.
 
-	Exit code compatibility to bdiff(1) means that the exit code is 
-	only != 0 in case if an error, but not because of a difference between
-	both files.
+	The new version restores the removed newline from such entries
+	before returning.
 
--	udiff: the CSWschilyutils package now includes this fdiff/fsdiff symlinks
+-	SCCS libcomobj: namedflags.c A new named flag entry is now "supported".
+	This is a dummy named flag entry in the form "^AF   ". It is supported
+	by not printing a warning message, when such an entry is observed.
+	This is needed for a new feature of admin(1) where admin(1) creates
+	such an entry for every new SCCSv6 history file in order to preserve
+	space in the file for a potential "^Af y " flag entry to switch off
+	keyword expansion for binary files that contain nul bytes and thus
+	cannot handle keyword expansion.
 
--	udiff: the CSWschilyutils package now includes this fdiff.1/fsdiff.1 
-	man pages.
+-	SCCS libcomobj: flushto.c when copying SCCS history files, a dummy
+	entry in the form "^AF   " is now skipped in order to remove this
+	entry from the copy of the history file. Such entries are only needed
+	for the initial SCCS history file creation by admin(1). If admin(1)
+	dos not replace them by "^Af y ", they no longer make sense.
 
--	patch: The random unit tests gentest and cmptest now add "...;exit" to
-	the trap command in order to let it work correctly when aborted by a
-	signal.
+-	SCCS: delta now supports to handle nul bytes in the diff(1) output.
+	Together with other changes, this permits a non-uuencoded payload.
 
--	SCCS: The random unit tests gentest and cmptest now add "...;exit" to
-	the trap command in order to let it work correctly when aborted by a
-	signal.
+-	SCCS: delta now supports nul bytes in the weave data, while in the
+	"readmod" loop. This prepares delta(1) for a non-uuencoded payload
+	in SCCS history files.
 
--	SCCS: The unit tests now work with gmake and dmake as well.
+-	SCCS: delta now supports nul bytes in the new version of the input 
+	file if processing SCCSv6 history files.
 
-	This did not work anymore with the last version of schilytools, after
-	adding support that allows to put the SCCS test code/data on a dedicated
-	"tmpfs" filesystem has been added to speed up tests on Linux as a work
-	around for the slow filesystems on Linux.
+-	SCCS: the unit test binary/auto.sh now knows that nul bytes in the
+	files do not create a uu-encoded history file if it is using a 
+	SCCSv6 history file.
 
--	SCCS: get(1) and delta(1) now restore the removed newline at the end of
-	the last line if this was a SCCSv6 "^ANxxx" line to support files not
-	ending in a newline. This is needed since we now use mmap() to read the
-	file and a second "read" would no longer automatically recover the
-	original data.
+-	SCCS: delta added a missing newline to the warning
 
--	SCCS: The delta(1) command now correctly handles deltas where the last
-	difference hits the end of the history file. This is a problem
-	introduced while converting SCCS to use mmap() a month ago. In theory,
-	this bug should have been detected by the Unit test Suite, but this did
-	not happen on Linux since the input data in that specific case was the
-	concatenation of all /bin/sh* files. Running the test suite on
-	Solaris detected the problems since there are files that triggered
-	the bug:
+		"No newline at end of file (de18)"
 
-	Linux did use inpt data that does not cause the EOF situation in the 
-	mmap()ped area it was needed to trigger the bug. This caused the EOF
-	recognition to hit later in the final readmod() loop that is intended
-	to copy the residual trail from the history file.
+-	SCCS: get(1) now supports nul bytes in the weave data, while in the
+	"readmod" loop. This prepares get(1) for a non non-uuencoded payload
+	in SCCS history files.
 
-	On Solaris, with the data in use, EOF hits earlier and since EOF now 
-	causesd grewind() to be called earlier, the final readmod() loop may
-	have been run even though there is no data left over. This did currupt
-	the history file. We now no longer call the final readmod() loop if
-	grewind has already been called.
+-	SCCS: delta now by default uses "fsdiff" instead of "bdiff".
+	This speeds up things with larger files since fsdiff does not slow
+	down quadratically with the file size.
 
-	So our bug did depend on the size and data from the file to be checked
-	in.
+	"fsdiff" has been extensively tested, but since this is big change,
+	please report if you observe any problems from this change.
 
-	When EOF hits earlier, this did cause the remembered checksum to be
-	remembered to early. We now correct the value if there are later calls
-	to putline().
+-	SCCS: delta if called as "delta -d ..." now calls diff(1) with the
+	option -a. This is needed since we now support un-uuencoded binary
+	data in SCCS history files.
 
--	SCCS: The delta(1) command now removes the e.file in case of an error
-	abort. The e.file is a temporary file, created for uuencoded data.
+-	SCCS: Unit Tests: The tests for binary files that contain nul bytes
+	are now called three times, one time for every diff option supported
+	by delta(1) -> "" "-b" "-d". This results in fsdiff(1), bdiff(1) and
+	diff(1) to be verified.
 
--	SCCS: admin(1) now avoids a core dump in case that the internal
-	variable dir_name is a NULL pointer.
+-	SCCS: "sccs help delta" now mentions the new option -b for delta(1).
 
--	SCCS: The "udiff" command is now installed as /opt/schily/ccs/bin/fsdiff
-	as well, to allow it to be used as a "bdiff" alternative by
-	SCCS delta(1).
+-	SCCS: the sccs-delta man page now mentions the new option -b for delta(1).
 
-	"udiff" is faster than "bdiff" and does not need to diff the files
-	in a segmented mode, since "udiff" does not slow down with large files.
-	The segmentation from "bdiff" (bdiff calls diff(1) with parts of the
-	file) causes a larger diff output than what would bee created with a
-	single "diff" call. Using "udiff" for SCCS delta(1) thus is able to
-	reduce the size of the SCCS history files.
+-	SCCS: val now correctly handles nul bytes when computing the checksum.
 
--	SCCS: The delta(1) command now uses "fsdiff" as default diff program 
-	if delta(1) has been compiled with -DUSE_FSDIFF
+-	SCCS: prs now correctly outputs nul bytes if they are in the referenced
+	data stream. This applies only to the history file body, but the 
+	changed function is used by other purposes as well.
 
-	In that case, "delta -b ..." allows to tell delta(1) tu use "bdiff"
-	as before.
+-	SCCS: admin now (when creating SCCSv6 history files) permits nul bytes
+	in new files.
 
-	The switch to use fsdiff by default will be made later after more
-	in depth testing has been done.
+-	SCCS: admin now (when creating SCCSv6 history files) and a nul byte
+	is seen in the file, automatically disables keyword expansion as if
+	a "admin -fy ..." has been issued. This is done by first introducing
+	a dummy entry in the form "^AF   " and later overwriting this by
+	"^Af y " in case the file is identified as binary file.
 
--	SCCS: The script rcs2sccs now adds "...;exit" to the
-	trap command in order to let it work correctly when aborted by a signal.
+	In case of a text file, the dummy entry "^AF   " remains in the SCCS
+	history file until "admin -z ..." or a modifying other SCCS command
+	such as delta(1) processes the file.
 
--	SCCS: the -X option no longer sets a flag that indicates that an option
-	with a string parameter is present when the related string parameter is
-	of zero length. Since all "-Xname=value" type options currently make no
-	sense if used with an empty string, this is a useful change to avoid
-	core dumps from trying to access NULL pointers (as it has been handled
-	by the previous version) in the various programs.
+	This behavior is aligned with SCCS behavior since 1986 when binary
+	files have been automatically handled as uu-encoded files with 
+	keyword expansion disabled by the uu-decode algorithm. The new explicit
+	disabling of keyword expansion is needed since the new version treats
+	text files and binary files the same way.
 
--	SCCS unit tests: several delivered SCCS history files for the unit
-	tests have been converted to no longer need a uuencoded SCCS history
-	since SCCSv6 supports to handle files that have lines starting with ^A
-	or a last line in a file not ending with a newline.
+-	SCCS: The get(1) and admin(1) man pages now mention that keyword expansion
+	is by default disabled with binary data in SCCSv6 history files.
 
--	SCCS: diff: the comment has been enhanced. Background is a potentially
-	incorrect bugfix from Sun Microsystem from the past. The related change
-	is supposed to fix a problem with diff3 that that is claimed to
-	silently mismerge files. The visible effect of that change is that 
-	diff(1) no longer always finds the longest identical subsequence
-	following a change.
+-	SCCS: the Unit Test Script admin/admin-hz.sh has been adopted to support
+	the change in admin(1) from above. It now calls "admin -s ..." in order
+	to explicitly remove the dummy entry in the form "^AF   " from the
+	SCCS history file before running the other tests that include a test
+	for a specific history file layout.
 
-	For now, we still leave the code as is even though we believe it is
-	wrong but the current code allows the diff(1) output to be compared
-	with the output from "udiff -posix nmatch=1 ...".
+-	SCCS: admin no longer prints the "sccs help ad31" message if a file
+	without new line at it's end is initially put under SCCS as the
+	"sccs help ad31" message talks about the t-file and is not useful
+	for the g-file. A one line warning is sufficient in this case.
 
--	SCCS: The recent FreeBSD linker no longer supports COMMON variables.
-	We now define the variable xtimezone only in files that contain
-	a main() entry and extern long xtimezone in all other files.
+-	SCCS: admin fixed a bug in a SCCSv6 enhancement. A file where the last
+	line did not end in a newline and at the same time started with ^A
+	was not handled correctly. Such data is extremely improbable in text
+	files but highly probable in binary data that is a result of a
+	compress process.
 
-	Thanks to Nico Sonack for reporting
+-	SCCS: the unit test binary/auto.sh added a test with a binary file
+	for the above case.
 
--	SCCS: a new version date has been set up to identify the new version
-	of SCCS.
+-	SCCS: the sccs subcommand "istext" no longer always defaults to the
+	SCCSv4 history format when checking files. It now rather defaults
+	to SCCSv6 in case that a "sccs create" call would create a SCCSv6
+	history file by default.
+
+-	SCCS: the sccs subcommand "istext" added a new option -D to print
+	the current default history format that is used when checking the
+	files.
+
+-	SCCS: delta now catches SIGINT and removes the global lock file in case
+	that no real work has yet been done. This helps to avoid the need for
+	a manual removal of the global lock file when delta is interrupted
+	while it is asking for a delta comment, which is before any file
+	is changed.
+
+-	SCCS: The changes since 2020-08-12 in total caused a speed up in
+	SCCS by 25%. This is the observed speedup when running the SCCS
+	Unit Test Suite.
+
+-	SCCS: a new version date is used for this version.
+
+-	SunPro Make: The Copyright notices for several files have been updated.
+
+-	compare: The man page now has an AUTHOR section and mentions that
+	the name is in use since at least 1985 (really since 1980). This
+	is important to verify that "imagemagic" is still a non-cooperative
+	project that highjacks command names.
 
 
 
@@ -346,7 +389,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		An alternate example: the SCCS history from the BSD-4.4 project
 		from December 1979 up to June 1995 has approx. 47000 commits.
 		The conversion time is approx. 40 minutes.
-		The size of the resulting changeset file is aprox. 14 MBytes.
+		The size of the resulting changeset file is approx. 14 MBytes.
 
 	-	convert the in-tree repository into an off-tree repository.
 		This final step is not yet needed and there is currently no
@@ -355,7 +398,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	-	If you like to check the resulting changeset file, there is
 		currently only one way to look at it, by calling:
 
-		sccs -O get -p -A -m .sccs/SCCS/s.changset | more
+		sccs -O get -p -A -m .sccs/SCCS/s.changeset | more
 
 		This prints an annotated version of the changeset file.
 		The next task is to develop an enhancement to "sccs log"
@@ -385,6 +428,10 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	SCCS TODO:
 
+	-	Activate "fsdiff" as a "bdiff" replacement in delta(1)
+		to speed up delta(1) and to reduce the size of the SCCS
+		history files.
+
 	-	Implement something that outputs similar information from
 		the changeset file as printed with "hg log -v".
 
@@ -393,7 +440,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	-	verify whether sccs.c uses -NSCCS in the back end programs
 		correctly, instead of converting g-file names from the command
 		line into s.file names in the frontend in order to forward 
-		s.file names to the backend programs. This is neded for an
+		s.file names to the backend programs. This is needed for an
 		off-tree repository.
 
 		The related unit tests are already passed.

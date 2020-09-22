@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.66 20/08/05 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-admin.1	1.67 20/09/17 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2020/08/05" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2020/09/17" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -411,6 +411,7 @@ bit in the file permissions of the history file.
 Specifies the SCCS keywords to be expanded. If no
 .I value
 is specified, no keywords will be expanded.
+.sp
 The value
 .RB ` * '
 controls the expansion of the
@@ -432,6 +433,10 @@ If
 is set to an empty string, no keywords will be expanded and the
 .RB ` "No id keywords (cm7)" '
 message will not be created even though no keyword was expanded.
+.sp
+.BR admin (1)
+automatically disables keyword expansion when creating a SCCSv6 history file
+and a nul byte is seen in the input data.
 .sp
 This flag is a
 .BR \s-1SUN\s+1 / \s-1SCHILY\s+1

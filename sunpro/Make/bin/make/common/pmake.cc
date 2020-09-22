@@ -33,14 +33,14 @@
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 
 /*
- * This file contains modifications Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)pmake.cc	1.11 20/03/28 2017-2020 J. Schilling
+ * @(#)pmake.cc	1.12 20/09/06 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pmake.cc	1.11 20/03/28 2017-2020 J. Schilling";
+	"@(#)pmake.cc	1.12 20/09/06 2017-2020 J. Schilling";
 #endif
 
 /*

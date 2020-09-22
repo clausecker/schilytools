@@ -22,15 +22,15 @@
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)macros.h	1.8 11/04/20 J. Schilling
+ * @(#)macros.h	1.9 20/09/06 J. Schilling
  */
 #ifndef	_COMMON_MACROS_H
 #define	_COMMON_MACROS_H
 
 #if defined(sun)
-#pragma ident "@(#)macros.h 1.8 11/04/20 J. Schilling"
+#pragma ident "@(#)macros.h 1.9 20/09/06 J. Schilling"
 #endif
 
 #if defined(sun)

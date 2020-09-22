@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.50 20/07/14 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-get.1	1.51 20/09/17 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2020/07/14" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2020/09/17" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -376,6 +376,11 @@ keywords.
 .B -k
 is implied by the
 .BR -e .
+.sp
+Note that keywords in SCCS history files that are uu-encoded are never expanded;
+also note that SCCsv6 history files that hold binary data by default have
+keyword expansion disabled (see 
+.RB `` "admin -fy" '').
 
 .br
 .ne 3

@@ -1,2 +1,5 @@
-CFILES=	add.c commit.c debug.c init.c			\
+# @(#)Targets	1.2 20/09/21 Copyright 2020 J. Schilling
+
+CFILES +=	\
+	add.c commit.c debug.c init.c			\
 	remove.c rename.c root.c status.c usrerr.c

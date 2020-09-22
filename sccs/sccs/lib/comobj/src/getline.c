@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)getline.c	1.21 20/07/27 J. Schilling
+ * @(#)getline.c	1.22 20/09/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.21 20/07/27 J. Schilling"
+#pragma ident "@(#)getline.c 1.22 20/09/07 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -70,7 +70,7 @@ register struct packet *pkt;
 #endif
 
 	if (pkt->p_wrttn == 0)
-		putline(pkt, (char *) 0);
+		putlline(pkt, (char *) 0, 0);
 
 #ifdef	HAVE_MMAP
 	if (pkt->p_mmbase) {

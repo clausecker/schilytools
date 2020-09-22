@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)putline.c	1.18 20/07/27 J. Schilling
+ * @(#)putline.c	1.20 20/09/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.18 20/07/27 J. Schilling"
+#pragma ident "@(#)putline.c 1.20 20/09/08 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -91,8 +91,17 @@ register struct packet *pkt;
 
 void
 putline(pkt, newline)
-register struct packet *pkt;
-char *newline;
+	register struct packet	*pkt;
+	char			*newline;
+{
+	putlline(pkt, newline, -1);
+}
+
+void
+putlline(pkt, newline, llen)
+	register struct packet	*pkt;
+	char			*newline;
+	ssize_t			llen;
 {
 #ifndef	USE_SETVBUF
 	static char obf[BUFSIZ];
@@ -149,8 +158,13 @@ char *newline;
 	}
 	if (p) {
 		if (newline) {
-			if (fputs((const char *)p, pkt->p_xiop) == EOF)
-				FAILPUT;
+			if (llen >= 0) {
+				if (fwrite(p, 1, llen, pkt->p_xiop) != llen)
+					FAILPUT;
+			} else {
+				if (fputs((const char *)p, pkt->p_xiop) == EOF)
+					FAILPUT;
+			}
 		} else {
 			if (fwrite(p, 1, pkt->p_line_length,
 			    pkt->p_xiop) != pkt->p_line_length)
@@ -160,7 +174,12 @@ char *newline;
 			if (newline) {
 				register int	hash = 0;
 
-				if (signed_chksum) {
+				if (llen >= 0) {
+					if (signed_chksum)
+						hash = ssum((char *)p, llen);
+					else
+						hash = usum((char *)p, llen);
+				} else if (signed_chksum) {
 					while (*p)
 						hash += *p++;
 				} else {
@@ -204,7 +223,7 @@ register struct stats *stats;
 
 	if (pkt->p_upd == 0)
 		return;
-	putline(pkt, (char *) 0);
+	putlline(pkt, (char *) 0, 0);
 	rewind(pkt->p_xiop);
 	if (stats) {
 		if (stats->s_ins > MAX_LINES) {

@@ -27,14 +27,14 @@
  */
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)lock.c	1.7 18/01/14 2017-2018 J. Schilling
+ * @(#)lock.c	1.8 20/09/06 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.c	1.7 18/01/14 2017-2018 J. Schilling";
+	"@(#)lock.c	1.8 20/09/06 2017-2018 J. Schilling";
 #endif
 
 #include <stdio.h>

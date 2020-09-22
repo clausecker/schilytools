@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)get.c	1.96 20/08/29 J. Schilling
+ * @(#)get.c	1.97 20/09/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.96 20/08/29 J. Schilling"
+#pragma ident "@(#)get.c 1.97 20/09/07 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -663,13 +663,23 @@ get(pkt, file)
 		} else {
 			while (readmod(pkt)) {
 				prfx(pkt);
-				if (pkt->p_flags & PF_NONL)
-					pkt->p_line[pkt->p_line_length-1] = '\0';
+				if (pkt->p_flags & PF_NONL) {
+					pkt->p_line[--(pkt->p_line_length)] = '\0';
+					pkt->p_line_length -= 2;	/* ^AN */
+				}
 				p = idsubst(pkt, pkt->p_lineptr);
-				if (fputs(p, pkt->p_gout) == EOF)
-					xmsg(gfile, NOGETTEXT("get"));
-				if (pkt->p_flags & PF_NONL)
-					pkt->p_line[pkt->p_line_length-1] = '\n';
+				if (p != pkt->p_lineptr) {
+					if (fputs(p, pkt->p_gout) == EOF)
+						xmsg(gfile, NOGETTEXT("get"));
+				} else {
+					if (fwrite(p, 1, pkt->p_line_length,
+					    pkt->p_gout) != pkt->p_line_length)
+						xmsg(gfile, NOGETTEXT("get"));
+				}
+				if (pkt->p_flags & PF_NONL) {
+					pkt->p_line_length += 2;	/* ^AN */
+					pkt->p_line[(pkt->p_line_length)++] = '\n';
+				}
 			}
 		}
 		if ((pkt->p_flags & (PF_V6 | PF_V6TAGS)) && pkt->p_hash) {

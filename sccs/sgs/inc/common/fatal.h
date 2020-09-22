@@ -25,15 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2018 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)fatal.h	1.10 18/04/02 J. Schilling
+ * @(#)fatal.h	1.11 20/09/06 J. Schilling
  */
 #ifndef	_COMMON_FATAL_H
 #define	_COMMON_FATAL_H
 
 #if defined(sun)
-#pragma ident "@(#)fatal.h 1.10 18/04/02 J. Schilling"
+#pragma ident "@(#)fatal.h 1.11 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)fatal.h 1.3 06/12/12

@@ -20,6 +20,14 @@ remove foo
 # Make sure the checksum is checked as correct.
 docommand c2 "${vg_admin} -h $s" 0 "" ""
 
+#
+# If we are testing SCCS v6, a new SCCS history file may contain a "^AF   "
+# placeholder line that gets automatically removed with the next "admin -z"
+# or delta(1) call. Enforce this to happen now to let our comparisons pass.
+#
+docommand c2a "${vg_admin} -z $s" 0 "" ""
+docommand c2b "${vg_admin} -h $s" 0 "" ""
+
 # Now, create a copy with a changed checksum, but no other 
 # differences.
 # If we are testing SCCS v6, we need to repair the V6 header

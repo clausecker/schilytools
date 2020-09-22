@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)delta.c	1.110 20/09/01 J. Schilling
+ * @(#)delta.c	1.115 20/09/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.110 20/09/01 J. Schilling"
+#pragma ident "@(#)delta.c 1.115 20/09/17 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -107,6 +107,8 @@ static char	Pfilename[FILESIZE];
 static char	*uuname;
 static char	*Cwd = "";
 static char	*Dfilename;
+static int	processed_files;
+static int	did_intr;
 
 static struct timespec	gfile_mtime;	/* Timestamp for -o		*/
 static	time_t	cutoff = MAX_TIME;
@@ -132,10 +134,13 @@ static void	after __PR((struct packet *pkt, int n));
 static void	before __PR((struct packet *pkt, int n));
 static char *	linerange __PR((char *cp, int *low, int *high));
 static void	skipline __PR((char *lp, int num));
-static char *	rddiff __PR((char *s, int n));
+static char *	rddiff __PR((char *s, int n, int *ll));
 static void	fgetchk __PR((char *file, struct packet *pkt));
 static void	warnctl __PR((char *file, off_t nline));
+static void	warnnull __PR((char *file, off_t nline));
 static int	fixghash __PR((struct packet *pkt, int ser));
+static RETSIGTYPE intr	__PR((int));
+static void	setintr	__PR((void));
 
 int
 main(argc,argv)
@@ -356,6 +361,7 @@ register char *argv[];
 	 */
 	uname(&un);
 	uuname = un.nodename;
+	setintr();					/* Catch ^C	*/
 
 	/*
 	 * Set up a project global lock on the changeset file.
@@ -595,18 +601,26 @@ char *file;
 
 	dfilename[0] = '\0';
 	if ((X.x_opts & XO_PREPEND_FILE) == 0) {
+		/*
+		 * Extract the reference version to diff against.
+		 */
 		copy(auxf(gpkt.p_file,'d'),dfilename);
 		gpkt.p_gout = xfcreat(dfilename,(mode_t)0444);
 #ifdef	USE_SETVBUF
 		setvbuf(gpkt.p_gout, NULL, _IOFBF, VBUF_SIZE);
 #endif
-		while(readmod(&gpkt)) {
-			if (gpkt.p_flags & PF_NONL)
-				gpkt.p_line[gpkt.p_line_length-1] = '\0';
-			if(fputs(gpkt.p_lineptr, gpkt.p_gout) == EOF)
+		while (readmod(&gpkt)) {
+			if (gpkt.p_flags & PF_NONL) {
+				gpkt.p_line[--(gpkt.p_line_length)] = '\0';
+				gpkt.p_line_length -= 2;	/* ^AN */
+			}
+			if (fwrite(gpkt.p_lineptr, 1, gpkt.p_line_length,
+			    gpkt.p_gout) != gpkt.p_line_length)
 				xmsg(dfilename, NOGETTEXT("delta"));
-			if (gpkt.p_flags & PF_NONL)
-				gpkt.p_line[gpkt.p_line_length-1] = '\n';
+			if (gpkt.p_flags & PF_NONL) {
+				gpkt.p_line_length += 2;	/* ^AN */
+				gpkt.p_line[(gpkt.p_line_length)++] = '\n';
+			}
 		}
 		if (fflush(gpkt.p_gout) == EOF)
 			xmsg(dfilename, NOGETTEXT("delta"));
@@ -875,6 +889,7 @@ command, to check the differences found between two files.
 	}
 	flushline(&gpkt,&stats);
 	stat(gpkt.p_file,&sbuf);
+	processed_files = TRUE;
 	rename(auxf(gpkt.p_file,'x'),gpkt.p_file);
 	chmod(gpkt.p_file, (unsigned int)sbuf.st_mode);
 
@@ -943,6 +958,8 @@ command, to check the differences found between two files.
 		setuid(holduid);
 		setgid(holdgid);
 	}
+	if (did_intr)
+		exit(2);
 }
 
 /*
@@ -1306,15 +1323,20 @@ int difflim;
 			close(i);
 #endif
 		sprintf(num, NOGETTEXT("%d"), difflim);
+		/*
+		 * Since we support un-uuencoded handling of binary data, we
+		 * need to call diff -a with delta -d. It is granted that
+		 * Diffpgmp is a diff(1) version that supports -a.
+		 */
  		if (HADD) {
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 		   diffpgm = Diffpgmp;
- 		   execl(Diffpgmp,Diffpgmp,oldf,newf, (char *)0);
+ 		   execl(Diffpgmp, Diffpgmp, "-a", oldf, newf, (char *)0);
 #endif
 		   diffpgm = Diffpgm;
- 		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
+ 		   execl(Diffpgm, Diffpgm, "-a", oldf, newf, (char *)0);
 		   diffpgm = Diffpgm2;
- 		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
+ 		   execl(Diffpgm2, Diffpgm2, "-a", oldf, newf, (char *)0);
 #ifdef	USE_FSDIFF
  		} else if (HADB) {
 #else
@@ -1355,13 +1377,15 @@ getdiff(type,plinenum)
 register char *type;
 register int *plinenum;
 {
-	char line[BUFSIZ];
+#define	LINE_SIZE	1024			/* not too large for memset() */
+	long line[LINE_SIZE/sizeof (long) + 1];	/* align to speed up memset() */
 	register char *p;
 	int num_lines = 0;
 	static int chg_num, chg_ln;
 	int lowline, highline;
+	int	llen;
 
-	if ((p = rddiff(line,sizeof(line))) == NULL)
+	if ((p = rddiff((char *)line, LINE_SIZE+1, &llen)) == NULL)
 		return(0);
 
 	if (*p == '-') {
@@ -1377,7 +1401,7 @@ register int *plinenum;
 		case 'd':
 			num_lines = highline - lowline + 1;
 			*type = DEL;
-			skipline(line,num_lines);
+			skipline((char *)line, num_lines);
 			break;
 
 		case 'a':
@@ -1392,7 +1416,7 @@ register int *plinenum;
 			linerange(p,&lowline,&highline);
 			chg_num = highline - lowline + 1;
 			*type = DEL;
-			skipline(line,num_lines);
+			skipline((char *)line, num_lines);
 			break;
 		}
 	}
@@ -1410,9 +1434,11 @@ struct	packet	*pkt;
 int	linenum, n, ser;
 	int	off;
 {
- 	char	str[BUFSIZ];
+	long	str[LINE_SIZE/sizeof (long) + 1];	/* align for memset() */
+	char	*s = (char *)str;
  	int 	first;
 	int	nonl = 0;
+	int	llen;
 
 	/*
 	 * We only count newlines and thus need to add one to number_of_lines
@@ -1425,33 +1451,33 @@ int	linenum, n, ser;
 	}
 
 	after(pkt, linenum);
-	sprintf(str, NOGETTEXT("%c%c %d\n"), CTLCHAR, INS, ser);
-	putline(pkt, str);
+	sprintf(s, NOGETTEXT("%c%c %d\n"), CTLCHAR, INS, ser);
+	putline(pkt, s);
 	if (off)
 		off = 2;			/* strlen("> ") from diff */
 	while (--n >= 0) {
  		first = 1;
  		for (;;) {			/* Loop over partial line */
-			if (rddiff(str, BUFSIZ) == NULL) {
+			if (rddiff(s, LINE_SIZE+1, &llen) == NULL) {
 				fatal(gettext("Cannot read the diffs file (de19)"));
 			}
 			if (first) {
 				first = 0;
 				if (n == 0 && nonl) {	/* No newline at end */
 					putctlnnl(pkt);	/* ^AN escape	    */
-				} else if (str[off] == CTLCHAR) /* ^A escape? */
+				} else if (s[off] == CTLCHAR) /* ^A escape? */
 					putctl(pkt);
-				putline(pkt, str+off);	/* Skip diff's "> " */
+				putlline(pkt, s+off, llen-off);	/* Skip "> " */
 			} else {
-				putline(pkt, str);
+				putlline(pkt, s, llen);
 			}
-			if (str[strlen(str)-1] == '\n') {
+			if (s[llen-1] == '\n') {
 				break;
 			}
 		}
 	}
-	sprintf(str, NOGETTEXT("%c%c %d\n"), CTLCHAR, END, ser);
-	putline(pkt, str);
+	sprintf(s, NOGETTEXT("%c%c %d\n"), CTLCHAR, END, ser);
+	putline(pkt, s);
 }
 
 /*
@@ -1480,7 +1506,7 @@ int	n;
 	before(pkt, n);
 	if (pkt->p_glnno == n) {
 		for (;;) {
-			if (pkt->p_line[strlen(pkt->p_line)-1] != '\n') {
+			if (pkt->p_line[pkt->p_line_length-1] != '\n') {
 				getline(pkt);
 			}
 			else {
@@ -1527,30 +1553,43 @@ skipline(lp, num)
 char	*lp;
 int	num;
 {
+	int	llen;
+
  	for (++num; --num; ) {
  		do {
- 		   (void)rddiff(lp, BUFSIZ);
- 		} while (lp[strlen(lp)-1] != '\n');
+ 		   (void)rddiff(lp, LINE_SIZE+1, &llen);
+ 		} while (lp[llen-1] != '\n');
  	}
 }
 
 /*
  * This is the central read routine.
- * As long as we use fgets() here, we cannot support nul bytes in the files.
+ * fgets() is a faulty construction as it does not return the # of bytes read.
+ * fgets() always nul terminates the bytes read, so filling the buffer allows
+ * to detect how many bytes have been read.
  */
 static char *
-rddiff(s, n)
-char	*s;
-int	n;
+rddiff(s, n, ll)
+	char	*s;	/* Buffer to fill */
+	int	n;	/* size of buffer */
+	int	*ll;	/* # of bytes read */
 {
 	char	*r;
 	
-	strcpy(s, "");
+	(void) memset(s, '\377', n);	/* Filling allows to detect real end */
 	if ((r = fgets(s, n, Diffin)) != NULL) {
-	   if (HADP) {
-	      if (fputs(s, gpkt.p_stdout) == EOF)
-		 FAILPUT;
-	   }
+		int l = strlen(r);
+
+		if (r[l-1] != '\n') {	/* Rare case: too long or with nul */
+			for (l = n; --l >= 0; )
+				if (r[l] == '\0')
+					break;
+		}
+		*ll = l;
+		if (HADP) {
+			if (fwrite(s, 1, l, gpkt.p_stdout) != l)
+				FAILPUT;
+		}
 	}
 	return (r);
 }
@@ -1625,6 +1664,9 @@ clean_up()
 		if (!islockchset(Zhold))
 			unlockit(Zhold, getpid(), uuname);
 	}
+	if (SETHOME_CHSET() && !processed_files) {
+		unlockchset(getpid(), uuname);
+	}
 }
 
 /*
@@ -1659,13 +1701,15 @@ struct	packet	*pkt;
 	int	search_on = 0;
 #endif
 	off_t	nline;
-	off_t	soh = -1;
+	off_t	soh = -1;	/* Last line # that starts with ^A */
 	int	isctl;
 	int	idx = 0;
 	int	warned = 0;
+	int	nwarned = 0;
 	char	chkflags = 0;
 	char	lastchar;
 	unsigned int sum = 0;
+	int	pktv6 = pkt->p_flags & PF_V6;
 
 	inptr = xfopen(file, O_RDONLY|O_BINARY);
 #ifdef	USE_SETVBUF
@@ -1691,7 +1735,7 @@ struct	packet	*pkt;
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
 			chkflags |= CK_CTLCHAR;
 			soh = nline;
-			if ((pkt->p_flags & PF_V6) == 0)
+			if (pktv6 == 0)
 				goto err;
 			if (!warned) {
 				warnctl(file, nline+1);
@@ -1706,17 +1750,25 @@ struct	packet	*pkt;
 		}
 		for (p = line;
 		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
-			if (pn && p > pn)
-				goto err;
+			if (pn && p > pn) {		/* '\0' before '\n' */
+				if (pktv6) {
+					if (!nwarned) {
+						warnnull(file, nline);
+						nwarned = 1;
+					}
+				} else {
+					goto err;
+				}
+			}
 			nline++;
-			if ((p - line) >= (idx-1))
+			if ((p - line) >= (idx-1))	/* '\n' last in buf */
 				break;
 
 			if (p[1] == CTLCHAR) {
 				chkflags |= CK_CTLCHAR;
 	err:
-				if ((pkt->p_flags & PF_V6) &&
-				    (chkflags & CK_NULL) == 0) {
+				if (pktv6 &&
+				    (p[1] == CTLCHAR)) {
 					if (!warned) {
 						warnctl(file, nline+1);
 						warned = 1;
@@ -1741,15 +1793,19 @@ struct	packet	*pkt;
 		}
 	}
 #else	/* !RECORD_IO */
+	/*
+	 * We support nul bytes with fgets() by pre-filling the buffer.
+	 */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
 	   if (lastchar == '\n' && line[0] == CTLCHAR) {
 	      chkflags |= CK_CTLCHAR;
-	      if ((pkt->p_flags & PF_V6) == 0) {
+	      soh = nline;
+	      if (pktv6 == 0) {
 		nline++;
 		goto err;
 	      }
 	      if (!warned) {
-		warnctl(file, nline);
+		warnctl(file, nline+1);
 		warned = 1;
 	      }
 	   }
@@ -1759,6 +1815,13 @@ struct	packet	*pkt;
 		 if (line[idx] == '\0') {
 		    chkflags |= CK_NULL;
 	err:
+		    if (pktv6) {
+			if ((chkflags & CK_NULL) && !nwarned) {
+				warnnull(file, nline);
+				nwarned = 1;
+			}
+			continue;
+		    }
 		    fclose(inptr);
 		    isctl = soh == nline;
 		    sprintf(SccsError,
@@ -1779,7 +1842,7 @@ struct	packet	*pkt;
 		    }
 		 }
 	      }
-	   }   
+	   }
 	   if (pkt->p_did_id == 0) {
 		pkt->p_did_id =
 			chkid(line, pkt->p_sflags[IDFLAG - 'a'], pkt->p_sflags);
@@ -1798,17 +1861,18 @@ struct	packet	*pkt;
 
 	if (chkflags & CK_NONL) {
 #ifndef	RECORD_IO
+		if (!pktv6)
 		if (pn && nline == 0)	/* Found null byte but no newline */
 			goto err;
 #endif
-		if ((pkt->p_flags & PF_V6) == 0) {
+		if (pktv6 == 0) {
 			sprintf(SccsError,
 			    gettext("No newline at end of file '%s' (de18)"),
 			    file);
 			fatal(SccsError);
 		} else {
 			fprintf(stderr,
-			    gettext("WARNING [%s]: No newline at end of file (de18)"),
+			    gettext("WARNING [%s]: No newline at end of file (de18)\n"),
 			    file);
 		}
 	}
@@ -1822,6 +1886,17 @@ warnctl(file, nline)
 	fprintf(stderr,
 		gettext(
 		"WARNING [%s]: line %jd begins with ^A\n"),
+		file, (Intmax_t)nline);
+}
+
+static void
+warnnull(file, nline)
+	char	*file;
+	off_t	nline;
+{
+	fprintf(stderr,
+		gettext(
+		"WARNING [%s]: line %jd contains a '\\000'\n"),
 		file, (Intmax_t)nline);
 }
 
@@ -1887,3 +1962,49 @@ getdtablesize()
 	return (20);
 }
 #endif
+
+/*
+ * Since we introduced a global lock file, this is needed in order to
+ * be able to remove the global lock file in case that no real work has
+ * yet been done. This typically helps to automatically remove the global
+ * lock file if you type ^C while delta(1) is asking for delta comments and
+ * did not yet process any file.
+ */
+static RETSIGTYPE
+intr(sig)
+	int	sig;
+{
+	did_intr = TRUE;
+	if (!processed_files) {
+		clean_up();
+		exit(2);
+	}
+}
+
+static void
+setintr()
+{
+#if	defined(HAVE_SIGPROCMASK) && defined(SA_RESTART)
+	struct sigaction sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = intr;
+	sa.sa_flags = SA_RESTART;
+	(void) sigaction(SIGINT, &sa, (struct sigaction *)0);
+#else
+#ifdef	HAVE_SIGSETMASK
+	struct sigvec	sv;
+
+	sv.sv_mask = 0;
+	sv.sv_handler = intr;
+	sv.sv_flags = 0;
+	(void) sigvec(SIGINT, &sv, (struct sigvec *)0);
+#else
+#ifdef	HAVE_SIGSET
+	sigset(SIGINT, intr);
+#else
+	signal(SIGINT, intr);
+#endif
+#endif
+#endif
+}

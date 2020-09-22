@@ -1,11 +1,23 @@
-CSWmake: file-with-bad-content /usr/share reloc/bin/make
-CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/sysV-make.1
-CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/make.1
-CSWmake: disallowed-path opt/csw/share/doc
+CSWmake: bad-rpath-entry /lib opt/csw/bin/make
+CSWmake: bad-rpath-entry /opt/SUNWspro/lib opt/csw/bin/make
+CSWmake: bad-rpath-entry /opt/SUNWspro/lib/rw7 opt/csw/bin/make
+CSWmake: bad-rpath-entry /opt/SUNWspro/lib/sparc opt/csw/bin/make
+CSWmake: bad-rpath-entry /opt/solarisstudio12.4/lib opt/csw/bin/make
 CSWmake: disallowed-path opt/csw/bin
 CSWmake: disallowed-path opt/csw/lib
 CSWmake: disallowed-path opt/csw/share
+CSWmake: disallowed-path opt/csw/share/doc
 CSWmake: disallowed-path opt/csw/share/man
+CSWmake: elf-info-missing binary_path='opt/csw/bin/make'
+CSWmake: elf-info-missing binary_path='opt/csw/lib/libmakestate.so.1'
+CSWmake: file-needed-but-no-package-satisfies-it bin/make CSWmake contains hardlink /opt/csw/bin/dmake which needs the target file: bin/make
+CSWmake: file-needed-but-no-package-satisfies-it bin/make CSWmake contains hardlink /opt/csw/lib/svr4.make which needs the target file: bin/make
+CSWmake: file-needed-but-no-package-satisfies-it bin/make CSWmake contains hardlink /opt/csw/xpg4/bin/make which needs the target file: bin/make
+CSWmake: file-needed-but-no-package-satisfies-it lib/libmakestate.so.1 CSWmake contains symlink /opt/csw/lib/libmakestate.so which needs the target file: lib/libmakestate.so.1
+CSWmake: file-with-bad-content /usr/share reloc/bin/make
+CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/make.1
+CSWmake: file-with-bad-content /usr/share reloc/share/man/man1/sysV-make.1
+CSWmake: pkginfo-opencsw-repository-missing
 CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
 CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
 CSWmake: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share

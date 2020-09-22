@@ -38,10 +38,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)diff.c	1.83 20/08/30 J. Schilling
+ * @(#)diff.c	1.84 20/09/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.83 20/08/30 J. Schilling"
+#pragma ident "@(#)diff.c 1.84 20/09/19 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -243,7 +243,9 @@
 
 #endif	/* non-portable SunOS -only definitions END */
 
-
+#ifndef	O_BINARY
+#define	O_BINARY	0
+#endif
 #ifdef	HAVE_LARGEFILES
 #undef	fseek
 #define	fseek		fseeko
@@ -605,7 +607,7 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 				file1ok = 0;
 				stb1.st_mode = S_IFREG;	/* assume plain file */
 				stb1.st_size = 0;
-				input[0] = fopen(nulldev, "r");
+				input[0] = fopen(nulldev, "rb");
 				fail += 1;
 			}
 		}
@@ -617,7 +619,7 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 				else
 					stb2.st_mode = S_IFREG;
 				stb2.st_size = 0;
-				input[1] = fopen(nulldev, "r");
+				input[1] = fopen(nulldev, "rb");
 				fail += 1;
 			}
 		} else if (fail == 1) {			/* file2 exists	    */
@@ -677,7 +679,7 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 
 	filename(&file1, &file2, &stb1, &input_file1);
 	filename(&file2, &file1, &stb2, &input_file2);
-	if (input[0] == NULL && (input[0] = fopen(file1, "r")) == NULL) {
+	if (input[0] == NULL && (input[0] = fopen(file1, "rb")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		status = 2;
@@ -685,7 +687,7 @@ gettext("-h doesn't support -e, -f, -n, -c, -q, -u, or -D"));
 	}
 	initbuf(input[0], 0, (off_t)0);
 
-	if (input[1] == NULL && (input[1] = fopen(file2, "r")) == NULL) {
+	if (input[1] == NULL && (input[1] = fopen(file2, "rb")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file2);
 		status = 2;
@@ -840,13 +842,13 @@ calldiffreg(f1, f2)
 	input_file1 = file1;
 	input_file2 = file2;
 
-	if ((input[0] = fdopen(f1, "r")) == NULL) {
+	if ((input[0] = fdopen(f1, "rb")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		status = 2;
 		done();
 	}
-	if ((input[1] = fdopen(f2, "r")) == NULL) {
+	if ((input[1] = fdopen(f2, "rb")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		status = 2;
@@ -2151,9 +2153,9 @@ compare(dp)
 	fmt2 = statb2.st_mode & S_IFMT;
 
 	if (fmt1 == S_IFREG) {
-		f1 = open(file1, O_RDONLY);
+		f1 = open(file1, O_RDONLY|O_BINARY);
 	} else if (file1ok == 0) {
-		f1 = open(nulldev, O_RDONLY);
+		f1 = open(nulldev, O_RDONLY|O_BINARY);
 	}
 	if ((fmt1 == S_IFREG || file1ok == 0) && f1 < 0) {
 		(void) fprintf(stderr, "diff: ");
@@ -2162,9 +2164,9 @@ compare(dp)
 	}
 
 	if (fmt2 == S_IFREG) {
-		f2 = open(file2, O_RDONLY);
+		f2 = open(file2, O_RDONLY|O_BINARY);
 	} else if (file2ok == 0) {
-		f2 = open(nulldev, O_RDONLY);
+		f2 = open(nulldev, O_RDONLY|O_BINARY);
 	}
 	if ((fmt2 == S_IFREG || file2ok == 0) && f2 < 0) {
 		(void) fprintf(stderr, "diff: ");
@@ -2717,11 +2719,15 @@ copytemp(fn)
 	 * a "-" file is interpreted as fd 0 for pre-/dev/fd systems
 	 * ... let's hope this goes away soon!
 	 */
-	if ((ifd = (strcmp(fn, "-") ? open(fn, 0) : 0)) < 0) {
+	if ((ifd = (strcmp(fn, "-") ? open(fn, O_RDONLY|O_BINARY) : 0)) < 0) {
 		(void) fprintf(stderr, "diff: ");
 		(void) fprintf(stderr, gettext("cannot open %s\n"), fn);
 		done();
 	}
+#if O_BINARY
+	if (ifd == STDIN_FILENO)
+		setmode(ifd, O_BINARY);
+#endif
 #ifdef	SIGHUP
 	(void) signal(SIGHUP, (void (*) __PR((int)))done);
 #endif
@@ -2740,6 +2746,9 @@ copytemp(fn)
 		(void) fprintf(stderr, gettext("cannot create %s\n"), template);
 		done();
 	}
+#if O_BINARY
+	setmode(ofd, O_BINARY);
+#endif
 	(void) strcpy(tempfile[whichtemp++], template);
 	while ((i = read(ifd, buf, D_BUFSIZ)) > 0)
 		if (write(ofd, buf, i) != i) {

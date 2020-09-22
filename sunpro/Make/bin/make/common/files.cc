@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)files.cc	1.37	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)files.cc	1.9 19/01/07 2017-2019 J. Schilling
+ * @(#)files.cc	1.10 20/09/06 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)files.cc	1.9 19/01/07 2017-2019 J. Schilling";
+	"@(#)files.cc	1.10 20/09/06 2017-2019 J. Schilling";
 #endif
 
 /*

@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)sccs.c	1.135 20/08/23 J. Schilling
+ * @(#)sccs.c	1.136 20/09/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.135 20/08/23 J. Schilling"
+#pragma ident "@(#)sccs.c 1.136 20/09/10 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -3615,15 +3615,19 @@ istext(nfiles, argc, argv)
 {
 	int	rval;
 	char	**np;
+	int	showdefault = 0;
 	int	silent = 0;
-	int	dov6 = 0;
+	int	dov6 = NewMode?1:0;
 	int	files = 0;
 
 	optind = 1;
 	opt_sp = 1;
-	while ((rval = getopt(argc, argv, ":sV:")) != -1) {
+	while ((rval = getopt(argc, argv, ":DsV:")) != -1) {
 		switch (rval) {
 
+		case 'D':
+			showdefault = TRUE;
+			break;
 		case 's':
 			silent = TRUE;
 			break;
@@ -3662,6 +3666,15 @@ istext(nfiles, argc, argv)
 	}
 
 	rval = 0;
+	if (showdefault) {
+		if (argv[optind]) {
+			usrerr(gettext("too many args"));
+			return (EX_USAGE);
+		}
+		printf(gettext("Current default is SCCSv%d.\n"), dov6?6:4);
+		return (rval);
+	}
+
 	for (np = &argv[optind]; *np != NULL; np++) {
 		files |= 1;
 		rval |= fgetchk(*np, dov6, silent);

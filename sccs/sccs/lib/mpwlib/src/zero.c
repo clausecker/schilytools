@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 1987, 2006-2011 J. Schilling
+ * Copyright 1987, 2006-2020 J. Schilling
  *
- * @(#)zero.c	1.7 11/07/30 J. Schilling
+ * @(#)zero.c	1.8 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)zero.c 1.7 11/07/30 J. Schilling"
+#pragma ident "@(#)zero.c 1.8 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)zero.c 1.3 06/12/12

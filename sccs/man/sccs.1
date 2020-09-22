@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.55 20/07/16 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs.1	4.56 20/09/10 Copyright 2007-2020 J. Schilling
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
 .\" 
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2020/07/16" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2020/09/10" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -1614,12 +1614,22 @@ for more information.
 .ne 5
 .HP
 .B istext
+.RB [ -D ]
 .RB [ -s ]
 .RB [ -V4 " | " -V6 ]
 .sp .6
 Checks whether the files are pure text files or whether they need
 to be encoded.
 .RS
+.TP
+.B \-D
+Print the current default history file format. This is the history file format
+assumed in case that neither
+.B \-V4
+nor
+.B \-V6
+have been specified.
+No file argument is permitted when this option has been specified.
 .TP
 .B \-s
 Be silent. If all file are pure text, the exit code is 0.
@@ -2120,7 +2130,8 @@ becomes:
 .fi
 .in -2
 
-.br.LP
+.br
+.LP
 .ne 10
 .B Example 4
 Initializing a history file

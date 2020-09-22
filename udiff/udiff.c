@@ -1,8 +1,8 @@
-/* @(#)udiff.c	1.32 20/08/27 Copyright 1985-2020 J. Schilling */
+/* @(#)udiff.c	1.34 20/09/19 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.32 20/08/27 Copyright 1985-2020 J. Schilling";
+	"@(#)udiff.c	1.34 20/09/19 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
@@ -102,6 +102,12 @@ LOCAL	void	showadd		__PR((long o, long n, long c));
 LOCAL	void	showchange	__PR((long o, long n, long c));
 LOCAL	void	showxchange	__PR((long o, long n, long oc, long nc));
 
+LOCAL	FILE	*xfileopen	__PR((int idx, char *name, char	*mode));
+LOCAL	int	xfileseek	__PR((int idx, off_t off));
+LOCAL	off_t	xfilepos	__PR((int idx));
+LOCAL	ssize_t	xgetdelim	__PR((char **lineptr, size_t *n,
+				    int delim, int idx));
+LOCAL	ssize_t	xfileread	__PR((int idx, char **lineptr, size_t n));
 
 LOCAL void
 usage(exitcode)
@@ -156,7 +162,7 @@ main(ac, av)
 	}
 	if (prversion) {
 		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2020 Jörg Schilling\n",
-				"1.32", "2020/08/27",
+				"1.34", "2020/09/19",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -168,7 +174,7 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	oldname = fav[0];
-	if ((of = fileopen(fav[0], "r")) == NULL)
+	if ((of = xfileopen(0, fav[0], "rb")) == NULL)
 		comerr("Cannot open file %s\n", fav[0]);
 	fac--, fav++;
 
@@ -177,7 +183,7 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	newname = fav[0];
-	if ((nf = fileopen(fav[0], "r")) == NULL)
+	if ((nf = xfileopen(1, fav[0], "rb")) == NULL)
 		comerr("Cannot open file %s\n", fav[0]);
 	fac--, fav++;
 
@@ -201,15 +207,17 @@ main(ac, av)
 	if (sb1.st_size == sb2.st_size) {
 		long	ob[MAXLINE / sizeof (long)];
 		long	nb[MAXLINE / sizeof (long)];
+		char	*op = (char *)ob;
+		char	*np = (char *)nb;
 		int	n1;
 		int	n2;
 
-		while ((n1 = fileread(of, ob, sizeof (ob))) > 0) {
-			n2 = fileread(nf, nb, sizeof (nb));
+		while ((n1 = xfileread(0, &op, sizeof (ob))) > 0) {
+			n2 = xfileread(1, &np, sizeof (nb));
 
 			if (n1 != n2)
 				goto notsame;
-			if (cmpbytes(ob, nb, n1) < n1)
+			if (cmpbytes(op, np, n1) < n1)
 				goto notsame;
 		}
 		if (n1 < 0)
@@ -219,13 +227,13 @@ main(ac, av)
 notsame:
 	if (!bdiffmode)
 		ret = 1;
-	if (fileseek(of, (off_t)0) == (off_t)-1 ||
-	    fileseek(nf, (off_t)0) == (off_t)-1)
+	if (xfileseek(0, (off_t)0) == (off_t)-1 ||
+	    xfileseek(1, (off_t)0) == (off_t)-1)
 		comerr("Cannot seek.\n");
 
 	lineoff = readcommon(of, oldname, nf, newname);
-	fileseek(of, lineoff);
-	fileseek(nf, lineoff);
+	xfileseek(0, lineoff);
+	xfileseek(1, lineoff);
 
 	olc = readfile(of, oldname, &oldfile);
 	nlc = readfile(nf, newname, &newfile);
@@ -263,23 +271,28 @@ readcommon(ofp, oname, nfp, nname)
 	for (;;) {
 		long	ob[MAXLINE / sizeof (long)];
 		long	nb[MAXLINE / sizeof (long)];
+		char	*op = (char *)ob;
+		char	*np = (char *)nb;
 		int	n;
 		int	n1;
 		int	n2;
-		char	*op;
+		char	*oop;
 		char	*nl;
 
-		n1 = fileread(ofp, ob, sizeof (ob));
-		n2 = fileread(nfp, nb, sizeof (nb));
+		n1 = xfileread(0, &op, sizeof (ob));
+		n2 = xfileread(1, &np, sizeof (nb));
 		if (n1 <= 0 || n2 <= 0)
 			break;
 		if (n2 < n1)
 			n1 = n2;
-		n = n2 = cmpbytes(ob, nb, n1);
+		n = n2 = cmpbytes(op, np, n1);
 
-		op = (char *)ob;
+		/*
+		 * Count newlines in common part.
+		 */
+		oop = op;
 		while (n > 0 && (nl = findbytes(op, n, '\n'))) {
-			lineoff = readoff + 1 + (nl - (char *)ob);
+			lineoff = readoff + 1 + (nl - (char *)oop);
 			n -= nl - op + 1;
 			op = nl + 1;
 			clc++;
@@ -301,11 +314,14 @@ readfile(f, fname, hlinep)
 	register int	lch = -1;	/* Last character from last read line */
 		off_t	loff = 0;
 		long	lc = 0;
+		long	lsize = 0;
+static	int		xgrow = 1024;
+#define	MAX_GROW		16384
 
 	/*
 	 * Get current posision as we skipped over the common parts.
 	 */
-	loff = filepos(f);
+	loff = xfilepos(f == of ? 0:1);
 
 	/*
 	 * Use getdelim() to include the newline in the hash.
@@ -313,16 +329,20 @@ readfile(f, fname, hlinep)
 	 * and this allows to handle nul bytes in the line.
 	 */
 	for (;;) {
-		if ((len = getdelim(&olbf, &olsz, '\n', f)) < 0) {
+		if ((len = xgetdelim(&olbf, &olsz, '\n', f == of ? 0:1)) < 0) {
 			if (ferror(f))
 				comerr("Cannot read '%s'.\n", fname);
 			break;
 		}
 		lch = ((unsigned char *)olbf)[len-1];
-		if (lc % 1024 == 0)
+		if (lc >= lsize) {
+			lsize += xgrow;
 			*hlinep = ___realloc(*hlinep,
-					(lc + 1024) * sizeof (line),
+					(lsize) * sizeof (line),
 					"new line");
+			if (xgrow < MAX_GROW)
+				xgrow *= 2;
+		}
 		addline(olbf, len, loff, lc++, *hlinep);
 #ifdef	USE_CRLF
 		loff = filepos(f);
@@ -384,10 +404,10 @@ linecmp(olp, nlp)
 		return (FALSE);
 
 	if (ooff != olp->off) {
-		fileseek(of, olp->off);
+		xfileseek(0, olp->off);
 		ooff = olp->off;
 	}
-	lo = getdelim(&olbf, &olsz, '\n', of);
+	lo = xgetdelim(&olbf, &olsz, '\n', 0);
 	if (lo < 0)
 		return (FALSE);
 	ooff += lo;
@@ -396,10 +416,10 @@ linecmp(olp, nlp)
 #endif
 
 	if (noff != nlp->off) {
-		fileseek(nf, nlp->off);
+		xfileseek(1, nlp->off);
 		noff = nlp->off;
 	}
-	ln = getdelim(&nlbf, &nlsz, '\n', nf);
+	ln = xgetdelim(&nlbf, &nlsz, '\n', 1);
 	if (ln < 0)
 		return (FALSE);
 	noff += ln;
@@ -522,10 +542,10 @@ showdel(o, n, c)
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(o+i), oldfile);
 		if (ooff != lp->off) {
-			fileseek(of, lp->off);
+			xfileseek(0, lp->off);
 			ooff = lp->off;
 		}
-		lo = getdelim(&olbf, &olsz, '\n', of);
+		lo = xgetdelim(&olbf, &olsz, '\n', 0);
 		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
@@ -566,10 +586,10 @@ showadd(o, n, c)
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(n+i), newfile);
 		if (noff != lp->off) {
-			fileseek(nf, lp->off);
+			xfileseek(1, lp->off);
 			noff = lp->off;
 		}
-		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		ln = xgetdelim(&nlbf, &nlsz, '\n', 1);
 		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
@@ -612,10 +632,10 @@ showchange(o, n, c)
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(o+i), oldfile);
 		if (ooff != lp->off) {
-			fileseek(of, lp->off);
+			xfileseek(0, lp->off);
 			ooff = lp->off;
 		}
-		lo = getdelim(&olbf, &olsz, '\n', of);
+		lo = xgetdelim(&olbf, &olsz, '\n', 0);
 		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
@@ -633,10 +653,10 @@ showchange(o, n, c)
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(n+i), newfile);
 		if (noff != lp->off) {
-			fileseek(nf, lp->off);
+			xfileseek(1, lp->off);
 			noff = lp->off;
 		}
-		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		ln = xgetdelim(&nlbf, &nlsz, '\n', 1);
 		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
@@ -686,10 +706,10 @@ showxchange(o, n, oc, nc)
 	for (i = 0; i < oc; i++) {
 		lp = glinep((long)(o+i), oldfile);
 		if (ooff != lp->off) {
-			fileseek(of, lp->off);
+			xfileseek(0, lp->off);
 			ooff = lp->off;
 		}
-		lo = getdelim(&olbf, &olsz, '\n', of);
+		lo = xgetdelim(&olbf, &olsz, '\n', 0);
 		ooff += lo;
 #ifdef	USE_CRLF
 		ooff = filepos(of);
@@ -707,10 +727,10 @@ showxchange(o, n, oc, nc)
 	for (i = 0; i < nc; i++) {
 		lp = glinep((long)(n+i), newfile);
 		if (noff != lp->off) {
-			fileseek(nf, lp->off);
+			xfileseek(1, lp->off);
 			noff = lp->off;
 		}
-		ln = getdelim(&nlbf, &nlsz, '\n', nf);
+		ln = xgetdelim(&nlbf, &nlsz, '\n', 1);
 		noff += ln;
 #ifdef	USE_CRLF
 		noff = filepos(nf);
@@ -721,4 +741,162 @@ showxchange(o, n, oc, nc)
 		if (nlbf[ln-1] !=  '\n')
 			putchar('\n');
 	}
+}
+
+#include <schily/mman.h>
+#include <schily/errno.h>
+
+LOCAL	FILE	*xf[2];
+LOCAL	off_t	mmsize[2];
+LOCAL	char	*mmbase[2];
+LOCAL	char	*mmend[2];
+LOCAL	char	*mmnext[2];
+
+LOCAL FILE *
+xfileopen(idx, name, mode)
+	int	idx;
+	char	*name;
+	char	*mode;
+{
+	FILE	*f;
+	struct stat	sb;
+
+	f = fileopen(name, mode);
+	if (f == NULL)
+		return (NULL);
+	xf[idx] = f;
+
+#ifdef	HAVE_MMAP
+	if (fstat(fileno(f), &sb) < 0) {
+		fclose(f);
+		return (NULL);
+	}
+	mmsize[idx] = sb.st_size;
+	if (sb.st_size > (64*1024*1024))
+		return (f);
+
+	mmbase[idx] = mmap((void *)0, mmsize[idx],
+			PROT_READ, MAP_PRIVATE, fileno(f), (off_t)0);
+
+	if (mmbase[idx] == MAP_FAILED) {
+		/*
+		 * Silently fall back to the read method.
+		 */
+		mmbase[idx] = NULL;
+	} else if (mmbase[idx]) {
+		mmnext[idx] = mmbase[idx];
+		mmend[idx] = mmbase[idx] + mmsize[idx];
+	}
+#endif
+	return (f);
+}
+
+LOCAL int
+xfileseek(idx, off)
+	int	idx;
+	off_t	off;
+{
+#ifndef	HAVE_MMAP
+	return (fileseek(xf[idx], off));
+#else
+	if (mmbase[idx] == NULL)
+		return (fileseek(xf[idx], off));
+
+	mmnext[idx] = mmbase[idx] + off;
+
+	if (mmnext[idx] > (mmbase[idx] + mmsize[idx])) {
+		mmnext[idx] = (mmbase[idx] + mmsize[idx]);
+		seterrno(EINVAL);
+		return (-1);
+	}
+	if (mmnext[idx] < mmbase[idx]) {
+		mmnext[idx] = mmbase[idx];
+		seterrno(EINVAL);
+		return (-1);
+	}
+	return (0);
+#endif
+}
+
+LOCAL off_t
+xfilepos(idx)
+	int	idx;
+{
+#ifndef	HAVE_MMAP
+	return (filepos(xf[idx]));
+#else
+	if (mmbase[idx] == NULL)
+		return (filepos(xf[idx]));
+
+	return (mmnext[idx] - mmbase[idx]);
+#endif
+}
+
+LOCAL ssize_t
+xgetdelim(lineptr, n, delim, idx)
+	char	**lineptr;
+	size_t	*n;
+	int	delim;
+	int	idx;
+{
+#ifndef	HAVE_MMAP
+	return (getdelim(lineptr, n, delim, xf[idx]));
+#else
+	char	*p;
+	ssize_t	siz;
+	ssize_t	amt;
+
+	if (mmbase[idx] == NULL)
+		return (getdelim(lineptr, n, delim, xf[idx]));
+
+	*lineptr = mmnext[idx];
+	siz = mmend[idx] - mmnext[idx];
+	if (siz == 0) {
+		*lineptr = "";
+		return (-1);
+	}
+	p = findbytes(mmnext[idx], siz, delim);
+	if (p == NULL) {
+		amt = siz;
+		mmnext[idx] = mmend[idx];
+	} else {
+		amt = ++p - mmnext[idx];
+		mmnext[idx] = p;
+	}
+	if (amt == 0) {
+		*lineptr = "";
+		return (-1);
+	}
+	return (amt);
+#endif
+}
+
+LOCAL ssize_t
+xfileread(idx, lineptr, n)
+	int	idx;
+	char	**lineptr;
+	size_t	n;
+{
+#ifndef	HAVE_MMAP
+	return (fileread(xf[idx], *lineptr, n));
+#else
+	ssize_t	siz;
+	ssize_t	amt;
+
+	if (mmbase[idx] == NULL)
+		return (fileread(xf[idx], *lineptr, n));
+
+	*lineptr = mmnext[idx];
+	siz = mmend[idx] - mmnext[idx];
+	amt = n;
+	if (amt > siz) {
+		amt = siz;
+		mmnext[idx] = mmend[idx];
+	} else {
+		mmnext[idx] += amt;
+	}
+	if (amt == 0)
+		*lineptr = "";
+	return (amt);
+#endif
 }

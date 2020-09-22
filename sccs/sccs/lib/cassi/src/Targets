@@ -1,1 +1,4 @@
-CFILES=		cmrcheck.c deltack.c error.c filehand.c gf.c
+# @(#)Targets	1.2 20/09/21 Copyright 2006-2020 J. Schilling
+
+CFILES +=	\
+	cmrcheck.c deltack.c error.c filehand.c gf.c

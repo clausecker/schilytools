@@ -1,4 +1,9 @@
-hV6,sum=25403
+hV6,sum=43287
+s 00002/00001/00132
+d D 1.6 2020/09/13 23:37:29.769449768+0200 joerg 6 5
+S s 26081
+c SCCSv6 verwendet jetzt bei Binaerdateien kein uu-encode mehr
+e
 s 00003/00003/00130
 d D 1.5 2015/06/03 00:06:43+0200 joerg 5 4
 S s 22706
@@ -171,15 +176,23 @@ then
     if $TESTING_SCCS_V6
     then
       test_ascii fb10 "foo"             # no newline at end of file.
+I 6
+      test_ascii fa11 "x\000y\n"        # ASCII NUL.
+E 6
     else
       test_bin   fb10 "foo"             # no newline at end of file.
+I 6
+      test_bin   fa11 "x\000y\n"        # ASCII NUL.
+E 6
     fi
 E 4
 D 2
     test_ascii fa11 "x\000y\n"          # ASCII NUL.
 E 2
 I 2
+D 6
     test_bin   fa11 "x\000y\n"          # ASCII NUL.
+E 6
     test_ascii fa12 "x\001y\n"          # ASCII SOH.
 E 2
 else

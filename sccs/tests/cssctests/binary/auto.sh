@@ -115,10 +115,11 @@ then
     if $TESTING_SCCS_V6
     then
       test_ascii fb10 "foo"             # no newline at end of file.
+      test_ascii fa11 "x\000y\n"        # ASCII NUL.
     else
       test_bin   fb10 "foo"             # no newline at end of file.
+      test_bin   fa11 "x\000y\n"        # ASCII NUL.
     fi
-    test_bin   fa11 "x\000y\n"          # ASCII NUL.
     test_ascii fa12 "x\001y\n"          # ASCII SOH.
 else
     echo "Some tests skipped (since SCCS fails them but CSSC should pass)"

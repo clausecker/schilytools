@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)fdfopen.c	1.5 09/11/08 J. Schilling
+ * @(#)fdfopen.c	1.6 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fdfopen.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)fdfopen.c 1.6 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)fdfopen.c 1.5 06/12/12

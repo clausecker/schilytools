@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2020 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)lockit.c	1.22 20/07/12 J. Schilling
+ * @(#)lockit.c	1.23 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.22 20/07/12 J. Schilling"
+#pragma ident "@(#)lockit.c 1.23 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12

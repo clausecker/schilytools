@@ -10,12 +10,12 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * Copyright 2018 J. Schilling
+ * Copyright 2018-2020 J. Schilling
  *
- * @(#)namedflags.c	1.2 18/11/28 J. Schilling
+ * @(#)namedflags.c	1.3 20/09/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)namedflags.c 1.2 18/11/28 J. Schilling"
+#pragma ident "@(#)namedflags.c 1.3 20/09/16 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -55,7 +55,15 @@ register struct packet *pkt;
 	do {
 		NONBLANK(p);
 
+		/*
+		 * Skip dummy flag entries (only spaces).
+		 */
+		if (*p == '\n') {
+			pkt->p_wrttn++;			/* only if pkt->p_upd */
+			continue;
+		}
 		pkt->p_line[pkt->p_line_length-1] = 0;	/* Kill newline */
+
 		if (Ffile) {
 			fprintf(stderr,
 				gettext(
@@ -67,6 +75,7 @@ register struct packet *pkt;
 				"WARNING: unsupported named flag '%s' at line %d\n"),
 				p, pkt->p_slnno);
 		}
+		pkt->p_line[pkt->p_line_length-1] = '\n'; /* Restore newline */
 	} while ((p = getline(pkt)) != NULL &&
 				*p++ == CTLCHAR && *p++ == NAMEDFLAG);
 }

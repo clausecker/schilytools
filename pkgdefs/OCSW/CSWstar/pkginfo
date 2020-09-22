@@ -1,7 +1,7 @@
 ARCH=i386
 PKG=CSWstar
 #PKG=XXXstar
-NAME=star - Standard TAR (a POSIX compliant TAR and a configurable secure RMT remote tape server)
+NAME=star - Standard TAR (a POSIX compliant TAR with additional CPIO and PAX CLI and a configurable secure RMT remote tape server)
 VERSION=1.5,REV=2006.07.30
 CATEGORY=application
 VENDOR=http://cdrecord.org/private/star.html  packaged for CSW by Jörg Schilling

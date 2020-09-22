@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2020 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)fmalloc.c	1.7 20/06/07 J. Schilling
+ * @(#)fmalloc.c	1.8 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fmalloc.c 1.7 20/06/07 J. Schilling"
+#pragma ident "@(#)fmalloc.c 1.8 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)fmalloc.c 1.5 06/12/12

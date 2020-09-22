@@ -5,9 +5,6 @@ CSWsccs: disallowed-path opt/csw/bin
 CSWsccs: disallowed-path opt/csw/share
 CSWsccs: disallowed-path opt/csw/share/doc
 CSWsccs: disallowed-path opt/csw/share/man
-CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libcassi.a
-CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libcomobj.a
-CSWsccs: discouraged-path-in-pkgmap /opt/csw/ccs/lib/libmpw.a
 CSWsccs: pkginfo-opencsw-repository-missing
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw
 CSWsccs: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin

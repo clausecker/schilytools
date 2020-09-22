@@ -1,4 +1,7 @@
-CFILES=	abspath.c any.c cat.c dname.c fatal.c fdfopen.c fmalloc.c \
+# @(#)Targets	1.10 20/09/21 Copyright 2006-2020 J. Schilling
+
+CFILES +=	\
+	abspath.c any.c cat.c dname.c fatal.c fdfopen.c fmalloc.c \
 	had.c imatch.c index.c lockit.c mdata.c patoi.c repl.c satoi.c \
 	setsig.c sname.c strend.c trnslat.c userexit.c urandom.c \
 	xcreat.c \

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)del_ba.c	1.12 11/08/21 J. Schilling
+ * @(#)del_ba.c	1.13 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ba.c 1.12 11/08/21 J. Schilling"
+#pragma ident "@(#)del_ba.c 1.13 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)del_ba.c 1.3 06/12/12

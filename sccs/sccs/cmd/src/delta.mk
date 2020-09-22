@@ -1,4 +1,4 @@
-#ident @(#)delta.mk	1.7 18/04/04 
+#ident @(#)delta.mk	1.8 20/09/14 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -23,6 +23,7 @@ CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DSCCS_HELP_PRE=\"${SCCS_HELP_PRE}\"
 CPPOPTS +=	-DSCCS_BIN_PRE=\"${SCCS_BIN_PRE}\"
 CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
+CPPOPTS +=	-DUSE_FSDIFF			# "fsdiff" instead of "bdiff"
 
 CFILES=		delta.c
 

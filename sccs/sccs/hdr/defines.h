@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)defines.h	1.139 20/09/04 J. Schilling
+ * @(#)defines.h	1.140 20/09/07 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.139 20/09/04 J. Schilling"
+#pragma ident "@(#)defines.h 1.140 20/09/07 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -782,6 +782,7 @@ extern	void	fmterr	__PR((struct packet *));
 extern	char	*getline __PR((struct packet *));
 extern	void	grewind	__PR((struct packet *));
 extern	void	putline	__PR((struct packet *, char *));
+extern	void	putlline	__PR((struct packet *, char *, ssize_t));
 extern	void	putchr	__PR((struct packet *, int c));
 extern	void	putctl	__PR((struct packet *));
 extern	void	putctlnnl __PR((struct packet *));

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-delta.1	1.57 20/08/05 Copyright 2007-2020 J. Schilling
+.\" @(#)sccs-delta.1	1.58 20/09/18 Copyright 2007-2020 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2020/08/05" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2020/09/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -130,6 +130,22 @@ The following options are supported:
 .br
 .ne 3
 .TP 13
+.B \-b
+Use command 
+.BR bdiff (1)
+instead of 
+.BR fsdiff (1).
+This version of
+.BR delta (1)
+by default uses 
+.BR fsdiff (1)
+that is faster than
+.BR bdiff (1)
+and does not slow down as much with larger file size.
+
+.br
+.ne 3
+.TP
 .B -d
 Use command 
 .BR diff (1)
@@ -864,6 +880,7 @@ AvailabilitySUNWsprot
 .BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
+.BR fsdiff (1), 
 .BR what (1),
 .BR sccschangeset (4),
 .BR sccsfile (4),

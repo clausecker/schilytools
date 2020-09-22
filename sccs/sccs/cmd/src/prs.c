@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2020 J. Schilling
  *
- * @(#)prs.c	1.66 20/08/23 J. Schilling
+ * @(#)prs.c	1.68 20/09/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.66 20/08/23 J. Schilling"
+#pragma ident "@(#)prs.c 1.68 20/09/11 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -1270,12 +1270,21 @@ static void
 printfile(file)
 register	char	*file;
 {
+#ifdef	__historic__
 	register	char	*p;
+#else
+	register	size_t	amt;
+#endif
 	FILE	*iop;
 
 	iop = xfopen(file, O_RDONLY|O_BINARY);
+#ifdef	__historic__
 	while ((p = fgets(line, sizeof (line), iop)) != NULL)
 		printf("%s", p);
+#else
+	while ((amt= fread(line, 1, sizeof (line), iop)) > 0)
+		fwrite(line, 1, amt, stdout);
+#endif
 	fclose(iop);
 }
 
@@ -1299,8 +1308,13 @@ register struct packet *pkt;
 	while (getline(pkt) != NULL) {
 		p = pkt->p_line;
 		if (HAD_BD) {
+#ifdef	__historic__
 			if (fputs(p, BDiop) == EOF) {
 				xmsg(bdtmp, NOGETTEXT("read_mod"));
+#else
+			if (fwrite(p, 1, pkt->p_line_length, BDiop) == EOF) {
+				xmsg(bdtmp, NOGETTEXT("read_mod"));
+#endif
 			}
 		}
 		if (*p++ != CTLCHAR)

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2020 J. Schilling
  *
- * @(#)error.c	1.6 11/10/10 J. Schilling
+ * @(#)error.c	1.7 20/09/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)error.c 1.6 11/10/10 J. Schilling"
+#pragma ident "@(#)error.c 1.7 20/09/06 J. Schilling"
 #endif
 /*
  * @(#)error.c 1.2 06/12/12
