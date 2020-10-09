@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.32 20/04/26 Copyr 2012-2020 J. Schilling
+. \" @(#)make.1s	1.33 20/10/08 Copyr 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2020/04/26" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2020/10/08" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -4529,3 +4529,30 @@ This version of
 .BR make (1)
 was originally written by Sun Microsystems in 1986.
 Since 2016, it is maintained by J\*org Schilling.
+.br
+.ne 8
+.SH "SOURCE DOWNLOAD"
+The source code for the
+.B SunPro Make
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.
+.LP
+Separate project informations for the Schily SunPro Make project may be retrieved from:
+.LP
+.B
+    http://schilytools.sourceforge.net/sunpromake.html

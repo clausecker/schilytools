@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.122 20/04/26 2008-2020 J. Schilling
+ * @(#)xec.c	1.123 20/10/07 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.122 20/04/26 2008-2020 J. Schilling";
+	"@(#)xec.c	1.123 20/10/07 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -571,12 +571,13 @@ execute(argt, xflags, errorflg, pf1, pf2)
 					 * returns NULL.
 					 */
 #ifdef	DO_PIPE_PARENT
-					if (!curjob())
+					if (!curjob()) {
 						xflags &= ~XEC_ALLOCJOB;
 #endif
-					monitor = exallocjob(t, xflags);
+						monitor = exallocjob(t, xflags);
 #ifdef	DO_PIPE_PARENT
-					xflags |= XEC_ALLOCJOB;
+						xflags |= XEC_ALLOCJOB;
+					}
 #endif
 				}
 #ifdef	DO_PIPE_PARENT

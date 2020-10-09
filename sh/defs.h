@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)defs.h	1.209 20/04/21 2008-2020 J. Schilling
+ * @(#)defs.h	1.212 20/10/08 2008-2020 J. Schilling
  */
 
 /*
@@ -630,6 +630,7 @@ extern	void	makejob		__PR((int monitor, int fg));
 extern	struct job *
 		postjob		__PR((pid_t pid, int fg, int blt));
 extern	void	deallocjob	__PR((struct job *jp));
+extern	void	clearcurjob	__PR((void));
 extern	void	*curjob		__PR((void));
 extern	pid_t	curpgid		__PR((void));
 extern	void	setjobpgid	__PR((pid_t pgid));
@@ -1252,6 +1253,7 @@ extern jmps_t			*dotshell;
 /* fault handling */
 extern unsigned			brkincr;
 #define		MINTRAP		0
+#define		EXITTRAP	0		/* trap 0 == trap EXIT	*/
 #ifdef	DO_ERR_TRAP
 #define		MAXTRAP		(NSIG+1)
 #define		ERRTRAP		(MAXTRAP-1)

@@ -37,9 +37,9 @@
 #define	_JOBS_H
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)jobs.h	1.1 15/12/23 2008-2015 J. Schilling
+ * @(#)jobs.h	1.2 20/10/06 2008-2020 J. Schilling
  */
 
 /*
@@ -81,6 +81,7 @@ struct job
 	UInt32_t j_jid;		/* job ID */
 	Int32_t j_xval;		/* exit code, or exit or stop signal */
 	Int16_t j_xcode;	/* exit or stop reason */
+	Int16_t j_xsig;		/* exit signal, typicalle SIGCHLD */
 	UInt16_t j_flag;	/* various status flags defined below */
 	char	*j_pwd;		/* job's working directory */
 	char	*j_cmd;		/* cmd used to invoke this job */
@@ -99,6 +100,7 @@ struct job
 #define	J_RUNNING	0100	/* job is currently running */
 #define	J_FOREGND	0200	/* job was put in foreground by shell */
 #define	J_BLTIN		0400	/* job was a shell builtin */
+#define	J_REPORTED	01000	/* job was "reported" via wait(1) */
 
 /*
  * From jobs.c:

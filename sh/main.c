@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2020 J. Schilling
  *
- * @(#)main.c	1.79 19/10/05 2008-2019 J. Schilling
+ * @(#)main.c	1.80 20/10/07 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.79 19/10/05 2008-2019 J. Schilling";
+	"@(#)main.c	1.80 20/10/07 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -686,6 +686,7 @@ exfile(prof)
 		bosh.intrcnt = 0; /* Reset interrupt counter */
 		tdystak(0, 0);
 		stakchk();	/* may reduce sbrk */
+		clearcurjob();	/* clear thisjob */
 		exitset();
 
 		if ((flags & prompt) && standin->fstak == 0 && !eof) {

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.107 20/07/08  Copyright (c) 2006-2020 J. Schilling"
+#ident "@(#)Makefile	1.108 20/09/28  Copyright (c) 2006-2020 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -85,6 +85,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_EXPAND_LONG	# expand() support more than PATH_MAX
 #CPPOPTS +=	-DDO_POSIX_RETURN	# Allow "return" inside "dot" scripts
 #CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
+#CPPOPTS +=	-DDO_POSIX_WAIT		# Use POSIX exit code 127 for non-existent pid
 #CPPOPTS +=	-DDO_POSIX_E		# Use POSIX rules for set -e, e.g. cmd subst
 #CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
 					# and export prefix vars to "exec"

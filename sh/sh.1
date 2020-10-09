@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.254 20/04/15 Copyright 2012-2020 J. Schilling
+.\" @(#)sh.1	1.256 20/09/28 Copyright 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2020/04/15" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2020/09/28" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1755,18 +1755,22 @@ command.
 .ne 3
 .TP
 .B ?
-The decimal value returned by the last synchronously executed command.
+The decimal value returned by the last synchronously executed command or
+a decimal number derived from the signal number that killed the process.
+.sp
 Only the low 8 bits of the exit code from the command are visible
 unless exit code masking is switched off by
 .RB `` "set\ \-o\ fullexitcode" ''.
-The ability to see all 32 bits from the exit code requires a
-modern operating system with support for
-.BR waitid (2)
-in addition.
+The ability to see all 32 bits from the exit code requires a modern
+.B UNIX
+compliant operating system with working support for
+.BR waitid (2).
+.sp
 If the executable file could not be found, the returned value is
 .BR 127 .
 If the file exists but could not be executed, the returned value is
 .BR 126 .
+.sp
 If
 .B bosh
 has been compiled with
@@ -1774,11 +1778,19 @@ has been compiled with
 (which is not the default and not recommended by POSIX) and
 if a command's exit code modulo 256 is zero and
 .RB `` "set\ \-o\ fullexitcode" ''
-is not in effect, the returned value is 128 except when the operating
+is not in effect, the returned value is 128, except when the operating
 system does not support
-.BR waitid (2).
+.BR waitid (2),
+as the exit code then is masked by the kernel.
+.sp
 If the command was killed by a signal, the returned value is 128 +
 the signal number.
+As a result, apparent exit code values in the range 129..200
+may also have been caused by a signal.
+.sp
+If the shell itself or a sub shell catches a signal while preparing a job,
+the exit code is 2000, or (when exit codes are masked to only the low
+8 bits) 208.
 .br
 .ne 3
 .TP
@@ -1797,7 +1809,9 @@ returns a
 .BR "decimal number" ,
 this is (on a POSIX system) the 32 bit
 exit code from the last command that did normally exit. Older non-POSIX
-systems like Linux return only the low 8 bits from the exit code.
+systems like Linux or UNIX systems from before SVr4 return only the
+low 8 bits from the exit code.
+In any case, the number was a result from a normal program exit.
 .sp
 If
 .B $/
@@ -7488,15 +7502,42 @@ have not been supported in older versions of
 .br
 .ne 3
 .TP
-\fBwait\fR [ \fIn\fR ]
+\fBwait\fR [ \fIn .\|.\|.\fR ]
 .sp .6
 Wait for your background process whose process id is
 .I n
 and report its
-termination status. If
+termination status.
+The process identifier
+.I n
+may either be a UNIX process id or a shell job id. See
+.B "Job Control (jsh)"
+section below for information on shell job ids. 
+.sp
+The return code of
+.B wait
+is the exit code of the last process from the argument list that has
+successfully been waited for, or
+.BR 127 " / " NOTFOUND
+in case that
+the argument refers to a nonexisting process.
+.sp
+If
 .I n
 is omitted, all your shell's currently active
 background processes are waited for and the return code is zero.
+.sp
+See the shell variables
+.BR $? ,
+.BR $/ ,
+.BR ${.sh.code} ,
+.BR ${.sh.codename} ,
+.BR ${.sh.pid} ,
+.BR ${.sh.status} ,
+.BR ${.sh.termsig}
+in the section
+.B Parameter Substitution
+above.
 
 .SS "Job Control (jsh)"
 .sp

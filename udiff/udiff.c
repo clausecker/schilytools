@@ -1,8 +1,8 @@
-/* @(#)udiff.c	1.34 20/09/19 Copyright 1985-2020 J. Schilling */
+/* @(#)udiff.c	1.38 20/09/25 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.34 20/09/19 Copyright 1985-2020 J. Schilling";
+	"@(#)udiff.c	1.38 20/09/25 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
@@ -162,7 +162,7 @@ main(ac, av)
 	}
 	if (prversion) {
 		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2020 Jörg Schilling\n",
-				"1.34", "2020/09/19",
+				"1.38", "2020/09/25",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -328,6 +328,8 @@ static	int		xgrow = 1024;
 	 * This allows to correctly deal with files that do not end in a newline
 	 * and this allows to handle nul bytes in the line.
 	 */
+	if (olsz == 0)		/* If first file is mmap()d and 2nd is not */
+		olbf = NULL;	/* could be != NULL from mmap() space */
 	for (;;) {
 		if ((len = xgetdelim(&olbf, &olsz, '\n', f == of ? 0:1)) < 0) {
 			if (ferror(f))
@@ -775,7 +777,13 @@ xfileopen(idx, name, mode)
 	if (sb.st_size > (64*1024*1024))
 		return (f);
 
-	mmbase[idx] = mmap((void *)0, mmsize[idx],
+	if (!S_ISREG(sb.st_mode))	/* FIFO has st_size == 0 */
+		return (f);		/* so cannot use mmap()  */
+
+	if (sb.st_size == 0)
+		mmbase[idx] = "";
+	else
+		mmbase[idx] = mmap((void *)0, mmsize[idx],
 			PROT_READ, MAP_PRIVATE, fileno(f), (off_t)0);
 
 	if (mmbase[idx] == MAP_FAILED) {

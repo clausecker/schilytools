@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.17 20/06/25 Copyright 2011-2020 J. Schilling
+ * @(#)sethome.c	1.18 20/09/25 Copyright 2011-2020 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.17 20/06/25 Copyright 2011-2020 J. Schilling"
+#pragma ident "@(#)sethome.c	1.18 20/09/25 Copyright 2011-2020 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -127,6 +127,7 @@ sethome(path)
 {
 	char	buf[max(8192, PATH_MAX+1)];
 	int	len;
+	int	blen;
 
 	if (shinit != 0)
 		return (sethomestat & SETHOME_OK);
@@ -154,6 +155,7 @@ sethome(path)
 	 * $SET_HOME/.sccs was found and len is the offset
 	 * in buf where we may append "/.sccs".
 	 */
+	blen = strlen(buf);
 	buf[len] = '\0';
 	if (len == 0) {
 		setahome = strdup("/");
@@ -162,8 +164,13 @@ sethome(path)
 		setahome = strdup(buf);
 		setahomelen = len;
 	}
-	cwdprefix = strdup(&buf[len+1]);
-	cwdprefixlen = strlen(&buf[len+1]);
+	if (len >= blen) {				/* in project home */
+		cwdprefix = strdup("");
+		cwdprefixlen = 0;
+	} else {					/* deeper in tree */
+		cwdprefix = strdup(&buf[len+1]);
+		cwdprefixlen = strlen(&buf[len+1]);
+	}
 	if (setahome == NULL || cwdprefix == NULL) {	/* no mem */
 		setahomelen = 0;
 		cwdprefixlen = 0;

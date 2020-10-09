@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)bltin.c	1.147 20/05/17 2008-2020 J. Schilling
+ * @(#)bltin.c	1.148 20/09/27 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.147 20/05/17 2008-2020 J. Schilling";
+	"@(#)bltin.c	1.148 20/09/27 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -1249,15 +1249,16 @@ builtin(type, argc, argv, t, xflags)
 	defined(DO_POSIX_CD) || defined(DO_POSIX_FAILURE)
 out:
 #endif
-	flushb();		/* Flush print buffer */
-	restore(fdindex);	/* Restore file descriptors */
-	exval_set(exitval);	/* Prepare ${.sh.*} parameters */
+	flushb();			/* Flush print buffer */
+	restore(fdindex);		/* Restore file descriptors */
+	if (type != SYSWAIT)		/* Do not clobber $/ from wait */
+		exval_set(exitval);	/* Prepare ${.sh.*} parameters */
 #ifdef	DO_ERR_TRAP
 	if ((trapnote & TRAPSET) ||
 	    (exitval &&
 	    (xflags & XEC_NOSTOP) == 0))
 #endif
-		chktrap();	/* Run installed traps */
+		chktrap();		/* Run installed traps */
 }
 
 #ifdef	DO_POSIX_CD

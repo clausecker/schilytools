@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)fault.c	1.50 20/04/15 2008-2020 J. Schilling
+ * @(#)fault.c	1.52 20/10/08 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.50 20/04/15 2008-2020 J. Schilling";
+	"@(#)fault.c	1.52 20/10/08 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -122,7 +122,9 @@ static void	clrsig		__PR((int i, int dofree));
 #endif
 	void	chktrap		__PR((void));
 static	int	str2trap	__PR((char *s, int *sig));
+#ifdef	DO_POSIX_TRAP
 static	int	trap2str	__PR((int sig, char *buf));
+#endif
 static	void	prtrap		__PR((int sig));
 	void	systrap		__PR((int argc, char **argv));
 	void	sh_sleep	__PR((unsigned int ticks));
@@ -581,8 +583,12 @@ str2trap(s, sig)
 	char	*s;
 	int	*sig;
 {
+	if (strcmp("EXIT", s) == 0) {
+		*sig = EXITTRAP;
+		return (0);
+	}
 #ifdef	DO_ERR_TRAP
-	if (strcmp("ERR", s) == 0) {
+	else if (strcmp("ERR", s) == 0) {
 		*sig = ERRTRAP;
 		return (0);
 	}
@@ -590,19 +596,25 @@ str2trap(s, sig)
 	return (-1);
 }
 
+#ifdef	DO_POSIX_TRAP
 static int
 trap2str(sig, buf)
 	int	sig;
 	char	*buf;
 {
+	if (sig == EXITTRAP) {
+		strcpy(buf, "EXIT");
+		return (0);
+	}
 #ifdef	DO_ERR_TRAP
-	if (sig == ERRTRAP) {
+	else if (sig == ERRTRAP) {
 		strcpy(buf, "ERR");
 		return (0);
 	}
 #endif
 	return (-1);
 }
+#endif
 
 static void
 prtrap(sig)
@@ -617,7 +629,7 @@ prtrap(sig)
 	else if (!ignoring(sig))
 		prs_buff(UC "-");
 	prs_buff(UC "' ");
-	if (sig2str(sig, buf) < 0 && trap2str(sig, buf) < 0)
+	if (trap2str(sig, buf) < 0 && sig2str(sig, buf) < 0)
 		prn_buff(sig);
 	else
 		prs_buff(UC buf);
@@ -679,14 +691,14 @@ systrap(argc, argv)
 		} else
 #endif
 		{
-			noa1 = (str2sig(a1, &sig) == 0 ||
-				str2trap(a1, &sig) == 0);
+			noa1 = (str2trap(a1, &sig) == 0 ||
+				str2sig(a1, &sig) == 0);
 			if (noa1 == 0)
 				++argv;
 		}
 		while (*++argv) {
-			if ((str2sig(*argv, &sig) < 0 &&
-			    str2trap(*argv, &sig) < 0) ||
+			if ((str2trap(*argv, &sig) < 0 &&
+			    str2sig(*argv, &sig) < 0) ||
 			    sig >= MAXTRAP || sig < MINTRAP ||
 #ifndef	DO_POSIX_TRAP
 			    sig == SIGSEGV) {

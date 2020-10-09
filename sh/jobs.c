@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)jobs.c	1.116 20/07/25 2008-2020 J. Schilling
+ * @(#)jobs.c	1.119 20/10/07 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.116 20/07/25 2008-2020 J. Schilling";
+	"@(#)jobs.c	1.119 20/10/07 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -392,11 +392,11 @@ freejob(jp)
 	struct job **njp;
 	struct job **cjp;
 
-	for (njp = &joblst; *njp != jp; njp = &(*njp)->j_nxtp)
+	for (njp = &joblst; *njp && *njp != jp; njp = &(*njp)->j_nxtp)
 		/* LINTED */
 		;
 
-	for (cjp = &jobcur; *cjp != jp; cjp = &(*cjp)->j_curp)
+	for (cjp = &jobcur; *cjp && *cjp != jp; cjp = &(*cjp)->j_curp)
 		/* LINTED */
 		;
 
@@ -577,6 +577,8 @@ statjob(jp, si, fg, rc)
 #else
 		ex.ex_signo = 1000;	/* Need to distinct this from builtin */
 #endif
+		jp->j_xsig = ex.ex_signo;
+
 		if ((flags2 & fullexitcodeflg) == 0)
 			exitval &= 0xFF; /* As dumb as with historic wait */
 		if (jp->j_flag & J_SIGNALED)
@@ -660,8 +662,14 @@ freejobs()
 
 		for (jp = joblst; jp; jp = sjp) {
 			sjp = jp->j_nxtp;
+#ifdef	DO_POSIX_WAIT
+			if ((jp->j_flag & (J_DONE|J_REPORTED)) ==
+			    (J_DONE|J_REPORTED))
+				freejob(jp);
+#else
 			if (jp->j_flag & J_DONE)
 				freejob(jp);
+#endif
 		}
 	}
 }
@@ -1086,6 +1094,14 @@ deallocjob(jp)
 	jobcnt--;
 }
 
+void
+clearcurjob()
+{
+#ifdef	DO_POSIX_WAIT
+	thisjob = NULL;
+#endif
+}
+
 #ifdef	DO_PIPE_PARENT
 void *
 curjob()
@@ -1172,6 +1188,9 @@ allocjob(cmdp, cwdp, monitor)
 	jp->j_nxtp = jp->j_curp = NULL;
 	jp->j_flag = 0;
 	jp->j_pid = jp->j_pgid = jp->j_tgid = 0;
+	jp->j_xval = 0;
+	jp->j_xcode = 0;
+	jp->j_xsig = 0;
 
 	jpp = &joblst;
 
@@ -1205,7 +1224,11 @@ clearjobs()
 
 	for (jp = joblst; jp; jp = sjp) {
 		sjp = jp->j_nxtp;
-		free(jp);
+#ifdef	DO_POSIX_WAIT
+		if ((jp->j_flag & (J_DONE|J_REPORTED)) ==
+		    (J_DONE|J_REPORTED))
+#endif
+			free(jp);
 	}
 	joblst = NULL;
 	jobcnt = 0;
@@ -1477,19 +1500,59 @@ syswait(argc, argv)
 		wflags = 0;
 	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
 
-	if (argc == 1)
+	if (argc == 1) {
+		struct job *sjp;
+
 		collectjobs(0);
-	else while (--argc) {
-		if ((jp = str2job(cmdp, *++argv, 0)) == 0)
+
+		for (jp = joblst; jp; jp = sjp) {
+			sjp = jp->j_nxtp;
+
+			if (jp->j_flag & J_DONE)
+				jp->j_flag |= J_REPORTED;
+		}
+	} else while (--argc) {
+		if ((jp = str2job(cmdp, *++argv, 0)) == 0) {
+#ifdef	DO_POSIX_WAIT
+			exitval =
+			ex.ex_status =
+			ex.ex_code = ERR_NOTFOUND;
+			exitset();	/* Set retval from exitval for $? */
+#endif
 			continue;
+		}
+#ifdef	DO_POSIX_WAIT
+		if ((jp->j_flag & J_REPORTED))
+			continue;
+		if ((jp->j_flag & J_DONE)) {
+			ex.ex_status = exitval = jp->j_xval;
+			ex.ex_code = jp->j_xcode;
+			ex.ex_pid = jp->j_pid;
+			ex.ex_signo = jp->j_xsig;
+
+			if ((flags2 & fullexitcodeflg) == 0)
+				exitval &= 0xFF; /* As dumb as historic wait */
+			if (jp->j_flag & J_SIGNALED)
+				exitval |= SIGFLG;
+#ifdef	DO_EXIT_MODFIX
+			else if (ex.ex_status != 0 && exitval == 0)
+				exitval = SIGFLG; /* Use special value 128 */
+#endif
+			exitset();	/* Set retval from exitval for $? */
+
+			jp->j_flag |= J_REPORTED;
+			continue;
+		}
+#endif
 		if (!(jp->j_flag & J_RUNNING))
 			continue;
 		if (waitid(P_PID, jp->j_pid, &si, wflags) < 0)
 			break;
 #ifdef	DO_TRAP_FROM_WAITID
-		checksigs(&si);			/* fault() with jobcontrol */
+		checksigs(&si);		/* fault() with jobcontrol */
 #endif
 		(void) statjob(jp, &si, 0, 1);
+		jp->j_flag |= J_REPORTED;
 	}
 }
 

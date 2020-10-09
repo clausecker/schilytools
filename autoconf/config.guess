@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.21 20/08/23 Copyright 1999-2014 J. Schilling
+# @(#)config.guess	1.22 20/10/07 Copyright 1999-2020 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -55,6 +55,7 @@ trap 'rm -f dummy.c dummy.o dummy; exit 1' 1 2 15
 #
 # This command helps to debug the script via "sh -x"
 #
+#	uname -m	uname -s	uname -r	uname -v
 : "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}"
 
 case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
@@ -378,6 +379,14 @@ EOF
 	exit 0 ;;
     DPX/2?00:B.O.S.:*:*)
 	echo m68k-bull-sysv3
+	exit 0 ;;
+    ia64:HP-UX:B.11.23:*)
+	HPUX_REV=`echo ${UNAME_RELEASE}|sed -e 's/[^.]*.[0B]*//'`
+	echo ia64-hp-hpux${HPUX_REV}
+	exit 0 ;;
+    ia64:HP-UX:B.11.31:*)
+	HPUX_REV=`echo ${UNAME_RELEASE}|sed -e 's/[^.]*.[0B]*//'`
+	echo ia64-hp-hpux${HPUX_REV}
 	exit 0 ;;
     9000/[34]??:4.3bsd:1.*:*)
 	echo m68k-hp-bsd

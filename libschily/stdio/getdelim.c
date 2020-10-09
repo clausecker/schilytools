@@ -1,6 +1,6 @@
-/* @(#)getdelim.c	1.4 18/10/10 Copyright 2015-2018 J. Schilling */
+/* @(#)getdelim.c	1.5 20/09/22 Copyright 2015-2020 J. Schilling */
 /*
- *	Copyright (c) 2015-2018 J. Schilling
+ *	Copyright (c) 2015-2020 J. Schilling
  *
  */
 /*
@@ -54,8 +54,7 @@ getdelim(bufp, lenp, delim, f)
 	if (line == NULL || line_size == 0) {
 		if (line_size == 0)
 			line_size = DEF_LINE_SIZE;
-		if (line == NULL)
-			line = (char *) malloc(line_size);
+		line = (char *) malloc(line_size);
 		if (line == NULL)
 			return (-1);
 		*bufp = line;
