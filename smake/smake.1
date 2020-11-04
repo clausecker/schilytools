@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.52 20/09/04 Copyright 1985-2020 J. Schilling
+. \" @(#)smake.1	1.54 20/11/03 Copyright 1985-2020 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2020/09/04" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2020/11/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -852,6 +852,27 @@ allows macro names like
 .PP
 A macro definition that uses the form:
 .PP
+.BI "macroname ?=" "	value"
+.PP
+will assign 
+.B value
+to the current definition for
+.B macroname
+in case that
+.B macroname
+does not yet have a definition.
+.PP
+A macro definition that uses the form:
+.PP
+.BI "macroname ::=" "	value"
+.PP
+will evaluate the right side of the assignment when the line is read by the parser.
+Note that this is the POSIX variant of immediate assignment that is portable to
+.B make
+implementations that are compatible to POSIX issue 8.
+.PP
+A macro definition that uses the form:
+.PP
 .BI macroname:= "	value"
 .PP
 will evaluate the right side of the assignment when the line is read by the parser.
@@ -860,6 +881,10 @@ Note that SunPro make uses
 for a different incompatible purpose. A makefile that uses 
 .B :=
 is non-portable.
+.B smake
+may change its behavior in the future and implement a
+.B SunPro Make
+compatible conditional macro assignment instead.
 .PP
 A macro definition that uses the form:
 .PP

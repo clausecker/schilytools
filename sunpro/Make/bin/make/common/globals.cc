@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)globals.cc	1.13 20/09/06 2017-2020 J. Schilling
+ * @(#)globals.cc	1.14 20/10/31 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.13 20/09/06 2017-2020 J. Schilling";
+	"@(#)globals.cc	1.14 20/10/31 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -154,6 +154,10 @@ static	UConst char sccsid[] =
 	Boolean		no_archconf = false;		/* automake features */
 #endif
 	Boolean		no_parallel = false;		/* TEAMWARE_MAKE_CMN */
+#ifdef	DO_NOTPARALLEL
+	Boolean		notparallel = false;		/* GNU make compat */
+	Name		notparallel_name;
+#endif
 #ifdef SGE_SUPPORT
 	Boolean		grid = false;			/* TEAMWARE_MAKE_CMN */
 #endif

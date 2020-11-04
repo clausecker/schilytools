@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)misc.cc	1.16 20/09/06 2017-2020 J. Schilling
+ * @(#)misc.cc	1.17 20/10/31 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.16 20/09/06 2017-2020 J. Schilling";
+	"@(#)misc.cc	1.17 20/10/31 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -690,6 +690,10 @@ load_cached_names(void)
 	make_version = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".NO_PARALLEL"));
 	no_parallel_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#ifdef	DO_NOTPARALLEL
+	MBSTOWCS(wcs_buffer, NOCATGETS(".NOTPARALLEL"));
+	notparallel_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#endif
 	MBSTOWCS(wcs_buffer, NOCATGETS(".NOT_AUTO"));
 	not_auto = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".PARALLEL"));
@@ -750,6 +754,9 @@ load_cached_names(void)
 	ignore_name->special_reader = ignore_special;
 	make_version->special_reader = make_version_special;
 	no_parallel_name->special_reader = no_parallel_special;
+#ifdef	DO_NOTPARALLEL
+	notparallel_name->special_reader = notparallel_special;
+#endif
 	parallel_name->special_reader = parallel_special;
 	localhost_name->special_reader = localhost_special;
 	phony->special_reader = phony_special;

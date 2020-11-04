@@ -1,13 +1,13 @@
-/* @(#)ved.c	1.88 19/10/17 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling */
+/* @(#)ved.c	1.89 20/10/29 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.88 19/10/17 Copyright 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling";
+	"@(#)ved.c	1.89 20/10/29 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2019 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -163,7 +163,7 @@ main(ac, av)
 		printf("ved %s %s (%s-%s-%s)\n\n",
 			ved_version, VERSION_DATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2019 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2020 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

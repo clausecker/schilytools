@@ -1,13 +1,13 @@
-/* @(#)xattr.c	1.23 19/07/09 Copyright 2003-2019 J. Schilling */
+/* @(#)xattr.c	1.24 20/10/20 Copyright 2003-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.23 19/07/09 Copyright 2003-2019 J. Schilling";
+	"@(#)xattr.c	1.24 20/10/20 Copyright 2003-2020 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2019 J. Schilling
+ *	Copyright (c) 2003-2020 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -369,7 +369,7 @@ llgetxattr(path, name, value, size)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = lgetxattr(path, name, value, size);
+			ret = lgetxattr(p, name, value, size);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -414,7 +414,7 @@ llsetxattr(path, name, value, size, flags)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = lsetxattr(path, name, value, size, flags);
+			ret = lsetxattr(p, name, value, size, flags);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -456,7 +456,7 @@ lllistxattr(path, list, size)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = llistxattr(path, list, size);
+			ret = llistxattr(p, list, size);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);

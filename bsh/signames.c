@@ -1,8 +1,8 @@
-/* @(#)signames.c	1.25 20/04/13 Copyright 1998-2020 J. Schilling */
+/* @(#)signames.c	1.26 20/10/25 Copyright 1998-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.25 20/04/13 Copyright 1998-2020 J. Schilling";
+	"@(#)signames.c	1.26 20/10/25 Copyright 1998-2020 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
@@ -77,6 +77,7 @@ static	UConst char sccsid[] =
 EXPORT	char	*strsignal	__PR((int sig));
 #endif
 #ifndef	HAVE_STR2SIG
+LOCAL	int	stol		__PR((const char *s, long *valp));
 EXPORT	int	str2sig		__PR((const char *s, int *sigp));
 #endif
 #ifndef	HAVE_SIG2STR
@@ -580,6 +581,26 @@ strsignal(sig)
 #endif
 
 #ifndef	HAVE_STR2SIG
+LOCAL int
+stol(s, valp)
+	const char	*s;
+	long		*valp;
+{
+	long	val;
+#ifdef	HAVE_STRTOL
+	char	*p;
+
+	val = strtol(s, &p, 10);
+	if (*p != '\0')
+		return (-1);
+#else
+	if (*astolb(s, &val, 10) != '\0')
+		return (-1);
+#endif
+	*valp = val;
+	return (0);
+}
+
 /*
  * Convert "HUP" or 1 into SIGHUP and similar for other signals.
  */
@@ -589,6 +610,7 @@ str2sig(s, sigp)
 	int		*sigp;
 {
 	register	int	i;
+			long	val;
 		struct signames *sn = signames;
 
 #ifdef	_SIGRTMIN
@@ -596,17 +618,8 @@ str2sig(s, sigp)
 		_rtsiginit();
 #endif
 	if (*s >= '0' && *s <= '9') {
-		long	val;
-#ifdef	HAVE_STRTOL
-		char	*p;
-
-		val = strtol(s, &p, 10);
-		if (*p != '\0')
+		if (stol(s, &val) != 0)
 			return (-1);
-#else
-		if (*astolb(s, &val, 10) != '\0')
-			return (-1);
-#endif
 
 #ifdef	_SIGRTMIN
 		if (val >= rtmin && val <= rtmax)
@@ -631,6 +644,26 @@ str2sig(s, sigp)
 	} while (sn == signames && (sn = rtsignames));
 #else
 	} while (0);
+#endif
+#ifdef	_SIGRTMIN
+	if (strncmp(s, "RTMIN+", 6) == 0) {
+		if (stol(s+5, &val) != 0)
+			return (-1);
+		val += SIGRTMIN;
+	} else if (strncmp(s, "RTMAX-", 6) == 0) {
+		if (stol(s+5, &val) != 0)
+			return (-1);
+		val += SIGRTMAX;
+	} else {
+		return (-1);
+	}
+	sn = rtsignames;
+	for (i = 0; sn[i].signame; i++) {
+		if (sn[i].signo == val) {
+			*sigp = val;
+			return (0);
+		}
+	}
 #endif
 
 	return (-1);

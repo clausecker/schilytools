@@ -1,8 +1,8 @@
-/* @(#)acl_unix.c	1.60 20/05/12 Copyright 2001-2020 J. Schilling */
+/* @(#)acl_unix.c	1.61 20/10/20 Copyright 2001-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.60 20/05/12 Copyright 2001-2020 J. Schilling";
+	"@(#)acl_unix.c	1.61 20/10/20 Copyright 2001-2020 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -707,7 +707,7 @@ lacl_get_file(name, type)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = acl_get_file(name, type);
+			ret = acl_get_file(p, type);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -749,7 +749,7 @@ lacl_set_file(name, type, acl)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = acl_set_file(name, type, acl);
+			ret = acl_set_file(p, type, acl);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -1046,7 +1046,7 @@ lacl(name, cmd, nentries, aclbufp)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = acl(name, cmd, nentries, aclbufp);
+			ret = acl(p, cmd, nentries, aclbufp);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -1090,7 +1090,7 @@ lacl_get(name, flag, aclp)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = acl_get(name, flag, aclp);
+			ret = acl_get(p, flag, aclp);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);
@@ -1131,7 +1131,7 @@ lacl_set(name, aclp)
 		fdh = open(".", O_SEARCH|O_DIRECTORY|O_NDELAY);
 		if (fdh >= 0) {
 			(void) fchdir(fd);
-			ret = acl_set(name, aclp);
+			ret = acl_set(p, aclp);
 			err = geterrno();
 			(void) fchdir(fdh);
 			close(fdh);

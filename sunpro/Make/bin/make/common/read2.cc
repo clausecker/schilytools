@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)read2.cc	1.14 20/09/06 2017-2019 J. Schilling
+ * @(#)read2.cc	1.15 20/10/31 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.14 20/09/06 2017-2019 J. Schilling";
+	"@(#)read2.cc	1.15 20/10/31 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -1161,6 +1161,8 @@ enter_dyntarget(register Name target)
  *		ignore_name	The Name ".IGNORE", used for tracing
  *		keep_state	Set if ".KEEP_STATE" target is read
  *		no_parallel_name The Name ".NO_PARALLEL", used for tracing
+ *		notparallel_name The Name ".NOTPARALLEL", used for tracing
+ *		notparallal	Set if ".NOTPARALLEL" target is read
  *		only_parallel	Set to indicate only some targets runs parallel
  *		parallel_name	The Name ".PARALLEL", used for tracing
  *		phony		The Name ".PHONY", used for tracing
@@ -1361,6 +1363,23 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 			}
 		}
 		break;
+
+#ifdef	DO_NOTPARALLEL
+	case notparallel_special:
+		if(svr4)
+		  break;
+			/* ignore keep state, being SunPro make specific */
+		if (depes->used != 0) {
+			fatal_reader(gettext("Illegal dependencies for target `%s'"),
+				     target->string_mb);
+		}
+		notparallel = true;
+		if (trace_reader) {
+			(void) printf("%s:\n",
+				      notparallel_name->string_mb);
+		}
+		break;
+#endif
 
 	case parallel_special:
 		if(svr4)

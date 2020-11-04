@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)xec.c	1.123 20/10/07 2008-2020 J. Schilling
+ * @(#)xec.c	1.124 20/10/25 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.123 20/10/07 2008-2020 J. Schilling";
+	"@(#)xec.c	1.124 20/10/25 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -577,6 +577,8 @@ execute(argt, xflags, errorflg, pf1, pf2)
 						monitor = exallocjob(t, xflags);
 #ifdef	DO_PIPE_PARENT
 						xflags |= XEC_ALLOCJOB;
+					} else {
+						monitor = ismonitor(xflags);
 					}
 #endif
 				}

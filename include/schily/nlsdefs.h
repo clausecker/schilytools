@@ -1,8 +1,8 @@
-/* @(#)nlsdefs.h	1.6 19/08/13 Copyright 2004-2019 J. Schilling */
+/* @(#)nlsdefs.h	1.7 20/10/09 Copyright 2004-2020 J. Schilling */
 /*
  *	Native language support
  *
- *	Copyright (c) 2004-2019 J. Schilling
+ *	Copyright (c) 2004-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -97,9 +97,16 @@
 #define	_(s)				gettext(s)
 #endif
 #endif	/* lint */
+
+#ifdef	NLS_XGETTEXT_MARKER
 /*
  * Allow to mark strings for xgettext(1)
+ * Since this definition is on conflict with a definition from newer
+ * HP-UX versions that has the same purpose as out __PR() macro,
+ * we cannot easily use this as long as this is mixed with system include
+ * files.
  */
 #define	__(s)				s
+#endif
 
 #endif	/* _SCHILY_NLSDEFS_H */

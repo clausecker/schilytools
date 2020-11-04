@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.25 20/03/24 2017-2020 J. Schilling
+ * @(#)defs.h	1.26 20/10/31 2017-2020 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -447,6 +447,7 @@ typedef enum {
 	keep_state_special,
 	make_version_special,
 	no_parallel_special,
+	notparallel_special,
 	parallel_special,
 	posix_special,
 	phony_special,

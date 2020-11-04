@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.12 20/09/06 2017-2020 J. Schilling
+ * @(#)defs.h	1.13 20/10/31 2017-2020 J. Schilling
  */
 
 /*
@@ -274,6 +274,8 @@ extern	Boolean		no_parallel;
 extern	Boolean		grid;
 #endif
 extern	Name		no_parallel_name;
+extern	Boolean		notparallel;
+extern	Name		notparallel_name;
 extern	Name		not_auto;
 extern	Boolean		only_parallel;
 extern	Boolean		parallel;

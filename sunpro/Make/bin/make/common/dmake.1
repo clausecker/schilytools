@@ -1,4 +1,4 @@
-. \" @(#)dmake.1	1.8 20/10/08 Copyr 2017-2020 J. Schilling
+. \" @(#)dmake.1	1.9 20/10/31 Copyr 2017-2020 J. Schilling
 . \"  Manual Seite fuer dmake
 .\"
 .\" CDDL HEADER START
@@ -35,7 +35,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH DMAKE 1 "2020/10/08" "SunOS 5.11" "SunOS Specific Commands"
+.TH DMAKE 1 "2020/10/31" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 dmake \- parallel make from Distributed Make
 .SH SYNOPSIS
@@ -142,6 +142,7 @@ supports the
 .B "special targets"
 .SM \fB.PARALLEL\fP\s0,
 .SM \fB.NO_PARALLEL\fP\s0,
+.SM \fB.NOTPARALLEL\fP\s0,
 .SM \fB.LOCAL\fP\s0,
 and
 .SM \fB.WAIT\fP
@@ -153,6 +154,15 @@ to control the way the targets are made.
 .SM \fB.NO_PARALLEL\fP:
 Add targets to the dependency list of this target to control
 which targets are to be processed serially.
+.br
+.ne 3
+.TP
+.SM \fB.NOTPARALLEL\fP:
+When this special target is seen in a makefile, all targets
+in this
+.B dmake
+instance are processed serially.
+Sub-makes may still run in parallel mode.
 .br
 .ne 3
 .TP

@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)sccsdiff.sh	1.13 20/05/29 Copyright 2011-2020 J. Schilling
+# @(#)sccsdiff.sh	1.14 20/10/31 Copyright 2011-2020 J. Schilling
 #
 # CDDL HEADER START
 #
@@ -186,6 +186,7 @@ do
 	then
 		if $get $nseflag $Nflag -s -o -k -r$sid2 $i -G/tmp/getb$$
 		then
+			IFS=$OIFS
 			diff $flags /tmp/geta$$ /tmp/getb$$ > /tmp/getc$$
 		else
 			error=1

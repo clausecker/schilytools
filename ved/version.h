@@ -1,7 +1,7 @@
-/* @(#)version.h	1.5 19/11/24 Copyright 2018-2019 J. Schilling */
+/* @(#)version.h	1.6 20/10/29 Copyright 2018-2020 J. Schilling */
 
 /*
  * The version for ved
  */
-#define	VERSION		"1.7"
-#define	VERSION_DATE	"2019/11/24"
+#define	VERSION		"1.8"
+#define	VERSION_DATE	"2020/10/29"

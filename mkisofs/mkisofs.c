@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.299 20/03/27 joerg */
+/* @(#)mkisofs.c	1.300 20/10/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.299 20/03/27 joerg";
+	"@(#)mkisofs.c	1.300 20/10/09 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -64,6 +64,9 @@ static	UConst char sccsid[] =
 #endif	/* no_more_needed */
 
 #include "../cdrecord/version.h"
+
+#undef	__
+#define	__(s)	s
 
 struct directory *root = NULL;
 int		path_ind;

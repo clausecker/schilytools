@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)jobs.c	1.119 20/10/07 2008-2020 J. Schilling
+ * @(#)jobs.c	1.122 20/11/04 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.119 20/10/07 2008-2020 J. Schilling";
+	"@(#)jobs.c	1.122 20/11/04 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -195,6 +195,7 @@ static pid_t		svpgid,	 /* saved process group ID		 */
 static struct job	*jobcur, /* active jobs listed in currency order */
 			**nextjob,
 			*thisjob,
+			*lastthisjob,
 			*joblst; /* active jobs listed in job ID order	 */
 
 /*
@@ -783,6 +784,8 @@ waitjob(jp)
 #ifdef	DO_TRAP_FROM_WAITID
 		checksigs(&si);			/* fault() with jobcontrol */
 #endif
+		if ((jp = pgid2job(si.si_pid)) != NULL)
+			(void) statjob(jp, &si, 0, 0);
 	}
 #endif
 
@@ -885,7 +888,12 @@ restartjob(jp, fg)
 	 * where it may take some time to wakeup all processes from a group.
 	 */
 #ifdef	SIGCONT
-	(void) kill(thisjob->j_pid, SIGCONT);
+#ifdef	DO_POSIX_WAIT
+	if (lastthisjob)
+		(void) kill(lastthisjob->j_pid, SIGCONT);
+	else if (thisjob)
+#endif
+		(void) kill(thisjob->j_pid, SIGCONT);
 	(void) kill(-(jp->j_pgid), SIGCONT);
 	if (jp->j_tgid != jp->j_pgid)
 		(void) kill(-(jp->j_tgid), SIGCONT);
@@ -1098,6 +1106,7 @@ void
 clearcurjob()
 {
 #ifdef	DO_POSIX_WAIT
+	lastthisjob = thisjob;		/* remember this for fg(1) command */
 	thisjob = NULL;
 #endif
 }
@@ -1289,7 +1298,8 @@ postjob(pid, fg, blt)
 	int propts;
 
 	if (!blt) {	/* Do not connect slots for builtin commands	*/
-		thisjob->j_nxtp = *nextjob;
+		if (*nextjob != joblst)		/* Avoid joblst loop */
+			thisjob->j_nxtp = *nextjob;
 		*nextjob = thisjob;
 		thisjob->j_curp = jobcur;
 		jobcur = thisjob;

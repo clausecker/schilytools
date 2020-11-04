@@ -1,8 +1,8 @@
-/* @(#)write.c	1.148 20/03/26 joerg */
+/* @(#)write.c	1.149 20/10/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.148 20/03/26 joerg";
+	"@(#)write.c	1.149 20/10/09 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -78,6 +78,8 @@ EXPORT	struct iso_primary_descriptor	vol_desc;
 LOCAL	int				vol_desc_sum;
 
 #ifndef	APPLE_HFS_HYB
+#undef	__
+#define	__(s)	s
 	char	*hfs_error = __("no error");
 #endif
 

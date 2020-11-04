@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)main.cc	1.49 20/03/30 2017-2020 J. Schilling
+ * @(#)main.cc	1.50 20/10/31 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.49 20/03/30 2017-2020 J. Schilling";
+	"@(#)main.cc	1.50 20/10/31 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -601,6 +601,12 @@ main(int argc, char *argv[])
 	/*
 	 * Find the dmake_mode: distributed, parallel, or serial.
 	 */
+#ifdef	DO_NOTPARALLEL
+    if (notparallel) {
+	dmake_mode_type = serial_mode;
+	no_parallel = true;
+    } else
+#endif
     if ((!pmake_cap_r_specified) &&
         (!pmake_machinesfile_specified)) {
 	MBSTOWCS(wcs_buffer, NOCATGETS("DMAKE_MODE"));

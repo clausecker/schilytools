@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.33 20/10/08 Copyr 2012-2020 J. Schilling
+. \" @(#)make.1s	1.35 20/10/31 Copyr 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2020/10/08" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2020/10/31" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1551,6 +1551,23 @@ for more information.
 .ne 2
 .mk
 .na
+\fB\&.NOTPARALLEL:\fR
+.ad
+.RS 23n
+.rt
+When running in
+.B serial
+mode, this target has no effect. It is used when in
+.B parallel
+mode. See
+.BR dmake (1)
+for more information.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\&.PARALLEL:\fR
 .ad
 .RS 23n
@@ -2743,7 +2760,7 @@ A target entry of the form:
 .sp
 .in +2
 .nf
-\fItp\fB%\fIts\fR:\|\fIdp\fB%\fIds\fR
+\fItp\fB%\fIts\fR: \fIdp\fB%\fIds\fR
      \fIrule\fR
 .fi
 .in -2
@@ -2760,7 +2777,9 @@ is a target suffix,
 is a dependency prefix, and
 .I ds
 is a
-dependency suffix (any of which can be null). The
+dependency suffix (any of which can be null).
+.LP
+The
 .B %
 stands for a
 basename of zero or more characters that is matched in the target, and is
@@ -2782,7 +2801,7 @@ An entry of the form:
 .sp
 .in +2
 .nf
-\fItp\fR%\fIts\fR:\|[\fIdependency .\|.\|.\fR\|] \fIdp\fR%\fIds\fR\|[\fIdependency .\|.\|.\fR\|]
+\fItp\fR%\fIts\fR: [\fIdependency .\|.\|.\fR\|] \fIdp\fR%\fIds\fR [\fIdependency .\|.\|.\fR\|]
      \fIrule\fR
 .fi
 .in -2
@@ -2791,6 +2810,18 @@ An entry of the form:
 .sp
 .LP
 is a valid pattern matching rule.
+.LP
+.B Pattern Matching Rules
+are searched in in the same order as they appear in the makefile.
+.LP
+.B Pattern Matching Rules
+have precedence over
+.BR "Suffix Rules" .
+The builtin rules defined by
+.B make
+are intentionally defined as Suffix Rules to allow them to be overwritten
+by Pattern Matching Rules in the customers makefiles.
+
 .SS "\fISuffix Rules\fR"
 .sp
 .LP

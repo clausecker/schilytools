@@ -1,7 +1,7 @@
-/* @(#)make.h	1.102 18/10/01 Copyright 1985, 87, 91, 1995-2018 J. Schilling */
+/* @(#)make.h	1.103 20/11/03 Copyright 1985, 87, 91, 1995-2020 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2018 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2020 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -216,15 +216,17 @@ typedef struct patrule {
  *
  * Note that NWARN cannot be in o_flags as there may be no associated node.
  */
-#define	EQUAL	'='
-#define	COLON	':'
-#define	SEMI	';'
-#define	ADDMAC	('=' | ('+'<<8)) /* +=	 */
-#define	ASSIGN	('=' | (':'<<8)) /* :=	 */
-#define	DCOLON	(':' | (':'<<8)) /* ::	 */
-#define	SHVAR	0x1001		 /* :sh= */
+#define	EQUAL		'='
+#define	COLON		':'
+#define	SEMI		';'
+#define	CONDEQUAL	('=' | ('?'<<8)) /* ?=	 */
+#define	ADDMAC		('=' | ('+'<<8)) /* +=	 */
+#define	ASSIGN		('=' | (':'<<8)) /* ::=	from POSIX */
+#define	CONDMACRO	('=' | (';'<<8)) /* :=	from SunPro Make */
+#define	DCOLON		(':' | (':'<<8)) /* ::	 */
+#define	SHVAR		0x1001		 /* :sh= */
 
-#define	NWARN	0x4000		/* We did warn already on this node */
+#define	NWARN		0x4000		/* We did warn already on this node */
 
 #define	basetype(x)	((x) & 0xFF)
 #define	ntype(x)	((x) & 0x3FFF)

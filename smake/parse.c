@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.120 18/10/03 Copyright 1985-2018 J. Schilling */
+/* @(#)parse.c	1.122 20/11/03 Copyright 1985-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.120 18/10/03 Copyright 1985-2018 J. Schilling";
+	"@(#)parse.c	1.122 20/11/03 Copyright 1985-2020 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2018 by J. Schilling
+ *	Copyright (c) 1985-2020 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -262,6 +262,13 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	register list_t	*dep;
 		cmd_t	*cmd;
 {
+	/*
+	 * For a conditional macro assignment ?=, we do nothing if the
+	 * object already has a value list assigned.
+	 */
+	if (type == CONDEQUAL && obj->o_list)
+		return;
+
 	/*
 	 * First check for possible direct recursions to avoid to blow
 	 * up memory immediately.
@@ -1244,14 +1251,24 @@ read_ovec(ovec, typep)
 		 * end of definition:
 		 * colon, equal or end of line
 		 */
+		if (lastc == '?' && peekch() == '=') {
+			getch();
+			*typep = CONDEQUAL;
+			break;
+		}
 		if (lastc == ':' && peekch() == ':') {
 			getch();
+			if (lastc == ':' && peekch() == '=') {
+				getch();
+				*typep = ASSIGN;
+				break;
+			}
 			*typep = DCOLON;
 			break;
 		}
 		if (lastc == ':' && peekch() == '=') {
 			getch();
-			*typep = ASSIGN;
+			*typep = ASSIGN;	/* Use Sun CONDMACRO later */
 			if (!nowarn(":=")) {
 				warn(
 				"Nonportable ':=' assignment found for macro '%s'",
@@ -1732,9 +1749,13 @@ typestr(type)
 		return ("::");
 	if (type == SEMI)
 		return (";");
+	if (type == CONDEQUAL)
+		return ("?=");
 	if (type == ADDMAC)
 		return ("+=");
 	if (type == ASSIGN)
+		return ("::=");
+	if (type == CONDMACRO)
 		return (":=");
 	if (type == SHVAR)
 		return (":sh=");
