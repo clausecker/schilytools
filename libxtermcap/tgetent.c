@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.47 18/11/21 Copyright 1986-2018 J. Schilling */
+/* @(#)tgetent.c	1.48 20/11/23 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.47 18/11/21 Copyright 1986-2018 J. Schilling";
+	"@(#)tgetent.c	1.48 20/11/23 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2018 J. Schilling
+ *	Copyright (c) 1986-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -113,6 +113,13 @@ LOCAL	char	*ovstrcpy	__PR((char *p2, const char *p1));
 #endif
 LOCAL	void	e_tcname	__PR((char *name));
 
+/*
+ * Returns:
+ *	1	Entry found
+ *	0	Could not malloc() buffer with tgetent(NULL, name)
+ *	0	Database file opened, entry not found
+ *	-1	Could not open database file
+ */
 EXPORT int
 tgetent(bp, name)
 	char	*bp;
@@ -136,7 +143,7 @@ tgetent(bp, name)
 		tbufmalloc = FALSE;
 	}
 	tbuf = NULL;
-	if (name == NULL || *name == '\0') {
+	if (name == NULL || *name == '\0') {	/* No TERM name specfied */
 		if (bp)
 			bp[0] = '\0';
 		return (0);
@@ -145,7 +152,7 @@ tgetent(bp, name)
 		tbufmalloc = TRUE;
 		tbuf = bp = tmalloc(tbufsize);
 	}
-	if ((tbuf = bp) == NULL)
+	if ((tbuf = bp) == NULL)		/* Could not malloc buffer */
 		return (0);
 	bp[0] = '\0';		/* Always start with clean termcap buffer */
 
@@ -205,7 +212,7 @@ setpath:
 					}
 					if (tbuf)
 						ovstrcpy(tbuf, ep);
-					goto out;
+					goto out; /* We use the preparsed entry */
 				}
 			}
 			/*
@@ -235,15 +242,17 @@ nextfile:
 			break;
 		}
 	}
-	if (*ep == '\0') {
+	if (*ep == '\0') {			/* End of TERMPATH */
 		if (err != 0)
-			return (-1);
-		return (0);
+			return (-1);		/* Signal open error */
+		return (0);			/* Signal not found */
 	}
 
 	if ((tfd = open(ep, 0)) < 0) {
 		err = geterrno();
 
+		strncpy(tbuf, ep, TMAX);	/* Remember failed path */
+		tbuf[TMAX-1] = 0;
 #ifdef	SHOULD_WE
 		if (err == ENOENT || err == EACCES)
 			goto nextfile;
@@ -261,7 +270,7 @@ nextfile:
 		if (--count <= 0) {
 			if ((count = read(tfd, rdbuf, sizeof (rdbuf))) <= 0) {
 				close(tfd);
-				goto nextfile;
+				goto nextfile;	/* Not found, check next */
 			}
 			rbuf = rdbuf;
 		}
@@ -279,7 +288,7 @@ nextfile:
 					tbuf = bp;
 					*ep++ = c;
 					continue;
-				} else {
+				} else {	/* No memory for buffer */
 					tbuf = NULL;
 					goto out;
 				}
@@ -291,7 +300,7 @@ nextfile:
 			continue;
 		}
 		*ep = '\0';
-		if (tmatch(name)) {
+		if (tmatch(name)) {		/* Entry matches name */
 			close(tfd);
 			goto out;
 		}
@@ -302,10 +311,13 @@ out:
 	bp = tbuf;
 	if (tbufmalloc) {
 		if (count <= 0) {
-			if (bp)
+#ifdef	__free_buffer__				/* Keep buf for failed path */
+			if (bp) {
 				free(bp);
-			tbuf = NULL;
-			tbufmalloc = FALSE;
+				tbuf = NULL;
+				tbufmalloc = FALSE;
+			}
+#endif
 			return (count);
 		}
 		/*

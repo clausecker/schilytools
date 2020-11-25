@@ -8,11 +8,13 @@ d none bin ? ? ?
 f none bin/ved 0755 root bin
 s none bin/ved-e=ved
 s none bin/ved-w=ved
+f none bin/vctags 0755 root bin
 d none sbin ? ? ?
 d none lib ? ? ?
 d none share ? ? ?
 d none share/man ? ? ?
 d none share/man/man1 ? ? ?
+f none share/man/man1/vctags.1 0444 root bin
 f none share/man/man1/ved.1 0444 root bin
 f none share/man/man1/ved-e.1 0444 root bin
 f none share/man/man1/ved-w.1 0444 root bin

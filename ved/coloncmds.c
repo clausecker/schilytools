@@ -1,13 +1,13 @@
-/* @(#)coloncmds.c	1.41 09/07/09 Copyright 1986-2009 J. Schilling */
+/* @(#)coloncmds.c	1.42 20/11/23 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)coloncmds.c	1.41 09/07/09 Copyright 1986-2009 J. Schilling";
+	"@(#)coloncmds.c	1.42 20/11/23 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	Commands that deal with ESC : commandline sequences
  *
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -92,6 +92,7 @@ LOCAL _CMDTAB cmdtab[] = {
 			{ UC	"set",		bsetcmd		},
 			{ UC	"substitute",	bsubst		},
 			{ UC	"tag",		btag		},
+			{ UC	"vhelp",	vhelp		},
 			{ UC	NULL,		NULL		}};
 
 LOCAL _CMDTAB settab[] = {

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.115 20/02/26 Copyright 1998-2019 J. Schilling
+dnl @(#)aclocal.m4	1.119 20/11/13 Copyright 1998-2019 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -322,7 +322,7 @@ dnl #endif
 dnl but we use this test in order to check whether we are able to get the
 dnl address of a function from this name, so we did replace this by:
 dnl  char *p = (char *) $2;
-dnl  exit (p != (char *)0 && *p != 0);	Prevent optimizer from removing previous line
+dnl  return (p != (char *)0 && *p != 0);	Prevent optimizer from removing previous line
 dnl 
 dnl AC_CHECK_DECLARE(INCLUDES, SYMBOL)
 dnl Checks if symbol is declared
@@ -330,7 +330,7 @@ dnl Defines HAVE_DECL_SYMBOL on success.
 AC_DEFUN([AC_CHECK_DECLARE],
 [AC_CACHE_CHECK([if $2 is declared], ac_cv_have_decl_$2,
                 [AC_TRY_COMPILE([$1],
-[ char *p = (char *) $2; exit (p != (char *)0 && *p != 0); ],
+[ char *p = (char *) $2; return (p != (char *)0 && *p != 0); ],
 		[eval ac_cv_have_decl_$2=yes],
 		[eval ac_cv_have_decl_$2=no])])
 changequote(, )dnl
@@ -350,7 +350,7 @@ AC_CACHE_VAL(ac_cv_have_$2,
 [
 #ifndef $2
 	char *p = (char *) $2;
-	exit (p != (char *)0 && *p != 0);
+	return (p != (char *)0 && *p != 0);
 #endif],
 		[eval ac_cv_have_$2=yes],
 		[eval ac_cv_have_$2=no])])
@@ -392,7 +392,7 @@ AC_TRY_LINK([$1],
 [
 #ifndef $3
 	char *p = (char *) $3;
-	exit (p != (char *)0 && *p != 0);
+	return (p != (char *)0 && *p != 0);
 #endif],
 	    eval "ac_cv_lib_$ac_lib_var=yes",
 	    eval "ac_cv_lib_$ac_lib_var=no")
@@ -987,7 +987,7 @@ dnl Defines HAVE_DIR_DD_FD on success.
 AC_DEFUN([AC_STRUCT_DIR_DD_FD],
 [AC_CACHE_CHECK([if DIR * contains dd_fd], ac_cv_struct_dir_dd_fd,
                 [AC_TRY_COMPILE([#include <dirent.h>],
-                                [DIR d; d.dd_fd = 0; exit (d.dd_fd == 0);],
+                                [DIR d; d.dd_fd = 0; return (d.dd_fd == 0);],
                                 [ac_cv_struct_dir_dd_fd=yes],
                                 [ac_cv_struct_dir_dd_fd=no])])
 if test $ac_cv_struct_dir_dd_fd = yes; then
@@ -1173,7 +1173,7 @@ dnl Defines HAVE_SYS_SIGLIST_DEF on success.
 AC_DEFUN([AC_HEADER_SYS_SIGLIST_DEF],
 [AC_CACHE_CHECK([for sys_siglist definition in signal.h], ac_cv_header_sys_siglist_def,
                 [AC_TRY_COMPILE([#include <signal.h>],
-[char *cp = (char *)sys_siglist[0]; exit (cp != (char *)0 && *cp != 0);],
+[char *cp = (char *)sys_siglist[0]; return (cp != (char *)0 && *cp != 0);],
                 [ac_cv_header_sys_siglist_def=yes],
                 [ac_cv_header_sys_siglist_def=no])])
 if test $ac_cv_header_sys_siglist_def = yes; then
@@ -1213,7 +1213,7 @@ extern	long	timezone;
 int
 main()
 {
-	exit(timezone != 0);
+	return(timezone != 0);
 }],
                 [ac_cv_var_timezone=yes],
                 [ac_cv_var_timezone=no])])
@@ -1231,7 +1231,7 @@ extern	char	*__progname;
 int
 main()
 {
-	exit (!(__progname != 0 && *__progname != '\0'));
+	return (!(__progname != 0 && *__progname != '\0'));
 }],
                 [ac_cv_var___progname=yes],
                 [ac_cv_var___progname=no])])
@@ -1249,7 +1249,7 @@ extern	char	*__progname_full;
 int
 main()
 {
-	exit (!(__progname_full != 0 && *__progname_full != '\0'));
+	return (!(__progname_full != 0 && *__progname_full != '\0'));
 }],
                 [ac_cv_var___progname_full=yes],
                 [ac_cv_var___progname_full=no])])
@@ -1406,9 +1406,9 @@ AC_CACHE_VAL(AC_CV_NAME,
 main()
 {
   FILE *f=fopen("conftestval", "w");
-  if (!f) exit(1);
+  if (!f) return(1);
   fprintf(f, "%d\n", sizeof(time_t));
-  exit(0);
+  return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_LONG_INT, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
@@ -1430,9 +1430,9 @@ AC_CACHE_VAL(AC_CV_NAME,
 main()
 {
   FILE *f=fopen("conftestval", "w");
-  if (!f) exit(1);
+  if (!f) return(1);
   fprintf(f, "%d\n", sizeof(L'a'));
-  exit(0);
+  return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=0, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
@@ -1463,9 +1463,9 @@ AC_CACHE_VAL(AC_CV_NAME,
 main()
 {
   FILE *f=fopen("conftestval", "w");
-  if (!f) exit(1);
+  if (!f) return(1);
   fprintf(f, "%d\n", sizeof(wchar_t));
-  exit(0);
+  return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_CHAR, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
@@ -1545,7 +1545,7 @@ dnl Defines HAVE_STACK_T on success.
 AC_DEFUN([AC_TYPE_STACK_T],
 [AC_CACHE_CHECK([if stack_t is declared in signal.h], ac_cv_stack_t,
                 [AC_TRY_COMPILE([#include <signal.h>],
-                                [stack_t ss; ss.ss_size = 0; exit (ss.ss_size == 0);],
+                                [stack_t ss; ss.ss_size = 0; return (ss.ss_size == 0);],
                                 [ac_cv_stack_t=yes],
                                 [ac_cv_stack_t=no])])
 if test $ac_cv_stack_t = yes; then
@@ -1564,7 +1564,7 @@ AC_DEFUN([AC_TYPE_SIGINFO_T],
 #include <sys/siginfo.h>
 #endif
 #endif],
-                                [siginfo_t si; si.si_signo = 0; exit (si.si_signo == 0);],
+                                [siginfo_t si; si.si_signo = 0; return (si.si_signo == 0);],
                                 [ac_cv_siginfo_t=yes],
                                 [ac_cv_siginfo_t=no])])
 if test $ac_cv_siginfo_t = yes; then
@@ -1581,7 +1581,7 @@ AC_DEFUN([AC_TYPE_IDTYPE_T],
 #else
 #include <sys/wait.h>
 #endif],
-                                [idtype_t idt; idt = P_ALL; idt = P_PGID; idt = P_PID; exit (idt == P_PID);],
+                                [idtype_t idt; idt = P_ALL; idt = P_PGID; idt = P_PID; return (idt == P_PID);],
                                 [ac_cv_have_type_idtype_t=yes],
                                 [ac_cv_have_type_idtype_t=no])])
 if test $ac_cv_have_type_idtype_t = yes; then
@@ -1593,7 +1593,7 @@ dnl Defines HAVE_SOCKADDR_STORAGE on success.
 AC_DEFUN([AC_STRUCT_SOCKADDR_STORAGE],
 [AC_CACHE_CHECK([if struct sockaddr_storage is declared in socket.h], ac_cv_struct_sockaddr_storage,
                 [AC_TRY_COMPILE([#include <sys/socket.h>],
-                                [struct  sockaddr_storage ss; ss.ss_family = 0; exit (ss.ss_family == 0);],
+                                [struct  sockaddr_storage ss; ss.ss_family = 0; return (ss.ss_family == 0);],
                                 [ac_cv_struct_sockaddr_storage=yes],
                                 [ac_cv_struct_sockaddr_storage=no])])
 if test $ac_cv_struct_sockaddr_storage = yes; then
@@ -1649,7 +1649,7 @@ char	*cp;
 
 cp = (char *)&a;
 *cp = 0x12;
-exit(a.x1 == 2);}],
+return(a.x1 == 2);}],
                 [ac_cv_c_bitfields_htol=yes],
                 [ac_cv_c_bitfields_htol=no])])
 if test $ac_cv_c_bitfields_htol = yes; then
@@ -1666,7 +1666,7 @@ doit(int i, ...)
 int
 main(int ac, char *av[])
 { doit(1, 2, 3);
-exit(0);}],
+return(0);}],
                 [ac_cv_type_prototypes=yes],
                 [ac_cv_type_prototypes=no])])
 if test $ac_cv_type_prototypes = yes; then
@@ -1710,7 +1710,7 @@ main()
 	char c;
 
 	c = -1;
-	exit(c < 0);}],
+	return(c < 0);}],
 		[ac_cv_type_char_unsigned=yes],
 		[ac_cv_type_char_unsigned=no],
 		[ac_cv_type_char_unsigned=no])]) 
@@ -1824,9 +1824,9 @@ main()
 
 	result = 0;
 	bp = __dtoa(1.9, 2, 5, &decpt, &sign, &ep, &result);
-	exit(result == 0);
+	return(result == 0);
 #else
-	exit(1);
+	return(1);
 #endif
 }],
                 [ac_cv_func_dtoa_r=yes],
@@ -1842,8 +1842,20 @@ AC_DEFUN([AC_FUNC_ECVT],
                 [AC_TRY_RUN([
 extern	char *ecvt();
 
+#ifdef	PROTOTYPES	/* needed for new Apple clang */
+extern  int     sprintf(char *, const char *fmt, ...);
+extern  char    *strcpy(const char *, const char *);
+extern  int     strcmp(const char *, const char *);
+#endif
+
+#ifdef	PROTOTYPES
+int
+sprintf(char *s, const char *fmt, ...)
+#else
+int
 sprintf(s)
 	char	*s;
+#endif
 {
 	strcpy(s, "DEAD");
 }
@@ -1854,7 +1866,7 @@ main()
 	int a, b;
 
 /*	exit (strcmp("DEAD", ecvt(1.9, 2, &a, &b)) == 0);*/
-	exit (strcmp("19", ecvt(1.9, 2, &a, &b)) != 0);
+	return (strcmp("19", ecvt(1.9, 2, &a, &b)) != 0);
 }],
                 [ac_cv_func_ecvt=yes],
                 [ac_cv_func_ecvt=no])])
@@ -1869,8 +1881,20 @@ AC_DEFUN([AC_FUNC_FCVT],
                 [AC_TRY_RUN([
 extern	char *fcvt();
 
+#ifdef	PROTOTYPES	/* needed for new Apple clang */
+extern  int     sprintf(char *, const char *fmt, ...);
+extern  char    *strcpy(const char *, const char *);
+extern  int     strcmp(const char *, const char *);
+#endif
+
+#ifdef	PROTOTYPES
+int
+sprintf(char *s, const char *fmt, ...)
+#else
+int
 sprintf(s)
 	char	*s;
+#endif
 {
 	strcpy(s, "DEAD");
 }
@@ -1881,7 +1905,7 @@ main()
 	int a, b;
 
 /*	exit (strcmp("DEAD", fcvt(1.9, 2, &a, &b)) == 0);*/
-	exit (strcmp("190", fcvt(1.9, 2, &a, &b)) != 0);
+	return (strcmp("190", fcvt(1.9, 2, &a, &b)) != 0);
 }],
                 [ac_cv_func_fcvt=yes],
                 [ac_cv_func_fcvt=no])])
@@ -1896,8 +1920,20 @@ AC_DEFUN([AC_FUNC_GCVT],
                 [AC_TRY_RUN([
 extern	char *gcvt();
 
+#ifdef	PROTOTYPES	/* needed for new Apple clang */
+extern  int     sprintf(char *, const char *fmt, ...);
+extern  char    *strcpy(const char *, const char *);
+extern  int     strcmp(const char *, const char *);
+#endif
+
+#ifdef	PROTOTYPES
+int
+sprintf(char *s, const char *fmt, ...)
+#else
+int
 sprintf(s)
 	char	*s;
+#endif
 {
 	strcpy(s, "DEAD");
 }
@@ -1908,7 +1944,7 @@ main()
 	char	buf[32];
 
 /*	exit (strcmp("DEAD", gcvt(1.9, 10, buf)) == 0);*/
-	exit (strcmp("1.9", gcvt(1.9, 10, buf)) != 0);
+	return (strcmp("1.9", gcvt(1.9, 10, buf)) != 0);
 }],
                 [ac_cv_func_gcvt=yes],
                 [ac_cv_func_gcvt=no])])
@@ -1937,6 +1973,9 @@ AC_DEFUN([AC_FUNC_MLOCK],
 AC_CACHE_CHECK([for mlock], ac_cv_func_mlock,
                 [AC_TRY_RUN([
 #include <sys/types.h>
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 #include <errno.h>
 #ifndef	HAVE_ERRNO_DEF
 extern	int	errno;
@@ -1947,10 +1986,10 @@ main()
 	if (mlock(0, 0) < 0) {
 		if (errno == EINVAL || errno ==  ENOMEM ||
 		    errno == EPERM  || errno ==  EACCES)
-			exit(0);
-		exit(-1);
+			return(0);
+		return(-1);
 	}
-	exit(0);
+	return(0);
 }],
                 [ac_cv_func_mlock=yes],
                 [ac_cv_func_mlock=no])
@@ -1979,10 +2018,10 @@ main()
 	if (mlockall(MCL_CURRENT|MCL_FUTURE) < 0) {
 		if (errno == EINVAL || errno ==  ENOMEM ||
 		    errno == EPERM  || errno ==  EACCES)
-			exit(0);
-		exit(-1);
+			return(0);
+		return(-1);
 	}
-	exit(0);
+	return(0);
 }
 ],
                 [ac_cv_func_mlockall=yes],
@@ -2022,6 +2061,9 @@ AC_CACHE_CHECK(for working mmap, ac_cv_func_mmap_fixed_mapped,
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 /*
  * Needed for Apollo Domain/OS and may be for others?
@@ -2037,6 +2079,9 @@ AC_CACHE_CHECK(for working mmap, ac_cv_func_mmap_fixed_mapped,
 # ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 # endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 /* Assume that all systems that can run configure have sys/param.h.  */
 # ifndef HAVE_SYS_PARAM_H
@@ -2093,15 +2138,15 @@ main()
 	 */
 	data = malloc(pagesize);
 	if (!data)
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		*(data + i) = rand();
 	umask(0);
 	fd = creat("conftestmmap", 0600);
 	if (fd < 0)
-		exit(1);
+		return(1);
 	if (write(fd, data, pagesize) != pagesize)
-		exit(1);
+		return(1);
 	close(fd);
 
 	/*
@@ -2111,17 +2156,17 @@ main()
 	 */
 	fd = open("conftestmmap", O_RDWR);
 	if (fd < 0)
-		exit(1);
+		return(1);
 	data2 = malloc(2 * pagesize);
 	if (!data2)
-		exit(1);
+		return(1);
 	data2 += (pagesize - ((int) data2 & (pagesize - 1))) & (pagesize - 1);
 	if (data2 != mmap(data2, mmap_sizeparm(pagesize), PROT_READ | PROT_WRITE,
 	    MAP_PRIVATE | MAP_FIXED, fd, 0L))
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		if (*(data + i) != *(data2 + i))
-			exit(1);
+			return(1);
 
 	/*
 	 * Finally, make sure that changes to the mapped area
@@ -2132,15 +2177,15 @@ main()
 		*(data2 + i) = *(data2 + i) + 1;
 	data3 = malloc(pagesize);
 	if (!data3)
-		exit(1);
+		return(1);
 	if (read(fd, data3, pagesize) != pagesize)
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		if (*(data + i) != *(data3 + i))
-			exit(1);
+			return(1);
 	close(fd);
 	unlink("conftestmmap");
-	exit(0);
+	return(0);
 }
 ], ac_cv_func_mmap_fixed_mapped=yes, ac_cv_func_mmap_fixed_mapped=no,
 ac_cv_func_mmap_fixed_mapped=no)])
@@ -2159,6 +2204,9 @@ AC_CACHE_CHECK(for mmap that needs ptr to size, ac_cv_func_mmap_sizep,
 #include <signal.h>
 #include <setjmp.h>
 #include <sys/mman.h>
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 #ifndef MAP_FILE
 #define MAP_FILE   0		/* Needed on Apollo Domain/OS */
@@ -2169,6 +2217,9 @@ AC_CACHE_CHECK(for mmap that needs ptr to size, ac_cv_func_mmap_sizep,
 # ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 # endif
+#if	HAVE_STDLIB_H || STDC_HEADERS
+#include <stdlib.h>
+#endif
 
 /* Assume that all systems that can run configure have sys/param.h.  */
 # ifndef HAVE_SYS_PARAM_H
@@ -2234,15 +2285,15 @@ main()
 	 */
 	data = malloc(pagesize);
 	if (!data)
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		*(data + i) = rand();
 	umask(0);
 	fd = creat("conftestmmap", 0600);
 	if (fd < 0)
-		exit(1);
+		return(1);
 	if (write(fd, data, pagesize) != pagesize)
-		exit(1);
+		return(1);
 	close(fd);
 
 	/*
@@ -2252,7 +2303,7 @@ main()
 	 */
 	fd = open("conftestmmap", O_RDWR);
 	if (fd < 0)
-		exit(1);
+		return(1);
 
 	/*
 	 * Keep a copy, Apollo modifies the value...
@@ -2271,7 +2322,7 @@ main()
 		data2 = (char *)-1;
 	}
 	if (data2 != (char *)-1)
-		exit(1);
+		return(1);
 
 	signal(SIGSEGV, intr);
 	if (setjmp(jenv) == 0) {
@@ -2280,15 +2331,15 @@ main()
 		data2 = (char *)-1;
 	}
 	if (data2 == (char *)-1)
-		exit(1);
+		return(1);
 
 	for (i = 0; i < pagesize; ++i)
 		if (*(data + i) != *(data2 + i))
-			exit(1);
+			return(1);
 
 	close(fd);
 	unlink("conftestmmap");
-	exit(0);
+	return(0);
 }
 ], ac_cv_func_mmap_sizep=yes, ac_cv_func_mmap_sizep=no,
 ac_cv_func_mmap_sizep=no)])
@@ -2302,8 +2353,23 @@ dnl Defines HAVE_SMMAP on success.
 AC_DEFUN([AC_FUNC_SMMAP],
 [AC_CACHE_CHECK([if mmap works to get shared memory], ac_cv_func_smmap,
                 [AC_TRY_RUN([
+#if	HAVE_STDLIB_H || STDC_HEADERS
+#include <stdlib.h>
+#endif
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/mman.h>
+#ifdef	HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#if	defined(HAVE_WAIT_H)
+#	include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
+#include <stdio.h>
 
 #ifndef	MAP_ANONYMOUS
 #	ifdef	MAP_ANON
@@ -2392,9 +2458,9 @@ main()
 
 	id = shmget(IPC_PRIVATE, 0x1, IPC_CREAT|0600);
 	if (id == -1)
-		exit(1);
+		return(1);
 	shmctl(id, IPC_RMID, 0);
-        exit(0);
+        return(0);
 }
 ], 
                 [ac_cv_func_shmget=yes],
@@ -2413,8 +2479,8 @@ int
 main()
 { extern char *sys_siglist[];
 if (sys_siglist[1] == 0)
-	exit(1);
-exit(0);}],
+	return(1);
+return(0);}],
                 [ac_cv_func_sys_siglist=yes],
                 [ac_cv_func_sys_siglist=no])])
 if test $ac_cv_func_sys_siglist = yes; then
@@ -2474,7 +2540,7 @@ main()
 	if (sizeof (long) > 4)
 		maxloop = 64;
 
-	if (!f) exit(1);
+	if (!f) return(1);
 
 	for (i=1, m=0; i <= maxloop; i++, l<<=1) {
 		if (minor(l) == 0 && c == 0)
@@ -2483,7 +2549,7 @@ main()
 			m = i;
 	}
 	fprintf(f, "%d\n", m);
-	exit(0);
+	return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=0, ifelse([$2], , , AC_CV_NAME=$2))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_MACRO_NAME, $AC_CV_NAME)
@@ -2544,7 +2610,7 @@ main()
 		if (minor(l) != 0)
 			m = i;
 	}
-exit (m == c);}],
+return (m == c);}],
                 [ac_cv_dev_minor_noncontig=yes],
                 [ac_cv_dev_minor_noncontig=no])])
 if test $ac_cv_dev_minor_noncontig = yes; then
@@ -2556,6 +2622,13 @@ dnl Defines NO_USER_MALLOC if we cannot.
 AC_DEFUN([AC_USER_MALLOC],
 [AC_CACHE_CHECK([if we may not define our own malloc()], ac_cv_no_user_malloc,
                 [AC_TRY_RUN([
+#if	HAVE_STDLIB_H || STDC_HEADERS
+#define	malloc	__xxx1__
+#define	free	__xxx2__
+#include <stdlib.h>
+#undef	malloc
+#undef	free
+#endif
 #if !defined(__CYGWIN32__) && !defined(__CYGWIN__)
 static int mcalled;
 char *
@@ -2646,6 +2719,10 @@ dnl Defines HAVE_BSD_GETPGRP on success.
 AC_DEFUN([AC_FUNC_BSD_GETPGRP],
 [AC_CACHE_CHECK([for BSD compliant getpgrp], ac_cv_func_bsd_getpgrp,
                 [AC_TRY_RUN([
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 int
 main()
 { long p;
@@ -2654,8 +2731,8 @@ main()
  */
 	p = getpgrp(-1);
 	if (p == getpgrp(1) && p == getpgrp(getpid()))
-		exit(1);
-exit(0);}],
+		return(1);
+return(0);}],
                 [ac_cv_func_bsd_getpgrp=yes],
                 [ac_cv_func_bsd_getpgrp=no])])
 if test $ac_cv_func_bsd_getpgrp = yes; then
@@ -2668,6 +2745,9 @@ AC_DEFUN([AC_FUNC_BSD_SETPGRP],
 [AC_REQUIRE([AC_HEADER_ERRNO_DEF])dnl
 AC_CACHE_CHECK([for BSD compliant setpgrp], ac_cv_func_bsd_setpgrp,
                 [AC_TRY_RUN([
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <errno.h>
 #ifndef	HAVE_ERRNO_DEF
 extern	int	errno;
@@ -2679,8 +2759,8 @@ main()
  * Force illegal pid on BSD
  */
 if (setpgrp(-1, 100) < 0 && errno == ESRCH)
-	exit(0);
-exit(1);}],
+	return(0);
+return(1);}],
                 [ac_cv_func_bsd_setpgrp=yes],
                 [ac_cv_func_bsd_setpgrp=no])])
 if test $ac_cv_func_bsd_setpgrp = yes; then
@@ -2699,8 +2779,8 @@ main()
 char buf[32];
 sprintf(buf, "%jd", m);
 if (strcmp(buf, "123456789012") == 0)
-	exit(0);
-exit(1);}],
+	return(0);
+return(1);}],
                 [ac_cv_func_printf_j=yes],
                 [ac_cv_func_printf_j=no])])
 if test $ac_cv_func_printf_j = yes; then
@@ -2719,8 +2799,8 @@ main()
 char buf[32];
 sprintf(buf, "%zd", m);
 if (strcmp(buf, "1234567890") == 0)
-	exit(0);
-exit(1);}],
+	return(0);
+return(1);}],
                 [ac_cv_func_printf_z=yes],
                 [ac_cv_func_printf_z=no])])
 if test $ac_cv_func_printf_z = yes; then
@@ -2738,8 +2818,8 @@ main()
 char buf[32];
 sprintf(buf, "%lld", ll);
 if (strcmp(buf, "123456789012") == 0)
-	exit(0);
-exit(1);}],
+	return(0);
+return(1);}],
                 [ac_cv_func_printf_ll=yes],
                 [ac_cv_func_printf_ll=no])])
 if test $ac_cv_func_printf_ll = yes; then
@@ -2881,6 +2961,10 @@ dnl Defines HAVE_HARD_SYMLINKS on success.
 AC_DEFUN([AC_HARD_SYMLINKS],
 [AC_CACHE_CHECK([if link() allows hard links on symlinks], ac_cv_hard_symlinks,
                 [AC_TRY_RUN([
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 main()
 {
 	int	ret = 0;
@@ -2897,7 +2981,7 @@ main()
 	unlink("confdefs.l1");
 	unlink("confdefs.h1");
 
-	exit(ret);
+	return(ret);
 }],
                 [ac_cv_hard_symlinks=yes],
                 [ac_cv_hard_symlinks=no])])
@@ -2939,7 +3023,7 @@ main()
 	unlink("confdefs.l1");
 	unlink("confdefs.h1");
 
-	exit(ret);
+	return(ret);
 }],
                 [ac_cv_link_nofollow=yes],
                 [ac_cv_link_nofollow=no])])
@@ -3001,7 +3085,7 @@ main()
 		ret = 1;
 #endif
 
-	exit(ret);
+	return(ret);
 }],
                 [ac_cv_access_e_ok=yes],
                 [ac_cv_access_e_ok=no])])
@@ -3030,7 +3114,7 @@ main()
 	int	ret;
 
 	ret = fnmatch("a", "A", FNM_IGNORECASE);
-	exit(ret);
+	return(ret);
 }],
                 [ac_cv_fnmatch_igncase=yes],
                 [ac_cv_fnmatch_igncase=no])])
@@ -3520,7 +3604,7 @@ main()
 {
 	struct	stat	sb;
 
-	exit(stat("$1", &sb) < 0);
+	return(stat("$1", &sb) < 0);
 }],
                 [eval ac_cv_file_$ac_safe=yes],
                 [eval ac_cv_file_$ac_safe=no])])

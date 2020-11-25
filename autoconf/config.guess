@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.22 20/10/07 Copyright 1999-2020 J. Schilling
+# @(#)config.guess	1.23 20/11/12 Copyright 1999-2020 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -894,6 +894,9 @@ EOF
 	exit 0 ;;
     "x86":"Darwin":*)
 	echo i386-apple-macosx${UNAME_RELEASE}
+	exit 0 ;;
+    "arm64":"Darwin":*)
+	echo arm64-apple-macosx${UNAME_RELEASE}
 	exit 0 ;;
     *:OS/2:*:*)
         echo "i386-pc-os2_emx"

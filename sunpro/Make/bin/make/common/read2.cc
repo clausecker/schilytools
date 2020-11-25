@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)read2.cc	1.15 20/10/31 2017-2019 J. Schilling
+ * @(#)read2.cc	1.18 20/11/19 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.15 20/10/31 2017-2019 J. Schilling";
+	"@(#)read2.cc	1.18 20/11/19 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -1162,7 +1162,7 @@ enter_dyntarget(register Name target)
  *		keep_state	Set if ".KEEP_STATE" target is read
  *		no_parallel_name The Name ".NO_PARALLEL", used for tracing
  *		notparallel_name The Name ".NOTPARALLEL", used for tracing
- *		notparallal	Set if ".NOTPARALLEL" target is read
+ *		notparallel	Set if ".NOTPARALLEL" target is read
  *		only_parallel	Set to indicate only some targets runs parallel
  *		parallel_name	The Name ".PARALLEL", used for tracing
  *		phony		The Name ".PHONY", used for tracing
@@ -1366,17 +1366,19 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 
 #ifdef	DO_NOTPARALLEL
 	case notparallel_special:
-		if(svr4)
-		  break;
-			/* ignore keep state, being SunPro make specific */
-		if (depes->used != 0) {
-			fatal_reader(gettext("Illegal dependencies for target `%s'"),
+
+		/* Ignore .NOTPARALLEL if this svr4 or we are on compat mode */
+		if (!sunpro_compat && !svr4) {
+			if (depes->used != 0) {
+				fatal_reader(gettext(
+				    "Illegal dependencies for target `%s'"),
 				     target->string_mb);
-		}
-		notparallel = true;
-		if (trace_reader) {
-			(void) printf("%s:\n",
-				      notparallel_name->string_mb);
+			}
+			notparallel = true;
+			if (trace_reader) {
+				(void) printf("%s:\n",
+					      notparallel_name->string_mb);
+			}
 		}
 		break;
 #endif
@@ -1846,20 +1848,32 @@ enter_conditional(register Name target, Name name, Name value, register Boolean 
  *		name		The name of the macro
  *		value		The value for the macro
  *		append		Indicates if the assignment is appending or not
+ *		separator	Indicates the assignment variants ::= and ?=
  *
  *	Global variables used:
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-enter_equal(Name name, Name value, register Boolean append)
+enter_equal(Name name, Name value, register Boolean append, Separator separator)
 {
 	wchar_t		*string;
 	Name		temp;
+	Property	prop = NULL;
+	String_rec	val;
+	wchar_t		buffer[STRING_BUFFER_LENGTH];
 
-	if (name->colon) {
+	if (separator == assign_seen) {
+		INIT_STRING_FROM_STACK(val, buffer);
+		expand_value(value, &val, false);
+		value = GETNAME(val.buffer.start, FIND_LENGTH);
+	} else if (name->colon) {
 		sh_transform(&name, &value);
 	}
-	(void) SETVAR(name, value, append);
+	if (separator == condequal_seen)
+		prop = get_prop(name->prop, macro_prop); /* macro is set? */
+
+	if (prop == NULL)
+		(void) SETVAR(name, value, append);
 
 	/* if we're setting FC, we want to set F77 to the same value. */
 	Wstring nms(name);
@@ -1877,16 +1891,23 @@ enter_equal(Name name, Name value, register Boolean append)
 	}
 
 	if (trace_reader) {
+		char *pre = (char *)" ";
+
+		if (append)
+			pre = (char *)"+";
+		if (separator == assign_seen)
+			pre = (char *)"::";
+		else if (separator == condequal_seen)
+			pre = (char *)"?";
+
 		if (value == NULL) {
-			(void) printf("%s %c=\n",
+			(void) printf("%s %s=\n",
 				      name->string_mb,
-				      append ?
-				      (int) plus_char : (int) space_char);
+				      pre);
 		} else {
-			(void) printf("%s %c= %s\n",
+			(void) printf("%s %s= %s\n",
 				      name->string_mb,
-				      append ?
-				      (int) plus_char : (int) space_char,
+				      pre,
 				      value->string_mb);
 		}
 	}

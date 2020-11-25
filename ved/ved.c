@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.89 20/10/29 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling */
+/* @(#)ved.c	1.91 20/11/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.89 20/10/29 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling";
+	"@(#)ved.c	1.91 20/11/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -211,7 +211,7 @@ main(ac, av)
 	 * Initialize the TERMCAP package
 	 */
 	if ((errstr = t_start(wp)) != NULL)
-		excomerrno(wp, EX_BAD, "%s\r\n", errstr);
+		exitcomerr(wp, "%s\r\n", errstr);
 	if (wp->llen <= 0 || wp->psize <= 0)	/* Paranoia: check screen size */
 		excomerrno(wp, EX_BAD,
 		"Bad line length or page size in terminal descriptor.\r\n");
@@ -287,6 +287,15 @@ main(ac, av)
 			*wp->curfile = '\0';
 	}
 
+#ifndef	NO_SCRATCHFILE
+	if (wp->curfile == curfname && curfname[0] == '\0') {
+		strcpy(C curfname, "vedXXXXXX");
+		mktemp(C curfname);
+		ReadOnly = 2;		/* Do not even allow QUIT !	*/
+		noedtmp = 1;
+	}
+#endif
+
 	/*
 	 * We had problems to get a proper filename setup.
 	 * XXX There might be problems with macros if we introduce a "scratch"
@@ -319,6 +328,10 @@ main(ac, av)
 	initbuffers(wp, buffers);
 	bufdebug(wp);
 	initmessage(wp);
+#ifdef	DO_VERSION_INFO
+	defaultinfo(wp, UC "ved-1.8");
+#endif
+
 	if (nfiles > 1)
 		writemsg(wp, "%d files to edit.", nfiles);
 
@@ -347,7 +360,8 @@ main(ac, av)
 	 */
 	wp->curftime = gftime(C wp->curfile);
 	if (!loadfile(wp, wp->curfile, TRUE)) {
-		if (geterrno() != ENOENT || ReadOnly > 0) {
+		if ((nfiles > 0 || Vhelp) &&
+		    (geterrno() != ENOENT || ReadOnly > 0)) {
 			err = geterrno();
 			termbuffers(wp);
 			excomerrno(wp, err, "Cannot open '%s'.\n", wp->curfile);

@@ -1,0 +1,94 @@
+#!/bin/sh
+
+: ${uname=/usr/bin/uname}
+$uname < /dev/null > /dev/null 2> /dev/null || uname=/bin/uname
+
+if [ ".$UNAME_MACHINE" = . ]; then
+	UNAME_MACHINE=`($uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+fi
+if [ ".$UNAME_HOST" = . ]; then
+	UNAME_HOST=`($uname -n) 2>/dev/null` || UNAME_HOST=unknown
+fi
+if [ ".$UNAME_RELEASE" = . ]; then
+	UNAME_RELEASE=`($uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+fi
+if [ ".$UNAME_SYSTEM" = . ]; then
+	UNAME_SYSTEM=`($uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
+fi
+if [ ".$UNAME_VERSION" = . ]; then
+	UNAME_VERSION=`($uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+fi
+if [ ".$UNAME_PROCESSOR" = . ]; then
+	UNAME_PROCESSOR=`($uname -p) 2>/dev/null` || UNAME_PROCESSOR=unknown
+fi
+
+#UNAME_MACHINE=BePC
+#UNAME_HOST=
+#UNAME_RELEASE=
+#UNAME_SYSTEM=OS/2
+#UNAME_VERSION=
+#UNAME_PROCESSOR=
+
+if [ $# = 0 ]; then
+	echo $UNAME_SYSTEM
+	exit 0
+fi
+
+for i in "$@"; do
+	if [ $i = -A ]; then
+		echo "-s	-n	-r	-v	-m	-p"
+		echo "SunOS	sparky	5.4	generic	sun4c	sparc"
+		echo "SYSTEM	HOST	RELEASE	VERSION	MACHINE	PROCESSOR"
+		echo "$UNAME_SYSTEM	$UNAME_HOST	$UNAME_RELEASE	$UNAME_VERSION	$UNAME_MACHINE	$UNAME_PROCESSOR"
+	fi
+	if [ $i = -a ]; then
+		#    SunOS	   sparky	5.4		generic		sun4c 		sparc
+		echo $UNAME_SYSTEM $UNAME_HOST $UNAME_RELEASE $UNAME_VERSION $UNAME_MACHINE $UNAME_PROCESSOR
+		exit 0
+	fi
+	if [ $i = -T ]; then
+		echo
+		echo "# $UNAME_MACHINE:$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_VERSION)"
+		echo
+		echo 'PATH=.:$PATH'
+		echo export PATH
+		echo
+		echo "UNAME_MACHINE='$UNAME_MACHINE'"
+		echo "UNAME_HOST='$UNAME_HOST'"
+		echo "UNAME_RELEASE='$UNAME_RELEASE'"
+		echo "UNAME_SYSTEM=$UNAME_SYSTEM'"
+		echo "UNAME_VERSION='$UNAME_VERSION'"
+		echo "UNAME_PROCESSOR='$UNAME_PROCESSOR'"
+		echo
+		echo export UNAME_MACHINE
+		echo export UNAME_HOST
+		echo export UNAME_RELEASE
+		echo export UNAME_SYSTEM
+		echo export UNAME_VERSION
+		echo export UNAME_PROCESSOR
+	fi
+done
+
+for i in "$@"; do
+	case "$i" in
+
+	-m)
+		echo $UNAME_MACHINE
+		;;
+	-n)
+		echo $UNAME_HOST
+		;;
+	-r)
+		echo $UNAME_RELEASE
+		;;
+	-s)
+		echo $UNAME_SYSTEM
+		;;
+	-v)
+		echo $UNAME_VERSION
+		;;
+	-p)
+		echo $UNAME_PROCESSOR
+		;;
+	esac
+done

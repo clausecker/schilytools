@@ -1,14 +1,25 @@
-# /* @(#)libxtermcap-mapvers        1.1 10/10/02 Copyright 2005-2010 J. Schilling */
+# /* @(#)libxtermcap-mapvers        1.2 20/11/23 Copyright 2005-2020 J. Schilling */
+
+SCHILY_1.1 {
+global:
+	tcgetbuf;	# allocated buf is retained
+	tgetent;	# buffer contains path of failed open()
+} SCHILY_1.0;
+
 
 SCHILY_1.0 {
 global:
 	BC;
 	ospeed;
 	PC;
+#if 0
 	tcgetbuf;
+#endif
 	tcsetflags;
 	tdecode;
+#if 0
 	tgetent;
+#endif
 	tgetflag;
 	tgetnum;
 	tgetstr;

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.256 20/09/28 Copyright 2012-2020 J. Schilling
+.\" @(#)sh.1	1.257 20/11/23 Copyright 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2020/09/28" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2020/11/23" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2560,6 +2560,12 @@ is only supported if
 .B sh
 was compiled with support for history editing.
 .sp
+See
+.B NOTES
+section for hints on what to do when your platform does not provide an
+.B /etc/termcap
+file.
+.sp
 The variable
 .B TERMCAP
 was not supported in older versions of
@@ -2584,11 +2590,6 @@ symbol is not set, the files
 and
 .B /etc/termcap
 are scanned in that order.
-If a pathname in
-.B TERMPATH
-does not start with a slash ("/"), then the
-.B HOME
-environment is prepended to the name.
 .B TERMPATH
 is only supported if
 .B sh
@@ -8425,7 +8426,8 @@ file.
 .B $HOME/.termcap
 The personal
 .B TERMCAP
-file.
+file that by default is checked before
+.BR /etc/termcap .
 .br
 .ne 3
 .TP
@@ -8640,6 +8642,17 @@ Parameter assignments that precede the call of a function are ignored.
 When the shell executes a shell script that attempts to execute a
 non-existent command interpreter, the shell returns an erroneous diagnostic
 message that the shell script file does not exist.
+.LP
+If your platform does not provide an
+.B /etc/termcap
+file, or if your termcap database does not contain an entry for the terminal
+type you are using, the following command may be used to convert a teminfo
+entry into a termcap entry and to append it to your private termcap database
+.sp
+.nf
+.B
+    incofmp -C >> $HOME/.termcap
+.fi
 
 .br
 .ne 5

@@ -1,4 +1,4 @@
-. \" @(#)p.1	1.7 10/12/23 Copyr 1982-2007 J. Schilling
+. \" @(#)p.1	1.8 20/11/23 Copyr 1982-2020 J. Schilling
 . \"  Manual page for p
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH P 1L "15. Juli 1988" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH P 1L "2020/11/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 p \- browse or page through files and filter unprintable characters
 .SH SYNOPSIS
@@ -238,11 +238,6 @@ If the TERMPATH symbol is not set, the files
 and
 .I /etc/termcap
 are scanned in that order.
-If a pathname in 
-.B TERMPATH
-does not start with a slash ("/"), then the 
-.B HOME
-environment is prepended to the name.
 .TP
 .B BEEP
 The environment variable
@@ -260,6 +255,9 @@ The system's terminal capabilities database.
 .TP
 .B ~/.termcap
 The private terminal capabilities database.
+This file is checked first, in case that the
+.B TERMPATH
+environment is not defined.
 
 .SH NOTES
 If you type p with no arguments and do not redirect its standard

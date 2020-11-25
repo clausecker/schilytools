@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.35 20/10/31 Copyr 2012-2020 J. Schilling
+. \" @(#)make.1s	1.44 20/11/21 Copyr 2012-2020 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2020/10/31" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2020/11/21" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -141,8 +141,10 @@ If no
 is specified on the command line,
 .B make
 uses the
-first target defined in
+first regular target defined in
 .IR makefile .
+.LP
+A regular target is a target with a name that does not start with a dot.
 .sp
 .LP
 If a
@@ -394,7 +396,7 @@ run in parallel.
 .sp
 This option is not available in case that
 .B make
-as not been compiled with support for parallel make features.
+has not been compiled with support for parallel make features.
 
 .sp
 .ne 2
@@ -450,7 +452,7 @@ host.
 .PP
 This option is not available in case that
 .B make
-as not been compiled with support for parallel make features.
+has not been compiled with support for parallel make features.
 .RE
 
 .sp
@@ -514,7 +516,7 @@ Do not run in parallel mode.
 .sp
 This option is not available in case that
 .B make
-as not been compiled with support for parallel make features.
+has not been compiled with support for parallel make features.
 
 .sp
 .ne 2
@@ -586,6 +588,27 @@ targets.
 This may be useful for tracking down errors from complex nests of recursive
 .B make
 calls.
+
+.sp
+.ne 2
+.TP
+.PD 0
+.BI "\-x SUN_MAKE_COMPAT_MODE=" value
+.TP
+.BI "\-x DMAKE_OUTPUT_MODE=" value
+.PD
+Allows to set the
+.B make
+compat mode or the output mode.
+See
+.BR dmake (1)
+and
+.B ENVIRONMENT
+for more information.
+.sp
+This option is not available in case that
+.B make
+has not been compiled with support for parallel make features.
 
 .SH OPERANDS
 .sp
@@ -764,7 +787,7 @@ A target entry has the following format:
 .sp
 .in +2
 .nf
-       \fItarget\fR [\fB:\fR|\fB::\fR] [\fIdependency\fR] .\|.\|. [\fB;\fR \fBcommand\fR] .\|.\|.
+       \fItarget\fR [\fItarget\fR\|.\|.\|.] \fB:\fR|\fB::\fR [\fIdependency\fR] .\|.\|. [\fB;\fR \fBcommand\fR] .\|.\|.
                       [\fBcommand\fR]
                       .\|.\|.
 .fi
@@ -818,7 +841,7 @@ begins another target or macro definition.
 .sp
 .LP
 Special characters are defined below.
-.SS "\fIGlobal\fR"
+.SS "Global"
 .br
 .ne 2
 .TP 21n
@@ -1009,7 +1032,7 @@ environment,
 .B make
 does not support this feature.
 
-.SS "\fITargets and Dependencies\fR"
+.SS "Targets and Dependencies"
 .sp
 .ne 2
 .mk
@@ -1095,7 +1118,7 @@ ignores the leading \fB\&./\fR characters from targets with
 names given as pathnames relative to "dot," the working directory.
 .RE
 
-.SS "\fIMacros\fR"
+.SS "Macros"
 .sp
 .ne 2
 .mk
@@ -1109,6 +1132,9 @@ words to the right comprise its value. Leading and trailing white space
 characters are stripped from the value. A word break following the
 .B =
 is implied.
+.sp
+Macro references in the text to the right of the assignment operator
+are not expanded prior to the assignment.
 .RE
 
 .sp
@@ -1193,6 +1219,66 @@ When used in place of
 appends a string to a macro definition (must
 be surrounded by white space, unlike
 .BR = ).
+.sp
+Macro references in the text to the right of the append operator
+are not expanded prior to appending the text.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B ?=
+.ad
+.RS 9n
+.rt
+When used in place of
+.BR = ,
+assigns a string to a macro definition if the macro was not
+assigned before (must
+be surrounded by white space, unlike
+.BR = ).
+.sp
+Macro references in the text to the right of the assignment operator
+are not expanded prior to the assignment.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores this operator
+in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B ::=
+.ad
+.RS 9n
+.rt
+When used in place of
+.BR = ,
+assigns a string to a macro definition after first expanding 
+macro references on the right side (must
+be surrounded by white space, unlike
+.BR = ).
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores this operator
+in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
 .RE
 
 .sp
@@ -1231,9 +1317,9 @@ below).
 .rt
 Define the value of a macro to be the output of a command with
 .B make macros
-in the output of the command expanded by
+in the command line expanded by
 .B make
-before assigning the result to the macro (see
+before calling the command (see
 .B Command Substitutions
 below).
 .RE
@@ -1252,7 +1338,20 @@ the reference with the output of that command (see
 below).
 .RE
 
-.SS "\fIRules\fR"
+.sp
+.ne 2
+.mk
+.na
+.B :shell
+.ad
+.RS 9n
+.rt
+In a macro reference, behaves identical to 
+.B :sh
+in a macro reference.
+.RE
+
+.SS "Rules"
 .sp
 .ne 2
 .mk
@@ -1562,6 +1661,18 @@ mode, this target has no effect. It is used when in
 mode. See
 .BR dmake (1)
 for more information.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores the
+.B .NOTPARALLEL
+target in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
 .RE
 
 .sp
@@ -1723,7 +1834,7 @@ mode. See
 for more information.
 .RE
 
-.SS "\fIClearing Special Targets\fR"
+.SS "Clearing Special Targets"
 .sp
 .LP
 In this version of
@@ -1795,7 +1906,7 @@ name.
 .LP
 Macro references can contain references to other macros, in which case
 nested references are expanded first.
-.SS "\fISuffix Replacement Macro References\fR"
+.SS "Suffix Replacement Macro References"
 .sp
 .LP
 Substitutions within macros can be made as follows:
@@ -1820,7 +1931,7 @@ in a macro value are separated by
 and escaped
 .B NEWLINE
 characters.
-.SS "\fIPattern Replacement Macro References\fR"
+.SS "Pattern Replacement Macro References"
 .sp
 .LP
 Pattern matching replacements can also be applied to macros, with a
@@ -1876,7 +1987,7 @@ metacharacters can
 appear after the equal-sign, including no
 .B %
 metacharacter after the equal-sign.
-.SS "\fIAppending to a Macro\fR"
+.SS "Appending to a Macro"
 .sp
 .LP
 Words can be appended to macro values as follows:
@@ -2753,7 +2864,7 @@ predefined set of implicit rules,
 .B make
 allows you to define your own,
 either by pattern, or by suffix.
-.SS "\fIPattern Matching Rules\fR"
+.SS "Pattern Matching Rules"
 .sp
 .LP
 A target entry of the form:
@@ -2761,6 +2872,15 @@ A target entry of the form:
 .in +2
 .nf
 \fItp\fB%\fIts\fR: \fIdp\fB%\fIds\fR
+     \fIrule\fR
+.fi
+.in -2
+.sp
+or
+.sp
+.in +2
+.nf
+\fItp\fB%\fIts\fR:
      \fIrule\fR
 .fi
 .in -2
@@ -2806,6 +2926,15 @@ An entry of the form:
 .fi
 .in -2
 .sp
+or
+.sp
+.in +2
+.nf
+\fItp\fR%\fIts\fR: [\fIdependency .\|.\|.\fR\|]
+     \fIrule\fR
+.fi
+.in -2
+.sp
 
 .sp
 .LP
@@ -2822,7 +2951,7 @@ The builtin rules defined by
 are intentionally defined as Suffix Rules to allow them to be overwritten
 by Pattern Matching Rules in the customers makefiles.
 
-.SS "\fISuffix Rules\fR"
+.SS "Suffix Rules"
 .sp
 .LP
 When no pattern matching rule applies,
@@ -2838,7 +2967,8 @@ The target entry for a suffix rule takes the form:
 .sp
 .in +2
 .nf
-\fIDsTs\fR: \fIrule\fR
+\fIDsTs\fR:
+     \fIrule\fR
 .fi
 .in -2
 .sp
@@ -3702,7 +3832,7 @@ substitution; therefore, a dollar sign
 need not be replaced with a
 double dollar sign
 .RB ( $$ ).
-.SS "\fISignals\fR"
+.SS "Signals"
 .sp
 .LP
 .BR INT ,

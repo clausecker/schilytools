@@ -1,13 +1,13 @@
-/* @(#)ttycmds.c	1.27 16/02/16 Copyright 1984-2016 J. Schilling */
+/* @(#)ttycmds.c	1.29 20/11/24 Copyright 1984-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttycmds.c	1.27 16/02/16 Copyright 1984-2016 J. Schilling";
+	"@(#)ttycmds.c	1.29 20/11/24 Copyright 1984-2020 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c
  *
- *	Copyright (c) 1984-2016 J. Schilling
+ *	Copyright (c) 1984-2020 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,6 +75,19 @@ LOCAL	char	_stbuf[1024];	/* storage for the decoded termcap entries */
 LOCAL	char	*stbp;		/* export storage pointer for map.c */
 LOCAL	int	pagesize;	/* number of lines in a page */
 LOCAL	int	linelength;	/* numver of characters in a line */
+
+/*
+ * We add kb=\b to the ansi terminal capabilities in order to be
+ * friendly to people who are using a PC type keyboard.
+ */
+LOCAL	char	builtin_ansi[] =
+    "sx|ansi|any ansi terminal with pessimistic assumptions:\
+	:co#80:li#24:cl=50\\E[;H\\E[2J:bs:am:cm=\\E[%i%d;%dH:\
+	:nd=\\E[C:up=\\E[A:ce=\\E[K:ho=\\E[H:pt:kb=\b:";
+
+#ifdef	USE_DUMB
+LOCAL	char	builtin_dumb[] = "xx|dumb:";
+#endif
 
 #undef	HZ		/* param.h included ???			*/
 #undef	UC		/* is defined (unsigned char *) in ved.h*/
@@ -287,18 +300,43 @@ tty_start(outchar)
 		tname = "xx";
 
 /*	unknown = FALSE;*/
+	seterrno(0);
 	if ((ret = tgetent(NULL, tname)) != 1) {
+		char	*bp = tcgetbuf();
+
 /*		unknown++;*/
-/*		strcpy(tbuf, "xx|dumb:");*/
+
+#ifndef	NO_BUILTIN_ANSI
+		if (bp) {
+			if (ret < 0) {
+				errmsgno(EX_BAD,
+				    "Cannot open termcap file '%s'.\n", bp);
+			}
+			errmsgno(EX_BAD,
+			    "Cannot find description for 'TERM=%s'.\n",
+			    tname);
+			errmsgno(EX_BAD,
+			    "Using builtin ansi terminal description.\n");
+			errmsgno(EX_BAD,
+			    "Please install a termcap file in %s %s.\n",
+			    "$HOME/.termcap",
+			    "to avoid this message");
+			sleep(1);
+			strcpy(bp, builtin_ansi);
+		} else
+#endif
 		if (ret == -1) {
 			js_snprintf(_stbuf, sizeof (_stbuf),
 					"Cannot open termcap file.\n");
+			return (_stbuf);
 		} else {
 			js_snprintf(_stbuf, sizeof (_stbuf),
 					"Cannot find terminal type: %s.\n",
 								tname);
+			if (geterrno() == 0)
+				seterrno(EX_BAD);
+			return (_stbuf);
 		}
-		return (_stbuf);
 	}
 
 	if (errstr)		/* XXX */

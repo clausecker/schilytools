@@ -1,4 +1,4 @@
-# @(#)README.ATAPI	1.6 08/10/12 Copyright 1997-2004 J. Schilling
+# @(#)README.ATAPI	1.7 20/11/21 Copyright 1997-2004 J. Schilling
 
 People (with a Linux only background) often ask me why do you depend on 
 "ATAPI-SCSI emulation", why don't you support generic IDE?
@@ -291,7 +291,7 @@ selectively telling the kernel what to use for which drive.  However,
 this would not be needed if the Linux SCSI CD-ROM driver would be more 
 up to date and supports standard conforming drives.
 
-Jörg Schilling <joerg.schilling@fokus.fraunhofer.de>
+Jörg Schilling <joerg@schily.net>
 
 --------------------------------------------------
 Here is a hint from Alan Brown <alanb@manawatu.gen.nz>:

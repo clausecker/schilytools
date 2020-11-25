@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.18 19/03/14 Copyright 1998-2017 J. Schilling
+dnl @(#)acspecific.m4	1.20 20/11/13 Copyright 1998-2017 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -756,8 +756,8 @@ AC_TRY_RUN([#include <ctype.h>
 #define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
 #define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
 int main () { int i; for (i = 0; i < 256; i++)
-if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) exit(2);
-exit (0); }
+if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) return(2);
+return (0); }
 ], , ac_cv_header_stdc=no, :)
 fi])
 if test $ac_cv_header_stdc = yes; then
@@ -872,7 +872,7 @@ esac
 AC_CACHE_CHECK(whether closedir returns void, ac_cv_func_closedir_void,
 [AC_TRY_RUN([#include <sys/types.h>
 #include <$ac_header_dirent>
-int closedir(); main() { exit(closedir(opendir(".")) != 0); }],
+int closedir(); main() { return(closedir(opendir(".")) != 0); }],
   ac_cv_func_closedir_void=no, ac_cv_func_closedir_void=yes, ac_cv_func_closedir_void=yes)])
 if test $ac_cv_func_closedir_void = yes; then
   AC_DEFINE(VOID_CLOSEDIR)
@@ -960,6 +960,9 @@ changequote(<<, >>)dnl
 <<
 /* Thanks to Mike Rendell for this test.  */
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #define NGID 256
 #undef MAX
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
@@ -976,7 +979,7 @@ main()
                  gidset);
   /* Exit non-zero if getgroups seems to require an array of ints.  This
      happens when gid_t is short but getgroups modifies an array of ints.  */
-  exit ((n > 0 && gidset[n] != val.gval) ? 1 : 0);
+  return ((n > 0 && gidset[n] != val.gval) ? 1 : 0);
 }
 >>,
 changequote([, ])dnl
@@ -1041,7 +1044,7 @@ AC_DEFUN(AC_FUNC_CLOSEDIR_VOID,
 AC_CACHE_CHECK(whether closedir returns void, ac_cv_func_closedir_void,
 [AC_TRY_RUN([#include <sys/types.h>
 #include <$ac_header_dirent>
-int closedir(); main() { exit(closedir(opendir(".")) != 0); }],
+int closedir(); main() { return(closedir(opendir(".")) != 0); }],
   ac_cv_func_closedir_void=no, ac_cv_func_closedir_void=yes, ac_cv_func_closedir_void=yes)])
 if test $ac_cv_func_closedir_void = yes; then
   AC_DEFINE(CLOSEDIR_VOID)
@@ -1053,7 +1056,7 @@ AC_DEFUN(AC_FUNC_FNMATCH,
 # Some versions of Solaris or SCO have a broken fnmatch function.
 # So we run a test program.  If we are cross-compiling, take no chance.
 # Thanks to John Oleynick and Franc,ois Pinard for this test.
-[AC_TRY_RUN([main() { exit (fnmatch ("a*", "abc", 0) != 0); }],
+[AC_TRY_RUN([main() { return (fnmatch ("a*", "abc", 0) != 0); }],
 ac_cv_func_fnmatch_works=yes, ac_cv_func_fnmatch_works=no,
 ac_cv_func_fnmatch_works=no)])
 if test $ac_cv_func_fnmatch_works = yes; then
@@ -1090,12 +1093,18 @@ AC_CACHE_CHECK(for working mmap, ac_cv_func_mmap_fixed_mapped,
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 /* This mess was copied from the GNU getpagesize.h.  */
 #ifndef HAVE_GETPAGESIZE
 # ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 # endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 /* Assume that all systems that can run configure have sys/param.h.  */
 # ifndef HAVE_SYS_PARAM_H
@@ -1152,15 +1161,15 @@ main()
 	 */
 	data = malloc(pagesize);
 	if (!data)
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		*(data + i) = rand();
 	umask(0);
 	fd = creat("conftestmmap", 0600);
 	if (fd < 0)
-		exit(1);
+		return(1);
 	if (write(fd, data, pagesize) != pagesize)
-		exit(1);
+		return(1);
 	close(fd);
 
 	/*
@@ -1170,17 +1179,17 @@ main()
 	 */
 	fd = open("conftestmmap", O_RDWR);
 	if (fd < 0)
-		exit(1);
+		return(1);
 	data2 = malloc(2 * pagesize);
 	if (!data2)
-		exit(1);
+		return(1);
 	data2 += (pagesize - ((int) data2 & (pagesize - 1))) & (pagesize - 1);
 	if (data2 != mmap(data2, pagesize, PROT_READ | PROT_WRITE,
 	    MAP_PRIVATE | MAP_FIXED, fd, 0L))
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		if (*(data + i) != *(data2 + i))
-			exit(1);
+			return(1);
 
 	/*
 	 * Finally, make sure that changes to the mapped area
@@ -1191,15 +1200,15 @@ main()
 		*(data2 + i) = *(data2 + i) + 1;
 	data3 = malloc(pagesize);
 	if (!data3)
-		exit(1);
+		return(1);
 	if (read(fd, data3, pagesize) != pagesize)
-		exit(1);
+		return(1);
 	for (i = 0; i < pagesize; ++i)
 		if (*(data + i) != *(data3 + i))
-			exit(1);
+			return(1);
 	close(fd);
 	unlink("conftestmmap");
-	exit(0);
+	return(0);
 }
 ], ac_cv_func_mmap_fixed_mapped=yes, ac_cv_func_mmap_fixed_mapped=no,
 ac_cv_func_mmap_fixed_mapped=no)])
@@ -1219,6 +1228,9 @@ AC_DEFUN(AC_FUNC_GETPGRP,
  */
 #include <stdio.h>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 int     pid;
 int     pg1, pg2, pg3, pg4;
@@ -1237,11 +1249,11 @@ main()
          * we're on a system that ignores getpgrp's first argument.
          */
         if (pg2 == pg4 && pg1 == pg3 && pg2 == pg3)
-                exit(0);
+                return(0);
 
         child = fork();
         if (child < 0)
-                exit(1);
+                return(1);
         else if (child == 0) {
                 np = getpid();
                 /*
@@ -1252,13 +1264,13 @@ main()
                 setpgrp(np, pg1);
                 ng = getpgrp(0);        /* Same result for Sys V and BSD */
                 if (ng == pg1) {
-                        exit(1);
+                        return(1);
                 } else {
-                        exit(0);
+                        return(0);
                 }
         } else {
                 wait(&s);
-                exit(s>>8);
+                return(s>>8);
         }
 }
 ], ac_cv_func_getpgrp_void=yes, ac_cv_func_getpgrp_void=no,
@@ -1283,9 +1295,9 @@ AC_TRY_RUN([
 main()
 {
     if (setpgrp(1,1) == -1)
-	exit(0);
+	return(0);
     else
-	exit(1);
+	return(1);
 }
 ], ac_cv_func_setpgrp_void=no, ac_cv_func_setpgrp_void=yes,
    AC_MSG_ERROR(cannot check setpgrp if cross compiling))
@@ -1455,6 +1467,17 @@ AC_DEFUN(AC_FUNC_WAIT3,
 [AC_TRY_RUN([#include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#if	HAVE_STDLIB_H || STDC_HEADERS
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if defined(HAVE_WAIT_H)
+#include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
 #include <stdio.h>
 /* HP-UX has wait3 but does not fill in rusage at all.  */
 main() {
@@ -1567,7 +1590,7 @@ AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
 }
 main ()
 {
-  exit (find_stack_direction() < 0);
+  return (find_stack_direction() < 0);
 }], ac_cv_c_stack_direction=1, ac_cv_c_stack_direction=-1,
   ac_cv_c_stack_direction=0)])
 AC_DEFINE_UNQUOTED(STACK_DIRECTION, $ac_cv_c_stack_direction)
@@ -1685,7 +1708,7 @@ AC_TRY_RUN([#include <sys/types.h>
 #include <sys/stat.h>
 main() {
 struct stat s, t;
-exit(!(stat ("conftestdata", &s) == 0 && utime("conftestdata", (long *)0) == 0
+return(!(stat ("conftestdata", &s) == 0 && utime("conftestdata", (long *)0) == 0
 && stat("conftestdata", &t) == 0 && t.st_mtime >= s.st_mtime
 && t.st_mtime - s.st_mtime < 120));
 }], ac_cv_func_utime_null=yes, ac_cv_func_utime_null=no,
@@ -1701,7 +1724,7 @@ AC_DEFUN(AC_FUNC_STRCOLL,
 [AC_TRY_RUN([#include <string.h>
 main ()
 {
-  exit (strcoll ("abc", "def") >= 0 ||
+  return (strcoll ("abc", "def") >= 0 ||
 	strcoll ("ABC", "DEF") >= 0 ||
 	strcoll ("123", "456") >= 0);
 }], ac_cv_func_strcoll_works=yes, ac_cv_func_strcoll_works=no,
@@ -1721,9 +1744,9 @@ main () {
      A reversed system may check and see that the address of main
      is not _IOLBF, _IONBF, or _IOFBF, and return nonzero.  */
   if (setvbuf(stdout, _IOLBF, (char *) main, BUFSIZ) != 0)
-    exit(1);
+    return(1);
   putc('\r', stdout);
-  exit(0);			/* Non-reversed systems segv here.  */
+  return(0);			/* Non-reversed systems segv here.  */
 }], ac_cv_func_setvbuf_reversed=yes, ac_cv_func_setvbuf_reversed=no)
 rm -f core core.* *.core])
 if test $ac_cv_func_setvbuf_reversed = yes; then
@@ -1751,7 +1774,7 @@ AC_DEFUN(AC_FUNC_MEMCMP,
 main()
 {
   char c0 = 0x40, c1 = 0x80, c2 = 0x81;
-  exit(memcmp(&c0, &c2, 1) < 0 && memcmp(&c1, &c2, 1) < 0 ? 0 : 1);
+  return(memcmp(&c0, &c2, 1) < 0 && memcmp(&c1, &c2, 1) < 0 ? 0 : 1);
 }
 ], ac_cv_func_memcmp_clean=yes, ac_cv_func_memcmp_clean=no,
 ac_cv_func_memcmp_clean=no)])
@@ -1907,7 +1930,7 @@ AC_TRY_RUN(
 #define volatile
 #endif
 main() {
-  volatile char c = 255; exit(c < 0);
+  volatile char c = 255; return(c < 0);
 }], ac_cv_c_char_unsigned=yes, ac_cv_c_char_unsigned=no)
 fi])
 if test $ac_cv_c_char_unsigned = yes && test "$GCC" != yes; then
@@ -1924,7 +1947,7 @@ AC_TRY_RUN([int main() {
 /* The Stardent Vistra knows sizeof(long double), but does not support it.  */
 long double foo = 0.0;
 /* On Ultrix 4.3 cc, long double is 4 and double is 8.  */
-exit(sizeof(long double) < sizeof(double)); }],
+return(sizeof(long double) < sizeof(double)); }],
 ac_cv_c_long_double=yes, ac_cv_c_long_double=no)
 fi])
 if test $ac_cv_c_long_double = yes; then
@@ -1935,7 +1958,7 @@ fi
 AC_DEFUN(AC_INT_16_BITS,
 [AC_OBSOLETE([$0], [; instead use AC_CHECK_SIZEOF(int)])dnl
 AC_MSG_CHECKING(whether int is 16 bits)
-AC_TRY_RUN([main() { exit(sizeof(int) != 2); }],
+AC_TRY_RUN([main() { return(sizeof(int) != 2); }],
  [AC_MSG_RESULT(yes)
  AC_DEFINE(INT_16_BITS)], AC_MSG_RESULT(no))
 ])
@@ -1943,7 +1966,7 @@ AC_TRY_RUN([main() { exit(sizeof(int) != 2); }],
 AC_DEFUN(AC_LONG_64_BITS,
 [AC_OBSOLETE([$0], [; instead use AC_CHECK_SIZEOF(long)])dnl
 AC_MSG_CHECKING(whether long int is 64 bits)
-AC_TRY_RUN([main() { exit(sizeof(long int) != 8); }],
+AC_TRY_RUN([main() { return(sizeof(long int) != 8); }],
  [AC_MSG_RESULT(yes)
  AC_DEFINE(LONG_64_BITS)], AC_MSG_RESULT(no))
 ])
@@ -1971,7 +1994,7 @@ AC_TRY_RUN([main () {
     char c[sizeof (long)];
   } u;
   u.l = 1;
-  exit (u.c[sizeof (long) - 1] == 1);
+  return (u.c[sizeof (long) - 1] == 1);
 }], ac_cv_c_bigendian=no, ac_cv_c_bigendian=yes)
 fi])
 if test $ac_cv_c_bigendian = yes; then
@@ -2386,11 +2409,11 @@ AC_DEFUN(AC_SYS_RESTARTABLE_SYSCALLS,
 ucatch (isig) { }
 main () {
   int i = fork (), status;
-  if (i == 0) { sleep (3); kill (getppid (), SIGINT); sleep (3); exit (0); }
+  if (i == 0) { sleep (3); kill (getppid (), SIGINT); sleep (3); return (0); }
   signal (SIGINT, ucatch);
   status = wait(&i);
   if (status == -1) wait(&i);
-  exit (status == -1);
+  return (status == -1);
 }
 ], ac_cv_sys_restartable_syscalls=yes, ac_cv_sys_restartable_syscalls=no)])
 if test $ac_cv_sys_restartable_syscalls = yes; then

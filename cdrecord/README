@@ -1,4 +1,4 @@
-# @(#)README	1.29 18/09/17 Copyright 1996-2018 J. Schilling
+# @(#)README	1.30 20/11/21 Copyright 1996-2018 J. Schilling
 
 This is Version 3.02 of cdrecord
 
@@ -457,5 +457,4 @@ Current information on cdrecord may be found on:
 
 If you have questions mail to:
 
-	HOME: 		joerg@schily.net
-	WORK:		joerg.schilling@fokus.fraunhofer.de
+	joerg@schily.net

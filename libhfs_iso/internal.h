@@ -1,7 +1,8 @@
-/* @(#)internal.h	1.3 06/09/13 joerg */
+/* @(#)internal.h	1.4 20/11/21 joerg */
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
  * Copyright (C) 1996, 1997 Robert Leslie
+ * Copyright 2001-2020 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +27,7 @@
 # define ERROR(code, str)	(hfs_error = (str), errno = (code))
 
 # define SIZE(type, n)		((size_t) (sizeof(type) * (n)))
-# define ALLOC(type, n)		((type *) malloc(SIZE(type, n)))
+# define ALLOC(type, n)		((type *) calloc(sizeof(type), n))
 # define ALLOCX(type, n)	((n) ? ALLOC(type, n) : (type *) 0)
 # define FREE(ptr)		{if (ptr) free((void *) ptr) ;}
 

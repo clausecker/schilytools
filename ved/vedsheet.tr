@@ -99,6 +99,7 @@ lw6 lb l.
 	set	Set parameters
 	substitute	Substitute pattern
 	tag	Go to named tag
+	vhelp	Edit the online help file
 .TE
 .bp
 Colon \f3set\fP commands:

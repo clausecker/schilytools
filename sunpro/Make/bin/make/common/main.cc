@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)main.cc	1.50 20/10/31 2017-2020 J. Schilling
+ * @(#)main.cc	1.51 20/11/21 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.50 20/10/31 2017-2020 J. Schilling";
+	"@(#)main.cc	1.51 20/11/21 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -1593,7 +1593,7 @@ read_command_options(register int argc, register char **argv)
 				break;
 			case 1024: /* -x seen */
 				argv[i] = (char *)NOCATGETS("-x");
-#ifndef TEAMWARE_MAKE_CMN
+#if !defined(TEAMWARE_MAKE_CMN) && !defined(PMAKE)
 				warning(gettext("Ignoring DistributedMake -x option"));
 #endif
 				break;
@@ -3247,7 +3247,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				}
 				length = strlen( NOCATGETS("SUN_MAKE_COMPAT_MODE="));
 				if (strncmp(argv[i+1], NOCATGETS("SUN_MAKE_COMPAT_MODE="), length) == 0) {
-					argv[i+1] = &argv[i+1][length];
+					argv[i+1] = ap = &argv[i+1][length];
 					MBSTOWCS(wcs_buffer, NOCATGETS("SUN_MAKE_COMPAT_MODE"));
 					name = GETNAME(wcs_buffer, FIND_LENGTH);
 					dmake_compat_mode_specified = dmake_add_mode_specified;
@@ -3255,7 +3255,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				}
 				length = strlen( NOCATGETS("DMAKE_OUTPUT_MODE="));
 				if (strncmp(argv[i+1], NOCATGETS("DMAKE_OUTPUT_MODE="), length) == 0) {
-					argv[i+1] = &argv[i+1][length];
+					argv[i+1] = ap = &argv[i+1][length];
 					MBSTOWCS(wcs_buffer, NOCATGETS("DMAKE_OUTPUT_MODE"));
 					name = GETNAME(wcs_buffer, FIND_LENGTH);
 					dmake_output_mode_specified = dmake_add_mode_specified;

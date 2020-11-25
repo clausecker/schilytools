@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.28 20/09/04 Copyright 1984-2020 J. Schilling
+.\" @(#)ved.1	1.29 20/11/23 Copyright 1984-2020 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2020/09/04" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2020/11/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -80,6 +80,11 @@ is the same as calling
 .sp
     \&
 .B ved maxlinelen=78\fR.
+.LP
+.B Ved
+is using the termcap data base to be independent from te terminal type. See
+.B Termcap
+section below.
 
 .SH OPTIONS
 .TP
@@ -1604,6 +1609,11 @@ type
 .BR N .
 To see the help file, type
 .BR Y .
+.LP
+Note that this command may not work in case that the terminal in use
+outputs a backspace when typing the DEL key. In such a case, it is
+apropriate to type:
+.B ESC : vhelp
 .RE
 .TP
 .B ^X^Z
@@ -2514,6 +2524,11 @@ See
 section for more information on the
 .B tag
 file.
+.TP
+.B vhelp
+Edit the online help file.
+This is the same as calling
+.BR "ved \-vhelp" .
 
 .SH "MACROS"
 You may create macros in
@@ -2903,6 +2918,22 @@ the data base and mapped to the cursor movement commands of
 .BR ved .
 .LP
 .ne 5
+.B Ved
+uses a real
+.B termcap
+database, not
+.BR terminfo .
+It is advised to have a suitable termcap database available,
+either in the file
+.B /etc/termcap
+or in the private file
+.B $HOME/.termcap
+with an entry for the terminal type that is currently in use.
+If an entry for the current terminal could not be found,
+.B ved
+uses a builtin terminal description for a minimal ansi compatible terminal.
+.LP
+.ne 5
 The following variables are used by
 .BR termcap:
 .TP 10
@@ -2946,7 +2977,7 @@ above for more information.
 The following escape sequences are understood by the
 .B termcap
 implementation used by
-.BR sh :
+.BR ved :
 .TP 8
 .B \e\e
 The literal character
@@ -3104,11 +3135,6 @@ If the TERMPATH symbol is not set, the files
 and
 .I /etc/termcap
 are scanned in that order.
-If a pathname in 
-.B TERMPATH
-does not start with a slash ("/"), then the 
-.B HOME
-environment is prepended to the name.
 .TP
 .B BEEP
 The environment variable
@@ -3303,6 +3329,17 @@ private additions;
 .B terminfo
 only uses an array index to identify a specific capability so this method
 only works if there is a global unique implementation.
+.LP
+If your platform does not provide an
+.B /etc/termcap
+file, or if your termcap database does not contain an entry for the terminal
+type you are using, the following command may be used to convert a teminfo
+entry into a termcap entry and to append it to your private termcap database
+.sp
+.nf
+.B
+    incofmp -C >> $HOME/.termcap
+.fi
 
 .PP
 Make sure that the

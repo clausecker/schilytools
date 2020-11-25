@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)doname.cc	1.115	06/12/12"
 
 /*
- * Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2020 J. Schilling
  *
- * @(#)doname.cc	1.24 19/12/01 2017-2019 J. Schilling
+ * @(#)doname.cc	1.26 20/11/19 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.24 19/12/01 2017-2019 J. Schilling";
+	"@(#)doname.cc	1.26 20/11/19 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -2563,7 +2563,7 @@ do_assign(register Name line, register Name target)
 	/* Enter new macro value. */
 	enter_equal(name,
 		    GETNAME(equal, wcb.get_string() + line->hash.length - equal),
-		    append);
+		    append, equal_seen);
 }
 
 /*

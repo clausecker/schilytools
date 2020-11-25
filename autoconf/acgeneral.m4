@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.19 19/09/06 Copyright 1998-2019 J. Schilling
+dnl @(#)acgeneral.m4	1.20 20/11/12 Copyright 1998-2020 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -55,7 +55,7 @@ divert(-1)dnl Throw away output until AC_INIT is called.
 changequote([, ])
 
 define(AC_ACVERSION, 2.13)
-define(AC_ACVERSION_SCHILY, 1.19-Schily)
+define(AC_ACVERSION_SCHILY, 1.20-Schily)
 
 dnl Some old m4's don't support m4exit.  But they provide
 dnl equivalent functionality by core dumping because of the
@@ -2116,9 +2116,9 @@ AC_CACHE_VAL(AC_CV_NAME,
 main()
 {
   FILE *f=fopen("conftestval", "w");
-  if (!f) exit(1);
+  if (!f) return(1);
   fprintf(f, "%d\n", sizeof($1));
-  exit(0);
+  return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=0, ifelse([$2], , , AC_CV_NAME=$2))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)

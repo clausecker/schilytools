@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.26 20/10/31 2017-2020 J. Schilling
+ * @(#)defs.h	1.27 20/11/17 2017-2020 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -461,11 +461,14 @@ typedef enum {
 } Special;
 
 typedef enum {
-	no_colon,
-	one_colon,
-	two_colon,
-	equal_seen,
-	conditional_seen,
+	no_colon,		/* not used	*/
+	one_colon,		/* : seen	*/
+	two_colon,		/* :: seen	*/
+	equal_seen,		/* = seen	*/
+	conditional_seen,	/* := seen	*/
+	assign_seen,		/* ::= seen	*/
+	one_quest,		/* ? seen	*/
+	condequal_seen,		/* ?= seen	*/
 	none_seen
 } Separator;
 
@@ -641,8 +644,8 @@ struct _Name {
 	Separator		colons;
 #else
 	Special			special_reader:5;
-	Doname			state:3;
-	Separator		colons:3;
+	Doname			state:8;
+	Separator		colons:8;
 #endif
 	Boolean			has_depe_list_expanded:1;
 	Boolean			suffix_scan_done:1;

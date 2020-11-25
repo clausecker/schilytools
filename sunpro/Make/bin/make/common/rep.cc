@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)rep.cc	1.10 20/09/06 2017-2019 J. Schilling
+ * @(#)rep.cc	1.11 20/11/19 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rep.cc	1.10 20/09/06 2017-2019 J. Schilling";
+	"@(#)rep.cc	1.11 20/11/19 2017-2020 J. Schilling";
 #endif
 
 /*

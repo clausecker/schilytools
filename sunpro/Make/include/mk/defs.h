@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)defs.h	1.13 20/10/31 2017-2020 J. Schilling
+ * @(#)defs.h	1.14 20/11/17 2017-2020 J. Schilling
  */
 
 /*
@@ -393,7 +393,7 @@ extern	void		dump_target_list(void);
 extern	void		enter_conditional(register Name target, Name name, Name value, register Boolean append);
 extern	void		enter_dependencies(register Name target, Chain target_group, register Name_vector depes, register Cmd_line command, register Separator separator);
 extern	void		enter_dependency(Property line, register Name depe, Boolean automatic);
-extern	void		enter_equal(Name name, Name value, register Boolean append);
+extern	void		enter_equal(Name name, Name value, register Boolean append, Separator Separator);
 extern  Percent		enter_percent(register Name target, Chain target_group, register Name_vector depes, Cmd_line command);
 extern	Dyntarget	enter_dyntarget(register Name target);
 extern	Name_vector	enter_name(String string, Boolean tail_present, register wchar_t *string_start, register wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen);

@@ -109,6 +109,7 @@ Colon commands:
          set          Set parameters
          substitute   Substitute pattern
          tag          Go to named tag
+         vhelp        Edit the online help file
 
 Colon set commands:
 *        autoindent   Set autoindent mode.

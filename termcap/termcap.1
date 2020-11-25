@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.13 18/10/28 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.14 20/11/23 Copyright 2008-2020 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "2018/10/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "2020/11/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -238,11 +238,6 @@ If the TERMPATH symbol is not set, the files
 and
 .I /etc/termcap
 are scanned in that order.
-If a pathname in 
-.B TERMPATH
-does not start with a slash ("/"), then the 
-.B HOME
-environment is prepended to the name.
 
 .SH FILES
 .TP
@@ -251,6 +246,9 @@ The system's terminal capabilities database.
 .TP
 .B ~/.termcap
 The private terminal capabilities database.
+This file is checked first, in case that the
+.B TERMPATH
+environment is not defined.
 .SH "SEE ALSO
 .BR sh (1),
 .BR bsh (1),

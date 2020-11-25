@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)read.cc	1.25 20/09/06 2017-2019 J. Schilling
+ * @(#)read.cc	1.27 20/11/19 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.25 20/09/06 2017-2019 J. Schilling";
+	"@(#)read.cc	1.27 20/11/19 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -1473,6 +1473,34 @@ case scan_name_state:
 			command->silent = false;
 
 			GOTO_STATE(scan_command_state);
+
+		case question_char:
+			if (sunpro_compat || svr4)
+				break;
+			if (source_p != string_start) {
+				/* "?" is not a break char. */
+				/* Ignore it if it is part of an identifier */
+				source_p++;
+				goto resume_name_scan;
+			}
+			/* Make sure the "?" is followed by a "=" */
+		scan_quest_label:
+			switch (source_p[1]) {
+			case nul_char:
+				GET_NEXT_BLOCK(source);
+				string_start = source_p;
+				if (source == NULL) {
+					GOTO_STATE(on_eoln_state);
+				}
+				goto scan_quest_label;
+
+			case equal_char:
+				separator = one_quest;
+				string_start = ++source_p;
+				goto scan_equal;
+			}
+			break;
+
 		case plus_char:
 			/*
 			** following code drops the target separator plus char if it starts
@@ -1577,6 +1605,7 @@ case scan_name_state:
 			}
 			/* Fall into */
 		case equal_char:
+		scan_equal:
 			if (paren_count + brace_count > 0) {
 				break;
 			}
@@ -1590,6 +1619,18 @@ case scan_name_state:
 			case conditional_seen:
 				on_eoln_state = enter_conditional_state;
 				break;
+			case one_quest:
+				if (!sunpro_compat && !svr4) {
+					separator = condequal_seen;
+					on_eoln_state = enter_equal_state;
+					break;
+				}
+			case two_colon:
+				if (!sunpro_compat && !svr4) {
+					separator = assign_seen;
+					on_eoln_state = enter_equal_state;
+					break;
+				}
 			default:
 				/* Reader must special check for "MACRO:sh=" */
 				/* notation */
@@ -2143,7 +2184,7 @@ case enter_equal_state:
 	if (target.used != 1) {
 		GOTO_STATE(poorly_formed_macro_state);
 	}
-	enter_equal(target.names[0], macro_value, append);
+	enter_equal(target.names[0], macro_value, append, separator);
 	goto start_new_line;
 
 /****************************************************************
