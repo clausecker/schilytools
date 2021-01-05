@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.48 20/11/23 Copyright 1986-2020 J. Schilling */
+/* @(#)tgetent.c	1.49 20/12/10 Copyright 1986-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.48 20/11/23 Copyright 1986-2020 J. Schilling";
+	"@(#)tgetent.c	1.49 20/12/10 Copyright 1986-2020 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -65,7 +65,11 @@ static	UConst char sccsid[] =
 LOCAL	char	_Eterm[]	= "TERM";
 LOCAL	char	_Etermcap[]	= "TERMCAP";
 LOCAL	char	_Etermpath[]	= "TERMPATH";
+#if	defined(INS_BASE) && defined(PROTOTYPES)
+LOCAL	char	_termpath[]	= ".termcap /etc/termcap" " " INS_BASE "/etc/termcap";
+#else
 LOCAL	char	_termpath[]	= ".termcap /etc/termcap";
+#endif
 LOCAL	char	_tc[]		= "tc";
 				/*
 				 * Additional terminfo quotes

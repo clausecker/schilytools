@@ -31,12 +31,12 @@
 /*
  * Copyright 2017-2019 J. Schilling
  *
- * @(#)misc.cc	1.14 19/10/17 2017-2019 J. Schilling
+ * @(#)misc.cc	1.15 20/12/13 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.14 19/10/17 2017-2019 J. Schilling";
+	"@(#)misc.cc	1.15 20/12/13 2017-2019 J. Schilling";
 #endif
 
 /*
@@ -87,6 +87,10 @@ int	_vsnprintf(char*, int, const char*, va_list);
 /*
  * Static variables
  */
+#ifdef	ultrix		/* No prototypes in SIG_DFL macro */
+#undef	SUN5_0
+#endif
+
 #ifdef SUN5_0
 extern "C" {
 	void		(*sigivalue)(int) = SIG_DFL;
@@ -909,10 +913,10 @@ setup_interrupt(register void (*handler) (int))
 	sigtvalue = bsd_signal(SIGTERM, SIG_IGN);
 	sighvalue = bsd_signal(SIGHUP, SIG_IGN);
 #else
-	sigivalue = (void (*) (int)) bsd_signal(SIGINT, SIG_IGN);
-	sigqvalue = (void (*) (int)) bsd_signal(SIGQUIT, SIG_IGN);
-	sigtvalue = (void (*) (int)) bsd_signal(SIGTERM, SIG_IGN);
-	sighvalue = (void (*) (int)) bsd_signal(SIGHUP, SIG_IGN);
+	sigivalue = (void (*) (int)) bsd_signal(SIGINT, (void (*) (int)) SIG_IGN);
+	sigqvalue = (void (*) (int)) bsd_signal(SIGQUIT, (void (*) (int)) SIG_IGN);
+	sigtvalue = (void (*) (int)) bsd_signal(SIGTERM, (void (*) (int)) SIG_IGN);
+	sighvalue = (void (*) (int)) bsd_signal(SIGHUP, (void (*) (int)) SIG_IGN);
 #endif
 	enable_interrupt(handler);
 }

@@ -1,8 +1,8 @@
-/* @(#)util.c	1.40 20/07/23 2011-2020 J. Schilling */
+/* @(#)util.c	1.41 20/12/02 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.40 20/07/23 2011-2020 J. Schilling";
+	"@(#)util.c	1.41 20/12/02 2011-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -150,6 +150,7 @@ backup_done:
 	if (rename(from, to) < 0) {		/* different file system? */
 		int tofd;
 
+		unlink(to);			/* to may be a readonly file */
 		tofd = creat(to, 0666);
 		if (tofd < 0) {
 			say(_("patch: can't create %s, output is in %s.\n"),

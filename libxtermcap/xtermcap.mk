@@ -1,4 +1,4 @@
-#ident @(#)xtermcap.mk	1.2 10/10/16 
+#ident @(#)xtermcap.mk	1.3 20/12/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,8 +11,11 @@ INSDIR=		lib
 TARGETLIB=	xtermcap
 #CPPOPTS +=	-Ispecincl
 CPPOPTS +=	-DUSE_PG
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 include		Targets
 LIBS=		
+
+XMK_FILE=	Makefile.tc
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.lib

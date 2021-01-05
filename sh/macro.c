@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)macro.c	1.100 20/04/27 2008-2020 J. Schilling
+ * @(#)macro.c	1.101 20/12/12 2008-2020 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.100 20/04/27 2008-2020 J. Schilling";
+	"@(#)macro.c	1.101 20/12/12 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -269,10 +269,15 @@ shvar(v)
 			return (shpath);
 		if (exname == NULL)
 			return (NULL);
-		if (*exname == '/')
+		if (*exname == '/') {
 			pname = UC exname;
-		else
+		} else {
+#ifdef	HAVE_REALPATH
 			pname = UC realpath(exname, pbuf);
+#else
+			pname = UC abspath(exname, pbuf, sizeof (pbuf));
+#endif
+		}
 		if (pname) {
 			/*
 			 * NUMBUFLEN is sufficient in most cases.

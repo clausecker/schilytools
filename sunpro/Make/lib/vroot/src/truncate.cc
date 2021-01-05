@@ -31,15 +31,19 @@
 /*
  * This file contains modifications Copyright 2017 J. Schilling
  *
- * @(#)truncate.cc	1.2 17/04/23 2017 J. Schilling
+ * @(#)truncate.cc	1.3 20/12/13 2017 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)truncate.cc	1.2 17/04/23 2017 J. Schilling";
+	"@(#)truncate.cc	1.3 20/12/13 2017 J. Schilling";
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/unistd.h>
+#else
 #include <unistd.h>
+#endif
 
 extern int truncate(const char *path, off_t length);
 

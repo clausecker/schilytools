@@ -30,7 +30,7 @@
 /*
  * Copyright 2019-2020 J. Schilling
  *
- * @(#)cal.c       1.8 20/07/24 J. Schilling
+ * @(#)cal.c       1.9 20/12/12 J. Schilling
  *
  * From @(#)cal.c      1.14    05/06/08 SMI
  */
@@ -131,6 +131,9 @@ main(int argc, char *argv[])
 	char	*ldayw;
 	char	*ep;
 	char	*lcl;
+#ifndef	__CYGWIN__
+extern	int	optind;
+#endif
 
 	myname = argv[0];
 
@@ -530,6 +533,10 @@ load_months(void)
 {
 	int month;
 
+#ifndef	YESEXPR	/* Non-POSIX platforms may define them as strings */
+#undef	MON_1
+#undef	ABMON_1
+#endif
 #ifdef	MON_1
 	for (month = MON_1; month <= MON_12; month++)
 		months[month - MON_1] = nl_langinfo(month);

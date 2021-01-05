@@ -1,4 +1,4 @@
-#ident @(#)xtermcap_p.mk	1.3 08/01/11 
+#ident @(#)xtermcap_p.mk	1.4 20/12/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -13,6 +13,7 @@ INSDIR=		lib
 TARGETLIB=	xtermcap
 #CPPOPTS +=	-Ispecincl
 CPPOPTS +=	-DUSE_PG
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 COPTS +=	$(COPTGPROF)
 include		Targets
 LIBS=		

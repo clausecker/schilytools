@@ -5,6 +5,7 @@ CSWved: disallowed-path opt/csw/share
 CSWved: disallowed-path opt/csw/share/doc
 CSWved: disallowed-path opt/csw/share/man
 CSWved: elf-info-missing binary_path='opt/csw/bin/ved'
+CSWved: elf-info-missing binary_path='opt/csw/bin/vctags'
 CSWved: file-needed-but-no-package-satisfies-it bin/ved CSWved contains symlink /opt/csw/bin/ved-e which needs the target file: bin/ved
 CSWved: file-needed-but-no-package-satisfies-it bin/ved CSWved contains symlink /opt/csw/bin/ved-w which needs the target file: bin/ved
 CSWved: pkginfo-opencsw-repository-missing

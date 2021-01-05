@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)main.cc	1.51 20/11/21 2017-2020 J. Schilling
+ * @(#)main.cc	1.52 20/12/13 2017-2020 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.51 20/11/21 2017-2020 J. Schilling";
+	"@(#)main.cc	1.52 20/12/13 2017-2020 J. Schilling";
 #endif
 
 /*
@@ -129,6 +129,10 @@ extern void job_adjust_fini();
 #include <libgen.h>
 #endif
 #include <schily/schily.h>
+
+#ifdef	ultrix		/* No prototypes in SIG_DFL macro */
+#undef	SUN5_0
+#endif
 
 /*
  * Defined macros
@@ -1212,7 +1216,11 @@ handle_interrupt(int)
 		}
 	}
 	if (getpid() == getpgrp()) {
+#ifdef	SUN5_0
 		bsd_signal(SIGTERM, SIG_IGN);
+#else
+		bsd_signal(SIGTERM, (void (*)(int)) SIG_IGN);
+#endif
 		kill (-getpid(), SIGTERM);
 	}
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
