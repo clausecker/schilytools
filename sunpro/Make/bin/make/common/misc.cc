@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)misc.cc	1.34	95/10/04"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)misc.cc	1.17 20/10/31 2017-2020 J. Schilling
+ * @(#)misc.cc	1.18 21/03/26 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.17 20/10/31 2017-2020 J. Schilling";
+	"@(#)misc.cc	1.18 21/03/26 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -484,7 +484,9 @@ dump_make_state(void)
 	for (p = hashtab.begin(), e = hashtab.end(); p != e; p++) {
 			if (((prop = get_prop(p->prop, macro_prop)) != NULL) &&
 			    (prop->body.macro.value != NULL)) {
-				(void) printf("%s", p->string_mb);
+				(void) printf("%s%s", p->string_mb,
+					p->stat.macro_type == gnu_assign ?
+					"::" : "");
 				print_value(prop->body.macro.value,
 					    (Daemon) prop->body.macro.daemon);
 			}

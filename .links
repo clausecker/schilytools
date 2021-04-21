@@ -372,6 +372,18 @@
 ./RULES/armv6l-linux-gcc.rul
 ./RULES/armv7l-linux-cc.rul
 ./RULES/armv7l-linux-gcc.rul
+./RULES/arm64-darwin-clang32.rul
+./RULES/arm64-darwin-clang64.rul
+./RULES/arm64-darwin-clang.rul
+./RULES/earmv7-netbsd-cc32.rul
+./RULES/earmv7-netbsd-cc64.rul
+./RULES/earmv7-netbsd-cc.rul
+./RULES/earmv7-netbsd-clang32.rul
+./RULES/earmv7-netbsd-clang64.rul
+./RULES/earmv7-netbsd-clang.rul
+./RULES/earmv7-netbsd-gcc32.rul
+./RULES/earmv7-netbsd-gcc64.rul
+./RULES/earmv7-netbsd-gcc.rul
 ./RULES/atariclone-freemint-gcc.rul
 ./RULES/atariste-freemint-gcc.rul
 ./RULES/ataritt-freemint-gcc.rul
@@ -711,6 +723,7 @@
 ./sccs/sccs/cmd/xpg4/delta.c
 ./sccs/sccs/cmd/xpg4/get.c
 ./sccs/sccs/cmd/xpg4/sccs.c
+./sccs/sccs/cmd/src/fsdiff.c
 ./scgcheck/cd_misc.c
 ./scgcheck/scsi_cdr.c
 ./scgcheck/scsi_scan.c

@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2020 J. Schilling
  *
- * @(#)print.c	1.46 20/04/16 2008-2020 J. Schilling
+ * @(#)print.c	1.47 21/02/24 2008-2020 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.46 20/04/16 2008-2020 J. Schilling";
+	"@(#)print.c	1.47 21/02/24 2008-2020 J. Schilling";
 #endif
 
 /*
@@ -135,6 +135,7 @@ prc(c)
 	}
 }
 
+#ifdef	__needed__	/* Was used by readwc() */
 #ifdef	PROTOTYPES
 void
 prwc(wchar_t c)
@@ -156,6 +157,7 @@ prwc(c)
 	}
 	write(output, mb, len);
 }
+#endif
 
 #ifndef	HZ
 #define	HZ	sysconf(_SC_CLK_TCK)

@@ -1,8 +1,8 @@
-/* @(#)gmatch.c	1.21 18/04/17 2008-2018 J. Schilling */
+/* @(#)gmatch.c	1.23 21/02/24 2008-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.21 18/04/17 2008-2018 J. Schilling";
+	"@(#)gmatch.c	1.23 21/02/24 2008-2021 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
@@ -46,12 +46,13 @@ static int cclass	__PR((const char *p, int sub, char **ret));
 		n = mbtowc(&lc, p, MB_LEN_MAX); \
 		c = lc; \
 		if (n < 0) { \
+			c = *(const unsigned char *)p; \
+			n = 1; \
 			(void) mbtowc(NULL, NULL, 0); \
-			return (0); \
 		} \
 		p += n
 
-#define	CL_ERR		0	/* Error in pattern or multi byte char	*/
+#define	CL_ERR		0	/* Error in pattern			*/
 #define	CL_MATCH	1	/* Range OK, and match			*/
 #define	CL_NOMATCH	2	/* Range OK, but no match		*/
 
@@ -63,13 +64,14 @@ cclass(p, sub, ret)
 	register int		sub;
 		char		**ret;
 {
-	register int c, d, not, found;
+	register int	c, d, found;
+	register int	not = 0;
 		wchar_t	lc;
 		int	n;
 
 	if ((n = mbtowc(&lc, p, MB_LEN_MAX)) < 0) {
+		lc = *(const unsigned char *)p++;
 		(void) mbtowc(NULL, NULL, 0);
-		return (0);
 	} else if ((not = (lc == NOT)) != 0) {
 		p += n;
 	}
@@ -82,9 +84,10 @@ cclass(p, sub, ret)
 		if (c == '\\') {
 			nextwc(p, c);
 		}
-		if ((n = mbtowc(&lc, p, MB_LEN_MAX)) < 0) {
+		if ((n = mbtowc(&lc, p, MB_LEN_MAX)) < 0) {	/* peek lc */
+			lc = *(const unsigned char *)p;
+			n = 1;
 			(void) mbtowc(NULL, NULL, 0);
-			return (0);
 		}
 #ifdef	DO_POSIX_GMATCH
 		if (c == '[') {
@@ -115,14 +118,15 @@ cclass(p, sub, ret)
 		}
 #endif	/* DO_POSIX_GMATCH */
 		if (lc == '-' && p[n] != ']') {
-			p += n;
+			p += n;			/* eat up lc peeked above */
 			nextwc(p, d);
 			if (d == '\\') {
 				nextwc(p, d);
 			}
-			if (mbtowc(&lc, p, MB_LEN_MAX) < 0) {
+			if ((n = mbtowc(&lc, p, MB_LEN_MAX)) < 0) {
+				lc = *(const unsigned char *)p;
+				n = 1;
 				(void) mbtowc(NULL, NULL, 0);
-				return (0);
 			}
 		} else {
 			d = c;
@@ -130,7 +134,7 @@ cclass(p, sub, ret)
 		if (c == sub || (c <= sub && sub <= d))
 			found = !not;
 	} while (lc != ']');
-	*ret = (char *)p+1;
+	*ret = (char *)p+n;			/* add len for '[' */
 	return (found? CL_MATCH : CL_NOMATCH);
 }
 

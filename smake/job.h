@@ -1,4 +1,4 @@
-/* @(#)job.h	1.3 13/03/26 Copyright 2009-2013 J. Schilling */
+/* @(#)job.h	1.4 21/03/22 Copyright 2009-2021 J. Schilling */
 
 #include <schily/types.h>
 
@@ -21,6 +21,8 @@ struct job {
 #define	J_NOERROR	0x002	/* '-' or -i forwarded to cmd_wait()	*/
 #define	J_MYECHO	0x004	/* "echo ..." at cmd start handled in make  */
 #define	J_NOWAIT	0x100	/* Exit code known, no wait() in cmd_wait() */
+
+#define	MAXJOBS_MAX	1	/* Current maximum supported value	*/
 
 /*
  * job.c

@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.57 18/11/23 Copyright 2000-2018 J. Schilling */
+/* @(#)cap.c	1.58 21/03/23 Copyright 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.57 18/11/23 Copyright 2000-2018 J. Schilling";
+	"@(#)cap.c	1.58 21/03/23 Copyright 2000-2021 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2018 J. Schilling
+ *	Copyright (c) 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -288,6 +288,7 @@ usage(ex)
 {
 	error("Usage: %s\n", get_progname());
 	error("Options:\n");
+	error("-e		use termcap entry from TERMCAP environment if present\n");
 	error("-help		print this help\n");
 	error("-version	print version number\n");
 	error("-dumplist	dump internal capability list\n");
@@ -331,6 +332,7 @@ main(ac, av)
 	BOOL	sflag = FALSE;
 	int	verbose = 0;
 	BOOL	do_tc = FALSE;
+	BOOL	useenv = FALSE;
 	char	*infile = NULL;
 
 	save_args(ac, av);
@@ -347,8 +349,9 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,noinorder,oneline,v+,s,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
+	if (getallargs(&cac, &cav, "help,version,e,dumplist,inorder,noinorder,oneline,v+,s,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
 				&help, &prvers,
+				&useenv,
 				&dodump, &inorder, &noinorder,
 				&oneline,
 				&verbose,
@@ -364,9 +367,9 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s %s (%s-%s-%s)\n\n", "1.57", "2018/11/23",
+		printf("termcap %s %s (%s-%s-%s)\n\n", "1.58", "2021/03/23",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2018 Jörg Schilling\n");
+		printf("Copyright (C) 2000-2021 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -383,7 +386,7 @@ main(ac, av)
 		inorder = FALSE;
 
 
-	if (tcap && *tcap != '/')
+	if (!useenv && tcap && *tcap != '/')
 		*tcap = '\0';
 
 	if (infile) {

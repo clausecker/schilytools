@@ -1,9 +1,9 @@
 '\" te
-. \" @(#)make.1s	1.44 20/11/21 Copyr 2012-2020 J. Schilling
+. \" @(#)make.1s	1.45 21/03/24 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
-.\" Copyright (c) 2012-2020, J. Schilling
+.\" Copyright (c) 2012-2021, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2020/11/21" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/03/24" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1207,7 +1207,7 @@ a rule.
 .RE
 
 .sp
-.ne 2
+.ne 5
 .mk
 .na
 .B +=

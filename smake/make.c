@@ -1,13 +1,13 @@
-/* @(#)make.c	1.218 20/07/27 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling */
+/* @(#)make.c	1.223 21/04/15 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.218 20/07/27 Copyright 1985, 87, 88, 91, 1995-2020 J. Schilling";
+	"@(#)make.c	1.223 21/04/15 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2020 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2021 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -222,6 +222,7 @@ usage(exitcode)
 	error("	-a	Do not set up architecture specific make macros.\n");
 	error("	-e	Environment overrides variables in Makefile.\n");
 	error("	-i	Ignore errors from commands.\n");
+	error("	-j maxj	Specify the number of jobs to run simultaneously.\n");
 	error("	-k	Ignore target errors, continue on unrelated targets.\n");
 	error("	-N	Continue if no source for nonexistent dependencies is found.\n");
 	error("	-n	Don't make - only say what to do.\n");
@@ -802,9 +803,10 @@ main(ac, av)
 {
 		int	failures = 0;
 		int	i;
+		int	maxj = 0;
 		int	cac = ac;
 		char	* const *cav = av;
-	static	char	options[] = "help,version,posix,a,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
+	static	char	options[] = "help,version,posix,a,e,i,j#,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
 
 	save_args(ac, av);
 
@@ -830,7 +832,8 @@ main(ac, av)
 	cac--; cav++;
 	if (getallargs(&cac, &cav, options, &help, &pversion, &posixmode,
 			&Aflag,
-			&Eflag, &Iflag, &Kflag, &Nflag, &NSflag, &Print,
+			&Eflag, &Iflag, &maxj,
+			&Kflag, &Nflag, &NSflag, &Print,
 			&Qflag, &Rflag, &Sflag, &Stopflag, &Tflag,
 			&No_Warn, &Do_Warn,
 			&Debug, &Dmake, &Prdep, &XDebug, &Pr_obj,
@@ -844,11 +847,15 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2020 Jörg Schilling\n",
+		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2021 Jörg Schilling\n",
 				make_version, VERSION_DATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
+	if (maxj > 0 && maxj <= MAXJOBS_MAX)
+		maxjobs = maxj;
+	else if (maxj > 0)
+		maxjobs = MAXJOBS_MAX;
 
 	/*
 	 * XXX Is this the right place to set the options and cmd line macros

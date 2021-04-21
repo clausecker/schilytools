@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.54 20/11/03 Copyright 1985-2020 J. Schilling
+ \" @(#)smake.1	1.58 21/04/16 Copyright 1985-2021 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2020/11/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2021/04/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -115,6 +115,10 @@ Ignore error codes returned by commands that are called from rules.
 This is equivalent to having the special target
 .B \&.IGNORE
 without dependencies inside a makefile.
+.TP
+.BR "\-j " maxjobs
+Specifies the maximum total number of jobs that are run in parallel.
+This option is currently ignored.
 .TP
 .B \-k
 Ignore errors by aborting work on the current target and continuing the
@@ -833,18 +837,50 @@ Macros are defined by a line in the form:
 .PP
 .BI macroname= "	value"
 .PP
-The value assigned to the macro contains all characters after the equal sign
+The
+.I value
+assigned to the macro contains all characters after the equal sign
 up to a comment character ('#') or an unescaped newline. Any blank characters that
 directly follow the equal sign are ignored.
 .PP
-An alternate macro definitions use the form:
+An alternate macro definitions uses the form:
 .PP
 .BI "macroname +=" "	value"
 .PP
 to append
-.B value
+.I value
 to the current definition for
 .BR macroname .
+.sp
+Note that there needs to be white space before the '+=' as
+.B smake
+allows macro names like
+.BR C++ .
+.sp
+Warning: Macros created with the
+.B ::=
+operator will cause the
+.B +=
+operator to evaluate macros on the right side of the operator
+before doing the actual append operation.
+To avoid unpredictable behavior, it is recommended to use at least one
+lower case character in the name of macros that have been created using
+the
+.B ::=
+operator.
+.PP
+An alternate macro definitions uses the form:
+.PP
+.BI "macroname +:=" "	value"
+.PP
+to append
+.I value
+to the current definition for
+.B macroname
+after
+.I value
+has been evaluated.
+.sp
 Note that there needs to be white space before the '+=' as
 .B smake
 allows macro names like
@@ -855,7 +891,7 @@ A macro definition that uses the form:
 .BI "macroname ?=" "	value"
 .PP
 will assign 
-.B value
+.I value
 to the current definition for
 .B macroname
 in case that
@@ -864,27 +900,84 @@ does not yet have a definition.
 .PP
 A macro definition that uses the form:
 .PP
-.BI "macroname ::=" "	value"
-.PP
-will evaluate the right side of the assignment when the line is read by the parser.
-Note that this is the POSIX variant of immediate assignment that is portable to
-.B make
-implementations that are compatible to POSIX issue 8.
-.PP
-A macro definition that uses the form:
-.PP
 .BI macroname:= "	value"
 .PP
-will evaluate the right side of the assignment when the line is read by the parser.
+will evaluate the right side of the assignment when the line is read by the
+parser.
+.sp
+The
+.B :=
+operator has been introduced in 2005 as a temporary feature.
+It currently is an alias to the final
+.B :::=
+operator explained below.
+.sp
 Note that SunPro make uses 
 .B := 
-for a different incompatible purpose. A makefile that uses 
+for a different incompatible purpose since 1986, GNU make in 1990 introduced
 .B :=
-is non-portable.
+with a another different incompatible purpose that later has been standardized
+by POSIX as the
+.B ::=
+operator.
+A makefile that uses 
+.B :=
+thus is non-portable.
 .B smake
 may change its behavior in the future and implement a
 .B SunPro Make
 compatible conditional macro assignment instead.
+For this reason, it is recommended to use
+.B :::=
+instead of
+.BR := .
+.br
+.ne 9
+.PP
+A macro definition that uses the form:
+.PP
+.BI "macroname ::=" "	value"
+.PP
+will evaluate the right side of the assignment when the line is read by the
+parser.
+.sp
+Macros created with this operator are not expanded on use.
+.sp
+Note that this is the POSIX variant of the GNU immediate assignment that is
+portable to
+.B make
+implementations that are compatible to POSIX issue 8.
+.sp
+Warning: This operator may cause unpredictable behavior, since it creates a
+different type of macro that is not expanded on use and that causes a different
+behavior with the
+.B +=
+operator. 
+In order to avoid the unpredictable behavior, it is recommended to avoid the
+.B ::=
+operator in favor of
+.B :::=
+or to use at least one lower case letter in the names of all macros
+that have been created with the
+.B ::=
+operator.
+.PP
+A macro definition that uses the form:
+.PP
+.BI "macroname :::=" "	value"
+.PP
+will evaluate the right side of the assignment when the line is read by the
+parser.
+Note that this is a conflict free naming for the
+.B :=
+operator that was introduced into
+.B smake
+in 2005.
+The operator
+.B :::=
+should be used in favor of
+.B :=
+for all new makefiles.
 .PP
 A macro definition that uses the form:
 .PP

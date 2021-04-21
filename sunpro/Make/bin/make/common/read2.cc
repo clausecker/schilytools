@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)read2.cc	1.53	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)read2.cc	1.18 20/11/19 2017-2020 J. Schilling
+ * @(#)read2.cc	1.20 21/03/26 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.18 20/11/19 2017-2020 J. Schilling";
+	"@(#)read2.cc	1.20 21/03/26 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1848,7 +1848,7 @@ enter_conditional(register Name target, Name name, Name value, register Boolean 
  *		name		The name of the macro
  *		value		The value for the macro
  *		append		Indicates if the assignment is appending or not
- *		separator	Indicates the assignment variants ::= and ?=
+ *		separator	Indicates assignment variants ::=, :::= and ?=
  *
  *	Global variables used:
  *		trace_reader	Indicates that we should echo stuff we read
@@ -1862,10 +1862,19 @@ enter_equal(Name name, Name value, register Boolean append, Separator separator)
 	String_rec	val;
 	wchar_t		buffer[STRING_BUFFER_LENGTH];
 
-	if (separator == assign_seen) {
+	if (separator == assign_seen ||
+	    separator == gnu_assign_seen ||
+	    (append && name->stat.macro_type == gnu_assign)) {
 		INIT_STRING_FROM_STACK(val, buffer);
 		expand_value(value, &val, false);
 		value = GETNAME(val.buffer.start, FIND_LENGTH);
+		if (name->stat.macro_type == unknown_macro_type) {
+			if (separator == gnu_assign_seen)
+				name->stat.macro_type = gnu_assign;
+			else
+				name->stat.macro_type = mormal_assign;
+		}
+			
 	} else if (name->colon) {
 		sh_transform(&name, &value);
 	}
@@ -1896,7 +1905,9 @@ enter_equal(Name name, Name value, register Boolean append, Separator separator)
 		if (append)
 			pre = (char *)"+";
 		if (separator == assign_seen)
-			pre = (char *)"::";
+			pre = (char *)":::";
+		else if (separator == gnu_assign_seen)
+			pre = append ? (char *)"+:" : (char *)"::";
 		else if (separator == condequal_seen)
 			pre = (char *)"?";
 

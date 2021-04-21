@@ -1,14 +1,14 @@
-/* @(#)update.c	1.139 18/03/14 Copyright 1985, 88, 91, 1995-2018 J. Schilling */
+/* @(#)update.c	1.143 21/04/15 Copyright 1985, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.139 18/03/14 Copyright 1985, 88, 91, 1995-2018 J. Schilling";
+	"@(#)update.c	1.143 21/04/15 Copyright 1985, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2018 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2021 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -731,10 +731,10 @@ sub_arg(n, depends, target)
  */
 EXPORT char *
 substitute(cmd, obj, source, suffix)
-	register char	*cmd;
-		obj_t	*obj;
-		obj_t	*source;
-		char	*suffix;
+	register char	*cmd;		/* The text to substitute	*/
+		obj_t	*obj;		/* The current target or NullObj */
+		obj_t	*source;	/* Implicit source		*/
+		char	*suffix;	/* Suffix for implicit source	*/
 {
 		list_t	depends;
 
@@ -742,7 +742,7 @@ substitute(cmd, obj, source, suffix)
 	depends.l_obj = source;			/* define implicit source $< */
 	depends.l_next = obj->o_list;
 
-	sub_ptr = gbuf;
+	sub_ptr = gbuf;				/* Growable string stack buf */
 	return (subst(cmd, obj, source, suffix, &depends));
 }
 
@@ -754,10 +754,10 @@ static int	depth = 0;			/* Keep track of recursion   */
 		/* source wird eigentlich nicht gebraucht */
 LOCAL char *
 subst(cmd, obj, source, suffix, depends)
-	register char	*cmd;
-		obj_t	*obj;
-		obj_t	*source;
-		char	*suffix;
+	register char	*cmd;		/* The text to substitute	*/
+		obj_t	*obj;		/* The current target or NullObj */
+		obj_t	*source;	/* Implicit source		*/
+		char	*suffix;	/* Suffix for implicit source	*/
 		list_t	*depends;
 {
 		char	*sp = sub_ptr;
@@ -768,10 +768,10 @@ subst(cmd, obj, source, suffix, depends)
 	if (++depth > 100)
 		comerrno(EX_BAD, "Recursion in macro '%s'.\n", cmd);
 
-	name[1] = '\0';
+	name[1] = '\0';					/* Null terminate	*/
 	while ((p = strchr(cmd, '$')) != NULL) {
-		sub_put(cmd, p - cmd);
-		cmd = ++p;
+		sub_put(cmd, p - cmd);			/* Skip invariant test	*/
+		cmd = ++p;				/* Point past $		*/
 		switch (*cmd++) {
 
 		default:
@@ -1186,17 +1186,18 @@ extr_dirnames(names)
 
 /*
  * Expand a macro.
+ * The input text may either be a macro name or a suffix/pattern rule.
  * As the replacement may be a suffix rule or a pattern rule too,
  * we first must get the basic name the macro refers to.
  */
 #ifdef	PROTOTYPES
 LOCAL char *
 exp_var(
-	register char	end,
-	char		*cmd,
-	obj_t		*obj,
-	obj_t		*source,
-	char		*suffix,
+	register char	end,			/* End character, ')' or '}'	*/
+	char		*cmd,			/* Macro name or macro rule	*/
+	obj_t		*obj,			/* The current target or NullObj */
+	obj_t		*source,		/* Implicit source		*/
+	char		*suffix,		/* Suffix for implicit source	*/
 	list_t		*depends)
 #else
 LOCAL char *
@@ -1733,12 +1734,12 @@ shsub(l, obj, source, suffix, depends)
  */
 LOCAL void
 exp_name(name, obj, source, suffix, depends, pat)
-		char	*name;
-		obj_t	*obj;
-		obj_t	*source;
-		char	*suffix;
+		char	*name;		/* The macro name		*/
+		obj_t	*obj;		/* The current target or NullObj */
+		obj_t	*source;	/* Implicit source		*/
+		char	*suffix;	/* Suffix for implicit source	*/
 		list_t  *depends;
-		char	*pat;
+		char	*pat;		/* Replacement pattern		*/
 {
 	register list_t	*l = NULL;
 		obj_t	*o = NULL;
@@ -1866,19 +1867,34 @@ exp_name(name, obj, source, suffix, depends, pat)
 		return;
 	}
 	for (;;) {
-		sp = sub_ptr;
-		sb = gbuf;
-		subst(l->l_obj->o_name, obj, source, suffix, depends);
-/*error("expanded1: '%s'\n", sp);*/
-		if (ispat) {
-			if (sb != gbuf)
-				sp = gbuf + (sp - sb);
+		/*
+		 * Since the default value for in_parser is FALSE and since
+		 * this is only changed at parse time, the use of the
+		 * global variable in_parser does not cause problems with
+		 * parallel execution at update time.
+		 *
+		 * ::= type macros are only expanded from inside the parser
+		 * and not expanded for the parser when in_parser is <= 0.
+		 * in_parser == -1 when this is the left or right side of
+		 * a : dependency.
+		 */
+		if (o->o_type == GNU_ASSIGN && in_parser != TRUE) {
+			sub_s_put(l->l_obj->o_name);
+		} else {
+			sp = sub_ptr;
 			sb = gbuf;
-			/*
-			 * patmsub() expects first parameter to be in 'gbuf'
-			 */
-			patmsub(sp, f1, f2, t1, t2);
+			subst(l->l_obj->o_name, obj, source, suffix, depends);
+/*error("expanded1: '%s'\n", sp);*/
+			if (ispat) {
+				if (sb != gbuf)
+					sp = gbuf + (sp - sb);
+				sb = gbuf;
+				/*
+				 * patmsub() expects first parameter to be in 'gbuf'
+				 */
+				patmsub(sp, f1, f2, t1, t2);
 /*error("expanded2: '%s'\n", sp);*/
+			}
 		}
 		if ((l = l->l_next) != NULL)
 			sub_c_put(' ');

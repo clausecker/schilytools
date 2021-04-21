@@ -1,14 +1,14 @@
-/* @(#)readfile.c	1.66 15/04/15 Copyright 1985-2015 J. Schilling */
+/* @(#)readfile.c	1.67 21/03/11 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.66 15/04/15 Copyright 1985-2015 J. Schilling";
+	"@(#)readfile.c	1.67 21/03/11 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
  *	File/string reading routines
  *
- *	Copyright (c) 1985-2015 by J. Schilling
+ *	Copyright (c) 1985-2021 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -77,6 +77,7 @@ LOCAL	char	*rd_buffer	= rdbuf;	/* a pointer to start of buf */
 #define	mygetc()	((readbfp >= readbfend) ? fillrdbuf() : UC *readbfp++)
 #define	mypeekc()	((readbfp >= readbfend) ? (fillrdbuf() == EOF ?	\
 					    EOF : UC *--readbfp) : UC *readbfp)
+#define	myungetc(c)	(*(--readbfp) = c)
 
 /*
  * Fill or refill the read buffer that is used by the mygetc() CPP macro.
@@ -212,6 +213,16 @@ EXPORT int
 peekch()
 {
 	return (mypeekc());
+}
+
+/*
+ * Unget a character.
+ */
+EXPORT void
+ungetch(c)
+	int	c;
+{
+	myungetc(c);
 }
 
 /*

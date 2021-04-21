@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)read.cc	1.64	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)read.cc	1.27 20/11/19 2017-2020 J. Schilling
+ * @(#)read.cc	1.29 21/03/26 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.27 20/11/19 2017-2020 J. Schilling";
+	"@(#)read.cc	1.29 21/03/26 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -605,6 +605,7 @@ parse_makefile(register Name true_makefile_name, register Source source)
 	wchar_t			*string_end;
 	register Boolean	macro_seen_in_string;
 	Boolean			append;
+	Boolean			expand;
 	String_rec		name_string;
 	wchar_t			name_buffer[STRING_BUFFER_LENGTH];
 	register int		distance;
@@ -1129,6 +1130,7 @@ start_new_line_no_skip:
 	command = command_tail = NULL;
 	macro_value = NULL;
 	append = false;
+	expand = false;
 	current_names = &target;
 	SET_STATE(scan_name_state);
 	on_eoln_state = illegal_eoln_state;
@@ -1384,7 +1386,9 @@ case scan_name_state:
 /** END POSIX **/
 			/* End of the target list. We now start reading */
 			/* dependencies or a conditional assignment */
-			if (separator != none_seen) {
+			if (separator != none_seen &&
+			    ((sunpro_compat || svr4) ||
+			    (separator != two_colon))) {
 				fatal_reader(gettext("Extra `:', `::', or `:=' on dependency line"));
 			}
 			/* Enter the last target */
@@ -1418,6 +1422,10 @@ case scan_name_state:
 			case equal_char:
 				if(svr4) {
 				  fatal_reader(gettext("syntax error"));
+				}
+				if (separator == two_colon) {
+					separator = three_colon;
+					break;
 				}
 				separator = conditional_seen;
 				source_p++;
@@ -1577,6 +1585,7 @@ case scan_name_state:
 		scan_append:
 			switch (*++source_p) {
 			case nul_char:
+			wasnull:
 				if (!macro_seen_in_string) {
 					INIT_STRING_FROM_STACK(name_string,
 							       name_buffer);
@@ -1591,6 +1600,15 @@ case scan_name_state:
 					GOTO_STATE(illegal_eoln_state);
 				}
 				goto scan_append;
+			case colon_char:	/* This might be +:= */
+				if (source_p[1] == nul_char)
+					goto wasnull;
+				if ((sunpro_compat || svr4) ||
+				    source_p[1] != equal_char) {
+					goto resume_name_scan;
+				}
+				source_p++;	/* skip ':' from +:= */
+				expand = true;
 			case equal_char:
 				if(!svr4) {
 				  append = true;
@@ -1626,6 +1644,12 @@ case scan_name_state:
 					break;
 				}
 			case two_colon:
+				if (!sunpro_compat && !svr4) {
+					separator = gnu_assign_seen;
+					on_eoln_state = enter_equal_state;
+					break;
+				}
+			case three_colon:
 				if (!sunpro_compat && !svr4) {
 					separator = assign_seen;
 					on_eoln_state = enter_equal_state;
@@ -1714,6 +1738,8 @@ case scan_name_state:
 			}
 			if (append) {
 				source_p--;
+				if (*source_p == colon_char)
+					source_p--;
 			}
 			/* Enter the macro name */
 			if ((string_start != source_p) ||
@@ -1735,6 +1761,8 @@ case scan_name_state:
 			}
 			if (append) {
 				source_p++;
+				if (*source_p == colon_char)
+					source_p++;
 			}
 			macro_value = NULL;
 			source_p++;
@@ -2184,6 +2212,8 @@ case enter_equal_state:
 	if (target.used != 1) {
 		GOTO_STATE(poorly_formed_macro_state);
 	}
+	if (append && expand)
+		separator = gnu_assign_seen;
 	enter_equal(target.names[0], macro_value, append, separator);
 	goto start_new_line;
 

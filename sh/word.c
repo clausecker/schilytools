@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)word.c	1.106 20/04/27 2008-2020 J. Schilling
+ * @(#)word.c	1.109 21/02/27 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.106 20/04/27 2008-2020 J. Schilling";
+	"@(#)word.c	1.109 21/02/27 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -690,6 +690,8 @@ readw(d)
 		c[1] = '\0';
 		return (c);
 	}
+	if (d == standin->lastwc)		/* d == last EILSEQ   */
+		return (standin->mbs);		/* use original input */
 
 	clength = wctomb((char *)c, d);
 	if (clength <= 0) {
@@ -709,6 +711,7 @@ readwc()
 	int	mbmax;
 	int	i, mlen;
 
+	standin->lastwc = 0;
 top:
 	if (peekn) {
 		c = peekn & 0x7fffffff;
@@ -720,8 +723,8 @@ top:
 		peekc = 0;
 		return (c);
 	}
-	f = standin;
 
+	f = standin;
 retry:
 	if (f->fend > f->fnxt) {
 		/*
@@ -785,13 +788,20 @@ retry:
 			 * a valid wchar.
 			 */
 			c = (unsigned char)*f->fnxt;
+			f->lastwc = c;
+			f->mbs[0] = c;
+			f->mbs[1] = '\0';	/* paranoia */
 			mlen = 1;
 		}
 
+		if ((flags & readpr) && standin->fstak == 0) {
+			unsigned char	*p;
+
+			for(p = f->fnxt, i = mlen; --i >= 0; )
+				prc(*p++);
+		}
 		f->fnxt += mlen;
 		f->nxtoff += mlen;
-		if ((flags & readpr) && standin->fstak == 0)
-			prwc(c);
 		if (c == NL)
 			f->flin++;
 		return (c);

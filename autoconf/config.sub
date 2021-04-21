@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.14 20/11/12 Copyright 1999-2020 J. Schilling
+# @(#)config.sub	1.16 21/04/21 Copyright 1999-2021 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -161,6 +161,10 @@ case $basic_machine in
 		| mipstx39 | mipstx39el \
 		| sparc | sparclet | sparclite | sparc64 | v850)
 		basic_machine=$basic_machine-unknown
+		;;
+
+	# On NetBSD, we have special values for evaluation boards.
+	earmv7-*)
 		;;
 
 	# We use `pc' rather than `unknown'

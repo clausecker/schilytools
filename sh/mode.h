@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)mode.h	1.29 20/03/05 2008-2020 J. Schilling
+ * @(#)mode.h	1.30 21/02/27 2008-2021 J. Schilling
  */
 
 /*
@@ -124,6 +124,8 @@ struct fileblk
 	unsigned char	**feval;	/* arg vector for eval */
 	struct fileblk	*fstak;		/* previous input if stacked */
 	void		*alias;		/* active aliases */
+	wchar_t		lastwc;		/* last wchar for EILSEQ */
+	unsigned char	mbs[2];		/* "multi byte" string for EILSEQ */
 	unsigned char	fbuf[BUFFERSIZE];
 };
 
@@ -157,6 +159,8 @@ struct filehdr
 	unsigned char	**feval;	/* arg vector for eval */
 	struct fileblk	*fstak;		/* previous input if stacked */
 	void		*alias;		/* active aliases */
+	wchar_t		lastwc;		/* last wchar for EILSEQ */
+	unsigned char	mbs[2];		/* "multi byte" string for EILSEQ */
 	unsigned char	_fbuf[1];
 };
 

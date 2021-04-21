@@ -1,7 +1,7 @@
-/* @(#)make.h	1.103 20/11/03 Copyright 1985, 87, 91, 1995-2020 J. Schilling */
+/* @(#)make.h	1.106 21/03/19 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2020 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2021 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -216,15 +216,17 @@ typedef struct patrule {
  *
  * Note that NWARN cannot be in o_flags as there may be no associated node.
  */
-#define	EQUAL		'='
-#define	COLON		':'
-#define	SEMI		';'
-#define	CONDEQUAL	('=' | ('?'<<8)) /* ?=	 */
-#define	ADDMAC		('=' | ('+'<<8)) /* +=	 */
-#define	ASSIGN		('=' | (':'<<8)) /* ::=	from POSIX */
+#define	EQUAL		'='		 /* =	assign unexpanded text	    */
+#define	COLON		':'		 /* :	dependency		    */
+#define	SEMI		';'		 /* ;	end of dependency, start cmd */
+#define	CONDEQUAL	('=' | ('?'<<8)) /* ?=	assignment only if undefined */
+#define	ADDMAC		('=' | ('+'<<8)) /* +=	append to current value	    */
+#define	ADD_VARMAC	('=' | (','<<8)) /* +:=	append expanded to current  */
+#define	GNU_ASSIGN	('=' | (':'<<8)) /* ::=	POSIX/GNU (unpredicatable)  */
+#define	VAR_ASSIGN	('=' | ('<'<<8)) /* :::= assign expanded (-> POSIX?) */
 #define	CONDMACRO	('=' | (';'<<8)) /* :=	from SunPro Make */
-#define	DCOLON		(':' | (':'<<8)) /* ::	 */
-#define	SHVAR		0x1001		 /* :sh= */
+#define	DCOLON		(':' | (':'<<8)) /* ::	alternate dependency	    */
+#define	SHVAR		0x1001		 /* :sh= SunPro shell assignment    */
 
 #define	NWARN		0x4000		/* We did warn already on this node */
 
@@ -262,6 +264,7 @@ extern	int	getrdbufsize	__PR((void));
 extern	void	setincmd	__PR((BOOL isincmd));
 extern	void	getch		__PR((void));
 extern	int	peekch		__PR((void));
+extern	void	ungetch		__PR((int c));
 extern	void	skipline	__PR((void));
 extern	void	readstring	__PR((char * str, char * strname));
 extern	void	readfile	__PR((char * name, BOOL  must_exist));
@@ -283,7 +286,8 @@ extern	obj_t	*ssufflook	__PR((char * name, BOOL  create));
 extern	BOOL	check_ssufftab	__PR((void));
 extern	void	printtree	__PR((void));
 #ifdef	EOF
-extern	void	probj		__PR((FILE *f, obj_t * o, int type, int dosuff));
+extern	void	probj		__PR((FILE *f, obj_t * o, int type,
+						int dosuff));
 #endif
 extern	void	prtree		__PR((void));
 
@@ -382,6 +386,7 @@ extern	int	slashlen;	/* strlen(slash)			    */
 
 extern	patr_t	*Patrules;
 extern	patr_t	**pattail;
+extern	BOOL	in_parser;
 
 extern	char	chartype[256];
 

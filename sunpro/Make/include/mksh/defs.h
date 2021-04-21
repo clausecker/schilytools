@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.35	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.27 20/11/17 2017-2020 J. Schilling
+ * @(#)defs.h	1.28 21/03/26 2017-2021 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -464,9 +464,11 @@ typedef enum {
 	no_colon,		/* not used	*/
 	one_colon,		/* : seen	*/
 	two_colon,		/* :: seen	*/
+	three_colon,		/* ::: seen	*/
 	equal_seen,		/* = seen	*/
 	conditional_seen,	/* := seen	*/
-	assign_seen,		/* ::= seen	*/
+	gnu_assign_seen,	/* ::= seen	*/
+	assign_seen,		/* :::= seen	*/
 	one_quest,		/* ? seen	*/
 	condequal_seen,		/* ?= seen	*/
 	none_seen
@@ -574,6 +576,12 @@ enum sccs_stat {
 	HAS_SCCS
 };
 
+enum macro_type {
+	unknown_macro_type = 0,
+	mormal_assign,
+	gnu_assign
+};
+
 struct _Name {
 	struct _Property	*prop;		/* List of properties */
 	char			*string_mb;     /* Multi-byte name string */
@@ -592,6 +600,7 @@ struct _Name {
 		Boolean			is_phony;
 		Boolean			is_precious;
 		enum sccs_stat		has_sccs;
+		enum macro_type		macro_type;
 #else
 		Boolean			is_file:1;
 		Boolean			is_dir:1;
@@ -602,6 +611,7 @@ struct _Name {
                 Boolean                 is_derived_src:1;
 #endif
 		enum sccs_stat		has_sccs:2;
+		enum macro_type		macro_type:2;
 #endif
 	}                       stat;
 	/*

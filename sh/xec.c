@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)xec.c	1.124 20/10/25 2008-2020 J. Schilling
+ * @(#)xec.c	1.125 21/02/23 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.124 20/10/25 2008-2020 J. Schilling";
+	"@(#)xec.c	1.125 21/02/23 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -1038,7 +1038,7 @@ script:
 			 *
 			 * Update errorflg if set -e is invoked in the sub-sh
 			 *
-			 * Our previous erreneous modifications did prevent 
+			 * Our previous erreneous modifications did prevent
 			 * a "set -e;..." list completely from using the
 			 * errorflag. We now only handle functions as blocks.
 			 */

@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.45 20/07/27 Copyright 1986-2020 J. Schilling */
+/* @(#)hdump.c	1.46 21/02/07 Copyright 1986-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.45 20/07/27 Copyright 1986-2020 J. Schilling";
+	"@(#)hdump.c	1.46 21/02/07 Copyright 1986-2021 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	traditional Solaris interface, /usr/bin/od and /usr/xpg4/bin/od must be
  *	hard linked. Symlinks would be followed by getexecname().
  *
- *	Copyright (c) 1986-2020 J. Schilling
+ *	Copyright (c) 1986-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -414,7 +414,12 @@ main(ac, av)
 	cac = --ac;
 	cav = ++av;
 
-	getarginit(&ga_props, GAF_NO_PLUS);	/* POSIX doesn't permit +opt */
+	/*
+	 * POSIX doesn't permit +opt and requires support for combined
+	 * single char options with the one having an argument. If we did
+	 * use the macro GAF_POSIX instead, we would include GAF_NO_EQUAL.
+	 */
+	getarginit(&ga_props, GAF_NO_PLUS|GAF_SINGLEARG);
 	if (getlargs(&cac, &cav, &ga_props, options,
 			&Aflag,
 			getllnum, &skip,	/* -j skip	*/
@@ -445,9 +450,9 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-		_("%s release %s %s (%s-%s-%s) Copyright (C) 1986-2020 %s\n"),
+		_("%s release %s %s (%s-%s-%s) Copyright (C) 1986-2021 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.45", "2020/07/27",
+				"1.46", "2021/02/07",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);

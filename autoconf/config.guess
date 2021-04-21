@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.23 20/11/12 Copyright 1999-2020 J. Schilling
+# @(#)config.guess	1.24 21/04/21 Copyright 1999-2021 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -155,6 +155,10 @@ EOF
 	exit 0;;
     arm32:NetBSD:*:*)
 	echo arm-unknown-netbsd`echo ${UNAME_RELEASE}|sed -e 's/[-_].*/\./'`
+	exit 0 ;;
+    *arm:NetBSD:*:*)
+	UNAME_PROCESSOR=`uname -p | tr '[A-Z]' '[a-z]'`
+        echo "${UNAME_PROCESSOR}-unknown-netbsd"`echo ${UNAME_RELEASE}|sed -e 's/[-_].*/\./'`
 	exit 0 ;;
     SR2?01:HI-UX/MPP:*:*)
 	echo hppa1.1-hitachi-hiuxmpp

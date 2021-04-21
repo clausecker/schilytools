@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2019 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)io.c	1.44 19/09/25 2008-2019 J. Schilling
+ * @(#)io.c	1.45 21/02/27 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.44 19/09/25 2008-2019 J. Schilling";
+	"@(#)io.c	1.45 21/02/27 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -101,6 +101,9 @@ initf(fd)
 	f->alias = 0;
 	f->flin = 1;
 	f->feof = FALSE;
+	f->lastwc = 0;
+	f->mbs[0] = '\0';
+	f->mbs[1] = '\0';
 }
 
 int
@@ -128,6 +131,9 @@ push(af)
 	f->feof = 0;
 	f->feval = 0;
 	f->alias = 0;
+	f->lastwc = 0;
+	f->mbs[0] = '\0';
+	f->mbs[1] = '\0';
 	standin = f;
 }
 

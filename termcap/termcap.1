@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.14 20/11/23 Copyright 2008-2020 J. Schilling
+. \" @(#)termcap.1	1.15 21/03/23 Copyright 2008-2021 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "2020/11/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "2021/03/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -75,6 +75,19 @@ before escape sequences like
 .TP
 .B \-dumplist
 Dump the complete internal list of terminal capabilities.
+.br
+.ne 5
+.TP
+.B \-e
+Import the termcap description from the
+.B TERMCAP
+environment if present.
+By default,
+.BR termcap (1)
+ignores the
+.B TERMCAP
+environment in case that it does not hold a pathname, but a preparsed 
+termcap entry.
 .br
 .ne 5
 .TP

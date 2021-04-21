@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.122 20/11/03 Copyright 1985-2020 J. Schilling */
+/* @(#)parse.c	1.126 21/04/15 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.122 20/11/03 Copyright 1985-2020 J. Schilling";
+	"@(#)parse.c	1.126 21/04/15 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2020 by J. Schilling
+ *	Copyright (c) 1985-2021 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -211,7 +211,20 @@ printf("\n");
 			exerror("Missing : or =, got '%c' <%o>", lastc, lastc);
 		}
 		getch();
+		/*
+		 * If the macro type is ::= (GNU style assgignment),
+		 * the + operator expands variables on the right hand side
+		 * and we need to replace the operator + by +:= first.
+		 * ::= followed by + results in unpredictable behavior and for
+		 * this reason, it is recommended to have at least one
+		 * lowercase char in ::= types macro name to tell people about
+		 * the unusual behavior of the + operator.
+		 */
+		if (type == ADDMAC && ovec[0]->o_type == GNU_ASSIGN)
+			type = ADD_VARMAC;
+		in_parser = -1;		/* In parser but no ::= expansion */
 		deplist = getlist(&type);
+		in_parser = 0;
 		if (type == SHVAR)
 			deplist = getshvar(&type);
 
@@ -332,11 +345,16 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	obj->o_flags |= Mflags;			/* Add current global flags */
 
 	/*
+	 * Old:
 	 * Definition in new Makefile overrides existing definitions
+	 *
+	 * New:
+	 * Definitions in Makefiles from commandline override
+	 * existing definitions. Further definitions in cmdline Makefiles
+	 * append.
 	 */
-	if ((obj->o_fileindex < MF_IDX_MAKEFILE || obj->o_type == EQUAL) &&
-/*	if (((obj->o_fileindex != Mfileindex) || (obj->o_type == EQUAL)) &&*/
-	    (type != ADDMAC) &&
+	if ((obj->o_fileindex < MF_IDX_MAKEFILE || basetype(obj->o_type) == EQUAL) &&
+	    (type != ADDMAC && type != ADD_VARMAC) &&
 	    !streql(obj->o_name, ".SUFFIXES")) {
 
 		/*
@@ -940,6 +958,8 @@ cplist(l)
 	return (list);
 }
 
+EXPORT	BOOL	in_parser;
+
 /*
  * Expand one object name using make macro definitions.
  * Add the new objects to the end of a list of objects.
@@ -954,7 +974,12 @@ exp_list(o, tail)
 
 	name = o->o_name;
 	if (strchr(name, '$')) {
+
+		if (in_parser == FALSE)
+			in_parser = TRUE;
 		xname = substitute(name, NullObj, 0, 0);
+		if (in_parser == TRUE)
+			in_parser = FALSE;
 		if (streql(name, xname)) {
 			printf("eql: %s\n", name);
 			tail = listcat(o, tail);
@@ -1023,7 +1048,8 @@ getlist(typep)
 		 */
 		if (n) {
 			o = objlook(gbuf, TRUE);
-			if (*typep == ASSIGN)
+			if (*typep == VAR_ASSIGN || *typep == GNU_ASSIGN ||
+			    *typep == ADD_VARMAC)
 				tail = exp_list(o, tail);
 			else
 				tail = listcat(o, tail);
@@ -1192,6 +1218,7 @@ exp_ovec(ovec, objcnt)
 
 /*
  * Read a list of target names.
+ * Stop if ':', '=', ',' or space is found.
  */
 LOCAL int
 read_ovec(ovec, typep)
@@ -1213,9 +1240,15 @@ read_ovec(ovec, typep)
 /*printf("lastc: '%c'", lastc); if (o) printf(" nameL %s\n", o->o_name);*/
 		if (o != (obj_t *) NULL) {
 			p = o->o_name;
-			if (p[0] == '+' && p[1] == '\0' && c == '=') {
-				*typep = ADDMAC;
-				break;
+			if (p[0] == '+' && p[1] == '\0') {
+				if (c == '=') {
+					*typep = ADDMAC;
+					break;
+				} else if (c == ':' && peekch() == '=') {
+					getch();
+					*typep = ADD_VARMAC;
+					break;
+				}
 			}
 			if (objcnt >= MAXOBJS) {
 				warn("Too many target items");
@@ -1258,9 +1291,20 @@ read_ovec(ovec, typep)
 		}
 		if (lastc == ':' && peekch() == ':') {
 			getch();
+			if (lastc == ':' && peekch() == ':') {
+				getch();
+				if (peekch() == '=') {		/* :::= */
+					getch();
+					*typep = VAR_ASSIGN;
+					break;
+				} else {
+					ungetch(':');
+					lastc = ':';
+				}
+			}
 			if (lastc == ':' && peekch() == '=') {
 				getch();
-				*typep = ASSIGN;
+				*typep = GNU_ASSIGN;
 				break;
 			}
 			*typep = DCOLON;
@@ -1268,7 +1312,7 @@ read_ovec(ovec, typep)
 		}
 		if (lastc == ':' && peekch() == '=') {
 			getch();
-			*typep = ASSIGN;	/* Use Sun CONDMACRO later */
+			*typep = VAR_ASSIGN;	/* Use Sun CONDMACRO later */
 			if (!nowarn(":=")) {
 				warn(
 				"Nonportable ':=' assignment found for macro '%s'",
@@ -1287,7 +1331,9 @@ read_ovec(ovec, typep)
 	 * XXX Achtung: UNIX make expandiert alles was links und rechts von ':'
 	 * steht, sowie Variablennamen (links von '=').
 	 */
+	in_parser = -1;			/* In parser but no ::= expansion */
 	objcnt = exp_ovec(ovec, objcnt);
+	in_parser = 0;
 
 	if (didwarn)
 		*typep |= NWARN;
@@ -1753,8 +1799,12 @@ typestr(type)
 		return ("?=");
 	if (type == ADDMAC)
 		return ("+=");
-	if (type == ASSIGN)
+	if (type == ADD_VARMAC)
+		return ("+:=");
+	if (type == GNU_ASSIGN)
 		return ("::=");
+	if (type == VAR_ASSIGN)
+		return (":::=");
 	if (type == CONDMACRO)
 		return (":=");
 	if (type == SHVAR)
