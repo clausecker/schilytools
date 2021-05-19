@@ -1,4 +1,4 @@
-#ident @(#)cc-bemwcc.rul	1.18 18/08/16 
+#ident @(#)cc-bemwcc.rul	1.19 21/04/28 
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -80,7 +80,7 @@ LDOPTS=		-multidefs -sym on -g $(LIBS_PATH) $(LDPATH)
 
 LDOPTS=		-multidefs -msg nodup -sym on -g $(LIBS_PATH) $(LDPATH)
 LDOPTDYN=#	-shared -Wl,-soname,$(TARGET)
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -102,16 +102,16 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -make
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -make
 MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # -make?
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # -make?
 MKC++DEP_OUT=

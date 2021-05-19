@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read.cc	1.29 21/03/26 2017-2021 J. Schilling
+ * @(#)read.cc	1.30 21/05/10 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.29 21/03/26 2017-2021 J. Schilling";
+	"@(#)read.cc	1.30 21/05/10 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -2284,7 +2284,7 @@ push_macro_value(register Source bp, register wchar_t *buffer, int size, registe
 	  bp->inp_buf_ptr =
 	    bp->inp_buf_end = NULL;
 	bp->error_converting = false;
-	expand_macro(source, &bp->string, (wchar_t *) NULL, false);
+	expand_macro(source, &bp->string, (wchar_t *) NULL, false, noexpand);
 	bp->string.text.p = bp->string.buffer.start;
 
 	/* 4209588: 'make' doesn't understand a macro with whitespaces in the head as target.

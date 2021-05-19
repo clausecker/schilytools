@@ -1,4 +1,4 @@
-#ident "@(#)rules.prg	1.23 17/04/16 "
+#ident "@(#)rules.prg	1.24 21/04/28 "
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -97,23 +97,23 @@ __DEFINSGRP=	$(_DEFINSGRP:$(_UNIQ)=$(INSGRP_DEF))
 INSGRP=		$(__DEFINSGRP:$(_UNIQ)%=%)
 
 
-LD=		@echo "	==> LINKING   \"$@\""; ld
-LOCALIZE=	@echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; cp
-INSTALL=	@echo "	==> INSTALLING \"$@\""; sh $(SRCROOT)/conf/install-sh -c -m $(INSMODEINS) -o $(INSUSR) -g $(INSGRP)
-CHMOD=		@echo "	==> SETTING PERMISSIONS ON \"$@\""; chmod
-CHOWN=		@echo "	==> SETTING OWNER ON \"$@\""; chown
-CHGRP=		@echo "	==> SETTING GROUP ON \"$@\""; chgrp
-AR=		@echo "	==> ARCHIVING  \"$@\""; ar
+LD=		$(NOECHO)echo "	==> LINKING   \"$@\""; ld
+LOCALIZE=	$(NOECHO)echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; cp
+INSTALL=	$(NOECHO)echo "	==> INSTALLING \"$@\""; sh $(SRCROOT)/conf/install-sh -c -m $(INSMODEINS) -o $(INSUSR) -g $(INSGRP)
+CHMOD=		$(NOECHO)echo "	==> SETTING PERMISSIONS ON \"$@\""; chmod
+CHOWN=		$(NOECHO)echo "	==> SETTING OWNER ON \"$@\""; chown
+CHGRP=		$(NOECHO)echo "	==> SETTING GROUP ON \"$@\""; chgrp
+AR=		$(NOECHO)echo "	==> ARCHIVING  \"$@\""; ar
 ARFLAGS=	cr
-#YACC=		@echo "	==> YACCING \"$@\""; yacc
-#LEX=		@echo "	==> LEXING \"$@\""; lex
-#AWK=		@echo "	==> AWKING \"$@\""; awk
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; makedepend
+#YACC=		$(NOECHO)echo "	==> YACCING \"$@\""; yacc
+#LEX=		$(NOECHO)echo "	==> LEXING \"$@\""; lex
+#AWK=		$(NOECHO)echo "	==> AWKING \"$@\""; awk
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; makedepend
 MKDEP_OUT=	-f -
 _MKDIR=		$(UMASK); mkdir
-MKDIR=		@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); mkdir
+MKDIR=		$(NOECHO)echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); mkdir
 _MKDIR_SH=	$(UMASK); sh $(SRCROOT)/conf/mkdir-sh
-MKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); sh $(SRCROOT)/conf/mkdir-sh
-INSMKDIR=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); mkdir
-INSMKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); sh $(SRCROOT)/conf/mkdir-sh
+MKDIR_SH=	$(NOECHO)echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); sh $(SRCROOT)/conf/mkdir-sh
+INSMKDIR=	$(NOECHO)echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); mkdir
+INSMKDIR_SH=	$(NOECHO)echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); sh $(SRCROOT)/conf/mkdir-sh

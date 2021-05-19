@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.31 19/09/14 
+#ident @(#)rules.ins	1.32 21/04/28 
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -50,13 +50,13 @@ __INSMODEINS=	$(_INSMODEINS:$(_UNIQ)=$(INSMODEX))
 INSMODEINS=	$(__INSMODEINS:$(_UNIQ)%=%)
 
 dummy $(PHARDLINKS):	$(DEST_DIR)$(INSBASE)/$(PREINSDIR)$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(LN) $(DEST_DIR)$(INSBASE)/$(PREINSDIR)$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
+	$(NOECHO)echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(LN) $(DEST_DIR)$(INSBASE)/$(PREINSDIR)$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
 
 symdummy $(PSYMLINKS):	$(DEST_DIR)$(INSBASE)/$(PREINSDIR)$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
+	$(NOECHO)echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; [ ! -d "$(@D)" ] && sh $(SRCROOT)/conf/mkdir-sh -p "$(@D)"; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
 
 xinstall: finstall
-	@if [ ".$(XMK_FILE)" != . ] ; then				\
+	$(NOECHO)if [ ".$(XMK_FILE)" != . ] ; then				\
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
@@ -75,7 +75,7 @@ xinstall: finstall
 	fi
 
 xuninstall:
-	@if [ ".$(XMK_FILE)" != . ] ; then				\
+	$(NOECHO)if [ ".$(XMK_FILE)" != . ] ; then				\
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\
@@ -94,7 +94,7 @@ xuninstall:
 	fi
 
 man installman:
-	@if [ ".$(XMK_FILE)" != . ] ; then				\
+	$(NOECHO)if [ ".$(XMK_FILE)" != . ] ; then				\
 		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
 			(						\
 			if [ -r ./$$XMK_F ] ; then				\

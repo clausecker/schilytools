@@ -1,4 +1,4 @@
-#ident "@(#)cc-ibm.rul	1.19 18/08/16 "
+#ident "@(#)cc-ibm.rul	1.20 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -62,7 +62,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
 FLOAT_OPTIONS=	
 
@@ -84,21 +84,21 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(SRCROOT)/conf/mkdep-aix.sh $(IBMCC_OPTXX)
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(SRCROOT)/conf/mkdep-aix.sh $(IBMCC_OPTXX)
 MKDEP_OUT=
 
 #$RMDEP=		:
-#$#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
-#$MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "Cannot do -M with IBM'cc"; :
+#$#MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
+#$MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "Cannot do -M with IBM'cc"; :
 #$MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM); # mkdep-aix.sh?
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM); # mkdep-aix.sh?
 MKC++DEP_OUT=

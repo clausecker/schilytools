@@ -1,4 +1,4 @@
-#ident @(#)rules1.dir	1.17 19/07/20 
+#ident @(#)rules1.dir	1.18 21/04/28 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -24,7 +24,7 @@
 ###########################################################################
 
 $(ALLTARGETS):
-	@list="$(DIRS)";							\
+	$(NOECHO)list="$(DIRS)";							\
 	if [ -d TARGETS -a -f TARGETS/__slot ]; then				\
 		list=`echo TARGETS/[0123456789][0123456789]* |			\
 			sed -e 's;TARGETS/[0123456789][0123456789];;g' | sed -e 's;!@!;/;g'`;\
@@ -42,7 +42,7 @@ $(ALLTARGETS):
 	done
 
 tinfo:
-	@[ -d TARGETS -a -f TARGETS/__slot ] && list=`echo TARGETS/[0123456789][0123456789]*`;\
+	$(NOECHO)[ -d TARGETS -a -f TARGETS/__slot ] && list=`echo TARGETS/[0123456789][0123456789]*`;\
 	for i in $${list};							\
 	do									\
 		(read line < $$i;						\

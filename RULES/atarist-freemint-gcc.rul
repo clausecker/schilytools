@@ -1,4 +1,4 @@
-#ident @(#)atarist-freemint-gcc.rul	1.4 08/11/14 
+#ident @(#)atarist-freemint-gcc.rul	1.5 21/04/28 
 ###########################################################################
 # Written 2008 by Y. Doyeux
 ###########################################################################
@@ -49,13 +49,13 @@ LDLIBS=		$(LIBS) $(LIBX) && stack -S $(STACK_SIZE) $@	# Hack to set stack size
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 #LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-#LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+#LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 LDOPTDYN=
 LNDYNLIB=
 
 #
 # ranlib does not work and is not needed
 #
-#RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+#RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 LORDER=		echo

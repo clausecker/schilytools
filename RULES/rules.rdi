@@ -1,4 +1,4 @@
-#ident @(#)rules.rdi	1.10 11/04/14 
+#ident @(#)rules.rdi	1.11 21/04/28 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -43,4 +43,4 @@ include		$(SRCROOT)/$(RULESDIR)/rules.hlp
 #config: conf_warn
 
 #conf_warn:
-#	@echo "$@: cannot make due to a SunPRO make bug"
+#	$(NOECHO)echo "$@: cannot make due to a SunPRO make bug"

@@ -1,4 +1,4 @@
-#ident "@(#)cc-gcc.rul	1.20 18/08/16 "
+#ident "@(#)cc-gcc.rul	1.21 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -59,7 +59,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -76,15 +76,15 @@ CC++_COM_DEF=	g++
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(GCC_OPTXX)
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(GCC_OPTXX)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(GCC_OPTXX)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(GCC_OPTXX)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(GCC_OPTXX)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(GCC_OPTXX)
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM) $(GCC_OPTXX)
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM) $(GCC_OPTXX)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM) $(GCC_OPTXX)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM) $(GCC_OPTXX)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(GCC_OPTXX)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(GCC_OPTXX)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) $(GCC_OPTXX) -M
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) $(GCC_OPTXX) -M
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) $(GCC_OPTXX) -M
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) $(GCC_OPTXX) -M
 MKC++DEP_OUT=

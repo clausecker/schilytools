@@ -375,6 +375,12 @@
 ./RULES/arm64-darwin-clang32.rul
 ./RULES/arm64-darwin-clang64.rul
 ./RULES/arm64-darwin-clang.rul
+./RULES/arm-freebsd-clang.rul
+./RULES/arm-freebsd-clang32.rul
+./RULES/arm-freebsd-clang64.rul
+./RULES/arm-freebsd-gcc.rul
+./RULES/arm-freebsd-gcc32.rul
+./RULES/arm-freebsd-gcc64.rul
 ./RULES/earmv7-netbsd-cc32.rul
 ./RULES/earmv7-netbsd-cc64.rul
 ./RULES/earmv7-netbsd-cc.rul

@@ -1,8 +1,8 @@
-/* @(#)ccomdefs.h	1.12 11/07/21 Copyright 2000-2011 J. Schilling */
+/* @(#)ccomdefs.h	1.15 21/04/28 Copyright 2000-2021 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
- *	Copyright (c) 2000-2011 J. Schilling
+ *	Copyright (c) 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -74,6 +74,20 @@ extern "C" {
 #define	UConst	const
 
 #endif /* less than GNUC 3.3 */
+
+#if __GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ >= 1
+/* GCC-3.1 or more */
+
+#define	__NO_INL__	__attribute__ ((__noinline__))
+
+#else /* less than GNUC 3.1 */
+#ifdef	HAVE_CC_NOINLINE
+#define	__NO_INL__	__attribute__ ((__noinline__))
+#else
+#define	__NO_INL__
+#endif
+#endif /* less than GNUC 3.1 */
+
 
 #ifdef	__PCC__
 /*

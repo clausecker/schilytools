@@ -1,4 +1,4 @@
-#ident "@(#)m68k-amigaos-gcc.rul	1.8 18/04/11 "
+#ident "@(#)m68k-amigaos-gcc.rul	1.9 21/04/28 "
 ###########################################################################
 # Written 1997,2001-2018 by J. Schilling
 ###########################################################################
@@ -39,6 +39,6 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 LORDER=		echo
 TSORT=		cat

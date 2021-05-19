@@ -1,4 +1,4 @@
-#ident "@(#)hppa-nextstep-cc.rul	1.15 18/04/11 "
+#ident "@(#)hppa-nextstep-cc.rul	1.16 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -40,10 +40,10 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 _MKDIR=		$(_MKDIR_SH)
 MKDIR=		$(MKDIR_SH)

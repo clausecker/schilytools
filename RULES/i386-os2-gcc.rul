@@ -1,4 +1,4 @@
-#ident "@(#)i386-os2-gcc.rul	1.13 07/05/09 "
+#ident "@(#)i386-os2-gcc.rul	1.14 21/04/28 "
 ###########################################################################
 # First version written 1999 by C. Wohlgemuth 
 ###########################################################################
@@ -52,7 +52,7 @@ LDOPTS=		$(LIBS_PATH) $(LDPATH)
 
 LDOPTDYN=
 
-LDCC=		@echo "	==> LINKING \"$@\""; gcc -Zcrtdll
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; gcc -Zcrtdll
 
 LORDER=		echo
 TSORT=		cat

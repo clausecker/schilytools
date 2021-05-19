@@ -1,4 +1,4 @@
-#ident "@(#)i386-freebsd-clang.rul	1.2 18/04/11 "
+#ident "@(#)i386-freebsd-clang.rul	1.3 21/04/28 "
 ###########################################################################
 # Written 1997-2018 by J. Schilling
 ###########################################################################
@@ -38,4 +38,4 @@ LIB_KVM=
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

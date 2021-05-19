@@ -1,4 +1,4 @@
-#ident "@(#)cc-dg.rul	1.19 18/08/16 "
+#ident "@(#)cc-dg.rul	1.20 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -50,7 +50,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTDYN=	-dy -G -ztext -h $(TARGET) -ldl
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -72,17 +72,17 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM
 MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM
 MKC++DEP_OUT=

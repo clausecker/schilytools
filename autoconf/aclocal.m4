@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.119 20/11/13 Copyright 1998-2019 J. Schilling
+dnl @(#)aclocal.m4	1.120 21/04/28 Copyright 1998-2021 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -314,6 +314,19 @@ fi
 if test $ac_cv_hp_cc_gprof_opt = yes; then
   hp_cc_gprof_opt='-G'
 fi])
+
+dnl Checks if cc supports __attribute__ ((__noinline__))
+dnl Defines have_cc_noinline on success.
+AC_DEFUN([AC_C_NOINLINE],
+[AC_CACHE_CHECK([if cc supports __attribute__ ((__noinline__))], ac_cv_have_cc_noinline,
+		[AC_TRY_COMPILE([__attribute__ ((__noinline__)) int xxx() { return (0); } ],
+				[],
+				[ac_cv_have_cc_noinline=yes],
+				[ac_cv_have_cc_noinline=no])])
+if test $ac_cv_have_cc_noinline = yes; then
+  AC_DEFINE(HAVE_CC_NOINLINE)
+fi
+])
 
 dnl XXX this used to be:
 dnl #ifndef $2 

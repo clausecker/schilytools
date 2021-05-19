@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.61 20/05/03 "
+#ident "@(#)rules1.top	1.62 21/04/28 "
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -67,7 +67,7 @@ SRCROOTSL= 	$(_SRCROOTSL:./%=%)
 #
 ###########################################################################
 .INCLUDE_FAILED:
-	@echo " ==> AUTOMAKING \"$^\""; sh $(SRCROOTSL)conf/makeinc $^
+	$(NOECHO)echo " ==> AUTOMAKING \"$^\""; sh $(SRCROOTSL)conf/makeinc $^
 
 ###########################################################################
 #
@@ -75,7 +75,7 @@ SRCROOTSL= 	$(_SRCROOTSL:./%=%)
 #
 ###########################################################################
 .INCLUDEFAILED:
-	@echo " ==> AUTOMAKING \"$^\""; sh $(SRCROOTSL)conf/makeinc $^
+	$(NOECHO)echo " ==> AUTOMAKING \"$^\""; sh $(SRCROOTSL)conf/makeinc $^
 
 ###########################################################################
 #
@@ -283,7 +283,7 @@ $(SRCROOTSL)incs:
 	$(MKDIR_SH) -p $@
 
 $(SRCROOTSL)incs/Dnull: $(SRCROOTSL)incs
-	@if [ ! -f $@ ]; then	\
+	$(NOECHO)if [ ! -f $@ ]; then	\
 		echo > $@;	\
 	else			\
 		: work around v7 shell bug; \

@@ -1,4 +1,4 @@
-#ident "@(#)cc-msc.rul	1.28 18/08/16 "
+#ident "@(#)cc-msc.rul	1.29 21/04/28 "
 ###########################################################################
 # Written 2006-2014 by J. Schilling
 ###########################################################################
@@ -65,7 +65,7 @@ LDLIBS=		$(LIBS:-l%=%.lib) $(LIBX:-l%=%.lib) $(WIN_LIBS:-l%=%.lib)
 LDOPTS=		-link $(LIBS_PATH:-L%=-libpath:%) $(LDPATH:-L%=-libpath:%)
 #LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
 LDOPTDYN=	-dll -def:$(TARGETLIB).def
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
 FLOAT_OPTIONS=	
 
@@ -82,26 +82,26 @@ CC++_COM_DEF=	$(CC_COM_DEF)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) -nologo
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM) -nologo
 OUTPUT_OPTION=	-Fo$(O:%=%/)$@
 CC_OUTPUT_FILTER= | tail -n +2	# Filter cl.exe filename echo
 LD_OUTPUT_OPTION= -Fe$@
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) -nologo
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) -nologo
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) -nologo
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM) -nologo
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) -nologo
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) -nologo
 DYNLD.o=	$(DYNLD) `$(LORDER) $(POFILES) | $(TSORT)` $(LDFLAGS) -out:$@ $(LDLIBS)
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
-AR=		@echo "	==> ARCHIVING  \"$@\""; lib.exe -nologo
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+AR=		$(NOECHO)echo "	==> ARCHIVING  \"$@\""; lib.exe -nologo
 ARFLAGS=
 AR.o=		$(AR) $(ARFLAGS) -out:$@
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc.sh
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc.sh
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc.sh
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc.sh
 MKC++DEP_OUT=
 
 VC=7

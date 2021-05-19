@@ -1,4 +1,4 @@
-#ident "@(#)power-macintosh-darwin-cc.rul	1.21 14/04/02 "
+#ident "@(#)power-macintosh-darwin-cc.rul	1.22 21/04/28 "
 ###########################################################################
 # Written 1996-2014 by J. Schilling
 ###########################################################################
@@ -45,11 +45,11 @@ LDFRAMEWORKS=	-framework IOKit -framework CoreFoundation
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(LDFRAMEWORKS)
 LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
 LDLIBDYN=	-lgcc_s.1
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 #
 # lorder seems not to work on some versions because Apple installed

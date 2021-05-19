@@ -1,4 +1,4 @@
-#ident "@(#)ip22-irix-gcc.rul	1.15 20/03/30 "
+#ident "@(#)ip22-irix-gcc.rul	1.16 21/04/28 "
 ###########################################################################
 # Written 1996-2020 by J. Schilling
 ###########################################################################
@@ -35,7 +35,7 @@ LIB_KVM=
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-rpath,%)
 LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-#LNDYNLIB=	@
+#LNDYNLIB=	$(NOECHO)
 
 FLOAT_OPTIONS=	
 

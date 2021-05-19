@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read2.cc	1.20 21/03/26 2017-2021 J. Schilling
+ * @(#)read2.cc	1.21 21/05/13 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.20 21/03/26 2017-2021 J. Schilling";
+	"@(#)read2.cc	1.21 21/05/13 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1872,7 +1872,7 @@ enter_equal(Name name, Name value, register Boolean append, Separator separator)
 			if (separator == gnu_assign_seen)
 				name->stat.macro_type = gnu_assign;
 			else
-				name->stat.macro_type = mormal_assign;
+				name->stat.macro_type = normal_assign;
 		}
 			
 	} else if (name->colon) {

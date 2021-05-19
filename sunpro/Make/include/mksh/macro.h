@@ -30,10 +30,16 @@
 
 #pragma	ident	"@(#)macro.h	1.3	06/12/12"
 
+/*
+ * Copyright 2021 J. Schilling
+ *
+ * @(#)macro.h	1.2 21/05/10 2021 J. Schilling
+ */
+
 #include <mksh/defs.h>
 
-extern void	expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd);
-extern void	expand_value(Name value, register String destination, Boolean cmd);
+extern void	expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Boolean no_expand = false);
+extern void	expand_value(Name value, register String destination, Boolean cmd, Boolean no_expand = false);
 extern Name	getvar(register Name name);
 
 extern Property	setvar_daemon(register Name name, register Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_level);

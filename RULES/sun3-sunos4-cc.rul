@@ -1,4 +1,4 @@
-#ident "@(#)sun3-sunos4-cc.rul	1.8 07/05/08 "
+#ident "@(#)sun3-sunos4-cc.rul	1.9 21/04/28 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -32,5 +32,5 @@ LIB_SOCKET=
 LIB_MATH=	-lm
 LIB_KVM=	-lkvm
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 

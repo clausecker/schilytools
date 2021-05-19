@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.281 20/07/22 Copyright 1998-2020 J. Schilling */
+/* @(#)xconfig.h.in	1.282 21/04/28 Copyright 1998-2021 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2020 J. Schilling
+ *	Copyright (c) 1998-2021 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -877,6 +877,11 @@
 
 #undef HAVE_SOCKADDR_STORAGE	/* if socket.h defines struct sockaddr_storage */
 
+
+/*
+ * Misc CC features
+ */
+#undef HAVE_CC_NOINLINE		/* cc supports __attribute__ ((__noinline__)) */
 
 /*
  * Byteorder/Bitorder

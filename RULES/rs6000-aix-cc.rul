@@ -1,4 +1,4 @@
-#ident "@(#)rs6000-aix-cc.rul	1.11 15/12/01 "
+#ident "@(#)rs6000-aix-cc.rul	1.12 21/04/28 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -34,7 +34,7 @@ LIB_SOCKET=
 LIB_MATH=	-lm
 #LIB_KVM=	-lkvm
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 LORDER=		lorder $(AIX_ARCH)
-AR=		@echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)
+AR=		$(NOECHO)echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)

@@ -1,4 +1,4 @@
-#ident @(#)dummy.dep	1.2 06/05/14 
+#ident @(#)dummy.dep	1.3 21/04/28 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -21,4 +21,4 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 depend rmdep:
-	@echo "$@: nothing to make"
+	$(NOECHO)echo "$@: nothing to make"

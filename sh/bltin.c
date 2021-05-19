@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)bltin.c	1.148 20/09/27 2008-2020 J. Schilling
+ * @(#)bltin.c	1.149 21/05/08 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.148 20/09/27 2008-2020 J. Schilling";
+	"@(#)bltin.c	1.149 21/05/08 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -1479,6 +1479,7 @@ syshist(argc, argv, t, xflags)
 	int		first = 0;
 	int		last = 0;
 	int		flg = 0;
+	int		neg = 0;
 	int		hflg = HI_INTR|HI_TAB;
 	unsigned char	*av0 = argv[0];
 	unsigned char	*cp;
@@ -1516,6 +1517,7 @@ syshist(argc, argv, t, xflags)
 			first = stosi(argv[optv.ooptind]);
 			argc--;
 			argv++;
+			neg++;
 			break;
 		}
 	}
@@ -1551,7 +1553,7 @@ syshist(argc, argv, t, xflags)
 		argc--;
 		argv++;
 	}
-	if (first == 0 && (flg & ALLFLAG) == 0) {
+	if (first == 0 && !neg && (flg & ALLFLAG) == 0) {
 		if (flg & LFLAG)
 			first = -15;
 		else
@@ -1582,6 +1584,8 @@ syshist(argc, argv, t, xflags)
 
 			shedit_histrange(NULL, &lastn, NULL);
 			last = lastn;
+			if (first == 0 && neg)
+				first = last;
 		} else {
 			last = first;
 		}

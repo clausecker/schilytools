@@ -1,4 +1,4 @@
-#ident "@(#)rules.top	1.24 18/09/25 "
+#ident "@(#)rules.top	1.26 21/04/28 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -39,9 +39,9 @@ _DUMMY_LNK=	$(SRCROOT)/$(RULESDIR)/ldummy.lnk
 DUMMY_LNK=	$(_DUMMY_LNK:./%=%)
 
 $(DUMMY_LNK):
-	@echo "	==> MAKING SYMLINKS in $(SRCROOT)/$(RULESDIR)/" && \
+	$(NOECHO)echo "	==> MAKING SYMLINKS in $(SRCROOT)/$(RULESDIR)/" && \
 			cd $(SRCROOT)/$(RULESDIR) && sh ./MKLINKS
-	@echo "	==> MAKING SYMLINKS in $(SRCROOT)/TEMPLATES/" && \
+	$(NOECHO)echo "	==> MAKING SYMLINKS in $(SRCROOT)/TEMPLATES/" && \
 			cd $(SRCROOT)/TEMPLATES && sh ./MKLINKS
 
 include 	$(DUMMY_LNK)
@@ -63,6 +63,14 @@ COMPILE.c=
 #
 ###########################################################################
 COMPILE.cc=
+
+###########################################################################
+#
+# Use $(NOECHO) before all make rule commands to be able to enable
+# echoing by calling "make NOECHO= "
+#
+###########################################################################
+NOECHO=@
 
 ###########################################################################
 #

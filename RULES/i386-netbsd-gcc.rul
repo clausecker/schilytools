@@ -1,4 +1,4 @@
-#ident "@(#)i386-netbsd-gcc.rul	1.13 18/11/15 "
+#ident "@(#)i386-netbsd-gcc.rul	1.14 21/04/28 "
 ###########################################################################
 # Written 1997-2018 by J. Schilling
 ###########################################################################
@@ -54,4 +54,4 @@ MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | tail 
 LDOPTMAP=	$(PMAPVERS:%=-Wl,--version-script=%)
 LDOPTDYN=	-shared -Wl,-soname,$(TARGET) $(LDOPTMAP)
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

@@ -1,4 +1,4 @@
-#ident "@(#)i386-bsd-os-gcc.rul	1.15 13/11/04 "
+#ident "@(#)i386-bsd-os-gcc.rul	1.16 21/04/28 "
 ###########################################################################
 # Written 1998 by J. Schilling
 ###########################################################################
@@ -44,8 +44,8 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 #LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-#LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+#LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 LDOPTDYN=
 LNDYNLIB=
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

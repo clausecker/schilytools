@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro.rul	1.20 18/08/16 "
+#ident "@(#)cc-sunpro.rul	1.21 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -77,7 +77,7 @@ MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTDYN=	-dy -G -ztext -h $(TARGET) $(PMAPVERS:%=-M%) -ldl
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -94,15 +94,15 @@ CC++_COM_DEF=	CC
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM $(SUNPROCOPTXX)
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM $(SUNPROCOPTXX)
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM $(SUNPROCOPTXX)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM $(SUNPROCOPTXX)
 MKC++DEP_OUT=

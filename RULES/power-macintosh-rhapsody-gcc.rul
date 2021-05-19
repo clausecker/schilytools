@@ -1,4 +1,4 @@
-#ident "@(#)power-macintosh-rhapsody-gcc.rul	1.12 18/04/11 "
+#ident "@(#)power-macintosh-rhapsody-gcc.rul	1.13 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -39,10 +39,10 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 #
 # lorder seems not to work on some versions because Apple installed

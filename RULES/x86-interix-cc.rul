@@ -1,4 +1,4 @@
-#ident @(#)x86-interix-cc.rul	1.1 07/05/08 
+#ident @(#)x86-interix-cc.rul	1.2 21/04/28 
 ###########################################################################
 # Written 2007 by J. Schilling
 ###########################################################################
@@ -41,8 +41,8 @@ LIB_KVM=
 LORDER=		echo
 TSORT=		cat
 
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc-interix.sh
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc-interix.sh
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc-interix.sh
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-msc-interix.sh
 MKC++DEP_OUT=
 

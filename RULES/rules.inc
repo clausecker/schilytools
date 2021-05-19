@@ -1,4 +1,4 @@
-#ident @(#)rules.inc	1.11 18/08/13 
+#ident @(#)rules.inc	1.12 21/04/28 
 ###########################################################################
 # Written 1999 by J. Schilling
 ###########################################################################
@@ -56,7 +56,7 @@ $(PTARGETCX):	$(OFILES) $(SRCLIBS)
 # that $(OINCSDIR) exists before we create $(PTARGET)
 #
 $(PTARGET):	$(PTARGETCX)
-		@echo "	==> GENERATING include file \"$@\""; \
+		$(NOECHO)echo "	==> GENERATING include file \"$@\""; \
 		$(PTARGETC)$(_XEXEEXT) > $@ || \
 		$(CONFIG_RMTCALL) $(PTARGETC)$(_XEXEEXT) > $@
 

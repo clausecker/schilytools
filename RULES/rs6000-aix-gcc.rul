@@ -1,4 +1,4 @@
-#ident "@(#)rs6000-aix-gcc.rul	1.12 18/04/11 "
+#ident "@(#)rs6000-aix-gcc.rul	1.13 21/04/28 "
 ###########################################################################
 # Written 1997-2018 by J. Schilling
 ###########################################################################
@@ -44,11 +44,11 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 LORDER=		lorder $(AIX_ARCH)
-AR=		@echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)
+AR=		$(NOECHO)echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)

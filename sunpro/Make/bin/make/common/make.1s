@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.45 21/03/24 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.48 21/05/13 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/03/24" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/05/13" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -627,6 +627,49 @@ Target names, as defined in Usage.
 Macro definition. This definition overrides any regular definition for the
 specified macro within the makefile itself, or in the environment. However,
 this definition can still be overridden by conditional macro assignments.
+
+.sp
+.ne 2
+.TP
+.IB macro ::= value
+Macro definition. The value is expanded before the assignment is done.
+This variant of a macro definition creates a different macro type that
+is not expanded on use.
+
+.sp
+.ne 2
+.TP
+.IB macro :::= value
+Macro definition. The value is expanded before the assignment is done.
+
+.sp
+.ne 2
+.TP
+.IB macro " +=" value
+Append to a macro definition.
+.sp
+This operand type is not forwarded to sub-makes via the
+.B MAKEFLAGS
+environment.
+.sp
+A space is required before
+.B +=
+and the whole command line macro definition needs to be quoted.
+
+.sp
+.ne 2
+.TP
+.IB macro " +:=" value
+Append to a macro definition. The value is expanded before the assignment is done.
+.sp
+This operand type is not forwarded to sub-makes via the
+.B MAKEFLAGS
+environment.
+.sp
+A space is required before
+.B +:=
+and the whole command line macro definition needs to be quoted.
+
 
 .SH USAGE
 .sp
@@ -1222,6 +1265,47 @@ be surrounded by white space, unlike
 .sp
 Macro references in the text to the right of the append operator
 are not expanded prior to appending the text.
+.sp
+Warning: Macros created with the
+.B ::=
+operator will cause the
+.B +=
+operator to expand macros on the right side of the operator
+before doing the actual append operation.
+To avoid unpredictable behavior, it is recommended to use at least one
+lower case character in the name of macros that have been created using
+the
+.B ::=
+operator.
+.RE
+
+.sp
+.ne 5
+.mk
+.na
+.B +:=
+.ad
+.RS 9n
+.rt
+When used in place of
+.BR = ,
+appends a string to a macro definition (must
+be surrounded by white space, unlike
+.BR = ).
+.sp
+Macro references in the text to the right of this append operator
+are always expanded prior to appending the text.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores this operator
+in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
 .RE
 
 .sp
@@ -1259,6 +1343,54 @@ program.
 .mk
 .na
 .B ::=
+.ad
+.RS 9n
+.rt
+When used in place of
+.BR = ,
+assigns a string to a macro definition after first expanding 
+macro references on the right side (must
+be surrounded by white space, unlike
+.BR = ).
+.sp
+Macros created with this operator are not expanded on use.
+.sp
+Note that this is the POSIX variant of the GNU immediate assignment that is
+portable to
+.B make
+implementations that are compatible to POSIX issue 8.
+.sp
+Warning: This operator may cause unpredictable behavior, since it creates a
+different type of macro that is not expanded on use and that causes a different
+behavior with the
+.B +=
+operator.
+In order to avoid the unpredictable behavior, it is recommended to avoid the
+.B ::=
+operator in favor of
+.B :::=
+or to use at least one lower case letter in the names of all macros
+that have been created with the
+.B ::=
+operator.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores this operator
+in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B :::=
 .ad
 .RS 9n
 .rt

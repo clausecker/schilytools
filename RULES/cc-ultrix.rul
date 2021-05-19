@@ -1,4 +1,4 @@
-#ident "@(#)cc-ultrix.rul	1.1 19/10/17 "
+#ident "@(#)cc-ultrix.rul	1.2 21/04/28 "
 ###########################################################################
 # Written 2019 by J. Schilling
 ###########################################################################
@@ -53,7 +53,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
 FLOAT_OPTIONS=	
 
@@ -75,17 +75,17 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -M
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -M
 MKC++DEP_OUT=

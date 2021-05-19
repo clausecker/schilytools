@@ -1,4 +1,4 @@
-#ident "@(#)rules.pkg	1.7 19/07/20 "
+#ident "@(#)rules.pkg	1.8 21/04/28 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -78,7 +78,7 @@ package:
 	#bzip2 -9f $(TARGETAR).tar
 	#rm -rf $(PROTODIR)
 
-	@list="";								\
+	$(NOECHO)list="";								\
 	if [ -d $(SRCROOT)/pkgdefs/$(PKGDEF_DIR) ]; then			\
 		list=`echo $(SRCROOT)/pkgdefs/$(PKGDEF_DIR)/*` ;		\
 	fi;									\

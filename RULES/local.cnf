@@ -1,4 +1,4 @@
-#ident @(#)local.cnf	1.14 19/09/07 
+#ident @(#)local.cnf	1.15 21/04/28 
 ###########################################################################
 # Written 1998-2019 by J. Schilling
 ###########################################################################
@@ -23,20 +23,20 @@
 
 configure: autoconf.m4 acgeneral.m4 acspecific.m4 acoldnames.m4 aclocal.m4 \
 						local.cnf.in lconfig.h.in
-	@echo "	==> AUTOCONFIGURING LOCAL \"$@\""; sh ./autoconf
+	$(NOECHO)echo "	==> AUTOCONFIGURING LOCAL \"$@\""; sh ./autoconf
 
 #config: $(ARCHDIR)/local.cnf
 
 $(ARCHDIR)/Inull:
 	$(MKDIR) -p $(ARCHDIR)
-	@echo > $@
+	$(NOECHO)echo > $@
 
 $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h: $(LCONFIG_DEP) $(ARCHDIR)/Inull \
 						configure local.cnf.in lconfig.h.in
 	$(RUL_LCONF)
 
 ###########################################################################
-RUL_LCONF=	@echo "	==> CONFIGURING LOCAL RULES \"$@\""; \
+RUL_LCONF=	$(NOECHO)echo "	==> CONFIGURING LOCAL RULES \"$@\""; \
 		$(RM_F) $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h; \
 		cd $(ARCHDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \

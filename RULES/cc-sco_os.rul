@@ -1,4 +1,4 @@
-#ident "@(#)cc-sco_os.rul	1.22 18/08/16 "
+#ident "@(#)cc-sco_os.rul	1.23 21/04/28 "
 ###########################################################################
 # Written 1999-2018 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -51,7 +51,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=	-dy -G $(TARGET)
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -73,20 +73,20 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-sco.sh
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-sco.sh
 MKDEP_OUT=
 _MKDIR=		$(_MKDIR_SH)
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # mkdep-sco.sh?
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # mkdep-sco.sh?
 MKC++DEP_OUT=

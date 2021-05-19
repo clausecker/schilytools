@@ -1,4 +1,4 @@
-#ident "@(#)r-smake.dep	2.3 19/09/14 "
+#ident "@(#)r-smake.dep	2.4 21/04/28 "
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -84,7 +84,7 @@ $(ARCHDIR)/%.d: %.cxx
 $(PDEP_FILE): $(DEP_DEP)
 
 $(DEP_DEP):
-	@if [ ! -f $@ ]; then				\
+	$(NOECHO)if [ ! -f $@ ]; then				\
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)\"";	\
 		$(_MKDIR) -p $(ARCHDIR);		\
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)/man\""; \

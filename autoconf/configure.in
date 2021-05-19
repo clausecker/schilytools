@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.298 20/07/22 Copyright 1998-2020 J. Schilling
+dnl @(#)configure.in	1.299 21/04/28 Copyright 1998-2021 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.298)dnl
+AC_REVISION(1.299)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -177,6 +177,7 @@ AC_C_BIGENDIAN
 AC_C_BITFIELDS
 AC_C_STRINGIZE
 AC_C_INLINE
+AC_C_NOINLINE
 AC_TYPE_SIGNAL
 AC_TYPE_GETGROUPS
 AC_TYPE_LONGLONG

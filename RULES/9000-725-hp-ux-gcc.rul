@@ -1,4 +1,4 @@
-#ident "@(#)9000-725-hp-ux-gcc.rul	1.12 18/04/12 "
+#ident "@(#)9000-725-hp-ux-gcc.rul	1.13 21/04/28 "
 ###########################################################################
 # Written 1996-2017 by J. Schilling
 ###########################################################################
@@ -39,8 +39,8 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=	-b
-DYNLD=		@echo " ==> LINKING dynamic library \"$@\""; ld
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).sl; $(SYMLINK) $(TARGET) $(PTARGET_BASE).sl
+DYNLD=		$(NOECHO)echo " ==> LINKING dynamic library \"$@\""; ld
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).sl; $(SYMLINK) $(TARGET) $(PTARGET_BASE).sl
 
 LORDER=		echo
 TSORT=		cat

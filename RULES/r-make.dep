@@ -1,4 +1,4 @@
-#ident "@(#)r-make.dep	1.12 19/09/14 "
+#ident "@(#)r-make.dep	1.13 21/04/28 "
 ###########################################################################
 # Written 1996-2019 by J. Schilling
 ###########################################################################
@@ -70,7 +70,7 @@ $(DEP_FILE):	$(DEP_DEP) $(CFILES)
 			| sed -e 's;^\(.*\)\.$o[ 	]*:;$(ARCHDIR)/\1.$o $(DEP_FILE):;' > $@
 
 $(DEP_DEP):
-	@if [ ! -f $@ ]; then				\
+	$(NOECHO)if [ ! -f $@ ]; then				\
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)\"";	\
 		$(_MKDIR) -p $(ARCHDIR);		\
 		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)/man\""; \

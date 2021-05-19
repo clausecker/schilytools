@@ -1,4 +1,4 @@
-/* @(#)make.h	1.106 21/03/19 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
+/* @(#)make.h	1.107 21/05/14 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2021 by J. Schilling
@@ -159,6 +159,7 @@ typedef struct obj {
 #define	F_PERCENT	64		/* o_name has % in pattern dep list */
 #define	F_PATRULE	128		/* Pattern rule pointer in o_node   */
 #define	F_NEWNODE	256		/* This node was just created	    */
+#define	F_IDXOVERWRT	512		/* Allow overwriting from same file */
 
 /*
  * list element, used to build dependency lists from unique obj elements

@@ -1,4 +1,4 @@
-#ident "@(#)rules.shl	1.22 18/08/16 "
+#ident "@(#)rules.shl	1.23 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -61,7 +61,7 @@ $(PTARGET):	$(PMAPVERS)
 # We add an impossible target to make sure there is no empty target.
 #
 $(PMAPVERS) No/TaR/GeT:	$(MAPVERS)
-			@echo "	==> LOCALIZING mapfile \"$@\""; \
+			$(NOECHO)echo "	==> LOCALIZING mapfile \"$@\""; \
 			$(CPPX) $(CPP_FLAGS) $(CPPFLAGS) $(CPPX_IN) $^ | \
 			tr -d '"' $(MAPFILE_POST) > $@ || $(RM) $(RM_FORCE) $@
 
@@ -84,7 +84,7 @@ $(PTARGET):	$(OFILES)
 
 SYMLINKS +=	$(TARGET_BASE).so
 
-#			@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+#			$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

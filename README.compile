@@ -1,4 +1,4 @@
-# @(#)README.compile	1.43 20/09/04 Copyright 1997-2020 J. Schilling
+# @(#)README.compile	1.46 21/05/08 Copyright 1997-2021 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -19,7 +19,7 @@ Short overview for those who don't read manuals:
 	*****
 
 
-	***** If this does not work for you, read the rest if this file   *****
+	***** If this does not work for you, read the rest of this file   *****
 	***** If you have any problem, also first read the topic specific *****
 	***** README.* files (e.g. README.linux for Linux problems).	  *****
 
@@ -162,8 +162,17 @@ How to compile:
 
 	On sub directories, "-f SMakefile" is neither needed nor useful.
 
-	Add other command line options or command line parameter if needed.
+	Add other command line options or command line parameters if needed.
 
+How to compile with fully visible commands:
+
+	Call:
+
+		smake NOECHO=
+
+	and the @ in front of rule commands will be replaced by the empty
+	string. This causes the make program to print commands before
+	executing them to help debugging.
 
 How to compile in parallel mode:
 
@@ -284,7 +293,7 @@ Setting up a different Link mode:
 				use with "gprof" (introduced by BSD in the
 				late 1970s).
 
-	The makefile system sets up a default linkmode in the patform
+	The makefile system sets up a default linkmode in the platform
 	related defaults file (typically in the file DEFAULTS/Defaults.<platform>)
 	in the projects root directory. This is done with the entry:
 
@@ -651,7 +660,7 @@ Compiling in a cross compilation environment:
 	runrmt_android		runs the commands remove via the debug bridge
 
 	If you need to remotely run programs on a system that is not
-	supported by one of there three scripts, you need to modify one
+	supported by one of the three scripts, you need to modify one
 	of them to match your needs.
 
 	To enable Cross Compilation use the following environment variables:
@@ -713,7 +722,7 @@ Compiling in a cross compilation environment:
 
 	ARCH=			overwrites M_ARCH and P_ARCH
 
-	It is usually suffucient to set ARCH and OSNAME.
+	It is usually sufficient to set ARCH and OSNAME.
 
 	In order to use a cross compiler environment instead of a native compiler,
 	set the make macro CC_COM or CC to something different than "cc".
@@ -747,7 +756,7 @@ Compiling in a cross compilation environment:
 
 Compiling with the address sanitizer:
 
-	Be careful with a compiler enhancement called "addess sanitizer".
+	Be careful with a compiler enhancement called "address sanitizer".
 
 	First a note: the address sanitizer needs a lot of memory when in
 	64-bit mode. For this reason, it is recommended to run the tests
@@ -769,7 +778,7 @@ Compiling with the address sanitizer:
 	in the top level source directory. This makes the source tree to behave
 	as if if was recently unpacked from the tar archive.
 
-	Then run run e.g.:
+	Then run e.g.:
 
 		cd inc/
 		smake CCOM=gcc32
@@ -788,7 +797,7 @@ Compiling with the address sanitizer:
 
 		ASAN_OPTIONS=allow_user_segv_handler=true
 
-	As a redult, the command line to compile the code after the
+	As a result, the command line to compile the code after the
 	auto-configuration has been done as mentioned above is:
 
 	ASAN_OPTIONS=allow_user_segv_handler=true smake CCOM=gcc32 COPTX="-g -O0 -fsanitize=address" LDOPTX="-g -fsanitize=address" 
@@ -822,7 +831,11 @@ Compiling with the "Americal fuzzy lop":
 	Follow the instruction from above for the address sanitizer, but
 	use this command line to call the compiler:
 
-	ASAN_OPTIONS=allow_user_segv_handler=true AFL_HARDEN=1 AFL_USE_ASAN=1 smake CC=afl-gcc CCOM=gcc32
+	ASAN_OPTIONS=allow_user_segv_handler=true AFL_HARDEN=1 AFL_USE_ASAN=1 smake CC=afl-gcc CCC=afl-g++ CCOM=gcc32
+
+	or, if using clang:
+
+	ASAN_OPTIONS=allow_user_segv_handler=true AFL_HARDEN=1 AFL_USE_ASAN=1 smake CC=afl-clang-fast CCC=afl-clang-fast++ CCOM=clang32
 
 
 Author:

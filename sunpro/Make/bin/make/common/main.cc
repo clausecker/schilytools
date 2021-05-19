@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)main.cc	1.158	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)main.cc	1.52 20/12/13 2017-2020 J. Schilling
+ * @(#)main.cc	1.55 21/05/13 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.52 20/12/13 2017-2020 J. Schilling";
+	"@(#)main.cc	1.55 21/05/13 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -232,7 +232,6 @@ static	void		setup_makeflags_argv(void);
 static	void		dir_enter_leave(Boolean entering);
 static	void		report_dir_enter_leave(Boolean entering);
 
-extern void expand_value(Name, register String , Boolean);
 
 #ifdef DISTRIBUTED
 	extern	int		dmake_ofd;
@@ -2127,7 +2126,7 @@ parse_command_option(register char ch)
 				argv_zero_base, verstring);
 			fprintf(stdout, "\n");
 			fprintf(stdout, "Copyright (C) 1987-2006 Sun Microsystems\n");
-			fprintf(stdout, "Copyright (C) 1996-2020 Joerg Schilling\n");
+			fprintf(stdout, "Copyright (C) 1996-2021 Joerg Schilling\n");
 			exit_status = 0;
 			exit(0);
 #else
@@ -3158,6 +3157,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 	wchar_t			*tmp_wcs_buffer;
 	register Name		value;
 	Boolean			append = false;
+	Boolean			gnuassign = false;
 	Property		macro;
 	struct stat		statbuf;
 
@@ -3303,17 +3303,38 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 				value = GETNAME(wcs_buffer, FIND_LENGTH);
 			}
 		} else if ((cp = strchr(argv[i], (int) equal_char)) != NULL) {
-/* 
- * Combine all macro in dynamic array
- */
-			if(*(cp-1) == (int) plus_char)
-			{
-				if(isspace(*(cp-2))) {
+			Boolean	expand = false;
+			Boolean	gnuassign = false;
+
+			if (*(cp-1) == (int) plus_char) {
+				if (isspace(*(cp-2))) {		/* += */
 					append = true;
 					cp--;
 				}
+			} else if (*(cp-1) == (int) colon_char) {
+				if (*(cp-2) == (int) plus_char &&
+				    isspace(*(cp-3))) {		/* +:= */
+					append = true;
+					expand = true;
+					cp -= 2;
+				} else if (*(cp-2) == (int) colon_char) {
+					if (*(cp-3) == (int) colon_char) {
+						/* :::= */
+						cp -= 3;
+						expand = true;
+					} else {
+						/* ::= */
+						cp -= 2;
+						expand = true;
+						gnuassign = true;
+					}
+				}
 			}
-			if(!append)
+
+			/*
+			 * Combine all macro in dynamic array
+			 */
+			if (!append)
 				append_or_replace_macro_in_dyn_array(makeflags_and_macro, argv[i]);
 
 			while (isspace(*(cp-1))) {
@@ -3324,6 +3345,9 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 			MBSTOWCS(wcs_buffer, argv[i]);
 			*cp = tmp_char;
 			name = GETNAME(wcs_buffer, wcslen(wcs_buffer));
+			if (gnuassign &&
+			    name->stat.macro_type == unknown_macro_type)
+				name->stat.macro_type = gnu_assign;
 			while (*cp != (int) equal_char) {
 				cp++;
 			}
@@ -3339,6 +3363,14 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 			} else {
 				MBSTOWCS(wcs_buffer, cp);
 				value = GETNAME(wcs_buffer, FIND_LENGTH);
+			}
+			if (expand) {
+				String_rec	val; 
+				wchar_t		buffer[STRING_BUFFER_LENGTH]; 
+
+				INIT_STRING_FROM_STACK(val, buffer);
+				expand_value(value, &val, false);
+				value = GETNAME(val.buffer.start, FIND_LENGTH);
 			}
 			argv[i] = NULL;
 		} else {
@@ -3859,6 +3891,8 @@ append_or_replace_macro_in_dyn_array(ASCII_Dyn_Array *Ar, char *macro)
 	register char	*value;	/* macro value */
 	register int 	len_array;
 	register int 	len_macro;
+		Boolean	isassign = false;
+		Boolean	isgnuassign = false;
 
 	char * esc_value = NULL;
 	int esc_len;
@@ -3876,6 +3910,16 @@ append_or_replace_macro_in_dyn_array(ASCII_Dyn_Array *Ar, char *macro)
 	value++;
 	while (isspace(*(value))) {
 		value++;
+	}
+
+	if (cp0[-1] == ':' && cp0[-2] == ':') {
+		cp0 -= 2;
+		if (cp0[-1] == ':') {
+			cp0--;
+			isassign = true;
+		} else {
+			isgnuassign = true;
+		}
 	}
 	while (isspace(*(cp0-1))) {
 		cp0--;
@@ -3959,7 +4003,12 @@ APPEND_MACRO:
 	if (len_array + len_macro + esc_len + 5 >= Ar->size) goto  ALLOC_ARRAY;
 	strcat(Ar->start, " ");
 	strncat(Ar->start, name, cp0-name);
-	strcat(Ar->start, "=");
+	if (isassign)
+		strcat(Ar->start, ":::=");
+	else if (isgnuassign)
+		strcat(Ar->start, "::=");
+	else
+		strcat(Ar->start, "=");
 	strncat(Ar->start, esc_value, strlen(esc_value));
 	free(esc_value);
 	return;

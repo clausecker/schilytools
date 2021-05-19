@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.28 21/03/26 2017-2021 J. Schilling
+ * @(#)defs.h	1.30 21/05/13 2017-2021 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -152,7 +152,8 @@ typedef enum {
 	false =		0,
 	true =		1,
 	failed =	0,
-	succeeded =	1
+	succeeded =	1,
+	noexpand =	1
 } Boolean;
 #define BOOLEAN(expr)		((expr) ? true : false)
 
@@ -578,7 +579,7 @@ enum sccs_stat {
 
 enum macro_type {
 	unknown_macro_type = 0,
-	mormal_assign,
+	normal_assign,
 	gnu_assign
 };
 

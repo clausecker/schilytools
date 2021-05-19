@@ -1,8 +1,8 @@
-/* @(#)make.c	1.223 21/04/15 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
+/* @(#)make.c	1.224 21/05/14 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.223 21/04/15 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
+	"@(#)make.c	1.224 21/05/14 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -66,6 +66,8 @@ LOCAL	void	setup_MAKE	__PR((char *name));
 EXPORT	char	*searchtype	__PR((int mode));
 LOCAL	void	printdirs	__PR((void));
 LOCAL	int	addcommandline	__PR((char *  name));
+LOCAL	void	addcmdlinedef	__PR((char *  name));
+LOCAL	void	scan_cmdline	__PR((int ac, char **av));
 LOCAL	void	read_cmdline	__PR((void));
 EXPORT	void	doexport	__PR((char *));
 EXPORT	void	dounexport	__PR((char *));
@@ -631,7 +633,7 @@ printdirs()
 }
 
 /*
- * Add a command line macro to our list.
+ * Check for a command line macro.
  * This is called by getargs().
  */
 LOCAL int
@@ -645,6 +647,18 @@ addcommandline(name)
 
 	if (!strchr(name, '='))
 		return (NOTAFILE); /* Tell getargs that this may be a flag */
+	return (1);
+}
+
+/*
+ * Add a command line macro to our list.
+ * This is called by scan_cmdline() past getargs() since getargs() would
+ * not permit spaces, '+' or ':' to the left of a '='.
+ */
+LOCAL void
+addcmdlinedef(name)
+	char	*name;
+{
 	if (CmdLDefs == NULL) {
 		Cmdlinesize = 8;
 		CmdLDefs = malloc(Cmdlinesize * sizeof (char *));
@@ -656,7 +670,25 @@ addcommandline(name)
 		comerr("No memory for Commandline Macros.\n");
 
 	CmdLDefs[Cmdlinecount++] = name;
-	return (1);
+}
+
+/*
+ * Read in and parse all command line macro definitions from list.
+ */
+LOCAL void
+scan_cmdline(ac, av)
+	int	ac;
+	char	**av;
+{
+	register int	i;
+
+	for (i = 1; i < ac; i++) {
+		if (av[i][0] == '-')
+			continue;
+		if (strchr(av[i], '=') == NULL)
+			continue;
+		addcmdlinedef(av[i]);
+	}
 }
 
 /*
@@ -679,12 +711,19 @@ read_cmdline()
 		Mfileindex = MF_IDX_MAKEFILE + 1;
 	MakeFileNames[Mfileindex] = CmdLMac;
 
-	Mflags |= F_READONLY;
+	Mflags |= (F_READONLY|F_IDXOVERWRT);
 	for (i = 0; i < Cmdlinecount; i++) {
+		char	*eq;
+		char	*sp;
+
 		readstring(CmdLDefs[i], CmdLMac);
-		put_env(CmdLDefs[i]);
+
+		eq = strchr(CmdLDefs[i], '=');
+		sp = strchr(CmdLDefs[i], ' ');
+		if ((sp == NULL || sp > eq) && eq[-1] != ':')
+			put_env(CmdLDefs[i]);
 	}
-	Mflags &= ~F_READONLY;
+	Mflags &= ~(F_READONLY|F_IDXOVERWRT);
 	Mfileindex = MFsave;
 }
 
@@ -868,6 +907,7 @@ main(ac, av)
 	if (NullObj == 0)	/* First make sure we may expand vars	*/
 		NullObj = objlook(Nullstr, TRUE);
 
+	scan_cmdline(ac, av);	/* Identify and save cmd line macro defs */
 	read_makemacs();	/* With gbuf == NULL, this is parse only */
 	setmakeflags();
 	if (Qflag) {
@@ -966,9 +1006,14 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--; cav++;
-	for (i = 0; getfiles(&cac, &cav, options); cac--, cav++, i++)
+	for (i = 0; getfiles(&cac, &cav, options); cac--, cav++, i++) {
+		if (strchr(cav[0], '=')) { /* Skip command line macro defs */
+			i--;
+			continue;
+		}
 		if (!domake(cav[0]))	/* Make targets from command line */
 			failures++;
+	}
 
 	if (i == 0 && !domake((char *) NULL))	/* Make default target */
 		failures++;

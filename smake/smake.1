@@ -1,4 +1,4 @@
- \" @(#)smake.1	1.58 21/04/16 Copyright 1985-2021 J. Schilling
+ \" @(#)smake.1	1.59 21/05/14 Copyright 1985-2021 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2021/04/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2021/05/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -293,9 +293,34 @@ The following operands are supported:
 .I target
 any number of target names. The targets are build in the order of occurence.
 .TP
-.I macro=value
+.IB macro = value
 A macro definition. Macro definitions from the command line overwrite regular macro
 definitions in makefiles or taken from the environment.
+.TP
+.IB macro ::= value
+A macro definition.
+The value is expanded before the assignment is done.
+This variant of a macro definition creates a different macro type that is not
+expanded on use.
+.TP
+.IB macro :::= value
+A macro definition.
+The value is expanded before the assignment is done.
+.TP
+.IB macro " +=" value
+Append to a macro definition.
+.sp
+A space is required before
+.B +=
+and the whole command line macro definition needs to be quoted.
+.TP
+.IB macro " +:=" value
+Append to a macro definition.
+The value is expanded before the assignment is done.
+.sp
+A space is required before
+.B +:=
+and the whole command line macro definition needs to be quoted.
 .PP
 All macro definitions are evaluated before any target it build.
 

@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.126 21/04/15 Copyright 1985-2021 J. Schilling */
+/* @(#)parse.c	1.127 21/05/14 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.126 21/04/15 Copyright 1985-2021 J. Schilling";
+	"@(#)parse.c	1.127 21/05/14 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -340,8 +340,11 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	 */
 
 
-	if (obj->o_flags & F_READONLY)		/* Check for "read only" */
-		return;
+	if (obj->o_flags & F_READONLY) {	/* Check for "read only" */
+		if (!((obj->o_flags & F_IDXOVERWRT) &&
+		    (obj->o_fileindex == Mfileindex)))
+			return;
+	}
 	obj->o_flags |= Mflags;			/* Add current global flags */
 
 	/*
@@ -650,8 +653,11 @@ define_var(name, val)
 	list_t	**tail = &list;
 
 	o = objlook(name, TRUE);
-	if (o->o_flags & F_READONLY)		/* Check for "read only" */
-		return;
+	if (o->o_flags & F_READONLY) {		/* Check for "read only" */
+		if (!((o->o_flags & F_IDXOVERWRT) &&
+		    (o->o_fileindex == Mfileindex)))
+			return;
+	}
 	o->o_flags |= Mflags;			/* Add current global flags */
 	if (val && *val) {			/* Only if not empty */
 		ov = objlook(val, TRUE);

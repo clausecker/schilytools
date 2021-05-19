@@ -1,4 +1,4 @@
-#ident "@(#)cc-apollo.rul	1.21 18/08/16 "
+#ident "@(#)cc-apollo.rul	1.22 21/04/28 "
 ###########################################################################
 # Written 2001-2018 by J. Schilling
 ###########################################################################
@@ -53,7 +53,7 @@ LDLIBS=		$(LIBS) $(LIBX)
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
-LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+LNDYNLIB=	$(NOECHO)$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	
 
@@ -76,21 +76,21 @@ C++BUILD=	$(NUMBER_SIGN)
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+CCCC=		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:
-#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); /user/local/com/makedepend
+#MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+MKDEP=		$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); /user/local/com/makedepend
 MKDEP_OUT=
 _MKDIR=		$(_MKDIR_SH)
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # makedepend?
+CC++ =		$(NOECHO)echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	$(NOECHO)echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	$(NOECHO)echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # makedepend?
 MKC++DEP_OUT=

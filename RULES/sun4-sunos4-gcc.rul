@@ -1,4 +1,4 @@
-#ident "@(#)sun4-sunos4-gcc.rul	1.9 18/04/11 "
+#ident "@(#)sun4-sunos4-gcc.rul	1.10 21/04/28 "
 ###########################################################################
 # Written 1996-2018 by J. Schilling
 ###########################################################################
@@ -37,7 +37,7 @@ LIB_MATH=	-lm
 LIB_KVM=	-lkvm
 
 LDOPTDYN=
-LNDYNLIB=	@
+LNDYNLIB=	$(NOECHO)
 
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

@@ -1,4 +1,4 @@
-#ident "@(#)i386-ms-dos-gcc.rul	1.5 07/05/08 "
+#ident "@(#)i386-ms-dos-gcc.rul	1.6 21/04/28 "
 ###########################################################################
 #
 # Platform dependent MACROS for MSDOS/DJGPP v2
@@ -39,8 +39,8 @@ LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LDOPTDYN=
 LNDYNLIB=
 
-#LDCC=		@echo "	==> LINKING \"$@\""; gcc -Wl,--strip-all
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
+#LDCC=		$(NOECHO)echo "	==> LINKING \"$@\""; gcc -Wl,--strip-all
+DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; ld
 
 LORDER=		echo
 TSORT=		cat
