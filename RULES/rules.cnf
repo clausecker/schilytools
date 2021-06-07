@@ -1,6 +1,6 @@
-#ident @(#)rules.cnf	1.20 21/04/28 
+#ident @(#)rules.cnf	1.21 21/05/29 
 ###########################################################################
-# Written 1998-2019 by J. Schilling
+# Written 1998-2021 by J. Schilling
 ###########################################################################
 #
 # Make Rules for global dynamic configuration
@@ -62,11 +62,12 @@ $(OINCSDIR)/rules.cnf $(OINCSDIR)/xconfig.h: $(OINCSDIR)/Inull \
 OS_DEFS=	$(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 RUL_CONF=	$(NOECHO)echo "	==> CONFIGURING RULES \"$@\""; \
 		$(RM_F) $(OINCSDIR)/rules.cnf $(OINCSDIR)/xconfig.h; \
-		cd $(OINCSDIR); \
+		(cd $(OINCSDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS) $(CPPFLAGS)" \
 		LDFLAGS="$(LDOPTS)" CONFIG_SHELL=$(SHELL) \
-		$(SHELL) ../../autoconf/configure $(CONFFLAGS)
+		$(SHELL) ../../autoconf/configure $(CONFFLAGS) ); \
+		([ -d  $(SRCROOT)/inc ] && cd $(SRCROOT)/inc && $(MAKE) || :)
 ###########################################################################
 include $(OINCSDIR)/Inull
 include $(OINCSDIR)/rules.cnf

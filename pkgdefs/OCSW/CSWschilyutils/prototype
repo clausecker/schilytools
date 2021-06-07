@@ -30,6 +30,7 @@ s none bin/fsdiff=udiff
 f none bin/fifo 0755 root bin
 f none bin/hdump 0755 root bin
 f none bin/lndir 0755 root bin
+f none bin/man2html 0755 root bin
 f none bin/match 0755 root bin
 f none bin/mdigest 0755 root bin
 l none bin/od=hdump
@@ -52,6 +53,7 @@ f none bin/translit 0755 root bin
 f none bin/udiff 0755 root bin
 d none lib ? ? ?
 f none lib/cpp 0755 root bin
+l none bin/krcpp=../lib/cpp
 d none sbin ? ? ?
 f none sbin/mountcd 0755 root bin
 d none share ? ? ?
@@ -63,7 +65,7 @@ d none share/man/man3 ? ? ?
 d none share/man/man1 ? ? ?
 f none share/man/man1/bosh.1 0444 root bin
 f none share/man/man1/bsh.1 0444 root bin
-f none share/man/man1/cpp.1 0444 root bin
+f none share/man/man1/krcpp.1 0444 root bin
 f none share/man/man1/sh.1 0444 root bin
 f none share/man/man1/obosh.1 0444 root bin
 f none share/man/man1/pbosh.1 0444 root bin
@@ -83,6 +85,7 @@ f none share/man/man1/hdump.1 0444 root bin
 f none share/man/man1/jsh.1 0444 root bin
 f none share/man/man1/label.1 0444 root bin
 f none share/man/man1/lndir.1 0444 root bin
+f none share/man/man1/man2html.1 0444 root bin
 f none share/man/man1/match.1 0444 root bin
 f none share/man/man1/mdigest.1 0444 root bin
 f none share/man/man1/mountcd.1 0444 root bin

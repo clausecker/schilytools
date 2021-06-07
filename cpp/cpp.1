@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.13 19/08/27 Copyright 2010-2019 J. Schilling
+.\" @(#)cpp.1	1.14 21/05/29 Copyright 2010-2021 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,12 +13,38 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "19/08/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "21/05/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
 .B
-cpp
+/usr/lib/cpp
+[
+.B \-BCHMpPRT
+] [
+.B \-undef
+] [
+.BI \-D name
+]
+.if n .ti +5
+[
+.BI \-D name = val
+] [
+.BI \-I directory
+] [
+.BI \-U name
+]
+.if n .ti +5
+.if t .ti +.5i
+[
+.BI \-Y directory
+]
+[
+.I [input-file [output-file]]
+]
+.sp
+.B
+/usr/bin/krcpp
 [
 .B \-BCHMpPRT
 ] [

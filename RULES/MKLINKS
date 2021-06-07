@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.139 21/04/27 "
+#ident "@(#)MKLINKS	1.140 21/05/26 "
 ###########################################################################
 # Written 1996-2020 by J. Schilling
 ###########################################################################
@@ -186,6 +186,12 @@ $symlink	i386-freebsd-clang.rul	i386-freebsd-clang64.rul
 $symlink	i386-freebsd-clang.rul	amd64-freebsd-clang.rul
 $symlink	i386-freebsd-clang.rul	amd64-freebsd-clang32.rul
 $symlink	i386-freebsd-clang.rul	amd64-freebsd-clang64.rul
+$symlink	i386-freebsd-cc.rul	arm64-freebsd-cc.rul
+$symlink	i386-freebsd-cc.rul	arm64-freebsd-cc32.rul
+$symlink	i386-freebsd-cc.rul	arm64-freebsd-cc64.rul
+$symlink	i386-freebsd-gcc.rul	arm64-freebsd-gcc.rul
+$symlink	i386-freebsd-gcc.rul	arm64-freebsd-gcc32.rul
+$symlink	i386-freebsd-gcc.rul	arm64-freebsd-gcc64.rul
 $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang.rul
 $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang32.rul
 $symlink	i386-freebsd-clang.rul	arm64-freebsd-clang64.rul

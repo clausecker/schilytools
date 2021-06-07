@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.48 21/05/13 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.50 21/06/01 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/05/13" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/06/01" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -320,7 +320,9 @@ When no
 is specified,
 .B /usr/bin/make
 tries the
-following in sequence, except when in POSIX mode (see \fB\&.POSIX\fR in
+following in sequence, except when in
+.B POSIX
+mode (see \fB\&.POSIX\fR in
 Usage):
 .RS
 .TP
@@ -356,7 +358,9 @@ When no
 .I makefile
 is specified,
 .B /usr/bin/make
-in POSIX mode and
+in
+.B POSIX
+mode and
 .B /usr/xpg4/bin/make
 try the following files in sequence:
 .TP
@@ -469,7 +473,9 @@ macro, that line is always executed (see the
 discussion of
 .B MAKEFLAGS
 in Reading Makefiles and the Environment).
-When in POSIX mode, lines beginning with a "\fB+\fR" are executed.
+When in
+.B POSIX
+mode, lines beginning with a "\fB+\fR" are executed.
 
 .sp
 .ne 2
@@ -498,8 +504,9 @@ Merely reports dependencies, rather than building them.
 Question mode.
 .B make
 returns a zero or nonzero status code depending
-on whether or not the target file is up to date. When in POSIX mode, lines
-beginning with a "\fB+\fR" are executed.
+on whether or not the target file is up to date. When in
+.B POSIX
+mode, lines beginning with a "\fB+\fR" are executed.
 
 .sp
 .ne 2
@@ -547,7 +554,9 @@ This can be
 when files are
 maintained by more than one person. When the \fB\&.KEEP_STATE:\fR target
 appears in the makefile, this option updates the state file just as if the
-rules had been performed. When in POSIX mode, lines beginning with a
+rules had been performed. When in
+.B POSIX
+mode, lines beginning with a
 "\fB+\fR" are executed.
 
 .sp
@@ -1355,7 +1364,9 @@ be surrounded by white space, unlike
 .sp
 Macros created with this operator are not expanded on use.
 .sp
-Note that this is the POSIX variant of the GNU immediate assignment that is
+Note that this is the
+.B POSIX
+variant of the GNU immediate assignment that is
 portable to
 .B make
 implementations that are compatible to POSIX issue 8.
@@ -1642,7 +1653,9 @@ This target contains the rule for retrieving the current version of an
 .B SCCS
 file from its history file in the current working directory.
 .B make
-uses this rule when it is running in POSIX mode.
+uses this rule when it is running in
+.B POSIX
+mode.
 .RE
 
 .sp
@@ -1655,7 +1668,8 @@ uses this rule when it is running in POSIX mode.
 .rt
 Ignore errors.  When this target appears in the makefile,
 .B make
-ignores non-zero error codes returned from commands. When used in POSIX
+ignores non-zero error codes returned from commands. When used in
+.B POSIX
 mode, \fB\&.IGNORE\fR could be followed by target names only, for which the
 errors is ignored.
 .RE
@@ -1695,7 +1709,8 @@ rebuilds everything in order to collect dependency information, even if all
 the targets were up to date due to previous
 .B make
 runs. See also the
-Environment Variables section.  This target has no effect if used in POSIX
+Environment Variables section.  This target has no effect if used in
+.B POSIX
 mode.
 .RE
 
@@ -1707,7 +1722,9 @@ mode.
 .ad
 .RS 23n
 .rt
-This target has no effect if used in POSIX mode. This target implies
+This target has no effect if used in
+.B POSIX
+mode. This target implies
 \fB\&.KEEP_STATE\fR. If the target is followed by a filename, \fBmake\fR
 uses it as the state file. If the target is followed by a directory name,
 .B make
@@ -1871,7 +1888,9 @@ program.
 .ad
 .RS 23n
 .rt
-This target enables POSIX mode.
+This target enables
+.B POSIX
+mode.
 .RE
 
 .sp
@@ -1888,7 +1907,8 @@ does not remove any of the files
 listed as dependencies for this target when interrupted.
 .B make
 normally
-removes the current target when it receives an interrupt. When used in POSIX
+removes the current target when it receives an interrupt. When used in
+.B POSIX
 mode, if the target is not followed by a list of files, all the file are
 assumed precious.
 .RE
@@ -1920,7 +1940,9 @@ This target contains the rule for retrieving the current version of an
 file from its history file.
 .B make
 uses this rule when it is
-running in POSIX mode.
+running in
+.B POSIX
+mode.
 .RE
 
 .sp
@@ -1934,7 +1956,9 @@ running in POSIX mode.
 Run silently. When this target appears in the makefile,
 .B make
 does not
-echo commands before executing them. When used in POSIX mode, it could be
+echo commands before executing them. When used in
+.B POSIX
+mode, it could be
 followed by target names, and only those are executed silently.
 .RE
 
@@ -4457,6 +4481,7 @@ StandardSee \fBstandards\fR(5).
 .BR mach (1),
 .BR sccs-get (1),
 .BR sh (1),
+.BR smake (1),
 .BR sysV-make (1),
 .BR yacc (1),
 .BR wordexp (3C),

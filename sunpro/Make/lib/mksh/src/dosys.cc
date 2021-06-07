@@ -29,14 +29,14 @@
 #pragma	ident	"@(#)dosys.cc	1.38	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)dosys.cc	1.17 20/08/15 2017-2010 J. Schilling
+ * @(#)dosys.cc	1.18 21/06/05 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dosys.cc	1.17 20/08/15 2017-2020 J. Schilling";
+	"@(#)dosys.cc	1.18 21/06/05 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -179,6 +179,22 @@ redirect_io(char *stdout_file, char *stderr_file)
 #endif	/* O_FSYNC */
 #endif	/* O_SYNC */
 #endif	/* O_DSYNC */
+#ifndef	DO_DIRECTIO
+	/*
+	 * Using O_DSYNC was introduced by Sun Microsystems. But since this
+	 * would just enforce a consistent view to the filesystem background
+	 * storage and we do not need to survive a reboot, there does not seem
+	 * to be a need to use O_DSYNC.
+	 *
+	 * This is imprtant since using O_DSYNC would cause a massive slow down
+	 * on platforms with bad filesystem performance like e.g. Linux or on
+	 * COW filesystems like ZFS in general.
+	 *
+	 * So we decided to turn this off by defult.
+	 */
+#undef	O_DSYNC
+#define	O_DSYNC	0
+#endif
 	if ((i = my_open(stdout_file,
 	         O_WRONLY | O_CREAT | O_TRUNC | O_DSYNC,
 	         S_IREAD | S_IWRITE)) < 0) {

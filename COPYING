@@ -1,4 +1,4 @@
-# @(#)COPYING	1.19 18/11/22 Copyright 2007-2018 J. Schilling
+# @(#)COPYING	1.20 21/05/28 Copyright 2007-2018 J. Schilling
 
 
 The software in this directory tree is free software and uses
@@ -114,7 +114,7 @@ libvms/
 libxtermcap/
 	Extended termcap library (CDDL)
 lndir/
-	Create symlinked directory trees (Similar to BSD 2 clause)
+	Create symlinked directory trees (MIT)
 man/
 	Various man pages for the makefile system (CDDL)
 man2html/

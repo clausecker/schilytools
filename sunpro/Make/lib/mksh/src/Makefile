@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.7 17/04/30 
+#ident @(#)Makefile	1.8 21/06/05 
 ###########################################################################
 SRCROOT=	../../../../..
 RULESDIR=	RULES
@@ -18,6 +18,7 @@ CPPOPTS +=	-DSUN5_0
 CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
+#CPPOPTS +=	-DDO_DIRECTIO	# Fall back to the Sun O_DSYNC method
 
 C++FILES=	dosys.cc globals.cc i18n.cc macro.cc misc.cc mksh.cc read.cc
 

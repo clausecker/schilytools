@@ -1,8 +1,8 @@
-/* @(#)make.c	1.224 21/05/14 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
+/* @(#)make.c	1.225 21/05/28 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.224 21/05/14 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
+	"@(#)make.c	1.225 21/05/28 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1076,15 +1076,29 @@ check_old_makefiles()
  *				Space and multiple '-' are allowed.
  *	"-et -- NAME=value..."	A complete make command line (except
  *				-f filename options and target arguments).
+ * BSD make:
+ *
+ * -	" NAME=value..."	Only a list of macro definitions.
+ *
+ * -	" -e -t"		Only options.
+ *
+ * -	" -e -t NAME=value..."	A complete make command line.
+ *
+ * SunPro Make:
+ *
+ *	"-et  NAME=value..."	A complete make command line.
  */
 LOCAL void
 getmakeflags()
 {
 	int	MFsave = Mfileindex;
 	char	*mf = getenv(Makeflags);
+	BOOL	hasdash = FALSE;
 
 	if (!mf || *mf == '\0')	/* No MAKEFLAGS= or empty MAKEFLAGS=	*/
 		return;
+	while (*mf == ' ')
+		mf++;
 
 	Mfileindex = MF_IDX_ENVIRON;	/* Index 1 Environment vars */
 	if (*mf != '-') {	/* Only macros if does not start with '-'*/
@@ -1102,54 +1116,74 @@ getmakeflags()
 			 *
 			 * The content returned from getenv("MAKEFLAGS")
 			 * has been reported to change on DJGPP.
+			 * We need to use strdup() to keep it stable.
 			 */
 			MFCmdline = strdup(mf);
 			if (MFCmdline == NULL)
 				MFCmdline = mf;
 			goto out;	/* Allow debug prints */
 		}
+	} else {
+		hasdash = TRUE;
 	}
 
 	while (*mf) {
 		switch (*mf) {
 
-		case ' ':
-			break;		/* Ignore blanks */
+		case ' ': {
+				char	*p = mf;
+
+				while (*p == ' ')
+					p++;
+
+				if (*p != '-') {	/* May be a macro */
+					if (hasdash) {
+						mf = p;
+						goto macs;
+					}
+					break;		/* Ignore blanks */
+				}
+				mf = p;			/* Starts with '-' */
+			}
+			/* FALLTHRU */
 
 		case '-':		/* look for " -- " separator */
-			if (mf[1] == '-') {
-				if (mf[2] != ' ') {
-					char *p = nextmakemac(mf);
+			if (mf[1] != '-')
+				break;	/* Ignore single '-' */
 
-					errmsgno(EX_BAD,
+			if (mf[2] != ' ') {
+				char *p = nextmakemac(mf);
+
+				errmsgno(EX_BAD,
 					"Found illegal option '%s' in MAKEFLAGS.\n",
-						mf);
-					if (p != NULL) {
-						size_t	d = p - mf;
-						if (d > 50)
-							d = 50;
-						errmsgno(EX_BAD,
-						"Skipping illegal option '%.*s'.\n",
-							(int)d, mf);
-						mf = p;
-						break;
-					} else {
-						errmsgno(EX_BAD,
+					mf);
+				if (p != NULL) {
+					size_t	d = p - mf;
+					if (d > 50)
+						d = 50;
+					errmsgno(EX_BAD,
+					"Skipping illegal option '%.*s'.\n",
+						(int)d, mf);
+					mf = p;
+					break;
+				} else {
+					errmsgno(EX_BAD,
 						"Ignoring illegal option '%s'.\n",
-							mf);
-					}
-					goto out; /* Allow debug prints */
+						mf);
 				}
-				/*
-				 * The content returned from getenv("MAKEFLAGS")
-				 * has been reported to change on DJGPP.
-				 */
-				MFCmdline = strdup(&mf[3]);
-				if (MFCmdline == NULL)
-					MFCmdline = &mf[3];
-				goto out;	/* Allow debug prints */
+				goto out; /* Allow debug prints */
 			}
-			break;		/* Ignore single '-' */
+			/*
+			 * The content returned from getenv("MAKEFLAGS")
+			 * has been reported to change on DJGPP.
+			 * We need to use strdup() to keep it stable.
+			 */
+			mf += 3;
+		macs:
+			MFCmdline = strdup(mf);
+			if (MFCmdline == NULL)
+				MFCmdline = mf;
+			goto out;	/* Allow debug prints */
 
 		case 'D':		/* Display makefile */
 			Dmake++;

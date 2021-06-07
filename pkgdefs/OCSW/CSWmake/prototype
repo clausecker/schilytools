@@ -8,10 +8,10 @@ f none share/doc/make/license=$pkgbase/copyright 0444 root bin
 d none bin ? ? ?
 f none bin/make 0755 root bin
 l none bin/dmake=../bin/make
+l none bin/svr4.make=../bin/make
 d none lib ? ? ?
 f none lib/libmakestate.so.1 0444 root bin
 s none lib/libmakestate.so=libmakestate.so.1
-l none lib/svr4.make=../bin/make
 d none xpg4 ? ? ?
 d none xpg4/bin ? ? ?
 l none xpg4/bin/make=../../bin/make

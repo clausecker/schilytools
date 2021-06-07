@@ -1,4 +1,4 @@
-# @(#)README.compile	1.46 21/05/08 Copyright 1997-2021 J. Schilling
+# @(#)README.compile	1.48 21/05/23 Copyright 1997-2021 J. Schilling
 
 Short overview for those who don't read manuals:
 
@@ -248,21 +248,24 @@ Using a different installation directory:
 	DEFAULTS files. If you like to install everything in the deprecated path
 	/usr/local, the next paragraph describes the procedure.
 
-	If your make program supports to propagate make macros to sub make programs
-	which is the case for recent smake releases as well as for a recent gnumake:
+	If your make program supports to propagate make macros to sub make 
+	programs which is the case for recent smake releases as well as for a
+	recent gnumake or a recent SunPro Make from the schilytools:
 
 		smake INS_BASE=/usr/local install
 	or
 		gmake INS_BASE=/usr/local install
 
-	If your make program doesn't propagate make macros (e.g. SunPRO make),
-	call:
+	If your make program doesn't propagate make macros (e.g. the
+	unmaintained SunPRO make variant from Sun/Oracle), call:
 
 		env INS_BASE=/usr/local make -e install
 
 	Note that INS_BASE=/usr/local needs to be specified for every operation
 	that compiles or links programs, as the path may be stored inside the
-	binaries.
+	binaries. It is not sufficient to use INS_BASE=x for a "make install".
+	If you by mistake did already compile, call "make clean" before using
+	INS_BASE=x for compiling.
 
 	The location for the root specific configuratin files is controlled
 	via the INS_RBASE= make macro. The default vaulue for this macro is "/".

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.23 20/10/31 
+#ident @(#)Makefile	1.24 21/05/29 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -9,7 +9,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		make
-HARDLINKS=	dmake ../lib/svr4.make ../xpg4/bin/make
+HARDLINKS=	dmake svr4.make ../lib/svr4.make ../xpg4/bin/make
 CPPOPTS +=	-I../../../../include
 CPPOPTS +=	-I../../../include
 #CPPOPTS +=	-compat=4

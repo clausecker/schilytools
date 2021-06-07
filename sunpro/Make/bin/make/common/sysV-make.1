@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)sysV-make.1	1.6 20/10/08 Copyr 2012-2020 J. Schilling
+. \" @(#)sysV-make.1	1.7 21/05/29 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T  Copyright (c) 2009, Sun Microsystems, Inc.  All Rights Reserved
 .\" Copyright (c) 2012-2017, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
@@ -36,13 +36,17 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH sysV-make 1 "2020/10/08" "SunOS 5.11" "User Commands"
+.TH sysV-make 1 "2021/05/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sysV-make \- maintain, update, and regenerate groups of programs
 .SH SYNOPSIS
 .LP
 .nf
 \fB/usr/lib/svr4.make\fR [\fB-f\fR \fImakefile\fR] [\fB-eiknpqrst\fR] [\fInames\fR]
+.fi
+
+.nf
+\fB/usr/bin/svr4.make\fR [\fB-f\fR \fImakefile\fR] [\fB-eiknpqrst\fR] [\fInames\fR]
 .fi
 
 .SH DESCRIPTION

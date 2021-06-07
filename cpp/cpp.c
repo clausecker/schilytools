@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.52 19/08/07 2010-2019 J. Schilling */
+/* @(#)cpp.c	1.54 21/05/30 2010-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.52 19/08/07 2010-2019 J. Schilling";
+	"@(#)cpp.c	1.54 21/05/30 2010-2021 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2019 J. Schilling
+ * Copyright (c) 2010-2021 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -302,6 +302,7 @@ EXPORT	int		yywrap	__PR((void));
 EXPORT	int		main	__PR((int argc, char **argav));
 LOCAL	void		newsbf	__PR((void));
 LOCAL	struct symtab	*newsym	__PR((void));
+LOCAL	void		usage	__PR((void));
 
 
 # if gcos
@@ -1605,7 +1606,7 @@ main(argc,argv)
 						    HOST_CPU, HOST_VENDOR, HOST_OS);
 						printf("\n");
 						printf("Copyright (C) 1978 AT&T (John F. Reiser)\n");
-						printf("Copyright (C) 2010-2019 Joerg Schilling\n");	
+						printf("Copyright (C) 2010-2021 Joerg Schilling\n");	
 						exit(0);
 					}
 					goto unknown;
@@ -1636,6 +1637,15 @@ main(argc,argv)
 					sysdir = argv[i]+2;
 					continue;
 				case '\0': continue;
+				case '-':
+					if (strcmp(argv[i], "--help") == 0)
+						usage();
+					else
+						goto unknown;
+				case 'h':
+					if (strcmp(argv[i], "-help") == 0)
+						usage();
+					/* FALLTHRU */
 				default:
 				unknown:
 					pperror("unknown flag %s", argv[i]);
@@ -1763,6 +1773,9 @@ main(argc,argv)
 # if sun
 	varloc=stsym ("sun");
 # endif
+# if linux
+	varloc=stsym ("linux");
+# endif
 # if __NeXT__
 	varloc=stsym ("__NeXT__");
 # endif
@@ -1811,6 +1824,9 @@ main(argc,argv)
 # if __arm__
 	varloc=stsym ("__arm__");
 # endif
+#ifdef __aarch64__
+	varloc=stsym ("__aarch64__");
+#endif
 
 #ifdef	__hp9000s200
 	varloc=stsym ("__hp9000s200");
@@ -1928,4 +1944,30 @@ newsym()
 	}
 	nelem--;
 	return (syms++);
+}
+
+STATIC void
+usage()
+{
+	fprintf(stderr, "Usage: cpp [options] [input-file [output-file]]\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "	-B	Support the C++ comment indicator '//'.\n");
+	fprintf(stderr, "	-C	Pass all comments.\n");
+	fprintf(stderr, "	-H	Print the path names of include files on standard error.\n");
+	fprintf(stderr, "	-M	Generate a list of dependencies and write them to the output.\n");
+	fprintf(stderr, "	-p	Only check for the first eight characters in macro names.\n");
+	fprintf(stderr, "	-P	Do not include line control information in the preprocessor output.\n");
+	fprintf(stderr, "	-R	Allow recursive macros.\n");
+	fprintf(stderr, "	-T	Only check for the first eight characters in macro names, ignore rest.\n");
+	fprintf(stderr, "	-noinclude Ignore standard system include path.\n");
+	fprintf(stderr, "	-undef	Remove all initially predefined macros.\n");
+	fprintf(stderr, "	-xsc	Character constants are treated as signed char.\n");
+	fprintf(stderr, "	-xuc	Character constants are treated as unsigned char.\n");
+	fprintf(stderr, "	-Dname	Defines name as 1.\n");
+	fprintf(stderr, "	-Dname=var Defines name as val.\n");
+	fprintf(stderr, "	-Idirectory Adds directory to the search path.\n");
+	fprintf(stderr, "	-Uname	Remove an initial definition of name.\n");
+	fprintf(stderr, "	-Ydirectory Uses directory instead of the standard system include directory.\n");
+
+	exit(0);
 }

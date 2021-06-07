@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.22 19/08/05 "
+#ident "@(#)Makefile	1.23 21/05/29 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,6 +10,7 @@ VPATH=		.:$(ARCHDIR)
 
 INSDIR=		lib
 TARGET=		cpp
+HARDLINKS +=	../bin/krcpp
 CPPOPTS +=	-I.
 CPPOPTS +=	-Dunix=1		# Compile for UNIX environment
 CPPOPTS +=	-DFLEXNAMES		# Allow long identifier names
