@@ -1,6 +1,6 @@
-#ident @(#)rules.cmd	1.17 18/08/14 
+#ident @(#)rules.cmd	1.18 21/07/11 
 ###########################################################################
-# Written 1996-2013 by J. Schilling
+# Written 1996-2021 by J. Schilling
 ###########################################################################
 #
 # Rules for user level commands (usually found in .../bin)
@@ -41,8 +41,12 @@ LIBS_PATH += $(LIBS_PATH_STATIC)
 
 all:		$(PTARGET) $(MAN)
 
+###########################################################################
+# We used to use $(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
+# but the compiler on z/OS does not like $(LDFLAGS) after $(POFILES).
+###########################################################################
 $(PTARGET):	$(OFILES) $(SRCLIBS)
-		$(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
+		$(LDCC) $(_LD_OUTPUT_OPTION) $(LDFLAGS) $(POFILES) $(LDLIBS)
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)parallel.cc	1.75	06/12/12"
 
 /*
- * Copyright 2017-2019 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)parallel.cc	1.17 19/10/19 2017-2019 J. Schilling
+ * @(#)parallel.cc	1.18 21/06/11 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parallel.cc	1.17 19/10/19 2017-2019 J. Schilling";
+	"@(#)parallel.cc	1.18 21/06/11 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -791,6 +791,7 @@ job_adjust_error() {
  *  Environment:
  *	DMAKE_ADJUST_MAX_JOBS
  *	  DMAKE_ADJUST_MAX_JOBS == "NO"	- no adjustment
+ *	  DMAKE_ADJUST_MAX_JOBS == "M1"	- M1 adjust mode
  *	  DMAKE_ADJUST_MAX_JOBS == "M2"	- M2 adjust mode
  *	  other				- M1 adjust mode
  *
@@ -810,6 +811,8 @@ job_adjust_init() {
 		if (char *var = getenv(NOCATGETS("DMAKE_ADJUST_MAX_JOBS"))) {
 			if (strcasecmp(var, NOCATGETS("NO")) == 0) {
 				job_adjust_mode = ADJUST_NONE;
+			} else if (strcasecmp(var, NOCATGETS("M1")) == 0) {
+				job_adjust_mode = ADJUST_M1;
 			} else if (strcasecmp(var, NOCATGETS("M2")) == 0) {
 				job_adjust_mode = ADJUST_M2;
 			}

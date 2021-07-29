@@ -1,9 +1,9 @@
-#ident "@(#)temp-clang.rul	1.4 21/06/23 "
+#ident "@(#)1090-os-390-cc.rul	1.5 21/07/19 "
 ###########################################################################
-# Written 1997-2019 by J. Schilling
+# Written 2021 by J. Schilling
 ###########################################################################
 #
-# Platform dependent MACROS for unknown CLANG systems
+# Platform dependent MACROS for Z/OS
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -22,29 +22,25 @@
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH:cc%=ibm_os-390%).rul
 
-OSDEFS +=
+#
+# In order to make the valloc() prototype visible, we would need to
+# -D__UU -D__TARGET_LIB__=0x20000000 wich does not look like a good idea.
+#
+OSDEFS +=	-D_XOPEN_SOURCE=600 -DOS390
 
 KDEFINES=	-DKERNEL -D_KERNEL
 
-SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
-
-#LIB_SOCKET=	-lsocket -lnsl -ldl
-LIB_SOCKET=	
+LIB_SOCKET=
 LIB_MATH=	-lm
 #LIB_KVM=	-lkvm
-LIB_KVM=	
 
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
+#RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
-ARFLAGS=	cr
-#LORDER=		lorder
-#TSORT=		tsort
 LORDER=		echo
-TSORT=		cat
+TSORT=		cat	# tsort exists, but there is no lorder
 
-_MKDIR=		$(_MKDIR_SH)
-MKDIR=		$(MKDIR_SH)
-INSMKDIR=	$(INSMKDIR_SH)
+AR=		$(NOECHO)echo "	==> ARCHIVING  \"$@\""; ar
+ARFLAGS=	crs

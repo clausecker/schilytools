@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)main.cc	1.55 21/05/13 2017-2021 J. Schilling
+ * @(#)main.cc	1.56 21/07/11 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.55 21/05/13 2017-2021 J. Schilling";
+	"@(#)main.cc	1.56 21/07/11 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -3322,7 +3322,11 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 						/* :::= */
 						cp -= 3;
 						expand = true;
+#ifdef	GNU_ASSIGN_BY_DEFAULT
 					} else {
+#else
+					} else if (posix || gnu_style) {
+#endif
 						/* ::= */
 						cp -= 2;
 						expand = true;
@@ -3917,9 +3921,17 @@ append_or_replace_macro_in_dyn_array(ASCII_Dyn_Array *Ar, char *macro)
 		if (cp0[-1] == ':') {
 			cp0--;
 			isassign = true;
+#ifdef	GNU_ASSIGN_BY_DEFAULT
 		} else {
 			isgnuassign = true;
 		}
+#else
+		} else if (posix || gnu_style) {
+			isgnuassign = true;
+		} else {
+			cp0 += 2;
+		}
+#endif
 	}
 	while (isspace(*(cp0-1))) {
 		cp0--;

@@ -1,14 +1,14 @@
-/* @(#)getrusage.c	1.30 16/04/04 Copyright 1987-2016 J. Schilling */
+/* @(#)getrusage.c	1.31 21/07/22 Copyright 1987-2021 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getrusage.c	1.30 16/04/04 Copyright 1987-2016 J. Schilling";
+	"@(#)getrusage.c	1.31 21/07/22 Copyright 1987-2021 J. Schilling";
 #endif
 /*
  *	getrusage() emulation for SVr4
  *
- *	Copyright (c) 1987-2016 J. Schilling
+ *	Copyright (c) 1987-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,7 +75,7 @@ getrusage(who,  rusage)
 		sprintf(cproc, "/proc/%ld/status", (long)getpid());
 	else
 		sprintf(cproc, "/proc/%ld/usage", (long)getpid());
-	if ((f = open(cproc, 0)) < 0)
+	if ((f = open(cproc, O_RDONLY)) < 0)
 		return (-1);
 	if (who == RUSAGE_CHILDREN) {
 		if (read(f, &pstatus, sizeof (pstatus)) < 0) {
@@ -92,7 +92,7 @@ getrusage(who,  rusage)
 	if (who == RUSAGE_CHILDREN)
 		return (-1);
 	sprintf(cproc, "/proc/%ld", (long)getpid());
-	if ((f = open(cproc, 0)) < 0)
+	if ((f = open(cproc, O_RDONLY)) < 0)
 		return (-1);
 	if (ioctl(f, PIOCUSAGE, &prusage) < 0) {
 		close(f);

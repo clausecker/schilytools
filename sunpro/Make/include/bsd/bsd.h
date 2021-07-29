@@ -29,9 +29,9 @@
 #pragma	ident	"@(#)bsd.h	1.6	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2021 J. Schilling
  *
- * @(#)bsd.h	1.5 18/01/13 2017-2018 J. Schilling
+ * @(#)bsd.h	1.6 21/07/27 2017-2021 J. Schilling
  */
 
 /*
@@ -53,13 +53,15 @@
 #undef	bsd_signal
 
 #if !defined(SIG_PF)
+
+#ifdef __cplusplus
+extern "C" typedef void SIG_FUNC_TYP(int);
+#else
 typedef void SIG_FUNC_TYP(int);
-typedef SIG_FUNC_TYP *SIG_TYP;
-#define SIG_PF SIG_TYP
 #endif
 
-#ifndef __cplusplus
-typedef void (*SIG_PF) (int);
+typedef SIG_FUNC_TYP *SIG_TYP;
+#define SIG_PF SIG_TYP
 #endif
 
 #ifdef __cplusplus

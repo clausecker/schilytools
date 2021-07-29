@@ -29,14 +29,26 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)lock.c	1.8 20/09/06 2017-2018 J. Schilling
+ * @(#)lock.c	1.10 21/07/28 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.c	1.8 20/09/06 2017-2018 J. Schilling";
+	"@(#)lock.c	1.10 21/07/28 2017-2021 J. Schilling";
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdio.h>
+#include <schily/stdlib.h>
+#include <schily/unistd.h>
+#include <schily/string.h>
+#include <schily/fcntl.h>
+#include <schily/types.h>
+#include <schily/param.h>
+#include <schily/stat.h>
+#include <schily/maxpath.h>
+#include <schily/errno.h>	/* errno */
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -46,6 +58,7 @@ static	UConst char sccsid[] =
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <errno.h>		/* errno */
+#endif
 
 #ifdef	HAVE_STRERROR
 /*

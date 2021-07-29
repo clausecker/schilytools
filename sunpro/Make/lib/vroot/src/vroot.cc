@@ -29,25 +29,38 @@
 #pragma	ident	"@(#)vroot.cc	1.11	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017 J. Schilling
+ * This file contains modifications Copyright 2021 J. Schilling
  *
- * @(#)vroot.cc	1.3 17/04/30 2017 J. Schilling
+ * @(#)vroot.cc	1.5 21/07/28 2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vroot.cc	1.3 17/04/30 2017 J. Schilling";
+	"@(#)vroot.cc	1.5 21/07/28 2021 J. Schilling";
 #endif
 
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdlib.h>
+#include <schily/string.h>
+#else
 #include <stdlib.h>
 #include <string.h>
+#endif
 
 #include <vroot/vroot.h>
 #include <vroot/args.h>
 
-#include <string.h>
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/param.h>
+#include <schily/maxpath.h>
+#include <schily/fcntl.h>
+#ifdef	HAVE_SYS_FILE_H
+#include <sys/file.h>
+#endif
+#else
 #include <sys/param.h>
 #include <sys/file.h>
+#endif
 
 #include <avo/intl.h>	/* for NOCATGETS */
 

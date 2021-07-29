@@ -1,13 +1,13 @@
-/* @(#)limit.c	1.44 17/12/20 Copyright 1987-2017 J. Schilling */
+/* @(#)limit.c	1.45 21/07/13 Copyright 1987-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.44 17/12/20 Copyright 1987-2017 J. Schilling";
+	"@(#)limit.c	1.45 21/07/13 Copyright 1987-2021 J. Schilling";
 #endif
 /*
  *	Resource usage routines
  *
- *	Copyright (c) 1987-2017 J. Schilling
+ *	Copyright (c) 1987-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -515,7 +515,9 @@ prtm(std, prusage, stt)
 
 	prtime(std, sec, usec|1);	/* print usec always */
 
-#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
+#if defined(__BEOS__) || defined(__HAIKU__) || \
+    defined(OS390) || defined(__MVS__)
+	/* XXX dirty hack */
 	fprintf(std[1],
 		"r %ld.%03ldu %ld.%03lds %ld%%\n",
 		(long)prusage->ru_utime.tv_sec,
@@ -559,7 +561,9 @@ rusagesub(pru1, pru2)
 		pru2->ru_stime.tv_sec -= 1;
 		pru2->ru_stime.tv_usec += 1000000;
 	}
-#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
+#if defined(__BEOS__) || defined(__HAIKU__) || \
+    defined(OS390) || defined(__MVS__)
+	/* XXX dirty hack */
 #else
 	pru2->ru_maxrss		-= pru1->ru_maxrss;
 	pru2->ru_ixrss		-= pru1->ru_ixrss;
@@ -589,7 +593,9 @@ rusageadd(pru1, pru2)
 		pru2->ru_stime.tv_sec += 1;
 		pru2->ru_stime.tv_usec -= 1000000;
 	}
-#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
+#if defined(__BEOS__) || defined(__HAIKU__) || \
+    defined(OS390) || defined(__MVS__)
+	/* XXX dirty hack */
 #else
 	pru2->ru_maxrss		+= pru1->ru_maxrss;
 	pru2->ru_ixrss		+= pru1->ru_ixrss;

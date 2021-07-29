@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.24 21/05/29 
+#ident @(#)Makefile	1.25 21/06/14 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -19,6 +19,7 @@ CPPOPTS +=	-DSUN5_0
 CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
+CPPOPTS +=	-DDMAKE_STATISTICS
 CPPOPTS +=	-DDO_MAKE_NAME	# Set up "MAKE_NAME=sunpro"
 CPPOPTS +=	-DDO_ARCHCONF	# Set up "MAKE_OS", ...
 CPPOPTS +=	-DDO_NOTPARALLEL # Check for ".NOTPARALLEL"

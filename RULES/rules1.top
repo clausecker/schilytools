@@ -1,6 +1,6 @@
-#ident "@(#)rules1.top	1.62 21/04/28 "
+#ident "@(#)rules1.top	1.63 21/07/14 "
 ###########################################################################
-# Written 1996-2019 by J. Schilling
+# Written 1996-2021 by J. Schilling
 ###########################################################################
 #
 # Rules that should be included at top of every Makefile
@@ -334,8 +334,11 @@ ARCHDIR=	OBJ/$(OARCH)$(SUBARCHDIR)$(SUBARCH)
 # See notes about $(SRCROOT)/ vs. $(SRCROOTSL) above.
 #
 ###########################################################################
+OLIBSDIRR=		    libs/$(OARCH)$(SUBARCHDIR)$(SUBARCH)$(SHLDIR)
 OLIBSDIR=	$(SRCROOTSL)libs/$(OARCH)$(SUBARCHDIR)$(SUBARCH)$(SHLDIR)
+OLIBSDIR_STATICR=	    libs/$(OARCH)$(SUBARCHDIR)$(SUBARCH)
 OLIBSDIR_STATIC=$(SRCROOTSL)libs/$(OARCH)$(SUBARCHDIR)$(SUBARCH)
+OINCSDIRR=		    incs/$(OARCH)
 OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 
 ###########################################################################

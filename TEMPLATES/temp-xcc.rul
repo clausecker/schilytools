@@ -1,4 +1,4 @@
-#ident "@(#)temp-xcc.rul	1.4 19/09/08 "
+#ident "@(#)temp-xcc.rul	1.5 21/06/23 "
 ###########################################################################
 # Written 1997-2019 by J. Schilling
 ###########################################################################
@@ -24,7 +24,7 @@ include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/cc-dumb.rul
 
-OSDEFS=
+OSDEFS +=
 
 KDEFINES=	-DKERNEL -D_KERNEL
 

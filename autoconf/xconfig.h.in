@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.282 21/04/28 Copyright 1998-2021 J. Schilling */
+/* @(#)xconfig.h.in	1.288 21/07/22 Copyright 1998-2021 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -87,6 +87,7 @@
 #undef HAVE_ULIMIT_H		/* to use ulimit() as fallback for getrlimit()  */
 #undef HAVE_PROCESS_H		/* to use process.h for spawn*() and cwait() */
 #undef HAVE_SYS_RESOURCE_H	/* to use sys/resource.h for rlimit() and wait3() */
+#undef HAVE_SYS_DBX_PLUGIN_H	/* to use sys/dbx_plugin.h for RLIM_NLIMITS on z/OS */
 #undef HAVE_PROCFS_H		/* to use procfs.h instead of sys/procfs.h (Solaris forces profcs-2) */
 #undef HAVE_SYS_PROCFS_H	/* to use sys/procfs.h for wait3() emulation */
 #undef HAVE_LIBPROC_H		/* to use libproc.h (Mac OS X) */
@@ -106,6 +107,8 @@
 #undef HAVE_SYS_SEM_H		/* to use definitions for semget() ... from sys/sem.h */
 #undef HAVE_SYS_IPC_H		/* to use definitions for ftok() ... from sys/ipc.h */
 #undef HAVE_SEMAPHORE_H		/* to use definitions for sema_init() ... from semaphore.h */
+#undef HAVE_SYS_MKDEV_H		/* to use definitions for major()/minor()/makedev() */
+#undef HAVE_SYS_SYSMACROS_H	/* to use definitions for major()/minor()/makedev() */
 #undef MAJOR_IN_MKDEV		/* if we should include sys/mkdev.h to get major()/minor()/makedev() */
 #undef MAJOR_IN_SYSMACROS	/* if we should include sys/sysmacros.h to get major()/minor()/makedev() */
 #undef HAVE_SYS_DKIO_H		/* if we may include sys/dkio.h for disk ioctls */
@@ -877,6 +880,7 @@
 
 #undef HAVE_SOCKADDR_STORAGE	/* if socket.h defines struct sockaddr_storage */
 
+#undef HAVE_PW_PASSWD		/* if struct passwd contains pw_passwd */
 
 /*
  * Misc CC features
@@ -1087,7 +1091,14 @@
 #if defined(HAVE_ACL_GET_FILE) && defined(HAVE_ACL_SET_FILE) && \
     defined(HAVE_ACL_FROM_TEXT) && defined(HAVE_ACL_TO_TEXT) && \
     defined(HAVE_ACL_FREE)
+#if !defined(OS390) && !defined(__MVS__)
+	/*
+	 * z/OS implements the withdrawn POSIX draft ACL interface functions
+	 * but uses different data structures. As a result, we currently cannot
+	 * yet implement ACL support for z/OS.
+	 */
 #	define	HAVE_POSIX_ACL	1 /* Withdrawn POSIX draft ACL's present */
+#endif
 #endif
 
 /*
@@ -1170,6 +1181,15 @@
 #endif
 
 #endif	/* USE_ACL */
+
+/*
+ * Mainly needed for z/OS that seems to be the only OS based on EBCDIC.
+ */
+#if	('i' + 1) < 'j'
+#define	HAVE_EBCDIC
+#else
+#define	HAVE_ASCII
+#endif
 
 /*
  * Misc CC / LD related stuff

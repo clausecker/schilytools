@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.24 21/04/21 Copyright 1999-2021 J. Schilling
+# @(#)config.guess	1.25 21/06/15 Copyright 1999-2021 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -908,6 +908,9 @@ EOF
     *:OpenVMS:*:*)
 	UNAME_PROCESSOR=`uname -p | tr [A-Z] [a-z]`
 	echo "${UNAME_PROCESSOR}-hp-openvms"
+	exit 0;;
+    *:OS/390:*:*)
+	echo "${UNAME_MACHINE}-ibm-os_390"
 	exit 0;;
 esac
 

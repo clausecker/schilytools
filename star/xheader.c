@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.103 19/12/03 Copyright 2001-2019 J. Schilling */
+/* @(#)xheader.c	1.105 21/07/02 Copyright 2001-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.103 19/12/03 Copyright 2001-2019 J. Schilling";
+	"@(#)xheader.c	1.105 21/07/02 Copyright 2001-2021 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2019 J. Schilling
+ *	Copyright (c) 2001-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2528,6 +2528,11 @@ get_attr(info, keyword, klen, arg, len)
 	register star_xattr_t	*x;
 	register size_t		num = 0;
 
+#ifdef	__never__
+	/*
+	 * This is definitely wrong, since we may have a single empty xattr
+	 * and the code below disables all xattrs for the current file.
+	 */
 	if (len == 0) {
 		/*
 		 * This is not the right way as we clear all xattr info.
@@ -2540,6 +2545,7 @@ get_attr(info, keyword, klen, arg, len)
 		info->f_xflags &= ~XF_FFLAGS;
 		return;
 	}
+#endif
 	if (static_xattr) {
 		for (x = static_xattr; x->name; x++)
 			num++;

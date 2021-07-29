@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.127 21/05/14 Copyright 1985-2021 J. Schilling */
+/* @(#)parse.c	1.128 21/07/10 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.127 21/05/14 Copyright 1985-2021 J. Schilling";
+	"@(#)parse.c	1.128 21/07/10 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -329,6 +329,10 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	    (obj->o_name[0] != '.' || obj->o_name[1] == SLASH ||
 	    (obj->o_name[1] == '.' && obj->o_name[2] == SLASH)))
 		default_tgt = obj;
+
+	if (n == 0 && basetype(type) == COLON &&
+	    obj->o_name[0] == '.' && streql(obj->o_name, ".POSIX"))
+		posixmode = TRUE;
 
 	if (type == DCOLON)
 		obj = define_dcolon(obj);
@@ -1308,7 +1312,12 @@ read_ovec(ovec, typep)
 					lastc = ':';
 				}
 			}
-			if (lastc == ':' && peekch() == '=') {
+#ifdef	GNU_ASSIGN_BY_DEFAULT
+			if (
+#else
+			if (posixmode &&
+#endif
+			    lastc == ':' && peekch() == '=') {
 				getch();
 				*typep = GNU_ASSIGN;
 				break;

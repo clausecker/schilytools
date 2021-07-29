@@ -1,14 +1,14 @@
-/* @(#)cmds.c	1.45 09/07/13 Copyright 1984-2009 J. Schilling */
+/* @(#)cmds.c	1.46 21/07/05 Copyright 1984-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmds.c	1.45 09/07/13 Copyright 1984-2009 J. Schilling";
+	"@(#)cmds.c	1.46 21/07/05 Copyright 1984-2021 J. Schilling";
 #endif
 /*
  *	Commands that deal with various things that do not apply to other
  *	systematic categories.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,6 +52,34 @@ EXPORT	void	vhex		__PR((ewin_t *wp));
 EXPORT	void	vopen		__PR((ewin_t *wp));
 EXPORT	void	vsopen		__PR((ewin_t *wp));
 EXPORT	void	vhelp		__PR((ewin_t *wp));
+LOCAL	BOOL	dowrap		__PR((ewin_t *wp, int hp));
+
+LOCAL BOOL
+dowrap(wp, hp)
+	ewin_t	*wp;
+	int	hp;
+{
+	register epos_t save;
+	register ecnt_t	n;
+		epos_t	diff = (epos_t)0;
+
+	if (((wp->wrapmargin && hp > (wp->llen - wp->wrapmargin)) ||
+	    (wp->maxlinelen && hp > wp->maxlinelen))) {
+		save = wp->dot;
+		if ((wp->dot = revword(wp, save, (ecnt_t)1)) > revline(wp, save, (ecnt_t)1)) {
+			update(wp);		/* update screen/cursor position */
+			diff += wp->dot;
+			n = wp->curnum;
+			wp->curnum = 1;
+			vnl(wp);
+			wp->curnum = n;
+			diff -= wp->dot;
+		}
+		wp->dot = save - diff;
+		return (TRUE);
+	}
+	return (FALSE);
+}
 
 /*
  * Insert a regular character 'curnum' times, handle overstrike and autowrap
@@ -60,10 +88,10 @@ EXPORT void
 vnorm(wp)
 	ewin_t	*wp;
 {
-	register epos_t save = wp->dot;
+	register epos_t save;
 	register epos_t dels;
 	register ecnt_t	n = wp->curnum;
-		epos_t	diff = (epos_t)0;
+		int	hp;
 
 	if (wp->overstrikemode) {
 		if ((dels = min(n, wp->eof-wp->dot)) > 0) {
@@ -73,6 +101,10 @@ vnorm(wp)
 			setcursor(wp);
 		}
 	}
+	if (wp->lastch == '\n' && dowrap(wp, cursor.hp))
+		update(wp);			/* update screen/cursor position */
+
+	save = wp->dot;
 	if (wp->lastch == '\n' && wp->dosmode && !rawinput) {
 		while (--n >= 0)
 			insert(wp, UC "\r\n", 2L);	/* insert the chars into the file*/
@@ -81,23 +113,22 @@ vnorm(wp)
 			insert(wp, &wp->lastch, 1L);	/* insert the char into the file*/
 	}
 	dispup(wp, wp->dot, save);		/* update display with inserted chars*/
+	hp = cursor.hp;
+	if (wp->lastch != '\n') {		/* Cheap estimation of hp    */
+		extern	Uchar	csize[];	/* The character sizes table */
 
-	if (wp->lastch != '\n' &&
-	    ((wp->wrapmargin && cursor.hp > (wp->llen - wp->wrapmargin)) ||
-	    (wp->maxlinelen && cursor.hp > wp->maxlinelen))) {
-		save = wp->dot;
-		if ((wp->dot = revword(wp, save, (ecnt_t)1)) > revline(wp, save, (ecnt_t)1)) {
-			update(wp);
-			diff += wp->dot;
+		if (wp->lastch == TAB) {
 			n = wp->curnum;
-			wp->curnum = 1;
-			vnl(wp);
-			wp->curnum = n;
-			diff -= wp->dot;
+
+			while (--n >= 0)
+				hp = (hp / wp->tabstop) * wp->tabstop +
+					wp->tabstop;
+		} else {
+			hp += wp->curnum * csize[wp->lastch];
 		}
-		wp->dot = save - diff;
+		dowrap(wp, hp);
 	}
-	modified(wp);
+	modified(wp);				/* display '*' in info field */
 }
 
 /*

@@ -1,12 +1,12 @@
-/* @(#)inp.c	1.21 18/06/14 2011-2018 J. Schilling */
+/* @(#)inp.c	1.22 21/07/22 2011-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inp.c	1.21 18/06/14 2011-2018 J. Schilling";
+	"@(#)inp.c	1.22 21/07/22 2011-2021 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011-2018 J. Schilling
+ *	Copyright (c) 2011-2021 J. Schilling
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following condition is met:
@@ -165,7 +165,7 @@ _("Can't find %s--attempting to get it from SCCS.\n"),
 					/* i_size, I thing that's okay */
 	if (i_womp == Nullch)
 		return (FALSE);
-	if ((ifd = open(filename, 0)) < 0)
+	if ((ifd = open(filename, O_RDONLY)) < 0)
 		pfatal(_("Can't open file %s\n"), filename);
 	if (read(ifd, i_womp, (int)i_size) != i_size) {
 		Close(ifd);	/* probably means i_size > 15 / 16 bits worth */
@@ -297,7 +297,7 @@ _("Good.  This file appears to be the %s version.\n"),
 	}
 	Fclose(ifp);
 	Close(tifd);
-	if ((tifd = open(TMPINNAME, 0)) < 0) {
+	if ((tifd = open(TMPINNAME, O_RDONLY)) < 0) {
 		pfatal(_("Can't reopen file %s\n"), TMPINNAME);
 	}
 }

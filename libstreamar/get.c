@@ -1,13 +1,13 @@
-/* @(#)get.c	1.2 17/02/15 Copyright 2011-2017 J. Schilling */
+/* @(#)get.c	1.4 21/07/26 Copyright 2011-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)get.c	1.2 17/02/15 Copyright 2011-2017 J. Schilling";
+	"@(#)get.c	1.4 21/07/26 Copyright 2011-2021 J. Schilling";
 #endif
 /*
  *	Get a file from a StreamArchive and store it in the filesystem
  *
- *	Copyright (c) 2011-2017 J. Schilling
+ *	Copyright (c) 2011-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/maxpath.h>
 #include <schily/strar.h>
 #include "table.h"
 

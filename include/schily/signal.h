@@ -1,8 +1,8 @@
-/* @(#)signal.h	1.14 19/08/17 Copyright 1997-2019 J. Schilling */
+/* @(#)signal.h	1.16 21/07/15 Copyright 1997-2021 J. Schilling */
 /*
  *	Signal abstraction for signals
  *
- *	Copyright (c) 1997-2019 J. Schilling
+ *	Copyright (c) 1997-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,6 +38,16 @@
 #ifndef	SIGCHLD		/* POSIX name is missing */
 #ifdef	SIGCLD
 #define	SIGCHLD	SIGCLD
+#endif
+#endif
+
+/*
+ * z/OS does not provide the NSIG definition, so we #define it here
+ * based on the largest signal number we are aware of in 2021.
+ */
+#ifndef	NSIG
+#if	(defined(OS390) || defined(__MVS__)) && defined(SIGDUMP)
+#define	NSIG	(SIGDUMP+1)
 #endif
 #endif
 

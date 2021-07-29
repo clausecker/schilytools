@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)misc.cc	1.18 21/03/26 2017-2021 J. Schilling
+ * @(#)misc.cc	1.19 21/07/27 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.18 21/03/26 2017-2021 J. Schilling";
+	"@(#)misc.cc	1.19 21/07/27 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -60,7 +60,11 @@ static	UConst char sccsid[] =
 #include <mk/defs.h>
 #include <mksh/macro.h>		/* SETVAR() */
 #include <mksh/misc.h>		/* enable_interrupt() */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdarg.h>	/* va_list, va_start(), va_end() */
+#else
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
+#endif
 #include <vroot/report.h>	/* SUNPRO_DEPENDENCIES */
 
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
@@ -871,6 +875,16 @@ cond_macros_into_string(Name np, String_rec *buffer)
 
 
 /* Some includes are commented because of the includes at the beginning */
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+/* #include <schily/signal.h> */
+#include <schily/types.h>
+#include <schily/stat.h>
+#include <schily/param.h>
+/* #include <schily/string.h> */
+#include <schily/unistd.h>
+#include <schily/stdlib.h>
+/* #include <schily/stdio.h> */
+#else
 /* #include <signal.h> */
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -879,10 +893,12 @@ cond_macros_into_string(Name np, String_rec *buffer)
 #include <unistd.h>
 #include <stdlib.h>
 /* #include <stdio.h> */
+#endif	/* defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES) */
+
 /* #include <avo/find_dir.h> */
 /* #ifndef TEAMWARE_MAKE_CMN
 #include <avo/find_dir.h>
-#endif */
+#endif TEAMWARE_MAKE_CMN */
 
 /* Routines to find the base directory name from which the various components
  * -executables, *crt* libraries etc will be accessed

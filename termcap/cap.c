@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.58 21/03/23 Copyright 2000-2021 J. Schilling */
+/* @(#)cap.c	1.59 21/07/22 Copyright 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.58 21/03/23 Copyright 2000-2021 J. Schilling";
+	"@(#)cap.c	1.59 21/07/22 Copyright 2000-2021 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -367,7 +367,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s %s (%s-%s-%s)\n\n", "1.58", "2021/03/23",
+		printf("termcap %s %s (%s-%s-%s)\n\n", "1.59", "2021/07/22",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2021 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -1708,7 +1708,7 @@ read_names(fname, do_tc, obsolete_last)
 
 	if (fname == NULL)
 		fname = "/etc/termcap";
-	tfd = open(fname, 0);
+	tfd = open(fname, O_RDONLY);
 	if (tfd < 0)
 		comerr("Cannot open '%s'\n", fname);
 

@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read.cc	1.30 21/05/10 2017-2021 J. Schilling
+ * @(#)read.cc	1.31 21/07/11 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.30 21/05/10 2017-2021 J. Schilling";
+	"@(#)read.cc	1.31 21/07/11 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1581,7 +1581,10 @@ case scan_name_state:
 				source_p++;
 				goto resume_name_scan;
 			}
-			/* Make sure the "+" is followed by a "=" */
+			/*
+			 * Make sure the "+" is followed by a "="
+			 * or by a ":="
+			 */
 		scan_append:
 			switch (*++source_p) {
 			case nul_char:
@@ -1644,12 +1647,19 @@ case scan_name_state:
 					break;
 				}
 			case two_colon:
-				if (!sunpro_compat && !svr4) {
+				if (separator == two_colon) /* fallthrough? */
+#ifdef	GNU_ASSIGN_BY_DEFAULT
+				if (
+#else
+				if ((posix || gnu_style) &&
+#endif
+				    !sunpro_compat && !svr4) {
 					separator = gnu_assign_seen;
 					on_eoln_state = enter_equal_state;
 					break;
 				}
 			case three_colon:
+				if (separator == three_colon) /* fallthrough? */
 				if (!sunpro_compat && !svr4) {
 					separator = assign_seen;
 					on_eoln_state = enter_equal_state;

@@ -1,6 +1,6 @@
-#ident @(#)rules.inc	1.12 21/04/28 
+#ident @(#)rules.inc	1.13 21/07/11 
 ###########################################################################
-# Written 1999 by J. Schilling
+# Written 1999-2021 by J. Schilling
 ###########################################################################
 #
 # Rules for creating include files (usually found in .../incs/machdir)
@@ -42,8 +42,12 @@ LIBS_PATH += $(LIBS_PATH_STATIC)
 
 all:		$(PTARGETCX) $(PTARGET)
 
+###########################################################################
+# We used to use $(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
+# but the compiler on z/OS does not like $(LDFLAGS) after $(POFILES).
+###########################################################################
 $(PTARGETCX):	$(OFILES) $(SRCLIBS)
-		$(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
+		$(LDCC) $(_LD_OUTPUT_OPTION) $(LDFLAGS) $(POFILES) $(LDLIBS)
 #
 # If calling "$(PTARGETC)$(_XEXEEXT)" fails, this may be a cross compilation,
 # so retry to run the command under control of "$(CONFIG_RMTCALL)".

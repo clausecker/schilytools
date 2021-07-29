@@ -1,6 +1,6 @@
-#ident @(#)local.cnf	1.15 21/04/28 
+#ident @(#)local.cnf	1.18 21/07/14 
 ###########################################################################
-# Written 1998-2019 by J. Schilling
+# Written 1998-2021 by J. Schilling
 ###########################################################################
 #
 # Make Rules for local dynamic configuration
@@ -36,12 +36,18 @@ $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h: $(LCONFIG_DEP) $(ARCHDIR)/Inull \
 	$(RUL_LCONF)
 
 ###########################################################################
+# We used LDFLAGS="$(LDOPTS)" since 2007, but the z/OS compiler does not
+# like -L /dir with a not yet existing directrory. We then did pass LDFLAGS=""
+# but this results in wrong configure results on FreeBSD if -L/usr/local/lib
+# is needed. Now configure uses a different link command line on OS/390.
+###########################################################################
 RUL_LCONF=	$(NOECHO)echo "	==> CONFIGURING LOCAL RULES \"$@\""; \
 		$(RM_F) $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h; \
 		cd $(ARCHDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS) $(CPPFLAGS)" \
-		LDFLAGS="$(LDOPTS)" CONFIG_SHELL=$(SHELL) \
+		LDFLAGS="$(LDOPTS:%$(OLIBSDIR)=%../../$(OLIBSDIRR))" \
+		CONFIG_SHELL=$(SHELL) \
 		$(SHELL) $(INVERSE_SUBARCHDIR)../../configure $(CONFFLAGS)
 ###########################################################################
 include $(ARCHDIR)/Inull

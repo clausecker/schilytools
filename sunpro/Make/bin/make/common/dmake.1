@@ -1,4 +1,4 @@
-. \" @(#)dmake.1	1.11 20/11/22 Copyr 2017-2020 J. Schilling
+. \" @(#)dmake.1	1.13 21/06/12 Copyr 2017-2021 J. Schilling
 . \"  Manual Seite fuer dmake
 .\"
 .\" CDDL HEADER START
@@ -35,7 +35,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH DMAKE 1 "2020/11/22" "SunOS 5.11" "SunOS Specific Commands"
+.TH DMAKE 1 "2021/06/12" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 dmake \- parallel make from Distributed Make
 .SH SYNOPSIS
@@ -98,6 +98,15 @@ option.
 .BI \-j\  dmake-max-jobs
 Specifies the maximum total number of jobs that are
 run in parallel.
+.sp
+The environment
+.B DMAKE_ADJUST_MAX_JOBS
+and the command line macro of the same name manage the way
+.B make
+controls the number of jobs.
+See the chapter
+.B "ENVIRONMENT VARIABLES
+for more information.
 .TP
 .BR \-m\  { serial " | " parallel }
 Allows to specify one of the following key words:
@@ -213,21 +222,34 @@ targets to the right of
 .TP
 .SM \fBDMAKE_ADJUST_MAX_JOBS\fP
 This macro allows to control the parallel make behavior.
+The macro 
+.B DMAKE_ADJUST_MAX_JOBS
+may either be imported from the environment or specified
+on the command line.
 The following values are possible:
 .RS
 .TP
 .B YES
-Allow
-.B dmake
-to control the number of jobs based on the current system load.
-If the load is high, the number of jobs will be reduced.
-If the load is low, the number of jobs specified by the user is used.
+This is the same as specifying 
+.BI DMAKE_ADJUST_MAX_JOBS= M1
 .TP
 .B NO
-The number of jobs is not adjusted based on the load of the system.
+The number of jobs is not adjusted based on the load of the system
+or the total number of jobs.
+.TP
+.B M1
+Allow
+.B dmake
+to control the number of jobs
+.B "based on the current system load.
+If the load is high, the number of jobs will be reduced.
+If the load is low, the number of jobs specified by the user is used.
+.sp
+This is the default method used to control the number of jobs.
 .TP
 .B M2
-The number of jobs is adjusted based on the total number of jobs
+The number of jobs is adjusted
+.B "based on the total number of jobs
 run by the current group of running
 .B make
 programs.
@@ -309,6 +331,17 @@ neither supports the default configuration file
 nor an alternate location specified by the
 .B DMAKE_RCFILE
 environment or macro. 
+.br
+.ne 2
+.TP
+.B __DMAKE_M2_FILE__
+If
+.B DMAKE_ADJUST_MAX_JOBS
+is set to
+.BR M2 ,
+this environment variable holds a handle to the shared memory
+that is used to manage the job pool. Do never set this environment
+variable.
 .LP
 For other
 .B "ENVIRONMENT/MACROS"

@@ -1,8 +1,8 @@
-/* @(#)stdlib.h	1.11 15/11/28 Copyright 1996-2015 J. Schilling */
+/* @(#)stdlib.h	1.12 21/07/19 Copyright 1996-2021 J. Schilling */
 /*
  *	Definitions for stdlib
  *
- *	Copyright (c) 1996-2015 J. Schilling
+ *	Copyright (c) 1996-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,6 +47,10 @@ extern "C" {
 #if !defined(_INCL_STDLIB_H) && !defined(_INCL_POSIX_MALLOC_H)
 extern	char	*malloc();
 extern	char	*realloc();
+#endif
+
+#if	defined(OS390) || defined(__MVS__)
+extern	void	*valloc __PR((size_t));
 #endif
 
 #ifndef	_INCL_STDLIB_H

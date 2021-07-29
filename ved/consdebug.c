@@ -1,13 +1,13 @@
-/* @(#)consdebug.c	1.23 18/09/20 Copyright 1986-2009 J. Schilling */
+/* @(#)consdebug.c	1.24 21/07/22 Copyright 1986-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)consdebug.c	1.23 18/09/20 Copyright 1986-2009 J. Schilling";
+	"@(#)consdebug.c	1.24 21/07/22 Copyright 1986-2021 J. Schilling";
 #endif
 /*
  *	Print debugging messages to the console or to "VED_DBGTERM" environment
  *
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -102,7 +102,7 @@ writecons(s)
 		if ((cname = getenv("VED_DBGTERM")) == NULL)
 			cname = "/dev/console";
 
-		f = open(cname, 1);
+		f = open(cname, O_WRONLY);
 		if (f == 0)
 			return (0);
 	}

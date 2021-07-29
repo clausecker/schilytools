@@ -1,8 +1,8 @@
-/* @(#)util.c	1.41 20/12/02 2011-2020 J. Schilling */
+/* @(#)util.c	1.42 21/07/22 2011-2020 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.41 20/12/02 2011-2020 J. Schilling";
+	"@(#)util.c	1.42 21/07/22 2011-2020 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -68,7 +68,7 @@ move_file(from, to)
 		if (debug & 4)
 			say(_("Moving %s to stdout.\n"), from);
 #endif
-		fromfd = open(from, 0);
+		fromfd = open(from, O_RDONLY);
 		if (fromfd < 0) {
 			pfatal(_("internal error, can't reopen %s\n"),
 				from);
@@ -157,7 +157,7 @@ backup_done:
 			    to, from);
 			return (-1);
 		}
-		fromfd = open(from, 0);
+		fromfd = open(from, O_RDONLY);
 		if (fromfd < 0) {
 			pfatal(_("internal error, can't reopen %s\n"),
 				from);
@@ -211,7 +211,7 @@ copy_file(from, to)
 	tofd = creat(to, 0666);
 	if (tofd < 0)
 		pfatal(_("can't create %s.\n"), to);
-	fromfd = open(from, 0);
+	fromfd = open(from, O_RDONLY);
 	if (fromfd < 0)
 		pfatal(_("internal error, can't reopen %s\n"), from);
 	/*
@@ -381,7 +381,7 @@ ask(fmt, va_alist)
 		Fflush(stdout);
 		write(STDOUT_FILENO, buf, strlen(buf));
 		r = read(STDOUT_FILENO, buf, bufsize);
-	} else if ((ttyfd = open("/dev/tty", 2)) >= 0 && isatty(ttyfd)) {
+	} else if ((ttyfd = open("/dev/tty", O_RDWR)) >= 0 && isatty(ttyfd)) {
 					/* might be deleted or unwriteable */
 		write(ttyfd, buf, strlen(buf));
 		r = read(ttyfd, buf, bufsize);

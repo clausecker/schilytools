@@ -1,8 +1,8 @@
-/* @(#)make.c	1.225 21/05/28 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
+/* @(#)make.c	1.226 21/07/22 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.225 21/05/28 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
+	"@(#)make.c	1.226 21/07/22 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/getargs.h>
 #include <schily/errno.h>
+#include <schily/fcntl.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/unistd.h>
@@ -1694,7 +1695,7 @@ copy_file(from, objname)
 	int	fout;
 	int	cnt = -1;
 
-	if ((fin = open(from, 0)) < 0)
+	if ((fin = open(from, O_RDONLY)) < 0)
 		errmsg("Can't open '%s'.\n", from);
 	else {
 		if ((fout = creat(objname, 0666)) < 0)

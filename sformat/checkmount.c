@@ -1,13 +1,13 @@
-/* @(#)checkmount.c	1.20 09/07/11 Copyright 1991-2009 J. Schilling */
+/* @(#)checkmount.c	1.21 21/07/23 Copyright 1991-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)checkmount.c	1.20 09/07/11 Copyright 1991-2009 J. Schilling";
+	"@(#)checkmount.c	1.21 21/07/23 Copyright 1991-2021 J. Schilling";
 #endif
 /*
  *	Check if disk or part of disk is mounted
  *
- *	Copyright (c) 1991-2009 J. Schilling
+ *	Copyright (c) 1991-2021 J. Schilling
  *
  *	XXX #ifdef HAVE_DKIO ist vorerst nur ein Hack
  */
@@ -33,7 +33,7 @@ static	UConst char sccsid[] =
 #include <schily/device.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
-#ifdef	HAVE_SYS_MNTENT_H
+#ifdef	HAVE_SYS_MNTTAB_H
 #include <sys/mnttab.h>		/* Before sys/mntent.h for SCO UnixWare */
 #endif
 #ifdef	HAVE_SYS_MNTENT_H

@@ -1,11 +1,11 @@
-/* @(#)README	1.2 17/05/02 Copyright 2017 J. Schilling */
+/* @(#)README	1.3 21/06/15 Copyright 2017 J. Schilling */
 
 The CPP macros SCHILY_BUILD and SCHILY_INCLUDES are used to modify compile
 behavior:
 
 SCHILY_BUILD		Is set by the Schily Makefile System and indicates that
 			the autoconfiguration was retrieved dynamically by the
-			Schily autoconf system. This macro os not defined on a
+			Schily autoconf system. This macro is not defined on a
 			OpenSolaris-ON based build system.
 
 SCHILY_INCLUDES		Is set by a build system that likes to indicate that
@@ -13,7 +13,7 @@ SCHILY_INCLUDES		Is set by a build system that likes to indicate that
 			files are used in order to abstract from platform
 			specific system include files.
 
-WARNING:	HP-UX-10.x is unable to compile C++ pograms in large file mode
+WARNING:	HP-UX-10.x is unable to compile C++ programs in large file mode
 		because of a bug in /usr/include/sys/_inttypes.h.
 
 		You may compile the SunPro make program using:
@@ -24,10 +24,10 @@ WARNING:	HP-UX-10.x is unable to compile C++ pograms in large file mode
 		content.
 
 The code has been converted from catgets() to gettext() and to use only a
-single text dmomain for the whole project. The original code from Sun used a
+single text domain for the whole project. The original code from Sun used a
 separate text domain for the libraries.
 
-These sources compile the following binaries:
+These sources compile the following resulting binaries:
 
 .../bin/make		A program that is compatible to the SunPro make basic
 			binary installed on Solaris as /usr/ccs/bin/make
@@ -45,12 +45,13 @@ These sources compile the following binaries:
 			nor any grid build features.
 
 			It supports the -j dmake_max_jobs option and
-			defaults to -j 2.
+			defaults to -j 2 is -j is not specified.
 
 
 .../xpg4/bin/make	A POSIX compliant version of the SunPro make basic
 			binary. It is installed on Solaris as
 			/usr/xpg4/bin/make.
 
+.../bin/svr4.make
 .../lib/svr4.make	A program that is compatible to the SVr4 make binary.
 			It is installed on Solaris as /usr/ccs/lib/svr4.make.

@@ -1,13 +1,13 @@
-/* @(#)idops.c	1.40 13/07/30 Copyright 1985-2013 J. Schilling */
+/* @(#)idops.c	1.41 21/07/19 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idops.c	1.40 13/07/30 Copyright 1985-2013 J. Schilling";
+	"@(#)idops.c	1.41 21/07/19 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	uid und gid Routinen
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,6 +59,7 @@ LOCAL	int	readpw		__PR((FILE ** std, char *passwd, int size));
 
 #ifdef	DO_SUID
 
+#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPWNAM) || defined(HAVE_PW_PASSWD)
 /* ARGSUSED */
 EXPORT void
 bsuid(vp, std, flag)
@@ -68,7 +69,7 @@ bsuid(vp, std, flag)
 {
 	char		passwd[100];
 	struct passwd	*pw;
-#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPNAM)
+#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPWNAM)
 #ifdef	HAVE_GETSPNAM
 	struct spwd	*sp;
 #else
@@ -97,7 +98,7 @@ bsuid(vp, std, flag)
 		return;
 	}
 	name = (vp->av_ac == 2) ? vp->av_av[1] : SUNAME;
-#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPNAM)
+#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPWNAM)
 	seteuid(0);
 	if ((pw = getpwnam(name)) == (struct passwd *)0 ||
 #ifdef	HAVE_GETSPNAM
@@ -130,7 +131,7 @@ bsuid(vp, std, flag)
 		return;
 	}
 	new_uid = pw->pw_uid;
-#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPNAM)
+#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPWNAM)
 	if (geteuid() && (strlen(sp->sp_pwdp) > (unsigned)0)) {
 #else
 	if (geteuid() && (strlen(pw->pw_passwd) > (unsigned)0)) {
@@ -145,7 +146,7 @@ bsuid(vp, std, flag)
 		fputc('\n', std[1]);
 /*		bp = encrypt_password(passwd, buf);*/
 
-#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPNAM)
+#if	defined(HAVE_GETSPNAM) || defined(HAVE_GETSPWNAM)
 		bp = crypt(passwd, sp->sp_pwdp);
 		if (!streql(bp, sp->sp_pwdp)) {
 			seteuid(0);
@@ -249,6 +250,18 @@ error  No function to set uid available
 	if (vp->av_ac == 2)	/* mit su admin wird man real admin */
 		setuid(new_uid);
 }
+#else
+/* ARGSUSED */
+EXPORT void
+bsuid(vp, std, flag)
+	Argvec	*vp;
+	FILE	*std[];
+	int	flag;
+{
+	fprintf(std[2], "suid: unsupported.\n");
+	ex_status = 1;
+}
+#endif
 
 #ifdef	SYSLOG
 LOCAL void

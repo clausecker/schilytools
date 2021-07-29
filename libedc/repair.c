@@ -1,8 +1,8 @@
-/* @(#)repair.c	1.4 10/05/24 Copyright 2001-2010 J. Schilling */
+/* @(#)repair.c	1.5 21/07/22 Copyright 2001-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)repair.c	1.4 10/05/24 Copyright 2001-2010 J. Schilling";
+	"@(#)repair.c	1.5 21/07/22 Copyright 2001-2021 J. Schilling";
 #endif
 /*
  * Code to check libedc_ecc_dec
@@ -46,7 +46,7 @@ char	xxx[2352];
 int
 main()
 {
-	int	f = open("OOO", 0);
+	int	f = open("OOO", O_RDONLY);
 	int	f2;
 	int	f3;
 	int	f4;

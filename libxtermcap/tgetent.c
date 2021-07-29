@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.49 20/12/10 Copyright 1986-2020 J. Schilling */
+/* @(#)tgetent.c	1.50 21/07/22 Copyright 1986-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.49 20/12/10 Copyright 1986-2020 J. Schilling";
+	"@(#)tgetent.c	1.50 21/07/22 Copyright 1986-2021 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2020 J. Schilling
+ *	Copyright (c) 1986-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -252,7 +252,7 @@ nextfile:
 		return (0);			/* Signal not found */
 	}
 
-	if ((tfd = open(ep, 0)) < 0) {
+	if ((tfd = open(ep, O_RDONLY)) < 0) {
 		err = geterrno();
 
 		strncpy(tbuf, ep, TMAX);	/* Remember failed path */

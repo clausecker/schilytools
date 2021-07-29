@@ -1,13 +1,13 @@
-/* @(#)copy.c	1.52 18/09/27 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling */
+/* @(#)copy.c	1.53 21/07/22 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.52 18/09/27 Copyright 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling";
+	"@(#)copy.c	1.53 21/07/22 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling";
 #endif
 /*
  *	copy files ...
  *
- *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2018 J. Schilling
+ *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -301,8 +301,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf(_("Copy release %s %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2018 %s\n"),
-				"1.52", "2018/09/27",
+		printf(_("Copy release %s %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2021 %s\n"),
+				"1.53", "2021/07/22",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -595,7 +595,7 @@ copyfile(from, to, fromsize, disksize)
 	STATBUF statbuf;
 		BOOL	do_sparse = FALSE;
 
-	if ((fin = open(from, 0)) < 0) {
+	if ((fin = open(from, O_RDONLY)) < 0) {
 		errmsg(_("Cannot open '%s'.\n"), from);
 		return (-1);
 	}

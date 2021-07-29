@@ -1,13 +1,13 @@
-/* @(#)send.c	1.8 19/12/03 Copyright 2011-2019 J. Schilling */
+/* @(#)send.c	1.9 21/07/22 Copyright 2011-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)send.c	1.8 19/12/03 Copyright 2011-2019 J. Schilling";
+	"@(#)send.c	1.9 21/07/22 Copyright 2011-2021 J. Schilling";
 #endif
 /*
  *	Send data for a StreamArchive to the output file
  *
- *	Copyright (c) 2011-2019 J. Schilling
+ *	Copyright (c) 2011-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -100,7 +100,7 @@ strar_st_send(s, sp)
 
 	if (type >= XT_FILE && type <= XT_CONT) {
 		if (sp->st_size > 0) {
-			if ((f = open(s->f_name, 0)) < 0) {
+			if ((f = open(s->f_name, O_RDONLY)) < 0) {
 				return (-1);
 			}
 		}

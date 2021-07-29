@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)macro.c	1.101 20/12/12 2008-2020 J. Schilling
+ * @(#)macro.c	1.102 21/07/21 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.101 20/12/12 2008-2020 J. Schilling";
+	"@(#)macro.c	1.102 21/07/21 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -50,10 +50,16 @@ static	UConst char sccsid[] =
 
 #ifdef	SCHILY_INCLUDES
 #include	"sym.h"
+#include	<schily/param.h>
 #include	<schily/wait.h>
 #else
 #include	"sym.h"
+#include	<sys/param.h>
 #include	<wait.h>
+#endif
+
+#ifndef	MAXPATHLEN
+#define	MAXPATHLEN	1024
 #endif
 
 #define	no_pipe	(int *)0

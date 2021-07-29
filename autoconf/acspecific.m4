@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.20 20/11/13 Copyright 1998-2017 J. Schilling
+dnl @(#)acspecific.m4	1.23 21/06/25 Copyright 1998-2021 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -204,7 +204,7 @@ AC_DEFUN(AC_PROG_CC_WORKS,
 [AC_MSG_CHECKING([whether the C compiler ($CC $CFLAGS $LDFLAGS) works])
 AC_LANG_SAVE
 AC_LANG_C
-AC_TRY_COMPILER([main(){return(0);}], ac_cv_prog_cc_works, ac_cv_prog_cc_cross)
+AC_TRY_COMPILER([int main(){return(0);}], ac_cv_prog_cc_works, ac_cv_prog_cc_cross)
 AC_LANG_RESTORE
 AC_MSG_RESULT($ac_cv_prog_cc_works)
 if test $ac_cv_prog_cc_works = no; then
@@ -872,7 +872,7 @@ esac
 AC_CACHE_CHECK(whether closedir returns void, ac_cv_func_closedir_void,
 [AC_TRY_RUN([#include <sys/types.h>
 #include <$ac_header_dirent>
-int closedir(); main() { return(closedir(opendir(".")) != 0); }],
+int closedir(); int main() { return(closedir(opendir(".")) != 0); }],
   ac_cv_func_closedir_void=no, ac_cv_func_closedir_void=yes, ac_cv_func_closedir_void=yes)])
 if test $ac_cv_func_closedir_void = yes; then
   AC_DEFINE(VOID_CLOSEDIR)
@@ -966,6 +966,7 @@ changequote(<<, >>)dnl
 #define NGID 256
 #undef MAX
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+int
 main()
 {
   gid_t gidset[NGID];
@@ -1044,7 +1045,7 @@ AC_DEFUN(AC_FUNC_CLOSEDIR_VOID,
 AC_CACHE_CHECK(whether closedir returns void, ac_cv_func_closedir_void,
 [AC_TRY_RUN([#include <sys/types.h>
 #include <$ac_header_dirent>
-int closedir(); main() { return(closedir(opendir(".")) != 0); }],
+int closedir(); int main() { return(closedir(opendir(".")) != 0); }],
   ac_cv_func_closedir_void=no, ac_cv_func_closedir_void=yes, ac_cv_func_closedir_void=yes)])
 if test $ac_cv_func_closedir_void = yes; then
   AC_DEFINE(CLOSEDIR_VOID)
@@ -1056,7 +1057,7 @@ AC_DEFUN(AC_FUNC_FNMATCH,
 # Some versions of Solaris or SCO have a broken fnmatch function.
 # So we run a test program.  If we are cross-compiling, take no chance.
 # Thanks to John Oleynick and Franc,ois Pinard for this test.
-[AC_TRY_RUN([main() { return (fnmatch ("a*", "abc", 0) != 0); }],
+[AC_TRY_RUN([int main() { return (fnmatch ("a*", "abc", 0) != 0); }],
 ac_cv_func_fnmatch_works=yes, ac_cv_func_fnmatch_works=no,
 ac_cv_func_fnmatch_works=no)])
 if test $ac_cv_func_fnmatch_works = yes; then
@@ -1236,6 +1237,7 @@ int     pid;
 int     pg1, pg2, pg3, pg4;
 int     ng, np, s, child;
 
+int
 main()
 {
         pid = getpid();
@@ -1292,6 +1294,7 @@ AC_TRY_RUN([
  * If this system has a BSD-style setpgrp, which takes arguments, exit
  * successfully.
  */
+int
 main()
 {
     if (setpgrp(1,1) == -1)
@@ -1480,6 +1483,7 @@ AC_DEFUN(AC_FUNC_WAIT3,
 #endif
 #include <stdio.h>
 /* HP-UX has wait3 but does not fill in rusage at all.  */
+int
 main() {
   struct rusage r;
   int i;
@@ -1576,7 +1580,7 @@ done
 fi
 
 AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
-[AC_TRY_RUN([find_stack_direction ()
+[AC_TRY_RUN([int find_stack_direction ()
 {
   static char *addr = 0;
   auto char dummy;
@@ -1588,6 +1592,7 @@ AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
   else
     return (&dummy > addr) ? 1 : -1;
 }
+int
 main ()
 {
   return (find_stack_direction() < 0);
@@ -1706,6 +1711,7 @@ AC_DEFUN(AC_FUNC_UTIME_NULL,
 # Sequent interprets utime(file, 0) to mean use start of epoch.  Wrong.
 AC_TRY_RUN([#include <sys/types.h>
 #include <sys/stat.h>
+int
 main() {
 struct stat s, t;
 return(!(stat ("conftestdata", &s) == 0 && utime("conftestdata", (long *)0) == 0
@@ -1722,6 +1728,7 @@ fi
 AC_DEFUN(AC_FUNC_STRCOLL,
 [AC_CACHE_CHECK(for working strcoll, ac_cv_func_strcoll_works,
 [AC_TRY_RUN([#include <string.h>
+int
 main ()
 {
   return (strcoll ("abc", "def") >= 0 ||
@@ -1739,6 +1746,7 @@ AC_DEFUN(AC_FUNC_SETVBUF_REVERSED,
   ac_cv_func_setvbuf_reversed,
 [AC_TRY_RUN([#include <stdio.h>
 /* If setvbuf has the reversed format, exit 0. */
+int
 main () {
   /* This call has the arguments reversed.
      A reversed system may check and see that the address of main
@@ -1771,6 +1779,7 @@ LIBS="-lintl $LIBS"])])])
 AC_DEFUN(AC_FUNC_MEMCMP,
 [AC_CACHE_CHECK(for 8-bit clean memcmp, ac_cv_func_memcmp_clean,
 [AC_TRY_RUN([
+int
 main()
 {
   char c0 = 0x40, c1 = 0x80, c2 = 0x81;
@@ -1929,6 +1938,7 @@ AC_TRY_RUN(
 #if !defined(__STDC__) || __STDC__ != 1
 #define volatile
 #endif
+int
 main() {
   volatile char c = 255; return(c < 0);
 }], ac_cv_c_char_unsigned=yes, ac_cv_c_char_unsigned=no)
@@ -1958,7 +1968,7 @@ fi
 AC_DEFUN(AC_INT_16_BITS,
 [AC_OBSOLETE([$0], [; instead use AC_CHECK_SIZEOF(int)])dnl
 AC_MSG_CHECKING(whether int is 16 bits)
-AC_TRY_RUN([main() { return(sizeof(int) != 2); }],
+AC_TRY_RUN([int main() { return(sizeof(int) != 2); }],
  [AC_MSG_RESULT(yes)
  AC_DEFINE(INT_16_BITS)], AC_MSG_RESULT(no))
 ])
@@ -1966,7 +1976,7 @@ AC_TRY_RUN([main() { return(sizeof(int) != 2); }],
 AC_DEFUN(AC_LONG_64_BITS,
 [AC_OBSOLETE([$0], [; instead use AC_CHECK_SIZEOF(long)])dnl
 AC_MSG_CHECKING(whether long int is 64 bits)
-AC_TRY_RUN([main() { return(sizeof(long int) != 8); }],
+AC_TRY_RUN([int main() { return(sizeof(long int) != 8); }],
  [AC_MSG_RESULT(yes)
  AC_DEFINE(LONG_64_BITS)], AC_MSG_RESULT(no))
 ])
@@ -1986,7 +1996,7 @@ AC_TRY_COMPILE([#include <sys/types.h>
  not big endian
 #endif], ac_cv_c_bigendian=yes, ac_cv_c_bigendian=no)])
 if test $ac_cv_c_bigendian = unknown; then
-AC_TRY_RUN([main () {
+AC_TRY_RUN([int main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
   union
   {
@@ -2009,7 +2019,7 @@ AC_DEFUN(AC_C_INLINE,
 [AC_CACHE_CHECK([for inline], ac_cv_c_inline,
 [ac_cv_c_inline=no
 for ac_kw in inline __inline__ __inline; do
-  AC_TRY_COMPILE(, [} $ac_kw foo() {], [ac_cv_c_inline=$ac_kw; break])
+  AC_TRY_COMPILE(, [} $ac_kw int foo() {], [ac_cv_c_inline=$ac_kw; break])
 done
 ])
 case "$ac_cv_c_inline" in
@@ -2407,6 +2417,7 @@ AC_DEFUN(AC_SYS_RESTARTABLE_SYSCALLS,
 #include <sys/types.h>
 #include <signal.h>
 ucatch (isig) { }
+int
 main () {
   int i = fork (), status;
   if (i == 0) { sleep (3); kill (getppid (), SIGINT); sleep (3); return (0); }

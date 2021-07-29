@@ -1,13 +1,13 @@
-/* @(#)ttycmds.c	1.29 20/11/24 Copyright 1984-2020 J. Schilling */
+/* @(#)ttycmds.c	1.30 21/07/07 Copyright 1984-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttycmds.c	1.29 20/11/24 Copyright 1984-2020 J. Schilling";
+	"@(#)ttycmds.c	1.30 21/07/07 Copyright 1984-2021 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c
  *
- *	Copyright (c) 1984-2020 J. Schilling
+ *	Copyright (c) 1984-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -342,10 +342,16 @@ tty_start(outchar)
 	if (errstr)		/* XXX */
 		return (errstr);
 
+#ifdef	__never__
+	/*
+	 * Do not set up  default unless we invented a method to let ved
+	 * work on a hardcopy terminal.
+	 */
 	if ((pagesize = tgetnum("li")) <= 1)
 		pagesize = 2;
 	if ((linelength = tgetnum("co")) <= 4)
 		linelength = 80;
+#endif
 
 	/*
 	 *  Now, parse the content of the TERMCAP data base buffer.

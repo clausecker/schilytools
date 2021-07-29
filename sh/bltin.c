@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2021 J. Schilling
  *
- * @(#)bltin.c	1.149 21/05/08 2008-2021 J. Schilling
+ * @(#)bltin.c	1.150 21/07/12 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.149 21/05/08 2008-2021 J. Schilling";
+	"@(#)bltin.c	1.150 21/07/12 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -473,7 +473,14 @@ builtin(type, argc, argv, t, xflags)
 				    0:1, cdopt))	/* If already printed */
 					wd = NULL;	/* don't do it again */
 #endif
+#ifdef	DO_POSIX_CD
+				/*
+				 * "cd -" should print the new directory.
+				 */
+				if ((cf(UC nullstr, dir) || a1 != argv[ind]) &&
+#else
 				if (cf(UC nullstr, dir) &&
+#endif
 				    *dir != ':' &&
 				    any('/', curstak()) &&
 				    flags & prompt) {

@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.50 21/06/01 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.56 21/07/11 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/06/01" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/07/11" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -398,6 +398,15 @@ special-function target
 Specifies the maximum total number of jobs that are
 run in parallel.
 .sp
+The environment
+.B DMAKE_ADJUST_MAX_JOBS
+and the command line macro of the same name manage the way
+.B make
+controls the number of jobs.
+See the chapter
+.B "ENVIRONMENT VARIABLES
+for more information.
+.sp
 This option is not available in case that
 .B make
 has not been compiled with support for parallel make features.
@@ -644,6 +653,16 @@ this definition can still be overridden by conditional macro assignments.
 Macro definition. The value is expanded before the assignment is done.
 This variant of a macro definition creates a different macro type that
 is not expanded on use.
+.sp
+The
+.B ::=
+operator is only supported if
+.B make
+is either in
+.B GNU compatibility
+mode or in
+.B POSIX
+mode.
 
 .sp
 .ne 2
@@ -1370,6 +1389,16 @@ variant of the GNU immediate assignment that is
 portable to
 .B make
 implementations that are compatible to POSIX issue 8.
+.sp
+The
+.B ::=
+operator is only supported if
+.B make
+is either in
+.B GNU compatibility
+mode or in
+.B POSIX
+mode.
 .sp
 Warning: This operator may cause unpredictable behavior, since it creates a
 different type of macro that is not expanded on use and that causes a different
@@ -4063,8 +4092,111 @@ variables that affect the execution of
 and
 .BR NLSPATH .
 .br
-.ne 2
+.ne 5
 .TP 17n
+.SM \fBDMAKE_ADJUST_MAX_JOBS\fP
+This environment variable allows to control the parallel make behavior.
+The macro 
+.B DMAKE_ADJUST_MAX_JOBS
+may either be imported from the environment or specified
+on the command line.
+The following values are possible:
+.RS
+.TP
+.B YES
+This is the same as specifying 
+.BI DMAKE_ADJUST_MAX_JOBS= M1
+.TP
+.B NO
+The number of jobs is not adjusted based on the load of the system
+or the total number of jobs.
+.TP
+.B M1
+Allow
+.B make
+to control the number of jobs
+.B "based on the current system load.
+If the load is high, the number of jobs will be reduced.
+If the load is low, the number of jobs specified by the user is used.
+.sp
+This is the default method used to control the number of jobs.
+.TP
+.B M2
+The number of jobs is adjusted
+.B "based on the total number of jobs
+run by the current group of running
+.B make
+programs.
+This is implemented via shared memory that is set up between
+recursively called make programs.
+.RE
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_MAX_JOBS\fP
+Allows to set the maximum number of jobs in case that
+.B \-j
+was not specified.
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_MODE\fP
+May contain one of the following key words:
+.RS
+.TP 10
+.B serial
+Causes
+.B make
+to behave like the standard serial version of
+.BR make .
+.TP
+.B parallel
+Causes
+.B make
+to run several jobs in parallel on the
+.B dmake
+host.
+.RE
+.br
+.ne 3
+.TP
+.SM \fBDMAKE_OUTPUT_MODE\fP
+Controls the output format used by
+.BR make .
+The following values are possible:
+.RS
+.TP 8
+.B TXT1
+The default behavior.
+Serialize stdout and stderr, and print a label before the output
+from a new job starts.
+.TP
+.B TXT2
+Serialize stdout and stderr, but do not print the labels from
+.B TXT1
+mode.
+.RE
+.br
+.ne 2
+.TP
+.B DMAKE_STATISTICS
+If this environment variable is present,
+.B make
+prints a set of allocation statistics at the end of the run.
+.br
+.ne 2
+.TP
+.B __DMAKE_M2_FILE__
+If
+.B DMAKE_ADJUST_MAX_JOBS
+is set to
+.BR M2 ,
+this environment variable holds a handle to the shared memory
+that is used to manage the job pool. Do never set this environment
+variable.
+.br
+.ne 2
+.TP
 .B KEEP_STATE
 This environment variable has the same effect as the .KEEP_STATE:
 special-function target. It enables command dependencies, hidden

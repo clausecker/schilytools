@@ -1,0 +1,20 @@
+#ifdef	ADDFIX5060758			Supress leading '-' while reading MAKEFLAGS
+#ifdef	_CHECK_UPDATE_H			Sun Dmake binary auto update service
+#ifdef	DISTRIBUTED			Old Sun distrinuted make via "rxm"
+#ifdef	DMAKE_STATISTICS		* Enable dmake allocation statistics
+#ifdef	LTEST				NSE Debugging
+#ifdef	MAKETOOL			Unknown
+#ifdef	MAXJOBS_ADJUST_RFE4694000	Support for DMAKE_ADJUST_MAX_JOBS=M2
+#ifdef	__needed__			??? /* never used in parallel mode */
+#ifdef	NSE				NSE extensions from 1986
+#ifdef	PARALLEL			???
+#ifdef	PMAKE				* Enable Parallel make features separately (schily)
+#ifdef	PRINT_EXIT_STATUS		Debug for Developers only
+#ifdef	PRINT_EXPLICIT_DEPEN		#ifndef PRINT_EXPLICIT_DEPEN use: dependency->automatic
+#ifdef	REDIRECT_ERR			* Redirect stderr separately
+#ifdef	SGE_DEBUG			Enable debugging for Sun Grid engine
+#ifdef	SGE_SUPPORT			Enable support for Sun Grid engine
+#ifdef	SUN5_0				strange #define that should be replaced
+#ifdef	SUNOS4_AND_AFTER		similar to above
+#ifdef	TEAMWARE_MAKE_CMN		Sun Closed source distributed, check each #ifdef!
+#ifdef	USE_DMS_CCR			Usage Tracking ???

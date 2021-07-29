@@ -1,13 +1,13 @@
-/* @(#)ved.c	1.91 20/11/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling */
+/* @(#)ved.c	1.93 21/07/07 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.91 20/11/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling";
+	"@(#)ved.c	1.93 21/07/07 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2020 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -163,7 +163,7 @@ main(ac, av)
 		printf("ved %s %s (%s-%s-%s)\n\n",
 			ved_version, VERSION_DATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2020 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2021 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -215,6 +215,11 @@ main(ac, av)
 	if (wp->llen <= 0 || wp->psize <= 0)	/* Paranoia: check screen size */
 		excomerrno(wp, EX_BAD,
 		"Bad line length or page size in terminal descriptor.\r\n");
+	{ extern char	HC;
+	if (HC)
+		excomerrno(wp, EX_BAD,
+		"Cannot work on a hardcopy terminal - yet.\r\n");
+	}
 
 	wp->markwrap = TRUE;
 	wp->magic = TRUE;

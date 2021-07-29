@@ -1,13 +1,13 @@
-/* @(#)terminal.c	1.45 19/06/25 Copyright 1984-2019 J. Schilling */
+/* @(#)terminal.c	1.46 21/07/22 Copyright 1984-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)terminal.c	1.45 19/06/25 Copyright 1984-2019 J. Schilling";
+	"@(#)terminal.c	1.46 21/07/22 Copyright 1984-2021 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP
  *
- *	Copyright (c) 1984-2019 J. Schilling
+ *	Copyright (c) 1984-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -125,7 +125,7 @@ winch(signo)
 		signal(signo, winch);
 
 #ifdef	HAVE__DEV_TTY
-	tty = open("/dev/tty", 0);
+	tty = open("/dev/tty", O_RDONLY);
 #endif
 	if (tty == -1)
 		tty = fileno(stderr);

@@ -1,8 +1,8 @@
-/* @(#)header.c	1.96 19/12/03 Copyright 2001-2019 J. Schilling */
+/* @(#)header.c	1.99 21/07/26 Copyright 2001-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.96 19/12/03 Copyright 2001-2019 J. Schilling";
+	"@(#)header.c	1.99 21/07/26 Copyright 2001-2021 J. Schilling";
 #endif
 /*
  *	Handling routines for StreamArchive header metadata.
@@ -18,7 +18,7 @@ static	UConst char sccsid[] =
  *	include any UTF-8 character, the "value" is using UTF-8 or
  *	binary data.
  *
- *	Copyright (c) 2001-2019 J. Schilling
+ *	Copyright (c) 2001-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,6 +44,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/schily.h>
 #include <schily/idcache.h>
+#include <schily/maxpath.h>
 #include <schily/strar.h>
 
 #include "header.h"
@@ -1093,7 +1094,7 @@ get_snumber(keyword, arg, ullp, negp, minval, maxval)
 }
 
 /*
- * get user id (if > 2097151)
+ * get user id
  * POSIX requires uid_t to be a signed int but the values for uid_t to be
  * non-negative.
  * We allow signed ints and carefully check the values.
@@ -1133,7 +1134,7 @@ get_uid(info, keyword, klen, arg, len)
 }
 
 /*
- * get group id (if > 2097151)
+ * get group id
  * POSIX requires gid_t to be a signed int but the values for gid_t to be
  * non-negative.
  * We allow signed ints and carefully check the values.
@@ -1180,7 +1181,7 @@ LOCAL	Uchar	_uname[MAX_UNAME+2];
 LOCAL	Uchar	_gname[MAX_UNAME+2];
 
 /*
- * get user name (if name length is > 32 chars or if contains non ASCII chars)
+ * get user name
  */
 /* ARGSUSED */
 LOCAL void
@@ -1214,7 +1215,7 @@ get_uname(info, keyword, klen, arg, len)
 }
 
 /*
- * get group name (if name length is > 32 chars or if contains non ASCII chars)
+ * get group name
  */
 /* ARGSUSED */
 LOCAL void
@@ -1248,7 +1249,7 @@ get_gname(info, keyword, klen, arg, len)
 }
 
 /*
- * get path (if name length is > 100-255 chars or if contains non ASCII chars)
+ * get path
  */
 /* ARGSUSED */
 LOCAL void
@@ -1283,7 +1284,7 @@ get_path(info, keyword, klen, arg, len)
 }
 
 /*
- * get link path (if name length is > 100 chars or if contains non ASCII chars)
+ * get link path
  */
 /* ARGSUSED */
 LOCAL void
@@ -1318,7 +1319,7 @@ get_lpath(info, keyword, klen, arg, len)
 }
 
 /*
- * get size, either real size or size on tape (usually when size is > 8 GB)
+ * get size, either real size or size on tape
  * The file size is doubtlessly an ungined integer
  */
 /* ARGSUSED */

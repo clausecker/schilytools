@@ -1,9 +1,9 @@
-/* @(#)libport.h	1.51 19/10/22 Copyright 1995-2019 J. Schilling */
+/* @(#)libport.h	1.52 21/06/16 Copyright 1995-2021 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
  *
- *	Copyright (c) 1995-2019 J. Schilling
+ *	Copyright (c) 1995-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -361,15 +361,15 @@ extern	int		fstatat __PR((int fd, const char *name,
 #ifdef	_SCHILY_TIME_H
 #ifndef	HAVE_FUTIMENS
 extern	int		futimens __PR((int fd,
-					const struct timespec __times[2]));
+					const struct timespec __times__[2]));
 #endif
 #ifndef	HAVE_FUTIMESAT
 extern	int		futimesat __PR((int fd, const char *name,
-					const struct timeval __times[2]));
+					const struct timeval __times__[2]));
 #endif
 #ifndef	HAVE_LUTIMENS
 extern	int		lutimens __PR((const char *name,
-					const struct timespec __times[2]));
+					const struct timespec __times__[2]));
 #endif
 #endif	/* _SCHILY_TIME_H */
 #ifndef	HAVE_LINKAT
@@ -407,11 +407,11 @@ extern	int		unlinkat __PR((int fd, const char *name, int flag));
 #ifdef	_SCHILY_TIME_H
 #ifndef	HAVE_UTIMENS
 extern	int		utimens __PR((const char *name,
-					const struct timespec __times[2]));
+					const struct timespec __times__[2]));
 #endif
 #ifndef	HAVE_UTIMENSAT
 extern	int		utimensat __PR((int fd, const char *name,
-					const struct timespec __times[2],
+					const struct timespec __times__[2],
 					int flag));
 #endif
 #endif	/* _SCHILY_TIME_H */

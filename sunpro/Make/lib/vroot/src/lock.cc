@@ -29,17 +29,27 @@
 #pragma	ident	"@(#)lock.cc	1.17	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * This file contains modifications Copyright 2017-2021 J. Schilling
  *
- * @(#)lock.cc	1.7 18/03/25 2017-2018 J. Schilling
+ * @(#)lock.cc	1.8 21/07/28 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)lock.cc	1.7 18/03/25 2017-2018 J. Schilling";
+	"@(#)lock.cc	1.8 21/07/28 2017-2021 J. Schilling";
 #endif
 
 #include <avo/intl.h>	/* for NOCATGETS */
+
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/stdio.h>
+#include <schily/stdlib.h>
+#include <schily/string.h>
+#include <schily/param.h>
+#include <schily/stat.h>
+#include <schily/types.h>
+#include <schily/unistd.h>
+#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,10 +57,18 @@ static	UConst char sccsid[] =
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#endif
+
 #include <vroot/vroot.h>
 #include <mksh/defs.h>	/* for libintl */
+
+#if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
+#include <schily/signal.h>
+#include <schily/errno.h>		/* errno */
+#else
 #include <signal.h>
 #include <errno.h>			/* errno */
+#endif
 
 #if	!defined(HAVE_STRERROR)
 extern	char		*sys_errlist[];

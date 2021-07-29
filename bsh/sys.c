@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.82 17/07/15 Copyright 1986-2017 J. Schilling */
+/* @(#)sys.c	1.84 21/07/22 Copyright 1986-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.82 17/07/15 Copyright 1986-2017 J. Schilling";
+	"@(#)sys.c	1.84 21/07/22 Copyright 1986-2021 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2017 J. Schilling
+ *	Copyright (c) 1986-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -822,7 +822,7 @@ LOCAL BOOL
 is_binary(name)
 	char	*name;
 {
-	int		f = open(name, 0);
+	int		f = open(name, O_RDONLY);
 	unsigned char	c = ' ';
 
 	if (f < 0 || read(f, &c, 1) != 1) {
@@ -838,7 +838,7 @@ LOCAL BOOL
 is_binary(name)
 	char	*name;
 {
-	int	f = open(name, 0);
+	int	f = open(name, O_RDONLY);
 	struct	exec x;
 	unsigned char	c;
 
@@ -936,7 +936,8 @@ ruadd(ru, ru2)
 	timeradd(&ru->ru_utime, &ru2->ru_utime);
 	timeradd(&ru->ru_stime, &ru2->ru_stime);
 
-#if !defined(__BEOS__) && !defined(__HAIKU__)
+#if !defined(__BEOS__) && !defined(__HAIKU__) && \
+    !defined(OS390) && !defined(__MVS__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;
@@ -966,7 +967,8 @@ rusub(ru, ru2)
 	timersub(&ru->ru_utime, &ru2->ru_utime);
 	timersub(&ru->ru_stime, &ru2->ru_stime);
 
-#if !defined(__BEOS__) && !defined(__HAIKU__)
+#if !defined(__BEOS__) && !defined(__HAIKU__) && \
+    !defined(OS390) && !defined(__MVS__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;

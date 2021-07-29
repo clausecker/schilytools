@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.16 21/04/21 Copyright 1999-2021 J. Schilling
+# @(#)config.sub	1.18 21/06/15 Copyright 1999-2021 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -153,6 +153,7 @@ case $basic_machine in
 	# Some are omitted here because they have special meanings below.
 	tahoe | i860 | m32r | m68k | m68000 | m88k | ns32k | arc \
 		| aarch64 | arm | arm64 \
+		| riscv \
 		| arme[lb] | pyramid | mn10200 | mn10300 | tron | a29k \
 		| 580 | i960 | h8300 | hppa | hppa1.0 | hppa1.1 | hppa2.0 | hppa2.0? \
 		| alpha | alphaev5 | alphaev56 | we32k | ns16k | clipper \
@@ -182,6 +183,7 @@ case $basic_machine in
 	vax-* | tahoe-* | i[34567]86-* | i860-* | m32r-* | m68k-* | m68000-* \
 	      | m88k-* | sparc-* | ns32k-* | fx80-* | arc-* \
 	      | aarch64-* | arm-* | arm64-* \
+	      | riscv-* \
 	      | c[123]* \
 	      | mips-* | pyramid-* | tron-* | a29k-* | romp-* | rs6000-* \
 	      | power-* | none-* | 580-* | cray2-* | h8300-* | i960-* \
@@ -682,6 +684,8 @@ case $basic_machine in
 	orion105)
 		basic_machine=clipper-highlevel
 		;;
+	1090-ibm)	# z/OS emulator
+		;;
 	*)
 		echo Invalid configuration \`$1\': machine \`$basic_machine\' not recognized 1>&2
 		exit 1
@@ -817,6 +821,8 @@ case $os in
 		;;
 	-tos)
 		os=-tos
+		;;
+	-os_390)
 		;;
 
 	-none)

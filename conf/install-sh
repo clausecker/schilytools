@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)install-sh	1.11 09/01/29 1999-2009 J. Schilling
+# @(#)install-sh	1.12 21/07/14 1999-2021 J. Schilling
 #
 # install - install a program, script, or datafile
 # This comes from X11R5 (mit/util/scripts/install.sh).
@@ -66,6 +66,19 @@ noclobber=""
 #
 # Check if we are 'root' to avoid chown as non root user
 #
+# On z/OS, the program "id" delivers: 
+# uid=0(OMVSKERN) gid=0(SYS1)
+# if logged in as root.
+#
+ROOTUSR=root
+ROOTGRP=root
+BINGRP=bin
+UNAME_SYSTEM=`($uname -s) 2>/dev/null`
+if [ ."$UNAME_SYSTEM" = ".OS/390" ]; then
+	ROOTUSR=OMVSKERN
+	ROOTGRP=SYS1
+	BINGRP=SYS1
+fi
 rootflag=FALSE
 dstdir=/tmp/xd.$$
 dsttmp=${dstdir}/xx.$$
@@ -73,7 +86,7 @@ trap "rm -f ${dsttmp}; rm -rf ${dstdir}" 0
 mkdir ${dstdir}
 ${chmodcmd} ${dstdir}
 echo > ${dsttmp}
-${chownprog} root ${dsttmp} 2> /dev/null && ${chmodcmd} ${dsttmp} 2> /dev/null && rootflag=TRUE
+${chownprog} "$ROOTUSR" ${dsttmp} 2> /dev/null && ${chmodcmd} ${dsttmp} 2> /dev/null && rootflag=TRUE
 #
 # Win95 has no user 'root' and chown succeeds always.
 # Unfortunately, there is also no user 'bin' and chown complains about
@@ -81,7 +94,7 @@ ${chownprog} root ${dsttmp} 2> /dev/null && ${chmodcmd} ${dsttmp} 2> /dev/null &
 # Check if the file is now really owned by 'root' to avoid the Win95 probems
 #
 if [ $rootflag = TRUE ]; then
-	ls -l ${dsttmp} 2> /dev/null | grep root > /dev/null || rootflag=FALSE
+	ls -l ${dsttmp} 2> /dev/null | grep "$ROOTUSR" > /dev/null || rootflag=FALSE
 fi
 rm -f ${dsttmp}
 rm -rf ${dstdir}
@@ -140,7 +153,11 @@ while [ x"$1" != x ]; do
 
 	-o) if [ $rootflag = TRUE ]
 	    then
-		chowncmd="$chownprog $2"
+		if [ "$2" = root ]; then
+			chowncmd="$chownprog $ROOTUSR"
+		else
+			chowncmd="$chownprog $2"
+		fi
 	    else
 		echo "install: -o option available only to root -- ignored"
 	    fi
@@ -150,7 +167,13 @@ while [ x"$1" != x ]; do
 
 	-g) if [ $rootflag = TRUE ]
 	    then
-		chgrpcmd="$chgrpprog $2"
+		if [ "$2" = root ]; then
+			chgrpcmd="$chgrpprog $ROOTGRP"
+		elif [ "$2" = bin ]; then
+			chgrpcmd="$chgrpprog $BINGRP"
+		else
+			chgrpcmd="$chgrpprog $2"
+		fi
 	    else
 		echo "install: -g option available only to root -- ignored"
 	    fi

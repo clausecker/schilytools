@@ -1,8 +1,8 @@
-/* @(#)maxpath.h	1.13 17/04/27 Copyright 1985, 1995, 1998, 2001-2017 J. Schilling */
+/* @(#)maxpath.h	1.14 21/07/26 Copyright 1985, 1995, 1998, 2001-2021 J. Schilling */
 /*
  *	Definitions for dealing with statically limitations on pathnames
  *
- *	Copyright (c) 1985, 1995, 1998, 2001-2017 J. Schilling
+ *	Copyright (c) 1985, 1995, 1998, 2001-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -63,6 +63,9 @@
 #define	PATH_MAX	MAXPATHNAME
 #endif
 
+#ifndef	MAXPATHLEN
+#define	MAXPATHLEN	PATH_MAX		/* For some Solaris srcs */
+#endif
 
 /*
  * Don't use defaults here to allow recognition of problems.

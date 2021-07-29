@@ -1,13 +1,13 @@
-/* @(#)maptodisk.c	1.32 09/07/14 Copyright 1991-2009 J. Schilling */
+/* @(#)maptodisk.c	1.33 21/07/22 Copyright 1991-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)maptodisk.c	1.32 09/07/14 Copyright 1991-2009 J. Schilling";
+	"@(#)maptodisk.c	1.33 21/07/22 Copyright 1991-2021 J. Schilling";
 #endif
 /*
  *	Routines to map SCSI targets to logical disk names
  *
- *	Copyright (c) 1991-2009 J. Schilling
+ *	Copyright (c) 1991-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -564,7 +564,7 @@ map_scg()
 #ifdef	HAVE_DKIO
 	for (i = 0; i < MAX_SCG; i++) {
 		sprintf(dname, "/dev/scg%d", i);
-		if ((f = open(dname, 0)) < 0)
+		if ((f = open(dname, O_RDONLY)) < 0)
 			continue;
 
 		if (ioctl(f, DKIOCGCONF, &conf) < 0) {

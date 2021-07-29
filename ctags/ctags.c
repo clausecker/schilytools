@@ -1,4 +1,4 @@
-/* @(#)ctags.c	1.13 20/03/17 Copyright 1985-2020 J. Schilling */
+/* @(#)ctags.c	1.14 21/07/21 Copyright 1985-2021 J. Schilling */
 /*
  * Copyright (c) 1980 Regents of the University of California.
  * All rights reserved.  The Berkeley software License Agreement
@@ -13,7 +13,7 @@ char copyright[] =
 
 #ifndef lint
 static	char sccsid[] =
-	"@(#)ctags.c	1.13 20/03/17 1985-2020 J. Schilling from UCB 5.1 5/31/85";
+	"@(#)ctags.c	1.14 21/07/21 1985-2021 J. Schilling from UCB 5.1 5/31/85";
 #endif /* not lint */
 
 #include <stdio.h>
@@ -139,7 +139,9 @@ static int	first_char(void);
 static void	toss_yysec(void);
 
 #ifdef	__STDC__
+#undef	index
 #define	index	strchr
+#undef	rindex
 #define	rindex	strrchr
 #else
 char	*rindex(), *index();

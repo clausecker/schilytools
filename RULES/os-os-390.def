@@ -1,10 +1,8 @@
-#ident "@(#)temp-clang.rul	1.4 21/06/23 "
+#ident "@(#)os-os-390.def	1.1 21/06/23 "
 ###########################################################################
-# Written 1997-2019 by J. Schilling
+# Written 2021 by J. Schilling
 ###########################################################################
-#
-# Platform dependent MACROS for unknown CLANG systems
-#
+# Global os definitions for os_390 (Z/OS)
 ###########################################################################
 # Copyright (c) J. Schilling
 ###########################################################################
@@ -20,31 +18,4 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/rules.prg
-###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
-
-OSDEFS +=
-
-KDEFINES=	-DKERNEL -D_KERNEL
-
-SHL_SUFFIX=	.so.$(DYNMAJOR).$(DYNMINOR)
-
-#LIB_SOCKET=	-lsocket -lnsl -ldl
-LIB_SOCKET=	
-LIB_MATH=	-lm
-#LIB_KVM=	-lkvm
-LIB_KVM=	
-
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
-
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
-ARFLAGS=	cr
-#LORDER=		lorder
-#TSORT=		tsort
-LORDER=		echo
-TSORT=		cat
-
-_MKDIR=		$(_MKDIR_SH)
-MKDIR=		$(MKDIR_SH)
-INSMKDIR=	$(INSMKDIR_SH)
+MANSTYLE=	sysv

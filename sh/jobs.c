@@ -37,13 +37,13 @@
 #include "jobs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)jobs.c	1.122 20/11/04 2008-2020 J. Schilling
+ * @(#)jobs.c	1.123 21/07/13 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.122 20/11/04 2008-2020 J. Schilling";
+	"@(#)jobs.c	1.123 21/07/13 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -2151,7 +2151,9 @@ prtime(jp)
 				prtv(&rustop.ru_utime, dig, longopt);
 				break;
 
-#if !defined(__BEOS__) && !defined(__HAIKU__)	/* XXX dirty hack */
+#if !defined(__BEOS__) && !defined(__HAIKU__) && \
+    !defined(OS390) && !defined(__MVS__)
+			/* XXX dirty hack */
 			case 'W':
 				prl_buff(rustop.ru_nswap -
 					jp->j_rustart.ru_nswap);
@@ -2248,7 +2250,8 @@ ruadd(ru, ru2)
 	timeradd(&ru->ru_utime, &ru2->ru_utime);
 	timeradd(&ru->ru_stime, &ru2->ru_stime);
 
-#if !defined(__BEOS__) && !defined(__HAIKU__)
+#if !defined(__BEOS__) && !defined(__HAIKU__) && \
+    !defined(OS390) && !defined(__MVS__)
 #ifdef	__future__
 	if (ru2->ru_maxrss > ru->ru_maxrss)
 		ru->ru_maxrss =	ru2->ru_maxrss;

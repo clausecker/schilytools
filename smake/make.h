@@ -1,4 +1,4 @@
-/* @(#)make.h	1.107 21/05/14 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
+/* @(#)make.h	1.108 21/07/08 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2021 by J. Schilling
@@ -229,10 +229,13 @@ typedef struct patrule {
 #define	DCOLON		(':' | (':'<<8)) /* ::	alternate dependency	    */
 #define	SHVAR		0x1001		 /* :sh= SunPro shell assignment    */
 
-#define	NWARN		0x4000		/* We did warn already on this node */
+/*
+ * If we are using EBCDIC, only the top bit is usable for flags
+ */
+#define	NWARN		0x8000		/* We did warn already on this node */
 
 #define	basetype(x)	((x) & 0xFF)
-#define	ntype(x)	((x) & 0x3FFF)
+#define	ntype(x)	((x) & 0x7FFF)
 
 /*
  * make.c

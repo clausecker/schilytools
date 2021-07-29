@@ -1,13 +1,13 @@
-/* @(#)p.c	1.72 19/01/07 Copyright 1985-2019 J. Schilling */
+/* @(#)p.c	1.73 21/07/22 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.72 19/01/07 Copyright 1985-2019 J. Schilling";
+	"@(#)p.c	1.73 21/07/22 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2019 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -332,8 +332,8 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2019/01/07", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2019 Jörg Schilling\n");
+		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2021/07/22", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2021 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */
@@ -1604,7 +1604,7 @@ LOCAL void
 set_modes()
 {
 #ifdef	HAVE__DEV_TTY
-	if (tty < 0 && (tty = open("/dev/tty", 0)) < 0)
+	if (tty < 0 && (tty = open("/dev/tty", O_RDONLY)) < 0)
 		errmsg("Can't open '/dev/tty'\n");
 #endif
 	if (tty < 0)

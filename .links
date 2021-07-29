@@ -622,6 +622,12 @@
 ./RULES/r-gmake.obj
 ./RULES/r-sunpro.obj
 ./RULES/r-sunpro.tag
+./RULES/riscv-freebsd-cc32.rul
+./RULES/riscv-freebsd-cc64.rul
+./RULES/riscv-freebsd-cc.rul
+./RULES/riscv-freebsd-clang32.rul
+./RULES/riscv-freebsd-clang64.rul
+./RULES/riscv-freebsd-clang.rul
 ./RULES/rs6000-aix-cc32.rul
 ./RULES/rs6000-aix-cc64.rul
 ./RULES/rs6000-aix-gcc32.rul

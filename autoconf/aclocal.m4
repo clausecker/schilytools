@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.120 21/04/28 Copyright 1998-2021 J. Schilling
+dnl @(#)aclocal.m4	1.128 21/07/19 Copyright 1998-2021 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -477,6 +477,19 @@ AC_DEFUN([AC_FUNC_GETPAGESIZE],
 #endif
 ], getpagesize)])
 
+
+dnl Checks if structure 'passwd' have field 'pw_passwd'.
+dnl Defines HAVE_PW_PASSWD on success.
+AC_DEFUN([AC_STRUCT_PW_PASSWD],
+[AC_CACHE_CHECK([if struct passwd contains pw_passwd], ac_cv_struct_pw_passwd,
+                [AC_TRY_COMPILE([#include <sys/types.h>
+#include <pwd.h>],
+                                [struct  passwd p; p.pw_passwd = 0;],
+                                [ac_cv_struct_pw_passwd=yes],
+                                [ac_cv_struct_pw_passwd=no])])
+if test $ac_cv_struct_pw_passwd = yes; then
+  AC_DEFINE(HAVE_PW_PASSWD)
+fi])
 
 dnl Checks if structure 'stat' have field 'st_spare1'.
 dnl Defines HAVE_ST_SPARE1 on success.
@@ -1015,12 +1028,20 @@ AC_DEFUN([AC_HEADER_MAKEDEV],
                ac_cv_header_makedev,
 [ac_cv_header_makedev=none
 AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/mkdev.h>],
+#ifdef	HAVE_SYS_MKDEV_H
+#include <sys/mkdev.h>
+#else
+do not compile if we do not have the header
+#endif],
                [int i = major(0); i = minor(0); i = makedev(0,0);],
                 [ac_cv_header_makedev=sys/mkdev.h])
 if test $ac_cv_header_makedev = none; then
   AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/sysmacros.h>],
+#ifdef	HAVE_SYS_SYSMACROS_H
+#include <sys/sysmacros.h>
+#else
+do not compile if we do not have the header
+#endif],
                  [int i = major(0); i = minor(0); i = makedev(0,0);],
                  [ac_cv_header_makedev=sys/sysmacros.h])
 fi])
@@ -1200,7 +1221,7 @@ AC_DEFUN([AC_VAR_TIMEZONE_DEF],
 AC_CACHE_CHECK([for extern timezone in time.h or sys/time.h], ac_cv_var_timezone_def,
                 [AC_TRY_COMPILE([
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1308,7 +1329,7 @@ AC_DEFUN([AC_STRUCT_TIMEVAL],
 AC_CACHE_CHECK([for struct timeval in time.h or sys/time.h], ac_cv_struct_timeval,
                 [AC_TRY_COMPILE([
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1331,7 +1352,7 @@ AC_DEFUN([AC_STRUCT_TIMEZONE],
 AC_CACHE_CHECK([for struct timezone in time.h or sys/time.h], ac_cv_struct_timezone,
                 [AC_TRY_COMPILE([
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1354,7 +1375,7 @@ AC_DEFUN([AC_STRUCT_TIMESPEC],
 AC_CACHE_CHECK([for struct timespec in time.h or sys/time.h], ac_cv_struct_timespec,
                 [AC_TRY_COMPILE([
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1377,7 +1398,7 @@ AC_DEFUN([AC_TYPE_TIME_T],
 AC_CACHE_CHECK([for time_t], ac_cv_type_time_t,
                 [AC_TRY_COMPILE([
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1406,7 +1427,7 @@ AC_MSG_CHECKING(size of time_t)
 AC_CACHE_VAL(AC_CV_NAME,
 [AC_TRY_RUN([#include <stdio.h>
 #include <sys/types.h>
-#ifdef	TIME_WITH_SYS_TIME_H
+#ifdef	TIME_WITH_SYS_TIME
 #	include <sys/time.h>
 #	include <time.h>
 #else
@@ -1416,11 +1437,12 @@ AC_CACHE_VAL(AC_CV_NAME,
 #	include <time.h>
 #endif
 #endif
+int
 main()
 {
   FILE *f=fopen("conftestval", "w");
   if (!f) return(1);
-  fprintf(f, "%d\n", sizeof(time_t));
+  fprintf(f, "%d\n", (int)sizeof(time_t));
   return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_LONG_INT, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
@@ -1440,11 +1462,12 @@ changequote([, ])dnl
 AC_MSG_CHECKING(size of wchar)
 AC_CACHE_VAL(AC_CV_NAME,
 [AC_TRY_RUN([#include <stdio.h>
+int
 main()
 {
   FILE *f=fopen("conftestval", "w");
   if (!f) return(1);
-  fprintf(f, "%d\n", sizeof(L'a'));
+  fprintf(f, "%d\n", (int)sizeof(L'a'));
   return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=0, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
@@ -1473,11 +1496,12 @@ AC_CACHE_VAL(AC_CV_NAME,
 #ifdef	HAVE_WCHAR_H
 #include <wchar.h>
 #endif
+int
 main()
 {
   FILE *f=fopen("conftestval", "w");
   if (!f) return(1);
-  fprintf(f, "%d\n", sizeof(wchar_t));
+  fprintf(f, "%d\n", (int)sizeof(wchar_t));
   return(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_CHAR, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
@@ -1674,6 +1698,7 @@ dnl Defines PROTOTYPES on success.
 AC_DEFUN([AC_TYPE_PROTOTYPES],
 [AC_CACHE_CHECK([for prototypes], ac_cv_type_prototypes,
                 [AC_TRY_RUN([
+int
 doit(int i, ...)
 {return 0;}
 int
@@ -1871,6 +1896,7 @@ sprintf(s)
 #endif
 {
 	strcpy(s, "DEAD");
+	return (1);
 }
 
 int
@@ -1910,6 +1936,7 @@ sprintf(s)
 #endif
 {
 	strcpy(s, "DEAD");
+	return (1);
 }
 
 int
@@ -1949,6 +1976,7 @@ sprintf(s)
 #endif
 {
 	strcpy(s, "DEAD");
+	return (1);
 }
 
 int
@@ -1994,6 +2022,7 @@ AC_CACHE_CHECK([for mlock], ac_cv_func_mlock,
 extern	int	errno;
 #endif
 
+int
 main()
 {
 	if (mlock(0, 0) < 0) {
@@ -2282,6 +2311,7 @@ intr()
 {
 	signal(SIGSEGV, intr);
 	longjmp(jenv, 1);
+	return (1);
 }
 
 int
@@ -2535,6 +2565,16 @@ AC_CACHE_VAL(AC_CV_NAME,
 #	endif
 #endif
 
+#ifndef	_FOUND_MAJOR_
+#	if	defined(OS390) || defined(__MVS__)
+#		include <sys/stat.h>
+#		define major(dev)		S_MAJOR(dev)
+#		define minor(dev)		S_MINOR(dev)
+#		define makedev(majo, mino)	(((majo) << 16) | (mino))
+#		define _FOUND_MAJOR_
+#	endif /* z/OS */
+#endif /* _FOUND_MAJOR_ */
+
 #ifndef _FOUND_MAJOR_
 #	define major(dev)		(((dev) >> 8) & 0xFF)
 #	define minor(dev)		((dev) & 0xFF)
@@ -2559,7 +2599,7 @@ main()
 		if (minor(l) == 0 && c == 0)
 			c = m;
 		if (minor(l) != 0)
-			m = i;
+			m++;
 	}
 	fprintf(f, "%d\n", m);
 	return(0);
@@ -2600,6 +2640,16 @@ AC_CACHE_CHECK([whether bits in minor device numbers are non contiguous], ac_cv_
 #	endif
 #endif
 
+#ifndef	_FOUND_MAJOR_
+#	if	defined(OS390) || defined(__MVS__)
+#		include <sys/stat.h>
+#		define major(dev)		S_MAJOR(dev)
+#		define minor(dev)		S_MINOR(dev)
+#		define makedev(majo, mino)	(((majo) << 16) | (mino))
+#		define _FOUND_MAJOR_
+#	endif /* z/OS */
+#endif /* _FOUND_MAJOR_ */
+
 #ifndef _FOUND_MAJOR_
 #	define major(dev)		(((dev) >> 8) & 0xFF)
 #	define minor(dev)		((dev) & 0xFF)
@@ -2621,7 +2671,7 @@ main()
 		if (minor(l) == 0 && c == 0)
 			c = m;
 		if (minor(l) != 0)
-			m = i;
+			m++;
 	}
 return (m == c);}],
                 [ac_cv_dev_minor_noncontig=yes],
@@ -2660,9 +2710,10 @@ malloc(s)
 	return (sbrk(s));
 }
 
-free(p) char *p;{}
+int free(p) char *p;{ return (0); }
 #endif	/* !defined(__CYGWIN32__) && !defined(__CYGWIN__) */
 	
+int
 main()
 {
 #if !defined(__CYGWIN32__) && !defined(__CYGWIN__)
@@ -2978,6 +3029,7 @@ AC_DEFUN([AC_HARD_SYMLINKS],
 #include <unistd.h>
 #endif
 
+int
 main()
 {
 	int	ret = 0;
@@ -3011,6 +3063,7 @@ AC_DEFUN([AC_LINK_NOFOLLOW],
 #include <sys/types.h>
 #include <sys/stat.h>
 
+int
 main()
 {
 	int	ret = 0;
@@ -3078,6 +3131,7 @@ AC_CACHE_CHECK([if access() does implement E_OK], ac_cv_access_e_ok,
 extern	int	errno;
 #endif
 
+int
 main()
 {
 #ifdef	_MSC_VER
@@ -3122,6 +3176,7 @@ AC_CACHE_CHECK([if fnmatch() does implement FNM_IGNORECASE or FNM_CASEFOLD], ac_
 #endif
 #endif
 
+int
 main()
 {
 	int	ret;

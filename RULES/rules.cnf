@@ -1,4 +1,4 @@
-#ident @(#)rules.cnf	1.21 21/05/29 
+#ident @(#)rules.cnf	1.25 21/07/14 
 ###########################################################################
 # Written 1998-2021 by J. Schilling
 ###########################################################################
@@ -52,12 +52,23 @@ XCC_COM=	$(__XCC_COM:$(_UNIQ)%=%)
 
 #CONFFLAGS +=	-cc=$(XCC_COM)
 
+###########################################################################
+# Since the linker on z/OS complains about missing dirs if -L<missing>
+# was specified, we create $(OLIBSDIR) here, in order to have it present
+# at startup already.
+###########################################################################
 $(OINCSDIR)/rules.cnf $(OINCSDIR)/xconfig.h: $(OINCSDIR)/Inull \
 					$(SRCROOT)/autoconf/configure \
 					$(SRCROOT)/autoconf/rules.cnf.in \
 					$(SRCROOT)/autoconf/xconfig.h.in
+	$(NOECHO)echo "	==> MAKING DIRECTORY \"$(OLIBSDIR)\""; $(_MKDIR) -p $(OLIBSDIR)
 	$(RUL_CONF)
 
+###########################################################################
+# We used LDFLAGS="$(LDOPTS)" since 2007, but the z/OS compiler does not
+# like -L /dir with a not yet existing directrory. We then did pass LDFLAGS=""
+# but this results in wrong configure results on FreeBSD if -L/usr/local/lib
+# is needed. Now configure uses a different link command line on OS/390.
 ###########################################################################
 OS_DEFS=	$(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 RUL_CONF=	$(NOECHO)echo "	==> CONFIGURING RULES \"$@\""; \
@@ -65,7 +76,8 @@ RUL_CONF=	$(NOECHO)echo "	==> CONFIGURING RULES \"$@\""; \
 		(cd $(OINCSDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(C_FLAGS) $(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS) $(CPPFLAGS)" \
-		LDFLAGS="$(LDOPTS)" CONFIG_SHELL=$(SHELL) \
+		LDFLAGS="$(LDOPTS:%$(OLIBSDIR)=%../../$(OLIBSDIRR))" \
+		CONFIG_SHELL=$(SHELL) \
 		$(SHELL) ../../autoconf/configure $(CONFFLAGS) ); \
 		([ -d  $(SRCROOT)/inc ] && cd $(SRCROOT)/inc && $(MAKE) || :)
 ###########################################################################

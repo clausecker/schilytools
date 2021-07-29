@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.22 18/09/17 Copyright 1995-2018 J. Schilling */
+/* @(#)wait3.c	1.23 21/07/22 Copyright 1995-2021 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.22 18/09/17 Copyright 1995-2018 J. Schilling";
+	"@(#)wait3.c	1.23 21/07/22 Copyright 1995-2021 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -200,7 +200,7 @@ wait_prusage(info, options, tms_startp, rusage)
 	sprintf(cproc, "/proc/%ld/usage", (long)info->si_pid);
 #endif
 	sprintf(cproc, "/proc/%ld", (long)info->si_pid);
-	if ((f = open(cproc, 0)) < 0)
+	if ((f = open(cproc, O_RDONLY)) < 0)
 		goto norusage;
 	if (ioctl(f, PIOCUSAGE, &prusage) < 0) {
 		close(f);

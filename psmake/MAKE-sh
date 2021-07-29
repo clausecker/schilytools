@@ -1,9 +1,10 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.28 20/02/26 "
+#ident "@(#)MAKE-sh	1.30 21/06/24 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
-# to the compile and link process.
+# to the compile and link process. These additional flags in CFLAGS are not
+# passed to configure if there is CF.
 #
 ###############################################################################
 
@@ -119,8 +120,9 @@ fi
 
 ENV_CC=${CC-none}		# Remember "cc" we got from the environment
 CC=${CC-cc}			# Default to "cc"
+PF=				# Internal CPPFLAGS
 CF=				# Internal CFLAGS
-LF=				# Internal linker flahs
+LF=				# Internal linker flags
 INCLUDE="-Iinclude -I."
 #
 # Defines:
@@ -179,6 +181,18 @@ if [ "$SYSTEM" = Linux ]; then
 	DEFINES="$DEFINES -D_GNU_SOURCE"
 fi 
 #
+# Set -D_XOPEN_SOURCE=600 on Z/OS
+#
+if [ "$SYSTEM" = OS/390 ]; then 
+	#
+	# Default to c99 on Z/OS
+	#
+	if [ "$ENV_CC" = none ]; then
+		CC=c99
+	fi
+	PF=-D_XOPEN_SOURCE=600
+fi 
+#
 # VMS does not like -Iinclude, catch "OpenVMS" case also
 #
 case "$SYSTEM" in
@@ -204,6 +218,7 @@ esac
 echo "SYSTEM:		$SYSTEM"
 echo "CC:		$CC"
 echo "OPT:		$OPT"
+echo "CPPFLAGS:		$PF"
 echo "CFLAGS:		$CF"
 echo "INCLUDE:	$INCLUDE"
 echo "CONFIG_SHELL:	${CONFIG_SHELL-sh}"
@@ -216,11 +231,17 @@ fi
 if [ -r config.cache ] && [ -r xconfig.h ]; then
 	echo "Using old configure run results..."
 else
+	if [ ."$PF" != . ]; then
+		CPF="$CPPFLAGS $PF"
+	else
+		CPF="$CPPFLAGS"
+	fi
+
 	if [ ."$CF" != . ]; then
-		eval CC=$CC CFLAGS=$CF CONFIG_NOFAIL=TRUE \
+		eval "CC=\"$CC\"" "CPPFLAGS=\"$CPF\"" "CFLAGS=\"$CF\"" CONFIG_NOFAIL=TRUE \
 		  CONFIG_SHELL=${CONFIG_SHELL-sh} ${CONFIG_SHELL-sh} ./configure
 	else
-		eval CC=$CC CONFIG_NOFAIL=TRUE \
+		eval "CC=\"$CC\"" "CPPFLAGS=\"$CPF\"" CONFIG_NOFAIL=TRUE \
 		  CONFIG_SHELL=${CONFIG_SHELL-sh} ${CONFIG_SHELL-sh} ./configure
 	fi
 fi
@@ -237,51 +258,51 @@ fi
 
 set -x
 
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   make.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   readfile.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   parse.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   update.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   rules.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   archconf.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   job.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   memory.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   astoi.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   astoll.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   comerr.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   eaccess.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   error.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   format.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   getexecpath.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   getnstimeofday.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   jsprintf.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   jssnprintf.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   saveargs.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   seterrno.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strcatl.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strlcpy.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strncpy.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strnlen.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   streql.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   getargs.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   geterrno.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   movebytes.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fillbytes.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   ovstrcpy.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   raisecond.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   rename.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   searchinpath.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   uname.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   unsetenv.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   file_raise.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileopen.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fcons.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   cvmod.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   flag.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   flush.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   dat.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   filewrite.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileread.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileseek.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niread.c
-$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niwrite.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   make.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   readfile.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   parse.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   update.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   rules.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   archconf.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   job.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   memory.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   astoi.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   astoll.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   comerr.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   eaccess.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   error.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   format.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   getexecpath.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   getnstimeofday.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   jsprintf.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   jssnprintf.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   saveargs.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   seterrno.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   strcatl.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   strlcpy.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   strncpy.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   strnlen.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   streql.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   getargs.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   geterrno.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   movebytes.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   fillbytes.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   ovstrcpy.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   raisecond.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   rename.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   searchinpath.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   uname.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   unsetenv.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   file_raise.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   fileopen.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   fcons.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   cvmod.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   flag.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   flush.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   dat.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   filewrite.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   fileread.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   fileseek.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   niread.c
+$CC $OPT $CPF $CF $CFLAGS -c $INCLUDE $DEFINES   niwrite.c
 $CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o job.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o eaccess.$o format.$o getexecpath.$o getnstimeofday.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o strnlen.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o ovstrcpy.$o raisecond.$o rename.$o searchinpath.$o uname.$o unsetenv.$o file_raise.$o fileopen.$o fcons.$o cvmod.$o flag.$o flush.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o

@@ -1,8 +1,8 @@
-/* @(#)utypes.h	1.37 18/12/19 Copyright 1997-2018 J. Schilling */
+/* @(#)utypes.h	1.38 21/07/11 Copyright 1997-2021 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
- *	Copyright (c) 1997-2018 J. Schilling
+ *	Copyright (c) 1997-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,8 +49,12 @@ typedef	unsigned char	Uchar;
  * which does not allow to use unsigned char bit fields as a hint
  * for packed bit fields. Define a pesical type to avoid warnings.
  * The packed attribute is honored wit unsigned int in this case too.
+ *
+ * The z/OS compiler acts like the AIX compiler with regards to
+ * packed bit fields. __MVS__ is the internal #define from c99 on OS390.
  */
-#if	defined(_AIX) && !defined(__GNUC__)
+#if	(defined(_AIX) || defined(OS390) || defined(__MVS__)) && \
+	!defined(__GNUC__)
 
 typedef unsigned int	Ucbit;
 
