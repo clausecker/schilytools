@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2020 J. Schilling
+ * Copyright 2008-2021 J. Schilling
  *
- * @(#)fault.c	1.52 20/10/08 2008-2020 J. Schilling
+ * @(#)fault.c	1.53 21/08/13 2008-2021 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.52 20/10/08 2008-2020 J. Schilling";
+	"@(#)fault.c	1.53 21/08/13 2008-2021 J. Schilling";
 #endif
 
 /*
@@ -63,6 +63,7 @@ static	UConst char sccsid[] =
 #endif
 #ifndef	SIGSTKSZ
 #define	SIGSTKSZ	8192
+#define	HAVE_SIGSTKSZ_CONST	1
 #endif
 #ifndef	SA_SIGINFO
 #define	SA_SIGINFO	0
@@ -107,7 +108,9 @@ static	void (*psigerr_func) __PR((int)) = SIG_ERR;
 #endif
 
 #if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
+#ifdef	HAVE_SIGSTKSZ_CONST
 static	char sigsegv_stack[SIGSTKSZ];
+#endif
 #endif
 
 static int	ignoring	__PR((int i));
@@ -428,6 +431,9 @@ stdsigs()
 	int	i;
 #if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
 	stack_t	ss;
+#ifndef	HAVE_SIGSTKSZ_CONST
+	char	*sigsegv_stack = alloc(SIGSTKSZ);
+#endif
 #endif
 #ifdef	SIGRTMIN
 	int rtmin = (int)SIGRTMIN;

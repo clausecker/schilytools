@@ -31,9 +31,9 @@
 #pragma	ident	"@(#)defs.h	1.61	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.14 20/11/17 2017-2020 J. Schilling
+ * @(#)defs.h	1.17 21/08/13 2017-2021 J. Schilling
  */
 
 /*
@@ -237,10 +237,12 @@ extern	Name		dmake_group;
 extern	Name		dmake_max_jobs;
 extern	Name		dmake_mode;
 extern	DMake_mode	dmake_mode_type;
+extern	Name		dmake_compat_mode;
 extern	Name		dmake_output_mode;
 extern	DMake_output_mode	output_mode;
 extern	Name		dmake_odir;
 extern	Name		dmake_rcfile;
+extern	Name		dollar;
 extern	Name		done;
 extern	Name		dot;
 extern	Name		dot_keep_state;
@@ -388,6 +390,9 @@ extern	Doname		doname(register Name target, register Boolean do_get, register Bo
 extern	Doname		doname_check(register Name target, register Boolean do_get, register Boolean implicit, register Boolean automatic);
 extern	Doname		doname_parallel(Name target, Boolean do_get, Boolean implicit);
 extern	Doname		dosys(register Name command, register Boolean ignore_error, register Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err);
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
+extern	void		job_adjust_posix(void);
+#endif
 extern	void		dump_make_state(void);
 extern	void		dump_target_list(void);
 extern	void		enter_conditional(register Name target, Name name, Name value, register Boolean append);

@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.128 21/07/10 Copyright 1985-2021 J. Schilling */
+/* @(#)parse.c	1.129 21/08/06 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.128 21/07/10 Copyright 1985-2021 J. Schilling";
+	"@(#)parse.c	1.129 21/08/06 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -969,6 +969,7 @@ cplist(l)
 }
 
 EXPORT	BOOL	in_parser;
+EXPORT	BOOL	in_varassign;
 
 /*
  * Expand one object name using make macro definitions.
@@ -1059,9 +1060,13 @@ getlist(typep)
 		if (n) {
 			o = objlook(gbuf, TRUE);
 			if (*typep == VAR_ASSIGN || *typep == GNU_ASSIGN ||
-			    *typep == ADD_VARMAC)
+			    *typep == ADD_VARMAC) {
+				if (*typep == VAR_ASSIGN || *typep == ADD_VARMAC)
+					in_varassign++;	/* Inhibit $$ expans. */
 				tail = exp_list(o, tail);
-			else
+				if (*typep == VAR_ASSIGN || *typep == ADD_VARMAC)
+					in_varassign--;
+			} else
 				tail = listcat(o, tail);
 		}
 	} else while ((o = getnam(type)) != (obj_t *) NULL) {

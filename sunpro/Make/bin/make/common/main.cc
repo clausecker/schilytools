@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)main.cc	1.56 21/07/11 2017-2021 J. Schilling
+ * @(#)main.cc	1.58 21/08/13 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.56 21/07/11 2017-2021 J. Schilling";
+	"@(#)main.cc	1.58 21/08/13 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -159,6 +159,7 @@ extern void job_adjust_fini();
  */
 static	char		*argv_zero_string;
 static	char		*argv_zero_base;
+static	char		*dmake_compat_value;
 static	Boolean		build_failed_ever_seen;
 static	Boolean		continue_after_error_ever_seen;	/* `-k' */
 static	Boolean		dmake_group_specified;		/* `-g' */
@@ -216,6 +217,7 @@ extern	Name		normalize_name(register wchar_t *name_string, register int length);
 
 extern	int		main(int, char * []);
 
+static	void		scan_dmake_compat_mode(char *);
 static	void		append_makeflags_string(Name, String);
 static	void		doalarm(int);
 static	void		enter_argv_values(int , char **, ASCII_Dyn_Array *);
@@ -470,24 +472,9 @@ main(int argc, char *argv[])
 	}
 
 	/*
-	 * Find the dmake_compat_mode: posix, sun, svr4, or gnu_style, .
+	 * Find the dmake_compat_mode: posix, sun, svr4, or gnu_style.
 	 */
-	char * dmake_compat_mode_var = getenv(NOCATGETS("SUN_MAKE_COMPAT_MODE"));
-	if (dmake_compat_mode_var != NULL) {
-		sunpro_compat = true;
-		if (0 == strcasecmp(dmake_compat_mode_var, NOCATGETS("GNU"))) {
-			sunpro_compat = false;
-			gnu_style = true;
-		} else if (0 == strcasecmp(dmake_compat_mode_var,
-							NOCATGETS("POSIX"))) {
-			sunpro_compat = false;
-			gnu_style = false;
-			svr4 = false;
-			posix = true;		
-		}
-		//svr4 = false;
-		//posix = false;
-	}
+	scan_dmake_compat_mode(getenv(NOCATGETS("SUN_MAKE_COMPAT_MODE")));
 
 	/*
 	 * Temporary directory set up.
@@ -557,6 +544,23 @@ main(int argc, char *argv[])
 		cp = getenv(makeflags->string_mb);
 		(void) printf(gettext("MAKEFLAGS value: %s\n"), cp == NULL ? "" : cp);
 	}
+	if (dmake_compat_value) {	/* -x SUN_MAKE_COMPAT_MODE=xxx */
+		char	*p = strchr(dmake_compat_value, '='); /* != NULL */
+
+		scan_dmake_compat_mode(++p);
+
+		/*
+		 * Calling setup_char_semantics() again is needed in case that
+		 * svr4 did change it's value.
+		 */
+		for (i = 0; i < CHAR_SEMANTICS_ENTRIES; i++)
+			char_semantics[i] = 0; 
+		setup_char_semantics();
+	}
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
+	if (posix)
+		job_adjust_posix();		/* DMAKE_ADJUST_MAX_JOBS=M2 */
+#endif
 
 	/*
 	 * If there have been -C options, they have been evaluated with the
@@ -923,6 +927,50 @@ main(int argc, char *argv[])
 	exit(0);
 #endif
 	/* NOTREACHED */
+}
+
+/*
+ * scan_dmake_compat_mode()
+ *
+ *	Called from main(), handles SUN_MAKE_COMPAT_MODE.
+ *
+ *	Parameters:
+ *		dmake_compat_mode_var	The SUN_MAKE_COMPAT_MODE= environ
+ *					or the -x SUN_MAKE_COMPAT_MODE=
+ *					argument.
+ *
+ *	Global variables used:
+ *		sunpro_compat
+ *		gnu_style
+ *		svr4
+ *		posix
+ */
+static void
+scan_dmake_compat_mode(char *dmake_compat_mode_var)
+{
+	if (dmake_compat_mode_var != NULL) {
+		sunpro_compat = true;
+		if (0 == strcasecmp(dmake_compat_mode_var, NOCATGETS("GNU"))) {
+			sunpro_compat = false;
+			gnu_style = true;
+			svr4 = false;
+			posix = false;
+		} else if (0 == strcasecmp(dmake_compat_mode_var,
+							NOCATGETS("POSIX"))) {
+			sunpro_compat = false;
+			gnu_style = false;
+			svr4 = false;
+			posix = true;
+		} else if (0 == strcasecmp(dmake_compat_mode_var,
+							NOCATGETS("SVR4"))) {
+			sunpro_compat = false;
+			gnu_style = false;
+			svr4 = true;
+			posix = false;
+		}
+		//svr4 = false;
+		//posix = false;
+	}
 }
 
 /*
@@ -1600,6 +1648,15 @@ read_command_options(register int argc, register char **argv)
 				break;
 			case 1024: /* -x seen */
 				argv[i] = (char *)NOCATGETS("-x");
+				if (argv[i+1] &&
+				    strstr(argv[i+1],
+					NOCATGETS("SUN_MAKE_COMPAT_MODE=")) ==
+								argv[i+1]) {
+					if (dmake_add_mode_specified)
+						dmake_compat_value = argv[i+1];
+					else
+						dmake_compat_value = NULL;
+				}
 #if !defined(TEAMWARE_MAKE_CMN) && !defined(PMAKE)
 				warning(gettext("Ignoring DistributedMake -x option"));
 #endif
@@ -2738,12 +2795,12 @@ read_files_and_state(int argc, char **argv)
 		append_makeflags_string(dmake_mode, &makeflags_string_posix);
 	}
 	/* -x dmake_compat_mode */
-//	if (dmake_compat_mode_specified) {
-//		MBSTOWCS(wcs_buffer, NOCATGETS("SUN_MAKE_COMPAT_MODE"));
-//		dmake_compat_mode = GETNAME(wcs_buffer, FIND_LENGTH);
-//		append_makeflags_string(dmake_compat_mode, &makeflags_string);
-//		append_makeflags_string(dmake_compat_mode, &makeflags_string_posix);
-//	}
+	if (dmake_compat_mode_specified) {
+		MBSTOWCS(wcs_buffer, NOCATGETS("SUN_MAKE_COMPAT_MODE"));
+		dmake_compat_mode = GETNAME(wcs_buffer, FIND_LENGTH);
+		append_makeflags_string(dmake_compat_mode, &makeflags_string);
+		append_makeflags_string(dmake_compat_mode, &makeflags_string_posix);
+	}
 	/* -x dmake_output_mode */
 	if (dmake_output_mode_specified) {
 		MBSTOWCS(wcs_buffer, NOCATGETS("DMAKE_OUTPUT_MODE"));

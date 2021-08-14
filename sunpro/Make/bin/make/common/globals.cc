@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)globals.cc	1.42	06/12/12"
 
 /*
- * Copyright 2017-2020 J. Schilling
+ * Copyright 2017-2021 J. Schilling
  *
- * @(#)globals.cc	1.14 20/10/31 2017-2020 J. Schilling
+ * @(#)globals.cc	1.16 21/08/11 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.14 20/10/31 2017-2020 J. Schilling";
+	"@(#)globals.cc	1.16 21/08/11 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -102,10 +102,12 @@ static	UConst char sccsid[] =
 	Name		dmake_max_jobs;
 	Name		dmake_mode;
 	DMake_mode	dmake_mode_type;
+	Name		dmake_compat_mode;
 	Name		dmake_output_mode;
 	DMake_output_mode	output_mode = txt1_mode;
 	Name		dmake_odir;
 	Name		dmake_rcfile;
+	Name		dollar;
 	Name		done;
 	Name		dot;
 	Name		dot_keep_state;

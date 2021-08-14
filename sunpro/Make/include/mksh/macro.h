@@ -33,13 +33,23 @@
 /*
  * Copyright 2021 J. Schilling
  *
- * @(#)macro.h	1.2 21/05/10 2021 J. Schilling
+ * @(#)macro.h	1.3 21/08/10 2021 J. Schilling
  */
 
 #include <mksh/defs.h>
 
-extern void	expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Boolean no_expand = false);
-extern void	expand_value(Name value, register String destination, Boolean cmd, Boolean no_expand = false);
+/*
+ * The expansion type for expand_macro() and expand_value().
+ * 
+ */
+typedef enum {
+	deflt_expand =	0,	/* The default macro expansion behavior	    */
+	no_expand =	1,	/* Do not expand GNU type ::= macros	    */
+	keep_ddollar =	2	/* Keep $$ if doing :::= or +:= assignment  */
+} Expand_Type; 
+
+extern void	expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Expand_Type exp_type = deflt_expand);
+extern void	expand_value(Name value, register String destination, Boolean cmd, Expand_Type exp_type = deflt_expand);
 extern Name	getvar(register Name name);
 
 extern Property	setvar_daemon(register Name name, register Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_level);

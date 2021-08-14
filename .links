@@ -247,6 +247,7 @@
 ./psmake/strnlen.c
 ./psmake/uname.c
 ./psmake/update.c
+./psmake/unsetenv.c
 ./psmake/version.h
 ./psmake/xconfig.h.in
 ./readcd/cd_misc.c

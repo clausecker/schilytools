@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.128 21/07/19 Copyright 1998-2021 J. Schilling
+dnl @(#)aclocal.m4	1.129 21/08/13 Copyright 1998-2021 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -3638,6 +3638,18 @@ AC_DEFUN([AC_BROKEN_SRC_SCSI_SG_H],
 CPPFLAGS=$___CPPFLAGS
 if test $ac_cv_broken_src_scsi_sg_h = yes; then
   AC_DEFINE(HAVE_BROKEN_SRC_SCSI_SG_H)
+fi])
+
+dnl Checks whether SIGSTKSZ is a constant
+dnl Defines HAVE_SIGSTKSZ_CONST on success.
+AC_DEFUN([AC_SIGSTKSZ_CONST],
+[AC_CACHE_CHECK([whether SIGSTKSZ is a constant], ac_cv_sigstksz_const,
+                [AC_TRY_COMPILE([#include <signal.h>],
+[char sigsegv_stack[SIGSTKSZ];],
+                [ac_cv_sigstksz_const=yes],
+                [ac_cv_sigstksz_const=no])])
+if test $ac_cv_sigstksz_const = yes; then
+  AC_DEFINE(HAVE_SIGSTKSZ_CONST)
 fi])
 
 AC_DEFUN(AC_PROG_SHELL_BROKEN_E,

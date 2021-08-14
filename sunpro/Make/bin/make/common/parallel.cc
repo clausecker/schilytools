@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)parallel.cc	1.18 21/06/11 2017-2021 J. Schilling
+ * @(#)parallel.cc	1.19 21/08/13 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parallel.cc	1.18 21/06/11 2017-2021 J. Schilling";
+	"@(#)parallel.cc	1.19 21/08/13 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -778,6 +778,28 @@ job_adjust_error() {
 
 		/* and for this dmake */
 		job_adjust_mode = ADJUST_NONE;
+	}
+}
+
+/*
+ *  void job_adjust_posix()
+ *
+ *  Description:
+ *	Sets "DMAKE_ADJUST_MAX_JOBS=M2" for POSIX compatibility in case that
+ *	job_adjust_mode was not yet set. This only works, if job_adjust_init()
+ *	was not yet called.
+ *
+ *  Environment:
+ *	DMAKE_ADJUST_MAX_JOBS
+ *
+ *  External functions:
+ *	putenv()
+ */
+void
+job_adjust_posix() {
+	if (job_adjust_mode == ADJUST_UNKNOWN) {
+		/* switch adjustment for the children to POSIX mode */
+		putenv((char *)NOCATGETS("DMAKE_ADJUST_MAX_JOBS=M2"));
 	}
 }
 

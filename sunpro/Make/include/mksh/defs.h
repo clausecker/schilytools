@@ -33,7 +33,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.30 21/05/13 2017-2021 J. Schilling
+ * @(#)defs.h	1.31 21/08/10 2017-2021 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -152,8 +152,7 @@ typedef enum {
 	false =		0,
 	true =		1,
 	failed =	0,
-	succeeded =	1,
-	noexpand =	1
+	succeeded =	1
 } Boolean;
 #define BOOLEAN(expr)		((expr) ? true : false)
 
@@ -470,6 +469,7 @@ typedef enum {
 	conditional_seen,	/* := seen	*/
 	gnu_assign_seen,	/* ::= seen	*/
 	assign_seen,		/* :::= seen	*/
+	append_assign_seen,	/* +:= seen	*/
 	one_quest,		/* ? seen	*/
 	condequal_seen,		/* ?= seen	*/
 	none_seen

@@ -1,8 +1,8 @@
-/* @(#)update.c	1.143 21/04/15 Copyright 1985, 88, 91, 1995-2021 J. Schilling */
+/* @(#)update.c	1.145 21/08/11 Copyright 1985, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.143 21/04/15 Copyright 1985, 88, 91, 1995-2021 J. Schilling";
+	"@(#)update.c	1.145 21/08/11 Copyright 1985, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -796,6 +796,8 @@ subst(cmd, obj, source, suffix, depends)
 									sp);
 			/* NOTREACHED */
 		case '$':
+			if (in_varassign)
+				sub_c_put('$');	/* Inhibit $$ expansion */
 			sub_c_put('$');
 			break;
 		case '(':
@@ -929,7 +931,9 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 	case '^':
 		sp1 = sub_ptr;
 		sb1 = gbuf;
-		num = 1;			/* $^ -> all dependencies */
+		num = 1;			/* $^ -> all dependencies  */
+		if (depends->l_obj != NULL)	/* For implicit rules	   */
+			num = 0;		/* include implicit source */
 		while (sub_arg(num++, depends, (obj_t *)0)) {
 			if (sb1 != gbuf)
 				sp1 = gbuf + (sp1 - sb1);
@@ -948,6 +952,8 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		sp1 = sub_ptr;
 		sb1 = gbuf;
 		num = 1;			/* $? -> outdated dependencies*/
+		if (depends->l_obj != NULL)	/* For implicit rules	    */
+			num = 0;		/* include implicit source  */
 		while (sub_arg(num++, depends, obj)) {
 			if (sb1 != gbuf)
 				sp1 = gbuf + (sp1 - sb1);

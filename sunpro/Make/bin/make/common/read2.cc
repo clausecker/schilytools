@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read2.cc	1.21 21/05/13 2017-2021 J. Schilling
+ * @(#)read2.cc	1.24 21/08/13 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.21 21/05/13 2017-2021 J. Schilling";
+	"@(#)read2.cc	1.24 21/08/13 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1189,6 +1189,8 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 		}
 		svr4  = true;
 		posix  = false;
+		sunpro_compat = false;
+		gnu_style = false;
 		keep_state = false;
 		all_parallel = false;
 		only_parallel = false;
@@ -1198,6 +1200,11 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 		break;
 
 	case posix_special:
+		/*
+		 * We cannot do that switch if the mode before was svr4.
+		 * This is because we did read a different set of builtin
+		 * rules in that case.
+		 */
 		if(svr4)
 		  break;
 		if (depes->used != 0) {
@@ -1205,6 +1212,11 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 				     target->string_mb);
 		}
 		posix  = true;
+		sunpro_compat = false;
+		gnu_style = false;
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
+		job_adjust_posix();		/* DMAKE_ADJUST_MAX_JOBS=M2 */
+#endif
 			/* with posix on, use the posix get rule */
 		sccs_get_rule = sccs_get_posix_rule;
 			/* turn keep state off being SunPro make specific */
@@ -1861,12 +1873,17 @@ enter_equal(Name name, Name value, register Boolean append, Separator separator)
 	Property	prop = NULL;
 	String_rec	val;
 	wchar_t		buffer[STRING_BUFFER_LENGTH];
+	Expand_Type	exp_type = deflt_expand;
 
 	if (separator == assign_seen ||
 	    separator == gnu_assign_seen ||
+	    separator == append_assign_seen ||
 	    (append && name->stat.macro_type == gnu_assign)) {
 		INIT_STRING_FROM_STACK(val, buffer);
-		expand_value(value, &val, false);
+		if (separator == assign_seen ||		/* :::= */
+		    separator == append_assign_seen)	/* +:= */
+			exp_type = keep_ddollar;
+		expand_value(value, &val, false, exp_type);
 		value = GETNAME(val.buffer.start, FIND_LENGTH);
 		if (name->stat.macro_type == unknown_macro_type) {
 			if (separator == gnu_assign_seen)

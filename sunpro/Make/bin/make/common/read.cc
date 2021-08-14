@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read.cc	1.31 21/07/11 2017-2021 J. Schilling
+ * @(#)read.cc	1.33 21/08/10 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.31 21/07/11 2017-2021 J. Schilling";
+	"@(#)read.cc	1.33 21/08/10 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -97,11 +97,14 @@ enum directive {
 
 static int line_started_with_space=0; // Used to diagnose spaces instead of tabs
 
-static wchar_t		include_d[8];
-static wchar_t		iinclude_d[9];
-static wchar_t		export_d[7];
-static wchar_t		unexport_d[9];
-static wchar_t		readonly_d[9];
+/*
+ * Make sure that there is space for the null byte after the string.
+ */
+static wchar_t		include_d[8+1];
+static wchar_t		iinclude_d[9+1];
+static wchar_t		export_d[7+1];
+static wchar_t		unexport_d[9+1];
+static wchar_t		readonly_d[9+1];
 
 static struct dent {
 	wchar_t		*directive;
@@ -2222,8 +2225,8 @@ case enter_equal_state:
 	if (target.used != 1) {
 		GOTO_STATE(poorly_formed_macro_state);
 	}
-	if (append && expand)
-		separator = gnu_assign_seen;
+	if (append && expand)			/* +:= seen */
+		separator = append_assign_seen;
 	enter_equal(target.names[0], macro_value, append, separator);
 	goto start_new_line;
 
@@ -2294,7 +2297,7 @@ push_macro_value(register Source bp, register wchar_t *buffer, int size, registe
 	  bp->inp_buf_ptr =
 	    bp->inp_buf_end = NULL;
 	bp->error_converting = false;
-	expand_macro(source, &bp->string, (wchar_t *) NULL, false, noexpand);
+	expand_macro(source, &bp->string, (wchar_t *) NULL, false, no_expand);
 	bp->string.text.p = bp->string.buffer.start;
 
 	/* 4209588: 'make' doesn't understand a macro with whitespaces in the head as target.

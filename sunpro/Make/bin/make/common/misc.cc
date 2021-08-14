@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)misc.cc	1.19 21/07/27 2017-2021 J. Schilling
+ * @(#)misc.cc	1.20 21/08/10 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.19 21/07/27 2017-2021 J. Schilling";
+	"@(#)misc.cc	1.20 21/08/10 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -632,7 +632,6 @@ void
 load_cached_names(void)
 {
 	char		*cp;
-	Name		dollar;
 
 	/* Load the cached_names struct */
 	MBSTOWCS(wcs_buffer, NOCATGETS(".BUILT_LAST_MAKE_RUN"));

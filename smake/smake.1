@@ -1,4 +1,4 @@
- \" @(#)smake.1	1.61 21/07/10 Copyright 1985-2021 J. Schilling
+ \" @(#)smake.1	1.64 21/08/13 Copyright 1985-2021 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2021/07/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2021/08/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -911,6 +911,11 @@ to the current definition for
 after
 .I value
 has been evaluated.
+The string
+.B $$
+is not expanded with the 
+.B +:=
+operator, it is left unmodified while the right side is expanded.
 .sp
 Note that there needs to be white space before the '+=' as
 .B smake
@@ -943,21 +948,28 @@ It currently is an alias to the final
 .B :::=
 operator explained below.
 .sp
-Note that SunPro make uses 
+Note that SunPro make was the first make implementation that introduced
 .B := 
-for a different incompatible purpose since 1986, GNU make in 1990 introduced
+in 1986 already, but for a different incompatible purpose,
+GNU make in 1990 introduced
 .B :=
 with a another different incompatible purpose that later has been standardized
-by POSIX as the
+by POSIX issue 8 as the
 .B ::=
 operator.
+BSD make implements the same behavior as
+.B smake
+for the
+.B :=
+assignment operator.
 A makefile that uses 
 .B :=
-thus is non-portable.
+thus is non-portable for use with different make implementations.
 .B smake
 may change its behavior in the future and implement a
 .B SunPro Make
-compatible conditional macro assignment instead.
+compatible conditional macro assignment instead of the current behavior for
+.BR := .
 For this reason, it is recommended to use
 .B :::=
 instead of
@@ -977,11 +989,13 @@ Macros created with this operator are not expanded on use.
 Note that this is the POSIX variant of the GNU immediate assignment that is
 portable to
 .B make
-implementations that are compatible to POSIX issue 8.
+implementations that are compatible to POSIX issue 8 and used in POSIX mode.
 .sp
 The
 .B ::=
-operator is only supported when in
+operator is only supported by
+.B smake
+when in
 .B POSIX
 mode.
 .sp
@@ -989,12 +1003,14 @@ Warning: This operator may cause unpredictable behavior, since it creates a
 different type of macro that is not expanded on use and that causes a different
 behavior with the
 .B +=
-operator. 
-In order to avoid the unpredictable behavior, it is recommended to avoid the
+operator.
+In order to avoid the unpredictable behavior with the
+.B +=
+operator, it is recommended to avoid the
 .B ::=
 operator in favor of
-.B :::=
-or to use at least one lower case letter in the names of all macros
+.BR :::= ,
+or to use at least one lower case letter as a marker in the names of all macros
 that have been created with the
 .B ::=
 operator.
@@ -1005,15 +1021,20 @@ A macro definition that uses the form:
 .PP
 will evaluate the right side of the assignment when the line is read by the
 parser.
-Note that this is a conflict free naming for the
-.B :=
-operator that was introduced into
-.B smake
-in 2005.
+The string
+.B $$
+is not expanded with the 
+.B :::=
+operator, it is left unmodified while the right side is expanded.
+Note that this is a naming for the immediate expansion assignment operator
+that is usable in portable makefiles with make implementations compatible
+to POSIX issue 8.
 The operator
 .B :::=
 should be used in favor of
 .B :=
+and
+.B ::=
 for all new makefiles.
 .PP
 A macro definition that uses the form:
@@ -1931,19 +1952,18 @@ It is valid to specify
 .BR $r0 .
 It is expanded for both explicit and implicit rules.
 The 0th entry is available only with implicit rules, the other
-entries ae available only with explicit rules.
+entries are available only with explicit rules.
 .TP
 .B "$^
 expands to the path names of all files in the dependency list.
-It is identical to
+With implicit rules, it is identical to
+.BR $r0 ,
+with explicit rules, it is identical to
 .BR $r1 .
-It is expanded for both explicit rules only.
 .TP
 .B "$?
-expands to the path names of all files outdated dependencies for this target.
-It is expanded for explicit rules only.
-.B POSIX
-requires that this macro is expanded for both explicit and implicit rules.
+expands to the path names of all files that are newer than the current target.
+It is expanded for both explicit and implicit rules.
 .PP
 The following example shows how dynamic macros may be used together with
 file searching rules:

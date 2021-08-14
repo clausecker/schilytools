@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)doname.cc	1.27 21/05/10 2017-2021 J. Schilling
+ * @(#)doname.cc	1.28 21/08/10 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.27 21/05/10 2017-2021 J. Schilling";
+	"@(#)doname.cc	1.28 21/08/10 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -2784,7 +2784,7 @@ build_command_strings(Name target, register Property line)
 		make_word_mentioned =
 		  query_mentioned =
 		    false;
-		expand_value(command_template->command_line, &command_line, true, noexpand);
+		expand_value(command_template->command_line, &command_line, true, no_expand);
 		/* If the macro $(MAKE) is mentioned in the command */
 		/* "make -n" runs actually execute the command */
 		used->make_refd = make_word_mentioned;

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.305 21/07/22 Copyright 1998-2021 J. Schilling
+dnl @(#)configure.in	1.306 21/08/13 Copyright 1998-2021 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.305)dnl
+AC_REVISION(1.306)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -188,6 +188,7 @@ AC_TYPE_PROTOTYPES
 dnl AC_USER_MALLOC must be past AC_CHECK_FUNCS(strdup)
 AC_DYN_ARRAYS
 AC_PRAGMA_WEAK
+AC_SIGSTKSZ_CONST
 
 dnl This is a hack to compile two files and to check whether a weak alias from
 dnl one file can be seen in another file. The reason for this test is to detect

@@ -1,4 +1,4 @@
-/* @(#)make.h	1.108 21/07/08 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
+/* @(#)make.h	1.109 21/08/06 Copyright 1985, 87, 91, 1995-2021 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2021 by J. Schilling
@@ -390,7 +390,8 @@ extern	int	slashlen;	/* strlen(slash)			    */
 
 extern	patr_t	*Patrules;
 extern	patr_t	**pattail;
-extern	BOOL	in_parser;
+extern	BOOL	in_parser;	/* In parser, GNU style ::= expands	    */
+extern	BOOL	in_varassign;	/* In parser, :::= does not expand $$	    */
 
 extern	char	chartype[256];
 

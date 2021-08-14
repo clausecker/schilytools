@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.56 21/07/11 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.63 21/08/13 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/07/11" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/08/13" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1320,6 +1320,11 @@ When used in place of
 appends a string to a macro definition (must
 be surrounded by white space, unlike
 .BR = ).
+The string
+.B $$
+is not expanded with the
+.B +:=
+operator, it is left unmodified while the right side is expanded.
 .sp
 Macro references in the text to the right of this append operator
 are always expanded prior to appending the text.
@@ -1440,6 +1445,18 @@ assigns a string to a macro definition after first expanding
 macro references on the right side (must
 be surrounded by white space, unlike
 .BR = ).
+The string
+.B $$
+is not expanded with the
+.B :::=
+operator, it is left unmodified while the right side is expanded.
+.sp
+The
+.B POSIX
+operator
+.B :::=
+should be preferred over the operator
+.BR ::= .
 .sp
 With an empty
 .B SUN_MAKE_COMPAT_MODE
@@ -1620,6 +1637,24 @@ apply. None are passed to the shell.
 .LP
 When incorporated in a makefile, the following target names perform
 special-functions:
+
+.sp
+.ne 2
+.mk
+.na
+\fB\&.BUILT_LAST_MAKE_RUN:\fR
+.ad
+.RS 23n
+.rt
+This is a separator used in the automatically created
+.B .make.state
+file in case that
+.B make
+is in
+.B .KEEP_STATE:
+mode. Do not use this pseudo target in hand written makefiles.
+.RE
+
 .sp
 .ne 2
 .mk
@@ -1920,6 +1955,29 @@ program.
 This target enables
 .B POSIX
 mode.
+Trying to enable
+.B POSIX
+mode has no effect, if
+.B make
+was in
+.B SysV
+mode before, because the
+.B SysV
+mode uses a different internal makefile.
+.sp
+If no job was run before
+.B .POSIX:
+is seen,
+.B make
+tries to set
+.BR DMAKE_ADJUST_MAX_JOBS = M2
+as
+.B POSIX
+likes to have a pool of jobs for a group of
+.B make
+programs, in case that the
+.B \-j
+option is used to switch into parallel mode.
 .RE
 
 .sp
@@ -2006,15 +2064,46 @@ The suffixes list for selecting implicit rules (see The Suffixes List).
 .ne 2
 .mk
 .na
+\fB\&.SVR4:\fR
+.ad
+.RS 23n
+.rt
+This target enables
+.B SVR4
+mode.
+Note that the builtin rules are not reread and thus stay the default 
+builtin rules for
+.BR make .
+If the builtin rules should be the rules from
+.BR SVR4 ,
+better use
+.BI "\-x SUN_MAKE_COMPAT_MODE=" svr4
+or set the environment
+.BR USE_SVR4_MAKE .
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\&.WAIT:\fR
 .ad
 .RS 23n
 .rt
 When running in
 .B serial
-mode, this target has no effect. It is used when in
+mode, this target has no effect.
+When in
 .B parallel
-mode. See
+mode and this target is specified in a dependency list,
+.B make
+waits until the dependencies to the left of the
+.SM \fB.WAIT:\fP
+pseudo target are finished with updating before starting to process
+targets to the right of
+.SM \fB.WAIT\fP.
+.sp
+See
 .BR dmake (1)
 for more information.
 .RE
@@ -4797,7 +4886,9 @@ Run
 in the
 .BR C \-locale
 (e.g. by using
-.BR LC_CTYPE=C )
+.B LC_CTYPE=C
+or
+.BR LC_ALL=C )
 to avoid this problem.
 .RE
 

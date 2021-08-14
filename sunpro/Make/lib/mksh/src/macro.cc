@@ -31,12 +31,12 @@
 /*
  * Copyright 2017-2020 J. Schilling
  *
- * @(#)macro.cc	1.12 21/05/10 2017-2021 J. Schilling
+ * @(#)macro.cc	1.13 21/08/10 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.cc	1.12 21/05/10 2017-2021 J. Schilling";
+	"@(#)macro.cc	1.13 21/08/10 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -48,6 +48,7 @@ static	UConst char sccsid[] =
 /*
  * Included files
  */
+#include <mk/defs.h>		/* For "dollar" ($ = $) */
 #include <mksh/dosys.h>		/* sh_command2string() */
 #include <mksh/i18n.h>		/* get_char_semantics_value() */
 #include <mksh/macro.h>
@@ -74,9 +75,9 @@ using namespace std;		/* needed for wcsdup() */
 static void	add_macro_to_global_list(Name macro_to_add);
 static void	expand_none(Name value, register String destination);
 #ifdef NSE
-static void	expand_value_with_daemon(Name name, register Property macro, register String destination, Boolean cmd, Boolean no_expand = false);
+static void	expand_value_with_daemon(Name name, register Property macro, register String destination, Boolean cmd, Expand_Type exp_type = deflt_expand);
 #else
-static void	expand_value_with_daemon(Name, register Property macro, register String destination, Boolean cmd, Boolean no_expand = false);
+static void	expand_value_with_daemon(Name, register Property macro, register String destination, Boolean cmd, Expand_Type exp_type = deflt_expand);
 #endif
 
 static void	init_arch_macros(void);
@@ -155,7 +156,7 @@ expand_none(Name value, register String destination)
 }
 
 /*
- *	expand_value(value, destination, cmd, no_expand)
+ *	expand_value(value, destination, cmd, exp_type)
  *
  *	Recursively expands all macros in the string value.
  *	destination is where the expanded value should be appended.
@@ -165,13 +166,19 @@ expand_none(Name value, register String destination)
  *		destination	Where to deposit the expansion
  *		cmd		If we are evaluating a command line we
  *				turn \ quoting off
- *		no_expand	whether macros of type gnu_assign should be
- *				expanded
+ *		exp_type	The expansion type by default is deflt_expand
+ *				but it may be:
+ *
+ *				no_expand	If macros of type gnu_assign
+ *						should not be expanded.
+ *				keep_ddollar	If we are in a :::= or +:=
+ *						assignment and $$ should be
+ *						left untouched.
  *
  *	Global variables used:
  */
 void
-expand_value(Name value, register String destination, Boolean cmd, Boolean no_expand)
+expand_value(Name value, register String destination, Boolean cmd, Expand_Type exp_type)
 {
 	Source_rec		sourceb;
 	register Source		source = &sourceb;
@@ -251,9 +258,21 @@ expand_value(Name value, register String destination, Boolean cmd, Boolean no_ex
 				      destination,
 				      source_p - block_start);
 			source->string.text.p = ++source_p;
+			if (exp_type == keep_ddollar && *source_p == dollar_char) {
+				/*
+				 * Found two dollars with keep_ddollar:
+				 * output $$ and continue scanning after $$ in
+				 * the source string.
+				 */
+				expand_none(dollar, destination);
+				expand_none(dollar, destination);
+				source->string.text.p = ++source_p;
+				block_start = source_p;
+				break;
+			}
 			UNCACHE_SOURCE();
 			/* Go expand the macro reference */
-			expand_macro(source, destination, sourceb.string.buffer.start, cmd, no_expand);
+			expand_macro(source, destination, sourceb.string.buffer.start, cmd, exp_type);
 			CACHE_SOURCE(1);
 			block_start = source_p + 1;
 			break;
@@ -281,7 +300,7 @@ expand_value(Name value, register String destination, Boolean cmd, Boolean no_ex
 }
 
 /*
- *	expand_macro(source, destination, current_string, cmd, no_expand)
+ *	expand_macro(source, destination, current_string, cmd, exp_type)
  *
  *	Should be called with source->string.text.p pointing to
  *	the first char after the $ that starts a macro reference.
@@ -302,8 +321,14 @@ expand_value(Name value, register String destination, Boolean cmd, Boolean no_ex
  *		current_string	The string we are expanding, for error msg
  *		cmd		If we are evaluating a command line we
  *				turn \ quoting off
- *		no_expand	whether macros of type gnu_assign should be
- *				expanded
+ *		exp_type	The expansion type by default is deflt_expand
+ *				but it may be:
+ *
+ *				no_expand	If macros of type gnu_assign
+ *						should not be expanded.
+ *				keep_ddollar	If we are in a :::= or +:=
+ *						assignment and $$ should be
+ *						left untouched.
  *
  *	Global variables used:
  *		funny		Vector of semantic tags for characters
@@ -314,7 +339,7 @@ expand_value(Name value, register String destination, Boolean cmd, Boolean no_ex
  *		query_mentioned	Set if the word "?" is mentioned
  */
 void
-expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Boolean no_expand)
+expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Expand_Type exp_type)
 {
 	static Name		make = (Name)NULL;
 	static wchar_t		colon_sh[4];
@@ -456,7 +481,7 @@ recheck_first_char:
 				      source_p - block_start);
 			source->string.text.p = ++source_p;
 			UNCACHE_SOURCE();
-			expand_macro(source, &string, current_string, cmd, no_expand);
+			expand_macro(source, &string, current_string, cmd, exp_type);
 			CACHE_SOURCE(0);
 			block_start = source_p;
 			source_p--;
@@ -717,10 +742,10 @@ get_macro_value:
 		 */
 		INIT_STRING_FROM_STACK(string, buffer);
 		/* Expand the value into a local string buffer and run cmd. */
-		if (no_expand && name->stat.macro_type == gnu_assign)
+		if (exp_type == no_expand && name->stat.macro_type == gnu_assign)
 			expand_none(macro->body.macro.value, destination);
 		else
-			expand_value_with_daemon(name, macro, &string, cmd, no_expand);
+			expand_value_with_daemon(name, macro, &string, cmd, exp_type);
 		sh_command2string(&string, destination);
 	} else if ((replacement != no_replace) || (extraction != no_extract)) {
 		/*
@@ -729,10 +754,10 @@ get_macro_value:
 		 */
 		INIT_STRING_FROM_STACK(string, buffer);
 		/* Expand the value into a local string buffer. */
-		if (no_expand && name->stat.macro_type == gnu_assign)
+		if (exp_type == no_expand && name->stat.macro_type == gnu_assign)
 			expand_none(macro->body.macro.value, destination);
 		else
-			expand_value_with_daemon(name, macro, &string, cmd, no_expand);
+			expand_value_with_daemon(name, macro, &string, cmd, exp_type);
 		/* Scan the expanded string. */
 		p = string.buffer.start;
 		while (*p != (int) nul_char) {
@@ -896,10 +921,10 @@ get_macro_value:
 			dollarless_flag = true;
 			dollarget_seen = false;
 		}
-			if (no_expand && name->stat.macro_type == gnu_assign)
+			if (exp_type == no_expand && name->stat.macro_type == gnu_assign)
 				expand_none(macro->body.macro.value, destination);
 			else
-				expand_value_with_daemon(name, macro, destination, cmd, no_expand);
+				expand_value_with_daemon(name, macro, destination, cmd, exp_type);
 	}
 exit:
 	if(left_tail) {
@@ -1088,7 +1113,7 @@ init_mach_macros(void)
 }
 
 /*
- *	expand_value_with_daemon(name, macro, destination, cmd, no_expand)
+ *	expand_value_with_daemon(name, macro, destination, cmd, exp_type)
  *
  *	Checks for daemons and then maybe calls expand_value().
  *
@@ -1098,16 +1123,22 @@ init_mach_macros(void)
  *		destination	Where the result should be deposited
  *		cmd		If we are evaluating a command line we
  *				turn \ quoting off
- *		no_expand	whether macros of type gnu_assign should be
- *				expanded
+ *		exp_type	The expansion type by default is deflt_expand
+ *				but it may be:
+ *
+ *				no_expand	If macros of type gnu_assign
+ *						should not be expanded.
+ *				keep_ddollar	If we are in a :::= or +:=
+ *						assignment and $$ should be
+ *						left untouched.
  *
  *	Global variables used:
  */
 static void
 #ifdef NSE
-expand_value_with_daemon(Name name, register Property macro, register String destination, Boolean cmd, Boolean no_expand)
+expand_value_with_daemon(Name name, register Property macro, register String destination, Boolean cmd, Expand_Type exp_type)
 #else
-expand_value_with_daemon(Name, register Property macro, register String destination, Boolean cmd, Boolean no_expand)
+expand_value_with_daemon(Name, register Property macro, register String destination, Boolean cmd, Expand_Type exp_type)
 #endif
 {
 	register Chain		chain;
@@ -1135,14 +1166,14 @@ expand_value_with_daemon(Name, register Property macro, register String destinat
 	switch (macro->body.macro.daemon) {
 	case no_daemon:
 		if (!svr4 && !posix) {
-			expand_value(macro->body.macro.value, destination, cmd, no_expand);
+			expand_value(macro->body.macro.value, destination, cmd, exp_type);
 		} else {
 			if (dollarless_flag && tilde_rule) {
-				expand_value(dollarless_value, destination, cmd, no_expand);
+				expand_value(dollarless_value, destination, cmd, exp_type);
 				dollarless_flag = false;
 				tilde_rule = false;
 			} else {
-				expand_value(macro->body.macro.value, destination, cmd, no_expand);
+				expand_value(macro->body.macro.value, destination, cmd, exp_type);
 			}
 		}
 		return;
