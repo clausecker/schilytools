@@ -1,11 +1,11 @@
-/* @(#)fifo_main.c	1.3 20/07/08 Copyright 1989, 2019-2020 J. Schilling */
+/* @(#)fifo_main.c	1.5 21/08/20 Copyright 1989, 2019-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo_main.c	1.3 20/07/08 Copyright 1989, 2019-2020 J. Schilling";
+	"@(#)fifo_main.c	1.5 21/08/20 Copyright 1989, 2019-2021 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1989, 2019-2020 J. Schilling
+ *	Copyright (c) 1989, 2019-2021 J. Schilling
  *
  */
 /*
@@ -30,7 +30,10 @@ static	UConst char sccsid[] =
 #include <schily/wait.h>
 #include <schily/errno.h>
 #include <schily/nlsdefs.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include "star.h"
 #include "starsubs.h"
 #include "fifo.h"
@@ -87,16 +90,16 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	gterror("Usage:	fifo [options]\n");
-	gterror("Options:\n");
-	gterror("	fs=#	set fifo size to #\n");
-	gterror("	bs=#	set buffer size to #\n");
-	gterror("	ibs=#	set input buffer size to #\n");
-	gterror("	obs=#	set output buffer size to #\n");
-	gterror("	-no-statistics	do not print fifo statistics\n");
-	gterror("	-help	print this help\n");
-	gterror("	-debug	print additional debug messages\n");
-	gterror("	-version print version information and exit\n");
+	error("Usage:	fifo [options]\n");
+	error("Options:\n");
+	error("	fs=#	set fifo size to #\n");
+	error("	bs=#	set buffer size to #\n");
+	error("	ibs=#	set input buffer size to #\n");
+	error("	obs=#	set output buffer size to #\n");
+	error("	-no-statistics	do not print fifo statistics\n");
+	error("	-help	print this help\n");
+	error("	-debug	print additional debug messages\n");
+	error("	-version print version information and exit\n");
 
 	exit(exitcode);
 }
@@ -142,6 +145,25 @@ main(ac, av)
 
 	(void) setlocale(LC_ALL, "");
 
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "fifo"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac = --ac;
 	cav = ++av;
 
@@ -163,10 +185,10 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2020/07/08", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1989, 2019-2020 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("fifo %s %s (%s-%s-%s)\n\n", "2.0", "2021/08/20", HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 1989, 2019-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */
 		exit(0);
 	}

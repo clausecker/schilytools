@@ -1,4 +1,4 @@
-/* @(#)ved.h	1.48 18/09/20 Copyr 1984-86, 88-89,97, 2000-2018 J. Schilling */
+/* @(#)ved.h	1.49 21/08/20 Copyr 1984-86, 88-89,97, 2000-2018 J. Schilling */
 /*
  *	Main include file for VED
  *
@@ -30,7 +30,10 @@
 #include <schily/ctype.h>	/* For isprint()	*/
 #include <schily/wchar.h>	/* wchar_t		*/
 #include <schily/wctype.h>	/* For iswprint()	*/
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #define	C	(char *)
 #define	UC	(unsigned char *)

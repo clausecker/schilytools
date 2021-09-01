@@ -187,9 +187,11 @@
 ./psmake/include/schily/io.h
 ./psmake/include/schily/libport.h
 ./psmake/include/schily/limits.h
+./psmake/include/schily/locale.h
 ./psmake/include/schily/maxpath.h
 ./psmake/include/schily/mconfig.h
 ./psmake/include/schily/netdb.h
+./psmake/include/schily/nlsdefs.h
 ./psmake/include/schily/param.h
 ./psmake/include/schily/prototyp.h
 ./psmake/include/schily/schily.h

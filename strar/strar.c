@@ -1,8 +1,8 @@
-/* @(#)strar.c	1.7 18/09/28 Copyright 2017-2018 J. Schilling */
+/* @(#)strar.c	1.8 21/08/20 Copyright 2017-2018 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strar.c	1.7 18/09/28 Copyright 2017-2018 J. Schilling";
+	"@(#)strar.c	1.8 21/08/20 Copyright 2017-2018 J. Schilling";
 #endif
 /*
  *	Manage a StreamArchive
@@ -25,6 +25,8 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/types.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/stdlib.h>
 #include <schily/strar.h>
@@ -73,11 +75,11 @@ usage(exitcode)
 LOCAL void
 pvers()
 {
-	printf("strar %s %s (%s-%s-%s)\n\n", "1.7", "2018/09/28",
+	gtprintf("strar %s %s (%s-%s-%s)\n\n", "1.8", "2021/08/20",
 		HOST_CPU, HOST_VENDOR, HOST_OS);
-	printf("Copyright (C) 2017-2018 Jörg Schilling\n");
-	printf("This is free software; see the source for copying conditions.  There is NO\n");
-	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	gtprintf("Copyright (C) 2017-2021 %s\n", _("Jörg Schilling"));
+	gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+	gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	exit(0);
 }
 

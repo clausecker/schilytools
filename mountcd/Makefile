@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.3 08/04/10 
+#ident @(#)Makefile	1.4 21/08/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,10 +9,14 @@ INSDIR=		sbin
 TARGET=		mountcd
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		mountcd.c
 HFILES=
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

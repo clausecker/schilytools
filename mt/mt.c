@@ -1,13 +1,13 @@
-/* @(#)mt.c	1.30 18/11/28 Copyright 2000-2018 J. Schilling */
+/* @(#)mt.c	1.32 21/08/20 Copyright 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mt.c	1.30 18/11/28 Copyright 2000-2018 J. Schilling";
+	"@(#)mt.c	1.32 21/08/20 Copyright 2000-2021 J. Schilling";
 #endif
 /*
  *	Magnetic tape manipulation program
  *
- *	Copyright (c) 2000-2018 J. Schilling
+ *	Copyright (c) 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,11 +48,14 @@ static	UConst char sccsid[] =
 #include <schily/ioctl.h>
 #include <schily/errno.h>
 
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/standard.h>
 /*#undef	HAVE_SYS_MTIO_H*/
 #include <schily/mtio.h>
 #include <schily/librmt.h>
+#include <schily/nlsdefs.h>
 
 LOCAL BOOL	help;
 LOCAL BOOL	prvers;
@@ -184,6 +187,28 @@ main(ac, av)
 	struct mt_cmds	*cp;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "mt"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac = --ac;
 	cav = ++av;
 	
@@ -198,10 +223,10 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mt %s %s (%s-%s-%s)\n\n", "1.30", "2018/11/28", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2018 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("mt %s %s (%s-%s-%s)\n\n", "1.32", "2021/08/20", HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 2000-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 
@@ -404,15 +429,15 @@ mtstatus(sp)
 		 */
 		if (sp->mt_xflags & RMT_TYPE) {
 			if (mt != NULL && mt->t_type == sp->mt_type)
-				printf("%s tape drive:\n", mt->t_name);
+				gtprintf("%s tape drive:\n", mt->t_name);
 			else
-				printf("%s tape drive:\n", "SCSI");
+				gtprintf("%s tape drive:\n", "SCSI");
 		} else {
-			printf("Unknown SCSI tape drive:\n");
+			gtprintf("Unknown SCSI tape drive:\n");
 		}
 		printf("   sense key(0x%llx)= %s   residual= %lld   ",
 			sp->mt_erreg, print_key(sp->mt_erreg), sp->mt_resid);
-		printf("retries= %lld\n", sp->mt_dsreg);
+		gtprintf("retries= %lld\n", sp->mt_dsreg);
 	} else
 #endif	/* MTF_SCSI */
 		{
@@ -421,15 +446,15 @@ mtstatus(sp)
 		 */
 		if (sp->mt_xflags & RMT_TYPE) {
 			if (mt == NULL || mt->t_type == 0) {
-				printf("Unknown tape drive type (0x%llX):\n", (Ullong)sp->mt_type);
+				gtprintf("Unknown tape drive type (0x%llX):\n", (Ullong)sp->mt_type);
 			} else {
-				printf("%s tape drive:\n", mt->t_name);
+				gtprintf("%s tape drive:\n", mt->t_name);
 			}
 		} else {
-			printf("Unknown tape drive:\n");
+			gtprintf("Unknown tape drive:\n");
 		}
 		if (sp->mt_xflags & RMT_RESID)
-			printf("   residual= %lld", sp->mt_resid);
+			gtprintf("   residual= %lld", sp->mt_resid);
 		/*
 		 * If we implement better support for specific OS,
 		 * then we may want to implement something like the
@@ -442,7 +467,7 @@ mtstatus(sp)
 			printf  ("   er = %llX", sp->mt_erreg);
 		putchar('\n');
 	}
-	printf("   file no= %lld   block no= %lld\n",
+	gtprintf("   file no= %lld   block no= %lld\n",
 			(sp->mt_xflags & RMT_FILENO)?
 				sp->mt_fileno:
 				(Llong)-1,
@@ -451,10 +476,10 @@ mtstatus(sp)
 				(Llong)-1);
 
 	if (sp->mt_xflags & RMT_BF)
-		printf("   optimum blocking factor= %ld\n", sp->mt_bf);
+		gtprintf("   optimum blocking factor= %ld\n", sp->mt_bf);
 
 	if (sp->mt_xflags & RMT_FLAGS)
-		printf("   flags= 0x%llX\n", sp->mt_flags);
+		gtprintf("   flags= 0x%llX\n", sp->mt_flags);
 }
 
 static char *sense_keys[] = {

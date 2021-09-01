@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.99 18/02/21 Copyright 1986-1991, 93-97, 2000-2018 J. Schilling */
+/* @(#)fmt.c	1.100 21/08/20 Copyright 1986-1991, 93-97, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.99 18/02/21 Copyright 1986-1991, 93-97, 2000-2018 J. Schilling";
+	"@(#)fmt.c	1.100 21/08/20 Copyright 1986-1991, 93-97, 2000-2021 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2018 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,11 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/time.h>
 #include <schily/errno.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/libport.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsireg.h>
@@ -270,6 +273,26 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "sformat"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
 	disk_null(&cur_disk, 1);
 	disk_null(&alt_disk, 1);
 
@@ -342,10 +365,10 @@ main(ac, av)
 	else if (xhelp)
 		xusage(0);
 	if (prvers) {
-		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2018 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 1986-1991, 93-97, 2000-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 
@@ -490,8 +513,8 @@ main(ac, av)
 /*		signal(SIGINT, sighandler);*/
 	}
 
-	printf("sformat SCSI format/analysis/repair utilities\n");
-	printf("Release %s, Copyright J. Schilling\n\n", fmt_version);
+	gtprintf("sformat SCSI format/analysis/repair utilities\n");
+	gtprintf("Release %s, Copyright J. Schilling\n\n", fmt_version);
 
 	if (!datfile_chk) {
 		if (datfile_present)
@@ -709,7 +732,7 @@ format_one(scgp)
 
 	printf("scsibus%d target %d lun %d\n", scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 	if (checkmount(scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp), -1L, 0L)) {
-		printf("WARNING: Disk has mounted partitions. ");
+		gtprintf("WARNING: Disk has mounted partitions. ");
 		if (!yes("Continue? "))
 			exit(EX_BAD);
 	}
@@ -806,7 +829,7 @@ format_one(scgp)
 			/* Only print them */
 			(void) bad_to_def(scgp);
 		} else if (repair && nbad > 0) {
-			printf("WARNING: Repair may change data on disk.\n");
+			gtprintf("WARNING: Repair may change data on disk.\n");
 			if (yes("Do you want to continue? "))
 				repair_found_blocks(scgp, nbad);
 		}
@@ -817,7 +840,7 @@ format_one(scgp)
 	} else if (randv) {
 			return (random_v_test(scgp, Vstart, Vend));
 	} else if (randrw) {
-		printf("WARNING: Random read/write-test may destroy data.\n");
+		gtprintf("WARNING: Random read/write-test may destroy data.\n");
 		if (yes("Do you want to continue? "))
 			return (random_rw_test(scgp, Vstart, Vend));
 		return (0);
@@ -856,7 +879,7 @@ format_one(scgp)
 		printf("start: %ld end: %ld amount: %ld last baddr: %ld\n",
 					start, end, amount, (long)scgp->cap->c_baddr);
 
-		printf("Select full stroke or random seeks:\n");
+		gtprintf("Select full stroke or random seeks:\n");
 		if (yes("Full stroke seek? ")) for (;;) {
 			if (i == 0)
 				getstarttime();
@@ -868,7 +891,7 @@ format_one(scgp)
 
 			if (i% 1000 == 0) {
 				getstoptime();
-				printf("Total: %d errs: %d %ld.%03ldms/seek\n",
+				gtprintf("Total: %d errs: %d %ld.%03ldms/seek\n",
 					i, err,
 					gettimediff(0)/(i/1000),
 					gettimediff(0)%1000);
@@ -885,11 +908,11 @@ format_one(scgp)
 					start + rand() % amount, 1) < 0) {
 #endif
 				err++;
-				printf("Gesamt: %d errs: %d\n", i, err);
+				gtprintf("Gesamt: %d errs: %d\n", i, err);
 			}
 			if (i% 1000 == 0) {
 				getstoptime();
-				printf("Total: %d errs: %d %ld.%03ldms/seek\n",
+				gtprintf("Total: %d errs: %d %ld.%03ldms/seek\n",
 					i, err,
 					gettimediff(0)/(i/1000),
 					gettimediff(0)%1000);
@@ -1135,7 +1158,7 @@ LOCAL void
 printdev(scgp)
 	SCSI	*scgp;
 {
-	printf("Device seems to be: ");
+	gtprintf("Device seems to be: ");
 
 	switch (scgp->dev) {
 
@@ -1300,7 +1323,7 @@ print_fmt_time(dp)
 	struct disk	*dp;
 {
 	if (dp->fmt_time > 0) {
-		printf("Estimated time: %ld minutes%s\n",
+		gtprintf("Estimated time: %ld minutes%s\n",
 			(dp->fmt_time+30)/60,
 			dp->flags & D_FTIME_FOUND?" (known)":"");
 	}
@@ -1311,7 +1334,7 @@ print_fmt_timeout(dp)
 	struct disk	*dp;
 {
 	if (dp->fmt_timeout > 0) {
-		printf("Format timeout: %ld minutes\n",
+		gtprintf("Format timeout: %ld minutes\n",
 			(dp->fmt_timeout+30)/60);
 	}
 }
@@ -1379,7 +1402,7 @@ prstats()
 	getstoptime();
 	sec = gettimediff(&tv);
 
-	printf("Time total: %ld.%03ldsec\n", (long)tv.tv_sec, (long)tv.tv_usec/1000);
+	gtprintf("Time total: %ld.%03ldsec\n", (long)tv.tv_sec, (long)tv.tv_usec/1000);
 	return (sec);
 }
 

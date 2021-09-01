@@ -1,4 +1,4 @@
-#ident @(#)label.mk	1.8 20/07/08 
+#ident @(#)label.mk	1.9 21/08/20 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,10 @@ CPPOPTS +=	-I../sformat
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-DFMT
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		label.c makelabel.c io.c \
 		check_part.c
@@ -21,7 +25,7 @@ CFILES=		label.c makelabel.c io.c \
 HFILES=		fmt.h
 HFILES_TAG=	scsireg.h
 
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	label.mk1
 
 makelabel.c io.c check_part.c:

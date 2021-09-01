@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.93 21/07/07 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling */
+/* @(#)ved.c	1.94 21/08/20 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.93 21/07/07 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling";
+	"@(#)ved.c	1.94 21/08/20 Copyright 1984, 85, 86, 88, 89, 97, 2000-2021 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -36,6 +36,8 @@ static	UConst char sccsid[] =
  * ttys.h	- internal interface to the TERMCAP package
  * ved.h	- main ved include file (includes func.h)
  */
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include "ved.h"
 #include "buffer.h"
 #include "movedot.h"
@@ -136,6 +138,27 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "ved"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cav = av, cac = ac;
 	++cav, --cac;
 
@@ -160,12 +183,12 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("ved %s %s (%s-%s-%s)\n\n",
+		gtprintf("ved %s %s (%s-%s-%s)\n\n",
 			ved_version, VERSION_DATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2021 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 	if (Vhelp) {

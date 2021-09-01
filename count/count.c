@@ -1,13 +1,13 @@
-/* @(#)count.c	1.30 18/11/03 Copyright 1986-2018 J. Schilling */
+/* @(#)count.c	1.31 21/08/20 Copyright 1986-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)count.c	1.30 18/11/03 Copyright 1986-2018 J. Schilling";
+	"@(#)count.c	1.31 21/08/20 Copyright 1986-2021 J. Schilling";
 #endif
 /*
  *	count words, lines, and/or chars in files
  *
- *	Copyright (c) 1986-2018 J. Schilling
+ *	Copyright (c) 1986-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -143,10 +143,11 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf(
-		_("Count release %s %s (%s-%s-%s) Copyright (C) 1986-2018 Jörg Schilling\n"),
-				"1.30", "2018/11/03",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf(
+		"Count release %s %s (%s-%s-%s) Copyright (C) 1986-2021 %s\n",
+				"1.31", "2021/08/20",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 	if (!(lflg || wflg || cflg || mflg || llflg)) {

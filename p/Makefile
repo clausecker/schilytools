@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.9 17/07/06 
+#ident @(#)Makefile	1.10 21/08/17 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,6 +9,10 @@ INSDIR=		bin
 TARGET=		p
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		p.c ctab.c
 HFILES=

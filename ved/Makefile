@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.34 20/10/31 
+#ident @(#)Makefile	1.35 21/08/20 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -21,6 +21,10 @@ CPPOPTS +=	-DVED_STATS
 CPPOPTS +=	-DFASTPOS
 #CPPOPTS +=	-DFASTPOS -DCHECKPOS
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		ved.c edit.c binding.c vedtmpops.c cmds.c quitcmds.c \
 		execcmds.c numbercmds.c cursorcmds.c delcmds.c \
@@ -34,7 +38,7 @@ CFILES=		ved.c edit.c binding.c vedtmpops.c cmds.c quitcmds.c \
 HFILES=		buffer.h ved.h func.h map.h movedot.h terminal.h ttys.h \
 		version.h
 #LIBS=		-lunos
-LIBS=		-lxtermcap -lschily
+LIBS=		-lxtermcap -lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man ved-e.mk1 ved-w.mk1 \
 		Makefile.help Makefile.doc Makefile.dot Makefile.warn
 

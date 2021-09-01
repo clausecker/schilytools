@@ -3,12 +3,14 @@
 /*
  * CDDL HEADER START
  *
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * This file and its contents are supplied under the terms of the
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -33,7 +35,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.31 21/08/10 2017-2021 J. Schilling
+ * @(#)defs.h	1.34 21/08/16 2017-2021 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -75,7 +77,18 @@
 #include <schily/signal.h>
 #undef	bsd_signal
 #include <schily/dirent.h>	/* opendir() */
+
+#if	defined(HAVE__BIN_SH) && !defined(HAVE_SYMLINK__BIN)
+#define	SHELL_PATH		NOCATGETS("/bin/sh")	/* older UNIX */
 #else
+#if	defined(HAVE__USR_BIN_SH)
+#define	SHELL_PATH		NOCATGETS("/usr/bin/sh") /* modern UNIX */
+#else
+#define	SHELL_PATH		NOCATGETS("/bin/sh")	/* last resort guess */
+#endif
+#endif
+
+#else	/* defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES) */
 #include <limits.h>		/* MB_LEN_MAX */
 #include <stdio.h>
 #include <stdlib.h>		/* wchar_t */
@@ -91,16 +104,14 @@
 #include <signal.h>
 #if defined(SUN5_0) || defined(HP_UX)
 #include <dirent.h>		/* opendir() */
+#define	SHELL_PATH		NOCATGETS("/usr/bin/sh")
 #else
 #include <sys/dir.h>		/* opendir() */
+#define	SHELL_PATH		NOCATGETS("/bin/sh")
 #endif
-#endif
+#endif	/* defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES) */
 
 #include <vroot/vroot.h>	/* pathpt */
-
-#if defined (HP_UX) || defined (linux)
-#define  RW_NO_OVERLOAD_WCHAR 1  /* Rogue Wave, belongs in <rw/compiler.h> */
-#endif
 
 /*
  * Definition of wchar functions.
@@ -134,12 +145,12 @@ extern	key_t		ftok		__PR((const char *, int));
 }
 #endif
 #endif	/* ultrix */
-#else
+#else	/* defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES) */
 #ifdef	HAVE_WCTYPE_H	/* HP-UX-10.x does not have it */
 #include <wctype.h>
 #endif
 #include <wchar.h>
-#endif
+#endif	/* defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES) */
 
 /*
  * A type and some utilities for boolean values

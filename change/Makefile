@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.7 09/07/11 
+#ident @(#)Makefile	1.8 21/08/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,11 +9,15 @@ INSDIR=		bin
 TARGET=		change
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		change.c
 HFILES=		
 #LIBS=		-lunos
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

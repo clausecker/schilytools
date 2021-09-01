@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.27 10/05/13 
+#ident @(#)Makefile	1.28 21/08/20 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -25,6 +25,11 @@ CPPOPTS +=	-DSCHILY_PRINT		# Use js_*() versions of *print*() funcs
 CPPOPTS +=	-DDO_FIND		# Include find(1) builtin
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
+
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 
 

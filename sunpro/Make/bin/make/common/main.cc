@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)main.cc	1.58 21/08/13 2017-2021 J. Schilling
+ * @(#)main.cc	1.60 21/08/30 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.cc	1.58 21/08/13 2017-2021 J. Schilling";
+	"@(#)main.cc	1.60 21/08/30 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -962,6 +962,12 @@ scan_dmake_compat_mode(char *dmake_compat_mode_var)
 			svr4 = false;
 			posix = true;
 		} else if (0 == strcasecmp(dmake_compat_mode_var,
+							NOCATGETS("SUN"))) {
+			sunpro_compat = true;
+			gnu_style = false;
+			svr4 = false;
+			posix = false;
+		} else if (0 == strcasecmp(dmake_compat_mode_var,
 							NOCATGETS("SVR4"))) {
 			sunpro_compat = false;
 			gnu_style = false;
@@ -1562,21 +1568,6 @@ read_command_options(register int argc, register char **argv)
 				fatal(gettext("Missing argument after `-%c'"), optopt);
 			}
 		}
-
-#if defined(linux)
-		if (ch == 1) {
-			if(optind < argc) {
-				//optind++;
-				//current_optind++;
-			makefile_next = 0;
-			current_optind = optind;
-				continue;
-			} else {
-				break;
-			}
-		}
-#endif
-
 
 		makefile_next |= parse_command_option(ch);
 		/*

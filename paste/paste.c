@@ -1,13 +1,13 @@
-/* @(#)paste.c	1.21 15/08/06 Copyright 1985-2015 J. Schilling */
+/* @(#)paste.c	1.22 21/08/20 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)paste.c	1.21 15/08/06 Copyright 1985-2015 J. Schilling";
+	"@(#)paste.c	1.22 21/08/20 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Paste some files together
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,7 +28,10 @@ static	const char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* For sys/types.h to make off_t available */
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #define	MIN_LINELEN	4096		/* Min line size  */
 #define	INCR_LINELEN	4096		/* Increment for line size */
@@ -80,6 +83,28 @@ main(ac, av)
 	char	* const *cav;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "paste"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac	= --ac;
 	cav	= ++av;
 
@@ -94,9 +119,10 @@ main(ac, av)
 
 	if (prvers) {
 		/* CSTYLED */
-		printf("Paste release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
-				"1.21",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Paste release %s (%s-%s-%s) Copyright (C) 1985-2021 %s\n",
+				"1.22",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 

@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.63 21/08/13 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.68 21/08/30 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/08/13" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/08/30" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -1672,6 +1672,17 @@ history file from which to retrieve a current version.
 ignores any dependencies for this target.
 .RE
 
+.\".sp
+.\".ne 2
+.\".mk
+.\".na
+.\"\fB\&.DERIVED_SRC:\fR	XXX NSE only
+.\".ad
+.\".RS 23n
+.\".rt
+.\"bla
+.\".RE
+.\"
 .sp
 .ne 2
 .mk
@@ -1854,7 +1865,10 @@ When running in
 .B serial
 mode, this target has no effect. It is used when in
 .B parallel
-mode. See
+mode.
+Add targets to the dependency list of this target to control
+which targets are to be processed serially.
+See
 .BR dmake (1)
 for more information.
 .RE
@@ -1869,9 +1883,14 @@ for more information.
 .rt
 When running in
 .B serial
-mode, this target has no effect. It is used when in
+mode, this target has no effect.
+When in
 .B parallel
-mode. See
+mode and this special target is seen in a makefile, all targets in this
+.B make
+instance are processed serially.
+Sub-makes may still run in parallel mode.
+See
 .BR dmake (1)
 for more information.
 .sp
@@ -1888,6 +1907,17 @@ target in order to achieve compatibility to previous versions of the
 program.
 .RE
 
+.\".sp
+.\".ne 2
+.\".mk
+.\".na
+.\"\fB\&.NOT_AUTO:\fR	XXX Vermutlich .make.state
+.\".ad
+.\".RS 23n
+.\".rt
+.\"bla
+.\".RE
+.\"
 .sp
 .ne 2
 .mk
@@ -1900,7 +1930,10 @@ When running in
 .B serial
 mode, this target has no effect. It is used when in
 .B parallel
-mode. See
+mode.
+Add targets to the dependency list of this target to control
+which targets are to be processed in parallel.
+See
 .BR dmake (1)
 for more information.
 .RE
@@ -2000,6 +2033,17 @@ mode, if the target is not followed by a list of files, all the file are
 assumed precious.
 .RE
 
+.\".sp
+.\".ne 2
+.\".mk
+.\".na
+.\"\fB\&.RECURSIVE:\fR	XXX Noch voellig unklar
+.\".ad
+.\".RS 23n
+.\".rt
+.\"bla
+.\".RE
+.\"
 .sp
 .ne 2
 .mk
@@ -2242,7 +2286,6 @@ DEBUG= $(PROGRAM:%=tmp/%\(mig)\fR
 .fi
 .in -2
 .sp
-
 .sp
 .LP
 sets the value of
@@ -2250,6 +2293,9 @@ sets the value of
 to
 .BR tmp/fabricate\(mig .
 .sp
+.LP
+The replacement is done on a word by word base and the white space between words
+is literally retained. If there is no match, the result is unmodified.
 .LP
 Notice that pattern replacement macro references cannot be used in the
 dependency list of a pattern matching rule; the
@@ -4479,9 +4525,26 @@ into
 .B POSIX
 mode.
 .TP
+.B SUN
+Switch
+.B make
+into
+.BR Sun
+compatibility mode.
+This is a mode that is compatible to the SunPro Make source as published
+by Sun on December 19 2006.
+.TP
+.B SVR4
+Switch
+.B make
+into
+.BR SysV " (" SVR4 )
+mode.
+
+.TP
 other
 Implement 100% compatibility to the version of the SunPro make program
-as published by Sun/Oracle.
+as published by Sun.
 This results in disabling to forward command line
 macro definitions specified to the current
 .B make

@@ -1,14 +1,14 @@
-/* @(#)star_sym.c	1.21 18/07/23 Copyright 2005-2018 J. Schilling */
+/* @(#)star_sym.c	1.22 21/08/20 Copyright 2005-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.21 18/07/23 Copyright 2005-2018 J. Schilling";
+	"@(#)star_sym.c	1.22 21/08/20 Copyright 2005-2021 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2018 J. Schilling
+ *	Copyright (c) 2005-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/maxpath.h>
+#include <schily/nlsdefs.h>
 #include "starsubs.h"
 
 #ifndef	HAVE_LSTAT
@@ -235,6 +236,28 @@ extern	BOOL		is_star;
 
 	is_star = FALSE;
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "p"		/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	star_mkvers();
 
 	cac--;
@@ -247,7 +270,7 @@ extern	BOOL		is_star;
 		usage(0);
 	if (prvers) {
 		printf("%s: %s\n\n", get_progname(), vers);
-		gtprintf("Copyright (C) 2005-2018 Jörg Schilling\n");
+		gtprintf("Copyright (C) 2005-2021 %s\n", _("Jörg Schilling"));
 		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
 		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

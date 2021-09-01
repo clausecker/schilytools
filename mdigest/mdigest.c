@@ -1,14 +1,14 @@
-/* @(#)mdigest.c	1.6 16/11/01 Copyright 2009-2016 J. Schilling */
+/* @(#)mdigest.c	1.9 21/08/22 Copyright 2009-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
 /*static	const char sccsid[] =*/
-	"@(#)mdigest.c	1.6 16/11/01 Copyright 2009-2016 J. Schilling";
+	"@(#)mdigest.c	1.9 21/08/22 Copyright 2009-2021 J. Schilling";
 #endif
 /*
  *	Compute the message digest for files
  *
- *	Copyright (c) 2009-2016 J. Schilling
+ *	Copyright (c) 2009-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,6 +32,8 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/string.h>
 #include <signal.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/errno.h>
 #include <schily/md4.h>
@@ -40,6 +42,7 @@ static	UConst char sccsid[] =
 #include <schily/sha1.h>
 #include <schily/sha2.h>
 #include <schily/sha3.h>
+#include <schily/nlsdefs.h>
 
 typedef union uctx {
 	MD4_CTX		ctx_md4;
@@ -118,7 +121,7 @@ usage(exitcode)
 	error("\t-help\t\tprint this online help\n");
 	error("\t-version\tprint version number\n");
 	error("\t-verbose,-v\tprint more verbose output\n");
-	error("\t-a alrorithm\tspecify digest algorithm\n");
+	error("\t-a algorithm\tspecify digest algorithm\n");
 	error("\t-l\t\tprint a list of supported algorithms\n");
 	exit(exitcode);
 }
@@ -140,6 +143,28 @@ main(ac, av)
 struct	adigest	*dp = dlist;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "mdigest"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac = --ac;
 	cav = ++av;
 
@@ -151,10 +176,10 @@ struct	adigest	*dp = dlist;
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mdigest %s (%s-%s-%s)\n\n", "1.6", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2009-2016 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("mdigest %s (%s-%s-%s)\n\n", "1.9", HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 2009-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 	if (list) {

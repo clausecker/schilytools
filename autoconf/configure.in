@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.306 21/08/13 Copyright 1998-2021 J. Schilling
+dnl @(#)configure.in	1.309 21/08/16 Copyright 1998-2021 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.306)dnl
+AC_REVISION(1.309)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -1056,7 +1056,10 @@ dnl AC_CHECK_FILES(/usr/src/linux/include)
 AC_STAT_FILES(/dev/tty /dev/null /dev/zero)
 AC_STAT_FILES(/dev/stdin /dev/stdout /dev/stderr)
 AC_STAT_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
-AC_STAT_FILES(/usr/src/linux/include /usr/xpg4/bin/sh /opt/schily/xpg4/bin/sh)
+AC_STAT_FILES(/usr/src/linux/include)
+
+AC_STAT_SYMLINK_FILES(/bin)
+AC_STAT_FILES(/bin/sh /usr/bin/sh /usr/xpg4/bin/sh /bin/posix/sh /opt/schily/xpg4/bin/sh)
 
 dnl Checks for OS madness.
 UNAME=`uname || true`

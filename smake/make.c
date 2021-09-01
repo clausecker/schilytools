@@ -1,8 +1,8 @@
-/* @(#)make.c	1.226 21/07/22 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
+/* @(#)make.c	1.228 21/08/20 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.226 21/07/22 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
+	"@(#)make.c	1.228 21/08/20 Copyright 1985, 87, 88, 91, 1995-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -37,13 +37,25 @@ static	UConst char sccsid[] =
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
 #include <schily/getcwd.h>
+#ifdef  USE_NLS
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
+#else
+#define	NO_NLS
+#endif
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include <schily/utime.h>
+#include <schily/nlsdefs.h>
 
 #include "make.h"
 #include "job.h"
 #include "version.h"
+
+#ifndef  USE_NLS
+#undef	gtprintf
+#define	gtprintf	printf
+#endif
 
 char	make_version[] = VERSION;
 
@@ -850,6 +862,27 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "smake"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 #ifdef	__DJGPP__
 	set_progname("smake");	/* We may have strange av[0] on DJGPP */
 #endif
@@ -887,9 +920,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2021 Jörg Schilling\n",
+		gtprintf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2021 %s\n",
 				make_version, VERSION_DATE,
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 	if (maxj > 0 && maxj <= MAXJOBS_MAX)
@@ -1627,7 +1661,7 @@ move_tgt(from)
 					_objname, sizeof (_objname))) == NULL)
 		return (FALSE);
 	if (!Sflag || Nflag)
-		printf("%smove %s %s\n", posixmode?"\t":"...", from->o_name, objname);
+		gtprintf("%smove %s %s\n", posixmode?"\t":"...", from->o_name, objname);
 	ret = TRUE + 2;
 	if (Nflag) {
 		goto out;
@@ -1785,7 +1819,7 @@ again:
 		snprintf(_objname, sizeof (_objname), name);
 #endif
 	if (!Sflag)
-		printf("%stouch %s\n", posixmode?"\t":"...", objname);
+		gtprintf("%stouch %s\n", posixmode?"\t":"...", objname);
 	if (Nflag > 0)
 		return (TRUE);
 	/*

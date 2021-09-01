@@ -1,8 +1,8 @@
-/* @(#)translit.c	1.18 15/12/26 Copyright 1985-2015 J. Schilling */
+/* @(#)translit.c	1.19 21/08/20 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)translit.c	1.18 15/12/26 Copyright 1985-2015 J. Schilling";
+	"@(#)translit.c	1.19 21/08/20 Copyright 1985-2021 J. Schilling";
 #endif
 
 /*
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *
  *	translit fromset toset file1...filen
  *
- *	Copyright 1985-2015 J. Schilling
+ *	Copyright 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +32,10 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>	/* Include sys/types.h */
 #include <schily/utypes.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #define	TBUFSIZE	4096	/* Scratch buffer size for unescaped chars */
 #define	NUMCHARS	256	/* TYPE_MAXVAL(Uchar) + 1		*/
@@ -89,6 +92,29 @@ main(ac, av)
 	char * const* cav;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "translit"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
+
 	is_translit = streql(filename(av[0]), "translit");
 	cac = --ac;
 	cav = ++av;
@@ -102,10 +128,11 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf(
-"Translit release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
-				"1.18",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf(
+"Translit release %s (%s-%s-%s) Copyright (C) 1985-2021 %s\n",
+				"1.19",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 

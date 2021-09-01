@@ -1,8 +1,8 @@
-/* @(#)compare.c	1.25 18/09/27 Copyright 1985, 88, 96-99, 2000-2018 J. Schilling */
+/* @(#)compare.c	1.27 21/08/20 Copyright 1985, 88, 96-99, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)compare.c	1.25 18/09/27 Copyright 1985, 88, 96-99, 2000-2018 J. Schilling";
+	"@(#)compare.c	1.27 21/08/20 Copyright 1985, 88, 96-99, 2000-2021 J. Schilling";
 #endif
 /*
  *	compare two file for identical contents
@@ -15,7 +15,7 @@ static	UConst char sccsid[] =
  *		5	cannot open one of the files
  *		6	I/O error on one of the files
  *
- *	Copyright (c) 1985, 88, 96-99, 2000-2018 J. Schilling
+ *	Copyright (c) 1985, 88, 96-99, 2000-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,8 +39,11 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/io.h>		/* for setmode() prototype */
+#include <schily/nlsdefs.h>
 
 char	*n1;
 char	*n2;
@@ -104,6 +107,28 @@ main(ac, av)
 	char	* const * cav;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "compare"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac	= --ac;
 	cav	= ++av;
 
@@ -126,9 +151,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Compare release %s %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2018 Jörg Schilling\n",
-				"1.25", "2018/09/27",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Compare release %s %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2021 %s\n",
+				"1.27", "2021/08/20",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 
@@ -179,7 +205,7 @@ main(ac, av)
 		break;
 	case 0:
 		if (!silent)
-			printf("files are the same\n");
+			gtprintf("files are the same\n");
 		exit(0);
 		/* NOTREADCHED */
 
@@ -323,10 +349,10 @@ compare(f1, f2, pos1, pos2, count)
 			if (!feof(f2) && l2 > 0) {
 				if (!silent) {
 					if (sizeof (pos1) > sizeof (long)) {
-						printf("%s is longer than %s at %lld (0x%llx)\n",
+						gtprintf("%s is longer than %s at %lld (0x%llx)\n",
 							n2, n1, (Llong)pos1, (Llong)pos1);
 					} else {
-						printf("%s is longer than %s at %ld (0x%lx)\n",
+						gtprintf("%s is longer than %s at %ld (0x%lx)\n",
 							n2, n1, (long)pos1, (long)pos1);
 					}
 				}
@@ -337,10 +363,10 @@ compare(f1, f2, pos1, pos2, count)
 		} else if (l2 <= 0 || feof(f2)) {
 			if (!silent) {
 				if (sizeof (pos1) > sizeof (long)) {
-					printf("%s is longer than %s at %lld (0x%llx)\n",
+					gtprintf("%s is longer than %s at %lld (0x%llx)\n",
 						n1, n2, (Llong)pos2, (Llong)pos2);
 				} else {
-					printf("%s is longer than %s at %ld (0x%lx)\n",
+					gtprintf("%s is longer than %s at %ld (0x%lx)\n",
 						n1, n2, (long)pos2, (long)pos2);
 				}
 			}
@@ -351,13 +377,13 @@ compare(f1, f2, pos1, pos2, count)
 			if (!silent) {
 				if (lineflg) {
 					if (sizeof (line) > sizeof (long)) {
-						printf("line: %lld ", (Llong)line);
+						gtprintf("line: %lld ", (Llong)line);
 					} else {
-						printf("line: %ld ", (long)line);
+						gtprintf("line: %ld ", (long)line);
 					}
 				}
 				if (!allflg)
-					printf("files differ at byte ");
+					gtprintf("files differ at byte ");
 				if (pos1 != pos2) {
 				if (sizeof (pos1) > sizeof (long)) {
 					printf("%6lld  (0x%06llx) / %6lld  (0x%06llx)\t0x%02x != 0x%02x%6s%6s",
@@ -398,7 +424,7 @@ compare(f1, f2, pos1, pos2, count)
 		}
 	}
 	if (!exitcode && !silent)
-		printf("files are the same\n");
+		gtprintf("files are the same\n");
 	exit(exitcode);
 }
 

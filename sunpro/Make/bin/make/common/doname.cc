@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)doname.cc	1.28 21/08/10 2017-2021 J. Schilling
+ * @(#)doname.cc	1.30 21/08/16 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)doname.cc	1.28 21/08/10 2017-2021 J. Schilling";
+	"@(#)doname.cc	1.30 21/08/16 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -3675,11 +3675,10 @@ pollResults(char *outFn, char *errFn, char *hostNm)
 		break;
 	case 0:
 		enable_interrupt((void (*) (int))SIG_DFL);
-#ifdef linux
-		(void) signal(SIGUSR1, Avo_PollResultsAction_Sigusr1Handler);
-#else
-		(void) sigset(SIGUSR1, Avo_PollResultsAction_Sigusr1Handler);
+#if	!defined(HAVE_SIGSET)
+#define	sigset	signal
 #endif
+		(void) sigset(SIGUSR1, Avo_PollResultsAction_Sigusr1Handler);
 		pollResultsAction(outFn, errFn);
 
 		exit(0);

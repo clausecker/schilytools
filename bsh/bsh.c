@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.80 20/01/27 Copyright 1984,1985,1988,1989,1991,1994-2020 J. Schilling */
+/* @(#)bsh.c	1.81 21/08/20 Copyright 1984,1985,1988,1989,1991,1994-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.80 20/01/27 Copyright 1982,1984,1985,1988,1989,1991,1994-2020 J. Schilling";
+	"@(#)bsh.c	1.81 21/08/20 Copyright 1982,1984,1985,1988,1989,1991,1994-2021 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2020 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,6 +41,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/getargs.h>
 #include <schily/locale.h>
+#include <schily/nlsdefs.h>
 
 #ifdef	SIGUSR1
 #	define	PROTSIG	SIGUSR1
@@ -349,6 +350,27 @@ error  No function to set uid available
 	if (setlocale(LC_ALL, "") == NULL)
 		error("Bad locale in inital environment.\n");
 	ev_insert(concat(ignoreeofname, eql, off, (char *)NULL));
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "bsh"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
+
 	inituser();
 	inithostname();
 	initprompt();
@@ -918,7 +940,8 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 
 		printf("bsh %d.%02d %s (%s-%s-%s)\n\n", MVERSION, mVERSION, dVERSION,
 						HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2020 Jörg Schilling\n");
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2021 %s\n",
+			_("Jörg Schilling"));
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

@@ -1,13 +1,13 @@
-/* @(#)sgrow.c	1.15 09/07/11 Copyr 1985-2009 J. Schilling */
+/* @(#)sgrow.c	1.16 21/08/20 Copyr 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sgrow.c	1.15 09/07/11 Copyr 1985-2009 J. Schilling";
+	"@(#)sgrow.c	1.16 21/08/20 Copyr 1985-2021 J. Schilling";
 #endif
 /*
  *	Check stack growing response on a machine
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,7 +27,10 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 char *options = "help,version";
 
@@ -48,6 +51,28 @@ main(ac, av)
 	BOOL	prversion = FALSE;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "sgrow"		/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac--, ++cav;
 	if (getallargs(&cac, &cav, options, &help, &prversion) == -1) {
 		errmsgno(EX_BAD, "Bad option: %s.\n", cav[0]);
@@ -57,9 +82,10 @@ main(ac, av)
 		usage(0);
 
 	if (prversion) {
-		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
-				"1.15",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2021 %s\n",
+				"1.16",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 
@@ -73,9 +99,9 @@ main(ac, av)
 		errmsgno(EX_BAD, "not a number: %s.\n", av[1]);
 		usage(EX_BAD);
 	}
-	printf("growing %d * 4k Bytes = %d kBytes.\n", i, i*4);
+	gtprintf("growing %d * 4k Bytes = %d kBytes.\n", i, i*4);
 	grow(i);
-	printf("End.\n");
+	gtprintf("End.\n");
 	return (0);
 }
 

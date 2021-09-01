@@ -1,13 +1,13 @@
-/* @(#)udiff.c	1.38 20/09/25 Copyright 1985-2020 J. Schilling */
+/* @(#)udiff.c	1.42 21/08/20 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.38 20/09/25 Copyright 1985-2020 J. Schilling";
+	"@(#)udiff.c	1.42 21/08/20 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
  *
- *	Copyright (c) 1985-2020 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,7 +53,10 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/stat.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #define	MAXLINE		32768
 
@@ -147,6 +150,28 @@ main(ac, av)
 	if (av0[0] == 'f' && av0[1] == 's') {
 		bdiffmode = TRUE;
 	}
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "udiff"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	fac = --ac;
 	fav = ++av;
 	if (getallargs(&fac, &fav, options, &posix, &nmatch,
@@ -161,9 +186,10 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	if (prversion) {
-		printf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2020 Jörg Schilling\n",
-				"1.38", "2020/09/25",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Udiff release %s %s (%s-%s-%s) Copyright (C) 1985-2021 %s\n",
+				"1.42", "2021/08/20",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 
@@ -535,9 +561,9 @@ showdel(o, n, c)
 		else
 			printf("%ld,%ldd%ld\n", o+1, o+c, n);
 	} else if (c == 1)
-		printf("\n-------- 1 line deleted at %ld:\n", o);
+		gtprintf("\n-------- 1 line deleted at %ld:\n", o);
 	else
-		printf("\n-------- %ld lines deleted at %ld:\n", c, o);
+		gtprintf("\n-------- %ld lines deleted at %ld:\n", c, o);
 	o -= clc;
 	n -= clc;
 
@@ -579,9 +605,9 @@ showadd(o, n, c)
 		else
 			printf("%lda%ld,%ld\n", o, n+1, n+c);
 	} else if (c == 1)
-		printf("\n-------- 1 line added at %ld:\n", o);
+		gtprintf("\n-------- 1 line added at %ld:\n", o);
 	else
-		printf("\n-------- %ld lines added at %ld:\n", c, o);
+		gtprintf("\n-------- %ld lines added at %ld:\n", c, o);
 	o -= clc;
 	n -= clc;
 
@@ -624,9 +650,9 @@ showchange(o, n, c)
 		else
 			printf("%ld,%ldc%ld,%ld\n", o+1, o+c, n+1, n+c);
 	} else if (c == 1)
-		printf("\n-------- 1 line changed at %ld from:\n", o);
+		gtprintf("\n-------- 1 line changed at %ld from:\n", o);
 	else
-		printf("\n-------- %ld lines changed at %ld-%ld from:\n",
+		gtprintf("\n-------- %ld lines changed at %ld-%ld from:\n",
 							c, o, o+c-1);
 	o -= clc;
 	n -= clc;
@@ -651,7 +677,7 @@ showchange(o, n, c)
 	if (posix)
 		printf("---\n");
 	else
-		printf("-------- to:\n");
+		gtprintf("-------- to:\n");
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(n+i), newfile);
 		if (noff != lp->off) {
@@ -694,13 +720,13 @@ showxchange(o, n, oc, nc)
 		else
 			printf("%ld,%ldc%ld,%ld\n", o+1, o+oc, n+1, n+nc);
 	} else if (oc == 1)
-		printf("\n-------- 1 line changed to %ld lines at %ld from:\n",
+		gtprintf("\n-------- 1 line changed to %ld lines at %ld from:\n",
 							nc, o);
 	else if (nc == 1)
-		printf("\n-------- %ld lines changed to 1 line at %ld-%ld from:\n",
+		gtprintf("\n-------- %ld lines changed to 1 line at %ld-%ld from:\n",
 							oc, o, o+oc-1);
 	else
-		printf("\n-------- %ld lines changed to %ld lines at %ld-%ld from:\n",
+		gtprintf("\n-------- %ld lines changed to %ld lines at %ld-%ld from:\n",
 							oc, nc, o, o+oc-1);
 	o -= clc;
 	n -= clc;
@@ -725,7 +751,7 @@ showxchange(o, n, oc, nc)
 	if (posix)
 		printf("---\n");
 	else
-		printf("-------- to:\n");
+		gtprintf("-------- to:\n");
 	for (i = 0; i < nc; i++) {
 		lp = glinep((long)(n+i), newfile);
 		if (noff != lp->off) {

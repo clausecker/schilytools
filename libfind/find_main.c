@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.74 18/10/29 Copyright 2004-2018 J. Schilling */
+/* @(#)find_main.c	1.75 21/08/20 Copyright 2004-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_main.c	1.74 18/10/29 Copyright 2004-2018 J. Schilling";
+	"@(#)find_main.c	1.75 21/08/20 Copyright 2004-2021 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2018 J. Schilling
+ *	Copyright (c) 2004-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -181,9 +181,10 @@ find_main(ac, av, ev, std, quit)
 	}
 	if (prversion) {
 		fprintf(std[1],
-		"sfind release %s %s (%s-%s-%s) Copyright (C) 2004-2018 Jörg Schilling\n",
+		_("sfind release %s %s (%s-%s-%s) Copyright (C) 2004-2021 %s\n"),
 				find_strvers(), VERSION_DATE,
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		goto out;
 	}
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.35 20/02/26 Copyright 1999-2019 J. Schilling
+# @(#)cpfiles	1.36 21/08/20 Copyright 1999-2019 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -55,6 +55,8 @@ $cp ${incsrc}/include/schily/inttypes.h	include/schily/inttypes.h
 $cp ${incsrc}/include/schily/io.h	include/schily/io.h
 $cp ${incsrc}/include/schily/libport.h	include/schily/libport.h
 $cp ${incsrc}/include/schily/limits.h	include/schily/limits.h
+$cp ${incsrc}/include/schily/locale.h	include/schily/locale.h
+$cp ${incsrc}/include/schily/nlsdefs.h	include/schily/nlsdefs.h
 $cp ${incsrc}/include/schily/maxpath.h	include/schily/maxpath.h
 $cp ${incsrc}/include/schily/mconfig.h	include/schily/mconfig.h
 $cp ${incsrc}/include/schily/netdb.h	include/schily/netdb.h

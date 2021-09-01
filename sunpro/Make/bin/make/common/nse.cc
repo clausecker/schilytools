@@ -31,14 +31,14 @@
 #pragma	ident	"@(#)nse.cc	1.15	06/12/12"
 
 /*
- * This file contains modifications Copyright 2017-2018 J. Schilling
+ * Copyright 2017-2018 J. Schilling
  *
- * @(#)nse.cc	1.3 18/03/15 2017-2018 J. Schilling
+ * @(#)nse.cc	1.4 21/08/15 2017-2018 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)nse.cc	1.3 18/03/15 2017-2018 J. Schilling";
+	"@(#)nse.cc	1.4 21/08/15 2017-2018 J. Schilling";
 #endif
 
 #ifdef NSE

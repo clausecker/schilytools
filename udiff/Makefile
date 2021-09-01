@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.12 20/08/27 
+#ident @(#)Makefile	1.13 21/08/17 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,6 +10,10 @@ TARGET=		udiff
 SYMLINKS=	fdiff fsdiff
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		udiff.c
 HFILES=

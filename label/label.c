@@ -1,11 +1,11 @@
-/* @(#)label.c	1.34 15/12/23 Copyright 1988-2011 J. Schilling */
+/* @(#)label.c	1.35 21/08/20 Copyright 1988-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)label.c	1.34 15/12/23 Copyright 1988-2011 J. Schilling";
+	"@(#)label.c	1.35 21/08/20 Copyright 1988-2021 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2011 J. Schilling
+ *	Copyright (c) 1988-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,7 +26,10 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/param.h>	/* Include various defs needed with some OS */
 #include <schily/ioctl.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include "dsklabel.h"
 #include "fmt.h"
 
@@ -83,6 +86,29 @@ main(ac, av)
 	char	*const *cav= av;
 	SCSI	scg;
 
+	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "p"		/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	disk_null(&cur_disk, TRUE);
 
 	cac--;
@@ -100,9 +126,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Label release %s (%s-%s-%s) Copyright (C) 1988-2011 Jörg Schilling\n",
-				"1.34",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Label release %s (%s-%s-%s) Copyright (C) 1988-2021 %s\n",
+				"1.35",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 

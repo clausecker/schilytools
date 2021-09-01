@@ -1,8 +1,8 @@
-/* @(#)p.c	1.73 21/07/22 Copyright 1985-2021 J. Schilling */
+/* @(#)p.c	1.75 21/08/20 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.73 21/07/22 Copyright 1985-2021 J. Schilling";
+	"@(#)p.c	1.75 21/08/20 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -45,6 +45,8 @@ static	UConst char sccsid[] =
 #include <schily/wchar.h>	/* wchar_t		*/
 #include <schily/wctype.h>	/* For iswprint()	*/
 #include <schily/patmatch.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 
 #define	SEARCHSIZE	256
@@ -310,6 +312,26 @@ main(ac, av)
 
 	(void) setlocale(LC_ALL, "");
 
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "p"		/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
+
 	cac = --ac;
 	cav = ++av;
 
@@ -332,10 +354,10 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		/* BEGIN CSTYLED */
-		printf("p %s %s (%s-%s-%s)\n\n", "2.3", "2021/07/22", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2021 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("p %s %s (%s-%s-%s)\n\n", "2.4", "2021/08/20", HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 1985, 87-92, 95-99, 2000-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		/* END CSTYLED */
 		exit(0);
 	}
@@ -448,7 +470,7 @@ main(ac, av)
 				err:
 
 				start_standout();
-				printf("NEXT FILE (%s)?", *cav);
+				gtprintf("NEXT FILE (%s)?", *cav);
 				end_standout();
 				fflush(stdout);
 				lines = psize-2;
@@ -669,14 +691,14 @@ moreprompt()
 	}
 	start_standout();
 	if (!*filename || !f || size < 0 || pos < 0)
-		printf("%s%c MORE?",
+		gtprintf("%s%c MORE?",
 				filename,
 				*filename ? ':' : '-');
 	else {
 		percent = (float)pos;
 		percent /= (float)size;
 		percent *= 100.0;
-		printf("%s%c %.1f %% MORE?",
+		gtprintf("%s%c %.1f %% MORE?",
 				filename,
 				*filename ? ':' : '-',
 				percent);
@@ -823,22 +845,22 @@ LOCAL void
 onlinehelp()
 {
 	/* BEGIN CSTYLED */
-	printf("\n---------------------------------------------------------------\n");
-	printf("N, n			Next File\n");
-	printf("P, p			Previous File\n");
-	printf("S, s, ^C, ^D, ^\\, DEL	Exit (stop)\n");
-	printf("Y, y, <return>, <space>	Display next screenfull of text\n");
-	printf("H, h			Display next half screenfull of text\n");
-	printf("Q, q			Display next quarter screenfull of text\n");
-	printf("L, l			Display next line of text\n");
-	printf("1-9			Display next <n> lines of text\n");
-	printf("/pattern		Search for <pattern>\n");
-	printf("R, r			Re-search for <pattern>\n");
-	printf("^L			Redraw screen\n");
-	printf("?			Display this message\n");
-	printf("!			Execute command\n");
-	printf("V, v			Edit file\n");
-	printf("---------------------------------------------------------------\n");
+	gtprintf("\n---------------------------------------------------------------\n");
+	gtprintf("N, n			Next File\n");
+	gtprintf("P, p			Previous File\n");
+	gtprintf("S, s, ^C, ^D, ^\\, DEL	Exit (stop)\n");
+	gtprintf("Y, y, <return>, <space>	Display next screenfull of text\n");
+	gtprintf("H, h			Display next half screenfull of text\n");
+	gtprintf("Q, q			Display next quarter screenfull of text\n");
+	gtprintf("L, l			Display next line of text\n");
+	gtprintf("1-9			Display next <n> lines of text\n");
+	gtprintf("/pattern		Search for <pattern>\n");
+	gtprintf("R, r			Re-search for <pattern>\n");
+	gtprintf("^L			Redraw screen\n");
+	gtprintf("?			Display this message\n");
+	gtprintf("!			Execute command\n");
+	gtprintf("V, v			Edit file\n");
+	gtprintf("---------------------------------------------------------------\n");
 	/* END CSTYLED */
 }
 
@@ -1190,7 +1212,7 @@ read_pattern()
 	alt = patcompile((unsigned char *)searchbuf, patlen, aux);
 #endif
 	if (!alt) {
-		printf("Bad Pattern.\r");
+		gtprintf("Bad Pattern.\r");
 		fflush(stdout);
 		sleep(1);
 		return (FALSE);
@@ -1213,7 +1235,7 @@ do_search()
 	if (!alt) {
 		if (!nobeep)
 			putchar('\007');
-		printf("No previous search.\r");
+		gtprintf("No previous search.\r");
 		fflush(stdout);
 #ifdef	DEBUG
 		sleep(1);
@@ -1239,7 +1261,7 @@ do_search()
 			if (fill_buf() <= 0 || olen == len) {
 				if (!nobeep)
 					putchar('\007');
-				printf("Pattern not found.\r");
+				gtprintf("Pattern not found.\r");
 				fflush(stdout);
 				if (f && fileseek(f, curpos) >= 0)
 					len = 0;
@@ -1305,7 +1327,7 @@ do_search()
 				newlines++;
 				if (!skipping) {
 					skipping = TRUE;
-					printf("skipping...\r");
+					gtprintf("skipping...\r");
 					fflush(stdout);
 				}
 #ifdef	DEBUG

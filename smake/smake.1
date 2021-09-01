@@ -1,4 +1,4 @@
- \" @(#)smake.1	1.64 21/08/13 Copyright 1985-2021 J. Schilling
+ \" @(#)smake.1	1.65 21/08/27 Copyright 1985-2021 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2021/08/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2021/08/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -1130,6 +1130,9 @@ by
 when the macro
 .B $(SCCS_HISTFILE)
 is referenced.
+.LP
+The replacement is done on a word by word base and the white space between words
+is literally retained. If there is no match, the result is unmodified.
 .SS "Shell Replacement Macro References"
 .PP
 A macro reference in the following form:

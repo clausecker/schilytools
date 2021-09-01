@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read2.cc	1.24 21/08/13 2017-2021 J. Schilling
+ * @(#)read2.cc	1.25 21/08/16 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.24 21/08/13 2017-2021 J. Schilling";
+	"@(#)read2.cc	1.25 21/08/16 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1229,7 +1229,11 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 #ifdef	HAVE__OPT_SCHILY_XPG4_BIN_SH
 		MBSTOWCS(wcs_buffer, NOCATGETS("/opt/schily/xpg4/bin/sh"));
 #else
+#ifdef	HAVE__BIN_POSIX_SH
+		MBSTOWCS(wcs_buffer, NOCATGETS("/bin/posix/sh"));
+#else
 		MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
+#endif
 #endif
 #endif
 		(void) SETVAR(shell_name, GETNAME(wcs_buffer, FIND_LENGTH), false);

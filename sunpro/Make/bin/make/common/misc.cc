@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)misc.cc	1.20 21/08/10 2017-2021 J. Schilling
+ * @(#)misc.cc	1.22 21/08/16 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.20 21/08/10 2017-2021 J. Schilling";
+	"@(#)misc.cc	1.22 21/08/16 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -778,9 +778,6 @@ load_cached_names(void)
 	dollar->dollar = false;
 
 	/* Set the value of $(SHELL) */
-	#ifdef HP_UX
-	MBSTOWCS(wcs_buffer, NOCATGETS("/bin/posix/sh"));
-	#else
 	#if defined(SUN5_0)
 	if (posix) {
 #ifdef	HAVE__USR_XPG4_BIN_SH
@@ -789,7 +786,11 @@ load_cached_names(void)
 #ifdef	HAVE__OPT_SCHILY_XPG4_BIN_SH
 	  MBSTOWCS(wcs_buffer, NOCATGETS("/opt/schily/xpg4/bin/sh"));
 #else
+#ifdef	HAVE__BIN_POSIX_SH
+	  MBSTOWCS(wcs_buffer, NOCATGETS("/bin/posix/sh"));
+#else
 	  MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
+#endif
 #endif
 #endif
 	} else {
@@ -798,7 +799,6 @@ load_cached_names(void)
 	#else  /* ^SUN5_0 */
 	MBSTOWCS(wcs_buffer, NOCATGETS("/bin/sh"));
 	#endif /* ^SUN5_0 */
-	#endif
 	(void) SETVAR(shell_name, GETNAME(wcs_buffer, FIND_LENGTH), false);
 
 	/*

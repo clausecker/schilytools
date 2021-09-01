@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2019 J. Schilling
  *
- * @(#)dist.cc	1.5 19/10/17 2017-2019 J. Schilling
+ * @(#)dist.cc	1.6 21/08/16 2017-2019 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dist.cc	1.5 19/10/17 2017-2019 J. Schilling";
+	"@(#)dist.cc	1.6 21/08/16 2017-2019 J. Schilling";
 #endif
 
 #ifdef DISTRIBUTED
@@ -282,11 +282,7 @@ startup_rxm(void)
 		(void) sprintf(&rxm_command[strlen(rxm_command)],
 		               NOCATGETS(" %d %d"),
 		               pipe1[0], pipe2[1]);
-#ifdef linux
-		execl(NOCATGETS("/bin/sh"),
-#else
-		execl(NOCATGETS("/usr/bin/sh"),
-#endif
+		execl(SHELL_PATH),		/* /usr/bin/sh or /bin/sh */
 		      NOCATGETS("sh"),
 		      NOCATGETS("-c"),
 		      rxm_command,

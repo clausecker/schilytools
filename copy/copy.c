@@ -1,8 +1,8 @@
-/* @(#)copy.c	1.53 21/07/22 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling */
+/* @(#)copy.c	1.54 21/08/20 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.53 21/07/22 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling";
+	"@(#)copy.c	1.54 21/08/20 Copyright 1984, 86-90, 95-97, 99, 2000-2021 J. Schilling";
 #endif
 /*
  *	copy files ...
@@ -55,8 +55,10 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/maxpath.h>
 #include <schily/libport.h>
-#include <schily/nlsdefs.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 		/* Probably only needed for Mark Williams C */
 #ifndef	EEXIST
@@ -301,8 +303,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf(_("Copy release %s %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2021 %s\n"),
-				"1.53", "2021/07/22",
+		gtprintf("Copy release %s %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2021 %s\n",
+				"1.54", "2021/08/20",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);

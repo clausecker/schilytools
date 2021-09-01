@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.32 20/02/26 Copyright 1999-2019 J. Schilling
+# @(#)rmlinks	1.33 21/08/20 Copyright 1999-2019 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -29,6 +29,8 @@ rm -f include/schily/inttypes.h
 rm -f include/schily/io.h
 rm -f include/schily/libport.h
 rm -f include/schily/limits.h
+rm -f include/schily/locale.h
+rm -f include/schily/nlsdefs.h
 rm -f include/schily/maxpath.h
 rm -f include/schily/mconfig.h
 rm -f include/schily/netdb.h

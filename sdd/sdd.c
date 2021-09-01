@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.69 20/05/30 Copyright 1984-2020 J. Schilling */
+/* @(#)sdd.c	1.72 21/08/20 Copyright 1984-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.69 20/05/30 Copyright 1984-2020 J. Schilling";
+	"@(#)sdd.c	1.72 21/08/20 Copyright 1984-2021 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2020 J. Schilling
+ *	Copyright (c) 1984-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,10 +57,13 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #include <schily/librmt.h>
 #include <schily/errno.h>
 #include <schily/md5.h>
+#include <schily/nlsdefs.h>
 
 #ifdef	SIGRELSE
 #	define	signal	sigset	/* reliable signal */
@@ -430,6 +433,28 @@ main(ac, av)
 	int	ret = 0;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "sdd"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	getopts(ac, av);
 	tty = stdin;
 
@@ -1477,13 +1502,13 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s %s (%s-%s-%s)\n\n", "1.69", "2020/05/30",
+		gtprintf("sdd %s %s (%s-%s-%s)\n\n", "1.72", "2021/08/20",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2020 Jörg Schilling\n");
-		printf("This is free software; see the source for copying ");
-		printf("conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or ");
-		printf("FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("Copyright (C) 1984-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying ");
+		gtprintf("conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or ");
+		gtprintf("FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 	cac = ac - 1;

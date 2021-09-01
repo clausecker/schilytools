@@ -1,4 +1,4 @@
-#ident @(#)tartest.mk	1.8 18/07/10 
+#ident @(#)tartest.mk	1.9 21/08/20 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -12,6 +12,10 @@ TARGET=		tartest
 CPPOPTS +=	-I../star
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		tartest.c
 LIBS=		-lschily $(LIB_INTL)

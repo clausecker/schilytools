@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.59 21/07/22 Copyright 2000-2021 J. Schilling */
+/* @(#)cap.c	1.60 21/08/20 Copyright 2000-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.59 21/07/22 Copyright 2000-2021 J. Schilling";
+	"@(#)cap.c	1.60 21/08/20 Copyright 2000-2021 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -39,7 +39,10 @@ static	UConst char sccsid[] =
 #include <schily/termcap.h>
 #include <schily/getargs.h>
 #define	SCHILY_PRINT
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #define	TBUF	2048
 
@@ -337,6 +340,27 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "termcap"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 #ifdef	HAVE_SETVBUF
 	setvbuf(stdout, obuf, _IOFBF, sizeof (obuf));
 #else
@@ -367,11 +391,11 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s %s (%s-%s-%s)\n\n", "1.59", "2021/07/22",
+		gtprintf("termcap %s %s (%s-%s-%s)\n\n", "1.60", "2021/08/20",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2021 Jörg Schilling\n");
-		printf("This is free software; see the source for copying conditions.  There is NO\n");
-		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		gtprintf("Copyright (C) 2000-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
+		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
 	}
 

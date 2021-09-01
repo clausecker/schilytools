@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.3 20/07/08 
+#ident @(#)Makefile	1.4 21/08/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,6 +12,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DFIFO			# Include FIFO code
 CPPOPTS +=	-DFIFO_STANDALONE	# FIFO code is used as standalone
 CPPOPTS +=	-DUSE_MMAP		# Use mmap() for the FIFO
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		fifo.c fifo_main.c
 HFILES=

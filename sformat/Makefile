@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.16 08/08/15 Copyr 1988 J. Schilling
+#ident @(#)Makefile	1.17 21/08/20 Copyr 1988 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,10 @@ CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I.		# Für dat/*.c
 CPPOPTS +=	-DFMT
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		fmt.c modes.c labelsubs.c makelabel.c io.c \
 		defect.c badblock.c repair.c diskfmt.c diskparam.c\
@@ -32,7 +36,7 @@ HFILES=		fmt.h \
 		scsicmds.h dsklabel.h
 
 #LIBS=		-lunos
-LIBS=		-lscg $(LIB_VOLMGT) -lschily $(SCSILIB) $(LIB_KVM) $(LIB_SOCKET)
+LIBS=		-lscg $(LIB_VOLMGT) -lschily $(SCSILIB) $(LIB_KVM) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	Makefile.dat Makefile.man
 
 ###########################################################################

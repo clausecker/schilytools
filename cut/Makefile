@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.6 15/06/12 
+#ident @(#)Makefile	1.7 21/08/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,11 +9,15 @@ INSDIR=		bin
 TARGET=		scut
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		cut.c
 #HFILES=
 #LIBS=		-lunos
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

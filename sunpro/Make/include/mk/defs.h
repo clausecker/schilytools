@@ -3,12 +3,14 @@
 /*
  * CDDL HEADER START
  *
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * This file and its contents are supplied under the terms of the
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may use this file only in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -33,7 +35,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.17 21/08/13 2017-2021 J. Schilling
+ * @(#)defs.h	1.19 21/08/16 2017-2021 J. Schilling
  */
 
 /*
@@ -348,9 +350,10 @@ extern	Boolean		current_path_reset;
  * Declarations of system defined variables
  */
 #if !defined(HAVE_STRSIGNAL)
-#if !defined(linux)
-/* On linux this variable is defined in 'signal.h' */
+#ifdef	HAVE_SYS_SIGLIST
+#ifndef	HAVE_SYS_SIGLIST_DEF
 extern	char		*sys_siglist[];
+#endif
 #endif
 #endif
 
@@ -434,16 +437,6 @@ extern	char		*find_run_dir(void);
 extern	XDR		*get_xdrs_ptr(void);
 #endif
 extern	wchar_t		*getmem_wc(register int size);
-#if !defined(linux)
-/* On linux getwd(char *) is defined in 'unistd.h' */
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern	char		*getwd(char *);
-#ifdef __cplusplus
-}
-#endif
-#endif
 extern	void		handle_interrupt(int);
 extern	Boolean		is_running(Name target);
 extern	void		load_cached_names(void);

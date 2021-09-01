@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.23 18/06/17 Copyright 2002-2018 J. Schilling */
+/* @(#)tartest.c	1.24 21/08/20 Copyright 2002-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.23 18/06/17 Copyright 2002-2018 J. Schilling";
+	"@(#)tartest.c	1.24 21/08/20 Copyright 2002-2021 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2018 J. Schilling
+ *	Copyright (c) 2002-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,7 @@ static	UConst char sccsid[] =
 
 #include <schily/fcntl.h>			/* O_BINARY */
 #include <schily/io.h>				/* for setmode() prototype */
+#include <schily/nlsdefs.h>
 
 LOCAL	void	usage		__PR((int ret));
 EXPORT	int	main		__PR((int ac, char *av[]));
@@ -77,6 +78,27 @@ main(ac, av)
 	BOOL		prversion = FALSE;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "tartest"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
 	cac--;
 	cav++;
 	if (getallargs(&cac, &cav, "help,h,version,v", &help, &help,
@@ -87,9 +109,9 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.23",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.24",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-	gtprintf("Copyright (C) 2002-2017 Jörg Schilling\n");
+	gtprintf("Copyright (C) 2002-2021 %s\n", _("Jörg Schilling"));
 	gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
 	gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	if (prversion)

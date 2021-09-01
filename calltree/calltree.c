@@ -1,13 +1,13 @@
-/* @(#)calltree.c	1.48 19/01/08 Copyright 1985, 1999-2019 J. Schilling */
+/* @(#)calltree.c	1.50 21/08/20 Copyright 1985, 1999-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calltree.c	1.48 19/01/08 Copyright 1985, 1999-2019 J. Schilling";
+	"@(#)calltree.c	1.50 21/08/20 Copyright 1985, 1999-2021 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *
- *	Copyright (c) 1985, 1999-2019 J. Schilling
+ *	Copyright (c) 1985, 1999-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,9 +28,12 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
+#include <schily/nlsdefs.h>
 #include "strsubs.h"
 #include "sym.h"
 #include "clex.h"
@@ -161,6 +164,27 @@ main(ac, av)
 
 	save_args(ac, av);
 
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "calltree"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac = --ac;
 	cav = ++av;
 
@@ -190,9 +214,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (version) {
-		printf("Calltree release %s %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2019 Jörg Schilling\n",
+		gtprintf("Calltree release %s %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2021 %s\n",
 				ct_version, VERSION_DATE,
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.1 09/08/11 "
+#ident "@(#)Makefile	1.2 21/08/19 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,10 +9,14 @@ INSDIR=		bin
 TARGET=		mdigest
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS		# Include locale support
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DINS_RBASE=\"${INS_RBASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		mdigest.c
 HFILES=
-LIBS=		-lmdigest -lschily
+LIBS=		-lmdigest -lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

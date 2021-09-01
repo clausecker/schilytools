@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.24 19/04/28 Copyright 1985-2019 J. Schilling */
+/* @(#)calc.c	1.27 21/08/20 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.24 19/04/28 Copyright 1985-2019 J. Schilling";
+	"@(#)calc.c	1.27 21/08/20 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2019 J. Schilling
+ *	Copyright (c) 1985-2021 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,10 +27,13 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
+#define	GT_COMERR		/* #define comerr gtcomerr */
+#define	GT_ERROR		/* #define error gterror   */
 #include <schily/schily.h>
 #ifdef	FERR_DEBUG
 #include <schily/termios.h>
 #endif
+#include <schily/nlsdefs.h>
 
 #define	LLEN	100
 
@@ -81,6 +84,28 @@ main(ac, av)
 	int	irest = 0;
 
 	save_args(ac, av);
+
+	(void) setlocale(LC_ALL, "");
+
+#ifdef  USE_NLS
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "calc"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+#endif 	/* USE_NLS */
+
 	cac = --ac;
 	cav = ++av;
 	if (getallargs(&cac, &cav, "help,version", &help, &prversion) < 0) {
@@ -90,9 +115,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2019 Jörg Schilling\n",
-				"1.24", "2019/04/28",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Calc release %s %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2021 %s\n",
+				"1.27", "2021/08/20",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Jörg Schilling"));
 		exit(0);
 	}
 
@@ -122,7 +148,7 @@ main(ac, av)
 
 		case 1:
 			if (*astoll(argumente[0], &ergebnis) != '\0') {
-				printf("'%s' ist keine Zahl!\n?", argumente[0]);
+				gtprintf("'%s' ist keine Zahl!\n?", argumente[0]);
 				continue;
 			}
 			iergebnis	= (int)ergebnis;
@@ -130,29 +156,29 @@ main(ac, av)
 		case 2:
 			op = *argumente[0];
 			if (op != '!' && op != '~') {
-				printf("Unzulässiger Operator für: ");
-				printf("'op argument1'\n?");
+				gtprintf("Unzulässiger Operator für: ");
+				gtprintf("'op argument1'\n?");
 				continue;
 			}
 			if (*astoll(argumente[1], &arg1) != '\0') {
-				printf("'%s' ist keine Zahl!\n?", argumente[1]);
+				gtprintf("'%s' ist keine Zahl!\n?", argumente[1]);
 				continue;
 			}
 			break;
 		case 3:
 			if (*astoll(argumente[0], &arg1) != '\0') {
-				printf("'%s' ist keine Zahl!\n?", argumente[0]);
+				gtprintf("'%s' ist keine Zahl!\n?", argumente[0]);
 				continue;
 			}
 			if (*astoll(argumente[2], &arg2) != '\0') {
-				printf("'%s' ist keine Zahl!\n?", argumente[2]);
+				gtprintf("'%s' ist keine Zahl!\n?", argumente[2]);
 				continue;
 			}
 			break;
 
 		default:
-			printf("Die Eingabe hat nicht das richtige Format: ");
-			printf("'argument1 op argument2'\n?");
+			gtprintf("Die Eingabe hat nicht das richtige Format: ");
+			gtprintf("'argument1 op argument2'\n?");
 			continue;
 		}
 
@@ -169,7 +195,7 @@ main(ac, av)
 		} else if (streql(opstr, ">>")) {
 			op = RSHIFT;
 		} else if (opstr[1] != '\0') {
-			printf("Operationssymbole sind einstellig. Falsche Eingabe!\n?");
+			gtprintf("Operationssymbole sind einstellig. Falsche Eingabe!\n?");
 			continue;
 		} else if (!op) {
 			op = *opstr;
@@ -224,7 +250,7 @@ main(ac, av)
 			break;
 		case '%':
 		case '/': if (arg2 == 0) {
-				printf("Division durch Null ist unzulaessig.\n?");
+				gtprintf("Division durch Null ist unzulaessig.\n?");
 				i = 1;
 				break;
 			} else {
@@ -253,7 +279,7 @@ main(ac, av)
 			}
 
 		default:
-			printf("Unzulaessiger Operator!\n?");
+			gtprintf("Unzulaessiger Operator!\n?");
 			i = 1;
 			break;
 		}
@@ -266,14 +292,14 @@ print:
 		 */
 		prdig(iergebnis);
 		if (op == '/') {
-			printf("\nRest (dezimal): %d\n", irest);
+			gtprintf("\nRest (dezimal): %d\n", irest);
 			prdig(irest);
 		}
 		putchar('\n');
 
 		prlldig(ergebnis);
 		if (op == '/') {
-			printf("\nRest (dezimal): %lld\n", rest);
+			gtprintf("\nRest (dezimal): %lld\n", rest);
 			prlldig(rest);
 		}
 		putchar('\n');
