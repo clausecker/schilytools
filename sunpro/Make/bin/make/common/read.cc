@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read.cc	1.33 21/08/10 2017-2021 J. Schilling
+ * @(#)read.cc	1.35 21/09/06 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.cc	1.33 21/08/10 2017-2021 J. Schilling";
+	"@(#)read.cc	1.35 21/09/06 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -162,7 +162,7 @@ static void		init_directives(void);
 
 
 Boolean
-read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile)
+read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include)
 {
 	static short		max_include_depth;
 	register Property	makefile = maybe_append_prop(makefile_name,
@@ -377,6 +377,30 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 			// Before calling exists() make sure that we have the right timestamp
 			//
 			makefile_name->stat.time = file_no_time;
+#ifdef	DO_INCLUDE_FAILED
+			/*
+			 * Only call rule commands for "include", not for
+			 * "-include". This is the case if "complain" is true.
+			 */
+			if (is_include && complain && include_failed &&
+			    exists(makefile_name) == file_doesnt_exist) {
+				register Property	line;
+
+				if ((line = get_prop(include_failed_name->prop, line_prop)) != NULL &&
+				    line->body.line.command_template) {
+					struct _Dependency	dep;
+
+					dep.next = NULL;
+					dep.name = makefile_name;
+					dep.automatic = dep.stale = dep.built = false;
+					line->body.line.dependencies = &dep;	/* Set up $^ */
+					makefile_name->stat.time = file_max_time;
+					doname(include_failed_name, false, false);
+					line->body.line.dependencies = NULL;
+					makefile_name->stat.time = file_no_time;
+				}
+			}
+#endif
 
 			if (exists(makefile_name) == file_doesnt_exist) {
 				if (complain ||
@@ -1041,7 +1065,8 @@ start_new_line_no_skip:
 					     directive_type == D_IINCLUDE ? false:true,
 					     false,
 					     true,
-					     false) == failed && directive_type != D_IINCLUDE) {
+					     false,
+					     true) == failed && directive_type != D_IINCLUDE) {
 					fatal_reader(gettext("Read of include file `%s' failed"),
 					     makefile_name->string_mb);
 				}
@@ -2371,7 +2396,8 @@ enter_target_groups_and_dependencies(Name_vector target, Name_vector depes, Cmd_
 				    != no_special) {
 					special_reader(target->names[i], 
 						       depes, 
-						       command);
+						       command,
+						       separator);
 				}	
 				/* Check if this is a "a%b : x%y" type rule */
 				else if (target->names[i]->percent) {

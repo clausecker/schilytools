@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)read2.cc	1.25 21/08/16 2017-2021 J. Schilling
+ * @(#)read2.cc	1.26 21/09/06 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read2.cc	1.25 21/08/16 2017-2021 J. Schilling";
+	"@(#)read2.cc	1.26 21/09/06 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -1159,6 +1159,7 @@ enter_dyntarget(register Name target)
  *		dot_keep_state	The Name ".KEEP_STATE", used for tracing
  *		ignore_errors	Set if ".IGNORE" target is read
  *		ignore_name	The Name ".IGNORE", used for tracing
+ *		include_failed_name The Name ".INCLUDE_FAILED", used for automake
  *		keep_state	Set if ".KEEP_STATE" target is read
  *		no_parallel_name The Name ".NO_PARALLEL", used for tracing
  *		notparallel_name The Name ".NOTPARALLEL", used for tracing
@@ -1176,7 +1177,7 @@ enter_dyntarget(register Name target)
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-special_reader(Name target, register Name_vector depes, Cmd_line command)
+special_reader(Name target, register Name_vector depes, Cmd_line command, Separator separator)
 {
 	register int		n;
 
@@ -1295,6 +1296,25 @@ special_reader(Name target, register Name_vector depes, Cmd_line command)
 			(void) printf("%s:\n", ignore_name->string_mb);
 		}
 		break;
+
+#ifdef	DO_INCLUDE_FAILED
+	case include_failed_special:
+		if (svr4 || sunpro_compat)
+			break;
+		if (depes->used != 0) {
+			fatal_reader(gettext("Illegal dependencies for target `%s'"),
+				     target->string_mb);
+		}
+		if (command) {
+			include_failed = true;
+			enter_dependencies(target,
+			   NULL,
+			   depes,
+			   command,
+			   separator);
+		}
+		break;
+#endif
 
 	case keep_state_special:
 		if(svr4)

@@ -35,7 +35,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.34 21/08/16 2017-2021 J. Schilling
+ * @(#)defs.h	1.35 21/09/06 2017-2021 J. Schilling
  */
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
 #include <schily/mconfig.h>
@@ -454,6 +454,9 @@ typedef enum {
 	get_posix_special,
 	get_special,
 	ignore_special,
+#ifdef	DO_INCLUDE_FAILED
+	include_failed_special,
+#endif
 	keep_state_file_special,
 	keep_state_special,
 	make_version_special,

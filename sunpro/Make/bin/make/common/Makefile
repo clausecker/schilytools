@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.25 21/06/14 
+#ident @(#)Makefile	1.26 21/09/06 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -23,6 +23,7 @@ CPPOPTS +=	-DDMAKE_STATISTICS
 CPPOPTS +=	-DDO_MAKE_NAME	# Set up "MAKE_NAME=sunpro"
 CPPOPTS +=	-DDO_ARCHCONF	# Set up "MAKE_OS", ...
 CPPOPTS +=	-DDO_NOTPARALLEL # Check for ".NOTPARALLEL"
+CPPOPTS +=	-DDO_INCLUDE_FAILED # Support ".INCLUDE_FAILED"
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 #CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_SPRO_MAKE\"

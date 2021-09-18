@@ -35,7 +35,7 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)defs.h	1.19 21/08/16 2017-2021 J. Schilling
+ * @(#)defs.h	1.21 21/09/06 2017-2021 J. Schilling
  */
 
 /*
@@ -256,6 +256,10 @@ extern	Name		force;
 extern	Name		ignore_name;
 extern	Boolean		ignore_errors;
 extern	Boolean		ignore_errors_all;
+#ifdef	DO_INCLUDE_FAILED
+extern	Name		include_failed_name;
+extern	Boolean		include_failed;
+#endif
 extern	Name		init;
 extern	int		job_msg_id;
 extern	Boolean		keep_state;
@@ -452,7 +456,7 @@ extern	timestruc_t&	read_archive(register Name target);
 extern	int		read_dir(Name dir, wchar_t *pattern, Property line, wchar_t *library);
 extern	void		read_directory_of_file(register Name file);
 extern	int		read_make_machines(Name make_machines_name);
-extern	Boolean		read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile);
+extern	Boolean		read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include = false);
 extern	void		remove_recursive_dep(Name target);
 extern	void		report_recursive_dep(Name target, char *line);
 extern	void		report_recursive_done(void);
@@ -466,7 +470,7 @@ extern	void		setvar_envvar(Avo_DoJobMsg *dmake_job_msg);
 #else
 extern	void		setvar_envvar(void);
 #endif
-extern	void		special_reader(Name target, register Name_vector depes, Cmd_line command);
+extern	void		special_reader(Name target, register Name_vector depes, Cmd_line command, Separator separator);
 extern	void		startup_rxm();
 extern	Doname		target_can_be_built(register Name target);
 extern	char		*time_to_string(const timestruc_t &time);

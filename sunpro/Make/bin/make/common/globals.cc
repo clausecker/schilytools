@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)globals.cc	1.16 21/08/11 2017-2021 J. Schilling
+ * @(#)globals.cc	1.18 21/09/06 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)globals.cc	1.16 21/08/11 2017-2021 J. Schilling";
+	"@(#)globals.cc	1.18 21/09/06 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -122,6 +122,10 @@ static	UConst char sccsid[] =
 	Name		ignore_name;
 	Boolean		ignore_errors;			/* `-i' */
 	Boolean		ignore_errors_all;		/* `-i' */
+#ifdef	DO_INCLUDE_FAILED
+	Name		include_failed_name;
+	Boolean		include_failed;
+#endif
 	Name		init;
 	int		job_msg_id;
 	Boolean		keep_state;

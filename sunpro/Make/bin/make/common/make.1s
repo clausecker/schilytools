@@ -1,5 +1,5 @@
 '\" te
-. \" @(#)make.1s	1.68 21/08/30 Copyr 2012-2021 J. Schilling
+. \" @(#)make.1s	1.75 21/09/09 Copyr 2012-2021 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Portions Copyright (c) 1992, X/Open Company Limited  All Rights Reserved
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
@@ -61,7 +61,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/08/30" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2021/09/09" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -715,6 +715,7 @@ first starts, it reads the
 environment
 variable to obtain any of the following options specified present in its
 value:
+.BR -a ,
 .BR -d ,
 .BR -D ,
 .BR -e ,
@@ -1102,6 +1103,49 @@ With an empty
 environment,
 .B make
 does not support this feature.
+
+.SS "Automake Features
+.PP
+.B Make
+implements
+.B automake
+features that help to write highly portable makefile systems. The
+.B automake
+features are implemented with a set of special purpose macros and by special
+rules that help to extend the functionality and automated adaptivity of
+.BR make .
+.TP
+.B "Automake special purpose macros
+.RS +4n
+The special purpose macros that have names that match
+.B "MAKE_*
+(see section
+.BR "Special-Purpose Macros" )
+are part of the
+.B automake
+features of make.
+The related special macros are set up by 
+.B make
+to contain values that have been retrieved from the results of the
+.BR uname (2),
+.BR sysinfo (2)
+or
+.BR sysctl (2)
+system calls.
+The values for these macros may however be overwritten from a makefile
+or from a command line macro definition.
+.RE
+.TP
+.B "Automake special targets
+.RS +4n
+The special target
+.B \&.INCLUDE_FAILED
+allows to define a rule that is evaluated in case that an include
+file does not exist and could not be made from other rules.
+As the associated command for this target is typically a shell script,
+the shell script can be written to create fall back rules in a platform
+independent way.
+.RE
 
 .SS "Targets and Dependencies"
 .sp
@@ -1747,6 +1791,65 @@ ignores non-zero error codes returned from commands. When used in
 .B POSIX
 mode, \fB\&.IGNORE\fR could be followed by target names only, for which the
 errors is ignored.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B \&.INCLUDE_FAILED:
+.ad
+.RS 23n
+.rt
+This special target implements
+.B automake
+features for object oriented layered makefiles.
+If this target is present and defines commands, 
+.B make
+executes the commands for this target
+in case that a makefile could not be included and there
+was no other explicit or implicit rule that did create the the missing
+make include file.
+.sp
+The
+.B \&.INCLUDE_FAILED
+target may not have a dependency list.
+When the
+.B commands
+for the target
+.B \&.INCLUDE_FAILED
+are called, the dependency list of the special target is set up to
+the include filename that caused the failure.
+It is therefore recommended to define the
+.B commands
+for the
+.B \&.INCLUDE_FAILED
+target to include
+.B $^
+as parameter.
+The commands for the target
+.B \&.INCLUDE_FAILED
+are called only for the
+.B include
+and not for the
+.B \-include
+directive. If the commands for the
+.B \&.INCLUDE_FAILED
+target cannot create a file that is going to be included,
+.B make
+fails.
+.sp
+With an empty
+.B SUN_MAKE_COMPAT_MODE
+environment, or when in
+.B SysV
+mode,
+.B make
+ignores the
+.B \&.INCLUDE_FAILED
+target in order to achieve compatibility to previous versions of the
+.B SunPro make
+program.
 .RE
 
 .sp
@@ -2930,6 +3033,24 @@ The name of the current target. This is the only dynamic macro whose value
 is strictly determined when used in a dependency list. (In which case it
 takes the form
 .BR $$@ .)
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B $^
+.ad
+.RS 6n
+.rt
+The list of all dependencies of the current target.
+Since the list main contain
+.B .WAIT
+pseudo targets, it is recommended to use
+.B $(^:.WAIT=)
+if
+.B .WAIT
+is part of the dependency list.
 .RE
 
 .sp

@@ -1,8 +1,8 @@
-/* @(#)readfile.c	1.67 21/03/11 Copyright 1985-2021 J. Schilling */
+/* @(#)readfile.c	1.68 21/09/05 Copyright 1985-2021 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.67 21/03/11 Copyright 1985-2021 J. Schilling";
+	"@(#)readfile.c	1.68 21/09/05 Copyright 1985-2021 J. Schilling";
 #endif
 /*
  *	Make program
@@ -398,7 +398,7 @@ doinclude(name, must_exist)
 	}
 
 	/*
-	 * If "name" exists of could be made my a specific rule or the
+	 * If "name" exists or could be made by a specific rule or the
 	 * fall back rule .INCLUDE_FAILED:, parse the content of the file
 	 * to be included.
 	 */

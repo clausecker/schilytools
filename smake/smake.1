@@ -1,4 +1,4 @@
- \" @(#)smake.1	1.65 21/08/27 Copyright 1985-2021 J. Schilling
+ \" @(#)smake.1	1.69 21/09/07 Copyright 1985-2021 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2021/08/27" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2021/09/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -754,7 +754,7 @@ The special target
 .B \&.INCLUDE_FAILED
 allows to define a rule that is evaluated in case that an include
 files does not exist and could not be made from other rules.
-As the asociated command for this target is typically a shell script,
+As the associated command for this target is typically a shell script,
 the shell script can be written to create fall back rules in a platform
 independent way.
 
@@ -1224,32 +1224,40 @@ the exit code for the related commands is ignored.
 This special target implements
 .B automake
 features for object oriented layered makefiles.
-If this target is present, 
+If this target is present and defines commands, 
 .B smake
 executes the commands for this target
-in case that a make file could not be included and there
+in case that a makefile could not be included and there
 was no other explicit or implicit rule that did create the the missing
 make include file.
+.sp
 The
 .B \&.INCLUDE_FAILED
 target may not have a dependency list.
-When the commands for the target
+When the
+.B commands
+for the target
 .B \&.INCLUDE_FAILED
 are called, the dependency list of the special target is set up to
-the include file name.
+the include filename that caused the failure.
+It is therefore recommended to define the
+.B commands
+for the
+.B \&.INCLUDE_FAILED
+target to include
+.B $^
+as parameter.
 The commands for the target
 .B \&.INCLUDE_FAILED
-are called for both, the
+are called only for the
 .B include
-and the
+and not for the
 .B \-include
 directive. If the commands for the
 .B \&.INCLUDE_FAILED
 target cannot create a file that is going to be included,
 .B smake
-will fail in case that the
-.B include
-directive was used.
+fails.
 .TP
 .B \&.INIT:
 If this target is present, the target and its dependencies are built before

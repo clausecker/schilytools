@@ -33,12 +33,12 @@
 /*
  * Copyright 2017-2021 J. Schilling
  *
- * @(#)misc.cc	1.22 21/08/16 2017-2021 J. Schilling
+ * @(#)misc.cc	1.24 21/09/06 2017-2021 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.cc	1.22 21/08/16 2017-2021 J. Schilling";
+	"@(#)misc.cc	1.24 21/09/06 2017-2021 J. Schilling";
 #endif
 
 /*
@@ -410,6 +410,15 @@ dump_make_state(void)
 		(void) printf("%s:\n", ignore_name->string_mb);
 	}
 
+#ifdef	DO_INCLUDE_FAILED
+	/* .INCLUDE_FAILED */
+	if (include_failed) {
+		print_rule(include_failed_name);
+	} else {
+		include_failed_name->dependency_printed = true;
+	}
+#endif
+
 	/* .KEEP_STATE: */
 	if (keep_state) {
 		(void) printf("%s:\n\n", dot_keep_state->string_mb);
@@ -683,6 +692,10 @@ load_cached_names(void)
 	host_mach = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".IGNORE"));
 	ignore_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#ifdef	DO_INCLUDE_FAILED
+	MBSTOWCS(wcs_buffer, NOCATGETS(".INCLUDE_FAILED"));
+	include_failed_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#endif
 	MBSTOWCS(wcs_buffer, NOCATGETS(".INIT"));
 	init = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS(".LOCAL"));
@@ -757,6 +770,9 @@ load_cached_names(void)
 	dot_keep_state->special_reader = keep_state_special;
 	dot_keep_state_file->special_reader = keep_state_file_special;
 	ignore_name->special_reader = ignore_special;
+#ifdef	DO_INCLUDE_FAILED
+	include_failed_name->special_reader = include_failed_special;
+#endif
 	make_version->special_reader = make_version_special;
 	no_parallel_name->special_reader = no_parallel_special;
 #ifdef	DO_NOTPARALLEL
