@@ -1,14 +1,15 @@
-/* @(#)mdigest.c	1.9 21/08/22 Copyright 2009-2021 J. Schilling */
+/* @(#)mdigest.c	1.10 21/08/22 Copyright 2009-2021 J. Schilling, 2022 Nico Sonack */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
 /*static	const char sccsid[] =*/
-	"@(#)mdigest.c	1.9 21/08/22 Copyright 2009-2021 J. Schilling";
+	"@(#)mdigest.c	1.10 21/08/22 Copyright 2009-2021 J. Schilling, 2022 Nico Sonack";
 #endif
 /*
  *	Compute the message digest for files
  *
  *	Copyright (c) 2009-2021 J. Schilling
+ *	Copyright (c) 2022	N. Sonack
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,6 +43,7 @@ static	UConst char sccsid[] =
 #include <schily/sha1.h>
 #include <schily/sha2.h>
 #include <schily/sha3.h>
+#include <schily/blake2.h>
 #include <schily/nlsdefs.h>
 
 typedef union uctx {
@@ -53,6 +55,8 @@ typedef union uctx {
 #ifdef	sha3_224_hash_size
 	SHA3_CTX	ctx_sha3;
 #endif
+	BLAKE2b_CTX	ctx_blake2b;
+	BLAKE2s_CTX	ctx_blake2s;
 } U_CTX;
 
 struct adigest {
@@ -92,6 +96,18 @@ struct adigest dlist[] = {
 #endif
 #ifdef	SHA3_512_DIGEST_LENGTH
 { "sha3-512", sha3_512_hash_size, (PI) SHA3_512_Init, (PU) SHA3_Update, (PP) NULL, (PF) SHA3_Final },
+#endif
+#ifdef	BLAKE2B_256_DIGEST_LENGTH
+{ "blake2b256", BLAKE2B_256_DIGEST_LENGTH, (PI) BLAKE2b_256_Init, (PU) BLAKE2b_Update, (PP) NULL, (PF) BLAKE2b_256_Final },
+#endif
+#ifdef	BLAKE2B_512_DIGEST_LENGTH
+{ "blake2b512", BLAKE2B_512_DIGEST_LENGTH, (PI) BLAKE2b_512_Init, (PU) BLAKE2b_Update, (PP) NULL, (PF) BLAKE2b_512_Final },
+#endif
+#ifdef	BLAKE2S_128_DIGEST_LENGTH
+{ "blake2s128", BLAKE2S_128_DIGEST_LENGTH, (PI) BLAKE2s_128_Init, (PU) BLAKE2s_Update, (PP) NULL, (PF) BLAKE2s_128_Final },
+#endif
+#ifdef	BLAKE2S_256_DIGEST_LENGTH
+{ "blake2s256", BLAKE2S_256_DIGEST_LENGTH, (PI) BLAKE2s_256_Init, (PU) BLAKE2s_Update, (PP) NULL, (PF) BLAKE2s_256_Final },
 #endif
 { NULL, 0, (PI) NULL, (PU) NULL, (PP) NULL, (PF) NULL },
 };
@@ -176,8 +192,9 @@ struct	adigest	*dp = dlist;
 	}
 	if (help) usage(0);
 	if (prvers) {
-		gtprintf("mdigest %s (%s-%s-%s)\n\n", "1.9", HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("mdigest %s (%s-%s-%s)\n\n", "1.10", HOST_CPU, HOST_VENDOR, HOST_OS);
 		gtprintf("Copyright (C) 2009-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("Copyright (C) 2022 Nico Sonack\n");
 		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
 		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

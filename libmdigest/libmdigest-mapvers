@@ -1,5 +1,26 @@
 # /* @(#)libmdigest-mapvers        1.6 15/12/27 Copyright 2009-2010 J. Schilling */
 
+SCHILY_1.2 {
+global:
+	BLAKE2s_Init;
+	BLAKE2s_Update;
+	BLAKE2s_Final;
+
+	BLAKE2s_128_Init;
+	BLAKE2s_128_Final;
+	BLAKE2s_256_Init;
+	BLAKE2s_256_Final;
+
+	BLAKE2b_Init;
+	BLAKE2b_Update;
+	BLAKE2b_Final;
+
+	BLAKE2b_256_Init;
+	BLAKE2b_256_Final;
+	BLAKE2b_512_Init;
+	BLAKE2b_512_Final;
+} SCHILY_1.2;
+
 SCHILY_1.1 {
 global:
 	SHA3_224_Init;

@@ -2,7 +2,7 @@
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
-		btorder.mk \
+		btorder.mk blake2.mk \
 		ccomdefs.mk checkerr.mk ctype.mk \
 		dbgmalloc.mk deflts.mk device.mk dirent.mk dlfcn.mk \
 		err_arch.mk err_bit.mk err_char.mk err_type.mk \
