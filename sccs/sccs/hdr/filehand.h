@@ -121,7 +121,7 @@
 # define BADTYPE 22		/* Record type was not FIXED or VARIED. */
 # define RESETERR 23	/* NOTFOUND, and could not remove file2. */
 # define NOCLOSE 24		/* Could not close a file near end of run. */
-# define RECURSE 1024	/* Error occured in ftrans.  Lower bits give error. */
+# define RECURSE 1024	/* Error occurred in ftrans.  Lower bits give error. */
 
 						/* Record type codes */
 

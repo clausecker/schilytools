@@ -606,7 +606,7 @@ scg_vsetup(scgp)
 
 /*
  * Return the residual DMA count for last command.
- * If this count is < 0, then a DMA overrun occured.
+ * If this count is < 0, then a DMA overrun occurred.
  */
 EXPORT int
 scg_getresid(scgp)

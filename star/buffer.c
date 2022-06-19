@@ -313,7 +313,7 @@ opentape()
 		 * remote server, our rmt client code will mask off all
 		 * non portable bits. The remote rmt server defaults to
 		 * O_BINARY as the client (we) may not know about O_BINARY.
-		 * XXX Should we add an option that allows to specify O_TRUNC?
+		 * XXX Should we add an option that allows one to specify O_TRUNC?
 		 */
 		while (rmtopen(remfd, remfn, (cflag ? O_RDWR|O_CREAT:O_RDONLY)|O_BINARY) < 0) {
 			if (!wready || n++ > 12 ||
@@ -356,7 +356,7 @@ opentape()
 
 		n = 0;
 		/*
-		 * XXX Should we add an option that allows to specify O_TRUNC?
+		 * XXX Should we add an option that allows one to specify O_TRUNC?
 		 */
 		while ((tarf = lfilemopen(tarfiles[tarfindex],
 						cflag?"rwcub":"rub",

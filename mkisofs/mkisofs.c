@@ -1153,7 +1153,7 @@ LOCAL const struct mki_option mki_options[] =
 	{{"c* ,eltorito-catalog*", &boot_catalog },
 	__("\1FILE\1Set El Torito boot catalog name")},
 	{{"C*,cdrecord-params*", &cdrecord_data },
-	__("\1PARAMS\1Magic paramters from cdrecord")},
+	__("\1PARAMS\1Magic parameters from cdrecord")},
 	{{"d,omit-period", &omit_period },
 	__("Omit trailing periods from filenames (violates ISO9660)")},
 	{{"data-change-warn", &data_change_warn },

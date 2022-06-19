@@ -9,7 +9,7 @@ for speed, a pattern matcher, multivolume support, the ability to correctly
 archive sparse files, automatic archive format detection, automatic byte order
 recognition, automatic archive compression/decompression, remote archives
 and special features that allow star to be used for full backups. it includes
-a built in find(1) command that allows to execute find(1) expressions.
+a built in find(1) command that allows one to execute find(1) expressions.
 It also includes `rmt', a truly portable version of the remote tape server
 that supports remote operation between different OS and machine architectures
 (hides even Linux oddities) and a portable `mt' tape drive control program
@@ -46,8 +46,8 @@ Its main advantages over other tar implementations are:
 				  the quality of the network implementation
 				  and the speed of the filesystem.
 
-	selectable cli		- star cli=xxx allows to select a command line
-				  interface from the list
+	selectable cli		- star cli=xxx allows one to select a command
+				  line interface from the list
 
 					star, suntar, gnutar, pax, cpio.
 
@@ -135,18 +135,18 @@ Its main advantages over other tar implementations are:
 				  versions of star to perform true
 				  incremental dumps.
 
-	sophisticated error control - allows to tell star which error types
+	sophisticated error control - allows one to tell star which error types
 				  should be ignored for wich file name pattern.
-				  This allows to write backup scripts that give
-				  no error messages for all problems that are
-				  tolerable (e.g. growing log files). 
+				  This allows one to write backup scripts that
+				  give no error messages for all problems that
+				  are tolerable (e.g. growing log files). 
 
 	'ed' like pattern substitutuions - star supports automated pattern rule
 				  based file name substitution as documented
 				  for 'pax'. 
 
-	fast built in -copy mode  - allows to make fast and accurate copies and
-				  directory tree comparisons. 
+	fast built in -copy mode  - allows one to make fast and accurate copies
+				  and directory tree comparisons. 
 
 	True incremental dump/restore features - tar is the first TAR based
 				  backup system that has been verified to

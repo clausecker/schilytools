@@ -1181,7 +1181,7 @@ close_track_bd(scgp, dp, trackp)
 
 	/*
 	 * Compute the start of the next "track" for the hack
-	 * that allows to have a track in more than one file.
+	 * that allows one to have a track in more than one file.
 	 * XXX Check this if the vtrack code is removed.
 	 */
 	amount = roundup(trackp->tracksize, secsize);

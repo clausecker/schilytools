@@ -67,7 +67,7 @@ kernel problem. The Linux kernel maintainers unfortunately refuse to correct
 their current IDE driver system setup which does not support ATAPI by default.
 ATAPI _is_ SCSI over IDE transport. It is hard to understand why Linux still
 uses a default driver setup that is designed for IDE CD-ROM drives made
-before 1994 (using a IDE compat mode that only allows to use the drive
+before 1994 (using a IDE compat mode that only allows one to use the drive
 read-only) and does not handle to send SCSI commands to ATAPI drives by
 default. This makes it hard for people who just started with Linux to do
 CD-writing on Linux if they own an ATAPI drive. Both Linus Torvalds and
@@ -126,7 +126,7 @@ Which Operating systems support ATAPI
 	-	Starting with Linux-2.5.45, there is a new experimental
 		ATAPI interface initiated by Linus Torvalds. Unfortunately,
 		this interface does not fit well into the rest of the Linux
-		SCSI kernel transport naming scheme. Cdrecord allows to
+		SCSI kernel transport naming scheme. Cdrecord allows one to
 		use this interface by calling e.g. cdrecord dev=ATA:1,0,0 ...
 
 	All Linux ATAPI transport implementations do not support DMA.
@@ -136,7 +136,7 @@ Which Operating systems support ATAPI
 
 	-	The new experimental ATAPI interface starting with Linux-2.5.45
 		allows DMA if DMA has been enabled and the sector size is a
-		multiple of 4. This allows to use DMA for audio CDs and
+		multiple of 4. This allows one to use DMA for audio CDs and
 		when writing any type of CD in RAW mode.
 
 		Note that is a bad idea to first implement a new kernel

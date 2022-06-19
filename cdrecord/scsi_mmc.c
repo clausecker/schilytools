@@ -79,7 +79,7 @@ LOCAL struct features {
 	{ 0x0026,	"Restricted Overwrite", },
 	{ 0x0027,	"CD-RW CAV Write", },
 	{ 0x0028,	"MRW", },
-	{ 0x0029,	"Ehanced Defect Reporting", },
+	{ 0x0029,	"Enhanced Defect Reporting", },
 	{ 0x002A,	"DVD+RW", },
 	{ 0x002B,	"DVD+R", },
 	{ 0x002C,	"Rigid Restricted Overwrite", },

@@ -36,13 +36,13 @@ Now let us compare functionality and options. Star has a lot of functions
 that are usually invisible to the user but make the daily use much easier:
 
 -	A built in find(1) allows star to execute "find" like expressions
-	in create, extract and list mode. This allows to do a lot of
+	in create, extract and list mode. This allows one to do a lot of
 	interesting things that could not be done if star and find would
 	be called separatedly 
 
--	A FIFO allows to keeps the tape streaming. This gives you aster backups
-	than you can achieve with other tar implementations. Star is even 
-	at least 30% faster than ufsdump.
+-	A FIFO allows one to keeps the tape streaming. This gives you faster
+	backups than you can achieve with other tar implementations. Star is 
+	even at least 30% faster than ufsdump.
 
 -	Fast remote tape support is built into star.
 
@@ -101,7 +101,7 @@ that are usually invisible to the user but make the daily use much easier:
 	complete description of bugs found in other tar implementations.
 
 -	Support for the new POSIX.1-2001 extended tar format. This new tar 
-	format allows to archive many new things in a standard compliant way.
+	format allows one to archive many new things in a standard compliant way.
 	These things are currently are implemented in Gnu tar in a proprietary 
 	way and have in former times been implemented in a proprietary way in 
 	star. To give an example, the most interesting features that are now 
@@ -133,8 +133,8 @@ that are usually invisible to the user but make the daily use much easier:
 	directory has been renamed, star will only archive empty renamed
 	directories.
 
--	Sophisticated error control allows to tell star which error types 
-	should be ignored for wich file name pattern. This allows to write
+-	Sophisticated error control allows one to tell star which error types
+	should be ignored for wich file name pattern. This allows one to write
 	backup scripts that give no error messages for all problems that are
 	tolerable (e.g. growing log files).
 
@@ -142,7 +142,7 @@ that are usually invisible to the user but make the daily use much easier:
 	automated pattern rule based file name substitution as documented 
 	for 'pax'.
 
--	Fast built in -copy mode allows to make fast and accurate copies and
+-	Fast built in -copy mode allows one to make fast and accurate copies and
 	directory tree comparisons.
 
 
@@ -173,7 +173,7 @@ older than getopt(). Getargs() implements the following features:
 	options may be combined into a single string starting with a single
 	dash (-).
 
--	getargs() has a compatibility mode for GNU programs and allows to
+-	getargs() has a compatibility mode for GNU programs and allows one to
 	preceede long options with a double dash (--) instead of the usual
 	single dash (-).
 

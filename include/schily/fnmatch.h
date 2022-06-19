@@ -62,7 +62,7 @@ extern "C" {
 #define	FNM_NOMATCH	1	/* Match failed. */
 #endif
 #ifndef	FNM_ERROR
-#define	FNM_ERROR	2	/* An error occured */
+#define	FNM_ERROR	2	/* An error occurred */
 #endif
 #ifndef	FNM_NOSYS
 #define	FNM_NOSYS	3	/* Function (XPG4) not supported */

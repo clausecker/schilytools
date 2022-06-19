@@ -437,7 +437,7 @@ on:
 I am interested to hear if someone is interested in a kernel based
 filesystem for Solaris that uses packet writing on the CD-Recorder.
 The filesystem will create a single session CD that may be finally converted
-to a hybrid filesystem that allows to be read as 
+to a hybrid filesystem that allows it to be read as
 ISO-9660 with Rock Ridge extensions too.
 Please mail suggestions to: joerg@schily.net
 

@@ -671,7 +671,7 @@ static const char *sd_teac50_error_str[] = {
 	"\232\000slider velocity control error",		/* 9A 00 */	/* JVC */
 	"\233\000opc initialize error",				/* 9B 00 */
 	"\233\001power calibration not executed",		/* 9B 01 */
-	"\234\000opc execution eror",				/* 9C 00 */
+	"\234\000opc execution error",				/* 9C 00 */
 	"\234\001alpc error - opc execution",			/* 9C 01 */
 	"\234\002opc execution timeout",			/* 9C 02 */
 	"\245\000disk application code does not match host application code",	/* A5 00 */

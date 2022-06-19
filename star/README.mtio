@@ -1,8 +1,8 @@
 Magnetic Tape ioctl's are just (again) a compatibility problem with Linux.
 
 
-The /etc/rmt protocol allows to send ioctls to the remote system and relies on
-the fact that  MTIO opcodes 0..7 of all UNIX systems are mapped to the same function.
+The /etc/rmt protocol allows one to send ioctls to the remote system and relies on
+the fact that MTIO opcodes 0..7 of all UNIX systems are mapped to the same function.
 Linux unfortunately does not follow these rules.
 
 /*--------------------------------------------------------------------------*/

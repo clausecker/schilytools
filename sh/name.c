@@ -1389,7 +1389,7 @@ dolocale(nm)
 #ifdef INTERACTIVE
 	/*
 	 * Only set history size in libshedit if we are
-	 * in interactive mode. This allows to avoid  to
+	 * in interactive mode. This allows us to avoid to
 	 * load libshedit when interpreting shell scripts.
 	 */
 	if ((flags & prompt) &&

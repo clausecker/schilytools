@@ -1226,7 +1226,7 @@ static const char *sd_cdd_521_error_str[] = {
 	"\003\000tray out",				/* 0x03 */
 	"\062\000write data error with CU",		/* 0x32 */	/* Yamaha */
 	"\063\000monitor atip error",			/* 0x33 */
-	"\064\000absorbtion control error",		/* 0x34 */
+	"\064\000absorption control error",		/* 0x34 */
 #ifdef	YAMAHA_CDR_100
 	/* Is this the same ??? */
 	"\120\000write operation in progress",		/* 0x50 */

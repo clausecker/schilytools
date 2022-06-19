@@ -164,7 +164,7 @@ To extract ACLs you need to call "star -acl ..."
 This option -acl has been introduced because it turns out that it is
 impossible to handle the extract case (when the filesystem does
 not support ACLs) in a decent way. Without -acl star would either
-be forced to suppress eror messages for ACL handling or people
+be forced to suppress error messages for ACL handling or people
 would see hundreds of ACL warnings.
 
 The intention for the -acl option was to make ACL handling easy

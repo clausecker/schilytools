@@ -137,7 +137,7 @@ int f_doblock(file, number, bp, func)
 #ifdef APPLE_HYB
 	  if (i > 0) {
 /*	    SHOULD NOT HAPPEN! - all the files should not be fragmented
-	    if this happens, then a serious problem has occured, may be
+	    if this happens, then a serious problem has occurred, may be
 	    a hard linked file? */
 #ifdef DEBUG
 	    fprintf(stderr,"fragmented file: %s %d\n",file->name, i);

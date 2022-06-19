@@ -35,7 +35,7 @@ WINNTDEFS +=	-D_WIN32_WINNT=0x0403
 ###########################################################################
 #
 # $(MAKE_HOST_OSREL) is only defined in smake. If the macro in undefined
-# -include allows to fail the "include" and use the fall-back above.
+# -include allows it to fail the "include" and use the fall-back above.
 #
 ###########################################################################
 -include	$(SRCROOT)/$(RULESDIR)/os-interix-nt-$(MAKE_HOST_OSREL).id

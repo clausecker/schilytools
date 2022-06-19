@@ -122,7 +122,7 @@ We added the following modifications in April 2015:
 	bsd-sccs/delsfile.sh		"wtest" is a shell funtion that
 	get/writable.sh			uses ls -l | grep "^-r--r--r--" to
 	get/middle-fail.sh		check. Needed as recent Haiku only
-					allows to run commands as root.
+					allows one to run commands as root.
 
 
 If you are interested in the original version of the test suite below this

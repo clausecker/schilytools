@@ -10,7 +10,7 @@
 # created and concatenated to a single patch file. Then the original file
 # is patched and compared to the expected result.
 #
-# The diff type is random, this allows to check the quality of the automated
+# The diff type is random, this allows one to check the quality of the automated
 # diff type recognition.
 #
 

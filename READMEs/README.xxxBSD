@@ -41,7 +41,7 @@ But this syntax may not work on all *BSD flavours as not all *BSD flavours
 support mapping back the target/lun numbers from a device.
 
 In any case: read the cdrecord man page and try to find the /dev/* entry for
-your CD-recorder that allows to be used with ioctl's.
+your CD-recorder that allows it to be used with ioctl's.
 
 On FreeBSD/cam, you will be able to access the CD-Recorder as on other
 systems. If your CD-Recorder is on SCSI Bus 0, Target 2, lun 0

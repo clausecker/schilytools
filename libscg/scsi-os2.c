@@ -446,7 +446,7 @@ static	SRB	SRBlock;			/* XXX makes it non reentrant */
 			(void*) &SRBlock, sizeof (SRB), &cbParam,
 			(void*) &SRBlock, sizeof (SRB), &cbreturn);
 
-	if (rc) {		/* An error occured */
+	if (rc) {		/* An error occurred */
 		js_fprintf((FILE *)scgp->errfile,
 				"DosDevIOCtl() in sendCommand failed.\n");
 		sp->error = SCG_FATAL;
@@ -455,7 +455,7 @@ static	SRB	SRBlock;			/* XXX makes it non reentrant */
 	} else {
 		/* Wait until the command is processed */
 		rc = wait_post(sp->timeout*1000);
-		if (rc) {	/* An error occured */
+		if (rc) {	/* An error occurred */
 			if (rc == 640) {
 				/* Timeout */
 				sp->error = SCG_TIMEOUT;
@@ -503,7 +503,7 @@ static	SRB	SRBlock;			/* XXX makes it non reentrant */
 			}
 			return (0);
 		}
-		/* SCSI-Error occured */
+		/* SCSI-Error occurred */
 		set_error(&SRBlock, sp);
 
 		if (SRBlock.u.cmd.target_status == SRB_CheckStatus) {	/* Sense data valid */

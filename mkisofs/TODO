@@ -93,8 +93,8 @@ also in Linux eith the same error message.
 > but starts at
 > >15583.
 > 
-> create aone or two small tar files with a sample directory 
-> data that allows to
+> create one or two small tar files with a sample directory 
+> data that allows one to
 > reproduce the problem....
 
 It can be reproduced with any directory. If you use Linux try this:

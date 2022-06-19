@@ -47,7 +47,7 @@ extern "C" {
  *
  *	> 0		A file type argument was found
  *	  0		All arguments have been parsed
- *	< 0		An error occured
+ *	< 0		An error occurred
  *
  * Flag and file arg processing should be terminated after getting a return
  * code <= 0.

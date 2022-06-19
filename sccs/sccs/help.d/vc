@@ -39,7 +39,7 @@ The given keyword name was never used in any replacements.
 This is only a warning.
 -3
 "`...' never declared"
-The given keyword name never occured in a `dcl'
+The given keyword name never occurred in a `dcl'
 statement. If you did declare it, check for typos.
 This is only a warning.
 -4
@@ -73,7 +73,7 @@ There is an extra `end' statement or a missing
 `if' statement.
 -11
 "parenthesis error on line ..."
-A left parenthesis occured with no matching right
+A left parenthesis occurred with no matching right
 parenthesis or a parenthesis was found where it was not expected.
 -12
 "invalid operator on line ..."

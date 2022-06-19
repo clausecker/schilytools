@@ -425,7 +425,7 @@ remove x
 # Heredoc in simple command.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -453,7 +453,7 @@ remove x
 # Heredoc in function, multiple calls to function.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -480,7 +480,7 @@ remove x
 # Heredoc in function in loop, multiple calls to function.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -514,7 +514,7 @@ remove x
 # Backgrounded simple command with here doc
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -537,7 +537,7 @@ remove x
 # Backgrounded subshell command with here doc
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -565,7 +565,7 @@ remove x
 # Heredoc in pipeline.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -588,7 +588,7 @@ remove x
 # Heredoc in backgrounded pipeline.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD
@@ -611,7 +611,7 @@ remove x
 # Heredoc in function, backgrounded call to function.
 # Note that mksh checks for left over files, but we cannot do this as
 # the Bourne Shell does not honor TMPDIR for /tmp/ files.
-# The code still allows to check whether /tmp files are removed too early.
+# The code still allows one to check whether /tmp files are removed too early.
 #
 cat > x <<"XEOF"
 pwd > /dev/null	# initialize $PWD

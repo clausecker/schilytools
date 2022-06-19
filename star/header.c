@@ -2502,7 +2502,7 @@ ustar_to_info(ptb, info)
 			/*
 			 * The 'tar' that comes with HP-UX writes illegal tar
 			 * archives. It includes 8 characters in the minor
-			 * field and allows to archive 24 bits for the minor
+			 * field and allows one to archive 24 bits for the minor
 			 * device which are used by HP-UX. As we like to be
 			 * able to read these archives, we need to convert
 			 * the number carefully by temporarily writing a NULL

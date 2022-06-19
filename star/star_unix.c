@@ -571,7 +571,7 @@ again:
 		 * Some filesystems do not allocate disk space for files that
 		 * consist of one hole and no written data.
 		 * If we are on a platform that does not support to read hole
-		 * lists for sparse files, this allows to avoid wasting time
+		 * lists for sparse files, this allows one to avoid wasting time
 		 * reading through the whole file.
 		 *
 		 * In October 2013, it turned out that at least NetAPP stores

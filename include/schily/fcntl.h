@@ -58,7 +58,7 @@
  * O_SEARCH, O_DIRECTORY and NOFOLLOW are defined here to allow to compile on
  * older platforms.
  * open(name, O_SEARCH) is like UNOS open(name, "") (open neither for read nor
- * for write). This allows to call fstat() and to get an fd for openat(fd, ...)
+ * for write). This allows one to call fstat() and to get an fd for openat(fd, ...)
  */
 #ifndef	O_RDONLY
 #	define	O_RDONLY	0

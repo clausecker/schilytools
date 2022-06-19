@@ -144,7 +144,7 @@ BUG_1205145
 or
 GMT_TIME
 		This is a hacky compile time option introduced by Sun
-		between 1989 and 2006. It allows to store GMT based timestamps
+		between 1989 and 2006. It allows one to store GMT based timestamps
 		in the SCCS history files instead of local time based timestamps.
 
 		Note that this compile option is deprecated since SCCS

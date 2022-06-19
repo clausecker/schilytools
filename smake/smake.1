@@ -190,7 +190,7 @@ Print even more extra debug messages and warning messages.
 .TP
 .B \-D
 Display Makefiles as they are read in.
-This allows to debug the effective 
+This allows one to debug the effective
 .I makefile
 when the makefiles use
 .B include 
@@ -211,7 +211,7 @@ definitions of the environment variables as make macros.
 .B \-d
 Print the reason why a target has to be rebuilt.
 Also turns off external and internal silent flag.
-This special feature allows to write makefiles that usually
+This special feature allows one to write makefiles that usually
 suppress the printing of commands line (using a '@' at the
 start of a command line) as in debug mode
 .B smake 
@@ -226,7 +226,7 @@ If more 'd' characters are added (e.g.
 .TP
 .B \-xM
 Print the make file include dependency list.
-This options allows to trace complex makefiles that make heavy use
+This options allows one to trace complex makefiles that make heavy use
 of the 
 .B include
 statement.
@@ -633,7 +633,7 @@ The colon may be followed by a
 or a white space 
 separated list of 
 .IR "dependency names" .
-The double colon allows to specify alternate dependency lists and
+The double colon allows one to specify alternate dependency lists and
 commands for the same target.
 The dependency list may be followed by a semicolon (';') and a
 Bourne shell
@@ -752,8 +752,8 @@ or from a command line macro definition.
 .PP
 The special target
 .B \&.INCLUDE_FAILED
-allows to define a rule that is evaluated in case that an include
-files does not exist and could not be made from other rules.
+allows one to define a rule that is evaluated in case that an include
+file does not exist and could not be made from other rules.
 As the associated command for this target is typically a shell script,
 the shell script can be written to create fall back rules in a platform
 independent way.
@@ -765,7 +765,7 @@ directory which is different from the directory where the source
 files are located.
 For this reason, 
 .B smake
-allows to specify a directory where all targets are placed in case they are
+allows one to specify a directory where all targets are placed in case they are
 a result of an implicit rule.
 Add 
 .PP
@@ -1453,7 +1453,7 @@ is not followed by any dependency, the previous dependencies are cleared
 and make file parsing is done again in a
 .B POSIX
 compliant way.
-The following code fragment allows to use non standard space handling
+The following code fragment allows one to use non standard space handling
 for one target only:
 .sp
 .ne 7
@@ -1845,7 +1845,7 @@ the default value is
 .BR \-c.
 The
 .B MAKE_SHELL_FLAG
-macro allows to overwrite the default behavior.
+macro allows one to overwrite the default behavior.
 .
 .TP
 .B MAKE_SHELL_IFLAG
@@ -1855,7 +1855,7 @@ The default value is
 .BR \-c .
 The
 .B MAKE_SHELL_IFLAG
-macro allows to overwrite the default behavior.
+macro allows one to overwrite the default behavior.
 .
 .TP
 .B MAKE_VERSION
@@ -2213,7 +2213,7 @@ source file exists.
 
 .SH "DEFAULT IMPLICIT RULES"
 .PP
-Changing the implicit rules allows to change the default behavior
+Changing the implicit rules allows one to change the default behavior
 of
 .BR smake .
 .SS "Default Simple Suffix Rules"

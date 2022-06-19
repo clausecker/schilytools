@@ -2017,7 +2017,7 @@ hupforegnd()
  * Simple interface to waitid() that avoids the need to use our internal
  * siginfo_t emulation and our internal idtype_t emulation in case the
  * platform does not offer waitid().
- * It still allows to return more than the low 8 bits from exit().
+ * It still allows us to return more than the low 8 bits from exit().
  */
 pid_t
 wait_status(pid, codep, statusp, opts)

@@ -2596,7 +2596,7 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 	}
 	if (source->o_level < deplevel)
 		deplevel = source->o_level;
-	if (deptime == BADTIME)		/* Errors occured cannot make source.*/
+	if (deptime == BADTIME)		/* Errors occurred cannot make source.*/
 		goto badtime;
 
 	if (deptime >= newtime ||		/* made some targets    */
@@ -2750,7 +2750,7 @@ make(obj, must_exist, dlev)
 			deplevel = dep->o_level;
 		}
 	}
-	if (deptime == BADTIME) {	/* Errors occured cannot make target.*/
+	if (deptime == BADTIME) {	/* Errors occurred cannot make target.*/
 		obj->o_date = BADTIME;
 		if (obj->o_flags & F_DCOLON)
 			dcolon_time(obj);

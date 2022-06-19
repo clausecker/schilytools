@@ -491,7 +491,7 @@ seek tests my be impossible because of the cache of the disk.
 .B \-setmodes
 Do a SCSI modeselect with all parameters, that would have been
 necessary for a format, but do not format the disk.
-This allows to modify the mode pages of a disk without reformatting it.
+This allows one to modify the mode pages of a disk without reformatting it.
 If the 
 .B \-smp
 option is used in conjunction with
@@ -586,7 +586,7 @@ slows down the process and may be the reason for a buffer underrun.
 This options starts 
 .B sformat
 in verify disk (surface analysis) mode.
-Verifying a disk is a method that allows to scan for
+Verifying a disk is a method that allows one to scan for
 defects without modifying data on the disk.
 In this mode, the controller will read the disks without 
 transferring data to the computer while all error recovery is
@@ -989,8 +989,8 @@ The current entry is marked with '*', the default entry is marked with '+'.
 .TP
 Logical Label Geometry
 .B Sformat 
-uses an abstract geometry in the label. This allows to have 
-one label for a group of disks. The label geometry menu allows to modify
+uses an abstract geometry in the label. This allows one to have
+one label for a group of disks. The label geometry menu allows one to modify
 this abstract geometry.
 .br
 .B Sformat 
@@ -1006,7 +1006,7 @@ Some disks do not support the default block defect list format. Specify
 another format in this case here. If the disk does not support the 
 SCSI write-verify command, 
 .B sformat 
-allows to split this into a SCSI write and a SCSI verify command.
+allows one to split this into a SCSI write and a SCSI verify command.
 The data cannot be compared in this case.
 If the disk type is generally flaky a data base entry can be set up to do
 write verify as default after formatting.

@@ -2095,7 +2095,7 @@ void_bad(info)
  * Returns:
  *	TRUE	Extract OK
  *	FALSE	Extract not OK, may continue
- *	-1	An error occured, max not continue
+ *	-1	An error occurred, max not continue
  */
 EXPORT int
 xt_file(info, func, arg, amt, text)

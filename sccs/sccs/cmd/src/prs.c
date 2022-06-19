@@ -1478,7 +1478,7 @@ time_t	*bdate;
 	/*
 	 * Local time corrections before del_ba() and date_ba() calls.
 	 * Because these functions use gmtime() instead of localtime().
-	 * This allows to print the local time for the :Dt: keywd instead
+	 * This allows us to print the local time for the :Dt: keywd instead
 	 * of the GMT based time from the s-file.
 	 */
 	dt->d_dtime.dt_sec = mklgmtime(Dtime);

@@ -1,6 +1,6 @@
 Tips for MMC RAW mode writing.
 
-	This allows to do disk at once recording on Philips drives that
+	This allows one to do disk at once recording on Philips drives that
 	do not support SAO.
 
 	You may write audio tracks in RAW mode. There are some new

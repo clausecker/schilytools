@@ -22,7 +22,7 @@ static	char __sccsid[] =
  *	Although this enhanced version has been announced to Linus and Alan,
  *	there was no reaction at all.
  *
- *	About half a year later there occured a version in the official
+ *	About half a year later there occurred a version in the official
  *	Linux that was also called version 2. The interface of this version
  *	looks like a playground - the enhancements from this version are
  *	more or less useless for a portable real-world program.

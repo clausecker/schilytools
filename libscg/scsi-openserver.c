@@ -183,7 +183,7 @@ LOCAL	void	cp_sco2scg	__PR((struct scsicmd2 *sco, struct scg_cmd *scg));
  * to send scsi user comands to any target device controlled by the
  * corresponding target driver.
  *
- * This passthrough implementation for libscg currently allows to
+ * This passthrough implementation for libscg currently allows one to
  * handle the following devices classes:
  *
  *	1. DISK		handled by Sdsk

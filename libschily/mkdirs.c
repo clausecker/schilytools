@@ -1,7 +1,7 @@
 /* @(#)mkdirs.c	1.5 19/07/31 Copyright 2011-2019 J. Schilling */
 /*
  *	mkdirs() is the equivalent to "mkdir -p path"
- *	makedirs() allows to create missing direcories before a final
+ *	makedirs() allows one to create missing direcories before a final
  *	path element if called makedirs(path, mode, TRUE).
  *
  *	"name" must be a modifyable string.

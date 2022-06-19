@@ -72,7 +72,7 @@ your local UNIX Support Group immediately!
 Also, if you can remove any files please do so.
 -11
 "errno = ..., function = `...'"
-An unusual and unexpected error occured.
+An unusual and unexpected error occurred.
 Try "help stuck".
 -12
 "SIGNAL: ..."

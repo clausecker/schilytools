@@ -31,7 +31,7 @@ static	UConst char sccsid[] =
  *	The format string 'f*_' may be used to disallow -f foo for f*
  *	The same behavior is implemented for 'f#_', 'f?_' and 'f&_'.
  *	The '_' needs to immediately follow the format type specifier.
- *	This also allows to implement optional arguments to options.
+ *	This also allows one to implement optional arguments to options.
  *	Note: 'f#_' is only implemented for orthogonality, -f will
  *	be converted to an integer value of 0.
  *

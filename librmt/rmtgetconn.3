@@ -77,7 +77,7 @@ int rmtgetconn(host, trsize, excode)
 .SH DESCRIPTION
 .TP
 .B rmtinit()
-Is an optional function that allows to set up a function for 
+Is an optional function that allows one to set up a function for
 error printing and a function to be called to exit the program.
 If 
 .BR rmtinit (3)
@@ -90,11 +90,11 @@ and the supplied exit function needs to implement the same interface as
 .BR exit (3).
 .TP
 .B rmtdebug()
-allows to set the debug level for the library code. The default debug
+allows one to set the debug level for the library code. The default debug
 level is 0 and does not print debug messages.
 .TP
 .B rmtrmt()
-allows to set up a different default path to the remote
+allows one to set up a different default path to the remote
 .B rmt
 server program. The default is otherwise
 .BR /etc/rmt .
@@ -104,7 +104,7 @@ environment still overwrites the default set up by
 .BR rmtrmt (3).
 .TP
 .B rmtrsh()
-allows to set up a different remote login program to the remote
+allows one to set up a different remote login program to the remote
 .B rmt
 server program. The default is otherwise to use
 .BR rcmd (3).

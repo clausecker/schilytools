@@ -125,7 +125,7 @@ LOCAL	char	m_odc[]		= "OPTICAL DISC CORPRATION";
 LOCAL	char	m_sony[]	= "SONY Corporation";
 LOCAL	char	m_cis[]		= "CIS Technology Inc.";
 LOCAL	char	m_csitaly[]	= "Computer Support Italy s.r.l.";
-LOCAL	char	m_mmmm[]	= "Multi Media Masters & Machinary SA";
+LOCAL	char	m_mmmm[]	= "Multi Media Masters & Machinery SA";
 
 /*
  * Guessed codes.

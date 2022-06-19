@@ -1742,7 +1742,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 	/*
 	 * In most cases (non record oriented I/O), we can optimize the way we
 	 * scan files for '\0' bytes, line-ends '\n' and ^A '\1'. The optimized
-	 * algorithm allows to avoid to do a reverse scan for '\0' from the end
+	 * algorithm allows one to avoid to do a reverse scan for '\0' from the end
 	 * of the buffer.
 	 */
 	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {

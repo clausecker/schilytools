@@ -409,7 +409,7 @@ _("%d out of %d hunks failed--saving rejects to %s\n"),
 	if (reject_written)
 		my_exit(reject_written);
 	/*
-	 * Use POSIX exit code for erors if any failure happened.
+	 * Use POSIX exit code for errors if any failure happened.
 	 */
 	if (failtotal > 0)
 		failtotal = EXIT_FAIL;

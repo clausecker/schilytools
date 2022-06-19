@@ -15,7 +15,7 @@
 # Finally cpp is used to check whether original and new file can be
 # reconstructed from the #ifdef XXX ... #else ... #endif parts.
 #
-# The diff type is random, this allows to check all diff types.
+# The diff type is random, this allows one to check all diff types.
 #
 
 [ "$NO_RANDOM" = TRUE ] && exit

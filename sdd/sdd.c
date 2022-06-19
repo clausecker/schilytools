@@ -912,7 +912,7 @@ makelower(s)
 
 /*
  * Read one input block.
- * Call readblocks if an error occured and -noerror has been specified.
+ * Call readblocks if an error occurred and -noerror has been specified.
  */
 LOCAL long
 readbuf(buf, len)
@@ -966,7 +966,7 @@ readbuf(buf, len)
 
 /*
  * Write one output block.
- * Call writeblocks if an error occured and -noerror has been specified.
+ * Call writeblocks if an error occurred and -noerror has been specified.
  */
 LOCAL long
 writebuf(buf, len)

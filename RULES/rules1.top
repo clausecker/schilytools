@@ -39,7 +39,7 @@ all:
 
 ###########################################################################
 #
-# Build a macro $(SRCROOTSL) that allows to use file name
+# Build a macro $(SRCROOTSL) that allows one to use file name
 # $(SRCROOTSL)incs/Dcc.$(PARCH)$(-O_ARCH) instead of using
 # the file name $(SRCROOT)/incs/Dcc.$(PARCH)$(-O_ARCH) 
 #
@@ -51,7 +51,7 @@ all:
 # SunPRO make inconsistsently shortens rules that start with "./"
 # and thus will not find existing rules for a file to be included.
 # We use pattern matching macro expansions to consistently shorten the
-# name if it starts with "./".  This allows to use the same textual
+# name if it starts with "./".  This allows one to use the same textual
 # string for both the rule and the include statement.
 #
 # Note that Thus bug has been reported to Sun in 1998 but Sun seems not

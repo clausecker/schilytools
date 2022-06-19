@@ -1140,7 +1140,7 @@ or from a command line macro definition.
 .RS +4n
 The special target
 .B \&.INCLUDE_FAILED
-allows to define a rule that is evaluated in case that an include
+allows one to define a rule that is evaluated in case that an include
 file does not exist and could not be made from other rules.
 As the associated command for this target is typically a shell script,
 the shell script can be written to create fall back rules in a platform
@@ -4351,7 +4351,7 @@ and
 .ne 5
 .TP 17n
 .SM \fBDMAKE_ADJUST_MAX_JOBS\fP
-This environment variable allows to control the parallel make behavior.
+This environment variable allows one to control the parallel make behavior.
 The macro 
 .B DMAKE_ADJUST_MAX_JOBS
 may either be imported from the environment or specified

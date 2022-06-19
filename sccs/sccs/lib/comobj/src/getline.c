@@ -121,7 +121,7 @@ register struct packet *pkt;
 	line[0] = '\0';
 #ifndef	NO_GETDELIM
 	/*
-	 * getdelim() allows to read lines that have embedded nul bytes
+	 * getdelim() allows one to read lines that have embedded nul bytes
 	 * and we don't need to call strlen().
 	 */
 	errno = 0;

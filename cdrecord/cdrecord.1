@@ -484,7 +484,7 @@ Using
 .B \-clone
 together with
 .B \-raw96r
-is preferred as it allows to write all sub-channel data.
+is preferred as it allows one to write all sub-channel data.
 The
 .B \-raw16
 option should only be used with drives that do not support to write in
@@ -751,15 +751,15 @@ finds one of the old pre-MMC CD-writers from Yamaha.
 There is no support for the Session At Once write mode yet.
 .TP
 .B bd_simul
-The simulation BluRay driver allows to run timing and speed tests
+The simulation BluRay driver allows one to run timing and speed tests
 with parameters that match the behavior of BluRay writers.
 .TP
 .B cdr_simul
-The simulation CD-R driver allows to run timing and speed tests
+The simulation CD-R driver allows one to run timing and speed tests
 with parameters that match the behavior of CD-writers.
 .TP
 .B dvd_simul
-The simulation DVD-R driver allows to run timing and speed tests
+The simulation DVD-R driver allows one to run timing and speed tests
 with parameters that match the behavior of DVD writers.
 .PP
 
@@ -907,7 +907,7 @@ Turn off unlimited read speed.
 .TP
 .B singlesession
 Turn the drive into a single-session only drive.
-This allows to read defective or non-compliant (illegal) media with extremely
+This allows one to read defective or non-compliant (illegal) media with extremely
 non-standard additional (broken/illegal) TOC entries in the TOC from the second
 or higher session. Some of these disks become
 usable if only the information from the first session is used.
@@ -918,7 +918,7 @@ Turn off single-session mode. The drive will again behave as usual.
 .TP
 .B hidecdr
 Hide the fact that a medium might be a recordable medium.
-This allows to make CD-Rs look like CD-ROMs and applications believe 
+This allows one to make CD-Rs look like CD-ROMs and applications believe
 that the media in the drive is not a CD-R. 
 .TP
 .B nohidecdr
@@ -1046,7 +1046,7 @@ environment.
 The default FIFO size is currently 4 MB.
 .sp
 The FIFO is used to increase buffering for the real-time writing process.
-It allows to run a pipe from 
+It allows one to run a pipe from
 .B mkisofs
 directly into 
 .BR cdrecord .
@@ -1167,7 +1167,7 @@ of the CD to
 .BI minbuf= value
 The
 .B minbuf=
-option allows to define the minimum drive-buffer fill ratio for the
+option allows one to define the minimum drive-buffer fill ratio for the
 experimental ATAPI wait mode that is intended to free the IDE bus
 to allow hard disk and CD/DVD/BluRay writer to be on the same IDE cable.
 As the wait mode currently only works when the verbose option
@@ -1349,7 +1349,7 @@ Write CD-Text based on information found in the binary file
 .IR filename .
 This file must contain information in a data format defined in the
 SCSI-3 MMC-2 standard and in the Red Book. The four-byte-sized header that is 
-defined in the SCSI standard is optional and allows to make the recognition of
+defined in the SCSI standard is optional and allows one to make the recognition of
 correct data less ambiguous.
 This is the best option to be used to copy CD-Text data from existing CDs
 that already carry CD-Text information. To get data in a format suitable
@@ -1540,9 +1540,9 @@ drives that inherently use the
 as
 .B SCSI
 command transport layer build into the IDE (ATA) transport.
-You may need to specify an alternate transport layer on the command  line
+You may need to specify an alternate transport layer on the command line
 if your OS does not implement a fully integrated kernel driver subsystem that
-allows to access any drive using
+allows one to access any drive using
 .B SCSI
 commands via a single unique user interface.
 .sp
@@ -2308,7 +2308,7 @@ This will create high potential of buffer underruns. Use with care.
 If this environment variable is set to the value
 .BR any ,
 .B cdrecord
-allows to write at any speed even though it may fail later with a buffer underrun.
+allows one to write at any speed even though it may fail later with a buffer underrun.
 .TP
 .B RSH
 If the 
@@ -2358,7 +2358,7 @@ or another error with a problem specific error message from
 .TP
 .B \-2
 An unspecified error appeared during the process of talking to the drive.
-See SCSI error message for more informations. The section
+See SCSI error message for more information. The section
 .B DIAGNOSTICS
 below contains an explanation on how to read SCSI error messages.
 .TP
@@ -2389,7 +2389,7 @@ or
 .B CDR_DEVICE
 This may either hold a device identifier that is suitable to the open
 call of the SCSI transport library or a label in the file /etc/default/cdrecord 
-that allows to identify a specific drive on the system.
+that allows one to identify a specific drive on the system.
 .TP
 .B CDR_SPEED
 Sets the default speed value for writing (see also 
@@ -2946,7 +2946,7 @@ command may also appear between an
 and an
 .B INDEX 01
 command.
-This allows to let the user create one file per track where the file
+This allows one to let the user create one file per track where the file
 starts at
 .B INDEX 01
 of the track and ends after
@@ -3610,7 +3610,7 @@ and
 .B
     http://sourceforge.net/projects/cdrtools/files/alpha
 .LP
-Separate project informations for the
+Separate project information for the
 .B cdrtools
 project may be retrieved from:
 .LP

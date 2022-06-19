@@ -3182,7 +3182,7 @@ print_bad()
 	if (nbad == 0)
 		return;
 
-	error(_("Max corected retry count was %d (limited to %d).\n"), maxtry, retries);
+	error(_("Max corrected retry count was %d (limited to %d).\n"), maxtry, retries);
 	error(_("The following %d sector(s) could not be read correctly:\n"), nbad);
 	for (i = 0; i < nbad; i++)
 		error("%ld\n", badsecs[i]);

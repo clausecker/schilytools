@@ -1,6 +1,6 @@
 Note that the test tar archives used for this conformance test are bzip2
 compressed. This has been done because it is the only widely available
-compression format that allows to compress several gigabytes of nulls
+compression format that allows one to compress several gigabytes of nulls
 into a few bytes.
 
 A recent version of the files is always on:

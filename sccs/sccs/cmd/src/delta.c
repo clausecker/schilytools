@@ -1576,7 +1576,7 @@ rddiff(s, n, ll)
 {
 	char	*r;
 	
-	(void) memset(s, '\377', n);	/* Filling allows to detect real end */
+	(void) memset(s, '\377', n);	/* Filling allows us to detect real end */
 	if ((r = fgets(s, n, Diffin)) != NULL) {
 		int l = strlen(r);
 
@@ -1727,7 +1727,7 @@ struct	packet	*pkt;
 	/*
 	 * In most cases (non record oriented I/O), we can optimize the way we
 	 * scan files for '\0' bytes, line-ends '\n' and ^A '\1'. The optimized
-	 * algorithm allows to avoid to do a reverse scan for '\0' from the end
+	 * algorithm allows us to avoid to do a reverse scan for '\0' from the end
 	 * of the buffer.
 	 */
 	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {

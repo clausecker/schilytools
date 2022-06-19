@@ -163,7 +163,7 @@ static BOOL	trapflg[MAXTRAP] =
 	0,	/* power fail */
 	0,	/* window size change */
 	0,	/* urgent IO condition */
-	0,	/* pollable event occured */
+	0,	/* pollable event occurred */
 	0,	/* stopped by signal */
 	0,	/* stopped by user */
 	0,	/* continued */
@@ -210,7 +210,7 @@ sigval[MAXTRAP])) __PR((int)) =
 	done,	/* power fail */
 	0,	/* window size change */
 	done,	/* urgent IO condition */
-	done,	/* pollable event occured */
+	done,	/* pollable event occurred */
 	0,	/* uncatchable stop */
 	0,	/* foreground stop */
 	0,	/* stopped process continued */

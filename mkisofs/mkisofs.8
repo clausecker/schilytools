@@ -233,7 +233,7 @@ If specified in both places, the command line version is used.
 .sp
 It is up to the user of 
 .B mkisofs
-to include a file with the apropriate name in the created filesystem tree.
+to include a file with the appropriate name in the created filesystem tree.
 .TP
 .BI \-A " application_id
 .TP
@@ -294,7 +294,7 @@ If specified in both places, the command line version is used.
 .sp
 It is up to the user of 
 .B mkisofs
-to include a file with the apropriate name in the created filesystem tree.
+to include a file with the appropriate name in the created filesystem tree.
 .TP
 .B \-cache\-inodes
 Cache inode and device numbers to find hard links to files.
@@ -439,7 +439,7 @@ If you don't like this, you need to specify a sort weight of 0 for the boot imag
 .TP
 .B \-eltorito\-alt\-boot
 Start with a new set of "El Torito" boot parameters.
-This allows to have more than one El Torito boot entry on a CD.
+This allows one to have more than one El Torito boot entry on a CD.
 A maximum of 63 El Torito boot entries may be put on a single CD.
 .sp
 The
@@ -918,7 +918,7 @@ If specified in both places, the command line version is used.
 .sp
 It is up to the user of 
 .B mkisofs
-to include a file with the apropriate name in the created filesystem tree.
+to include a file with the appropriate name in the created filesystem tree.
 .TP
 .B \-d
 .TP
@@ -1135,12 +1135,12 @@ it sets the owner of the file to
 .TP
 .B \-false
 The primary always evaluates as false;
-it allows to make the result of the full expression different from
+it allows one to make the result of the full expression different from
 the result of a part of the expression.
 .TP
 .B \-true
 The primary always evaluates as true;
-it allows to make the result of the full expression different from
+it allows one to make the result of the full expression different from
 the result of a part of the expression.
 .PP
 The command line:
@@ -1179,7 +1179,7 @@ Switch the behaviour for a GUI. This currently makes the output more verbose
 but may have other effects in future.
 .TP
 .B \-graft\-points
-Allow to use graft points for filenames. If this option is used, all filenames
+Allow one to use graft points for filenames. If this option is used, all filenames
 are checked for graft points. The filename is divided at the first unescaped
 equal sign. All occurrences of '\e\e' and '=' characters must be escaped with '\e\e'
 if 
@@ -1443,9 +1443,9 @@ instead of the standard error.
 .TP
 .B \-long\-rr\-time
 Use the long ISO-9660 time format for the file time stamps used in Rock Ridge.
-This time format allows to represent year 0 .. year 9999 with a granularity of 10ms.
+This time format allows one to represent year 0 .. year 9999 with a granularity of 10ms.
 .sp
-The short ISO-9660 time format only allows to represent year 1900 .. year 2155
+The short ISO-9660 time format only allows one to represent year 1900 .. year 2155
 with a granularity of 1s. 
 .TP
 .BI \-m " glob
@@ -1638,7 +1638,7 @@ and the resulting filesystem will no longer be usable on
 .TP
 .B \-no\-long\-rr\-time
 Use the short ISO-9660 time format for the file time stamps used in Rock Ridge.
-This time format allows to represent year 1990 .. year 2155 with a granularity of one second.
+This time format allows one to represent year 1990 .. year 2155 with a granularity of one second.
 .TP
 .B \-force\-rr
 Do not use the automatic Rock Ridge attributes recognition for previous sessions.
@@ -1779,7 +1779,7 @@ Disk At Once mode and with some CD-R drives when piping directly into
 .B cdrecord.
 In this case it is needed to know the size of the filesystem before the
 actual CD-creation is done.
-The option \-print\-size allows to get this size from a "dry-run" before
+The option \-print\-size allows one to get this size from a "dry-run" before
 the CD is actually written.
 Old versions of
 .B mkisofs
@@ -1811,7 +1811,7 @@ Generate SUSP and RR records using the Rock Ridge protocol to further describe
 the files on the ISO-9660 filesystem.
 The Rock Ridge protocol is needed in order to add POSIX like file meta data
 like permissions, extended time stamps, user/group is'd, link counts, inode numbers
-and symbolic links. The Rock Ridge protocol allows to archive hierarchy trees
+and symbolic links. The Rock Ridge protocol allows one to archive hierarchy trees
 with unlimited depth.
 .sp
 Warning: When you specify
@@ -1933,7 +1933,7 @@ mounted.
 .TP
 .B \-short\-rr\-time
 Use the short ISO-9660 time format for the file time stamps used in Rock Ridge.
-This time format allows to represent year 1990 .. year 2155 with a granularity of one second.
+This time format allows one to represent year 1990 .. year 2155 with a granularity of one second.
 .TP
 .BI \-s " sector type
 .TP
@@ -1993,7 +1993,7 @@ written to the CD image - which may be useful in order to optimize the
 data layout on a CD. See README.sort for more details.
 .TP
 .BI \-isort " sort file
-Similiar to
+Similar to
 .B \-sort
 but the case if the filenames in the
 .B sort file
@@ -2610,7 +2610,7 @@ the POSIX filesystem interface.
 .PP
 Modern UNIX operating systems may use
 .B UTF-8
-coding for filenames. This coding allows to use the complete Unicode code set.
+coding for filenames. This coding allows one to use the complete Unicode code set.
 Each 32-bit character is represented by one or more 8-bit characters.
 If a character is coded in
 .B ISO-8859-1

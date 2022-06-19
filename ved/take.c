@@ -158,7 +158,7 @@ checktake(name)
 /*
  * Get the path name of a take buffer for the execute commands.
  * An empty name is translated into the current take buffer path.
- * This allows to use \ for the current take buffer.
+ * This allows one to use \ for the current take buffer.
  * If the named take bufer does not exist, create it - it may be loaded later.
  */
 EXPORT Uchar *

@@ -47,7 +47,7 @@ static	UConst char sccsid[] =
  *
  * The basic idea is to use no retained memory to compare the current and
  * the new screen but to try to compute the visual efects 'on the fly'.
- * This allows to resize the screen to any size without any problems.
+ * This allows us to resize the screen to any size without any problems.
  * To be able to compute sizes, a character string table and a corresponding
  * character width table is used. VED may deal with lines that are even longer
  * than the screen if folded and handles printing strings of arbitrary

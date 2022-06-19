@@ -1482,7 +1482,7 @@ COLON COMMANDS
                soe and the upper or lower border of the terminal.
                If you cross this border, ved will start to scroll
                and  adjust the cursor to the optimal line.  It is
-               set by default to 0 and allows to place the cursor
+               set by default to 0 and allows one to place the cursor
                to any visible line on the screen.
 
           psize page-size

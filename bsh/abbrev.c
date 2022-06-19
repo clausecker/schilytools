@@ -22,12 +22,12 @@ static	UConst char sccsid[] =
  *		ab_use(tab, fname)		Use new abbrev table from fname
  * 		ab_close(tab)			Shut down abbrev table
  *		ab_delete(tab, name, flags)	Pop or delete abbrev from table
- *						flags & AB_POP allows to
+ *						flags & AB_POP allows one to
  *						implement the POSIX "unalias -a"
  *						without modifying
  *						.globals/.locals
  *		ab_deleteall(tab, flags)	Pop or delete all entries
- *						flags & AB_POP allows to
+ *						flags & AB_POP allows one to
  *						implement the POSIX "unalias -a"
  *						without modifying
  *						.globals/.locals

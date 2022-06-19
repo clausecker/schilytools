@@ -198,7 +198,7 @@ command (see
 .BR sfind (1)).
 This function is implemented in
 .BR libfind .
-It allows to use 
+It allows one to use
 .B find
 expressions, even in extract or list mode, directly on the 
 content on an archive.
@@ -222,7 +222,7 @@ option for more details.
 has no limitation on filename length. Pathnames and linknames up to
 .I PATH_MAX
 (typically 1024\ bytes) may be archived by most tar implementrations. 
-Star allows to archive path names up to
+Star allows one to archive path names up to
 .B 8 GB
 on modern platforms.
 .PP
@@ -291,7 +291,7 @@ See the
 option for more details.
 To be able to do this, 
 .B star
-adds hidden fingerprints to the archive header that allows to recognise
+adds hidden fingerprints to the archive header that allows one to recognise
 all star specific archive formats. The GNU tar format is recognised by
 the way it deviates from the standard.
 .PP
@@ -511,7 +511,7 @@ If you use
 .B star's
 dump extensions for the tar archive, the 
 .B \-diff
-option allows to find even if the directory in the file tree
+option allows one to find even if the directory in the file tree
 contains more files than the archive. This way, it is possible to
 compare all properties of two file trees in one run.
 See 
@@ -809,7 +809,7 @@ format.
 It has been introduced in 1985 and therefore is not Posix compliant.
 The
 .B star
-format allows to archive special files (even sockets) and records access time and 
+format allows one to archive special files (even sockets) and records access time and
 creation time besides the modification time. Newer versions of the old 
 .B star 
 format allow very long filenames (100+155\ chars and above), linknames > 100 chars
@@ -1023,7 +1023,7 @@ records Access Control Lists (ACLs) in POSIX.1\-2001 extended headers.
 .sp
 The
 .B exustar
-format allows to archive all file types but it does not
+format allows one to archive all file types but it does not
 archive more than the POSIX.1-1988 set by default.
 If the
 .B \-dump
@@ -1072,7 +1072,7 @@ on pre SYSVr4 systems and by calling
 on SYSVr4 systems.
 The POSIX.1-1988 
 .B cpio
-format allows a file name length up to 262142 characters and allows to
+format allows a file name length up to 262142 characters and allows one to
 archive nearly any file type.
 File size is limited to 8 GB, uid/gid/st_dev is limited to 262143.
 The way major and minor device numbers are stored inside the st_dev
@@ -1223,7 +1223,7 @@ See option
 .TP
 .B \-block\-number
 Print the archive block number (archive offset / 512) at the beginning of
-each line when in verbose mode. This allows to write backup scripts
+each line when in verbose mode. This allows one to write backup scripts
 that archive the offsets for files and that use
 .sp
 .BI "	mt fsr" " blockno" 
@@ -1471,7 +1471,7 @@ creating the link. This is an experimental feature that may help
 to unpack archives on DOS.
 .TP
 .B \-copyhardlinks
-This option allows to copy hardlinked targets
+This option allows one to copy hardlinked targets
 rather than creating the link.
 It helps to extract
 .B tar
@@ -1479,7 +1479,7 @@ files on systems that do not implement
 hardlinks (e.g. BeOS).
 .TP
 .B \-copylinks
-This option allows to copy both, hard- and symlinked targets
+This option allows one to copy both, hard- and symlinked targets
 rather than creating a link.
 It helps to extract
 .B tar
@@ -1493,7 +1493,7 @@ cannot copy files that appear in the archive later than a symlink
 pointing to them.
 .TP
 .B \-copysymlinks
-This option allows to copy symlinked targets
+This option allows one to copy symlinked targets
 rather than creating a symbolic link.
 It helps to extract
 .B tar
@@ -1696,7 +1696,7 @@ If comparing
 .B dnlink
 is excluded but
 .B nlink
-is not excluded, this allows to deal with filesystems that differ
+is not excluded, this allows one to deal with filesystems that differ
 in their directory implementation.
 The link count of directories in POSIX is equal to the number of manually
 created additional hard links + 1 (as with other file types), while on
@@ -1923,14 +1923,14 @@ and the modification time of symbolic links.
 .BI dir-group= group
 If 
 .B star
-extracts archives as root, this option allows to control the group id of
+extracts archives as root, this option allows one to control the group id of
 intermediate directories created by
 .BR star .
 .TP
 .BI dir-owner= user
 If 
 .B star
-extracts archives as root, this option allows to control the owner of
+extracts archives as root, this option allows one to control the owner of
 intermediate directories created by
 .TP
 .B \-dirmode
@@ -2084,7 +2084,7 @@ option works as if the last error control option was
 .sp
 	\fBerrctl=\fP\fI"ABORT|ALL|DIFF	*"\fP
 .sp
-This allows to use the
+This allows one to use the
 .B errctl=
 option together with the
 .B \-e
@@ -2633,12 +2633,12 @@ it sets the owner of the file to
 .TP
 .B \-false
 The primary always evaluates as false;
-it allows to make the result of the full expression different from
+it allows one to make the result of the full expression different from
 the result of a part of the expression.
 .TP
 .B \-true
 The primary always evaluates as true;
-it allows to make the result of the full expression different from
+it allows one to make the result of the full expression different from
 the result of a part of the expression.
 .PP
 The command line:
@@ -2791,7 +2791,7 @@ file system.
 .TP
 .B \-hpdev
 Allow 24 bits for the minor device number using 8 octal digits.
-Note that although it allows to create
+Note that although it allows one to create
 .B tar
 archives
 that can be read with HP\-UX tar, this creates
@@ -3145,7 +3145,7 @@ directory as complex patterns could allow files inside the directory tree
 to match.
 Using
 .B \-match\-tree
-allows to efficiently exclude whole trees from scanning. This helps to 
+allows one to efficiently exclude whole trees from scanning. This helps to
 avoid scannings directory trees that are on remote file systems or contain
 excessive bad blocks.
 .TP
@@ -3301,7 +3301,7 @@ When
 has been specified in create mode and
 .BI tsize= #
 has not been specified, then the medium change is triggered by a EOT condition
-from writing the medium. This allows to use media where the size cannot be known
+from writing the medium. This allows one to use media where the size cannot be known
 in advance (e.g. tapes with build in compression); it does not work if the
 EOT condition is not returned in sync with the related write operation. For this
 reason, it is expected that data buffering inside a device driver cannot be used.
@@ -3309,7 +3309,7 @@ reason, it is expected that data buffering inside a device driver cannot be used
 Depending on the selected archive format,
 .B star
 writes a volume header at the beginning of a new medium. This medium header
-allows to verify the correct volume after a change during read back.
+allows one to verify the correct volume after a change during read back.
 It is recommended to use the
 .B exustar
 format for best results.
@@ -3495,7 +3495,7 @@ in the archive then on the filesystem).
 .B \-numeric
 Use the numeric user/group fields in the listing rather than the 
 default.
-The default allows to list the ASCII version of user/group of the file
+The default allows one to list the ASCII version of user/group of the file
 and to extract the owners of the files based on numeric values rather
 than the names.
 In create mode, no user/groups names are put on the archive.
@@ -3678,7 +3678,7 @@ option.
 This is (for now) an internal interface for the Schily Source Package System (sps).
 It only works in create mode and behaves similar to the
 .B list=
-option, but it allows to overwrite the 
+option, but it allows one to overwrite the
 .BR permissions ,
 the 
 .B uid
@@ -3901,7 +3901,7 @@ Do not create new files. Only already existing files may be overwritten from
 if either newer versions are present in the archive or if the 
 .B \-U
 flag is used. 
-This allows to overwrite files by more recent files from an archive 
+This allows one to overwrite files by more recent files from an archive
 that contains more files than the target directory should contain.
 The option
 .B \-refresh\-old\-files
@@ -4283,7 +4283,7 @@ Set
 .B star's
 umask to
 .IR mask .
-This allows to control the permissions for intermediate directories that
+This allows one to control the permissions for intermediate directories that
 are created by
 .B star
 in extract mode.
@@ -4987,7 +4987,7 @@ in this case marks a clash.
 .B Star
 has been interrupted in create mode and the end of star has been delayed
 until the current file has been archived completely. This error is only
-used in case that no other error occured and the tar archive only has 
+used in case that no other error occurred and the tar archive only has
 become shorter than expected.
 .br
 .ne 3
@@ -5515,7 +5515,7 @@ Setting
 .B STAR_FIFOSIZE_MAX
 in
 .B "/etc/default/star
-allows to overwrite global values from backup scripts for machines
+allows one to overwrite global values from backup scripts for machines
 with less memory.
 .TP
 .B STAR_FSYNC
@@ -5699,7 +5699,7 @@ The command line syntax for the tar command (as defined in SUSv2 - UNIX-98)
 deviates from the command line syntax defined for all other commands. While the 
 .B "POSIX command line syntax
 requests
-all options to start with a dash (\-) and allows to either write options separately
+all options to start with a dash (\-) and allows one to either write options separately
 or combined (in case of boolean flags), the
 .B tar
 command line syntax
@@ -5707,7 +5707,7 @@ requires all options to be combined into a single string that does not start wit
 a dash.
 .B Star
 by default assumes a command line syntax like a typical POSIX command and includes
-a compatibility mode that allows to specify a command line syntax as documented
+a compatibility mode that allows one to specify a command line syntax as documented
 for the 
 .B UNIX-98 tar
 command.

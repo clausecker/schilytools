@@ -78,7 +78,7 @@ if [ ! -r make.c ]; then
 	echo "Source files are not present..."
 
 	#
-	# Check if the current system allows to create symlinks
+	# Check if the current system allows one to create symlinks
 	#
 	lnfiles="sh lnfiles"
 	[ ".$BASH" '!=' . ]  && MKLINKS_TEST=test
@@ -101,7 +101,7 @@ if [ ! -r make.c ]; then
 fi
 
 #
-# Check if the current system allows to create symlinks
+# Check if the current system allows one to create symlinks
 # If not, it seems that all symlinks appear to be plain files of size 0
 #
 echo "Checking for rotten symlinks..."

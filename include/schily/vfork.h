@@ -48,7 +48,7 @@
  * The child does not run correctly unless it calls exec*().
  * The file descriptors are not separated from the parent.
  *
- * decc$set_child_standard_streams() allows to work around the most important
+ * decc$set_child_standard_streams() allows one to work around the most important
  * problem of having no separate space for file descriptors if the code is
  * prepared for the deviations.
  *

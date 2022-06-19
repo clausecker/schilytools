@@ -53,7 +53,7 @@ else
 fi
 
 #
-# Check whether $() allows to include complex strings that contain newlines
+# Check whether $() allows one to include complex strings that contain newlines
 #
 cat > x <<"XEOF"
 : ${AWK=/usr/bin/nawk}

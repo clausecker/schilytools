@@ -1325,7 +1325,7 @@ main(ac, av)
 				errmsgno(EX_BAD,
 				_("WARNING: 'CDR_FORCESPEED=' is set.\n"));
 				errmsgno(EX_BAD,
-				_("WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n"));
+				_("WARNING: Use 'driveropts=burnfree' to avoid buffer underruns.\n"));
 			}
 			max_dma = dma_speed;
 		}
@@ -1643,7 +1643,7 @@ main(ac, av)
 				errmsgno(EX_BAD,
 				_("Make sure that you are root, enable DMA and check your HW/OS set up.\n"));
 			} else {
-				errmsgno(EX_BAD, _("A write error occured.\n"));
+				errmsgno(EX_BAD, _("A write error occurred.\n"));
 				errmsgno(EX_BAD, _("Please properly read the error message above.\n"));
 			}
 			errs++;

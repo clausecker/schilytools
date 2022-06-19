@@ -37,7 +37,7 @@
 /*
  * Libiconv on Cygwin is not autoconf-friendly.
  * iconv.h #defined iconv to libiconv
- * We would need a AC_CHECK_FUNC() macro that allows to specify includefiles.
+ * We would need a AC_CHECK_FUNC() macro that allows one to specify includefiles.
  */
 #if	defined(HAVE_LIBICONV) && defined(HAVE_LIBICONV_OPEN) && \
 	defined(HAVE_LIBICONV_CLOSE) && \

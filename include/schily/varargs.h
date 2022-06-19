@@ -124,7 +124,7 @@ extern "C" {
 #endif
 
 /*
- * This structure allows to work around the C limitation that a variable of
+ * This structure allows one to work around the C limitation that a variable of
  * type array cannot appear at the left side of an assignement operator.
  * By putting va_list inside a struture, the assignement will work even in case
  * that va_list is an array2.

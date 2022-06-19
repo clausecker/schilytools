@@ -1115,7 +1115,7 @@ scgo_reset(scgp, what)
 					"ERROR! 0x%08X\n", s.SRB_Status);
 
 		/*
-		 * Indicate that error has occured
+		 * Indicate that error has occurred
 		 */
 		return (-1);
 	}
@@ -1740,7 +1740,7 @@ resetSCSIBus(scgp)
 		js_fprintf((FILE *)scgp->errfile, "ERROR  0x%08X\n", s.SRB_Status);
 
 		/*
-		 * Indicate that error has occured
+		 * Indicate that error has occurred
 		 */
 		return (FALSE);
 	}
@@ -1800,7 +1800,7 @@ scsiabort(scgp, sp)
 		js_fprintf((FILE *)scgp->errfile, "Abort ERROR! 0x%08X\n", s.SRB_Status);
 
 		/*
-		 * Indicate that error has occured
+		 * Indicate that error has occurred
 		 */
 		return (FALSE);
 	}

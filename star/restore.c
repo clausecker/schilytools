@@ -1779,7 +1779,7 @@ sym_close()
 			if ((imp->i_flags & I_DELETE) == 0 && !warned) {
 				if (tmpremove) {
 					errmsgno(EX_BAD,
-					"A problem occured, not all files in '%s' could be removed.\n",
+					"A problem occurred, not all files in '%s' could be removed.\n",
 					sym_tmpdir);
 				}
 				errmsgno(EX_BAD,

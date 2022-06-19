@@ -13,7 +13,7 @@ Here comes a quick test that checks most important issues for archive exchange:
 
 	Note that the test tar archives used for this conformance test are 
 	bzip2 compressed. This has been done because it is the only widely 
-	available compression format that allows to compress several gigabytes of 
+	available compression format that allows one to compress several gigabytes of
 	nulls into a few bytes.
 
 	*** File Read tests 2 Gigabytes - 1 Byte
@@ -120,7 +120,7 @@ Here comes a quick test that checks most important issues for archive exchange:
 
 			your_tar xf /tmp/ustar-all-quicktest.tar
 
-		If your TAR allows to handle different archive types do _not_
+		If your TAR supports handling different archive types do _not_
 		tell your tar that this is a "ustar" archive. Let it find this 
 		itself.
 
@@ -128,7 +128,7 @@ Here comes a quick test that checks most important issues for archive exchange:
 
 		your_tar cf /tmp/new.tar ` cat /tmp/quicktest.filelist `
 
-		If you TAR implementation allows to handle different archive 
+		If you TAR implementation supports handling different archive
 		types add an option to force "ustar" archive creation. For 
 		"star" this is -Hustar, for "GNU tar" this is --posix.
 
