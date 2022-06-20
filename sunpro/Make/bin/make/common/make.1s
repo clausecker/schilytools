@@ -5277,7 +5277,7 @@ Check for the
 .B schily\-*.tar.bz2
 archives.
 .LP
-Separate project informations for the Schily SunPro Make project may be retrieved from:
+Separate project information for the Schily SunPro Make project may be retrieved from:
 .LP
 .B
     http://schilytools.sourceforge.net/sunpromake.html

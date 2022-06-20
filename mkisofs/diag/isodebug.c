@@ -130,7 +130,7 @@ usage(excode)
 	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
-	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
+	error(_("\nIf neither -i nor dev= are specified, <image> is needed.\n"));
 	exit(excode);
 }
 
