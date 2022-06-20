@@ -2774,8 +2774,8 @@ Copyright (C) 1997-2020 %s\n"),
 		error(_("Warning: ISO-9660 filenames longer than %d may cause buffer overflows in the OS.\n"),
 			LEN_ISONAME);
 	if (use_Joliet && !use_RockRidge) {
-		error(_("Warning: creating filesystem with (nonstandard) Joliet extensions\n"));
-		error(_("         but without (standard) Rock Ridge extensions.\n"));
+		error(_("Warning: creating filesystem with Joliet extensions\n"));
+		error(_("         but without Rock Ridge extensions.\n"));
 		error(_("         It is highly recommended to add Rock Ridge\n"));
 	}
 	if (transparent_compression) {
