@@ -69,7 +69,7 @@ XMK_FILE=	Makefile.man ustarman.mk starformatman.mk scpioman.mk gnutarman.mk \
 		spaxman.mk suntarman.mk Makefile.dfl Makefile.doc
 
 star_fat.c: star.c
-	$(RM) $(RM_FORCE) $@; cp star.c $@
+	@echo " ==> MAKING SYMLINKS in ."; sh ./MKLINKS
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
