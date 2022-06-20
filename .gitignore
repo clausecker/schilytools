@@ -1,0 +1,17 @@
+# generated directories
+OBJ/
+incs/
+libs/
+
+# build artifacts
+*.o
+
+# non-link generated files
+psmake/confdefs.h
+psmake/conftest.c
+psmake/rules.cnf
+psmake/smake
+psmake/xconfig.h
+config.cache
+config.log
+config.status
