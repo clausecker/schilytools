@@ -125,15 +125,15 @@ void rhash_swap_copy_u64_to_str __PR((void* to, const void* from, size_t length)
 void rhash_u32_mem_swap __PR((unsigned *p, int length_in_u32));
 
 /* define bswap_32 */
-#if defined(__GNUC__) && defined(CPU_IA32) && !defined(__i386__)
-/* for intel x86 CPU */
+#if defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC__ > 4 || __GNUC_MINOR__ >= 3)
+/* for GCC >= 4.3 */
+# define bswap_32(x) __builtin_bswap32(x)
+#elif defined(__GNUC__) && defined(CPU_IA32) && !defined(__i386__)
+/* for old GCC and intel x86 CPU */
 static inline UInt32_t bswap_32(UInt32_t x) {
 	__asm("bswap\t%0" : "=r" (x) : "0" (x));
 	return (x);
 }
-#elif defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC__ > 4 || __GNUC_MINOR__ >= 3)
-/* for GCC >= 4.3 */
-# define bswap_32(x) __builtin_bswap32(x)
 #elif (_MSC_VER > 1300) && (defined(CPU_IA32) || defined(CPU_X64)) /* MS VC */
 # define bswap_32(x) _byteswap_ulong((unsigned long)x)
 #elif !defined(__STRICT_ANSI__)
