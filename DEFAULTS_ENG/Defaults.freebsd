@@ -8,7 +8,7 @@
 # Compiler stuff
 #
 ###########################################################################
-DEFCCOM=	cc
+DEFCCOM=	clang
 #DEFCCOM=	gcc
 
 ###########################################################################
@@ -44,7 +44,7 @@ RUNPATH=	-R$(INS_BASE)/lib
 #INS_RBASE=	/
 INS_BASE=	/tmp/schily
 INS_KBASE=	/tmp/schily/root
-INS_RBASE=	/tmp/schily/root
+INS_RBASE=	/tmp/schily
 #
 DEFUMASK=	002
 #

@@ -8,7 +8,7 @@
 # Compiler stuff
 #
 ###########################################################################
-DEFCCOM=	cc
+DEFCCOM=	clang
 #DEFCCOM=	gcc
 
 ###########################################################################
@@ -18,7 +18,7 @@ DEFCCOM=	cc
 # If DEFLINKMODE is set to "dynamic", dynamic linking will be used
 #
 ###########################################################################
-DEFLINKMODE=	static
+DEFLINKMODE=	dynamic
 
 ###########################################################################
 #
@@ -41,7 +41,7 @@ RUNPATH=	-R$(INS_BASE)/lib
 ###########################################################################
 INS_BASE=	/opt/schily
 INS_KBASE=	/
-INS_RBASE=	/
+INS_RBASE=	/opt/schily
 #
 DEFUMASK=	002
 #
