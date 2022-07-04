@@ -146,6 +146,7 @@ typedef struct {
 #define	BACKSPACE	8	/* ^H Mode Cursor one position to the left  */
 #define	TAB		9	/* ^I TAB is an alias for EXPAND	    */
 				/* ^J New Line				    */
+#define	FORMFEED	12	/* ^L Clear screen			    */
 #define	DOWNWARD	14	/* ^N Scroll down to next line in history   */
 #define	UPWARD		16	/* ^P Scroll up to previous line in history */
 #define	RETYPE		18	/* ^R Redisplay current edit line	    */
@@ -230,6 +231,7 @@ EXPORT	char	*match_hist	__PR((char *pattern));
 LOCAL	HISTPTR match		__PR((HISTPTR cur_line, wchar_t *pattern,
 						BOOL up));
 LOCAL	int	edit_line	__PR((HISTPTR cur_line));
+LOCAL	void	_redisp		__PR((wchar_t *lp, wchar_t *cp));
 LOCAL	void	redisp		__PR((wchar_t *lp, wchar_t *cp));
 LOCAL	wchar_t	*insert		__PR((wchar_t *cp, wchar_t *s,
 						unsigned int *lenp));
@@ -266,6 +268,7 @@ EXPORT	void	readhistory	__PR((MYFILE *f));
 LOCAL	void	term_init	__PR((void));
 LOCAL	void	tty_init	__PR((void));
 LOCAL	void	tty_term	__PR((void));
+LOCAL	void	tty_clear	__PR((void));
 #ifdef	DO_DEBUG
 LOCAL	void	cdbg		__PR((char *fmt, ...))	__printflike__(1, 2);
 #endif
@@ -1523,6 +1526,11 @@ edit_line(cur_line)
 			printf("ctlc: %d\r\n", ctlc);
 #endif
 			return ('\n');
+		case FORMFEED:
+			tty_clear();
+			bflush();
+			_redisp(lp, cp);
+			break;
 		case RETYPE:
 			redisp(lp, cp);
 			break;
@@ -1691,6 +1699,20 @@ edit_line(cur_line)
 
 
 /*
+ * Redisplay current line without a leading newline.
+ */
+LOCAL void
+_redisp(lp, cp)
+	wchar_t	*lp;
+	wchar_t	*cp;
+{
+	(void) fprintf(stderr, "%s", iprompt);
+	(void) fflush(stderr);
+	writews(lp);
+	backspace(linelen(cp));
+}
+
+/*
  * Redisplay current line.
  */
 LOCAL void
@@ -1698,10 +1720,8 @@ redisp(lp, cp)
 	wchar_t	*lp;
 	wchar_t	*cp;
 {
-	(void) fprintf(stderr, "\r\n%s", iprompt);
-	(void) fflush(stderr);
-	writews(lp);
-	backspace(linelen(cp));
+	(void) fprintf(stderr, "\r\n");
+	_redisp(lp, cp);
 }
 
 
@@ -2870,24 +2890,28 @@ LOCAL	char	*KS;		/* Keypad start transmit mode	"ks"	*/
 LOCAL	char	*VE;		/* Visual end sequence		"ve"	*/
 LOCAL	char	*VS;		/* Visual start sequence	"vs"	*/
 
+LOCAL	char	*CL;		/* Clear screen and home cursor	"cl"	*/
+LOCAL	char	*CD;		/* Clear to end of screen	"cd"	*/
+LOCAL	char	*HO;		/* Home cursor			"ho"	*/
+LOCAL	int	 LI;		/* Number of lines		"li"	*/
+
 LOCAL	char	**tstrs[] = {
-		&KE, &KS, &VE, &VS,
+		&KE, &KS, &VE, &VS, &CL, &CD, &HO
 };
 
 LOCAL void
 term_init()
 {
-	register char	*np = "keksvevs";
+	register char	*np = "keksvevsclcdho";
 	register char	***sp = tstrs;
 
-	if (KE) free(KE);
-	if (KS) free(KS);
-	if (VE) free(VE);
-	if (VS) free(VS);
 	do {
+		if (**sp) free(**sp);
 		*(*sp++) = tgetstr(np, NULL);
 		np += 2;
 	} while (*np);
+
+	LI = tgetnum("li");
 }
 
 #define	f_putch		((int (*)__PR((int)))putch)
@@ -2907,6 +2931,25 @@ tty_term()
 	bflush();
 }
 
+/*
+ * Clear screen and home cursor.
+ * If this cannot be done, just go to the next line.
+ */
+LOCAL void
+tty_clear()
+{
+	/* algorithm from libeditline */
+	if (CL)
+		tputs(CL, LI, f_putch);
+	else if (HO && CD) {
+		tputs(HO, 1, f_putch);
+		tputs(CD, LI, f_putch);
+	} else {
+		/* cannot clear screen (hardcopy terminal?) */
+		putch('\r');
+		putch('\n');
+	}
+}
 
 #ifdef	DO_DEBUG
 #include <schily/varargs.h>
