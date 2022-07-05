@@ -108,10 +108,9 @@ NEW FEATURES:
 	line, which might be more convenient for users.
 	Submitted by Nico Sonack.
 
-FUTURE DIRECTIONS:
-
--	RULES: symbol versioning will be enabled for FreeBSD after
-	sufficient testing.
+-	RULES: symbol versioning has been enabled for FreeBSD following
+	intensive testing and preliminary enabling in the FreeBSD ports
+	collection.
 
 CONTRIBUTORS FOR THIS VERSION:
 
