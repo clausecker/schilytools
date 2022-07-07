@@ -18,8 +18,8 @@
 pxupgrade \- upgrade firmware in Plextor CD/DVD writers
 .SH SYNOPSIS
 .B pxupgrade
-[ 
-.I options 
+[
+.I options
 ]
 [
 .BI dev= device
@@ -29,16 +29,16 @@ pxupgrade \- upgrade firmware in Plextor CD/DVD writers
 Pxupgrade is used to update the firmware in Plextor CD and DVD writers
 as well as in the PX-40 CD-ROM drive.
 .PP
-See 
+See
 .B OPTIONS
 and
 .B EXAMPLES
 section to lean about possible usage.
 .PP
 .SS "Device naming"
-Most users do not need to care about device naming at all, as 
+Most users do not need to care about device naming at all, as
 .B pxupgrade
-implements 
+implements
 .B auto target
 support and automagically finds Plextor drives.
 .PP
@@ -46,7 +46,7 @@ The
 .I device
 refers to
 .IR scsibus / target / lun
-of the CD/DVD-Recorder. Communication on 
+of the CD/DVD-Recorder. Communication on
 .I SunOS
 is done with the SCSI general driver
 .B scg.
@@ -57,13 +57,13 @@ Possible syntax is:
 or
 .B dev=
 .IR target , lun .
-In the latter case, the CD/DVD-Recorder has to be connected to the default 
+In the latter case, the CD/DVD-Recorder has to be connected to the default
 SCSI bus of the machine.
 .IR Scsibus ,
-.I target 
-and 
+.I target
+and
 .I lun
-are integer numbers. 
+are integer numbers.
 Some operating systems or SCSI transport implementations may require to
 specify a filename in addition.
 In this case the correct syntax for the device is:
@@ -95,13 +95,13 @@ A valid remote SCSI device name may be:
 .BI REMOTE: user@host:
 to allow remote SCSI bus scanning or
 .BI REMOTE: user@host:1,0,0
-to access the SCSI device at 
+to access the SCSI device at
 .I host
 connected to SCSI bus # 1,target 0 lun 0.
 
 .PP
 .B Pxupgrade
-is completely based on 
+is completely based on
 .B SCSI
 commands but this is no problem as all CD/DVD writers
 ever made use
@@ -110,8 +110,8 @@ commands for the communication. Even
 .B ATAPI
 drives are just
 .B SCSI
-drives that inherently use the 
-.I "ATA packet interface
+drives that inherently use the
+.I "ATA packet interface"
 as
 .B SCSI
 command transport layer build into the IDE (ATA) transport.
@@ -125,36 +125,36 @@ commands via a single unique user interface.
 To access SCSI devices via alternate transport layers,
 you need to prepend the SCSI device name by a transport layer indicator.
 The transport layer indicator may be something like
-.B USCSI: 
+.B USCSI:
 or
 .BR ATAPI: .
-To get a list of supported transport layers for your platform, use 
+To get a list of supported transport layers for your platform, use
 .B dev=
 .IR HELP :
 
 
 .PP
-To make 
+To make
 .B pxupgrade
 portable to all \s-2UNIX\s0 platforms, the syntax
 .B dev=
 .IR devicename : scsibus , target , lun
 is preferred as it hides OS specific knowledge about device names from the user.
 A specific OS may not necessarily support a way to specify a real device file name nor a
-way to specify 
+way to specify
 .IR scsibus , target , lun .
 
 .PP
-.I Scsibus 
-0 is the default SCSI bus on the machine. Watch the boot messages for more 
-information or look into 
-.B /var/adm/messages 
+.I Scsibus
+0 is the default SCSI bus on the machine. Watch the boot messages for more
+information or look into
+.B /var/adm/messages
 for more information about the SCSI configuration of your machine.
-If you have problems to figure out what values for 
+If you have problems to figure out what values for
 .IR scsibus , target , lun
-should be used, try the 
+should be used, try the
 .B \-scanbus
-option of 
+option of
 .B cdrecord
 described below.
 
@@ -168,13 +168,13 @@ Sets the SCSI target for the CD/DVD-Recorder, see notes above.
 A typical device specification is
 .BI dev= 6,0
 \&.
-If a filename must be provided together with the numerical target 
+If a filename must be provided together with the numerical target
 specification, the filename is implementation specific.
 The correct filename in this case can be found in the system specific
 manuals of the target operating system.
-On a 
+On a
 .I FreeBSD
-system without 
+system without
 .I CAM
 support, you need to use the control device (e.g.
 .IR /dev/rcd0.ctl ).
@@ -192,40 +192,40 @@ This works only if the current OS platform allows SCSI bus scanning
 for user programs.
 .TP
 .B \-help
-Prints a short summary of the 
+Prints a short summary of the
 .B pxupgrade
 options and exists.
 .TP
 .B \-version
-Prints the 
+Prints the
 .B pxupgrade
 version number string and exists.
 
 .SH EXAMPLES
 .PP
-Use 
+Use
 .PP
-.B "   pxupgrade \-all    r412c106.bin
+.B "   pxupgrade \-all    r412c106.bin"
 .PP
 to upgrade all Plextor PX-W412 drives that may be found using the
 SCSI scan bus function of the OS.
 .PP
 Use
 .PP
-.B "   pxupgrade dev=3,0 r412c106.bin
+.B "   pxupgrade dev=3,0 r412c106.bin"
 .PP
 to upgrade the Plextor PX-W412 drive at target 3 lun 0.
 .PP
 Use
 .PP
-.B "   pxupgrade \-l
+.B "   pxupgrade \-l"
 .PP
 to list all Plextor drives with their firmware if the OS supports
 SCSU bus scanning.
 .PP
 Use
 .PP
-.B "  pxupgrade dev=USCSI \-l
+.B "  pxupgrade dev=USCSI \-l"
 .PP
 to list all Plextor drives with their firmware using the alternate
 SCSU transport method
@@ -233,7 +233,7 @@ SCSU transport method
 .PP
 Use
 .PP
-.B "   pxupgrade dev=IOCompactDiscServices \-l
+.B "   pxupgrade dev=IOCompactDiscServices \-l"
 .PP
 On MacOS X to list the first CD-ROM drive in the system.
 

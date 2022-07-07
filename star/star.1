@@ -66,7 +66,7 @@ directory
 .el .B "\-copy\ \ \ \ "
 [\fIoptions\fP] 
 .B -C
-.I "from_directory . to_directory
+.I "from_directory . to_directory"
 .br
 .B "star\ "
 .ie n .B "cli=\fIname\ \ "
@@ -90,7 +90,7 @@ is usually a magnetic tape, but it can be any file.
 In all cases, appearance of a directory name refers to the files and 
 (recursively) subdirectories of that directory.
 .PP
-.B "Star's
+.B "Star's"
 actions are controlled by the mandatory command flags from the 
 list below.
 The way 
@@ -251,7 +251,7 @@ option is not used,
 .B star
 is 100% POSIX compliant.
 .PP
-.B "Star's 
+.B "Star's"
 default format (if called as
 .BR star )
 is 
@@ -277,7 +277,7 @@ has been run on the filesystem,
 is able to restore only 
 the missing files automatically. 
 Use then 
-.I "star \-diff
+.I "star \-diff"
 to check for differences (see EXAMPLES for more information).
 .PP
 .B Star 
@@ -305,7 +305,7 @@ files.
 .PP
 .B Star
 is able to archive and restore 
-.B "Access Control Lists
+.B "Access Control Lists"
 for files using POSIX.1\-2001 extended headers.
 .SH CLI SELECTION
 .PP
@@ -696,7 +696,7 @@ in Solaris.
 .TP
 .B \-acl
 Handle 
-.B "Access Control List
+.B "Access Control List"
 (ACL) information in create and extract mode.
 If
 .B \-acl
@@ -1066,9 +1066,9 @@ The POSIX.1-1988
 .B cpio
 format. This format uses octal ascii headers. A similar format is
 created by calling
-.I "cpio \-o \-c
+.I "cpio \-o \-c"
 on pre SYSVr4 systems and by calling
-.I "cpio \-o \-Hodc
+.I "cpio \-o \-Hodc"
 on SYSVr4 systems.
 The POSIX.1-1988 
 .B cpio
@@ -1108,7 +1108,7 @@ Tell
 to create a
 .B cpio
 archive in the ascii format that is created with
-.I "cpio \-o \-c
+.I "cpio \-o \-c"
 on SYSVr4 systems.
 It uses extended (32 bit) numbers for uid's, gid's and device numbers
 but limits the file size to 4 GB - 2 bytes although the format has been
@@ -1161,7 +1161,7 @@ will ask whether it should remove these files to allow the extraction of a file
 in the following way:
 .RS
 .IP
-.BI "remove '" filename "' ? Y(es)/N(o) :
+.BI "remove '" filename "' ? Y(es)/N(o) :"
 .RE
 .TP
 .BR \-atime ", " \-a
@@ -1193,7 +1193,7 @@ and with the
 format.)
 Another option to retain the access time for the the files that
 are going to be archives is to readonly mount a 
-.B "UFS snapshot
+.B "UFS snapshot"
 and to archive files from the mount point of the UFS snapshot.
 .TP
 .B \-B
@@ -1321,7 +1321,7 @@ the size is multiplied by 1, 2, 512, 1024, 1024*1024, 1024*1024*1024,
 If the size consists of numbers separated by `x' or `*', multiplication of the 
 two numbers is performed.
 Thus 
-.I "bs=7x8k
+.I "bs=7x8k"
 will specify a blocksize of 56\ kBytes.
 Blocksize must be a multiple of 512 bytes.
 See also the description of the
@@ -1381,7 +1381,7 @@ option to extract.
 .TP
 .BI C= dir
 .TP
-.BI \-C " dir
+.BI \-C " dir"
 Perform a 
 .BR chdir (2)
 operation to 
@@ -2001,7 +2001,7 @@ and, in addition archives more inode meta data inside POSIX.1-2001 extended head
 See also
 .B level=
 option and the section
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 for more information on
 .IR "true incremental dumps" .
 .TP
@@ -2025,7 +2025,7 @@ dump will increase in size if
 .B \-dump\-cumulative
 is not used.
 See section
-.B "SYNCHRONIZING FILESYSTEMS
+.B "SYNCHRONIZING FILESYSTEMS"
 for more information.
 
 .TP
@@ -2092,9 +2092,9 @@ option and thus to ignore some error conditions while aborting on all
 other conditions.
 .TP
 .PD 0
-.BI errctl= " name
+.BI errctl= " name"
 .TP
-.BI errctl= " error control spec
+.BI errctl= " error control spec"
 .PD
 Add the content from file
 .I name
@@ -2180,7 +2180,7 @@ meta condition has a lower precedence than
 .TP 12
 .B DIFF
 Suppress output in case that 
-.B "star -diff
+.B "star -diff"
 did encounter any differences.
 .TP 12
 .B ALL
@@ -2326,7 +2326,7 @@ Be very careful when using error control as you may ignore any error condition.
 If you ignore the wrong error conditions, you may not be able to see real
 problems anymore.
 .TP
-.BI \-exclude\-from " name
+.BI \-exclude\-from " name"
 Exclude from named file, this is an alias for the
 .B \-X
 option. See 
@@ -2565,7 +2565,7 @@ In order to make the evaluation of the
 expression more convenient, 
 .B star
 implements additional
-.B "find primaries
+.B "find primaries"
 that have side effects on the file meta data.
 .B Star
 implements the following additional
@@ -2575,7 +2575,7 @@ primaries:
 .br
 .ne 5
 .TP
-.BI \-chatime " timespec
+.BI \-chatime " timespec"
 The primary always evaluates as true;
 it modifies the
 .B time of last access
@@ -2588,7 +2588,7 @@ for a description of
 .br
 .ne 5
 .TP
-.BI \-chctime " timespec
+.BI \-chctime " timespec"
 The primary always evaluates as true;
 it modifies the
 .B time of last status change
@@ -2601,7 +2601,7 @@ for a description of
 .br
 .ne 5
 .TP
-.BI \-chmtime " timespec
+.BI \-chmtime " timespec"
 The primary always evaluates as true;
 it modifies the
 .B time of last modification
@@ -2612,12 +2612,12 @@ See
 for a description of
 .IR timespec .
 .TP
-.BI \-chgrp " gname
+.BI \-chgrp " gname"
 The primary always evaluates as true;
 it sets the group of the file to
 .IR gname .
 .TP
-.BI \-chmod " mode
+.BI \-chmod " mode"
 The primary always evaluates as true;
 it sets the permissions of the file to
 .IR mode .
@@ -2626,7 +2626,7 @@ Octal and symbolic permissions are accepted for
 as with
 .BR chmod (1).
 .TP
-.BI \-chown " uname
+.BI \-chown " uname"
 The primary always evaluates as true;
 it sets the owner of the file to
 .IR uname .
@@ -2643,14 +2643,14 @@ the result of a part of the expression.
 .PP
 The command line:
 .PP
-.B "star -c f=o.tar -find . ( -type d -ls -o false ) -o ! -type d
+.B "star -c f=o.tar -find . ( -type d -ls -o false ) -o ! -type d"
 .PP
 lists all directories and archives all non-directories to the archive
 .BR o.tar .
 .PP
 The command line:
 .PP
-.B "star -c f=o.tar -find . ( -type d -chown root -o true )
+.B "star -c f=o.tar -find . ( -type d -chown root -o true )"
 .PP
 archives all directories so they appear to be owned by root in the archive,
 all non-directories are archived as they are in the file system.
@@ -2718,9 +2718,9 @@ See
 .BR \-wtardumps ,
 .B level=
 and sections
-.B "INCREMENTAL BACKUPS
-and 
-.B "INCREMENTAL RESTORES
+.B "INCREMENTAL BACKUPS"
+and
+.B "INCREMENTAL RESTORES"
 for more information.
 .TP
 .B \-freeze
@@ -2824,7 +2824,7 @@ next valid header.
 .B \-install
 Carefully replace existing files when extracting files. This is done
 similar to
-.BR install "(1)
+.BR install "(1)"
 by first extracting the files into a temporary name and renaming
 the file to the final name after the extraction of that file was
 successful.
@@ -2959,7 +2959,7 @@ See also the
 and
 .B \-wtardumps
 options and the section
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 for more information.
 .TP
 .B \-link\-data
@@ -3016,7 +3016,7 @@ is not used and hard links to directories are present, the appendant sub-tree
 will appear more than once on the archive and
 .B star
 will print 
-.I "Linkcount below zero
+.I "Linkcount below zero"
 warnings for non directory hard links inside the sub-tree.
 .TP
 .BI list= filename
@@ -3617,9 +3617,9 @@ dump. See
 .BR \-wtardumps ,
 .B level=
 and sections
-.B "INCREMENTAL BACKUPS
-and 
-.B "INCREMENTAL RESTORES
+.B "INCREMENTAL BACKUPS"
+and
+.B "INCREMENTAL RESTORES"
 for more information.
 .TP
 .BI pattern= "pattern\fR, " pat= pattern
@@ -3657,12 +3657,12 @@ using the
 .B pattern=
 option, use
 .B pattern=
-.I "dir/\\\\*
+.I "dir/\\\\*"
 if you like to select a subtree by using the historic method, use
-.I "dir
+.I "dir"
 as file type argument.
 If you only like to extract the directory itself, use
-.I "dir/
+.I "dir/"
 as file type argument.
 See manual page for 
 .BR match (1)
@@ -3759,7 +3759,7 @@ for POSIX
 Allow each pattern to match only once.
 If a pattern matches a directory, then the whole sub tree matches the pattern.
 .TP
-.BI \-pax\-o " string
+.BI \-pax\-o " string"
 Set a
 .B pax
 like option control pattern.
@@ -3770,7 +3770,7 @@ to create a
 .B hdrcharset=BINARY
 header.
 .TP
-.BI \-pax\-p " string
+.BI \-pax\-p " string"
 PAX style privileges string.
 Several characters (each has its own meaning). The following characters are defined:
 .RS
@@ -3782,12 +3782,12 @@ This option is currently ignored.
 .B e
 Preserve the user ID, group ID, file mode bits.
 This is equivalent to calling
-.BR "star \-p \-acl \-xfflags" ".
+.BR "star \-p \-acl \-xfflags" "."
 .TP
 .B m
 Do not preserve file modification times.
 This is currently equivalent to calling
-.BR "star \-m" ".
+.BR "star \-m" "."
 .TP
 .B o
 Preserve the user ID and group ID.
@@ -3798,7 +3798,7 @@ if called as root.
 .B p
 Preserve the file mode bits.
 This is equivalent to calling
-.BR "star \-p" ".
+.BR "star \-p" "."
 .RE
 
 .TP
@@ -3960,7 +3960,7 @@ See also
 .B level=
 option 
 and section
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 for more information.
 .sp
 Note: Do not use the
@@ -4093,7 +4093,7 @@ options
 in addition to the options used for the first run.
 To speed this up, it helps to use:
 .sp
-.B "    star -xvpw -find -type l
+.B "    star -xvpw -find -type l"
 .sp
 See section
 .B SECURITY NOTES
@@ -4202,7 +4202,7 @@ option to create
 See also 
 .B \-wtardumps
 option and section
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 for more information.
 .TP
 .B \-time
@@ -4397,10 +4397,10 @@ See also
 and
 .B \-C
 option or
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 section for more information.
 .TP
-.BI \-X " filename
+.BI \-X " filename"
 Use the file
 .I filename
 as a file containing a list of path names to be excluded from the 
@@ -4512,9 +4512,9 @@ on Linux systems.
 .TP
 .B \-xmeta
 Extract 
-.B "meta files
+.B "meta files"
 as if they were files.
-.B "Meta files
+.B "Meta files"
 in archives are plain files that do not contain any content data in the archive.
 They may be created by using the
 .B \-meta
@@ -4579,11 +4579,11 @@ The environment variable
 may be used to specify one option for gzip.
 If you want to write write compressed archives to tape, you should use
 .br
-.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill of=/dev/rmt/1bn
+.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill of=/dev/rmt/1bn"
 .br
 or
 .br
-.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill ovsize=60m of=/dev/rmt/1bn
+.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill ovsize=60m of=/dev/rmt/1bn"
 .br
 if the tape can hold 60 MB.
 .TP
@@ -4593,7 +4593,7 @@ run the input or output through a
 pipe - see option
 .B \-z
 above.
-.SH "INCREMENTAL BACKUPS
+.SH "INCREMENTAL BACKUPS"
 .PP
 .B Star
 is able to back up file system in full and incremental mode.
@@ -4680,15 +4680,15 @@ part of the backup as long as the backup is not done from a snapshot.
 .PP
 To create a level 0 dump call:
 .PP
-.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e
+.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e"
 .br
-.B "\ \ \ \ f=\fIarchive-name\fP \-C /\fIfilestem-mount-point\fP .
+.B "\ \ \ \ f=\fIarchive-name\fP \-C /\fIfilestem-mount-point\fP ."
 .PP
 To create a level 1 dump call:
 .PP
-.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=1 \-wtardumps \e
+.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=1 \-wtardumps \e"
 .br
-.B "\ \ \ \ f=\fIarchive-name\fP -C /\fIfilestem-mount-point\fP .
+.B "\ \ \ \ f=\fIarchive-name\fP -C /\fIfilestem-mount-point\fP ."
 .PP
 Do not forget the dot at the end of the command line that specifies the
 directory to start the operation.
@@ -4724,15 +4724,15 @@ file system snapshot from UFS:
 .PP
 .B "echo > /tmp/snapstamp"
 .sp
-.B "mount -r `fssnap -F ufs -o \e
+.B "mount -r `fssnap -F ufs -o \e"
 .br
-.B "\ \ \ \ backing-store=/var/tmp/EXPORT-NFS.snap /export/nfs` /mnt
+.B "\ \ \ \ backing-store=/var/tmp/EXPORT-NFS.snap /export/nfs` /mnt"
 .sp
-.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e
+.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e"
 .br
-.B "\ \ \ \ f=\fIarchive-name\fP dumpdate=/tmp/snapstamp \e
+.B "\ \ \ \ f=\fIarchive-name\fP dumpdate=/tmp/snapstamp \e"
 .br
-.B "\ \ \ \ fs-name=/export/nfs \-C /mnt .
+.B "\ \ \ \ fs-name=/export/nfs \-C /mnt ."
 .PP
 First a file with a current time stamp is created, then a snapshot for
 /export/nfs is created and mounted on /mnt.
@@ -4753,7 +4753,7 @@ error control file (see
 option) and to tell
 .B star 
 to ignore growing files.
-.SH "BACKUP SCHEDULES
+.SH "BACKUP SCHEDULES"
 Full (level 0) dumps should be made on a regular base
 (e.g. once a month).
 As a full dump may take a long time and takes a lot of tape,
@@ -4797,7 +4797,7 @@ Note that in this case, 7 dumps need to be restored if the
 a crash happens at the worst case date (just before the Friday dump
 in week 2 or later).
 
-.SH "INCREMENTAL RESTORES
+.SH "INCREMENTAL RESTORES"
 Incremental restores should be made to an empty file system (except
 for the 
 .B lost+found
@@ -4818,7 +4818,7 @@ full (level 0) dump. Then the latest incremental dump of each
 dump level (with ascending order of dump levels) need to be restored.
 .PP
 Let us assume the first example from the section 
-.B "BACKUP SCHEDULES
+.B "BACKUP SCHEDULES"
 for the backup schedule. If a disk
 crash happens before the Thursday dump of week 3 has been made,
 the following restore procedure needs to be applied:
@@ -4840,9 +4840,9 @@ dump has been made on Wednesday of week 3.
 .PP
 To extract a level 0 dump call:
 .PP
-.B "cd /\fIextract-filestem-mount-point\fP
+.B "cd /\fIextract-filestem-mount-point\fP"
 .br
-.B "star \-xpU \-restore f=\fIarchive-name\fP
+.B "star \-xpU \-restore f=\fIarchive-name\fP"
 .PP
 This creates the directory 
 .B star-tmpdir
@@ -4854,9 +4854,9 @@ depend on these files.
 .PP
 To extract a level 1 (or higher) dump call:
 .PP
-.B "cd /\fIextract-filestem-mount-point\fP
+.B "cd /\fIextract-filestem-mount-point\fP"
 .br
-.B "star \-xpU \-restore f=\fIarchive-name\fP
+.B "star \-xpU \-restore f=\fIarchive-name\fP"
 .PP
 In order to restore a partial dump, the
 .B \-partial
@@ -4881,7 +4881,7 @@ Before you start to extract the next
 incremental, you need to remove all files in 
 .BR star-tmpdir .
 
-.SH "SYNCHRONIZING FILESYSTEMS
+.SH "SYNCHRONIZING FILESYSTEMS"
 .PP
 .B Star
 may be used to synchronize filesystem content.
@@ -4890,11 +4890,11 @@ filesystem needs to be performed first.
 .PP
 To create an initial copy of a filesystem call:
 .PP
-.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e
+.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=0 \-wtardumps \e"
 .br
-.B "\ \ \ \ \-C /\fIfilestem-mount-point\fP . | \e
+.B "\ \ \ \ \-C /\fIfilestem-mount-point\fP . | \e"
 .br
-.B "\ \ \ \ star \-xpU \-restore -C /\fIextract-target-dir\fP 
+.B "\ \ \ \ star \-xpU \-restore -C /\fIextract-target-dir\fP"
 .PP
 In order to perform subsequent synchronization of the target filesystem
 with the content of the source filesystem, a modified incremental dump/restore
@@ -4902,11 +4902,11 @@ procedure may be used.
 .PP
 To copy incremental content of a filesystem call:
 .PP
-.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=1 \-wtardumps \e
+.B "star \-c \-xdev \-sparse \-acl \-link\-dirs level=1 \-wtardumps \e"
 .br
-.B "\ \ \ \ \-cumulative \-C /\fIfilestem-mount-point\fP . | \e
+.B "\ \ \ \ \-cumulative \-C /\fIfilestem-mount-point\fP . | \e"
 .br
-.B "\ \ \ \ star \-xpU \-restore -C /\fIextract-target-dir\fP 
+.B "\ \ \ \ star \-xpU \-restore -C /\fIextract-target-dir\fP"
 .PP
 Note that like with backups in general,
 copies from a live filesystem should be avoided.
@@ -4920,7 +4920,7 @@ incremental copy may be missing from all copies unless the
 option is used.
 .PP
 See section
-.B "INCREMENTAL BACKUPS
+.B "INCREMENTAL BACKUPS"
 to learn how to modify the command line in case 
 .B "file system snapshots"
 are used.
@@ -4956,7 +4956,7 @@ Upon receipt of a SIGQUIT,
 .B star 
 prints statistics and continues with the current operation. This is 
 useful to watch the progress of the current operation.
-.SH "EXIT STATUS
+.SH "EXIT STATUS"
 The following exit values are returned. Note that the negative values are only
 available to modern shells and programs that use
 .BR waitid (2)
@@ -5024,7 +5024,7 @@ To get a listing in a way similar to ls \-l one might use:
 example% star \-tv f=/dev/rmt/1bn
 .PP
 The same command as listed above in a 
-.B "POSIX tar
+.B "POSIX tar"
 command line syntax compliant way is:
 .IP
 .B
@@ -5061,7 +5061,7 @@ example% star \-copy \-p \-xdot \-C /home/someuser . /home/fs
 .fi
 .PP
 To copy a file tree including the 
-.B "Access Control List
+.B "Access Control List"
 entries for all files and to correctly copy sparse (holey) files use:
 .IP
 .B
@@ -5405,7 +5405,7 @@ on
 .B stderr
 to be lost when calling something like:
 .sp
-.B "    ssh \c
+.B "    ssh \c"
 .I host \c
 .B 'star -c ...'
 .sp
@@ -5496,7 +5496,7 @@ See
 option for more information.
 .SH FILES
 .TP
-.B "/etc/default/star
+.B "/etc/default/star"
 Default values can be set for the following options in /etc/default/star.
 For example:
 .SM CDR_FIFOSIZE=64m
@@ -5514,7 +5514,7 @@ option).
 Setting 
 .B STAR_FIFOSIZE_MAX
 in
-.B "/etc/default/star
+.B "/etc/default/star"
 allows one to overwrite global values from backup scripts for machines
 with less memory.
 .TP
@@ -5608,7 +5608,7 @@ Example:
 archive0=/dev/tape 256k 40G y
 .RE
 .TP
-.B "/etc/tardumps
+.B "/etc/tardumps"
 The default name for the dump level archive. The default name is used 
 whenever the
 .BI tardumps= name
@@ -5655,7 +5655,7 @@ from running another incremental restore operation. This helps to
 avoid more than one restore operation at a time (e.g. from a
 cron script).
 .TP
-.B "/dev/tty
+.B "/dev/tty"
 Is used for the interactive user interface.
 .SH "SEE ALSO"
 .BR spax (1), 
@@ -5697,7 +5697,7 @@ will display a delayed error summary before exiting.
 .PP
 The command line syntax for the tar command (as defined in SUSv2 - UNIX-98)
 deviates from the command line syntax defined for all other commands. While the 
-.B "POSIX command line syntax
+.B "POSIX command line syntax"
 requests
 all options to start with a dash (\-) and allows one to either write options separately
 or combined (in case of boolean flags), the
@@ -5814,7 +5814,7 @@ compliant will be able to extract
 archives as long as no new standard is defined that claims the last 12 bytes
 of the header for a different use.
 But then the 
-.B "ustar version
+.B "ustar version"
 number should be changed from `00'
 to `01'.
 Now, that the POSIX\-2001 standard has been accepted, it is even predictable
@@ -5958,7 +5958,7 @@ loaded which may hang the system for a long time. In the worst case, unwanted
 side effects from opening devices (such as causing tape drives to rewind the media)
 may be caused.
 
-.SH "SECURITY NOTES
+.SH "SECURITY NOTES"
 If you unpack a tar archive in a non empty directory, any file in that directory 
 may be overwritten unless you specify the 
 .B \-k
@@ -6136,6 +6136,17 @@ or
 be prepared that terminal generated signals may interrupt the
 remote connection.
 
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH HISTORY
 A
 .B tar
@@ -6166,48 +6177,21 @@ was renamed to
 .B star
 (Standard tar).
 
-.SH AUTHOR
+.SH AUTHORS
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+J\*org Schilling and the schilytools project authors.
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
-
 .SH "SOURCE DOWNLOAD"
 The source code for
 .B star
-is in the star project at Sourceforge at:
-.LP
-.B
-    http://sourceforge.net/projects/s-tar/
-.LP
-The download directory is:
-.LP
-.B
-    http://sourceforge.net/projects/s-tar/files/
-.LP
-The preferred frequent development snapshots of the
-.B star
-source are also included in the
+is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives and please use the latter download in favor of old so called stable
-star releases in separate tarballs.
+.BR https://codeberg.org/schilytools/schilytools/releases .

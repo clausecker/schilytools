@@ -736,5 +736,5 @@ The
 function was initially written by authors at AT&T in 1980.
 .B getopt()
 was later maintained by various people at AT&T and Sun Microsystems.
-Since 2006,
-is maintained by J\*org Schilling.
+Since 2006, has been maintained by J\*org Schilling and is now
+maintained by the schilytools project authors.

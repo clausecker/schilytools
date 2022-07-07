@@ -22,22 +22,22 @@ resolvepath(), resolvenpath(), resolvefpath() \- resolve all symbolic links of a
 .sp
 .B int
 .B resolvepath(path, buf, bufsiz)
-.B "        const char    *path;
-.B "              char    *buf;
-.B "              size_t  bufsiz;
+.B "        const char    *path;"
+.B "              char    *buf;"
+.B "              size_t  bufsiz;"
 .sp
 .B int
 .B resolvenpath(path, buf, bufsiz)
-.B "        const char    *path;
-.B "              char    *buf;
-.B "              size_t  bufsiz;
+.B "        const char    *path;"
+.B "              char    *buf;"
+.B "              size_t  bufsiz;"
 .sp
 .B int
 .B resolvefpath(path, buf, bufsiz, flags)
-.B "        const char    *path;
-.B "              char    *buf;
-.B "              size_t  bufsiz;
-.B "              int     flags;
+.B "        const char    *path;"
+.B "              char    *buf;"
+.B "              size_t  bufsiz;"
+.B "              int     flags;"
 .fi
 .SH DESCRIPTION
 .LP
@@ -102,9 +102,9 @@ operation.
 Applications should not assume that the returned contents of
 the buffer are null-terminated. This is because the function
 .BR resolvepath (3)
-may be the Solaris version of the program is compiled on Solaris.
-.SH EXAMPLES
-.LP
+may be the Solaris version if the program is compiled on Solaris.
+.\" .SH EXAMPLES
+.\" .LP
 .SH "SEE ALSO"
 .LP
 .BR resolvepath (3),

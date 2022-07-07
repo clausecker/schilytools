@@ -35,9 +35,9 @@ for the correctness of the target device.
 .PP
 .SS "Device naming"
 For a list of possible device name parameters call
-.B "btcflash \-scanbus
+.B "btcflash \-scanbus"
 or
-.B "btcflash dev=help
+.B "btcflash dev=help"
 and then use the right
 .B dev=
 parameter based on the device listing.
@@ -143,8 +143,8 @@ program needs to be present and configured on the
 .B ATAPI
 drives are just
 .B SCSI
-drives that inherently use the 
-.I "ATA packet interface
+drives that inherently use the
+.I "ATA packet interface"
 as
 .B SCSI
 command transport layer build into the IDE (ATA) transport.
@@ -225,8 +225,8 @@ tries to scan the SCSI address space for CD-ROM drives.
 If exactly one is found, this is used by default.
 .TP
 .BI timeout= #
-Set the default SCSI command timeout value to 
-.IR # " seconds.
+Set the default SCSI command timeout value to
+.IR # " seconds."
 The default SCSI command timeout is the minimum timeout used for sending
 SCSI commands.
 If a SCSI command fails due to a timeout, you may try to raise the
@@ -283,8 +283,8 @@ Specify the filename where the firmware should be read from.
 Scan all SCSI devices on all SCSI busses and print the inquiry
 strings. This option may be used to find SCSI address of the 
 devices on a system.
-The numbers printed out as labels are computed by: 
-.B "bus * 100 + target
+The numbers printed out as labels are computed by:
+.B "bus * 100 + target"
 .TP
 .BI scgopts= list
 A comma separated list of SCSI options that are handled by libscg.
@@ -377,11 +377,11 @@ cmd finished after 0.002s timeout 40s
 The first line gives information about the transport of the command.
 The text after the first colon gives the error text for the system call
 from the view of the kernel. It usually is:
-.B "I/O error
+.B "I/O error"
 unless other problems happen. The next words contain a short description for
 the SCSI command that fails. The rest of the line tells you if there were
 any problems for the transport of the command over the SCSI bus.
-.B "fatal error
+.B "fatal error"
 means that it was not possible to transport the command (i.e. no device present
 at the requested SCSI address).
 .PP
@@ -405,7 +405,7 @@ is appended.
 The sixth line is the error text for the sense code and the sense qualifier if available.
 If the type of the device is known, the sense data is decoded from tables
 in
-.IR scsierrs.c " .
+.IR scsierrs.c " ."
 The text is followed by the error value for a field replaceable unit.
 .PP
 The seventh line prints the block number that is related to the failed command
@@ -415,36 +415,37 @@ The eight line reports the timeout set up for this command and the time
 that the command really needed to complete.
 
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D-13353 Berlin
-Germany
+.B
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
 .fi
-.PP
-Additional information can be found on:
-.br
-http://cdrecord.org/private/cdrecord.html
-.PP
-If you have support questions, send them to:
-.PP
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B btcflash
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at:
+.LP
 .B
-cdrtools-support@lists.sourceforge.net
-.PP
-If you have definitely found a bug, send a mail to:
-.PP
+https://codeberg.org/schilytools/schilytools/
+.LP
+The download directory is:
+.LP
 .B
-cdrtools-developers@lists.sourceforge.net
-.br
-or
-.B
-joerg@schily.net
-.PP
-To subscribe, use:
-.PP
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
-.br
-or
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-support
+https://codeberg.org/schilytools/schilytools/releases

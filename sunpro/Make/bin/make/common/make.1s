@@ -240,7 +240,7 @@ features.
 .TP
 .BI \-C directory
 .TP
-.BI \-C " directory
+.BI \-C " directory"
 .PD
 Changes the current working directory to the directory
 .I directory
@@ -297,7 +297,7 @@ Environment variables override assignments within makefiles.
 .sp
 .ne 2
 .TP
-.BI \-f " makefile
+.BI \-f " makefile"
 Uses the description file
 .IR makefile .
 A
@@ -405,7 +405,7 @@ and the command line macro of the same name manage the way
 .B make
 controls the number of jobs.
 See the chapter
-.B "ENVIRONMENT VARIABLES
+.B ENVIRONMENT
 for more information.
 .sp
 This option is not available in case that
@@ -423,7 +423,7 @@ other dependency branches that do not depend on it.
 .sp
 .ne 2
 .TP
-.BI \-K " statefile
+.BI \-K " statefile"
 Uses the state file
 .IR statefile .
 A \fB\(mi\fR as the \fIstatefile\fR
@@ -1105,7 +1105,7 @@ environment,
 .B make
 does not support this feature.
 
-.SS "Automake Features
+.SS "Automake Features"
 .PP
 .B Make
 implements
@@ -1116,10 +1116,10 @@ features are implemented with a set of special purpose macros and by special
 rules that help to extend the functionality and automated adaptivity of
 .BR make .
 .TP
-.B "Automake special purpose macros
+.B "Automake special purpose macros"
 .RS +4n
 The special purpose macros that have names that match
-.B "MAKE_*
+.B "MAKE_*"
 (see section
 .BR "Special-Purpose Macros" )
 are part of the
@@ -1137,7 +1137,7 @@ The values for these macros may however be overwritten from a makefile
 or from a command line macro definition.
 .RE
 .TP
-.B "Automake special targets
+.B "Automake special targets"
 .RS +4n
 The special target
 .B \&.INCLUDE_FAILED
@@ -4372,7 +4372,7 @@ or the total number of jobs.
 Allow
 .B make
 to control the number of jobs
-.B "based on the current system load.
+.B "based on the current system load."
 If the load is high, the number of jobs will be reduced.
 If the load is low, the number of jobs specified by the user is used.
 .sp
@@ -4380,7 +4380,7 @@ This is the default method used to control the number of jobs.
 .TP
 .B M2
 The number of jobs is adjusted
-.B "based on the total number of jobs
+.B "based on the total number of jobs"
 run by the current group of running
 .B make
 programs.
@@ -5250,35 +5250,35 @@ invokes the shell with the
 argument. This cannot be
 inferred from the syntax of the rule alone.
 
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 This version of
 .BR make (1)
-was originally written by Sun Microsystems in 1986.
-Since 2016, it is maintained by J\*org Schilling.
-.br
-.ne 8
+was originally written by Sun Microsystems in 1986. Since 2016, it has
+been maintained by J\*org Schilling and the schilytools project
+authors.
+
 .SH "SOURCE DOWNLOAD"
-The source code for the
+The source code for
 .B SunPro Make
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily SunPro Make project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/sunpromake.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

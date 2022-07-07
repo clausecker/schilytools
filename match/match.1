@@ -27,7 +27,7 @@ match
 .I file \.\|.\|.
 ]
 .SH DESCRIPTION
-. \" .SH BESCHREIBUNG
+
 .I Match
 searches the named files or standard input (if no filenames are given)
 for the occurrences of the given pattern on each line.
@@ -39,7 +39,7 @@ When you do not specify a file, match can be used as a filter to display
 desired lines.
 Standard in is used if no files are specified.
 .SH OPTIONS
-. \" .SH OPTIONEN
+
 .TP
 .BI \-not ", " \-v
 Prints all lines that do not match.
@@ -171,20 +171,52 @@ Matches the beginning of a line.
 .TP
 .B $
 Matches the end of a line. (\|^*$ matches any entire line)
-. \" .SH EXAMPLES
-.SH EXAMPLES
-. \" .SH BEISPIELE
-.SH FILES
-None.
-. \" Keine.
+
+.\" .SH EXAMPLES
+.\" .SH FILES
+
 .SH "SEE ALSO"
 grep(1), fgrep(1), egrep(1)
-.SH DIAGNOSTICS
-. \" .SH NOTES
+.\" .SH DIAGNOSTICS
+
 .SH NOTES
-. \" .SH BEMERKUNGEN
+
 Even if a match occurs more than once per line, the line is output only once.
 .PP
 Quote special pattern matching characters to prevent them from
 being expanded by the Command Interpreter.
+
 .SH BUGS
+
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B match
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

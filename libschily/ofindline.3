@@ -20,12 +20,12 @@ ofindline() \- finds a line with a matching field
 .nf
 .B
 int ofindline(f,delim,string,field,array,arraysize)
-.B	FILE *f;
-.B	char delim;
-.B	char *string;
-.B	int field;
-.B	char *array[];
-.B	int arraysize;
+.B		FILE *f;
+.B		char delim;
+.B		char *string;
+.B		int  field;
+.B		char *array[];
+.B		int  arraysize;
 .fi
 .SH DESCRIPTION
 ofindline() retrieves a line from an open file that has a
@@ -54,5 +54,5 @@ findline_arg_err is handled and the handler returns.
 not enough memory to allocate space for files.
 Returned only if the condition findline_storage is
 handled and the handler returns.
-.SH NOTES
-none
+.\" .SH NOTES
+.\" none

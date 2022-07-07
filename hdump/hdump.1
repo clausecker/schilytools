@@ -79,18 +79,18 @@ hexadecimal unless otherwise specified (see options below).
 .PP
 .B Hdump 
 assumes the 
-.I "starting_address
+.I "starting_address"
 and the 
 .I count 
 are in decimal unless there is a leading 0--interpreted as octal, or a leading
 0x--interpreted as hexadecimal (as in C).
 If the 
-.I "starting_address
+.I "starting_address"
 is followed by a
 .IR 'b' ,
 the number is multiplied by 512,
 if the 
-.I "starting_address
+.I "starting_address"
 is followed by a
 .IR 'B' ,
 the number is multiplied by 512.
@@ -112,7 +112,7 @@ A decimal radix of the label will be displayed if the
 is followed by a dot.
 .LP
 If the
-.I "starting address
+.I "starting address"
 is odd, it is rounded down
 to the next even value.
 .LP
@@ -128,7 +128,7 @@ man page.
 
 .SH OPTIONS
 .TP 10
-.BI \-A " radix
+.BI \-A " radix"
 Select the radix used for address labels. The following values are supported:
 .RS
 .TP
@@ -179,7 +179,7 @@ Display content longs as floats
 .B \-F
 Display content double longs as doubles
 .TP
-.BI \-j " skip
+.BI \-j " skip"
 Seek or skip
 .I skip
 bytes before starting to dump.
@@ -193,7 +193,7 @@ Display content as
 instead of using the default size
 .BR short .
 .TP
-.BI \-N " count
+.BI \-N " count"
 Stop after dumping
 .B count
 bytes.
@@ -220,7 +220,7 @@ This is equivalent to -t d2.
 Interprets long words in signed decimal.
 This is equivalent to -t d4.
 .TP
-.BI \-t " format
+.BI \-t " format"
 .RS
 .TP
 .B a
@@ -310,9 +310,41 @@ version number string and exists.
 .PP
 Address label radix depends on starting address radix (decimal if ends with .)
 \&'b' or 'B' after starting address multiplies with 512.
-
-.SH "SEE ALSO
+.SH "SEE ALSO"
 .BR od (1).
-
-.SH NOTES
-none
+.\" .SH NOTES
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.B
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B hdump
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/releases

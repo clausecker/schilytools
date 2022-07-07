@@ -26,8 +26,8 @@ isodebug
 .I file
 ]
 .SH DESCRIPTION
-.B Isodebug
-reads the debug info written by 
+.B isodebug
+reads the debug info written by
 .BR mkisofs (8)
 from within a ISO-9660 file system image and prints them.
 . \" .SH RETURNS
@@ -44,7 +44,7 @@ Prints the
 .B isodebug
 version number string and exists.
 .TP
-.BI \-i " filename
+.BI \-i " filename"
 Filename to read ISO-9660 image from.
 .TP
 .BI \-ignore\-error
@@ -60,102 +60,60 @@ SCSI target to use as CD/DVD-Recorder.
 See
 .BR cdrecord (1)
 for more information on now to use this option.
-.SH EXAMPLES
-.SH ENVIRONMENT
-.SH FILES
+.\" .SH EXAMPLES
+.\" .SH ENVIRONMENT
+.\" .SH FILES
 .SH "SEE ALSO"
 .BR cdrecord (1),
 .BR scg (7),
 .BR mkisofs (8).
-.SH DIAGNOSTICS
-.SH NOTES
+.\" .SH DIAGNOSTICS
+.\" .SH NOTES
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at
+.PP
 .nf
-J\*org Schilling
-D-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Additional information can be found on:
-.br
-http://cdrecord.org/private/cdrecord.html
-.PP
-If you have support questions, send them to:
-.PP
-.B
-cdrtools-support@lists.sourceforge.net
-
-.PP
-If you have definitely found a bug, send a mail to:
-.PP
-.B
-cdrtools-developers@lists.sourceforge.net
-.br
-or
-.B
-joerg@schily.net
-.PP
-To subscribe, use:
-.PP
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
-.br
-or
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-support
-.br
-.ne 7
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
 .SH "SOURCE DOWNLOAD"
-A frequently updated source code for the
+The source code for the
 .B cdrtools
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/
+https://codeberg.org/schilytools/schilytools/
 .LP
 The download directory is:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Less frequently updated source code for the
-.B cdrtools
-is at:
-.LP
-.B
-    http://sourceforge.net/projects/cdrtools/files/
-.LP
-and
-.B
-    http://sourceforge.net/projects/cdrtools/files/alpha
-.LP
-Separate project information for the
-.B cdrtools
-project may be retrieved from:
-.LP
-.B
-    http://cdrecord.org
-.br
-.ne 7
-.SH "INTERFACE STABILITY
-The interfaces provided by 
-.B readcd
+https://codeberg.org/schilytools/schilytools/releases
+
+.SH "INTERFACE STABILITY"
+The interfaces provided by
+.B isodebug
 are designed for long term stability.
 As
-.B readcd
+.B isodebug
 depends on interfaces provided by the underlying operating system,
 the stability of the interfaces offered by
-.B readcd
-depends on the interface stability of the OS interfaces. 
+.B isodebug
+depends on the interface stability of the OS interfaces.
 Modified interfaces in the OS may enforce modified interfaces
-in 
-.BR readcd .
+in
+.BR isodebug .

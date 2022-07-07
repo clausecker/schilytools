@@ -19,7 +19,7 @@ smt \- magnetic tape control
 .SH SYNOPSIS
 .B smt
 [
-.BI \-f " tapename
+.BI \-f " tapename"
 ]
 .I command
 [
@@ -54,9 +54,9 @@ version number string and exists.
 .B \-debug
 print additional debug messages.
 .TP
-.BI \-f " tapename
+.BI \-f " tapename"
 .TP
-.BI \-t " tapename
+.BI \-t " tapename"
 Set the raw tape device to use, otherwise
 .B smt
 uses a system specific default for the rtape device.
@@ -147,7 +147,7 @@ This command may be run remotely with any BSD compliant old rmt server.
 Absolute FILE mark positioning to file number
 .IR count .
 This is equivalent to a rewind followed by a
-.BI fsf " count.
+.BI fsf " count."
 .sp
 A RMT version 1 server is needed to run this command on a remote tape drive.
 .TP
@@ -237,7 +237,7 @@ supports symbolic open modes as the command needs the
 flag to succeed.
 .sp
 A RMT version 1 server is needed to run this command on a remote tape drive.
-.SH EXAMPLES
+.\" .SH EXAMPLES
 .SH ENVIRONMENT
 .TP
 .B RSH
@@ -283,7 +283,7 @@ option pas been specified, the default tape name is taken from the
 .B TAPE
 environment.
 
-.SH FILES
+.\" .SH FILES
 .SH "SEE ALSO"
 .BR spax (1), 
 .BR suntar (1), 
@@ -302,7 +302,7 @@ environment.
 .BR star (1),
 .BR star (4/5),
 .BR rcmd (3),
-.SH DIAGNOSTICS
+.\" .SH DIAGNOSTICS
 .SH NOTES
 If the remote tape server is running Linux and the remote tape server on
 such a system is not the rmt server that comes with 
@@ -314,15 +314,36 @@ magnetic tape op codes and only the rmt server from
 maps to standard values.
 The standard rmt server on Linux for this reason may not be called
 BSD compliant.
+
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+
+.SH AUTHOR
+J\*org Schilling and the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B smt
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

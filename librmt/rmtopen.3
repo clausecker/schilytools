@@ -16,15 +16,8 @@
 .TH RMTOPEN 3L "2020/09/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
+.RB ( -lrmt )
 .SH SYNOPSIS
-.LP
-.B cc
-.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
-.B \-lrmt
-.B \-lsocket
-.B \-lnsl
-.RI "[ " "library" " \|.\|.\|. ]"
-.LP
 .nf
 .B
 #include <schily/librmt.h>
@@ -127,7 +120,7 @@ are the values that should be filled into
 See
 .B mtio(7)
 for more information.
-.SH RETURNS
+.SH "RETURN VALUES"
 .TP
 .B rmtopen()
 returns a value >= 0 if the remote open succeeds.
@@ -188,7 +181,7 @@ if (rmtread(remfd, buf, sizeof(buf)) < 0)
 rmtclose(remfd);
 .fi
 \fP
-.SH ENVIRONMENT
+.\".SH ENVIRONMENT
 .\".SH FILES
 .SH "SEE ALSO"
 .BR rmt (1),
@@ -215,7 +208,7 @@ rmtclose(remfd);
 .BR errmsgno (3),
 .BR mtio (7)
 
-.SH DIAGNOSTICS
+.\" .SH DIAGNOSTICS
 .SH NOTES
 While all other known
 .B rmt
@@ -248,6 +241,18 @@ server.
 If local and remote
 .B errno
 values do not match, programs may get confused.
+.PP
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHOR
 .LP
 .B librmt
@@ -256,15 +261,20 @@ In 1995, support for
 .B RMT VERSION 1
 has been added.
 .B librmt
-is still maintained by J\*org Schilling.
+is now maintained by the schilytools project authors.
 .LP
-.nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B librmt
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

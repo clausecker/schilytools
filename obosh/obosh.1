@@ -584,8 +584,8 @@ Escaping grave accents allows nested command substitution.
 If the command
 substitution lies within a pair of double quotes (\c
 .B
-" .\|.\|.\|` .\|.\|.\|` \&.\|.\|.\| "\c
-), a backslash used to escape a double quote (\fB\e"\fR) is
+" .\|.\|.\|` .\|.\|.\|` \&.\|.\|.\| "
+), a backslash used to escape a double quote (\fB\e"\fR) is \" "
 removed. Otherwise, it is left intact.
 .sp
 .LP
@@ -600,7 +600,7 @@ command string before it is read, inserting a backslash to escape a dollar
 sign has no effect. Backslashes that precede characters other than
 .BR \e ,
 .BR ` ,
-\fB"\fR,
+\fB"\fR, \" "
 .BR newline ,
 and
 .B $
@@ -846,7 +846,7 @@ is not set or is null:
 .sp
 .in +2
 .nf
-.B "echo  ${d:\(mi`pwd`}
+.B "echo  ${d:\(mi`pwd`}"
 .fi
 .in -2
 .sp
@@ -1434,7 +1434,7 @@ The following characters have a special meaning to the shell and cause
 termination of a word unless quoted:
 .sp
 .LP
-.B ";  &  (  )  |  ^  <  >  newline  space  tab
+.B ";  &  (  )  |  ^  <  >  newline  space  tab"
 .sp
 .LP
 A character can be
@@ -1538,7 +1538,7 @@ it with one or more assignments to parameters. Thus:
 .sp
 .in +2
 .nf
-.BI TERM=450 " command
+.BI TERM=450 " command"
 .fi
 .in -2
 .sp
@@ -1566,7 +1566,7 @@ is a Special Command, then
 .sp
 .in +2
 .nf
-.BI TERM=450 " command
+.BI TERM=450 " command"
 .fi
 .in -2
 .sp
@@ -1585,7 +1585,7 @@ flag is set,
 keyword arguments are placed in the
 environment, even if they occur after the command name. The following
 example first prints
-.B "a=b c
+.B "a=b c"
 and
 .BR c :
 .sp
@@ -1725,7 +1725,7 @@ No effect; the command does nothing. A zero exit code is returned.
 .br
 .ne 3
 .TP
-.BI "+ \&." " filename
+.BI "+ \&." " filename"
 .sp
 Read and execute commands from
 .I filename
@@ -1739,7 +1739,7 @@ is used to find the directory containing
 .ne 4
 .HP
 .B [
-.RI [ expr "] ]
+.RI [ expr "] ]"
 .sp .6
 See
 .B test
@@ -2355,7 +2355,7 @@ those that precede the command name.
 Switch job control mode on.
 All jobs are run in their own process groups. 
 See section
-.B "Job Control (jsh)
+.B "Job Control (jsh)"
 below.
 
 .br
@@ -2488,7 +2488,7 @@ shell).
 .br
 .ne 3
 .TP
-.BI test " [expr]
+.BI test " [expr]"
 .sp .6
 Evaluate conditional expressions. See
 .BR test (1)
@@ -2509,7 +2509,7 @@ The following primaries are used to evaluate a
 .br
 .ne 3
 .TP 10
-.BI \-b " file
+.BI \-b " file"
 .B True
 if
 .I file
@@ -2518,7 +2518,7 @@ exists and is a block special file.
 .br
 .ne 3
 .TP
-.BI \-c " file
+.BI \-c " file"
 .B True
 if
 .I file
@@ -2526,7 +2526,7 @@ exists and is a character special file.
 .br
 .ne 3
 .TP
-.BI \-d " file
+.BI \-d " file"
 .B True
 if
 .I file
@@ -2534,7 +2534,7 @@ exists and is a directory.
 .br
 .ne 3
 .TP
-.BI \-f " file
+.BI \-f " file"
 .B True
 if
 .I file
@@ -2556,7 +2556,7 @@ if file exists and is
 .br
 .ne 3
 .TP
-.BI \-g " file
+.BI \-g " file"
 .B True
 if
 .I file
@@ -2566,7 +2566,7 @@ flag is set.
 .br
 .ne 3
 .TP
-.BI \-h " file
+.BI \-h " file"
 .B True
 if
 .I file
@@ -2574,7 +2574,7 @@ exists and is a symbolic link.
 .br
 .ne 3
 .TP
-.BI \-k " file
+.BI \-k " file"
 .B True
 if
 .I file
@@ -2584,7 +2584,7 @@ set.
 .br
 .ne 3
 .TP
-.BI \-L " file
+.BI \-L " file"
 .B True
 if
 .I file
@@ -2592,14 +2592,14 @@ exists and is a symbolic link.
 .br
 .ne 3
 .TP
-.BI \-n " string
+.BI \-n " string"
 .B True
 if the length of
 .I string
 is non-zero.
 .br
 .ne 3
-.BI \-p " file
+.BI \-p " file"
 .B True
 if
 .I file
@@ -2608,7 +2608,7 @@ exists and is a named pipe
 .br
 .ne 3
 .TP
-.BI \-r " file
+.BI \-r " file"
 .B True
 if
 .I file
@@ -2616,7 +2616,7 @@ exists and is readable.
 .br
 .ne 3
 .TP
-.BI \-s " file
+.BI \-s " file"
 .B True
 if
 .I file
@@ -2624,7 +2624,7 @@ exists and has a size greater then zero.
 .br
 .ne 3
 .TP
-.BI \-t " [file-descriptor]
+.BI \-t " [file-descriptor]"
 .B True
 if the file whose file descriptor number is
 .I file-descriptor
@@ -2637,7 +2637,7 @@ is used as a default value.
 .br
 .ne 3
 .TP
-.BI \-u " file
+.BI \-u " file"
 .B True
 if
 .I file
@@ -2647,7 +2647,7 @@ flag is set.
 .br
 .ne 3
 .TP
-.BI \-w " file
+.BI \-w " file"
 .B True
 if
 .I file
@@ -2655,7 +2655,7 @@ exists and is writable.
 .br
 .ne 3
 .TP
-.BI \-x " file
+.BI \-x " file"
 .B True
 if
 .I file
@@ -2665,7 +2665,7 @@ If file is a directory, true indicates that file can be searched.
 .br
 .ne 3
 .TP
-.BI \-z " string
+.BI \-z " string"
 .B True
 if the length of
 .I string
@@ -3216,7 +3216,7 @@ Where
 .I pref
 is a unique prefix of the command name. For example, if
 the command
-.BI "ls \-l" " name
+.BI "ls \-l" " name"
 were running in the background, it
 could be referred to as
 .BR %ls .
@@ -3498,7 +3498,7 @@ creates a file named
 .BR a* .
 .LP
 The built-in command
-.BI . " file
+.BI . " file"
 reads the whole file before any commands are executed.
 When a command substitution, a set of commands from
 .BR eval ,
@@ -3572,9 +3572,9 @@ as in the following example:
 
 .sp
 .LP
-If you get the error message, "\c
-.B "cannot fork, too many processes\c
-", try using the
+If you get the error message,
+.B "'cannot fork, too many processes'" ,
+try using the
 .BR wait (1)
 command to clean up your background processes. If
 this doesn't help, the system process table is probably full or you have too
@@ -3625,8 +3625,21 @@ When the shell executes a shell script that attempts to execute a
 non-existent command interpreter, the shell returns an erroneous diagnostic
 message that the shell script file does not exist.
 
-.br
-.ne 5
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 The
 .B Bourne Shell
@@ -3637,7 +3650,8 @@ The
 was later maintained by various people at AT&T and Sun Microsystems.
 Since 2006, the
 .B Bourne Shell
-is maintained by J\*org Schilling.
+has been maintained by J\*org Schilling and the schilytools project
+authors.
 
 .SH "SOURCE DOWNLOAD"
 The source code for the
@@ -3646,21 +3660,10 @@ is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily Bourne Shell project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/bosh.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

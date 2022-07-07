@@ -301,7 +301,7 @@ implementation-defined which devices on the system support
 appending. Additional file formats unspecified by this volume
 of IEEE Std 1003.1-2001 may impose restrictions on appending.
 .TP
-.BI \-b " blocksize
+.BI \-b " blocksize"
 Block the output at a positive decimal integer number of
 bytes per write to the archive file. Devices and archive
 formats may impose restrictions on blocking. Blocking shall
@@ -323,7 +323,7 @@ to match only the file or archive member itself and not the
 file hierarchy rooted at the file.
 .\".....XXX Ab hier noch nicht fertig
 .TP
-.BI \-f " archive
+.BI \-f " archive"
 Specify the pathname of the input or output archive,
 overriding the default standard input (in 
 .B list
@@ -418,7 +418,7 @@ operand. No more than one archive member shall be matched for
 each pattern (although members of type directory shall still
 match the file hierarchy rooted at that file).
 .TP
-.BI \-o " options
+.BI \-o " options"
 Provide information to the implementation to modify the
 algorithm for extracting or writing files. The value of
 options shall consist of one or more comma-separated keywords
@@ -461,7 +461,7 @@ supported for the file formats as indicated:
 .TP
 .BI delete= pattern
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) When used in
 write or copy mode, 
 .B pax 
@@ -484,7 +484,7 @@ for extended header record keyword
 usage.
 .PP
 When multiple 
-.BI "\-o delete=" pattern 
+.BI "\-o delete=" pattern
 options are specified,
 the patterns shall be additive; all keywords matching
 the specified string patterns shall be omitted from
@@ -495,7 +495,7 @@ produces.
 .TP
 .BI exthdr.name= string
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) This keyword
 allows user control over the name that is written into
 the ustar header blocks for the extended header produced
@@ -538,7 +538,7 @@ the following default value:
 .TP
 .BI globexthdr.name= string
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) When used in
 write or copy mode with the appropriate options, 
 .B pax
@@ -594,7 +594,7 @@ use /tmp.
 .TP
 .BI invalid= action
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) This keyword
 allows user control over the action 
 .B pax 
@@ -681,10 +681,10 @@ is specified,
 .B pax 
 shall act as
 if 
-.B "\-o invalid= bypass 
+.B "\-o invalid= bypass"
 were specified. Any overwriting of
 existing files that may be allowed by the 
-.B "\-o invalid=
+.B "\-o invalid="
 actions shall be subject to permission(\fB\-p\fR) and
 modification time (\fB\-u\fR) restrictions, and shall be
 suppressed if the 
@@ -694,7 +694,7 @@ option is also specified.
 .TP
 .B linkdata
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) In write mode,
 .B pax 
 shall write the contents of a file to the archive
@@ -718,7 +718,7 @@ string, evaluated in command line order.
 .TP
 .B times
 (Applicable only to the 
-.B "\-x pax 
+.B "\-x pax"
 format.) When used in
 write or copy mode, 
 .B pax 
@@ -727,13 +727,13 @@ extended header records for each file. See
 .BR "pax Extended Header File Times" .
 .PP
 In addition to these keywords, if the 
-.B "\-x pax 
+.B "\-x pax"
 format is
 specified, any of the keywords and values defined in 
 .BR "pax Extended Header" ,
 including implementation extensions, can be
 used in 
-.BI \-o " option-arguments\fR,
+.BI \-o " option-arguments\fR,"
 in either of two modes:
 .TP
 .BI keyword= value
@@ -770,7 +770,7 @@ archive is described in
 .BR "pax Extended Header Keyword Precedence" .
 .RE
 .TP
-.BI \-p " string
+.BI \-p " string"
 Specify one or more file characteristic options (privileges).
 The string option-argument shall be a string specifying file
 characteristics to be retained or discarded on extraction.
@@ -835,11 +835,11 @@ deleted.
 If file characteristic letters in any of the string
 option-arguments are duplicated or conflict with each other,
 the ones given last shall take precedence. For example, if 
-.B "\-p eme
+.B "\-p eme"
 is specified, file modification times are preserved.
 .RE
 .TP
-.BI \-s " replstr
+.BI \-s " replstr"
 Modify file or archive member names named by pattern or file
 operands according to the substitution expression replstr,
 using the syntax of the ed utility. The concepts of "address"
@@ -900,7 +900,7 @@ In list mode, produce a verbose table of contents (see the
 STDOUT section). Otherwise, write archive member pathnames to
 standard error (see the STDERR section).
 .TP
-.BI \-x " format
+.BI \-x " format"
 Specify the output archive format. The 
 .B pax 
 utility shall
@@ -947,7 +947,7 @@ format is specified,
 .B pax 
 shall behave
 as if 
-.B "\-x pax
+.B "\-x pax"
 were specified.
 .RE
 .TP
@@ -1015,7 +1015,7 @@ shall not
 consider a file selected unless it is newer than the file to which
 it is compared.
 
-.SS "List Mode Format Specifications
+.SS "List Mode Format Specifications"
 
 .PP
 The manual page for
@@ -1248,7 +1248,7 @@ shall be an archive file.
 .PP
 Otherwise, the standard input shall not be used.
 
-.SH "INPUT FILES
+.SH "INPUT FILES"
 .PP
 The input file named by the 
 .I archive 
@@ -1262,7 +1262,7 @@ The file
 shall be used to write prompts and read
 responses.
 
-.SH "ENVIRONMENT VARIABLES
+.SH ENVIRONMENT
 .PP
 The following environment variables shall affect the execution of
 .BR pax :
@@ -1329,7 +1329,7 @@ strings when the
 option is specified. If TZ is unset or
 null, an unspecified default timezone shall be used.
 
-.SH "ASYNCHRONOUS EVENTS
+.SH "ASYNCHRONOUS EVENTS"
 .PP
 Default.
 
@@ -1447,7 +1447,7 @@ is in
 mode or 
 .B list 
 mode, using the 
-.B "\-x pax 
+.B "\-x pax"
 archive
 format, and a filename, link name, owner name, or any other field
 in an extended header record cannot be translated from the 
@@ -1460,7 +1460,7 @@ error, shall process the file as described for the
 .B \-o invalid=
 option, and then shall process the next file in the archive.
 
-.SH "OUTPUT FILES
+.SH "OUTPUT FILES"
 .PP
 In 
 .B read 
@@ -1487,14 +1487,14 @@ shall be a file formatted according to one of the specifications
 in the EXTENDED DESCRIPTION section, or some other
 implementation-defined format.
 
-.SH "EXTENDED DESCRIPTION
+.SH "EXTENDED DESCRIPTION"
 .PP
-.SS "pax Interchange Format
+.SS "pax Interchange Format"
 .PP
 A
 .B pax 
 archive tape or file produced in the 
-.B "\-x pax 
+.B "\-x pax"
 format shall
 contain a series of blocks. The physical layout of the archive
 shall be identical to the 
@@ -1565,7 +1565,7 @@ _	End of Archive Indicator
 Block of binary Zeroes
 .TE
 
-.SS "pax Header Block
+.SS "pax Header Block"
 .PP
 The
 .B pax
@@ -1624,11 +1624,11 @@ blocks for files of
 (the digit one) (hard link) may be
 included, which means that the size field may be greater than
 zero. Archives created by 
-.B "pax \-o linkdata 
+.B "pax \-o linkdata"
 shall include these data
 blocks with the hard links.
 
-.SS "pax Extended Header
+.SS "pax Extended Header"
 .PP
 A 
 .B pax 
@@ -2000,10 +2000,10 @@ considered data for the field. None of the length limitations of
 the
 .B ustar 
 header block fields in 
-.B "ustar Header Block 
+.B "ustar Header Block"
 shall apply to the extended header records.
 
-.SS "pax Extended Header Keyword Precedence
+.SS "pax Extended Header Keyword Precedence"
 .PP
 This section describes the precedence in which the various header
 records and fields and command line options are selected to apply
@@ -2067,7 +2067,7 @@ Otherwise, the attribute shall be determined from the
 header block.
 .RE
 
-.SS "pax Extended Header File Times
+.SS "pax Extended Header File Times"
 .PP
 The 
 .B pax 
@@ -2114,7 +2114,7 @@ that the same time shall be recovered if the file is extracted on
 a system whose underlying implementation supports the same time
 granularity.
 
-.SS "ustar Interchange Format
+.SS "ustar Interchange Format"
 A 
 .B ustar 
 archive tape or file shall contain a series of logical
@@ -2131,9 +2131,9 @@ indicator.
 .PP
 The logical records may be grouped for physical I/O operations, as
 described under the 
-.BI \-b " blocksize 
+.BI \-b " blocksize"
 and
-.BI \-x " ustar 
+.BI \-x " ustar"
 options. Each group
 of logical records may be written with a single operation
 equivalent to the 
@@ -2489,7 +2489,7 @@ and
 .I gid 
 fields.
 
-.SS "cpio Interchange Format
+.SS "cpio Interchange Format"
 .PP
 The octet-oriented 
 .B cpio 
@@ -2538,7 +2538,7 @@ c_name	c_namesize	Pathname string
 c_filedata	c_filesize	Data
 .TE
 .PP
-.SS "cpio Header
+.SS "cpio Header"
 .PP
 For each file in the archive, a header as defined previously shall
 be written. The information in the header fields is written as
@@ -2657,7 +2657,7 @@ terminating NUL character.
 Contains the length of the file in octets. This shall be the
 length of the data section following the header structure.
 
-.SS "cpio Filename
+.SS "cpio Filename"
 .PP
 The 
 .I c_name 
@@ -2726,7 +2726,7 @@ mode flags in the archive format are not mentioned elsewhere
 in this volume of IEEE Std 1003.1-2001. If the implementation
 does not support those flags, they may be ignored.
 
-.SS "cpio Special Entries
+.SS "cpio Special Entries"
 .PP
 FIFO special files, directories, and the trailer shall be recorded
 with 
@@ -2742,17 +2742,17 @@ shall indicate the end of the
 archive; the contents of octets in the last block of the archive
 following such a header are undefined.
 
-.SH "EXIT STATUS
+.SH "EXIT STATUS"
 .PP
 The following exit values shall be returned:
 .TP
-.B " 0
+.B " 0"
 All files were processed successfully.
 .TP
 .B >0
 An error occurred.
 
-.SH "CONSEQUENCES OF ERRORS
+.SH "CONSEQUENCES OF ERRORS"
 .PP
 If 
 .B pax 
@@ -2787,7 +2787,7 @@ times.
 .RU
 .HD "The following sections are informative."
 
-.SH "APPLICATION USAGE
+.SH "APPLICATION USAGE"
 .PP
 Caution is advised when using the 
 .B \-a 
@@ -2844,7 +2844,7 @@ may seem complex, there are really two modes that are most
 commonly used:
 .TP
 .B \-p e
-``Preserve everything". This would be used by the historical
+"Preserve everything". This would be used by the historical
 superuser, someone with all the appropriate privileges, to
 preserve all aspects of the files as they are recorded in the
 archive. The 
@@ -2856,7 +2856,7 @@ and
 and other implementation-defined attributes.
 .TP
 .B \-p p
-``Preserve" the file mode bits. This would be used by the
+"Preserve" the file mode bits. This would be used by the
 user with regular privileges who wished to preserve aspects
 of the file other than the ownership. The file times are
 preserved by default, but two other flags are offered to
@@ -2944,13 +2944,13 @@ Using the options:
 overrides the default output description in Standard Output and
 instead writes:
 .PP
-.B "/usr/foo/bar \-> /tmp   1492
+.B "/usr/foo/bar \-> /tmp   1492"
 .br
-.B "/usr/fo
+.B "/usr/fo"
 .br
-.B "Jan 12 1991
+.B "Jan 12 1991"
 .br
-.B "Jan 31 15:53
+.B "Jan 31 15:53"
 
 .SH RATIONALE
 .PP
@@ -3087,7 +3087,7 @@ pathnames stored in the archive. When
 .BR copy " (" \-rw )
 mode (copying directory hierarchies), the ability to use
 extensions from the 
-.BI \-x " pax 
+.BI \-x " pax"
 format overcomes these restrictions.
 .PP
 The default blocksize value of 5120 bytes for 
@@ -3255,7 +3255,7 @@ period and the empty line) are historical practice in
 .BR cpio .
 .PP
 In early drafts, a 
-.BI \-e " charmap
+.BI \-e " charmap"
 option was included to increase
 portability of files between systems using different coded
 character sets. This option was omitted because it was apparent
@@ -3347,7 +3347,7 @@ Conversion specifiers were added to generate existing known types
 used for 
 .BR ls (1).
 
-.SS "pax Interchange Format
+.SS "pax Interchange Format"
 .PP
 The new POSIX data interchange format was developed primarily to
 satisfy international concerns that the 
@@ -3491,7 +3491,7 @@ reductions by eliminating redundant information. Thus, the text
 warns against using the global method for unreliable media and
 provides a method for implanting global information in the
 extended header for each file, rather than in the
-.IB typeflag " g
+.IB typeflag " g"
 records.
 .PP
 No facility for data translation or filtering on a per-file basis
@@ -3656,11 +3656,11 @@ fact that there is no
 .B pax 
 option that would force this mixed case
 on output. (When 
-.BI \-o " linkdata 
+.BI \-o " linkdata"
 is used, the output must contain the
 duplicate data, but the implementation is free to include it or
 omit it when 
-.BI \-o " linkdata 
+.BI \-o " linkdata"
 is not used.)
 .PP
 The time values are included as extended header records for those
@@ -3690,9 +3690,9 @@ and
 .I ctime 
 for symmetry. The atime access
 time restored to the file system will be affected by the 
-.BI \-p " a
+.BI \-p " a"
 and
-.BI \-p " e
+.BI \-p " e"
 options. The 
 .I ctime 
 creation time (actually 
@@ -3730,20 +3730,20 @@ implementations are not restricted in timing or sequencing the
 restoration of such, provided the results are as specified.
 .PP
 Much of the text describing the extended headers refers to use in
-"\fBwrite\fP or \fBcopy\fP modes". The 
-.B copy 
-mode references are due to the
-normative text: "The effect of the copy shall be as if the copied
-files were written to an archive file and then subsequently
-extracted ...". There is certainly no way to test whether 
-.B pax 
+"\fBwrite\fP or \fBcopy\fP modes". The
+.B copy
+mode references are due to the normative text: "The effect of the copy
+shall be as if the copied files were written to an archive file and
+then subsequently extracted ...". There is certainly no way to test
+whether
+.B pax
 is
 actually generating the extended headers in 
 .B copy 
 mode, but the
 effects must be as if it had.
 
-.SS "pax Archive Character Set Encoding/Decoding
+.SS "pax Archive Character Set Encoding/Decoding"
 .PP
 There is a need to exchange archives of files between systems of
 different native codesets. Filenames, group names, and user names
@@ -3867,7 +3867,7 @@ UCS4 Hex Encoding	UTF-8 Binary Encoding
 where each '\fIx\fP' represents a bit value from the character being
 translated.
 
-.SS "ustar Interchange Format
+.SS "ustar Interchange Format"
 .PP
 The description of the 
 .B ustar 
@@ -3969,7 +3969,7 @@ anything beyond the existence of and support of such a mode.
 Further extensions are expected to these bits, particularly with
 overloading the set-user-ID and set-group-ID flags.
 
-.SS "cpio Interchange Format
+.SS "cpio Interchange Format"
 .PP
 The reference to appropriate privilege in the 
 .B cpio 
@@ -3980,7 +3980,7 @@ format does not make
 comparable statements.
 .PP
 The model for this format was the historical System V 
-.B "cpio \-c 
+.B "cpio \-c"
 data
 interchange format. This model documents the portable version of
 the 
@@ -3992,7 +3992,7 @@ specific to extensions beyond IEEE Std 1003.1-2001 (for example,
 contiguous files). Because it describes existing practice, there
 is no question of maintaining upwards-compatibility.
 
-.SS "cpio Header
+.SS "cpio Header"
 .PP
 There has been some concern that the size of the 
 .I c_ino 
@@ -4009,7 +4009,7 @@ The name
 .I c_magic 
 is based on historical usage.
 
-.SS "cpio Filename
+.SS "cpio Filename"
 .PP
 For most historical implementations of the 
 .B cpio 
@@ -4035,7 +4035,7 @@ Two values are documented under the
 field values to provide
 for extensibility for known file types:
 .TP
-.B "0110 000
+.B "0110 000"
 Reserved for contiguous files. The implementation may treat
 the rest of the information for this archive like a regular
 file. If this file type is undefined, the implementation may
@@ -4051,7 +4051,7 @@ that does not support extended file types, the
 utility should
 do the best it can with the file and go on to the next.
 
-.SH "FUTURE DIRECTIONS
+.SH "FUTURE DIRECTIONS"
 .PP
 None.
 
@@ -4060,7 +4060,7 @@ None.
 .HD "End of informative sections."
 .RU
 
-.SH "SEE ALSO
+.SH "SEE ALSO"
 .PP
 Shell Command Language, 
 .BR cp (1), 
@@ -4081,11 +4081,11 @@ Interfaces volume of IEEE Std 1003.1-2001,
 .BR utime (2),
 .BR write (2).
 
-.SH "CHANGE HISTORY
+.SH "CHANGE HISTORY"
 .PP
 First released in Issue 4.
 
-.SS "Issue 5
+.SS "Issue 5"
 .PP
 A note is added to the APPLICATION USAGE indicating that the 
 .B cpio
@@ -4093,7 +4093,7 @@ and
 .B tar 
 formats can only support files up to 8 gigabytes in size.
 
-.SS "Issue 6
+.SS "Issue 6"
 .PP
 The 
 .B pax 
@@ -4238,9 +4238,9 @@ field.
 End of quoted text from the POSIX.1-2001 standard.
 . \" .SH RETURNS
 . \" .SH ERRORS
-.SH "OTHER OPTIONS
+.SH "OTHER OPTIONS"
 The following 
-.I "other options
+.I "other options"
 are implemented as extension to the POSIX standard.
 Note that some other
 non-POSIX options are mentioned in
@@ -4273,11 +4273,11 @@ Prints the
 .B spax
 version number string and exists.
 
-.SH EXAMPLES
-.SH ENVIRONMENT
-.SH FILES
-.SH "SEE ALSO"
-.SH DIAGNOSTICS
+.\" .SH EXAMPLES
+.\" .SH ENVIRONMENT
+.\" .SH FILES
+.\" .SH "SEE ALSO"
+.\" .SH DIAGNOSTICS
 .SH NOTES
 .PP
 The Institute of Electrical and Electronics Engineers and The Open Group,
@@ -4298,15 +4298,37 @@ original IEEE and The Open Group Standard, the original IEEE and The
 Open Group Standard is the referee document. The original Standard can
 be obtained online at 
 .BR "http://www.opengroup.org/unix/online.html" .
+
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B spax
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

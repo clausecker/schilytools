@@ -18,6 +18,7 @@
 cpp \- the C language preprocessor
 .SH SYNOPSIS
 .B
+.\" TODO: Consider changing these
 /usr/lib/cpp
 [
 .B \-BCHMpPRT
@@ -82,10 +83,7 @@ reads from standard input and writes to standard output.
 and
 .I output-file
 are used to specify a different input or output for the preprocessor.
-
-
-. \" .SH RETURNS
-. \" .SH ERRORS
+.LP
 .SH OPTIONS
 .TP
 .B \-B
@@ -211,7 +209,7 @@ Replace subsequent instances of the text
 with
 .IR value .
 .TP
-.BI #define " name\fB(\fPargument \fR[,\fP argument\fR] ...\fP\fB )\fP value
+.BI #define " name\fB(\fPargument \fR[,\fP argument\fR] ...\fP\fB )\fP value"
 Replaces each instance of
 .I name
 followed by a parenthesized list of arguments with
@@ -277,8 +275,8 @@ notation,
 .I filename
 is only searched in the list of standard include directories.
 .TP
-.BI #if " constant-expression
-If the 
+.BI #if " constant-expression"
+If the
 .I constant-expression
 yields a non-zero expression, subsequent lines up to a matching
 .BR #else ,
@@ -287,7 +285,7 @@ or
 .B #endif
 appear in the output.
 .TP
-.BI #ifdef " name
+.BI #ifdef " name"
 If
 .I name
 has been defined, subsequent lines up to a matching
@@ -297,7 +295,7 @@ or
 .B #endif
 appear in the output.
 .TP
-.BI #ifndef " name
+.BI #ifndef " name"
 If
 .I name
 has not been been defined, subsequent lines up to a matching
@@ -307,7 +305,7 @@ or
 .B #endif
 appear in the output.
 .TP
-.BI #elif " constant-expression
+.BI #elif " constant-expression"
 If the preceding
 .BR #if ,
 .BR #ifdef ,
@@ -346,12 +344,12 @@ or
 Each such directive must have a matching
 .BR #endif .
 .TP
-.BI #pragma " text
+.BI #pragma " text"
 Forwards the line to the output.
 This is intended to be used by the compiler that uses the related line as
 a way to forward directives.
 .TP
-.BI #error " text
+.BI #error " text"
 Prints
 .I text
 on
@@ -373,7 +371,7 @@ compatible dependency list.
 The output format is the same as with the
 .B \-M
 option.
-.SH "EXIT STATUS
+.SH "EXIT STATUS"
 .LP
 .ne 4
 The following exit codes are returned:

@@ -441,7 +441,7 @@ option. Each change is separated by a line of the form
 .br
 .ne 2
 .TP
-.BI \-U " number
+.BI \-U " number"
 Produces a listing of differences identical to that produced by
 .BR \-u
 with
@@ -480,7 +480,7 @@ be mentioned.
 .br
 .ne 2
 .TP
-.BI \-S " name
+.BI \-S " name"
 Starts a directory
 .B diff
 in the middle, beginning with the file
@@ -565,7 +565,7 @@ contains a file named
 .in +2
 .nf
 example% \c
-.B "diff -r dir1 dir2
+.B "diff -r dir1 dir2"
 Common subdirectories: dir1/x and dir2/x
 
 Only in dir2/x: y
@@ -713,8 +713,21 @@ question did not have a NEWLINE. If the lines are different, they will be
 flagged and output, although the output will seem to indicate they are the
 same.
 
-.br
-.ne 5
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 The
 .BR diff (1)
@@ -722,6 +735,6 @@ program was initially written by Douglas McIlroy at Bell Labs in 1974.
 The SVr4 release was written by various authors at AT&T in 1989.
 The
 .BR diff (1)
-programm was later maintained by various people at AT&T and Sun Microsystems.
-Since 2006, it
-is maintained by J\*org Schilling.
+programm was later maintained by various people at AT&T and Sun
+Microsystems. Since 2006, it has been maintained by J\*org Schilling
+and the schilytools project authors.

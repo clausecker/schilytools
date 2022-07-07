@@ -18,11 +18,11 @@
 .SH NAME
 makefiles \- users guide for compiling projects on different platforms
 .SH SYNOPSIS
-.B "make [target]
+.B "make [target]"
 .br
-.B "gmake [target]
+.B "gmake [target]"
 .br
-.B "smake [target]
+.B "smake [target]"
 .br
 .PP
 Target may be one of:
@@ -218,7 +218,7 @@ The make rules for sub directories
 are located in the file 
 .I rules.dir
 
-.SH "Macros/Variables Used In Rules
+.SH "Macros/Variables Used In Rules"
 .PP
 The following is a description of the most important macros
 used within the make rules.
@@ -232,7 +232,7 @@ the compilation.
 ARCHDIR
 contains the location where object files and make targets will be placed.
 A typical name would be:
-.I "OBJ/sparc\-sunos5\-cc
+.I "OBJ/sparc\-sunos5\-cc"
 .br
 Do not change this macro.
 .
@@ -265,7 +265,7 @@ If you want to add flags to the default value from within a makefile.
 ASOPTX
 may be used if you want to add flags to the assembler flags from the
 command line. Use:
-.B "make 'ASOPTX=value'
+.B "make 'ASOPTX=value'"
 .
 .TP
 C_ARCH
@@ -278,8 +278,8 @@ CCOM
 This macro may be used from the command line to use a different
 c-compiler than the default.
 Use:
-.B "make 'CCOM=gcc'
 to use 
+.B "make 'CCOM=gcc'"
 .I gcc
 for the next run.
 Note: The value of 
@@ -352,7 +352,7 @@ If you want to add flags to the default value from within a makefile.
 COPTX
 may be used if you want to add flags to the c-compiler flags from the
 command line. Use:
-.B "make 'COPTX=value'
+.B "make 'COPTX=value'"
 .
 .TP
 CPPFLAGS
@@ -361,7 +361,7 @@ This macro as well as:
 .IR CPPOPTS " and " CPPOPTX
 are also used when compiling c-programs.
 They should contain only the following flags:
-.IR "\-Dname=value ", " \-Uname " , " 
+.IR "\-Dname=value ", " \-Uname " ,
 .IR \-Idirectory " and " \-Ydirectory .
 .br
 Do not change this macro.
@@ -384,7 +384,7 @@ If you want to add flags to the default value from within a makefile.
 CPPOPTX
 may be used if you want to add flags to the c-preprocessor flags from the
 command line. Use:
-.B "make 'CPPOPTX=value'
+.B "make 'CPPOPTX=value'"
 .
 .TP
 CURDIR
@@ -480,7 +480,7 @@ is used.
 DIRNAME
 this macro needs to be set in the makefile that is located in
 the 
-.I "$(SRCROOT)
+.I "$(SRCROOT)"
 directory.
 The value should be either set to the name of the directory
 where the makefile is located or to 
@@ -566,7 +566,7 @@ this macro contains the kernel/machine architecture for the
 target machine (e.g.
 .IR "sun3 sun4c sun4m sun4u 9000\-725 aviion" ).
 It is set to the output of
-.I "uname \-m
+.I "uname \-m"
 converted to lower case.
 .br
 Do not change this macro.
@@ -577,7 +577,7 @@ this macro contains the kernel/machine architecture for the
 target machine (e.g.
 .IR "sun3 sun4c sun4m sun4u 9000\-725 aviion" ).
 It is set to the output of
-.I "uname \-m
+.I "uname \-m"
 converted to lower case.
 .br
 Do not change this macro unless you want to do a cross compilation.
@@ -613,7 +613,7 @@ If you want to add flags to the default value from within a makefile.
 LDOPTX
 may be used if you want to add flags to the linker flags from the
 command line. Use:
-.B "make 'LDOPTX=value'
+.B "make 'LDOPTX=value'"
 .
 .TP
 LDPATH
@@ -629,7 +629,7 @@ a predefined macro that contains the operating system dependent
 name of a library
 that is needed by programs that read/write kernel virtual memory.
 Add 
-.I "$(LIB_KVM)
+.I "$(LIB_KVM)"
 to your list of libraries (e.g.
 .BR "LIBS= \-lintl $(LIB_KVM)" ),
 if your target uses kvm.
@@ -640,7 +640,7 @@ a predefined macro that contains the operating system dependent
 name of a library
 that is needed by programs that use routines of the math library.
 Add 
-.I "$(LIB_MATH)
+.I "$(LIB_MATH)"
 to your list of libraries (e.g.
 .BR "LIBS= \-lintl $(LIB_MATH)" ),
 if your target uses math subroutines.
@@ -651,7 +651,7 @@ a predefined macro that contains the operating system dependent
 name of a library
 that is needed by programs that use socket calls.
 Add 
-.I "$(LIB_SOCKET)
+.I "$(LIB_SOCKET)"
 to your list of libraries (e.g.
 .BR "LIBS= \-lintl $(LIB_SOCKET)" ),
 if your target uses sockets. Note: this should (for portability reasons)
@@ -672,7 +672,7 @@ this macro contains the machine architecture for the
 target machine (e.g.
 .IR "sun3 sun4 ip22 i86pc i586 9000\-725 aviion" ).
 It is set to the output of
-.I "arch
+.I arch
 converted to lower case.
 On systems, where 
 .I M_ARCH
@@ -720,7 +720,7 @@ You must write your own rule files for that make program.
 If you want to use 
 .IR gmake ,
 you should do
-.B "setenv MAKEPROG gmake
+.B "setenv MAKEPROG gmake"
 before you start
 .I gmake
 or use a shell script that does this job for you.
@@ -1063,7 +1063,7 @@ this macro contains the machine architecture for the
 target machine (e.g.
 .IR "sun3 sun4 ip22 i86pc i586 9000\-725 aviion" ).
 It is set to the output of
-.I "arch
+.I arch
 converted to lower case.
 On systems, where 
 .I M_ARCH
@@ -1165,7 +1165,7 @@ this macro contains the processor architecture for the
 target machine (e.g.
 .IR "mc68020 mc88200 sparc pentium" ).
 It is set to the output of
-.I "uname \-p
+.I "uname \-p"
 converted to lower case.
 On systems, where 
 .I P_ARCH
@@ -1180,7 +1180,7 @@ this macro contains the processor architecture for the
 target machine (e.g.
 .IR "mc68020 mc88200 sparc pentium" ).
 It is set to the output of
-.I "uname \-p
+.I "uname \-p"
 converted to lower case.
 On systems, where 
 .I P_ARCH
@@ -1193,7 +1193,7 @@ Do not change this macro unless you want to do a cross compilation.
 RULESDIR
 the value of this macro must be set before
 the rules file
-.I "$(SRCROOT)/$(RULESDIR/rules.top
+.I "$(SRCROOT)/$(RULESDIR/rules.top"
 is included.
 If you want to test the behavior of a modified version
 of the
@@ -1237,7 +1237,7 @@ this macro contains the relative position to the project's
 source root directory.
 The value of this macro must be set before
 the rules file
-.I "$(SRCROOT)/$(RULESDIR/rules.top
+.I "$(SRCROOT)/$(RULESDIR/rules.top"
 is included.
 .I SRCROOT
 should be set to
@@ -1301,7 +1301,7 @@ will be processed only if
 is called with the target 
 .IR install .
 
-.SH "GETTING STARTED
+.SH "GETTING STARTED"
 .PP
 To set up a new project, first copy the 
 .IR RULES " and " TEMPLATES
@@ -1639,8 +1639,21 @@ before.
 .BR __P_ARCH ,
 
 .SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
 
-.SH "Source Tree Hierarchy
+.SH "Source Tree Hierarchy"
 .LP
 The following outline gives a quick tour through a typical
 source hierarchy:
@@ -1955,14 +1968,21 @@ directory for include files that belong to a specific system
 .ad
 .PD
 
-.SH AUTHOR
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.SH AUTHORS
+The Schily Makefile System was written by J\*org Schilling and is now
+maintained by the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for the
+.B "Schily Makefile System"
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

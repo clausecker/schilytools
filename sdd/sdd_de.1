@@ -25,9 +25,9 @@ sdd
 [
 .I \-flag
 ]
-. \" .SH DESCRIPTION
+
 .SH BESCHREIBUNG
-.I Sdd
+.I sdd
 kopiert den angegebenen Input auf den angegebenen Output und f\*uhrt dabei
 gegebenenfalls spezifizierte Konversionen aus.
 .I Stdin
@@ -45,7 +45,7 @@ und
 .I obs
 wesentlich schneller als
 .I dd.
-. \" .SH OPTIONS
+
 .SH OPTIONEN
 .TP
 .BI if= name
@@ -131,7 +131,7 @@ eingestellt werden k\*onnen.
 Es wird nicht von einer Datei gelesen.
 Diese Option wirkt ähnlich wie if=/dev/zero ist aber schneller,
 weil 
-.B Sdd
+.B sdd
 einen vorbereiteten, gelöschten Puffer verwendet.
 .TP
 .B \-onull
@@ -349,9 +349,9 @@ auf die Platte
 .I sd1
 und erh\*alt dabei das alte Label auf
 .I sd1.
-.SH FILES
-Keine.
-.SH "SEE ALSO"
+.\" .SH DATEIEN
+.\" Keine.
+.SH "SIEHE AUCH"
 dd(1), star(1), rmt(1), tr(1), cp(1), copy(1)
 .SH DIAGNOSTICS
 sdd: Read  f records + p bytes (total of x bytes = d.nnk).
@@ -398,21 +398,22 @@ Gigabytes (1024*1024*1024 Bytes).
 .PP
 Werden zwei Zahlen durch ein `*' oder ein `x' getrennt, dann
 werden die beiden Zahlen miteinander multipliziert.
-.SH "SUID BEMERKUNGEN
+.SH "SUID BEMERKUNGEN"
 Wenn
 .B sdd
-suid root installiert ist, dann kann
+suid root installiert ist, kann
 .B sdd
-Verbindungen zu remote files auch f\*ur nicht non root Benutzer herstellen.
-Dies erfolgt durch Verwendung des
-rcmd(3) Interfaces um eine Verbindung zum rmt(1) Server herzustellen.
+Verbindungen zu Remote Files auch f\*ur nicht-root-Benutzer
+herstellen.  Dies erfolgt durch Verwendung des rcmd(3) Interfaces, um
+eine Verbindung zum rmt(1)-Server herzustellen.
 .PP
-.B Sdd
-stellt die effektive uid zur\*uck auf die reale user id direkt nach dem die
-Verbindung zum remove Server hergestellt wurde d.h. bevor andere Dateien
-ge\*offnet werden.
+.B sdd
+stellt die effektive uid zur\*uck auf die reale user id, direkt
+nachdem die Verbindung zum Remote-Server hergestellt wurde \-
+d.h. bevor andere Dateien ge\*offnet werden.
+
 .SH BUGS
-Die Option
+Die Optionen
 .BI iskip= #
 und
 .BI oskip= #
@@ -429,3 +430,32 @@ Es ist verwirrend, da\*s bei der Angabe des Datensatzz\*ahlers mit der
 Option auch s\*amtliche Zus\*atze, wie bei z.B.
 .BI obs= #
 m\*oglich sind.
+
+.PP
+Andere Bugs und Vorschl\*age bitte an
+.B schilytools@mlists.in-berlin.de
+mailen oder ein Ticket auf
+.BR https://codeberg.org/schilytools/schilytools/issues
+\*offnen.
+.PP
+Die Archive der Mailing-Liste k\*onnen auf
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
+gefunden werden.
+
+.SH AUTOREN
+J\*org Schilling sowie die Autoren des Schilytools-Projektes.
+
+.SH QUELLCODE
+Der Quellcode f\*ur
+.B sdd
+ist im
+.B Schilytools
+Projekt enthalten und kann auf der Projektseite auf Codeberg
+.BR https://codeberg.org/schilytools/schilytools
+heruntergeladen werden.
+.LP
+Releases sind unter
+.BR https://codeberg.org/schilytools/schilytools/releases
+zu finden.

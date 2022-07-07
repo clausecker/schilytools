@@ -688,7 +688,7 @@ Other
 implementations allow no more than 64 bytes.
 .LP
 The possibility to create a debug file by calling
-.BI rmt " file
+.BI rmt " file"
 has been disabled for security reasons.
 If you like to debug
 .B rmt
@@ -729,9 +729,22 @@ a possible intruder could virtually access any path on your system.
 For this reason, 
 .I /../
 is not allowed to appear in a path regardless of the pattern.
+
 .SH BUGS
-.LP
-None known.
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH HISTORY
 .LP
 The 
@@ -754,17 +767,23 @@ and a mapping to work around the non-standard Linux
 .B mtio
 opcodes in the range 0..7 has been added.
 .B rmt
-is still maintained by J\*org Schilling.
+is now maintained by the schilytools project authors.
 .LP
 
-.SH AUTHOR
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.SH AUTHORS
+J\*org Schilling and the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B rmt
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

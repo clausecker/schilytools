@@ -142,7 +142,7 @@ sign, as follows:
 .B +n
 More than n.
 .TP
-.B " n
+.B " n"
 Exactly n.
 .TP
 .B \-n
@@ -151,10 +151,10 @@ Less than n.
 .PP
 The following logical operators are supported:
 .TP
-.B "( )
+.B "( )"
 Group an expression
 .TP
-.B "!
+.B "!"
 Logical NOT
 .TP
 .B \-a
@@ -182,7 +182,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-amin " n
+.BI \-amin " n"
 The parameter
 .I n
 must be a simple number that is evaluated as minutes for the 
@@ -199,7 +199,7 @@ instead.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-atime " n
+.BI \-atime " n"
 If
 .I n
 is a simple number, 
@@ -220,9 +220,9 @@ The letters that are recognised in the time spec are taken from
 .ne 5
 .TP
 .PD 0
-.BI "\-call " "command [argument ...] \e;
+.BI "\-call " "command [argument ...] \e;"
 .TP
-.BI "\-calldir " "command [argument ...] \e;
+.BI "\-calldir " "command [argument ...] \e;"
 .PD
 These primaries are similar to
 .B \-exec
@@ -248,7 +248,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chatime " timespec
+.BI \-chatime " timespec"
 This primary modifies the
 .B time of last access
 of a file in
@@ -263,7 +263,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chctime " timespec
+.BI \-chctime " timespec"
 This primary modifies the
 .B time of last status change
 of a file in
@@ -278,7 +278,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chmtime " timespec
+.BI \-chmtime " timespec"
 This primary modifies the
 .B time of last modification
 of a file in
@@ -293,10 +293,10 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chown " uname
+.BI \-chown " uname"
 .PD 0
 .TP
-.BI \-chown " uid
+.BI \-chown " uid"
 .PD
 This primary modifies the
 .B owner
@@ -308,10 +308,10 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chgrp " gname
+.BI \-chgrp " gname"
 .PD 0
 .TP
-.BI \-chgrp " gid
+.BI \-chgrp " gid"
 .PD
 This primary modifies the
 .B group
@@ -323,7 +323,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-chmod " mode
+.BI \-chmod " mode"
 This primary modifies the
 .B permissions
 of a file in
@@ -366,7 +366,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .ne 5
 .TP
-.BI \-cmin " n
+.BI \-cmin " n"
 The parameter
 .I n
 must be a simple number that is evaluated as minutes for the 
@@ -383,7 +383,7 @@ instead.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-ctime " n
+.BI \-ctime " n"
 If
 .I n
 is a simple number, 
@@ -449,9 +449,9 @@ or an empty plain file.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI "\-exec " "utility_name [argument ...] \e;
+.BI "\-exec " "utility_name [argument ...] \e;"
 .TP
-.BI "\-exec " "utility_name [argument ...] {} +
+.BI "\-exec " "utility_name [argument ...] {} +"
 The end of the primary expression must be punctuated by a
 semicolon or by a plus sign. Only a plus sign that follows an
 argument containing the two characters "{}" punctuates
@@ -539,7 +539,7 @@ names any of the special
 built-in utilities (see Special Built-In Utilities ), the
 results are undefined.
 .TP
-.BI "\-execdir " "utility_name [argument ...] \e;
+.BI "\-execdir " "utility_name [argument ...] \e;"
 Similar to 
 .B \-exec
 but the utility
@@ -562,7 +562,7 @@ This primary always evaluates to false.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-fls  " file
+.BI \-fls  " file"
 This primary is similar to
 .B \-ls
 but it writes the output into 
@@ -589,7 +589,7 @@ to write a diagnostic message and to skip the symbolic link in this case.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-fprint " file
+.BI \-fprint " file"
 This primary is similar to
 .B \-print
 but it writes the output into 
@@ -602,7 +602,7 @@ it is always created, even if the primary was never called.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-fprint0  " file
+.BI \-fprint0  " file"
 This primary is similar to
 .B \-print0
 but it writes the output into 
@@ -612,7 +612,7 @@ similar to
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-fprintnnl  " file
+.BI \-fprintnnl  " file"
 This primary is similar to
 .B \-printnnl
 but it writes the output into 
@@ -622,7 +622,7 @@ similar to
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-fstype " type
+.BI \-fstype " type"
 The primary evaluates as true if the file belongs to a filesystem
 of type
 .IR type .
@@ -633,10 +633,10 @@ with
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-group " gname
+.BI \-group " gname"
 .PD 0
 .TP
-.BI \-group " gid
+.BI \-group " gid"
 .PD
 The primary evaluates as true if the file belongs to the
 group
@@ -650,7 +650,7 @@ gname is interpreted as a group ID.
 .br
 .sp 5
 .TP
-.BI \-ilname " glob
+.BI \-ilname " glob"
 Similar to
 .BR \-lname ,
 but the match is case insensitive.
@@ -659,7 +659,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .sp 5
 .TP
-.BI \-ilpat " pattern
+.BI \-ilpat " pattern"
 Similar to
 .BR \-lpat ,
 but the match is case insensitive.
@@ -668,7 +668,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .sp 5
 .TP
-.BI \-iname " glob
+.BI \-iname " glob"
 Similar to
 .BR \-name ,
 but the match is case insensitive.
@@ -677,7 +677,7 @@ This primary is not mentioned in the POSIX standard.
 .br
 .sp 5
 .TP
-.BI \-inum " #
+.BI \-inum " #"
 The primary evaluates as true if the file's inode number
 .RI ( st_ino )
 matches
@@ -685,28 +685,28 @@ matches
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-ipat " pattern
+.BI \-ipat " pattern"
 Similar to
 .BR \-pat ,
 but the match is case insensitive.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-ipath " glob
+.BI \-ipath " glob"
 Similar to
 .BR \-path ,
 but the match is case insensitive.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-ippat " pattern
+.BI \-ippat " pattern"
 Similar to
 .BR \-ppat ,
 but the match is case insensitive.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-linkedto " path
+.BI \-linkedto " path"
 The primary evaluates as true if the file is liked to
 .I path 
 (i.e. evaluates to the same physical file).
@@ -721,12 +721,12 @@ even when multiple file systems are searched.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-links " #
+.BI \-links " #"
 The primary evaluates as true if the file has 
 .I #
 links.
 .TP
-.BI \-lname " glob
+.BI \-lname " glob"
 The primary evaluates as true if the symbolic link target name of the
 filename being examined matches 
 .I glob
@@ -745,14 +745,14 @@ does not match remote fs types.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-lpat " pattern
+.BI \-lpat " pattern"
 The primary evaluates as true if the symbolic link target name of the
 filename being examined matches 
 .I pattern
 using the pattern
 matching notation described in 
-.BR patcompile "(3),
-.BR patmatch (3) " and
+.BR patcompile "(3),"
+.BR patmatch (3) " and"
 .BR match (1).
 .sp
 This primary is not mentioned in the POSIX standard.
@@ -774,7 +774,7 @@ is identical to that produced by
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-maxdepth " #
+.BI \-maxdepth " #"
 The primary always evaluates as true;
 descend at most
 .I #
@@ -783,12 +783,12 @@ If any
 .B \-maxdepth
 primary is specified, it applies to the entire expression even if it would
 not normally be evaluated.
-.BI \-maxdepth " 0
+.BI \-maxdepth " 0"
 limits the whole search to the command line arguments.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-mindepth " #
+.BI \-mindepth " #"
 The primary always evaluates as true;
 do not apply any tests or actions at levels less than
 .IR # .
@@ -796,7 +796,7 @@ If any
 .B \-mindepth
 primary is specified, it applies to the entire expression even if it would
 not normally be evaluated.
-.BI \-mindepth " 1
+.BI \-mindepth " 1"
 processes all but the command line arguments. 
 .sp
 This primary is not mentioned in the POSIX standard.
@@ -865,7 +865,7 @@ primary is an alias to
 .br
 .ne 5
 .TP
-.BI \-mmin " n
+.BI \-mmin " n"
 The parameter
 .I n
 must be a simple number that is evaluated as minutes for the 
@@ -882,7 +882,7 @@ instead.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-mtime " n
+.BI \-mtime " n"
 If
 .I n
 is a simple number, 
@@ -921,7 +921,7 @@ weeks (7 days)
 years (365 days - a non-leap year)
 .RE
 .TP
-.BI \-name " glob
+.BI \-name " glob"
 The primary evaluates as true if the basename of the
 filename being examined matches 
 .I glob
@@ -931,13 +931,13 @@ matching notation described in Pattern Matching Notation
 .BR fnmatch (2)
 for more information).
 .TP
-.BI \-newer " file
+.BI \-newer " file"
 The primary evaluates as true if the modification time
 of the current file is more recent than the modification time
 of the file named by the pathname
 .IR file .
 .TP
-.BI \-newer "XY file
+.BI \-newer "XY file"
 The primary evaluates as true if the time referred to by
 .I X
 of the current file is more recent than the time referred to by
@@ -1011,7 +1011,7 @@ The primary
 is equivalent to
 .BR \-newer .
 The expression
-.BI \-neweram " path
+.BI \-neweram " path"
 evaluates as true if the last read access time of the current
 file is more recent than the time of the last modification
 of 
@@ -1036,7 +1036,7 @@ function defined in the
 System Interfaces volume of IEEE Std 1003.1-2001 (or
 equivalent) returns NULL.
 .TP
-.BI "\-ok " "utility_name [argument ...] \e;
+.BI "\-ok " "utility_name [argument ...] \e;"
 The
 .B \-ok
 primary is equivalent to 
@@ -1062,7 +1062,7 @@ the
 .B \-ok 
 operand is false.
 .TP
-.BI "\-okdir " "utility_name [argument ...] \e;
+.BI "\-okdir " "utility_name [argument ...] \e;"
 Similar to 
 .B \-ok
 but the utility
@@ -1071,19 +1071,19 @@ provided as a short file name.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-pat " pattern
+.BI \-pat " pattern"
 The primary evaluates as true if the basename of the
 filename being examined matches 
 .I pattern
 using the pattern
 matching notation described in 
-.BR patcompile "(3),
-.BR patmatch (3) " and
+.BR patcompile "(3),"
+.BR patmatch (3) " and"
 .BR match (1).
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-path " glob
+.BI \-path " glob"
 The primary evaluates as true if the full path name of the
 filename being examined matches 
 .I glob
@@ -1095,7 +1095,7 @@ for more information).
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-perm " [-]mode
+.BI \-perm " [-]mode"
 The 
 .I mode
 argument is used to represent file mode bits. It
@@ -1103,7 +1103,7 @@ is identical in format to the
 .I symbolic_mode
 operand
 described in
-.BR chmod "(),
+.BR chmod "(),"
 and is interpreted as follows.
 To start, a template is assumed with all file mode bits
 cleared. An op symbol of '+' sets the appropriate mode
@@ -1125,7 +1125,7 @@ is prefixed by a hyphen, the primary
 evaluates as true if at least all the bits in the resulting
 template are set in the file permission bits.
 .TP
-.BI \-perm " +mode
+.BI \-perm " +mode"
 This usage of the primary 
 .B \-perm 
 evaluates as true if any of the permission bits mode are set for the file.
@@ -1185,16 +1185,16 @@ string to start with
 .RB ' g ',
 .RB ' o '
 for the 
-.BI \-perm " +mode
+.BI \-perm " +mode"
 feature and thus might have been in conflict with POSIX.
 .sp
 This usage of the primary 
 .B \-perm
 is not mentioned in the POSIX standard.
 .TP
-.BI \-perm " /mode
+.BI \-perm " /mode"
 This is an alias for
-.BI \-perm " +mode
+.BI \-perm " +mode"
 but since 
 .RB ' / '
 is not part of the POSIX standard for the symbolic mode, there is no need
@@ -1207,15 +1207,15 @@ This usage of the primary
 .B \-perm
 is not mentioned in the POSIX standard.
 .TP
-.BI \-perm " [-]onum
+.BI \-perm " [-]onum"
 If the hyphen is omitted, the primary evaluates as true
 when the file permission bits exactly match the value of the
 octal number 
 .I onum
 and only the bits corresponding to the
-octal mask 07777 is compared. (See the description of
+octal mask 07777 is compared (See the description of
 the octal mode in
-.BR chmod "() .)
+.BR chmod "())."
 Otherwise, if
 .I onum
 is prefixed
@@ -1225,7 +1225,7 @@ all of the bits specified in
 that are also set in the
 octal mask 07777 are set.
 .TP
-.BI \-perm " +onum
+.BI \-perm " +onum"
 This usage of the primary 
 .B \-perm 
 evaluates as true if any of the mode bits in the octal notation
@@ -1236,23 +1236,23 @@ This usage of the primary
 .B \-perm
 is not mentioned in the POSIX standard.
 .TP
-.BI \-perm " /onum
+.BI \-perm " /onum"
 This is an alias for
-.BI \-perm " +onum
+.BI \-perm " +onum"
 and supported for compatibility reasons.
 .sp
 This usage of the primary 
 .B \-perm
 is not mentioned in the POSIX standard.
 .TP
-.BI \-ppat " pattern
+.BI \-ppat " pattern"
 The primary evaluates as true if the full path name of the
 filename being examined matches 
 .I pattern
 using the pattern
 matching notation described in
-.BR patcompile "(3),
-.BR patmatch (3) " and
+.BR patcompile "(3),"
+.BR patmatch (3) " and"
 .BR match (1).
 .sp
 This primary is not mentioned in the POSIX standard.
@@ -1301,7 +1301,7 @@ this is when st_size > (st_blocks * DEV_BSIZE + DEV_BSIZE).
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-size " n[c]
+.BI \-size " n[c]"
 The primary evaluates as true if the file size in bytes,
 divided by 512 and rounded up to the next integer, is
 .IR n .
@@ -1314,13 +1314,13 @@ bytes.
 If 
 .I n
 is a 
-.B "size expression
+.B "size expression"
 in the form used by
 .BR sdd (1)
 (e.g.
-.BI \-size " 10m
+.BI \-size " 10m"
 or
-.BI \-size " 7x8k\fR)
+.BI \-size " 7x8k\fR)"
 the the size also counts in bytes.
 .TP
 .B \-true
@@ -1328,7 +1328,7 @@ This primary always evaluates to true.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-time " #
+.BI \-time " #"
 An alias for 
 .BR \-mtime ,
 try to avoid. This exists only for
@@ -1338,7 +1338,7 @@ versions.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
-.BI \-type " c
+.BI \-type " c"
 The primary evaluates as true if the type of the file is
 .IR c ,
 where
@@ -1368,10 +1368,10 @@ for the file types
 and
 .BR "event port" .
 .TP
-.BI \-user " uname
+.BI \-user " uname"
 .PD 0
 .TP
-.BI \-user " uid
+.BI \-user " uid"
 .PD
 The primary evaluates as true if the file belongs to the
 user
@@ -1479,7 +1479,7 @@ any of the primaries
 .BR "\-exec" , " \-ok" ", or" " \-print" ,
 the given expression is effectively replaced by:
 .PP
-.BI "( " given_expression " ) \-print
+.BI "( " given_expression " ) \-print"
 .PP
 The 
 .BR \-user ", " \-group ", and " \-newer
@@ -1489,37 +1489,37 @@ respective arguments only once.
 .SH EXAMPLES
 1. The following commands are equivalent:
 .PP
-.B "sfind
+.B sfind
 .br
-.B "sfind .
+.B "sfind ."
 .br
-.B "sfind . -print
+.B "sfind . -print"
 .PP
 They all write out the entire directory hierarchy from the
 current directory.
 .PP
 2. The following command:
 .PP
-.B "sfind / \e( -name tmp -o -name '*.xx' \e) \e
+.B "sfind / \e( -name tmp -o -name '*.xx' \e) \e"
 .br
-.B "     -atime +7 -exec rm {} \e;
+.B "     -atime +7 -exec rm {} \e;"
 .PP
 removes all files named tmp or ending in .xx that have not
 been accessed for seven or more 24-hour periods.
 .PP
 3. The following command:
 .PP
-.B "sfind . -perm -o+w,+s
+.B "sfind . -perm -o+w,+s"
 .PP
 prints
-.RB ( -print " is assumed)
+.RB ( -print " is assumed)"
 the names of all files in or
 below the current directory, with all of the file permission
 bits S_ISUID, S_ISGID, and S_IWOTH set.
 .PP
 4. The following command:
 .PP
-.B "sfind . -name SCCS -prune -o -print
+.B "sfind . -name SCCS -prune -o -print"
 .PP
 recursively prints pathnames of all files in the current
 directory and below, but skips directories named SCCS and
@@ -1527,7 +1527,7 @@ files in them.
 .PP
 5. The following command:
 .PP
-.B "sfind . -print -name SCCS -prune
+.B "sfind . -print -name SCCS -prune"
 .PP
 behaves as in the previous example, but prints the names of
 the SCCS directories.
@@ -1537,7 +1537,7 @@ the SCCS directories.
 extension to
 .BR test (1):
 .PP
-.B "if [ -n `sfind file1 -prune -newer file2` ]; then
+.B "if [ -n `sfind file1 -prune -newer file2` ]; then"
 .br
 \fB    printf %s\e\en "file1 is newer than file2"\fR
 .br
@@ -1548,16 +1548,16 @@ extension to
 use the terminology n "86400 second periods (days)". For example, a
 file accessed at 23:59 is selected by:
 .PP
-.B "sfind . -atime -1 -print
+.B "sfind . -atime -1 -print"
 .PP
 at 00:01 the next day (less than 24 hours later, not more
 than one day ago); the midnight boundary between days has no
 effect on the 24-hour calculation.
 .PP
-.SH "EXAMPLES USING POSIX EXTENSIONS
+.SH "EXAMPLES USING POSIX EXTENSIONS"
 The following command:
 .PP
-.B "sfind / -mtime -1h15m -ls
+.B "sfind / -mtime -1h15m -ls"
 .PP
 lists all files that have been modified within less than 75 minutes
 from the start time of the
@@ -1649,7 +1649,7 @@ for the
 option size field and uses
 .B st_blocks
 for the 
-.B "ls -s
+.B "ls -s"
 calculations. This volume of IEEE Std 1003.1-2001 does not
 specify
 .BR "ls -s" .)
@@ -1657,14 +1657,14 @@ specify
 The descriptions of
 .BR \-atime ", " \-ctime ", and " \-mtime
 were changed from
-the SVID description of n "days'' to n being the result of the
+the SVID description of n 'days' to n being the result of the
 integer division of the time difference in seconds by 86400. The
 description is also different in terms of the exact timeframe for
 the n case (versus the +n or -n), but it matches all known
 historical implementations. It refers to one 86400 second period
 in the past, not any time from the beginning of that period to the
 current time. For example,
-.B "-atime 2
+.B "-atime 2"
 is true if the file was
 accessed any time in the period from 72 hours to 48 hours ago.
 .PP
@@ -1775,11 +1775,11 @@ while the symbolic link itself will be used with
 Since the
 .B \-L
 option resolves all symbolic links and the 
-.B "\-type l
+.B "\-type l"
 primary is true for symbolic links that still exist after symbolic
 links have been resolved, the command:
 .PP
-.B "sfind -L . -type l
+.B "sfind -L . -type l"
 .PP
 prints a list of symbolic links reachable from the current
 directory that do not resolve to accessible files.
@@ -1814,7 +1814,7 @@ their name if they are regular files, and a
 .B '+'
 otherwise:
 .PP
-.B "sfind / -type f -exec echo {} - ';' -o -exec echo {} + ';'
+.B "sfind / -type f -exec echo {} - ';' -o -exec echo {} + ';'"
 .PP
 The change invalidates usage like this. Even though the previous
 standard stated that this usage would work, in practice many did
@@ -1879,7 +1879,7 @@ and
 .B \-ok
 primaries, as described in the Base Definitions volume of
 IEEE Std 1003.1-2001, Chapter 8, Environment Variables.
-.SH "EXIT STATUS
+.SH "EXIT STATUS"
 The following exit values are returned:
 .TP
 .B 0
@@ -1915,8 +1915,6 @@ The exact format used is unspecified.
 .PP
 Otherwise, the standard error is used only for diagnostic
 messages.
-.SH "OUTPUT FILES
-None.
 .SH "SEE ALSO"
 .BR chmod (1),
 .BR cpio (1),
@@ -1932,7 +1930,7 @@ None.
 .BR patcompile (3),
 .BR patmatch (3).
 
-.SH DIAGNOSTICS
+.\" .SH DIAGNOSTICS
 .SH NOTES
 .PP
 When used in operands, pattern matching notation, semicolons,
@@ -1962,7 +1960,7 @@ and even with traditional UNIX file systems,
 the assumption is not always true if there are hard links to directories.
 For this reason, the command:
 .PP
-.B "find . -print
+.B "find . -print"
 .PP
 is fast but gives completely unpredictable results if a
 .B find
@@ -1991,25 +1989,43 @@ original IEEE and The Open Group Standard, the original IEEE and The
 Open Group Standard is the referee document. The original Standard can
 be obtained online at 
 .BR "http://www.opengroup.org/unix/online.html" .
+
 .SH BUGS
-.LP
-None known.
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
 
 .SH AUTHOR
 .LP
 .BR sfind(1)
 and
 .B libfind
-have been initially written by Joerg Schilling in 2004
-and are still maintained by J\*org Schilling.
+have initially been written by Joerg Schilling in 2004 and are now
+maintained by the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B sfind
+and
+.B libfind
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
 .LP
-.nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

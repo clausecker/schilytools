@@ -15,18 +15,10 @@
 .if n .ds s sz
 .TH LIBRMT 3L "2020/09/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-librmt \- remote magtape protocol client interface library
+librmt \- remote magtape protocol client interface library (-lrmt)
 .SH SYNOPSIS
 .LP
-.B cc
-.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
-.B \-lrmt
-.B \-lsocket
-.B \-lnsl
-.RI "[ " "library" " \|.\|.\|. ]"
-.LP
-.B
-#include <schily/librmt.h>
+.B #include <schily/librmt.h>
 .SH DESCRIPTION
 .LP
 Functions in this library provide an interface to a remote tape server program.
@@ -105,7 +97,7 @@ login shell.
 .BR _mtg2rmtg (3),
 .BR _rmtg2mtg (3)
 
-.SH FILES
+.\" .SH FILES
 .SH "SEE ALSO"
 .BR rmt (1),
 .BR rsh (1),
@@ -113,24 +105,43 @@ login shell.
 .BR rcmd (3)
 
 .\".SH NOTES
-.\".SH BUGS
-.SH AUTHOR
-.LP
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
 .B librmt
 has been written in 1990 by J\*org Schilling.
 In 1995, support for
 .B RMT VERSION 1
 has been added.
 .B librmt
-is still maintained by J\*org Schilling.
+is now maintained by the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B librmt
+and
+.B rmt
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
 .LP
-.nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

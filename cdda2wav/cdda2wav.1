@@ -54,7 +54,7 @@ to stderr by default. See
 .BI out\-fd= descriptor
 option below.
 .PP
-.SS "Default settings
+.SS "Default settings"
 .PP
 .B Cdda2wav
 defaults to read the first audio track from the medium and the default verbose level is set to
@@ -62,7 +62,7 @@ defaults to read the first audio track from the medium and the default verbose l
 and
 .B cdda2wav
 by default writes
-.B "*.inf
+.B "*.inf"
 files.
 To extract all audio tracks with quality verification, it is recommended to call:
 .PP
@@ -83,7 +83,7 @@ support and automagically finds the drive when exactly
 one CD-ROM type drive is available in the system.
 When more than one CD-ROM type drive exists,
 a list of possible device name parameters may be retrieved with
-.B "cdda2wav \-scanbus
+.B "cdda2wav \-scanbus"
 or from the target example from the output of
 .BR "cdda2wav dev=help" ,
 then the
@@ -116,9 +116,9 @@ display version information for cdda2wav on standard output.
 display version and Copyright information.
 .SS "Audio options"
 .TP
-.BI \-a " divider
+.BI \-a " divider"
 .TP
-.BI \-divider " divider
+.BI \-divider " divider"
 sets rate to 44100Hz / 
 .IR divider . 
 Possible values are listed with the
@@ -136,9 +136,9 @@ copies each track into a separate file.
 .sp
 The default is not to extract all tracks.
 .TP
-.BI \-b " bits
+.BI \-b " bits"
 .TP
-.BI \-bits\-per\-sample " bits
+.BI \-bits\-per\-sample " bits"
 sets 
 .I bits
 per sample per channel:
@@ -149,9 +149,9 @@ or
 .sp
 The default is 16 bits per sample.
 .TP
-.BI \-c " channels
+.BI \-c " channels"
 .TP
-.BI \-channels " channels
+.BI \-channels " channels"
 use:
 .RS
 .TP
@@ -167,9 +167,9 @@ for stereo recording with both channels swapped
 The default is stereo recording.
 .RE
 .TP
-.BI \-C " endianess
+.BI \-C " endianess"
 .TP
-.BI \-cdrom\-endianess " endianess
+.BI \-cdrom\-endianess " endianess"
 sets endianess of the input samples to 'little', 'big', 'machine' or 'guess' to override defaults.
 The value 'machine' or 'host' is evaluated as the actual byte order of
 the host CPU in the current OS.
@@ -199,12 +199,12 @@ undo the effect of pre-emphasis in the input samples.
 .sp
 The default is to keep the audio data in the same state as on the medium and to
 mark the pre-emphasis state in the
-.B "*.inf
+.B "*.inf"
 files.
 .TP
-.BI \-L " cddb mode
+.BI \-L " cddb mode"
 .TP
-.BI \-cddb " cddb mode
+.BI \-cddb " cddb mode"
 does a cddbp album- and track title lookup based on the cddb id.
 The parameter cddb mode defines how multiple entries shall be handled.
 .TS H
@@ -223,9 +223,9 @@ sets the server to be contacted for title lookups.
 .BI cddbp\-port= portnumber
 sets the port number to be used for title lookups.
 .TP
-.BI \-d " duration
+.BI \-d " duration"
 .TP
-.BI \-duration " duration
+.BI \-duration " duration"
 sets recording time in seconds or frames (sectors).
 Frames are indicated by a 'f' suffix (e.g. 75f for 75 sectors).
 .B 0
@@ -233,9 +233,9 @@ sets the time for whole track.
 .sp
 The default is to extract the whole track.
 .TP
-.BI \-E " endianess
+.BI \-E " endianess"
 .TP
-.BI \-output\-endianess " endianess
+.BI \-output\-endianess " endianess"
 sets endianess of the output samples to 'little', 'big' or 'machine' to 
 override the default which is 'network byte order' (big endian).
 The value 'machine' or 'host' is evaluated as the actual byte order of
@@ -263,9 +263,9 @@ reformats the output for parsing by gui frontends.
 .B \-no\-infofile
 does not write info file, cddb file or cdtext file.
 .TP
-.BI \-i " index
+.BI \-i " index"
 .TP
-.BI \-index " index
+.BI \-index " index"
 selects the start index.
 .TP
 .B \-J
@@ -322,16 +322,16 @@ The option
 .B \-no\-textfile
 allows one to suppress the creation of the .cdtext file.
 .TP
-.BI \-o " offset
+.BI \-o " offset"
 .TP
-.BI \-offset " offset
+.BI \-offset " offset"
 starts
 .I offset
 sectors behind start track (one sector equivalents 1/75 seconds).
 .TP
-.BI \-O " audiotype
+.BI \-O " audiotype"
 .TP
-.BI \-output\-format " audiotype
+.BI \-output\-format " audiotype"
 can be 
 .I wav
 (for wav files) or
@@ -357,14 +357,14 @@ made an exception and by default created
 .B au
 type files on Solaris.
 .TP
-.BI \-p " percentage
+.BI \-p " percentage"
 .TP
-.BI \-playback\-realtime " percentage
+.BI \-playback\-realtime " percentage"
 changes pitch of audio data copied to sound device.
 .TP
-.BI \-P " sectors
+.BI \-P " sectors"
 .TP
-.BI  \-set\-overlap " sectors
+.BI  \-set\-overlap " sectors"
 sets the initial number of overlap
 .I sectors
 for jitter correction in non-paranoia mode. Note that overlapped reads are handled
@@ -637,9 +637,9 @@ The macro
 .B proof
 expands to:
 .sp
-.B "    paraopts=minoverlap=\fIsectors\-per\-request\fP-1,\e
+.B "    paraopts=minoverlap=\fIsectors\-per\-request\fP-1,\e"
 .br
-.B "        retries=200,readahead=600
+.B "        retries=200,readahead=600"
 .sp
 If
 .I sectors\-per\-request\f\-1
@@ -678,10 +678,10 @@ feature and use it if possible.
 .B \-quiet
 quiet operation, no screen output.
 .TP
-.BI \-r " rate
+.BI \-r " rate"
 .TP
-.BI  \-rate " rate
-sets 
+.BI  \-rate " rate"
+sets
 .I rate
 in samples per second.  Possible values are listed with the
 .B \-R
@@ -692,9 +692,9 @@ option.
 .B \-dump\-rates
 shows a list of all sample rates and their dividers.
 .TP
-.BI \-S " speed
+.BI \-S " speed"
 .TP
-.BI \-speed " speed
+.BI \-speed " speed"
 sets the cdrom device to one of the selectable speeds for reading.
 For maximum extraction quality, it is recommended to use speed values of 8 or below.
 .sp
@@ -705,7 +705,7 @@ The default is to extract at maximum speed.
 .B \-stereo
 sets to stereo recording.
 .TP
-.BI \-start\-sector " sector
+.BI \-start\-sector " sector"
 set an absolute start sector. This option is mutually exclusive to
 .B \-track
 and
@@ -714,9 +714,9 @@ and
 .ne 10
 .br
 .TP
-.BI \-t " track[+endtrack]
+.BI \-t " track[+endtrack]"
 .TP
-.BI \-track " track[+endtrack]
+.BI \-track " track[+endtrack]"
 .TP
 .BI \-track " track" +max
 .TP
@@ -775,9 +775,9 @@ sets maximum (CD) quality.
 .TP
 .BI dev= device
 .TP
-.BI \-D " device
+.BI \-D " device"
 .TP
-.BI \-device " device
+.BI \-device " device"
 uses
 .I device
 as the source for CDDA reading.
@@ -847,7 +847,7 @@ Scan all SCSI devices on all SCSI buses and print the inquiry
 strings. This option may be used to find SCSI address of the 
 CD/DVD-Recorder on a system.
 The numbers printed out as labels are computed by: 
-.B "bus * 100 + target
+.B "bus * 100 + target"
 .TP
 .BI scgopts= list
 A comma separated list of SCSI options that are handled by libscg.
@@ -891,9 +891,9 @@ suppress SCSI command error reports to the console. This is mainly used for guis
 
 .SS "OS Interface options"
 .TP
-.BI \-A " auxdevice
+.BI \-A " auxdevice"
 .TP
-.BI \-auxdevice " auxdevice
+.BI \-auxdevice " auxdevice"
 uses
 .I auxdevice
 as a CDROM drive to permit send the CDROMMULTISESSION ioctl on Linux
@@ -901,9 +901,9 @@ although the
 .B generic_scsi
 interface is in use.
 .TP
-.BI \-I " interface
+.BI \-I " interface"
 .TP
-.BI \-interface " interface
+.BI \-interface " interface"
 specifies the
 .I interface
 to use for accessing the CDROM:
@@ -1028,21 +1028,21 @@ set an alternate sound device to use for
 .BR \-e .
 .ne 5
 .TP
-.BI \-n " sectors
+.BI \-n " sectors"
 .TP
-.BI \-sectors\-per\-request " sectors
+.BI \-sectors\-per\-request " sectors"
 reads 
 .I sectors
 per request.
 .TP
-.BI \-l " buffers
+.BI \-l " buffers"
 .TP
-.BI \-buffers\-in\-ring " buffers
 uses a ring buffer with 
+.BI \-buffers\-in\-ring " buffers"
 .I buffers
 total.
 
-.SH "ENVIRONMENT VARIABLES"
+.SH ENVIRONMENT
 .PP
 Some defaults for
 .B cdda2wav
@@ -1185,10 +1185,10 @@ The specifier given should correspond to the selected interface (see below).
 For the 
 .B cooked_ioctl
 interface this is the cdrom device descriptor.
-.B "The SCSI devices used with the generic SCSI interface however are
-.B "addressed with their SCSI-Bus, SCSI-Id, and SCSI-Lun instead of the generic
-.B "SCSI device descriptor.
 One example for a SCSI CDROM drive on bus 0 with SCSI ID 3 and lun 0 is 
+.B "The SCSI devices used with the generic SCSI interface however are"
+.B "addressed with their SCSI-Bus, SCSI-Id, and SCSI-Lun instead of the generic"
+.B "SCSI device descriptor."
 .BR dev=0,3,0 .
 .SS "Select Auxiliary device"
 .BI \-A " auxdevice"
@@ -1653,7 +1653,7 @@ option. When recording time exceeds the track limit a new file will
 be opened for the next track.
 .SH FILES
 Cdda2wav can generate a lot of files for various purposes.
-.SS "Audio files:
+.SS "Audio files:"
 .PP
 There are audio files containing samples with default extensions
 \&.wav, .au, .aifc, .aiff, and .cdr according to the selected sound format.
@@ -1668,7 +1668,7 @@ to cover all included audio tracks, the file names will be used verbatim.
 Otherwise, if there are less file names than files needed to write the
 included tracks, the part of the file name before the extension is extended
 with '_dd' where dd represents the current track number.
-.SS "Cddb and Cdindex files:
+.SS "Cddb and Cdindex files:"
 .PP
 If cdda2wav detects cd-extra or cd-text (album/track) title information,
 then .cddb, .cdindex and .cdtext files are generated unless suppressed by the
@@ -1678,7 +1678,7 @@ They contain suitable formatted entries for submission to
 audio cd track title databases in the Internet. The CDINDEX and CDDB(tm)
 systems are currently supported. For more information please visit
 www.musicbrainz.org and www.freedb.com.
-.SS "Inf files:
+.SS "Inf files:"
 .PP
 The inf files describe the sample files and the part of the audio cd
 it was taken from. They are a means to transfer information to a cd burning
@@ -1700,6 +1700,18 @@ The resampling (rate conversion code) uses polynomial interpolation, which
 is not optimal.
 .sp
 Cdda2wav should use threads.
+.PP
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH ACKNOWLEDGEMENTS
 Thanks go to Project MODE (http://www.mode.net/) and Fraunhofer Institut f\*ur
 integrierte Schaltungen (FhG-IIS) (http://www.iis.fhg.de/) for financial
@@ -1709,62 +1721,31 @@ which helped a lot to develop this software.
 Rammi has helped a lot with the debugging and showed a lot of stamina when
 hearing 100 times the first 16 seconds of the first track of the Krupps CD.
 Libparanoia contributed by Monty (Christopher Montgomery) xiphmont@mit.edu.
-.SH AUTHOR
+
+.SH AUTHORS
 Heiko Eissfeldt heiko@colossus.escape.de (1993-2004,2015)
 .PP
-2004-today:
+J\*org Schilling (2004-2022)
+.PP
+.B cdda2wav
+is now maintained by the schilytools project authors.
 
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.SH DATE
-2020/05/21
-.br
-.ne 7
 .SH "SOURCE DOWNLOAD"
-A frequently updated source code for the
-.B cdrtools
+The source code for
+.B cdda2wav
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Less frequently updated source code for the
-.B cdrtools
-is at:
-.LP
-.B
-    http://sourceforge.net/projects/cdrtools/files/
-.LP
-and
-.B
-    http://sourceforge.net/projects/cdrtools/files/alpha
-.LP
-Separate project information for the
-.B cdrtools
-project may be retrieved from:
-.LP
-.B
-    http://cdrecord.org
-.br
-.ne 7
-.SH "INTERFACE STABILITY
-The interfaces provided by 
+.BR https://codeberg.org/schilytools/schilytools/releases .
+
+.SH "INTERFACE STABILITY"
 .B cdda2wav
 are designed for long term stability.
 As

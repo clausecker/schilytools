@@ -50,8 +50,8 @@ the size is multiplied by 1, 2, 512, 1024, 1024*1024, 1024*1024*1024,
 1024*1024*1024*1024 or 1024*1024*1024*1024*1024.
 If the size consists of numbers separated by `x' or `*', multiplication of the 
 two numbers is performed.
-Thus 
-.I "bs=7x8k
+Thus
+.I "bs=7x8k"
 will specify a blocksize of 56\ kBytes.
 Blocksize must be a multiple of 512 bytes.
 .br
@@ -115,18 +115,17 @@ options and exists.
 Prints the 
 .B fifo
 version number string and exists.
-
-.SH EXAMPLES
-.SH ENVIRONMENT
-.SH "EXIT STATUS
-.SH FILES
+.PP
+.\" .SH EXAMPLES
+.\" .SH ENVIRONMENT
+.\" .SH "EXIT STATUS"
+.\" .SH FILES
 .SH "SEE ALSO"
 .BR sdd (1),
 .BR star (1).
-.SH DIAGNOSTICS
-.SH NOTES
-.SH BUGS
-.SH AUTHORS
+.\" .SH DIAGNOSTICS
+.\" .SH NOTES
+.SH HISTORY
 The
 .B fifo
 program was first written by J. Schilling in 1989 as a separate test program
@@ -138,3 +137,38 @@ program.
 This program is a new attempt from 2019 to have a separate
 .B fifo
 program again.
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.B
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B fifo
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/releases

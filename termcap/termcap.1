@@ -42,11 +42,11 @@ When
 compiles entries, it checks the entries for noncompliances. If any problems
 were found, it inserts comments in the form:
 .sp
-.BI "# NOTICE(" name ")" " some reason
+.BI "# NOTICE(" name ")" " some reason"
 .sp
 or
 .sp
-.BI "# BAD(" name ")" " some reason
+.BI "# BAD(" name ")" " some reason"
 .sp
 before the related termcap entry.
 These comments should be carefully checked.
@@ -166,7 +166,7 @@ and
 .BR TERMCAP .
 This can be done with
 .sp
-.B "  eval `tset -s ...`
+.B "  eval `tset -s ...`"
 .sp
 to bring the terminal information into the environment of shells that
 do not support
@@ -262,7 +262,7 @@ The private terminal capabilities database.
 This file is checked first, in case that the
 .B TERMPATH
 environment is not defined.
-.SH "SEE ALSO
+.SH "SEE ALSO"
 .BR sh (1),
 .BR bsh (1),
 .BR tset (1B),
@@ -310,7 +310,7 @@ of capabilities.
 .sp
 Carefully check every such problem in the source and manually correct it.
 .TP
-.B "# BAD(name). Type mismatch 'ent' in 'full\-ent' ...
+.B "# BAD(name). Type mismatch 'ent' in 'full\-ent' ..."
 The type for the current entry does not match the type from the termcap
 documentation.
 .sp
@@ -441,7 +441,7 @@ There is a non-compliance between older and newer
 entries. The capability named "ma" in former times (around 1980) was an 
 arrow key map for the
 .BR rogue (1)
-.I "Dungeons of Doom
+.I "Dungeons of Doom"
 game.
 In newer times, the "ma" entry is used for the maximum number of attributes a
 terminal can handle and thus is of type integer.
@@ -459,3 +459,34 @@ and
 entry at the same time for the same terminal entry.
 
 .SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
+J\*org Schilling and the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for the
+.B "termcap compiler"
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

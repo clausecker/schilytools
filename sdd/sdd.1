@@ -20,12 +20,12 @@ sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .B
 sdd
 [
-.BR option "=value
+.BR option "=value"
 ] [
 .B \-flag
 ]
 .SH DESCRIPTION
-.I Sdd
+.I sdd
 copies the specified input file to a specified output file performing the
 requested conversions. The standard input and output are used by default.
 The input and output block size may be specified to take advantage of
@@ -129,7 +129,7 @@ clients and it includes security features that may be set up in /etc/default/rmt
 .B \-inull
 Do not read input from file.
 This is similar to if=/dev/zero but much faster.
-.I Sdd 
+.I sdd
 uses a prepared cleared buffer to satisfy writes.
 .TP
 .B \-onull
@@ -323,8 +323,7 @@ to
 .I sd1
 preserving the old label on disk
 .I sd1.
-.SH FILES
-None.
+.\" .SH FILES
 .SH "SEE ALSO"
 dd(1), star(1), rmt(1), tr(1), cp(1), copy(1)
 .SH DIAGNOSTICS
@@ -364,8 +363,8 @@ You can make them Gbytes (1024 * 1024 *1024 bytes) if they are followed by
 a `g' or `G'.
 .PP
 A pair of numbers may be separated by `*' or `x' to indicate a product.
-.SH "SUID NOTES
-If 
+.SH "SUID NOTES"
+If
 .B sdd
 is installed suid root, 
 .B sdd
@@ -373,7 +372,7 @@ is able to make connections to remote files for non root users.
 This is done by using the
 rcmd(3) interface to get a connection to a rmt(1) server.
 .PP
-.B Sdd
+.B sdd
 resets its effective uid back to the real user id immediately after setting up
 the remote connection to the rmt server and before opening any other file.
 .SH BUGS
@@ -394,3 +393,32 @@ record counter
 .I \-count
 as they are possible with
 .BI obs= #.
+
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
+J\*org Schilling and the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B sdd
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

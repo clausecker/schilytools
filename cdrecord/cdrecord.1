@@ -32,7 +32,7 @@ cdrecord \- record audio or data CD, DVD or BluRay
 .SH SYNOPSIS
 .B cdrecord
 [
-.I "general options
+.I "general options"
 ][
 .BI dev= device
 ][
@@ -106,7 +106,7 @@ support and automagically finds the drive in case that exactly
 one CD-ROM type drive is available in the system.
 In case that more than one CD-ROM type drive exists on the system,
 a list of possible device name parameters may be retrieved with
-.B "cdrecord \-scanbus
+.B "cdrecord \-scanbus"
 or from the target example from the output of
 .BR "cdrecord dev=help" ,
 then the
@@ -178,7 +178,7 @@ To allow DVD writing on platforms that do not implement large file support,
 .B cdrecord
 concatenates all file arguments to a single track when writing to DVD media.
 
-.SH "GENERAL OPTIONS
+.SH "GENERAL OPTIONS"
 .PP
 General options must be before any track file name or track option.
 .SS "Informative options"
@@ -260,12 +260,12 @@ mode for different write modes, you need to blank the entire media before.
 .B \-dao
 .TP
 .B \-sao
-Set 
-.B "SAO (Session At Once)
+Set
+.B "SAO (Session At Once)"
 mode which is usually called
 .BR "Disk At Once " mode.
 This currently only works with MMC drives that support
-.B "Session At Once
+.B "Session At Once"
 mode.
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
@@ -293,7 +293,7 @@ mode, you should give it a try.
 .TP
 .B \-tao
 Set
-.B "TAO (Track At Once) writing mode.
+.B "TAO (Track At Once) writing mode."
 This is the default write mode in previous
 .B cdrecord
 versions.
@@ -311,8 +311,8 @@ mode, you should give it a try.
 .TP
 .B \-raw
 Set
-.B "RAW writing mode.
-Using this option defaults to 
+.B "RAW writing mode."
+Using this option defaults to
 .BR \-raw96r .
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
@@ -323,7 +323,7 @@ section for more information).
 .TP
 .B \-raw96r
 Set
-.B "RAW writing mode
+.B "RAW writing mode"
 with 2352 byte sectors plus 96 bytes of raw P-W sub-channel data resulting
 in a sector size of 2448 bytes.
 Because there are several CD writers with firmware bugs,
@@ -341,7 +341,7 @@ section for more information).
 .TP
 .B \-raw96p
 Set
-.B "RAW writing mode
+.B "RAW writing mode"
 with 2352 byte sectors plus 96 bytes of packed P-W sub-channel data resulting
 in a sector size of 2448 bytes.
 This is the less preferred raw writing mode as only a few recorders support
@@ -361,7 +361,7 @@ section for more information).
 .TP
 .B \-raw16
 Set
-.B "RAW writing mode
+.B "RAW writing mode"
 with 2352 byte sectors plus 16 bytes of P-Q sub-channel data resulting
 in a sector size of 2368 bytes.
 If a recorder does not support 
@@ -396,8 +396,8 @@ If you use
 only, this should never be needed; but other software may leave a drive 
 in an unusable condition.
 Calling
-.B "cdrecord \-reset
-may be needed if a previous write has been interrupted and the software did 
+.B "cdrecord \-reset"
+may be needed if a previous write has been interrupted and the software did
 not tell the drive that it will not continue to write.
 .TP
 .B \-atip
@@ -446,7 +446,7 @@ session
 Blank the last session.
 .PP
 Not all drives support all blanking types. It may be necessary to use
-.B "blank=all
+.B "blank=all"
 if a drive reports a specified command as being invalid.
 If used together with the 
 .B \-force
@@ -501,7 +501,7 @@ mode for this reason.
 .TP
 .BI cuefile= filename
 Take all recording-related information from a CDRWIN-compliant
-.B "CUE sheet
+.B "CUE sheet"
 file.
 No track-file arguments to 
 .B cdrecord
@@ -890,8 +890,8 @@ The default is to turn
 off, regardless of the defaults of the drive.
 .TP
 .B noforcespeed
-Turn off the 
-.B "force speed
+Turn off the
+.B "force speed"
 feature.
 .TP
 .B speedread
@@ -928,7 +928,7 @@ Turn off hiding CD-R media.
 Use this option together with
 .B \-checkdrive
 to retrieve the image size information for the
-.B "Yamaha DiskT@2
+.B "Yamaha DiskT@2"
 feature. The images always have a line length of 3744 pixels.
 Line number 0 (radius 0) is mapped to the center of the disk.
 If you know the inner and outer radii you will be able to create a
@@ -938,7 +938,7 @@ pre distorted image that later may appear undistorted on the disk.
 Use this option together with
 .B \-checkdrive
 to write an image prepared for the
-.B "Yamaha DiskT@2
+.B "Yamaha DiskT@2"
 feature to the medium.
 The file must be a file with raw image B&W data (one byte per pixel) 
 in a size as retrieved by a previous call to
@@ -953,19 +953,19 @@ Note that the image must be mirrored to be readable from the pick up
 side of the CD.
 .TP
 .B layerbreak
-Switch a drive with DVD-R/DL medium into 
-.B "layer jump recording
+Switch a drive with DVD-R/DL medium into
+.B "layer jump recording"
 recording mode and use automatic layer-break position setup.
 .sp
 By default, DVD-R/DL media is written in
-.B "sequential recording
+.B "sequential recording"
 mode that completely fills up both layers.
 .TP
 .BI layerbreak= value
 Set up a manual layer-break value for DVD-R/DL and DVD+R/DL.
 The specified layer-break value must not be set to less than half of the recorded
 data size and must not be set to more than the remaining
-.I "Layer 0 size
+.I "Layer 0 size"
 of the medium.
 The manual layer-break value needs to be a multiple of the ECC sector
 size which is 16 logical 2048 byte sectors in case of DVD media
@@ -974,7 +974,7 @@ and 32 logical 2048 byte sectors in case of HD-DVD or BD media.
 .B Cdrecord
 does not allow to write DL media in case that the total amount of data is
 less then the
-.I "Layer 0 size
+.I "Layer 0 size"
 of the medium except when a manual layer-break has been specified by using the
 .BI layerbreak= value
 option.
@@ -1028,8 +1028,8 @@ If a number is followed directly by the letter `b', `k', `m', `s' or `f',
 the size is multiplied by 512, 1024, 1024*1024, 2048 or 2352.
 If the size consists of numbers separated by `x' or `*', multiplication of the 
 two numbers is performed.
-Thus 
-.I "fs=10x63k
+Thus
+.I "fs=10x63k"
 will specify a FIFO size of 630\ kBytes.
 .sp
 The size specified by the 
@@ -1097,7 +1097,7 @@ but you should check for a working DMA setup.
 .TP
 .BI gracetime= #
 Set the grace time before starting to write to
-.IR # " seconds.
+.IR # " seconds."
 Values below 3 seconds are not allowed in order to prevent the volume management
 from interrupting the write process.
 .TP
@@ -1159,9 +1159,9 @@ Load the media, lock the door and exit. This only works with a tray-loading mech
 but seems to be useful when using the Kodak disk transporter.
 .TP
 .BI mcn= med_cat_nr
-Set the 
-.B "Media Catalog Number
-of the CD to 
+Set the
+.B "Media Catalog Number"
+of the CD to
 .IR med_cat_nr .
 .TP
 .BI minbuf= value
@@ -1235,8 +1235,8 @@ There is no guarantee that your drive supports overburning at all.
 Make a test to check if your drive implements the feature.
 .TP
 .B \-packet
-Set 
-.B "Packet writing mode. 
+Set
+.B "Packet writing mode."
 This is an experimental interface.
 .TP
 .BR pktsize= #
@@ -1312,14 +1312,14 @@ based on information taken from a file that contains ascii information
 for the text strings. 
 .B Cdrecord
 supports CD-Text information based on the content of the
-.B "*.inf
-files created by 
-.B cdda2wav 
+.B "*.inf"
+files created by
+.B cdda2wav
 and CD-Text information based on the content from a
-.B "CUE sheet
+.B "CUE sheet"
 file.
-If a 
-.B "CUE sheet
+If a
+.B "CUE sheet"
 file contains both (binary CDTEXTFILE and text based SONGWRITER)
 entries, then the information based on the CDTEXTFILE entry will win.
 .sp
@@ -1328,19 +1328,19 @@ You need to use the
 option in addition in order to tell 
 .B cdrecord
 to read the
-.B "*.inf
+.B "*.inf"
 files or
 .BI cuefile= filename
 in order to tell
 .B cdrecord
 to read a
-.B "CUE sheet
+.B "CUE sheet"
 file in addition.
 If you like to write your own CD-Text information,
 edit the
-.B "*.inf
+.B "*.inf"
 files or the
-.B "CUE sheet
+.B "CUE sheet"
 file with a text editor and change the fields
 that are relevant for CD-Text.
 .TP
@@ -1359,9 +1359,9 @@ to extract the information from disk.
 If both, 
 .BI textfile= filename
 and CD-Text information from
-.B "*.inf
+.B "*.inf"
 or
-.B "*.cue
+.B "*.cue"
 files are present,
 .BI textfile= filename
 will overwrite the other information.
@@ -1387,7 +1387,7 @@ opens the SCSI driver at the same time.
 .TP
 .B \-useinfo
 Use
-.B "*.inf
+.B "*.inf"
 files to overwrite audio options.
 If this option is used, the pregap size information, 
 the index information,
@@ -1395,7 +1395,7 @@ the pre-emphasis information
 and the CD-Text information
 is read from 
 the
-.B "*.inf
+.B "*.inf"
 file that is associated with the file that contains the audio
 data for a track.
 .sp
@@ -1408,7 +1408,7 @@ may be used to write audio CDs from a pipe from
 if you call
 .B cdrecord
 with the
-.B "*.inf
+.B "*.inf"
 files as track parameter list instead of using audio files.
 The audio data is read from 
 .B stdin
@@ -1421,10 +1421,10 @@ first verifies that
 .B stdin
 is not connected to a terminal and runs some heuristic consistency checks
 on the
-.B "*.inf
+.B "*.inf"
 files and then sets the track lengths from the information in
 the
-.B "*.inf
+.B "*.inf"
 files.
 .sp
 If you like to write from 
@@ -1535,8 +1535,8 @@ commands for the communication. Even
 .B ATAPI
 drives are just
 .B SCSI
-drives that inherently use the 
-.I "ATA packet interface
+drives that inherently use the
+.I "ATA packet interface"
 as
 .B SCSI
 command transport layer build into the IDE (ATA) transport.
@@ -1641,8 +1641,8 @@ on all operating systems.
 Scan all SCSI devices on all SCSI busses and print the inquiry
 strings. This option may be used to find SCSI address of the 
 CD/DVD/BluRay-recorder on a system.
-The numbers printed out as labels are computed by: 
-.B "bus * 100 + target
+The numbers printed out as labels are computed by:
+.B "bus * 100 + target"
 .TP
 .BI scgopts= list
 A comma separated list of SCSI options that are handled by libscg.
@@ -1655,8 +1655,8 @@ is supported to work around a Linux kernel bug.
 Do not print out a status report for failed SCSI commands.
 .TP
 .BI timeout= #
-Set the default SCSI command timeout value to 
-.IR # " seconds.
+Set the default SCSI command timeout value to
+.IR # " seconds."
 The default SCSI command timeout is the minimum timeout used for sending
 SCSI commands.
 If a SCSI command fails due to a timeout, you may try to raise the
@@ -1701,13 +1701,13 @@ or
 .B \-VV
 slows down the process and may be the reason for a buffer underrun.
 
-.SH "TRACK OPTIONS
+.SH "TRACK OPTIONS"
 .PP
 Track options may be mixed with track file names.
 .TP
 .B \-audio
 If this flag is present, all subsequent tracks are written in
-.B "CD-DA 
+.B "CD-DA"
 (similar to Red Book) audio format.
 The file with data for this tracks should
 contain stereo, 16-bit digital audio with 44100 samples/s.
@@ -1779,11 +1779,13 @@ This option has no effect on data tracks.
 .TP
 .B \-data
 If this flag is present, all subsequent tracks are written in
-.B "CD-ROM mode 1
+.B "CD-ROM mode 1"
 (Yellow Book) format. The data size is a multiple of 2048 bytes.
-The file with track data should contain an 
-.BR ISO-9660 " or " "Rock Ridge
-filesystem image (see 
+The file with track data should contain an
+.BR ISO-9660
+or
+.BR "Rock Ridge"
+filesystem image (see
 .B mkisofs
 for more details). If the track data is an
 .B ufs
@@ -1822,8 +1824,8 @@ represent the start of the indices. An index list in the form:
 the start of the track and index 3 200 seconds from the start of the track.
 .TP
 .B \-isosize
-Use the 
-.B "ISO-9660
+Use the
+.B "ISO-9660"
 file system size as the size of the next track.
 This option is needed if you want 
 .B cdrecord
@@ -1877,14 +1879,14 @@ if the
 option is present.
 .TP
 .BI isrc= ISRC_number
-Set the 
-.B "International Standard Recording Number
+Set the
+.B "International Standard Recording Number"
 for the next track to
 .IR ISRC_number .
 .TP
 .B \-mode2
 If this flag is present, all subsequent tracks are written in
-.B "CD-ROM mode 2
+.B "CD-ROM mode 2"
 format. The data size is a multiple of 2336 bytes.
 .TP
 .B \-nocopy
@@ -2025,8 +2027,8 @@ the TEAC programming interface, even in Track At Once mode,
 needs to know the size of each track before starting to write the disk.
 Cdrecord now checks this and aborts before starting to write.
 If this happens you will need to run
-.B "mkisofs \-print\-size
-before and use the output (with `s' appended) as an argument to the 
+.B "mkisofs -print-size"
+before and use the output (with `s' appended) as an argument to the
 .BR tsize =
 option of 
 .B cdrecord
@@ -2038,7 +2040,7 @@ option for possible arguments.
 .TP
 .B \-xa
 If this flag is present, all subsequent tracks are written in
-.B "CD-ROM XA mode 2 form 1
+.B "CD-ROM XA mode 2 form 1"
 format. The data size is a multiple of 2048 bytes.
 The XA sector sub-headers will be created by the drive.
 With this option, the write mode is the same as with the
@@ -2047,21 +2049,21 @@ option.
 .TP
 .B \-xa1
 If this flag is present, all subsequent tracks are written in
-.B "CD-ROM XA mode 2 form 1
+.B "CD-ROM XA mode 2 form 1"
 format. The data size is a multiple of 2056 bytes.
 The XA sector sub-headers are part of the user data and have to be
 supplied by the application that prepares the data to be written.
 .TP
 .B \-xa2
 If this flag is present, all subsequent tracks are written in
-.B "CD-ROM XA mode 2 form 2
+.B "CD-ROM XA mode 2 form 2"
 format. The data is a multiple of 2324 bytes.
 The XA sector sub-headers will be created by the drive.
 .TP
 .B \-xamix
 If this flag is present, all subsequent tracks are written in a way
-that allows a mix of 
-.B "CD-ROM XA mode 2 form 1/2
+that allows a mix of
+.B "CD-ROM XA mode 2 form 1/2"
 format. The data size is a multiple of 2332 bytes.
 The XA sector sub-headers are part of the user data and have to be
 supplied by the application that prepares the data to be written.
@@ -2106,7 +2108,7 @@ and then run
     cdrecord dev=2,0 \-v \-dao \-audio \-useinfo \-text *.inf
 .PP
 This will get all information (including track size info) from the
-.B "*.inf
+.B "*.inf"
 files and then read the audio data from stdin.
 .sp
 If you like to write from 
@@ -2123,7 +2125,7 @@ For the same reason, it is not recommended to extract the audio data in
 paranoia mode in this case.
 
 .PP
-.SS "Replicating a simple CD-ROM/DVD-ROM/BD-ROM
+.SS "Replicating a simple CD-ROM/DVD-ROM/BD-ROM"
 To copy a simple disk, first read the master using:
 .PP
     readcd dev=1,0 f=somefile
@@ -2133,7 +2135,7 @@ Then write the disk using:
     cdrecord dev=2,0 \-v somefile
 
 .PP
-.SS "Replicating a CD-ROM in clone mode
+.SS "Replicating a CD-ROM in clone mode"
 To copy a CD in clone mode, first read the master CD using:
 .PP
     readcd dev=1,0 \-clone f=somefile
@@ -2151,7 +2153,7 @@ Then write the CD using:
 .PP
     cdrecord dev=2,0 \-raw96r \-clone \-v somefile
 
-.SS "Creating an Audio CD
+.SS "Creating an Audio CD"
 To record a pure CD-DA (audio) at single speed, with each track contained
 in files named
 .IR track01.cdaudio ,
@@ -2165,7 +2167,7 @@ use the dummy write option:
 .PP
     cdrecord \-v \-dummy speed=2 dev=2,0 \-dao \-audio track*.cdaudio
 .PP
-.SS "Creating a mixed Audio-Data CD
+.SS "Creating a mixed Audio-Data CD"
 To record a mixed-mode CD with an ISO-9660 filesystem from
 .I cdimage.raw
 on the first track, the other tracks being audio tracks from the files
@@ -2175,7 +2177,7 @@ etc.:
 .PP
     cdrecord \-v dev=2,0 \-dao cdimage.raw \-audio track*.cdaudio
 .PP
-.SS "Creating a CD-ROM/DVD-ROM/BD-ROM
+.SS "Creating a CD-ROM/DVD-ROM/BD-ROM"
 To record a pure disk at double speed, using data from the file
 .IR cdimage.raw :
 .PP
@@ -2266,7 +2268,7 @@ where
 is replaced by the output of the previous run of mkisofs.
 
 .PP
-.SS "Setting drive options
+.SS "Setting drive options"
 To set drive options without writing a disk (e.g. to switch a drive
 to single-session mode), run
 .PP
@@ -2436,13 +2438,13 @@ default speed and the default FIFO size.
 .RE
 
 .TP
-.B "*.inf
+.B "*.inf"
 The
-.B "*.inf
+.B "*.inf"
 files are created by
 .B cdda2wav
 where
-.B "*
+.B "*"
 is replaced by the actual audio file prefix.
 They are read and used by
 .B cdrecord
@@ -2472,8 +2474,8 @@ The order of the tag labels in the file is not important.
 .RE
 .RS
 .PP
-The following tag labels may appear in a 
-.B "*.inf
+The following tag labels may appear in a
+.B "*.inf"
 file:
 .TP
 .B CDINDEX_DISCID=
@@ -2799,7 +2801,7 @@ This label is ignored by
 .TP
 .B *.cue
 The
-.B "*.cue
+.B "*.cue"
 files are CD-structure description files introduced by
 .BR CDRWIN .
 They are read and used by
@@ -2811,7 +2813,7 @@ option.
 The following commands are supported in CUE files:
 .RS
 .TP
-.BI ARRANGER " arranger-string
+.BI ARRANGER " arranger-string"
 This command is used to specify the name of a arranger for a disk that
 includes CD-Text enhancements.
 .sp
@@ -2834,7 +2836,7 @@ This command is only accepted if the
 .B cdrecord
 specific CUE extensions are permitted.
 .TP
-.BI CATALOG " media-catalog-number
+.BI CATALOG " media-catalog-number"
 This command is used to specify the disc's
 .BR "Media Catalog Number" .
 The
@@ -2846,7 +2848,7 @@ It must appear before any
 .B TRACK
 command.
 .TP
-.BI CDTEXTFILE " filename
+.BI CDTEXTFILE " filename"
 This command is used to specify the name of a file that contains binary
 encoded CD-Text information.
 .B CDRWIN
@@ -2861,7 +2863,7 @@ option is used.
 .sp
 If the filename contains spaces, it must be enclosed in quotation marks.
 .TP
-.BI COMPOSER " composer-string
+.BI COMPOSER " composer-string"
 This command is used to specify the name of a composer for a disk that
 includes CD-Text enhancements.
 .sp
@@ -2959,7 +2961,7 @@ command is allowed before the related
 command.
 .RE
 .TP
-.BI FLAGS " flags
+.BI FLAGS " flags"
 This command is used to set special subcode flags within a track.
 .sp
 The following flags are supported:
@@ -2995,7 +2997,7 @@ command is allower per
 The fourth subcode flag that marks data tracks is set automatically for data tracks.
 .RE
 .TP
-.BI INDEX " number mm:ss:ff
+.BI INDEX " number mm:ss:ff"
 This command is used to specify indexes within a track.
 .sp
 The first parameter is the index number in the range 0-99.
@@ -3023,9 +3025,9 @@ as the track start.
 specifies a subindex within a track.
 .RE
 .TP
-.BI ISRC " recording code
+.BI ISRC " recording code"
 This command is used to specify the
-.B "International Standard Recording Code (ISRC)
+.B "International Standard Recording Code (ISRC)"
 of a track. This is a code that should exist for all
 commercial audio tracks.
 .sp
@@ -3052,7 +3054,7 @@ command but before any
 .B INDEX
 command.
 .TP
-.BI MESSAGE " message-string
+.BI MESSAGE " message-string"
 This command is used to specify the test of a message for a disk that
 includes CD-Text enhancements.
 .sp
@@ -3075,7 +3077,7 @@ This command is only accepted if the
 .B cdrecord
 specific CUE extensions are permitted.
 .TP
-.BI PERFORMER " performer-string
+.BI PERFORMER " performer-string"
 This command is used to specify the name of a performer for a disk that
 includes CD-Text enhancements.
 .sp
@@ -3094,7 +3096,7 @@ command appears after a
 .B TRACK
 command, the string parameter will be encoded the the performer of the current track.
 .TP
-.BI POSTGAP " mm:ss:ff
+.BI POSTGAP " mm:ss:ff"
 This command is used to specify the length of a postgap at the end of a track.
 The postgap data is generated internally by
 .BR cdrecord .
@@ -3111,7 +3113,7 @@ Only one
 .B POSTGAP
 command is allowed per track.
 .TP
-.BI PREGAP " mm:ss:ff
+.BI PREGAP " mm:ss:ff"
 This command is used to specify the length of a pregap at the beginning
 of a track. 
 The pregap data is generated internally by
@@ -3131,19 +3133,19 @@ Only one
 .B PREGAP
 command is allowed per track.
 .TP
-.BI REM " comment
+.BI REM " comment"
 This command is used to put comments into a CUE file.
 .sp
 The text that appears in the line after a 
 .B REM
 command is usually ignored. There is an exception: The special
 comment
-.B "REM CDRTOOLS
+.B "REM CDRTOOLS"
 is used to enable
 .B cdrecord
 specific CUE extensions in the parser.
 .TP
-.BI SONGWRITER " songwriter-string
+.BI SONGWRITER " songwriter-string"
 This command is used to specify the name of a songwriter for a disk that
 includes CD-Text enhancements.
 .sp
@@ -3162,7 +3164,7 @@ command appears after a
 .B TRACK
 command, the string parameter will be encoded the the songwriter of the current track.
 .TP
-.BI TITLE " title-string
+.BI TITLE " title-string"
 This command is used to specify a title for a disk that
 includes CD-Text enhancements.
 .sp
@@ -3181,7 +3183,7 @@ command appears after a
 .B TRACK
 command, the string parameter will be encoded the the title of the current track.
 .TP
-.BI TRACK " number datatype
+.BI TRACK " number datatype"
 This command is used to start a new
 .BR TRACK .
 .sp
@@ -3240,18 +3242,18 @@ that has been disabled in the OpenSource variant.
 .PP
 On Solaris before Solaris 10 Update 1,
 you need to stop the volume management if you like to use the USCSI
-fallback SCSI transport code. Even things like 
-.B "cdrecord -scanbus
+fallback SCSI transport code. Even things like
+.B "cdrecord -scanbus"
 will not work if the volume management is running.
 .PP
-Disks made in 
-.B "Track At Once 
+Disks made in
+.B "Track At Once"
 mode are not suitable as a master for direct mass production by CD-manufacturers.
-You will need the 
-.B "disk at once
+You will need the
+.B "disk at once"
 option to record such disks.
 Nevertheless the disks made in
-.B "Track At Once 
+.B "Track At Once"
 will normally be read in all CD-players. Some old
 audio CD-players however may produce a two second click between two audio tracks.
 .PP
@@ -3296,7 +3298,7 @@ as lightly loaded as possible while writing a CD.
 If you want to make sure that buffer underruns are not
 caused by your source disk, you may use the command
 .PP
-.B "    cdrecord \-dummy dev=2,0 padsize=600m /dev/null
+.B "    cdrecord \-dummy dev=2,0 padsize=600m /dev/null"
 .PP
 to create a disk that is entirely made of dummy data.
 .B Cdrecord
@@ -3426,11 +3428,11 @@ cmd finished after 0.002s timeout 40s
 The first line gives information about the transport of the command.
 The text after the first colon gives the error text for the system call
 from the view of the kernel. It usually is:
-.B "I/O error
+.B "I/O error"
 unless other problems happen. The next words contain a short description for
 the SCSI command that fails. The rest of the line tells you if there were
 any problems for the transport of the command over the SCSI bus.
-.B "fatal error
+.B "fatal error"
 means that it was not possible to transport the command (i.e. no device present
 at the requested SCSI address).
 .PP
@@ -3454,7 +3456,7 @@ is appended.
 The sixth line is the error text for the sense code and the sense qualifier if available.
 If the type of the device is known, the sense data is decoded from tables
 in
-.IR scsierrs.c " .
+.IR scsierrs.c .
 The text is followed by the error value for a field replaceable unit.
 .PP
 The seventh line prints the block number that is related to the failed command
@@ -3489,6 +3491,18 @@ has even more options than
 .PP
 There should be a recover option to make disks usable, that have been written
 during a power failure.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.B
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
 
 .SH CREDITS
 .PP
@@ -3535,91 +3549,29 @@ for providing the CAM port for FreeBSD together with Michael Smith (msmith@freeb
 .TP
 Heiko Ei\*sfeldt (heiko@hexco.de)
 for making libedc_ecc available (needed to write RAW data sectors).
-
-.SH "MAILING LISTS
-If you want to actively take part on the development of cdrecord,
-you may join the developer mailing list via this URL:
-.sp
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
-
-.SH AUTHOR
+.LP
+.SH AUTHORS
 .nf
-J\*org Schilling
-D-13353 Berlin
-Germany
+J\*org Schilling and the schilytools project authors.
 .fi
-.PP
-Additional information can be found on:
-.br
-http://cdrecord.org/private/cdrecord.html
-.PP
-If you have support questions, send them to:
-.PP
-.B
-cdrtools-support@lists.sourceforge.net
-.PP
-If you have definitely found a bug, send a mail to:
-.PP
-.B
-cdrtools-developers@lists.sourceforge.net
-.br
-or
-.B
-joerg@schily.net
-.PP
-To subscribe, use:
-.PP
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
-.br
-or
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-support
-.br
-.ne 7
 .SH "SOURCE DOWNLOAD"
-A frequently updated source code for the
-.B cdrtools
+The source code for
+.B cdrecord
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/
+https://codeberg.org/schilytools/schilytools/
 .LP
 The download directory is:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Less frequently updated source code for the
-.B cdrtools
-is at:
-.LP
-.B
-    http://sourceforge.net/projects/cdrtools/files/
-.LP
-and
-.B
-    http://sourceforge.net/projects/cdrtools/files/alpha
-.LP
-Separate project information for the
-.B cdrtools
-project may be retrieved from:
-.LP
-.B
-    http://cdrecord.org
-.br
-.ne 7
-.SH "INTERFACE STABILITY
-The interfaces provided by 
+https://codeberg.org/schilytools/schilytools/releases
+.SH "INTERFACE STABILITY"
+The interfaces provided by
 .B cdrecord
 are designed for long term stability.
 As

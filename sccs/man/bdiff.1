@@ -40,7 +40,7 @@ bdiff \- big diff
 .nf
 .B bdiff \c
 .I filename1 filename2 \c
-.RI [ n "] \c
+.RI [ n "] "\c
 .RB [ \-s ]
 .fi
 
@@ -195,8 +195,21 @@ Previous versions of
 .BR bdiff (1)
 did not check for binary content and silently discarded null bytes.
 
-.br
-.ne 5
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 The
 .BR bdiff (1)
@@ -205,6 +218,21 @@ program was initially written at Bell Labs in the 1970s as part of
 The SVr4 release was written by various authors at AT&T in 1989.
 The
 .BR bdiff (1)
-programm was later maintained by various people at AT&T and Sun Microsystems.
-Since 2006, it
-is maintained by J\*org Schilling.
+programm was later maintained by various people at AT&T and Sun
+Microsystems. Since 2006, it has been maintained by J\*org Schilling
+and is now maintained by the schilytools authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B sccs
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

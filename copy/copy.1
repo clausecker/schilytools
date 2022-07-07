@@ -88,8 +88,8 @@ from overwriting
 .IR target .
 If no file type arguments are present,
 .B copy
-will prompt: 
-.B "From: To: 
+will prompt:
+.B "From: To: "
 until either a ^C, ^D, or an empty line is typed.
 .TP
 .B \-q
@@ -104,27 +104,27 @@ If the from file is a directory,
 creates not only
 the target directory but recursively copies all
 subfiles. If the
-.I "target directory
-exists, a directory type 
+.I "target directory"
+exists, a directory type
 .I from
 parameter always results in a concatenation
 of the last path name component of the
 .I from 
 parameter and the
-.I "target directory
+.I "target directory"
 name.
 .sp
-If the 
-.I "target directory 
+If the
+.I "target directory"
 does not exist in POSIX recursive copy mode
-and there are only two directory type parameters, the 
-.I "target directory
-is created and the content of the 
-.I "from directory
-is copied to the 
+and there are only two directory type parameters, the
+.I "target directory"
+is created and the content of the
+.I "from directory"
+is copied to the
 .IR "target directory" .
 This is different from the case when the
-.I "target directory 
+.I "target directory"
 exists.
 .TP
 .B \-r
@@ -176,8 +176,8 @@ is able to effeciently and correctly restore all hole positions.
 Verbose
 Reports the result of the copy.
 .SH NOTES
-If the 
-.I "target file
+If the
+.I "target file"
 does not exist,
 .B copy
 attempts to retain the original user access modes even if 
@@ -195,3 +195,36 @@ as the destination for all the files.
 No slash will be accepted in the interactive mode if the
 environment variable 'SLASH=off' is set.
 .SH BUGS
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.B
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B copy
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+https://codeberg.org/schilytools/schilytools/releases

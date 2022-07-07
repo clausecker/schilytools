@@ -109,7 +109,7 @@ each in-core buffer takes 8 kB (the actual values that
 are compiled into
 .B ved
 may be retrieved by calling
-.BR "ved \-help" ").
+.BR "ved \-help" ")."
 Files that are bigger than the total amount of in-core buffer space are
 edited by using the swap file of
 .BR ved .
@@ -260,7 +260,7 @@ The size of this field defaults to 1/4th of the length of a line.
 It may use up more space if needed and no error text is displayed.
 It may be hidden for some time if a long error message is displayed.
 .TP
-.B "Error text
+.B "Error text"
 The fifth field is used to display all error messages and warnings.
 The size of this field defaults to 1/4th of the length of a line.
 If needed, it may use the space of the filename field too.
@@ -268,7 +268,7 @@ If needed, it may use the space of the filename field too.
 .SH "BASIC COMMAND FORMAT"
 .B Ved
 does not distinguish between
-.I "command mode
+.I "command mode"
 and
 .IR "insert mode" .
 Unless prefixed by commands that need arguments,
@@ -1383,7 +1383,7 @@ re-searches for the last text string you asked to for
 with the
 .BR ^R ,
 .BR <ESC>^R ,
-.BR <ALT>^R ", or
+.BR <ALT>^R ", or"
 .B <ALT><ESC>^R
 command. If you
 already found one occurrence of the text string,
@@ -1407,7 +1407,7 @@ reverses direction and re-searches for the last text
 string you asked for with the
 .BR ^R ,
 .BR <ESC>^R ,
-.BR <ALT>^R ", or
+.BR <ALT>^R ", or"
 .B <ALT><ESC>^R
 command. If you already found one occurrence of the
 text string,
@@ -1436,7 +1436,7 @@ re-searches for the last text string you asked for with
 the
 .BR ^R ,
 .BR <ESC>^R ,
-.BR <ALT>^R ", or
+.BR <ALT>^R ", or"
 .B <ALT><ESC>^R
 command. If you already
 found one occurrence of the text string,
@@ -1471,7 +1471,7 @@ reverses direction and re-searches for the last text
 string you asked for with the
 .BR ^R ,
 .BR <ESC>^R ,
-.BR <ALT>^R ", or
+.BR <ALT>^R ", or"
 .B <ALT><ESC>^R
 command. If you already found one occurrence of the
 text string,
@@ -1508,7 +1508,7 @@ The QUIT command ends the editing session.
 .RS
 .PP
 On the information line you will see the
-.B "QUITTING. PUT EDITS? (Y/W/N/F/!)
+.B "QUITTING. PUT EDITS? (Y/W/N/F/!)"
 prompt.
 .TP 8
 Type \fBY
@@ -1583,7 +1583,7 @@ The BACKUP command backs up the current file.
 .RS
 .PP
 On the information line you will see the
-.B "BACKUP?(Y/W/N/F/!)
+.B "BACKUP?(Y/W/N/F/!)"
 prompt.
 .PP
 If you enter one of the expected answers (
@@ -1603,7 +1603,7 @@ calls on-line help.
 .RS
 .PP
 On the information line you will see the
-.B "HELP(Y?)
+.B "HELP(Y?)"
 prompt. To continue editing (and abort this command),
 type
 .BR N .
@@ -1621,7 +1621,7 @@ suspends the current editing session.
 .RS
 .PP
 On the information line you will see the
-.B "SUSPENDING. PUT EDITS? (Y/W/N/F/!)
+.B "SUSPENDING. PUT EDITS? (Y/W/N/F/!)"
 prompt.
 .TP 8
 Type \fBY
@@ -1701,7 +1701,7 @@ position.
 .RS
 .PP
 On the information line you will see the
-.B "Get from:
+.B "Get from:"
 prompt. Type a file name and press the RETURN key.
 .PP
 You can insert files from the current working directory
@@ -1716,14 +1716,14 @@ exits the current file and enters another file.
 .RS
 .PP
 On the information line you will see the
-.B "Change to:
+.B "Change to:"
 prompt. Type the name of the file you wish to edit and
 press the RETURN key.
 .PP
 If the old file was modified, you will see the
-.B "CHANGING TO:
+.B "CHANGING TO:"
 .IR filename .
-.B "PUT EDITS?(Y/W/N/F/!)
+.B "PUT EDITS?(Y/W/N/F/!)"
 prompt; if you want to save and backup the edits
 in the current file.
 .TP 8
@@ -1785,7 +1785,7 @@ you specify.
 .RS
 .PP
 On the information line you will see the
-.B "Write to:
+.B "Write to:"
 prompt. Type a file name and press the RETURN key. If
 the file exists, its contents are overwritten. If the
 file does not exist, it is created.
@@ -1797,7 +1797,7 @@ you specify.
 .RS
 .PP
 On the information line you will see the
-.B "\e to file:
+.B "\e to file:"
 prompt. Type a file name and press the RETURN key. If
 the file exists, its contents are overwritten. If the
 file does not exist, it is created. The take buffer
@@ -1810,7 +1810,7 @@ mark and the cursor) to the file you specify.
 .RS
 .PP
 On the information line you will see the
-.B "Sel to:
+.B "Sel to:"
 prompt. Type a file name and press the RETURN key. If
 the file exists, its contents are overwritten. If the
 file does not exist, it is created.
@@ -1846,7 +1846,7 @@ The default multiplier is 4. If you want to multiply
 by a different value, use
 .BR <ESC>^U .
 On the information line you will see the
-.B "Mult =
+.B "Mult ="
 prompt. Type a number and press the RETURN key.
 .RE
 
@@ -1856,7 +1856,7 @@ prompt. Type a number and press the RETURN key.
 lets you edit your editing macro file called
 .B .vedmac
 (which is located in your
-.I "$HOME
+.I "$HOME"
 directory).
 It is the same as if
 you used
@@ -1902,7 +1902,7 @@ adjusts the text displayed on the terminal screen so
 that the line the cursor is on becomes the optimum line on the screen.
 This usually is the center line of the display but it may be changed
 using the
-.B "<ESC>:set optline # <CR>
+.B "<ESC>:set optline # <CR>"
 command.
 This may involve displaying different text,
 depending on where the cursor is when you use this
@@ -1917,7 +1917,7 @@ changes modes.
 .RS
 .PP
 On the information line you will see the
-.B "Mode?(ORV8)
+.B "Mode?(ORV8)"
 prompt.
 Type
 .TP
@@ -1992,7 +1992,7 @@ and press the RETURN key.
 If the file was modified before you called
 .BR ^X^X ,
 you will see the
-.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)"
 prompt.
 .TP 8
 Type \fBY
@@ -2058,7 +2058,7 @@ prompt, do not type a command; simply press the RETURN
 key. If you had started to type a command, use the
 DELETE key to erase it; the field following the prompt
 must be blank. To abort the command while you can see the
-.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)"
 prompt, type anything
 except
 .BR Y ,
@@ -2084,7 +2084,7 @@ or
 commands).
 .PP
 When you type <ESC>^X, you will see the
-.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)"
 prompt on the information
 line.
 .TP 8
@@ -2152,7 +2152,7 @@ command line in your file and select it.
 When you type
 .BR <ALT>^X ,
 you will see the
-.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)"
 prompt on the information
 line.
 .TP 8
@@ -2540,14 +2540,14 @@ To create a macro, you need to edit the file
 .B .vedmac
 in your home directory.
 You may do this by either explicitly typing
-.I "ved ~/.vedmac
+.I "ved ~/.vedmac"
 or by using the built in
 .B ved
 command
 .BR <ALT>^G .
 .PP
 The file
-.B "~/.vedmac
+.B "~/.vedmac"
 contains a number of lines, each holds a macro definition like this:
 .PP
 .B "L:/*^[74^M-*/: Comment Line"
@@ -2586,7 +2586,7 @@ To create a mapping, you need to edit the file
 in your home directory.
 .PP
 The file
-.B "~/.vedmap
+.B "~/.vedmap"
 contains a number of lines with the following structure:
 .LP
 .IB "  map_from" : map_to : comment
@@ -2650,7 +2650,7 @@ that have been set up from the
 entry.
 A typical use case for this feature is to avoid the mapping:
 .LP
-.BR "  ^H" : "^?" : "Key Backspace -> Delete Char
+.BR "  ^H" : "^?" : "Key Backspace -> Delete Char"
 .LP
 that is caused by the
 .B TERMCAP
@@ -2690,7 +2690,7 @@ quoting character
 .BR ^^ .
 To be sure that you are able to literally enter some text, type
 .BR ^^^@
-.RB ( "control up-arrow" " followed by " "Nul" " and the text).
+.RB ( "control up-arrow" " followed by " "Nul" " and the text)."
 
 .LP
 At startup,
@@ -2844,7 +2844,7 @@ mapped to
 .B k;
 .BR "Key F10" ,
 mapped to
-.B "Re search
+.B "Re search"
 .RB ( ^Z ).
 .TP
 .B F1
@@ -3350,24 +3350,25 @@ If the eighth bit of a character is "on", the tilde character
 .B ~
 appears before characters, i.e.,
 .IR ~C .
-
 .SH BUGS
 .PP
 None currently known.
-
-.SH AUTHOR
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.B https://codeberg.org/schilytools/schilytools/issues
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
 .B
-joerg@schily.net
-
-.ne 8
+https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+.fi
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
 .SH "SOURCE DOWNLOAD"
 The source code for
 .B ved
@@ -3375,21 +3376,12 @@ is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/
+https://codeberg.org/schilytools/schilytools/
 .LP
 The download directory is:
 .LP
 .B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily ved project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/ved.html
+https://codeberg.org/schilytools/schilytools/releases

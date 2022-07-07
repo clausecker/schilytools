@@ -460,7 +460,7 @@ the set of
 .IR words ,
 each preceded by a number.
 If
-.BI in " word
+.BI in " word"
 \&... is omitted, then the positional parameters are used instead.
 See
 .BR "Parameter Substitution" .
@@ -694,7 +694,7 @@ as defined above, under
 .br
 .ne 3
 .HP
-.BI time " pipeline
+.BI time " pipeline"
 .br
 The
 .I pipeline
@@ -778,7 +778,7 @@ is left intact from the last regular command.
 Quoting is not possible for hash commands.
 For all hash commands, there is a built in help text that is printed
 when 
-.BI # c "\ -help
+.BI # c "\ -help"
 is called, where
 .I c
 is one of the command letters.
@@ -794,7 +794,7 @@ The following commands are supported:
 .br
 .ne 3
 .TP
-.BI "#a[g|l]" " name value
+.BI "#a[g|l]" " name value"
 Add a new
 .B all expand
 alias. Such an alias is expanded regardless where it
@@ -828,7 +828,7 @@ the
 .br
 .ne 3
 .TP
-.BI "#b[g|l]" " name value
+.BI "#b[g|l]" " name value"
 Add a new
 .BR "begin alias" .
 Such an alias is only expanded for the first word
@@ -838,7 +838,7 @@ is entered into the current default table.
 .br
 .ne 3
 .TP
-.BI "#d[g|l]" " name
+.BI "#d[g|l]" " name"
 Removes the alias
 .I name
 from the list of known aliases.
@@ -877,7 +877,7 @@ list of aliases.
 .br
 .ne 3
 .TP
-.BI "#p[g|l][a|b]" " name value
+.BI "#p[g|l][a|b]" " name value"
 With the
 .B #p
 command, an alias may be pushed on top of an existing alias
@@ -1164,6 +1164,7 @@ substitution lies within a pair of double quotes (\c
 .B
 " .\|.\|.\|` .\|.\|.\|` \&.\|.\|.\| "\c
 ), a backslash used to escape a double quote (\fB\e"\fR) is
+.\" " <-- hack for various editors. please keep.
 removed. Otherwise, it is left intact.
 .sp
 .LP
@@ -1179,6 +1180,7 @@ sign has no effect. Backslashes that precede characters other than
 .BR \e ,
 .BR ` ,
 \fB"\fR,
+.\" " <-- hack for various editors. please keep.
 .BR newline ,
 and
 .B $
@@ -1579,7 +1581,7 @@ is not set or is null:
 .sp
 .in +2
 .nf
-.B "echo  ${d:\(mi`pwd`}
+.B "echo  ${d:\(mi`pwd`}"
 .fi
 .in -2
 .sp
@@ -2780,13 +2782,13 @@ If
 .B TIMEFORMAT
 is unset, the value:
 .sp
-.B "  '%:E\ real\ %U\ user\ %S\ sys\ %\&P%%\ cpu'
+.B "  '%:E\ real\ %U\ user\ %S\ sys\ %\&P%%\ cpu'"
 .sp
 is used for automatic timing with
 .B set\ \-o\ time
 and:
 .sp
-.B "  '\enreal\ \ \ %6:E\enuser\ \ \ %6U\ensys\ \ \ \ %6S'
+.B "  '\enreal\ \ \ %6:E\enuser\ \ \ %6U\ensys\ \ \ \ %6S'"
 .sp
 is used for pipelines prefixed with the
 .B time
@@ -2800,7 +2802,7 @@ prints by default,
 but with the available precision from
 modern operating systems is:
 .sp
-.B "  '%6:Er\ %6Uu\ %6Ss\ %\&P%%\ %I+%Oio\ %Fpf+%Ww'
+.B "  '%6:Er\ %6Uu\ %6Ss\ %\&P%%\ %I+%Oio\ %Fpf+%Ww'"
 .LP
 A trailing newline is added when the format string is displayed.
 .LP
@@ -3187,7 +3189,7 @@ The following characters have a special meaning to the shell and cause
 termination of a word unless quoted:
 .sp
 .LP
-.B ";  &  (  )  |  ^  <  >  newline  space  tab
+.B ";  &  (  )  |  ^  <  >  newline  space  tab"
 .sp
 .LP
 A character can be
@@ -3298,7 +3300,7 @@ it with one or more assignments to parameters. Thus:
 .sp
 .in +2
 .nf
-.BI TERM=450 " command
+.BI TERM=450 " command"
 .fi
 .in -2
 .sp
@@ -3326,7 +3328,7 @@ is a Special Command, then
 .sp
 .in +2
 .nf
-.BI TERM=450 " command
+.BI TERM=450 " command"
 .fi
 .in -2
 .sp
@@ -3345,7 +3347,7 @@ flag is set,
 keyword arguments are placed in the
 environment, even if they occur after the command name. The following
 example first prints
-.B "a=b c
+.B "a=b c"
 and
 .BR c :
 .sp
@@ -3485,7 +3487,7 @@ No effect; the command does nothing. A zero exit code is returned.
 .br
 .ne 3
 .TP
-.BI "+ \&." " filename
+.BI "+ \&." " filename"
 .sp
 Read and execute commands from
 .I filename
@@ -3500,7 +3502,7 @@ is used to find the directory containing
 .ne 5
 .PD 0
 .TP
-.BI @ " name = expr
+.BI @ " name = expr"
 .TP
 .BI @ " name" ++
 .TP
@@ -3568,7 +3570,7 @@ command was not supported in older versions of
 .ne 4
 .HP
 .B [
-.RI [ expr "] ]
+.RI [ expr "] ]"
 .sp .6
 See
 .B test
@@ -3577,7 +3579,7 @@ builtin below.
 .br
 .ne 3
 .TP
-.B "alias \fR[\fI options \fR] [\fIalias-name\fR[=\fIvalue\fR]...]
+.B "alias \fR[\fI options \fR] [\fIalias-name\fR[=\fIvalue\fR]...]"
 .sp .6
 The
 .B alias
@@ -4034,7 +4036,7 @@ enclosing loop.
 .br
 .ne 3
 .TP
-.BR dirs " [ " \-L " | " \-P " ]
+.BR dirs " [ " \-L " | " \-P " ]"
 .sp .6
 Print the content of the directory stack.
 The top of the stack is the leftmost element which has the logical offset
@@ -4106,7 +4108,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-.BI dosh " command_string \fR[\fI command_name \fR[\fI args \fR]]
+.BI dosh " command_string \fR[\fI command_name \fR[\fI args \fR]]"
 .sp .6
 The
 .B dosh
@@ -4126,7 +4128,7 @@ starting with
 The
 .B dosh
 command thus behaves like
-.BI "sh \-c" " command_string\fR,
+.BI "sh \-c" " command_string\fR,"
 but does not launch a new shell.
 Calling
 .B return
@@ -4388,7 +4390,7 @@ is not entered into the history list.
 .PP
 The following options are supported:
 .TP
-.BI \-e " editor
+.BI \-e " editor"
 Use
 .I editor
 to edit the commands.
@@ -4429,7 +4431,7 @@ Re-execute the command without invoking an editor.
 .LP
 The following operands are supported:
 .TP
-.IR first , " last
+.IR first , " last"
 Select the commands to
 .B list
 or
@@ -5128,7 +5130,7 @@ and
 may need quoting to be correctly passed to the mapping engine.
 .LP
 Call
-.BI "map \-u" " map_from
+.BI "map \-u" " map_from"
 to unmap an existing mapping.
 The parameter
 .I map_from
@@ -5137,7 +5139,7 @@ to be correctly passed to the mapping engine.
 .LP
 For more information and for escape sequences known by the mapper
 see the section
-.B "History Editing Input Mappings
+.B "History Editing Input Mappings"
 below.
 .sp
 The
@@ -5491,7 +5493,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-.BR pwd " [ " \-L " | " \-P " ]
+.BR pwd " [ " \-L " | " \-P " ]"
 .sp .6
 Print the current working directory as absolute pathname that does not contain
 the filenames
@@ -5825,7 +5827,7 @@ those that precede the command name.
 Switch job control mode on.
 All jobs are run in their own process groups. 
 See section
-.B "Job Control (jsh)
+.B "Job Control (jsh)"
 below.
 On systems with job control, this flag is turned on automatically
 for interactive shells.
@@ -6267,7 +6269,7 @@ shell).
 .br
 .ne 4
 .TP
-.BI test " [expr]
+.BI test " [expr]"
 .sp .6
 Evaluate conditional expressions. See
 .BR test (1)
@@ -6288,7 +6290,7 @@ The following primaries are used to evaluate a
 .br
 .ne 4
 .TP 10
-.BI \-b " file
+.BI \-b " file"
 .B True
 if
 .I file
@@ -6297,7 +6299,7 @@ exists and is a block special file.
 .br
 .ne 4
 .TP
-.BI \-c " file
+.BI \-c " file"
 .B True
 if
 .I file
@@ -6305,7 +6307,7 @@ exists and is a character special file.
 .br
 .ne 4
 .TP
-.BI \-C " file
+.BI \-C " file"
 .B True
 if
 .I file
@@ -6317,7 +6319,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-d " file
+.BI \-d " file"
 .B True
 if
 .I file
@@ -6325,7 +6327,7 @@ exists and is a directory.
 .br
 .ne 4
 .TP
-.BI \-D " file
+.BI \-D " file"
 .B True
 if
 .I file
@@ -6337,7 +6339,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-e " file
+.BI \-e " file"
 .B True
 if
 .I file
@@ -6349,7 +6351,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-f " file
+.BI \-f " file"
 .B True
 if
 .I file
@@ -6371,7 +6373,7 @@ if file exists and is
 .br
 .ne 4
 .TP
-.BI \-g " file
+.BI \-g " file"
 .B True
 if
 .I file
@@ -6381,7 +6383,7 @@ flag is set.
 .br
 .ne 4
 .TP
-.BI \-G " file
+.BI \-G " file"
 .B True
 if
 .I file
@@ -6395,7 +6397,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-h " file
+.BI \-h " file"
 .B True
 if
 .I file
@@ -6403,7 +6405,7 @@ exists and is a symbolic link.
 .br
 .ne 4
 .TP
-.BI \-k " file
+.BI \-k " file"
 .B True
 if
 .I file
@@ -6413,7 +6415,7 @@ set.
 .br
 .ne 4
 .TP
-.BI \-L " file
+.BI \-L " file"
 .B True
 if
 .I file
@@ -6421,7 +6423,7 @@ exists and is a symbolic link.
 .br
 .ne 4
 .TP
-.BI \-n " string
+.BI \-n " string"
 .B True
 if the length of
 .I string
@@ -6429,7 +6431,7 @@ is non-zero.
 .br
 .ne 4
 .TP
-.BI \-N " file
+.BI \-N " file"
 .B True
 if
 .I file
@@ -6444,7 +6446,7 @@ was not supported in older versions of
 .br
 .ne 5
 .TP
-.BI \-o " option
+.BI \-o " option"
 .B True
 if the option named
 .I option
@@ -6464,7 +6466,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-O " file
+.BI \-O " file"
 .B True
 if
 .I file
@@ -6478,7 +6480,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-p " file
+.BI \-p " file"
 .B True
 if
 .I file
@@ -6487,7 +6489,7 @@ exists and is a named pipe
 .br
 .ne 4
 .TP
-.BI \-P " file
+.BI \-P " file"
 .B True
 if
 .I file
@@ -6499,7 +6501,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-r " file
+.BI \-r " file"
 .B True
 if
 .I file
@@ -6507,7 +6509,7 @@ exists and is readable.
 .br
 .ne 4
 .TP
-.BI \-s " file
+.BI \-s " file"
 .B True
 if
 .I file
@@ -6515,7 +6517,7 @@ exists and has a size greater then zero.
 .br
 .ne 4
 .TP
-.BI \-S " file
+.BI \-S " file"
 .B True
 if
 .I file
@@ -6527,7 +6529,7 @@ was not supported in older versions of
 .br
 .ne 4
 .TP
-.BI \-t " [file-descriptor]
+.BI \-t " [file-descriptor]"
 .B True
 if the file whose file descriptor number is
 .I file-descriptor
@@ -6544,7 +6546,7 @@ must always be specified.
 .br
 .ne 4
 .TP
-.BI \-u " file
+.BI \-u " file"
 .B True
 if
 .I file
@@ -6554,7 +6556,7 @@ flag is set.
 .br
 .ne 4
 .TP
-.BI \-w " file
+.BI \-w " file"
 .B True
 if
 .I file
@@ -6562,7 +6564,7 @@ exists and is writable.
 .br
 .ne 4
 .TP
-.BI \-x " file
+.BI \-x " file"
 .B True
 if
 .I file
@@ -6572,7 +6574,7 @@ If file is a directory, true indicates that file can be searched.
 .br
 .ne 4
 .TP
-.BI \-z " string
+.BI \-z " string"
 .B True
 if the length of
 .I string
@@ -7378,7 +7380,7 @@ The symbolic mode was not supported in older versions of
 .br
 .ne 3
 .TP
-.B "unalias \fR[\fI options \fR] [\fIalias-name\fR...]
+.B "unalias \fR[\fI options \fR] [\fIalias-name\fR...]"
 .sp .6
 The
 .B unalias
@@ -7427,7 +7429,7 @@ from the global aliases.
 If the related alias definition is the last for
 .I alias-name
 (use
-.BI "alias \-p \-g" " alias-name
+.BI "alias \-p \-g" " alias-name"
 to verify), remove it from the persistent global aliases that are stored
 in the file
 .B $HOME/.globals
@@ -7440,7 +7442,7 @@ from the local aliases.
 If the related alias definition is the last for
 .I alias-name
 (use
-.BI "alias \-p \-l" " alias-name
+.BI "alias \-p \-l" " alias-name"
 to verify), remove it from the persistent local aliases that are stored
 in the file
 .B .locals
@@ -7647,7 +7649,7 @@ Where
 .I pref
 is a unique prefix of the command name. For example, if
 the command
-.BI "ls \-l" " name
+.BI "ls \-l" " name"
 were running in the background, it
 could be referred to as
 .BR %ls .
@@ -7978,7 +7980,7 @@ type the history editing quoting character
 .BR ^^ .
 To be sure that you are able to literally enter some text, type
 .BR ^^^@
-.RB ( "control up-arrow" " followed by " "Nul" " and the text).
+.RB ( "control up-arrow" " followed by " "Nul" " and the text)."
 
 .LP
 At startup (directly before the first shell command prompt is shown),
@@ -8132,7 +8134,7 @@ that have been set up from the
 entry.
 A typical use case for this feature is to avoid the mapping:
 .LP
-.BR "  ^H" : "^?" : "Key Backspace -> Delete Char
+.BR "  ^H" : "^?" : "Key Backspace -> Delete Char"
 .LP
 that is caused by the
 .B TERMCAP
@@ -8172,7 +8174,7 @@ to get one
 in the edit input.
 To enter a mapped string (such as cursor key output), first enter the
 quote character of the command line history editor control ^
-.RB ( ^^ ") octal 036,
+.RB ( ^^ ") octal 036,"
 then enter a
 .B nul character
 and finally the otherwise mapped text.
@@ -8569,7 +8571,7 @@ creates a file named
 .BR a* .
 .LP
 The built-in command
-.BI . " file
+.BI . " file"
 reads the whole file before any commands are executed.
 When a command substitution, a set of commands from
 .BR eval ,
@@ -8592,9 +8594,9 @@ Because commands in pipelines are run as separate processes, variables set
 in a pipeline have no effect on the parent shell.
 .sp
 .LP
-If you get the error message, "\c
-.B "cannot fork, too many processes\c
-", try using the
+If you get the error message
+.BR "'cannot fork, too many processes'" ,
+try using the
 .BR wait (1)
 command to clean up your background processes. If
 this doesn't help, the system process table is probably full or you have too
@@ -8786,7 +8788,7 @@ followed by a command with the argument
 In logical and physical mode, the command argument
 .B *
 may refer to different files than calling
-.BI cd "\ somedir
+.BI cd "\ somedir"
 followed by a command with the argument
 .BR ../* .
 .sp
@@ -8795,7 +8797,7 @@ While the latter problem is caused by the existence of a
 in the new path, the first problem is caused by the behavior of
 .BR "cd\ \-L" .
 This is why the Bourne Shell, when not in POSIX mode
-.RB ( "set\ \-o\ posix" " not set),
+.RB ( "set\ \-o\ posix" " not set),"
 did not change it's default
 behavior and assumes
 .B "cd\ \-P"
@@ -8887,7 +8889,7 @@ script is read from inside a function and the script is intended to return from
 the function.
 .ne 4
 .TP
-.BR retval " and " "Command Substitution
+.BR retval " and " "Command Substitution"
 This version of the shell no longer uses a command substitution as a
 checkpoint where the
 .B exitcode
@@ -8940,7 +8942,7 @@ A portable method to clear the positional parameters is to call
 .RB `` "shift $#" ''.
 .ne 4
 .TP
-.BR "set \-e" " and " "Command Substitution
+.BR "set \-e" " and " "Command Substitution"
 The historic Bourne Shell did abort the first
 .B echo
 command in the following exanple:
@@ -8991,7 +8993,7 @@ is an unary operator that misses an argument.
 Correctly written scripts do not suffer from this change.
 .sp
 When not in POSIX mode
-.RB ( "set\ \-o\ posix" " not set),
+.RB ( "set\ \-o\ posix" " not set),"
 .B test
 still understands
 .B test \-t
@@ -9109,8 +9111,21 @@ instead as the fact that the next word is an option disables the
 .B time
 token to be recognized as a reserved word.
 
-.br
-.ne 5
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 The
 .B Bourne Shell
@@ -9121,7 +9136,8 @@ The
 was later maintained by various people at AT&T and Sun Microsystems.
 Since 2006, the
 .B Bourne Shell
-is maintained by J\*org Schilling.
+has been maintained by J\*org Schilling and the schilytools project
+authors.
 .LP
 The
 .B history editor
@@ -9137,10 +9153,9 @@ is compatible to
 It was written in August 1984 by
 J\*org Schilling and P. Teuchert for the shell
 .BR bsh (1)
-and is maintained
-by J\*org Schilling since 1985.
-.br
-.ne 8
+and has been maintained by J\*org Schilling since 1985. It is now
+maintained by the schilytools project authors.
+
 .SH "SOURCE DOWNLOAD"
 The source code for the
 .B Bourne Shell
@@ -9148,21 +9163,10 @@ is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily Bourne Shell project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/bosh.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

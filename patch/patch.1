@@ -100,7 +100,7 @@ patch - a program for applying a diff file to an original
 .I [options]
 .I orig
 .I patchfile
-.I "[+ [options] orig]
+.I "[+ [options] orig]"
 .sp
 .B sccspatch
 .I [options]
@@ -206,7 +206,7 @@ appended to it. If the file already exists, it is overwritten.
 If multiple patches are applied to the same file, the
 .B .orig
 file is written only for the first patch. When the
-.BI \-o " outfile
+.BI \-o " outfile"
 option is also specified, file
 .B .orig
 is not created but, if outfile already exists, outfile
@@ -243,13 +243,13 @@ forces
 .B patch
 to interpret the patch file as a context diff.
 .TP
-.BI \-d " dir
+.BI \-d " dir"
 causes
 .B patch
 to interpret the next argument as a directory, and cd to it before doing
 anything else.
 .TP
-.BI \-D " define
+.BI \-D " define"
 causes
 .B patch
 to use the
@@ -314,7 +314,7 @@ the number of lines of context in the context diff, ordinarily 3.
 .sp
 This option is not available in strict POSIX mode.
 .TP
-.BI \-i " patchfile
+.BI \-i " patchfile"
 Reads the patch information from the file named by the path name
 .IR patchfile ,
 rather than the standard input.
@@ -339,7 +339,7 @@ to ignore patches that it thinks are reversed or already applied.
 See also
 .B \-R .
 .TP
-.BI \-o " outfile
+.BI \-o " outfile"
 causes the next argument to be interpreted as the output file name.
 .TP
 .BI \-p number
@@ -383,7 +383,7 @@ always must have an argument, in non-POSIX mode
 may be used as an alias for
 .BR \-p0 .
 .TP
-.BI \-r " rejectfile
+.BI \-r " rejectfile"
 causes the next argument to be interpreted as the reject file name.
 In the default case, the reject file has the same name as the
 output file, with the suffix
@@ -568,7 +568,7 @@ to enforce to set the time stamp in such a case.
 .sp
 This option is not available in strict POSIX mode.
 
-.SH "EXTENDED DESCRIPTION
+.SH "EXTENDED DESCRIPTION"
 .PP
 Upon startup, patch will attempt to determine the type of the diff listing,
 unless over-ruled by a
@@ -1012,7 +1012,7 @@ option with no space to the following argument, e.g.
 .TP
 .B \(bu
 The option
-.BI \-i " patchfile
+.BI \-i " patchfile"
 is only supported by 
 .BR "POSIX patch" ,
 but not by traditional
@@ -1095,9 +1095,9 @@ For maximum portability, limit yourself to the following options:
 .TP
 .B \-c
 .TP
-.BI \-d " dir
+.BI \-d " dir"
 .TP
-.BI \-D " define
+.BI \-D " define"
 .TP
 .B \-e
 .TP
@@ -1107,13 +1107,13 @@ For maximum portability, limit yourself to the following options:
 .TP
 .B \-N
 .TP
-.BI \-o " outfile
+.BI \-o " outfile"
 .TP
 .BI \-p num
 .TP
 .B \-R
 .TP
-.BI \-r " rejectfile
+.BI \-r " rejectfile"
 .TP
 .B \-u
 .PD
@@ -1141,6 +1141,18 @@ If you apply a patch you've already applied,
 will think it is a reversed patch, and offer to un-apply the patch.
 This could be construed as a feature.
 .rn }` ''
+
+Please mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 Larry Wall <larry@wall.org>
 wrote the original version of
@@ -1153,7 +1165,8 @@ code to support arbitrarily long lines,
 large file support and
 code to support POSIX compliance.
 .br
-.ne 8
+It is now maintained by the schilytools project authors.
+
 .SH "SOURCE DOWNLOAD"
 The source code for
 .B Schily patch
@@ -1161,21 +1174,10 @@ is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily Bourne Shell project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/patch.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

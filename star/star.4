@@ -23,7 +23,7 @@ star \- tape archive file format
 Archives are layered archives.
 The basic structure is defined by the POSIX.1-1988 archive format and 
 documented in the
-.B "BASIC TAR HEADER DESCRIPTION
+.B "BASIC TAR HEADER DESCRIPTION"
 section below.
 The higher level structure is defined by the POSIX.1-2001 extended headers
 and documented in the
@@ -32,9 +32,9 @@ section below.
 POSIX.1-2001 extended headers are pseudo files that contain an unlimited number
 of extended header keywords and associated values. The header keywords are
 documented in the
-.B "EXTENDED TAR (PAX) HEADER KEYWORDS
+.B "EXTENDED TAR (PAX) HEADER KEYWORDS"
 section below.
-.SH "BASIC TAR STRUCTURE
+.SH "BASIC TAR STRUCTURE"
 .PP
 A
 .B tar
@@ -76,7 +76,7 @@ from 1979 already) and that the term
 is typically used for 512 bytes if the tape block size if not relevant in a
 specific context.
 
-.SH "BASIC TAR HEADER DESCRIPTION
+.SH "BASIC TAR HEADER DESCRIPTION"
 .PP
 Physically, a POSIX.1-1988
 .B tar
@@ -136,7 +136,7 @@ The header block is defined in star.h as follows:
 .fi
 .PP
 See section
-.B "EXTENDED TAR (PAX) HEADER KEYWORDS
+.B "EXTENDED TAR (PAX) HEADER KEYWORDS"
 for more information about the structure of a POSIX.1-2001 header.
 .PP
 .nf
@@ -567,7 +567,7 @@ format.
 The extended header records in this header type affect all
 following files in the archive unless they are overwritten by new values.
 See
-.B "EXTENDED TAR (PAX) HEADER FORMAT
+.B "EXTENDED TAR (PAX) HEADER FORMAT"
 section below.
 .TP
 .B 'x' EXTENDED POSIX.1-2001 HEADER
@@ -582,7 +582,7 @@ format.
 The extended header records in this header type only affect the
 following file in the archive.
 See
-.B "EXTENDED TAR (PAX) HEADER FORMAT
+.B "EXTENDED TAR (PAX) HEADER FORMAT"
 section below.
 .TP
 .B 'A' - 'Z'
@@ -775,7 +775,7 @@ These fields may use a
 encoding.
 .br
 .ne 10
-.SH "EXTENDED TAR (PAX) HEADER STRUCTURE
+.SH "EXTENDED TAR (PAX) HEADER STRUCTURE"
 .PP
 .TS
 tab (/);
@@ -796,7 +796,7 @@ Block of binary zeroes/Second EOF Block
 .TE
 
 .ne 10
-.SH "EXTENDED TAR (PAX) HEADER FORMAT
+.SH "EXTENDED TAR (PAX) HEADER FORMAT"
 .PP
 The data block that follows a
 .B tar
@@ -830,7 +830,7 @@ Null characters do not delimit any value. The data used for
 .I value 
 is only limited by its
 implicit length.
-.SH "EXTENDED TAR (PAX) HEADER KEYWORDS
+.SH "EXTENDED TAR (PAX) HEADER KEYWORDS"
 POSIX.1-2001 extended
 .B pax
 header keywords. All numerical values are represented as decimal strings.
@@ -852,55 +852,55 @@ The name of the character set used to encode the data in the following file(s).
 The following values are supported for
 .BR charset :
 .TP 25
-.B "ISO-IR 646 1990
+.B "ISO-IR 646 1990"
 ISO/IEC 646:1990
 .TP
-.B "ISO-IR 8859 1 1998
+.B "ISO-IR 8859 1 1998"
 ISO/IEC 8859-1:1998
 .TP
-.B "ISO-IR 8859 2 1998
+.B "ISO-IR 8859 2 1998"
 ISO/IEC 8859-2:1998
 .TP
-.B "ISO-IR 8859 3 1998
+.B "ISO-IR 8859 3 1998"
 ISO/IEC 8859-3:1998
 .TP
-.B "ISO-IR 8859 4 1998
+.B "ISO-IR 8859 4 1998"
 ISO/IEC 8859-4:1998
 .TP
-.B "ISO-IR 8859 5 1998
+.B "ISO-IR 8859 5 1998"
 ISO/IEC 8859-5:1998
 .TP
-.B "ISO-IR 8859 6 1998
+.B "ISO-IR 8859 6 1998"
 ISO/IEC 8859-6:1998
 .TP
-.B "ISO-IR 8859 7 1998
+.B "ISO-IR 8859 7 1998"
 ISO/IEC 8859-7:1998
 .TP
-.B "ISO-IR 8859 8 1998
+.B "ISO-IR 8859 8 1998"
 ISO/IEC 8859-8:1998
 .TP
-.B "ISO-IR 8859 9 1998
+.B "ISO-IR 8859 9 1998"
 ISO/IEC 8859-9:1998
 .TP
-.B "ISO-IR 8859 10 1998
+.B "ISO-IR 8859 10 1998"
 ISO/IEC 8859-10:1998
 .TP
-.B "ISO-IR 8859 11 1998
+.B "ISO-IR 8859 11 1998"
 ISO/IEC 8859-11:1998
 .TP
-.B "ISO-IR 8859 12 1998
+.B "ISO-IR 8859 12 1998"
 ISO/IEC 8859-12:1998
 .TP
-.B "ISO-IR 8859 13 1998
+.B "ISO-IR 8859 13 1998"
 ISO/IEC 8859-13:1998
 .TP
-.B "ISO-IR 8859 14 1998
+.B "ISO-IR 8859 14 1998"
 ISO/IEC 8859-14:1998
 .TP
-.B "ISO-IR 8859 15 1998
+.B "ISO-IR 8859 15 1998"
 ISO/IEC 8859-15:1998
 .TP
-.B "ISO-IR 10646 2000
+.B "ISO-IR 10646 2000"
 ISO/IEC 10646:2000
 .TP
 .B "ISO-IR 10646 2000 UTF-8"
@@ -942,7 +942,7 @@ keyword is present) coded to fit the charset value.
 The name of the character set used to encode the data for the
 .BR gname ,
 .BR linkpath ,
-.BR path " and
+.BR path " and"
 .B uname
 fields in the POSIX.1-2001 extended header records
 and for the
@@ -1038,7 +1038,7 @@ for vendor specific extensions
 by the standard.
 .B Star
 uses a lot of these vendor specific extension. See below for more information.
-.SH "SCHILY PAX EXTENSION KEYWORDS
+.SH "SCHILY PAX EXTENSION KEYWORDS"
 .B Star
 uses own vendor specific extensions. The
 .B SCHILY
@@ -1069,7 +1069,7 @@ on Solaris, using the call:
 .sp
 .nf
 .B acl_totext(aclp, \e
-.B "    ACL_COMPACT_FMT | ACL_APPEND_ID | ACL_SID_FMT);
+.B "    ACL_COMPACT_FMT | ACL_APPEND_ID | ACL_SID_FMT);"
 .fi
 .sp
 The flags have the following meaning:
@@ -1198,7 +1198,7 @@ and
 for storing the
 .B ACL 
 and 
-.B "Default ACL
+.B "Default ACL"
 of a file, respectively.
 The access control lists are stored in the short text form as defined in
 the withdrawn
@@ -1210,10 +1210,10 @@ operating systems still support it with some filesystems.
 To each named user 
 .B ACL
 entry a fourth colon separated field, containing the
-.I "user identifier (UID)
+.I "user identifier (UID)"
 of the associated user, is appended.
 To each named group entry a fourth colon separated field containing the
-.I "group identifier (GID)
+.I "group identifier (GID)"
 of the associated group is appended.
 (POSIX 1003.1e draft standard 17 allows one to add fields to ACL entries.)
 .sp
@@ -1222,7 +1222,7 @@ If the
 or
 .B group name
 field is numeric because the related user has no entry in the
-.BR passwd / "group database
+.BR passwd / "group database"
 at the time the archive is created,
 the additional numeric field may be omitted.
 .sp
@@ -1437,7 +1437,7 @@ This is the list terminator character - the second null byte, see below.
 .TP
 .BR \e001 " (" ^A )
 The default flag that is used in case the 
-.B "dump dir
+.B "dump dir"
 features have not been active or in case that the file type is unknown.
 .TP
 .BR \e002 " (" ^B )
@@ -1949,11 +1949,11 @@ the
 feature may be removed in favor of a truly portable implementation
 that supports Solaris also.
 
-.SH "SCHILY 'G'LOBAL PAX EXTENSION KEYWORDS
+.SH "SCHILY 'G'LOBAL PAX EXTENSION KEYWORDS"
 The following 
 .B star
 vendor unique extensions may only appear in
-.B "'g'lobal
+.B "'g'lobal"
 extended
 .B pax
 headers:
@@ -1985,7 +1985,7 @@ and the
 .B SCHILY.archtype
 keyword needs to be in the first 512 bytes of the content of the
 first
-.B "'g'lobal pax
+.B "'g'lobal pax"
 header. Then the first tape block may be scanned to recognize
 the archive type.
 .RE
@@ -2023,7 +2023,7 @@ unsigned values.
 .B SCHILY.volhdr.cwd
 This keyword is used in dump mode.
 It is only emitted in case the
-.B "fs\-name=
+.B "fs\-name="
 option of star was used to overwrite the
 .B SCHILY.volhdr.filesys
 value.
@@ -2130,7 +2130,7 @@ The number used for the first volume is 1.
 The value is an unsigned int with a valid range between 1 and
 infinity. An implementation should be able to handle at least 31 bit
 unsigned values.
-.SH "MULTI VOLUME ARCHIVE HANDLING
+.SH "MULTI VOLUME ARCHIVE HANDLING"
 .PP
 Multi volume archives always use volume headers. Starting with the second
 volume, there is a multi volume header that helps to skip the rest of the
@@ -2198,8 +2198,23 @@ option was used.
 .BR star_sym (1),
 .BR tartest (1),
 .BR star (1)
-.SH NOTES
+.\" .SH NOTES
+
 .SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH HISTORY
 A
 .B tar
@@ -2231,13 +2246,4 @@ was renamed to
 (Standard tar).
 
 .SH AUTHOR
-.nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+J\*org Schilling and the schilytools project authors.

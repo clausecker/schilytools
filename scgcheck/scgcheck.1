@@ -270,9 +270,8 @@ slows down the process.
 Specify the log file to be used instead of 
 .IR check.log .
 
-.SH EXAMPLES
-
-.SH FILES
+.\" .SH EXAMPLES
+.\" .SH FILES
 .SH SEE ALSO
 .BR cdrecord (1),
 .BR readcd (1),
@@ -360,10 +359,12 @@ the text
 .I deferred error
 is appended.
 .PP
-The sixth line is the error text for the sense code and the sense qualifier if available.
-If the type of the device is known, the sense data is decoded from tables
-in
-.IR scsierrs.c " .
+The sixth line is the error text for the sense code and the sense
+qualifier if available.
+The sense data is decoded from tables in
+.I scsierrs.c
+in case the type of device is known.
+.PP
 The text is followed by the error value for a field replaceable unit.
 .PP
 The seventh line prints the block number that is related to the failed command
@@ -373,41 +374,36 @@ The eight line reports the timeout set up for this command and the time
 that the command realy needed to complete.
 
 .SH BUGS
-
-.SH CREDITS
-
-.SH "MAILING LISTS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
 
 .SH AUTHOR
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Additional information can be found on:
-.br
-http://cdrecord.org/private/cdrecord.html
-.PP
-If you have support questions, send them to:
-.PP
-.B
-cdrtools-support@lists.sourceforge.net
-.PP
-If you have definitely found a bug, send a mail to:
-.PP
-.B
-cdrtools-developers@lists.sourceforge.net
-.br
-or
-.B
-joerg@schily.net
-.PP
-To subscribe, use:
-.PP
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-developers
-.br
-or
-.B
-https://lists.sourceforge.net/lists/listinfo/cdrtools-support
+.B scgcheck
+was initially written by J\*org Schilling and is now maintained by the
+schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B scgcheck
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

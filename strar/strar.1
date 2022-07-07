@@ -26,13 +26,13 @@ strar \- StreamArchive handler
 [\fIoptions\fP]
 .I file1 .\|.\|. filen
 .SH DESCRIPTION
-.B Strar
+.B strar
 is a simple archiver with
 .B tar
 like command like syntax that handles
 .BR StreamArchive s.
 .PP
-.B Strar
+.B strar
 archives and extracts multiple files to and from a single file
 called a 
 .IR StreamArchive .
@@ -40,7 +40,7 @@ A
 .I StreamArchive
 is usually used in network communication, but it can be any file.
 .PP
-.B "Strar's
+.B "Strar's"
 actions are controlled by the mandatory command flags from the 
 list below.
 The way 
@@ -126,13 +126,11 @@ will produce a listing to the format of the ls \-l output.
 .B \-version
 Print version information and exit.
 
-.SH SIGNALS
-.PP
-.SH "EXIT STATUS
-.SH EXAMPLES
-.PP
-.SH ENVIRONMENT
-.SH FILES
+.\" .SH SIGNALS
+.\" .SH "EXIT STATUS"
+.\" .SH EXAMPLES
+.\" .SH ENVIRONMENT
+.\" .SH FILES
 .SH "SEE ALSO"
 .BR star (1),
 .BR spax (1),
@@ -152,11 +150,10 @@ Print version information and exit.
 .BR star (4),
 .BR streamarchive (4),
 .BR rcmd (3).
-.SH DIAGNOSTICS
+.\" .SH DIAGNOSTICS
+.\" .SH NOTES
 
-.SH NOTES
-.PP
-.SH "SECURITY NOTES
+.SH "SECURITY NOTES"
 If you unpack a
 .B StramArchive
 in a non empty directory, any file in that directory 
@@ -170,39 +167,42 @@ If
 is running on a large file aware platform,
 .B strar
 is able to handle files of arbitrary size.
+
 .SH BUGS
-.SH HISTORY
-.B Strar
-was created in 2017.
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+
+.SH HISTORY
+.B strar
+was initially written by J\*org Schilling in 2017.
+
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
 
 .SH "SOURCE DOWNLOAD"
 The source code for
 .B strar
-is in the
+is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
+.BR https://codeberg.org/schilytools/schilytools/releases .

@@ -827,11 +827,12 @@ the disabling of the \fB\&.c.a:\fR rule, which would have created each
 object file, one by one. This particular construct speeds up archive library
 maintenance considerably. This type of construct becomes very cumbersome if
 the archive library contains a mix of assembly programs and C programs.
-.SH ENVIRONMENT VARIABLES
+.SH ENVIRONMENT
 .sp
 .ne 2
 .mk
 .na
+.\" This looks strange
 .B USE_SVR4_MAKE
 .br
 .B USE_SVID
@@ -955,35 +956,39 @@ is illegal. You cannot build
 from
 .BR file.o .
 
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 This version of
 .BR sysV-make (1)
-was originally written by Sun Microsystems in 1993.
-Since 2016, it is maintained by J\*org Schilling.
-.br
-.ne 8
+was originally written by Sun Microsystems in 1993.  Since 2016, it
+has been maintained by J\*org Schilling and the schilytools project
+authors.
+
 .SH "SOURCE DOWNLOAD"
-The source code for the
+The source code for
 .B SunPro Make
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily SunPro Make project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/sunpromake.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

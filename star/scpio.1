@@ -20,34 +20,34 @@ scpio \- copy file archives in and out (LEGACY)
 .B
 scpio
 [
-.I "other options
+.I "other options"
 ]
 \-o[aBcv]
 .br
 .B
 scpio
 [
-.I "other options
+.I "other options"
 ]
 \-i[Bcdmruvf]
 [
-.I "pattern ...
+.I "pattern ..."
 ]
 .br
 .B
 scpio
 [
-.I "other options
+.I "other options"
 ]
 \-it[Bcvf]
 [
-.I "pattern ...
+.I "pattern ..."
 ]
 .br
 .B
 scpio
 [
-.I "other options
+.I "other options"
 ]
 \-p[adlmuv]
 .I directory
@@ -168,7 +168,7 @@ The archive format used by
 with the
 .B c
 option is the format from the
-.B "\-H asc
+.B "\-H asc"
 option.
 It gives best
 .B cpio
@@ -177,7 +177,7 @@ compatibility when transferring files to SVR4-based systems
 When transferring files in
 .B cpio
 archives to unknown operating systems, it is unwise to use the
-.BR c "\ option.
+.BR c "\ option."
 .TP
 .B r
 Interactively rename files. For each archive member matching
@@ -234,7 +234,7 @@ Copy in all files except those in
 
 .PP
 The following 
-.I "other options
+.I "other options"
 are implemented as 
 .B SVr4 compliant
 extension to the Open Group standard:
@@ -277,24 +277,24 @@ This option is unsupported but not needed as
 .B scpio
 includes automatic byte order recognition.
 .TP
-.BI \-C " #
+.BI \-C " #"
 Sets (input/output) archive block size to # bytes.
 .TP
-.BI \-E " name
+.BI \-E " name"
 Read filenames for store/create/list command from
 .IR name .
 The file
 .I name
 must contain a list of filenames, each on a separate line.
 .TP
-.BI \-H " header
+.BI \-H " header"
 Set the archive type to
 .IR header .
 See
 .BR star (1)
 for more information.
 .TP
-.BI \-I " nm
+.BI \-I " nm"
 Use
 .I nm
 as archive file name instead of stdin.
@@ -305,11 +305,11 @@ Try to skip corrupt archive headers.
 .B \-L
 Follow symbolic links as if they were files.
 .TP
-.BI \-M " message
+.BI \-M " message"
 Define a message that is uses when switching media.
 This option is currently unsupported.
 .TP
-.BI \-O " nm
+.BI \-O " nm"
 Use
 .I nm
 as archive file name instead of stdout.
@@ -322,7 +322,7 @@ See
 .B star -acl
 for more information.
 .TP
-.BI \-R " nm
+.BI \-R " nm"
 Reassign ownership and group for all files based on
 .IR nm .
 This option is currently unsupported.
@@ -350,7 +350,7 @@ Special verbose. Print a dot for each file that is read or written.
 This option is currently unsupported.
 .PP
 The following 
-.I "other options
+.I "other options"
 are implemented as 
 .B star
 extension to the Open Group standard:
@@ -595,9 +595,9 @@ When the
 option is used, the standard input is an archive file
 formatted in any way that is understood by the archive handling
 engine (see
-.B "\-H help
+.B "\-H help"
 option for a complete list).
-.SH "INPUT FILES
+.SH "INPUT FILES"
 .PP
 The files identified by the pathnames in the standard input are of
 any type.
@@ -608,7 +608,7 @@ option is used, the file
 .B /dev/tty
 is used to write
 prompts and read responses.
-.SH "ASYNCHRONOUS EVENTS
+.SH "ASYNCHRONOUS EVENTS"
 .PP
 Default.
 .SH STDOUT
@@ -618,7 +618,7 @@ option is used, the standard output is an archive file
 formatted as specified by
 .B pax
 with the
-.B "\-x cpio
+.B "\-x cpio"
 option. For better compatibility with SVR4-based systems that
 do not implement the 
 .B cpio
@@ -626,7 +626,7 @@ format correctly,
 .B scpio
 by default limits the length of file names to 256 bytes.
 Use 
-.B "scpio \-H cpio
+.B "scpio \-H cpio"
 to explicitly switch to the full POSIX 1003.1-1988
 .B cpio
 archive format.
@@ -641,17 +641,14 @@ option is not used, the standard error contains
 commentary in an unspecified format concerning the progress of the
 execution. Otherwise, the standard error is used only for
 diagnostic messages.
-.SH "OUTPUT FILES
+.SH "OUTPUT FILES"
 Output files are created, as specified by the archive, when the
 .B \-i
 or
 .B \-p
 options are used.
-.SH "EXTENDED DESCRIPTION
-.PP
-None.
 
-.SH "EXIT STATUS
+.SH "EXIT STATUS"
 .PP
 The following exit values are returned:
 .TP
@@ -660,14 +657,14 @@ Successful completion.
 .TP
 .B >0
 An error occurred.
-.SH "CONSEQUENCES OF ERRORS
+.SH "CONSEQUENCES OF ERRORS"
 .PP
 If a file or directory cannot be created or overwritten,
 .B scpio
 continues with the next file in the archive or file to be added to
 the archive.
 
-.SH "APPLICATION USAGE
+.SH "APPLICATION USAGE"
 .PP
 Archives created by
 .B scpio
@@ -705,9 +702,6 @@ and based on an extended
 .B tar
 format.
 
-.SH "FUTURE DIRECTIONS
-None.
-
 .SH EXAMPLES
 .PP
 1. Copy the contents of a directory onto an archive:
@@ -738,7 +732,7 @@ Determine the timezone used with date and time strings.
 .BR spax (1),
 .BR tar (1),
 .BR star (1).
-.SH DIAGNOSTICS
+.\" .SH DIAGNOSTICS
 .SH NOTES
 .PP
 The default block size for
@@ -748,9 +742,9 @@ Use
 .BR \-B ", " \-C ", or " bs=
 to set a different block size.
 .PP
-.B "Scpio -iu
+.B "Scpio -iu"
 is equivalent to
-.B "star \-xU \-install \-force\-remove \-remove\-recursive
+.B "star \-xU \-install \-force\-remove \-remove\-recursive"
 and for this reason may remove nonempty directory trees in extrace mode
 without printing a warning.
 .PP
@@ -769,15 +763,38 @@ of any discrepancy between these versions and the original
 specification, the original The Open Group Standard is the
 referee document. The original Standard can be obtained online at
 .BR "http://www.opengroup.org/unix/single_unix_specification_v2" .
+
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B scpio
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

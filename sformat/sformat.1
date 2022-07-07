@@ -26,19 +26,19 @@ sformat [options]
 .PP
 The first form will select the named disk directly.
 Have a look at the chapter about 
-.B "Following The Main Thread
+.B "Following The Main Thread"
 for more details.
 .PP
 The second form will scan all SCSI busses and enter a selection menu.
 Have a look at the chapter about 
-.B "The SCSI Selection Menu
+.B "The SCSI Selection Menu"
 for more details.
 .PP
 .B Sformat
 will never destroy or modify any data unless explicitly confirmed
 just before the (possibly) destructive action.
 Have a look at the chapter about 
-.B "How To Answer Questions 
+.B "How To Answer Questions"
 first.
 
 .SH DESCRIPTION
@@ -66,7 +66,7 @@ and will be able to repair more disks than other disk maintenance programs.
 .B Sformat
 offers special maintenance tests to find the reason for complex disk failures.
 
-.SH "Disk Database Entries
+.SH "Disk Database Entries"
 .PP
 Be nice to other users of 
 .BR sformat .
@@ -76,7 +76,7 @@ using the
 flag and mail them to the author.
 This helps other users and you too.
 See section on
-.B "Creating Disk Database Entries
+.B "Creating Disk Database Entries"
 below.
 
 .SH OPTIONS
@@ -170,14 +170,14 @@ this equals to
 .br
 .ne 3
 .TP
-.BI kdebug= "#, " kd= "#
-Tell the 
+.BI kdebug= "#, " kd= "#"
+Tell the
 .BR scg -driver
 to modify the kernel debug value while SCSI commands are running.
 .br
 .ne 3
 .TP
-.BI xdebug= "#, " xd= "#
+.BI xdebug= "#, " xd= "#"
 Set the debug level for the parser of the external disk database.
 .br
 .ne 3
@@ -280,7 +280,7 @@ Each mode page exists in 4 versions:
 default (PROM), current (RAM), saved (DISK) and changeable (BITMASK).
 .br
 You may currently view any page if you specify the page number.
-.B "This is currently under construction.
+.B "This is currently under construction."
 .br
 .ne 3
 .TP
@@ -480,10 +480,10 @@ see if a disk has these problems.
 Do 
 .I random
 or 
-.I "full stroke
+.I "full stroke"
 seek tests on the disk. This is done by reading data; trying to
 do
-.I "full stroke
+.I "full stroke"
 seek tests my be impossible because of the cache of the disk.
 .br
 .ne 3
@@ -639,7 +639,7 @@ than two years or has unusual defects. Usual defects in this
 context are recovered read errors and defects that disappear
 when simply writing to the defect sector.
 
-.SH "How To Answer Questions
+.SH "How To Answer Questions"
 There are four types of questions.
 .TP
 \(bu
@@ -651,7 +651,7 @@ Yes may be abbreviated with 'y' or 'Y'.
 These questions are always assumed to be answered with 
 .I no
 if you simply enter
-.I "carriage return.
+.I "carriage return."
 NOTE: the latter is always a 
 .I safe
 answer. 
@@ -659,13 +659,13 @@ All questions that request confirmation for actions that may damage or modify
 data on disk are formed in such a way that answering them with
 .I no
 or 
-.I "carriage return
+.I "carriage return"
 will not harm any data.
 All answers to this type of questions
 except
-.I "[y]es
+.I "[y]es"
 or 
-.I "[Y]ES
+.I "[Y]ES"
 are interpreted as if 
 .I no
 has been entered.
@@ -673,7 +673,7 @@ has been entered.
 \(bu
 Questions that need a string as input.
 If you simply enter
-.I "carriage return
+.I "carriage return"
 to this type of question, no modification of the
 default string will be done.
 .TP
@@ -703,17 +703,17 @@ Entering an dollar sign '$' will set the value to the greatest possible
 .TP
 +
 Entering a 
-.I "plus sign
+.I "plus sign"
 will increment the current value by one.
 .TP
 -
 Entering a 
-.I "minus sign
+.I "minus sign"
 will decrement the current value by one.
 .TP
 <CR>
 Entering a 
-.I "carriage return
+.I "carriage return"
 will not modify the current value.
 If the default value is -1, you need to supply a valid 
 value to be allowed to leave the question menu.
@@ -722,7 +722,7 @@ value to be allowed to leave the question menu.
 All questions that do not request a simple string (second type of question)
 will accept a question mark '?' to display online help.
 
-.SH "The SCSI Selection Menu
+.SH "The SCSI Selection Menu"
 .PP
 When 
 .B Sformat
@@ -817,7 +817,7 @@ When selecting a specific logical unit, the main thread is entered as if
 a complete SCSI target specification has been entered from the command 
 line.
 
-.SH "Following The Main Thread
+.SH "Following The Main Thread"
 .PP
 If the main formatting thread is entered, the following 
 stages are encountered:
@@ -909,7 +909,7 @@ This data and the inquiry data is used to search in the disk data base.
 .B Sformat 
 asks:
 .br
-.I "Ignore database disk parameters from 'sformat.dat'?
+.I "Ignore database disk parameters from 'sformat.dat'?"
 .br
 If you don't want the data from the data base to be used, negotiate the 
 appropriate question.
@@ -925,7 +925,7 @@ If there is more than one possible entry for this disk in the data base,
 .B sformat 
 asks:
 .br
-.I "Select alternate disk type?
+.I "Select alternate disk type?"
 .br
 If the disk type menu is entered, all possible data base entries are displayed.
 The current entry is marked with '*', the default entry is marked with '+'
@@ -941,7 +941,7 @@ reads in the label and ask whether to remember this data.
 .B Sformat 
 asks:
 .br
-.I "Ignore old disk Label?
+.I "Ignore old disk Label?"
 .br
 I you confirm this question and reformat the disk, the old partitioning 
 information will be lost.
@@ -952,7 +952,7 @@ If you want to modify some disk parameters answer the next question with 'y'.
 .B Sformat 
 asks:
 .br
-.I "Modify Disk Geometry Parameters?
+.I "Modify Disk Geometry Parameters?"
 .br
 This enables to modify basic data on geometry, the interleaving factor and
 the defect management system.
@@ -964,7 +964,7 @@ Error recovery parameters include read/write retry count and similar.
 .B Sformat 
 asks:
 .br
-.I "Modify Error recovery Parameters?
+.I "Modify Error recovery Parameters?"
 .br
 .TP
 Disconnect Parameter
@@ -973,7 +973,7 @@ Disconnect parameters are buffer full/empty ratio and bus inactivity limit.
 .B Sformat 
 asks:
 .br
-.I "Modify Disconnect Parameters
+.I "Modify Disconnect Parameters"
 .br
 .TP
 Alternate Label
@@ -983,7 +983,7 @@ go into the next menu.
 .B Sformat 
 asks:
 .br
-.I "Select alternate Label?
+.I "Select alternate Label?"
 .br
 The current entry is marked with '*', the default entry is marked with '+'.
 .TP
@@ -996,7 +996,7 @@ this abstract geometry.
 .B Sformat 
 asks:
 .br
-.I "Modify Label Geometry Parameters?
+.I "Modify Label Geometry Parameters?"
 .br
 .TP
 SCSI Parameters
@@ -1016,7 +1016,7 @@ of a firmware bug, a smaller value may be specified here.
 .B Sformat 
 asks:
 .br
-.I "Modify SCSI Parameters?
+.I "Modify SCSI Parameters?"
 .br
 .TP
 Grown Defect List
@@ -1031,7 +1031,7 @@ keep the defect list.
 .B Sformat 
 asks:
 .br
-.I "Clear old grown defect list?
+.I "Clear old grown defect list?"
 .br
 .TP
 Mode pages
@@ -1040,7 +1040,7 @@ If you want to format the disk, you need to set the mode pages before.
 .B Sformat 
 asks:
 .br
-.I "Set mode pages (needed for format)?
+.I "Set mode pages (needed for format)?"
 .br
 However, if you do not want to format the disk, you may negotiate this 
 question and will be lead to the label modification menu.
@@ -1053,7 +1053,7 @@ indicated in the used up percentage of the estimated time.
 .B Sformat 
 asks:
 .br
-.I "Format Disk destroys all Data. Really?
+.I "Format Disk destroys all Data. Really?"
 .br
 If you only want to set the mode pages, you may this question with 'n'.
 .TP
@@ -1064,14 +1064,14 @@ the label menu is entered.
 .B Sformat 
 asks:
 .br
-.I "Print disk label?
+.I "Print disk label?"
 .br
 If you want to see the current layout of the disk label, enter 'y'.
 .br
 .B Sformat 
 asks:
 .br
-.I "Modify disk label?
+.I "Modify disk label?"
 .br
 If you want to modify the disk label enter 'y'.
 .TP
@@ -1080,7 +1080,7 @@ Inside the label modification menu
 .B Sformat 
 asks:
 .br
-.I "Label: <Quantum XP34300> change ?
+.I "Label: <Quantum XP34300> change ?"
 .br
 If you want to retain the old label name, enter <CR>, else
 enter 'y'. 
@@ -1090,7 +1090,7 @@ will ask for the new Label name.
 .B Sformat 
 asks:
 .br
-.I "Enter disk label: Quantum XP34300
+.I "Enter disk label: Quantum XP34300"
 .br
 You are left in the tty line edit mode and may modify the input line (see
 termio(7) manual page).
@@ -1098,7 +1098,7 @@ termio(7) manual page).
 .B Sformat 
 asks:
 .br
-.I "Volume Name: <> change ?
+.I "Volume Name: <> change ?"
 .br
 If you want to retain the old label name, enter <CR>, else
 enter 'y'. 
@@ -1108,7 +1108,7 @@ will ask for the new Volume name.
 .B Sformat 
 asks:
 .br
-.I "Change partition table?
+.I "Change partition table?"
 .br
 If you want to change the partition table enter 'y'.
 .br
@@ -1116,11 +1116,11 @@ If you want to change the partition table enter 'y'.
 asks:
 .br
 .nf
-.I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks
+.I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks"
 .br
-.I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)
+.I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)"
 .br
-.I "Change ?
+.I "Change ?"
 .br
 .fi
 If you want to modify this partition enter 'y', otherwise
@@ -1131,7 +1131,7 @@ asks for the partition you want to change.
 .B Sformat 
 asks:
 .br
-.I "Enter partition id Tag [root]:
+.I "Enter partition id Tag [root]:"
 .br
 Enter <CR> if the partition tag is ok for this partition, otherwise 
 enter '?' to get a list of valid partition tags or enter the new 
@@ -1140,7 +1140,7 @@ partition tag.
 .B Sformat 
 asks:
 .br
-.I "Enter partition permission Flags [wm]:
+.I "Enter partition permission Flags [wm]:"
 .br
 Enter <CR> if the partition flag is ok for this partition, otherwise 
 enter '?' to get a list of valid partition flags or enter the new 
@@ -1149,7 +1149,7 @@ partition flag.
 .B Sformat 
 asks:
 .br
-.I "Enter starting cylinder 0 (0 - 3851)/<cr>:
+.I "Enter starting cylinder 0 (0 - 3851)/<cr>:"
 .br
 Enter <CR> if the starting cylinder is ok for this partition, otherwise
 enter '?' to get a list of possible input.
@@ -1158,7 +1158,7 @@ XXX
 .B Sformat 
 asks:
 .br
-.I "Enter number of blocks 67580, 31/0/0 (0 - 8395180)/<cr>:
+.I "Enter number of blocks 67580, 31/0/0 (0 - 8395180)/<cr>:"
 .br
 Enter <CR> if the size is ok for this partition, otherwise
 enter '?' to get a list of possible input.
@@ -1168,11 +1168,11 @@ XXX
 asks:
 .br
 .nf
-.I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks
+.I "Part     Tag Flag  Cylinders Startsec # of Sec      Size    Blocks"
 .br
-.I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)
+.I "0       root wm     0 -   30        0    67580     32.99MB (31/0/0)"
 .br
-.I "Ok ?
+.I "Ok ?"
 .br
 .fi
 Enter <CR> if you still want to modify the partition record.
@@ -1186,7 +1186,7 @@ will display the current label.
 .B Sformat 
 asks:
 .br
-.I "Use this label?
+.I "Use this label?"
 .br
 If you enter 'y', 
 .B sformat 
@@ -1202,7 +1202,7 @@ If a bad block is encountered,
 will reassign this bad block.
 XXX
 
-.SH "How To Format A Disk
+.SH "How To Format A Disk"
 .PP
 The number of defects that SCSI disks can handle depends on the defect
 mapping system they use. There are several possible systems:
@@ -1229,7 +1229,7 @@ there still may be an additional mapping area at the end of the disk.
 This is controlled by the alternate tracks per volume parameter.
 .PP
 If your disk says 
-.I "no defect spare location,
+.I "no defect spare location,"
 you may be able to
 get extra space by going into the disk parameter menu of sformat
 and change a value. Note: some disks tell you that some of the 
@@ -1237,7 +1237,7 @@ values are changeable (there is a range in parenthesis) but
 actually ignore the new value. You will have to read the values
 after formatting to see if the new parameters are in effect.
 
-.SH "How To Modify A Label
+.SH "How To Modify A Label"
 Remember, don't panic. You need no desc calculator to create or modify
 a partition table.
 .PP
@@ -1253,7 +1253,7 @@ an outdated copy of the defect list is only able to hold 127 defects :-(.
 .PP
 The label geometry cannot be changed in the partition menu. It must be set 
 before from the 
-.B "Label Parameters
+.B "Label Parameters"
 menu.
 .TP 30
 Print disk label?
@@ -1275,7 +1275,7 @@ If this question is answered with 'y', a partition menu will be displayed.
 .TP
 Use this label?
 
-.SH "Graphical Label Display
+.SH "Graphical Label Display"
 .PP
 When printing the label or partition data, 
 .B sformat
@@ -1362,23 +1362,32 @@ space after end
 There is no partition that uses the space between
 the end of this partition and the end of the disk.
 
-.SH "Creating Disk Database Entries
+.SH "Creating Disk Database Entries"
 
-.SH EXAMPLES
+.\" .SH EXAMPLES
 
 .SH FILES
 .PP
 .TP 20
 .B /opt/schily/etc/sformat.dat
 A database with mode pages and disk partitions for disks.
-.SH "SEE ALSO"
-.SH DIAGNOSTICS
-.SH NOTES
+.\" .SH "SEE ALSO"
+.\" .SH DIAGNOSTICS
+.\" .SH NOTES
+
 .SH BUGS
 .PP
-This is a draft of the manual changes may be daily.
+This draft man pages sucks.
+
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
 .PP
-.ne 10
+The mailing list archive may be found at:
+.PP
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+
 .SH AUTHOR
 .LP
 .B sformat
@@ -1398,34 +1407,20 @@ has been made portable,
 .B sformat
 could be made portable as well.
 .LP
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.B sformat
+is now maintained by the schilytools project authors.
 
 .SH "SOURCE DOWNLOAD"
 The source code for
-.B sfomat
-is in the
+.B sformat
+is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
+.BR https://codeberg.org/schilytools/schilytools/releases .

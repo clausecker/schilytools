@@ -105,7 +105,7 @@ and the command line macro of the same name manage the way
 .B make
 controls the number of jobs.
 See the chapter
-.B "ENVIRONMENT VARIABLES
+.B ENVIRONMENT
 for more information.
 .TP
 .BR \-m\  { serial " | " parallel }
@@ -241,7 +241,7 @@ or the total number of jobs.
 Allow
 .B dmake
 to control the number of jobs
-.B "based on the current system load.
+.B "based on the current system load."
 If the load is high, the number of jobs will be reduced.
 If the load is low, the number of jobs specified by the user is used.
 .sp
@@ -249,7 +249,7 @@ This is the default method used to control the number of jobs.
 .TP
 .B M2
 The number of jobs is adjusted
-.B "based on the total number of jobs
+.B "based on the total number of jobs"
 run by the current group of running
 .B make
 programs.
@@ -354,40 +354,45 @@ See
 .BR make (1s)
 for a list of files.
 
-.SH "SEE ALSO
+.SH "SEE ALSO"
 .BR make (1s),
 .BR attributes (5),
 .BR largefile (5)
 
+.SH BUGS
+See
+.BR make (1s)
+for a list of known bugs.
+
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHORS
 This version of
 .BR dmake (1)
-was originally written by Sun Microsystems in 1993.
-Since 2016, it is maintained by J\*org Schilling.
-.br
-.ne 8
+was originally written by Sun Microsystems in 1993. Since 2016, it
+has been maintained by J\*org Schilling and the schilytools project
+authors.
+
 .SH "SOURCE DOWNLOAD"
-The source code for the
-.B SunPro Make
+The source code for
+.B dmake
 is included in the
 .B schilytools
 project and may be retrieved from the
 .B schilytools
-project at Sourceforge at:
+project at Codeberg at
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/
+.BR https://codeberg.org/schilytools/schilytools .
 .LP
-The download directory is:
+The download directory is
 .LP
-.B
-    http://sourceforge.net/projects/schilytools/files/
-.LP
-Check for the
-.B schily\-*.tar.bz2
-archives.
-.LP
-Separate project information for the Schily SunPro Make project may be retrieved from:
-.LP
-.B
-    http://schilytools.sourceforge.net/sunpromake.html
+.BR https://codeberg.org/schilytools/schilytools/releases .

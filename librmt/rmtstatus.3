@@ -16,15 +16,8 @@
 .TH RMTSTATUS 3L "2020/09/04" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtstatus, rmtxstatus, _mtg2rmtg, _rmtg2mtg \- request MTIOCGET on a connection to a remote tape server
+.RB ( -lrmt )
 .SH SYNOPSIS
-.LP
-.B cc
-.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
-.B \-lrmt
-.B \-lsocket
-.B \-lnsl
-.RI "[ " "library" " \|.\|.\|. ]"
-.LP
 .nf
 .B
 #include <schily/librmt.h>
@@ -51,9 +44,9 @@ request to the remote server,
 .I remfd
 is a file descriptor previously obtained from a call to 
 .BR rmtgetconn (3),
-.B "struct mtget
+.B "struct mtget"
 is the local magnetic tape status structure,
-.B "struct rmtget
+.B "struct rmtget"
 is the enhanced magnetic tape status structure from
 .BR librmt .
 .BR rmtstatus (3)
@@ -71,7 +64,7 @@ if the remote side implements support for protocol version 1.
 The function
 .BR rmtstatus (3)
 is outdated and should be avoided as the results in
-.B "struct mtget
+.B "struct mtget"
 will be the least common denominator of the local and remote variants
 of the structure.
 Use
@@ -80,7 +73,7 @@ instead.
 The member
 .B mt_xflags
 in 
-.B "struct rmtget
+.B "struct rmtget"
 contains a bitmap that indicates which members of the structure contain
 valid values.
 See
@@ -89,23 +82,23 @@ for more information.
 .TP
 .B _rmtg2mtg()
 converts a
-.B "struct rmtget
+.B "struct rmtget"
 into a
 .BR "struct mtget" .
 .TP
 .B _mtg2rmtg()
 converts a
-.B "struct mtget
+.B "struct mtget"
 into a
 .B "struct rmtget"
 and sets the member
 .B mt_xflags
 in 
-.B "struct rmtget
+.B "struct rmtget"
 to contain a bitmap that indicates which members of 
-.B "struct mtget
+.B "struct mtget"
 are present in the local implementation.
-.SH RETURNS
+.SH "RETURN VALUES"
 .TP
 .BR rmtstatus() " and "rmtxstatus()
 return a value >= 0 if the remote 
@@ -122,7 +115,7 @@ value retrieved from the remote server.
 .TP
 .B _mtg2rmtg()
 returns -1 if no value from the local
-.B "struct mtget
+.B "struct mtget"
 could be converted to the abstract
 .BR "struct rmtget" .
 .SH EXAMPLES
@@ -152,7 +145,7 @@ if (rmtxstatus(remfd, &rmtg) < 0)
 rmtclose(remfd);
 .fi
 \fP
-.SH ENVIRONMENT
+.\" .SH ENVIRONMENT
 .\".SH FILES
 .SH "SEE ALSO"
 .BR rmt (1),
@@ -179,14 +172,26 @@ rmtclose(remfd);
 .BR errmsgno (3),
 .BR mtio (7)
 
-.SH DIAGNOSTICS
-.SH NOTES
+.\" .SH DIAGNOSTICS
+.\" .SH NOTES
 .SH BUGS
 .LP
 If local and remote
 .B errno
 values do not match, programs may get confused.
-.SH AUTHOR
+
+Mail other bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
 .LP
 .B librmt
 has been written in 1990 by J\*org Schilling.
@@ -194,15 +199,19 @@ In 1995, support for
 .B RMT VERSION 1
 has been added.
 .B librmt
-is still maintained by J\*org Schilling.
+is now maintained by the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B librmt
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
 .LP
-.nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

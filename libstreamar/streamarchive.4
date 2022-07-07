@@ -54,7 +54,7 @@ If the file names in the archive are only made from ASCII characters and
 if the archive only contains files with ASCII content, the whole archive
 contains only ASCII content.
 .ne 10
-.SH "HEADER FORMAT
+.SH "HEADER FORMAT"
 .PP
 The header records  use the following format:
 .PP
@@ -81,7 +81,7 @@ Null characters do not delimit any value. The data used for
 .I value 
 is only limited by its
 implicit length.
-.SH "HEADER KEYWORDS
+.SH "HEADER KEYWORDS"
 All numerical values are represented as decimal strings.
 All texts are represented as UTF-8 or an unspecified binary format (see
 .B hdrcharset
@@ -100,55 +100,55 @@ The name of the character set used to encode the data in the following file(s).
 The following values are supported for
 .BR charset :
 .TP 25
-.B "ISO-IR 646 1990
+.B "ISO-IR 646 1990"
 ISO/IEC 646:1990
 .TP
-.B "ISO-IR 8859 1 1998
+.B "ISO-IR 8859 1 1998"
 ISO/IEC 8859-1:1998
 .TP
-.B "ISO-IR 8859 2 1998
+.B "ISO-IR 8859 2 1998"
 ISO/IEC 8859-2:1998
 .TP
-.B "ISO-IR 8859 3 1998
+.B "ISO-IR 8859 3 1998"
 ISO/IEC 8859-3:1998
 .TP
-.B "ISO-IR 8859 4 1998
+.B "ISO-IR 8859 4 1998"
 ISO/IEC 8859-4:1998
 .TP
-.B "ISO-IR 8859 5 1998
+.B "ISO-IR 8859 5 1998"
 ISO/IEC 8859-5:1998
 .TP
-.B "ISO-IR 8859 6 1998
+.B "ISO-IR 8859 6 1998"
 ISO/IEC 8859-6:1998
 .TP
-.B "ISO-IR 8859 7 1998
+.B "ISO-IR 8859 7 1998"
 ISO/IEC 8859-7:1998
 .TP
-.B "ISO-IR 8859 8 1998
+.B "ISO-IR 8859 8 1998"
 ISO/IEC 8859-8:1998
 .TP
-.B "ISO-IR 8859 9 1998
+.B "ISO-IR 8859 9 1998"
 ISO/IEC 8859-9:1998
 .TP
-.B "ISO-IR 8859 10 1998
+.B "ISO-IR 8859 10 1998"
 ISO/IEC 8859-10:1998
 .TP
-.B "ISO-IR 8859 11 1998
+.B "ISO-IR 8859 11 1998"
 ISO/IEC 8859-11:1998
 .TP
-.B "ISO-IR 8859 12 1998
+.B "ISO-IR 8859 12 1998"
 ISO/IEC 8859-12:1998
 .TP
-.B "ISO-IR 8859 13 1998
+.B "ISO-IR 8859 13 1998"
 ISO/IEC 8859-13:1998
 .TP
-.B "ISO-IR 8859 14 1998
+.B "ISO-IR 8859 14 1998"
 ISO/IEC 8859-14:1998
 .TP
-.B "ISO-IR 8859 15 1998
+.B "ISO-IR 8859 15 1998"
 ISO/IEC 8859-15:1998
 .TP
-.B "ISO-IR 10646 2000
+.B "ISO-IR 10646 2000"
 ISO/IEC 10646:2000
 .TP
 .B "ISO-IR 10646 2000 UTF-8"
@@ -308,7 +308,7 @@ keyword is present) coded to fit the charset value.
 The name of the character set used to encode the data for the
 .BR gname ,
 .BR linkpath ,
-.BR path " and
+.BR path " and"
 .B uname
 fields in the POSIX.1-2001 extended header records.
 .RS
@@ -402,16 +402,23 @@ by the standard.
 .SH "SEE ALSO"
 .BR star (4).
 
-.SH NOTES
+.\" .SH NOTES
 .SH BUGS
-.SH AUTHOR
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
 .nf
-J\*org Schilling
-D\-13353 Berlin
-Germany
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
 .fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+
+.SH AUTHORS
+.nf
+J\*org Schilling and the schilytools project authors.
+.fi

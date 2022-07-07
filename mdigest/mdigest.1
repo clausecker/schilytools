@@ -19,7 +19,8 @@ mdigest \- calculate a message digest
 .SH SYNOPSIS
 .B
 mdigest
-.BI \-a " algorithm
+.B \-a
+.I algorithm
 [
 .I options
 ] [
@@ -36,7 +37,7 @@ reads from standard in.
 .SH OPTIONS
 All options can be abbreviated by their first letter.
 .TP
-.BI \-a " algorithm
+.BI \-a " algorithm"
 Specified the message digest hash algorithm to use.
 .TP
 .B \-l
@@ -56,10 +57,8 @@ Prints the
 .BR mdigest (1)
 version number string and exists.
 
-.SH ENVIRONMENT
-
-.SH FILES
-
+.\" .SH ENVIRONMENT
+.\" .SH FILES
 .SH NOTES
 If you call
 .B mdigest
@@ -67,3 +66,34 @@ with no file type arguments, it will compute the digest for
 .BR stdin .
 
 .SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
+.SH AUTHORS
+J\*org Schilling and the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B mdigest
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

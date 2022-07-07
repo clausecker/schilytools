@@ -22,11 +22,11 @@ makerules \- system programmers guide for compiling projects on different platfo
 .br
 .B "RULESDIR=	RULES
 .br
-.B "include		$(SRCROOT)/$(RULESDIR)/rules.top
+.B "include		$(SRCROOT)/$(RULESDIR)/rules.top"
 .br
-.I "local defines are here
+.I "local defines are here"
 .br
-.B "include		$(SRCROOT)/$(RULESDIR)/rules.*
+.B "include		$(SRCROOT)/$(RULESDIR)/rules.*"
 .PP
 See chapter CURRENTLY SUPPORTED TARGET TYPES for possible values of
 .BR "rules.*" .
@@ -51,15 +51,15 @@ and
 .IR smake .
 If you want to add support for other make programs, read the 
 sections about the minimum requirements for a make program
-and about the structure of the 
-.B "make rule 
+and about the structure of the
+.B "make rule"
 system.
 .PP
 This manual will help programmers who need to make modifications
 on the make rule system itself. If you want to know something 
 on how to use the 
-.B "makefile system
 have a look at 
+.B "makefile system"
 .BR makefiles (4).
 .PP
 The main design goal was to have no definition on more than place
@@ -124,7 +124,7 @@ The makefile in each directory has to be called
 If you want to have more than one makefile in a specific directory,
 you have to choose different names for the other makefiles.
 
-.SH "Currently Supported Target Types
+.SH "Currently Supported Target Types"
 .PP
 There are rules for the following type of targets:
 .TP 20
@@ -182,7 +182,7 @@ The make rules for sub directories
 are located in the file 
 .I rules.dir
 
-.SH "Minimum Requirements For A Make Program
+.SH "Minimum Requirements For A Make Program"
 The make rules currently have support for
 .IR "Sunpro make" , 
 .I "GNU make"
@@ -190,8 +190,8 @@ and
 .IR smake .
 If you like to add support for other make programs, 
 they need to have some minimal features that go
-beyond the capabilities of the standard 
-.SM "UNIX
+beyond the capabilities of the standard
+.SM UNIX
 .B make
 program.
 .I BSDmake
@@ -210,7 +210,7 @@ it should be built before an attempt is made to actually include it.
 appending to a macro
 A macro reference of the form:
 .sp
-.B "macro += addval
+.B "macro += addval"
 .sp
 should append
 .B addval
@@ -220,7 +220,7 @@ to the string that is currently in
 suffix macro replacement
 A macro reference of the form:
 .sp
-.B "out= $(macro\|:\|string1\|=\|string2)
+.B "out= $(macro\|:\|string1\|=\|string2)"
 .sp
 should replace a suffix
 .I string1
@@ -241,7 +241,7 @@ TAB, and escaped NEWLINE characters.
 pattern macro replacement
 A macro reference of the form:
 .sp
-.B "out= $(macro\|:\|op%os\|=\|np%ns)
+.B "out= $(macro\|:\|op%os\|=\|np%ns)"
 .sp
 should replace a central pattern in 
 .BR macro ,
@@ -260,35 +260,35 @@ or more characters), is carried forward from the value being
 replaced.
 For example:
 .sp
-.B "PROGRAM=fabricate
+.B "PROGRAM=fabricate"
 .br
-.B "DEBUG= $(PROGRAM:%=tmp/%\-g)
+.B "DEBUG= $(PROGRAM:%=tmp/%\-g)"
 .sp
 sets the value of DEBUG to tmp/fabricate\-g.
 .IR Op ", " os ", " 
 .IR np " and " ns
 must be replaced correctly even if they are macros themselves.
 
-.SH "Understanding Basic Algorithms
+.SH "Understanding Basic Algorithms"
 One of the basic algorithms used in the make rule system
 is needed to set an undefined macro to a guaranteed default value.
 Because not all make programs have support for
-.I "if then else
+.I "if then else"
 structures, a different method has to be used.
 .PP
 The method used in
-.B "make rules
+.B "make rules"
 is implemented by using
-.B "suffix macro replacement
+.B "suffix macro replacement"
 and
 .BR "pattern macro replacement" .
 .PP
 .ne 5
 First, a macro that contains a unique suffix is defined:
 .sp
-.B " # Define magic unique cookie
+.B " # Define magic unique cookie"
 .br
-.B " _UNIQ= 		.XxZzy\-
+.B " _UNIQ=			.XxZzy\-"
 .sp
 This macro is used for all places where it is necessary to have
 a macro with a guaranteed default value.
@@ -306,11 +306,11 @@ will be set to
 will be set to
 .IR $(MAKEPROG) .
 .sp
-.B " _MAKEPROG=	$(_UNIQ)$(MAKE_NAME)
+.B " _MAKEPROG=	$(_UNIQ)$(MAKE_NAME)"
 .br
-.B " __MAKEPROG=	$(_MAKEPROG:$(_UNIQ)=$(MAKEPROG))
+.B " __MAKEPROG=	$(_MAKEPROG:$(_UNIQ)=$(MAKEPROG))"
 .br
-.B " XMAKEPROG=	$(__MAKEPROG:$(_UNIQ)%=%)
+.B " XMAKEPROG=	$(__MAKEPROG:$(_UNIQ)%=%)"
 .sp
 The first line in this example, sets the macro
 .I _MAKEPROG
@@ -371,10 +371,10 @@ at this time,
 .B .XxZzy\-
 is stripped of.
 
-.SH "The Structure in Make Macro names
+.SH "The Structure in Make Macro names"
 .PP
-The names used for 
-.B "make macros
+The names used for
+.B "make macros"
 are structured in a way that allows one to use
 .BR grep (1)
 to look for the names in the 
@@ -382,13 +382,13 @@ to look for the names in the
 To allow this, no name must be a substring of another name.
 .PP
 If a command needs options that have to be specified
-in macros, there is a 
-.B "make macro
+in macros, there is a
+.B "make macro"
 that is named
 .I XXXFLAGS.
 This is compliant to usual make file rules.
 The are internal 
-.B "make macros
+.B "make macros"
 called
 .I XXXOPTS
 and
@@ -396,7 +396,7 @@ and
 that will be combined for 
 .IR XXXFLAGS :
 .sp
-.B "LDFLAGS= $(LDOPTS) $(LDOPTX)
+.B "LDFLAGS= $(LDOPTS) $(LDOPTX)"
 .sp
 Where 
 .I XXXOPTS
@@ -414,9 +414,9 @@ need to be overwritten,
 .I XXXOPTS
 may be used within the command line flags of the make program.
 
-.SH "The Structure Of The Make Rule System
-.SH "The Structure Of The Basic Rules in rules.top
 The file 
+.\" .SH "The Structure Of The Make Rule System"
+.SH "The Structure Of The Basic Rules in rules.top"
 .B RULES/rules.top
 first includes a rule file that depends on the 
 make program that is used.
@@ -514,14 +514,14 @@ On some operating systems e.g.
 .B SunOS
 and
 .B DG\-UX
-it is necessary to distinguish between 
-.B "SunOS 4.x
+it is necessary to distinguish between
+.B "SunOS 4.x"
 and
-.B "SunOS 5.x
+.B "SunOS 5.x"
 or
-.B "DG\-UX 3.x
-and 
-.B "DG\-UX 4.x.
+.B "DG\-UX 3.x"
+and
+.B "DG\-UX 4.x."
 .PP
 The next file to be included from
 .B RULES/rules.top
@@ -570,7 +570,7 @@ The other is whether the system uses
 .I shared libraries
 or not.
 
-.SH "The Structure Of The Application Specific Rules
+.SH "The Structure Of The Application Specific Rules"
 .PP
 The application specific rule files are designed in
 such a way that they include all necessary stuff that
@@ -611,11 +611,11 @@ Rules for installing localized shell scripts.
 $(RULES)/rules.shl
 Rules for shared libraries.
 
-.SH "Understanding The Structure Of The Make Rule System
+.SH "Understanding The Structure Of The Make Rule System"
 .PP
-To understand the structure of the 
-.B "make rule
-system while doing changes, try to use the 
+To understand the structure of the
+.B "make rule"
+system while doing changes, try to use the
 .B \-xM
 flag
 in the
@@ -679,8 +679,21 @@ has an option \-xM that shows you the include dependency for
 make rules.
 
 .SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
 
-.SH "Source Tree Hierarchy
+.SH "Source Tree Hierarchy"
 .LP
 The following outline gives a quick tour through a typical
 source hierarchy:
@@ -994,13 +1007,19 @@ directory for include files that belong to a specific system
 .PD
 
 .SH AUTHOR
-.nf
-J\*org Schilling
-D-13353 Berlin
-Germany
-.fi
-.PP
-Mail bugs and suggestions to:
-.PP
-.B
-joerg@schily.net
+This man page was initially written by J\*org Schilling.
+
+.SH "SOURCE DOWNLOAD"
+The source code for the
+.B "schily makefile system"
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .

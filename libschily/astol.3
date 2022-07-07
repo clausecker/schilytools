@@ -29,8 +29,8 @@ string that was not used for the conversion. If the entire
 string is to be used, it should point to a NULL character
 ('\\0').
 Leading spaces and tabs are skipped.
-.SH RETURN VALUES
-.SH ERRORS
+.\" .SH RETURN VALUES
+.\" .SH ERRORS
 .SH EXAMPLES
 .nf
 extern char *astol();
@@ -41,5 +41,4 @@ if (*astod(string, &l) != '\\0')
 astod(3), astof(3), astoi(3)
 .SH RETURNS
 Returns a pointer to first unused character.
-.SH NOTES
-none
+.\" .SH NOTES

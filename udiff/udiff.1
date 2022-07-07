@@ -49,7 +49,7 @@ classical UNIX
 .BR diff (1).
 .LP
 If called as
-.BR fdiff " or
+.BR fdiff " or"
 .BR fsdiff ,
 the POSIX output style is used and the 
 .BI nmatch= #
@@ -122,7 +122,7 @@ The POSIX output variant contains lines of these forms:
 .IR n1 , n2\c
 .B " c \c
 .IR n3 , n4
-.fi
+.fi .\" "
 .in -2
 
 .sp
@@ -202,25 +202,56 @@ The following exit values are returned:
 No differences were found
 .RB ( udiff
 and
-.BR fdiff " only).
+.BR fdiff " only)."
 .TP
 .B 0
 No error occurred
-.RB ( fsdiff " only).
+.RB ( fsdiff " only)."
 .TP
 .B 1
 Differences were found
 .RB ( udiff
 and
-.BR fdiff " only).
+.BR fdiff " only)."
 .TP
 .I other
 An error occurred.
 
 .SH NOTES
 No output is generated if the files are the same.
+
+.SH BUGS
+.PP
+None currently known.
+.PP
+Mail bugs and suggestions to
+.B schilytools@mlists.in-berlin.de
+or open a ticket at
+.BR https://codeberg.org/schilytools/schilytools/issues .
+.PP
+The mailing list archive may be found at:
+.PP
+.nf
+.BR https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de .
+.fi
+
 .SH AUTHOR
 .LP
 .B udiff
-was written 1985 - 2020 by
-J\*org Schilling
+was written 1985 - 2020 by J\*org Schilling and is now maintained by
+the schilytools project authors.
+
+.SH "SOURCE DOWNLOAD"
+The source code for
+.B udiff
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Codeberg at
+.LP
+.BR https://codeberg.org/schilytools/schilytools .
+.LP
+The download directory is
+.LP
+.BR https://codeberg.org/schilytools/schilytools/releases .
