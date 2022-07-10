@@ -145,7 +145,7 @@ void
 BLAKE2b_Update(ctx, in, inlen)
 	BLAKE2b_CTX	*ctx;
 	const void	*in;
-	size_t		 inlen; // data bytes
+	size_t		 inlen;
 {
 	size_t i;
 
