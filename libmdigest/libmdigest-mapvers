@@ -19,7 +19,7 @@ global:
 	BLAKE2b_256_Final;
 	BLAKE2b_512_Init;
 	BLAKE2b_512_Final;
-} SCHILY_1.2;
+} SCHILY_1.1;
 
 SCHILY_1.1 {
 global:
