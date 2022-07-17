@@ -21,7 +21,7 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 TAGS:		$(CFILES) $(CFILES_TAG) $(HFILES) $(HFILES_TAG)
-		$(ETAGS) $r1
+		-$(ETAGS) $r1
 
 tags:		$(CFILES) $(CFILES_TAG) $(HFILES) $(HFILES_TAG)
 		$(CTAGS) -t $r1
