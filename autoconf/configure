@@ -6635,7 +6635,7 @@ else
   cat > conftest.$ac_ext <<EOF
 #line 6637 "configure"
 #include "confdefs.h"
-extern int test2();
+extern int test2(void);
 #pragma weak test2 = test1
 int test1() {return 0;}
 int main() {

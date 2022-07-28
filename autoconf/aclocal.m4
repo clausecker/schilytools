@@ -3532,7 +3532,7 @@ dnl Checks if the compiler allows #pragma weak
 dnl Defines HAVE_PRAGMA_WEAK on success.
 AC_DEFUN([AC_PRAGMA_WEAK],
 [AC_CACHE_CHECK([if compiler allows pragma weak], ac_cv_pragma_weak,
-                [AC_TRY_LINK([extern int test2();
+                [AC_TRY_LINK([extern int test2(void);
 #pragma weak test2 = test1
 int test1() {return 0;}],
 [return test2();],
