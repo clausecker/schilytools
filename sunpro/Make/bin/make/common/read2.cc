@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)read2.cc	1.26 21/09/06 2017-2021 J. Schilling
  */
@@ -601,8 +602,8 @@ enter_dependencies(register Name target, Chain target_group, register Name_vecto
 {
 	register int		i;
 	register Property	line;
-	Name			name;
-	Name			directory;
+	Name			name = NULL;
+	Name			directory = NULL;
 	wchar_t			*namep;
 	char			*mb_namep;
 	Dependency		dp;
@@ -1113,7 +1114,6 @@ enter_dyntarget(register Name target)
 	register Dyntarget	result = ALLOC(Dyntarget);
 	Dyntarget		p;
 	Dyntarget		*insert;
-	int				i;
 
 	result->next = NULL;
 	result->name = target;
@@ -1624,8 +1624,6 @@ read_suffixes_list(register Name_vector depes)
 	register int		n;
 	register Dependency	dp;
 	register Dependency	*insert_dep;
-	register Name		np;
-	Name			np2;
 	register Boolean	first = true;
 
 	if (depes->used == 0) {
@@ -1645,6 +1643,9 @@ read_suffixes_list(register Name_vector depes)
 	Wstring str;
 	/* Otherwise we append to the list */
 	for (; depes != NULL; depes = depes->next) {
+		register Name		np;
+		Name			np2;
+
 		for (n = 0; n < depes->used; n++) {
 			np = depes->names[n];
 			/* Find the end of the list and check if the */

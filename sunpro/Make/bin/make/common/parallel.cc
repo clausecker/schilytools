@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)parallel.cc	1.19 21/08/13 2017-2021 J. Schilling
  */
@@ -95,8 +96,9 @@ static	UConst char sccsid[] =
 /*
  * This const should be in avo_dms/include/AvoDmakeCommand.h
  */
+#ifdef DISTRIBUTED
 const int local_host_mask = 0x20;
-
+#endif
 
 /*
  * typedefs & structs
@@ -158,23 +160,23 @@ Doname
 execute_parallel(Property line, Boolean waitflg, Boolean local)
 {
 	int			argcnt;
-	int			cmd_options = 0;
 	char			*commands[MAXRULES + 5];
 	char			*cp;
 #ifdef DISTRIBUTED
+	int			cmd_options = 0;
 	Avo_DoJobMsg		*dmake_job_msg = NULL;
+	Name			target = line->body.line.target;
+	Boolean			wrote_state_file = false;
+	Doname			result = build_ok;
 #endif
 	Name			dmake_name;
 	Name			dmake_value;
-	int			ignore;
+	int			ignore = 0;
 	Name			make_machines_name;
 	char			**p;
 	Property		prop;
-	Doname			result = build_ok;
 	Cmd_line		rule;
-	Boolean			silent_flag;
-	Name			target = line->body.line.target;
-	Boolean			wrote_state_file = false;
+	Boolean			silent_flag = false;
 
 	if ((pmake_max_jobs == 0) &&
 	    (dmake_mode_type == parallel_mode)) {
@@ -259,12 +261,15 @@ execute_parallel(Property line, Boolean waitflg, Boolean local)
 			rule->command_line =
 			  vpath_translation(rule->command_line);
 		}
+#ifdef DISTRIBUTED
 		if (dmake_mode_type == distributed_mode) {
 			cmd_options = 0;
 			if(local) {
 				cmd_options |= local_host_mask;
 			}
-		} else {
+		} else
+#endif
+		{
 			silent_flag = false;
 			ignore = 0;
 		}
@@ -495,7 +500,7 @@ append_dmake_cmd(Avo_DoJobMsg *dmake_job_msg,
 #endif
 
 /*
- *	adjust_pmake_max_jobs (int pmake_max_jobs)
+ *	adjust_pmake_max_jobs (int new_pmake_max_jobs)
  *
  *	Parameters:
  * 		pmake_max_jobs	- max jobs limit set by user
@@ -505,7 +510,7 @@ append_dmake_cmd(Avo_DoJobMsg *dmake_job_msg,
  * 		getloadavg()
  */
 static int
-adjust_pmake_max_jobs (int pmake_max_jobs)
+adjust_pmake_max_jobs (int new_pmake_max_jobs)
 {
 	static int	ncpu = 0;
 	double		loadavg[3];
@@ -522,16 +527,16 @@ adjust_pmake_max_jobs (int pmake_max_jobs)
 	ncpu = 1;
 #endif
 #ifndef	HAVE_GETLOADAVG
-	return(pmake_max_jobs);
+	return(new_pmake_max_jobs);
 #else
-	if (getloadavg(loadavg, 3) != 3) return(pmake_max_jobs);
+	if (getloadavg(loadavg, 3) != 3) return(new_pmake_max_jobs);
 #endif
 	adjustment = ((int)loadavg[LOADAVG_1MIN]);
-	if (adjustment < 2) return(pmake_max_jobs);
+	if (adjustment < 2) return(new_pmake_max_jobs);
 	if (ncpu > 1) {
 		adjustment = adjustment / ncpu;
 	}
-	adjusted_max_jobs = pmake_max_jobs - adjustment;
+	adjusted_max_jobs = new_pmake_max_jobs - adjustment;
 	if (adjusted_max_jobs < 1) adjusted_max_jobs = 1;
 	return(adjusted_max_jobs);
 }
@@ -632,18 +637,20 @@ m2_init() {
 
 	/* root process */
 	if (var == 0) {
+		const char *key = NOCATGETS("__DMAKE_M2_FILE__");
+
 		/* initialize semaphore */
 		if (sem_init(m2_shm_sem, 1, pmake_max_jobs)) {
 			return -1;
 		}
 
 		/* alloc memory for env variable */
-		if ((var = (char*) malloc(MAXPATHLEN)) == 0) {
+		if ((var = (char*) malloc(strlen(key) + 1 + strlen(m2_file) + 1)) == NULL) {
 			return -1;
 		}
 
 		/* put key to env */
-		sprintf(var, NOCATGETS("__DMAKE_M2_FILE__=%s"), m2_file);
+		sprintf(var, NOCATGETS("%s=%s"), key, m2_file);
 		if (putenv(var)) {
 			return -1;
 		}
@@ -742,6 +749,7 @@ static enum {
  *  Static variables:
  *	job_adjust_mode	Current job adjust mode
  */
+void job_adjust_fini(); /* kludge: declared as extern in main.cc; silence -Wmissing-prototype */
 void
 job_adjust_fini() {
 	if (job_adjust_mode == ADJUST_M2) {
@@ -870,10 +878,8 @@ job_adjust_init() {
 static Doname
 distribute_process(char **commands, Property line)
 {
-	static unsigned	file_number = 0;
-	wchar_t		string[MAXPATHLEN];
+	static unsigned	mktemp_file_number = 0;
 	char		mbstring[MAXPATHLEN];
-	int		filed;
 	int		res;
 	int		tmp_index;
 	char		*tmp_index_str_ptr;
@@ -973,7 +979,7 @@ distribute_process(char **commands, Property line)
 		        NOCATGETS("%s/dmake.stdout.%d.%d.XXXXXX"),
 			tmpdir,
 		        getpid(),
-	                file_number++);
+	                mktemp_file_number++);
 
 	mktemp(mbstring);
 
@@ -985,7 +991,7 @@ distribute_process(char **commands, Property line)
 			        NOCATGETS("%s/dmake.stderr.%d.%d.XXXXXX"),
 				tmpdir,
 			        getpid(),
-		                file_number++);
+		                mktemp_file_number++);
 
 		mktemp(mbstring);
 
@@ -1014,7 +1020,7 @@ distribute_process(char **commands, Property line)
 				dir4gridscripts,
 				hostName,
 			        getpid(),
-		                file_number++);
+		                mktemp_file_number++);
 	}
 #endif /* SGE_SUPPORT */
 	process_running = run_rule_commands(local_host, commands);
@@ -1154,7 +1160,7 @@ process_next(void)
 	Boolean		quiescent = true;
 	Running		*subtree_target;
 	Boolean		saved_commands_done;
-	Property	*conditionals;
+	Property	*rp_conditionals;
 
 	subtree_target = NULL;
 	subtree_conflict = NULL;
@@ -1225,7 +1231,7 @@ start_loop_2:
 					rp->target->state = rp->redo ?
 					  build_dont_know : build_pending;
 					saved_commands_done = commands_done;
-					conditionals =
+					rp_conditionals =
 						set_conditionals
 						    (rp->conditional_cnt,
 						     rp->conditional_targets);
@@ -1243,7 +1249,7 @@ start_loop_2:
 					reset_conditionals
 						(rp->conditional_cnt,
 						 rp->conditional_targets,
-						 conditionals);
+						 rp_conditionals);
 					quiescent = false;
 					delete_running_struct(rp);
 					goto start_loop_2;
@@ -1776,7 +1782,7 @@ finish_doname(Running rp)
 	Doname		result = rp->state;
 	Name		target = rp->target;
 	Name		true_target = rp->true_target;
-	Property	*conditionals;
+	Property	*rp_conditionals;
 
 	recursion_level = rp->recursion_level;
 	if (result == build_ok) {
@@ -1829,13 +1835,13 @@ finish_doname(Running rp)
 		 * rp->conditional_targets to the global variable 'conditional_targets'
 		 * Add_pending() will use this variable to set up 'rp'.
 		 */
-		conditionals = set_conditionals(rp->conditional_cnt, rp->conditional_targets);
+		rp_conditionals = set_conditionals(rp->conditional_cnt, rp->conditional_targets);
 		add_pending(target,
 			    recursion_level,
 			    rp->do_get,
 			    rp->implicit,
 			    true);
-		reset_conditionals(rp->conditional_cnt, rp->conditional_targets, conditionals);
+		reset_conditionals(rp->conditional_cnt, rp->conditional_targets, rp_conditionals);
 	}
 }
 
@@ -1878,7 +1884,7 @@ static Running new_running_struct()
  *		target		Target being built
  *		true_target	True target for target
  *		command		Running command.
- *		recursion_level	Debug indentation level
+ *		recursion_lvl	Debug indentation level
  *		auto_count	Count of automatic dependencies
  *		automatics	List of automatic dependencies
  *		do_get		Sccs get flag
@@ -1896,7 +1902,7 @@ static Running new_running_struct()
  *		temp_file_name	Temporary file for auto dependencies
  */
 void
-add_running(Name target, Name true_target, Property command, int recursion_level, int auto_count, Name *automatics, Boolean do_get, Boolean implicit)
+add_running(Name target, Name true_target, Property command, int recursion_lvl, int auto_count, Name *automatics, Boolean do_get, Boolean implicit)
 {
 	Running		rp;
 	Name		*p;
@@ -1918,7 +1924,7 @@ add_running(Name target, Name true_target, Property command, int recursion_level
 		}
 	}
 #endif
-	rp->recursion_level = recursion_level;
+	rp->recursion_level = recursion_lvl;
 	rp->do_get = do_get;
 	rp->implicit = implicit;
 	rp->auto_count = auto_count;
@@ -1965,7 +1971,7 @@ add_running(Name target, Name true_target, Property command, int recursion_level
  *
  *	Parameters:
  *		target		Target being built
- *		recursion_level	Debug indentation level
+ *		recursion_lvl	Debug indentation level
  *		do_get		Sccs get flag
  *		implicit	Implicit flag
  *		redo		True if this target is being redone
@@ -1974,13 +1980,13 @@ add_running(Name target, Name true_target, Property command, int recursion_level
  *		running_tail	Tail of running list
  */
 void
-add_pending(Name target, int recursion_level, Boolean do_get, Boolean implicit, Boolean redo)
+add_pending(Name target, int recursion_lvl, Boolean do_get, Boolean implicit, Boolean redo)
 {
 	Running		rp;
 	rp = new_running_struct();
 	rp->state = build_pending;
 	rp->target = target;
-	rp->recursion_level = recursion_level;
+	rp->recursion_level = recursion_lvl;
 	rp->do_get = do_get;
 	rp->implicit = implicit;
 	rp->redo = redo;
@@ -1997,7 +2003,7 @@ add_pending(Name target, int recursion_level, Boolean do_get, Boolean implicit, 
  *
  *	Parameters:
  *		target		Target being built
- *		recursion_level	Debug indentation level
+ *		recursion_lvl	Debug indentation level
  *		do_get		Sccs get flag
  *		implicit	Implicit flag
  *
@@ -2005,13 +2011,13 @@ add_pending(Name target, int recursion_level, Boolean do_get, Boolean implicit, 
  *		running_tail	Tail of running list
  */
 void
-add_serial(Name target, int recursion_level, Boolean do_get, Boolean implicit)
+add_serial(Name target, int recursion_lvl, Boolean do_get, Boolean implicit)
 {
 	Running		rp;
 
 	rp = new_running_struct();
 	rp->target = target;
-	rp->recursion_level = recursion_level;
+	rp->recursion_level = recursion_lvl;
 	rp->do_get = do_get;
 	rp->implicit = implicit;
 	rp->state = build_serial;
@@ -2029,7 +2035,7 @@ add_serial(Name target, int recursion_level, Boolean do_get, Boolean implicit)
  *
  *	Parameters:
  *		target		Target being built
- *		recursion_level	Debug indentation level
+ *		recursion_lvl	Debug indentation level
  *		do_get		Sccs get flag
  *		implicit	Implicit flag
  *
@@ -2037,13 +2043,13 @@ add_serial(Name target, int recursion_level, Boolean do_get, Boolean implicit)
  *		running_tail	Tail of running list
  */
 void
-add_subtree(Name target, int recursion_level, Boolean do_get, Boolean implicit)
+add_subtree(Name target, int recursion_lvl, Boolean do_get, Boolean implicit)
 {
 	Running		rp;
 
 	rp = new_running_struct();
 	rp->target = target;
-	rp->recursion_level = recursion_level;
+	rp->recursion_level = recursion_lvl;
 	rp->do_get = do_get;
 	rp->implicit = implicit;
 	rp->state = build_subtree;
@@ -2243,7 +2249,7 @@ run_rule_commands(char *host, char **commands)
 			}
 		}
 #endif /* SGE_SUPPORT */
-		for (commands = commands;
+		for (;
 		     (*commands != (char *)NULL);
 		     commands++) {
 			silent_flag = silent;

@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)ar.cc	1.9 20/09/06 2017-2020 J. Schilling
  */
@@ -296,7 +297,9 @@ static Boolean
 open_archive(char *filename, register Ar *arp)
 {
 	int			fd;
+#if !defined(SUN5_0) && !defined(linux)
 	char			mag_5[AR_5_MAGIC_LENGTH];
+#endif
 	char			mag_port[AR_PORT_MAGIC_LENGTH];
 	char			buffer[4];
 
@@ -696,7 +699,6 @@ translate_entry(register Ar *arp, Name target, register Property member, char **
 	ar_port_word		*offs;
 	int			strtablen;
 	char			*syms;		 /* string table */
-	char			*csym;		 /* string table */
 	ar_port_word		*offend;	 /* end of offsets table */
 	long			date;
 	register wchar_t	*ap;
@@ -758,8 +760,8 @@ translate_entry(register Ar *arp, Name target, register Property member, char **
 		offs = (ar_port_word *) alloca((int) (arp->num_symbols * AR_PORT_WORD));
 		if (fread((char *) offs,
 			  AR_PORT_WORD,
-			  (int) arp->num_symbols,
-			  arp->fd) != arp->num_symbols) {
+			  (size_t) arp->num_symbols,
+			  arp->fd) != (size_t) arp->num_symbols) {
 			goto read_error;
 		}
 
@@ -772,14 +774,14 @@ translate_entry(register Ar *arp, Name target, register Property member, char **
 		syms = (char *) alloca(strtablen);
 		if (fread(syms,
 			  sizeof (char),
-			  strtablen,
-			  arp->fd) != strtablen) {
+			  (size_t) strtablen,
+			  arp->fd) != (size_t) strtablen) {
 			goto read_error;
 		}
 		offend = &offs[arp->num_symbols];
 		while (offs < offend) {
 			maxs = strlen(member->body.member.entry->string_mb);
-			if(strlen(syms) > maxs)
+			if(strlen(syms) > (size_t) maxs)
 				maxs = strlen(syms);
 			if (IS_EQUALN(syms,
 				      member->body.member.entry->string_mb,

@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)main.cc	1.60 21/08/30 2017-2021 J. Schilling
  */
@@ -286,18 +287,24 @@ main(int argc, char *argv[])
 	Boolean			parallel_flag = false;
 	char			*prognameptr;
 	char 			*slash_ptr;
+#if defined(TEAMWARE_MAKE_CMN) || defined(MAKETOOL)
 	mode_t			um;
+#endif
 	int			i;
-#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
+#if defined(TEAMWARE_MAKE_CMN)
 	struct itimerval	value;
+#endif
+#if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
+	Name			dmake_name2, dmake_value2;
+	Property		prop2;
+#endif
+#ifdef DISTRIBUTED
 	char			def_dmakerc_path[MAXPATHLEN];
-	Name			dmake_name, dmake_name2;
-	Name			dmake_value, dmake_value2;
-	Property		prop, prop2;
 	struct stat		statbuf;
+	Name			dmake_name, dmake_value;
+	Property		prop;
 	int			statval;
 #endif
-
 #ifndef PARALLEL
 	struct stat		out_stat, err_stat;
 #endif
@@ -893,13 +900,16 @@ main(int argc, char *argv[])
  		if (make_state_dir[0] == (int) slash_char) {
  			temp_file_directory = strdup(make_state_dir);
  		} else {
- 			char	tmp_current_path2[MAXPATHLEN];
- 
- 			(void) sprintf(tmp_current_path2,
- 			               "%s/%s",
+			char	*current_path, *tmp_current_path2;
+
+			current_path = get_current_path();
+			tmp_current_path2 = (char *)malloc(strlen(current_path) + 1 + strlen(make_state_dir) + 1);
+  			(void) sprintf(tmp_current_path2,
+ 			               NOCATGETS("%s/%s"),
  			               get_current_path(),
  			               make_state_dir);
- 			temp_file_directory = strdup(tmp_current_path2);
+ 
+			temp_file_directory = tmp_current_path2;
  		}
  	}
 
@@ -1025,7 +1035,6 @@ extern long	getname_struct_count;
 extern long	freename_bytes_count;
 extern long	freename_names_count;
 extern long	freename_struct_count;
-extern long	other_alloc;
 
 extern long	env_alloc_num;
 extern long	env_alloc_bytes;
@@ -1435,7 +1444,6 @@ read_command_options(register int argc, register char **argv)
 	const char		*tptr;
 	const char		*CMD_OPTS;
 
-	extern char		*optarg;
 	extern int		optind, opterr, optopt;
 
 #define SUNPRO_CMD_OPTS	"-~aBbC:c:Ddef:g:ij:K:kM:m:NnO:o:PpqRrSsTtuVvwx:"
@@ -1742,11 +1750,8 @@ static void
 setup_makeflags_argv()
 {
 	char		*cp;
-	char		*cp1;
-	char		*cp2;
-	char		*cp3;
 	char		*cp_orig;
-	Boolean		add_hyphen;
+	Boolean		add_hyphen = false;
 	int		i;
 	char		tmp_char;
 
@@ -2218,10 +2223,10 @@ parse_command_option(register char ch)
 static void
 setup_for_projectdir(void)
 {
-static char	path[MAXPATHLEN];
-char		cwdpath[MAXPATHLEN];
-uid_t uid;
-int   done=0;
+	static char	path[MAXPATHLEN];
+	char		cwdpath[MAXPATHLEN];
+	uid_t 		uid;
+	int		found = 0;
 
 	/* Check if we should use PROJECTDIR when reading the SCCS dir. */
 	sccs_dir_path = getenv(NOCATGETS("PROJECTDIR"));
@@ -2242,22 +2247,23 @@ int   done=0;
 		  (void) sprintf(path, NOCATGETS("%s/src"), pwent->pw_dir);
 		  if (access(path, F_OK) == 0) {
 			sccs_dir_path = path;
-			done = 1;
+			found = 1;
 		  } else {
 			(void) sprintf(path, NOCATGETS("%s/source"), pwent->pw_dir);
 			if (access(path, F_OK) == 0) {
 				sccs_dir_path = path;
-				done = 1;
+				found = 1;
 			}
 		     }
 		}
-		if (!done) {
-		    if (getcwd(cwdpath, MAXPATHLEN - 1 )) {
+		if (!found) {
+		    if (getcwd(cwdpath, MAXPATHLEN - 1)
+			&& strlen(cwdpath) + 2 + strlen(sccs_dir_path) <= MAXPATHLEN) {
 
 		       (void) sprintf(path, NOCATGETS("%s/%s"), cwdpath,sccs_dir_path);
 		       if (access(path, F_OK) == 0) {
 		        	sccs_dir_path = path;
-				done = 1;
+				found = 1;
 		        } else {
 		  	       	fatal(gettext("Bogus PROJECTDIR '%s'"), sccs_dir_path);
 		        }
@@ -2485,7 +2491,6 @@ read_files_and_state(int argc, char **argv)
 {
 	wchar_t			buffer[1000];
 	wchar_t			buffer_posix[1000];
-	register char		ch;
 	register char		*cp;
 	Property		def_make_macro = NULL;
 	Name			def_make_name;
@@ -2493,14 +2498,11 @@ read_files_and_state(int argc, char **argv)
 	String_rec		dest;
 	wchar_t			destbuffer[STRING_BUFFER_LENGTH];
 	register int		i;
-	register int		j;
 	Name			keep_state_name;
-	int			length;
 	Name			Makefile;
 	register Property	macro;
 	struct stat		make_state_stat;
 	Name			makefile_name;
-        register int		makefile_next = 0;
 	register Boolean	makefile_read = false;
 	String_rec		makeflags_string;
 	String_rec		makeflags_string_posix;
@@ -2509,14 +2511,14 @@ read_files_and_state(int argc, char **argv)
 	register Name		name;
 	Name			new_make_value;
 	Boolean			save_do_not_exec_rule;
+#if 0
 	Name			sdotMakefile;
 	Name			sdotmakefile_name;
-	static wchar_t		state_file_str;
+#endif
 	static char		state_file_str_mb[MAXPATHLEN];
 	static struct _Name	state_filename;
 	Boolean			temp;
 	char			tmp_char;
-	wchar_t			*tmp_wcs_buffer;
 	register Name		value;
 	ASCII_Dyn_Array		makeflags_and_macro;
 	Boolean			is_xpg4;
@@ -2533,10 +2535,12 @@ read_files_and_state(int argc, char **argv)
 	Makefile = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS("makefile"));
 	makefile_name = GETNAME(wcs_buffer, FIND_LENGTH);
+#if 0
 	MBSTOWCS(wcs_buffer, NOCATGETS("s.makefile"));
 	sdotmakefile_name = GETNAME(wcs_buffer, FIND_LENGTH);
 	MBSTOWCS(wcs_buffer, NOCATGETS("s.Makefile"));
 	sdotMakefile = GETNAME(wcs_buffer, FIND_LENGTH);
+#endif
 
 /*
  *	Set flag if NSE is active
@@ -3205,7 +3209,6 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 	wchar_t			*tmp_wcs_buffer;
 	register Name		value;
 	Boolean			append = false;
-	Boolean			gnuassign = false;
 	Property		macro;
 	struct stat		statbuf;
 
@@ -3446,7 +3449,7 @@ enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 static void
 append_makeflags_string(Name name, register String makeflags_string)
 {
-	char		*option;
+	char		*option = NULL;
 
 	if (strcmp(name->string_mb, NOCATGETS("DMAKE_GROUP")) == 0) {
 		option = (char *)NOCATGETS(" -g ");
@@ -3941,8 +3944,8 @@ append_or_replace_macro_in_dyn_array(ASCII_Dyn_Array *Ar, char *macro)
 	register char	*cp3;	/* work pointer in array */
 	register char	*name;	/* macro name */
 	register char	*value;	/* macro value */
-	register int 	len_array;
-	register int 	len_macro;
+	register size_t  len_array;
+	register int 	 len_macro;
 		Boolean	isassign = false;
 		Boolean	isgnuassign = false;
 

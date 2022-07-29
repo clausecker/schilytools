@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)implicit.cc	1.11 20/11/19 2017-2020 J. Schilling
  */
@@ -65,7 +66,6 @@ static	UConst char sccsid[] =
 /*
  * Static variables
  */
-static	wchar_t		WIDE_NULL[1] = {(wchar_t) nul_char};
 
 /*
  * File table of contents
@@ -136,7 +136,7 @@ find_suffix_rule(Name target, Name target_body, Name target_suffix, Property *co
 	extern Boolean 		tilde_rule;
 	Boolean 		name_found = true;
 	Boolean 		posix_tilde_attempt = true;
-	int			src_len = MAXPATHLEN + strlen(target_body->string_mb);
+	size_t			src_len = MAXPATHLEN + strlen(target_body->string_mb);
 
 	/*
 	 * To avoid infinite recursion
@@ -465,8 +465,6 @@ posix_attempts:
 			 */
 			line->body.line.star = target_body;
 			if(svr4|posix) {
-			  char * p;
-			  char tstr[256];
 			  extern Boolean dollarless_flag;
 			  extern Name dollarless_value;
 
@@ -642,9 +640,8 @@ find_double_suffix_rule(register Name target, Property *command, Boolean recheck
 	Name			target_body;
 	register wchar_t	*target_end;
 	register Dependency	suffix;
-	register int		suffix_length;
+	register unsigned	suffix_length;
 	Boolean			scanned_once = false;
-	Boolean			name_found = true;
 
 	Wstring			targ_string;
 	Wstring			suf_string;
@@ -865,7 +862,7 @@ find_percent_rule(register Name target, Property *command, Boolean rechecking)
 	String_rec		percent;
 	wchar_t			percent_buf[STRING_BUFFER_LENGTH];
 	Name			true_target = target;
-	Name			less;
+	Name			less = NULL;
 	Boolean			nonpattern_less;
 	Boolean			dep_name_found = false;
 	Doname			result = build_dont_know;
@@ -1251,6 +1248,7 @@ static Boolean
 match_found_with_pattern(Name target, Percent pat_rule, String percent, wchar_t *percent_buf) {
 	String_rec		string;
 	wchar_t			string_buf[STRING_BUFFER_LENGTH];
+	unsigned		suffix_length;
 
 	/* construct prefix string and check whether prefix matches */
 	Name prefix = pat_rule->patterns[0];
@@ -1283,7 +1281,6 @@ match_found_with_pattern(Name target, Percent pat_rule, String percent, wchar_t 
 	Name suffix = pat_rule->patterns[pat_rule->patterns_total - 1];
 	suf_string.init(suffix);
 
-	int suffix_length;
 	if (suffix->dollar) {
 		INIT_STRING_FROM_STACK(string, string_buf);
 		expand_value(suffix, &string, false);
@@ -1513,13 +1510,12 @@ dependency_exists(Name target, Property line)
 }
 
 void
-add_target_to_chain(Name target, Chain * query)
+add_target_to_chain(Name target, Chain * query_tail)
 {
 	if (target->is_member && (get_prop(target->prop, member_prop) != NULL)) {
 		target = get_prop(target->prop, member_prop)->body.member.member;
 	}
-	Chain	*query_tail;
-	for (query_tail = query; *query_tail != NULL; query_tail = &(*query_tail)->next) {
+	for (; *query_tail != NULL; query_tail = &(*query_tail)->next) {
 		if ((*query_tail)->name == target) {
 			return;
 		}

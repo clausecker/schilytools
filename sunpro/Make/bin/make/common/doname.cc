@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)doname.cc	1.30 21/08/16 2017-2021 J. Schilling
  */
@@ -108,7 +109,7 @@ static	UConst char sccsid[] =
 #endif
 
 // Sleep for .1 seconds between stat()'s
-const int	STAT_RETRY_SLEEP_TIME = 100000;
+#define	STAT_RETRY_SLEEP_TIME 100000;
 
 /*
  * typedefs & structs
@@ -132,6 +133,8 @@ static int	second_pass = 0;
  * File table of contents
  */
 extern	Doname		doname_check(register Name target, register Boolean do_get, register Boolean implicit, register Boolean automatic);
+static	void		enter_explicit_rule_from_dynamic_rule(Name target, Name source);
+static	Name		find_dyntarget(Name target);
 extern	Doname		doname(register Name target, register Boolean do_get, register Boolean implicit, register Boolean automatic);
 static	Boolean		check_dependencies(Doname *result, Property line, Boolean do_get, Name target, Name true_target, Boolean doing_subtree, Chain *out_of_date_tail, Property old_locals, Boolean implicit, Property *command, Name less, Boolean rechecking_target, Boolean recheck_conditionals);
 void		dynamic_dependencies(Name target);
@@ -251,7 +254,7 @@ try_again:
 }
 
 
-void
+static void
 enter_explicit_rule_from_dynamic_rule(Name target, Name source)
 {
 	Property line, source_line;
@@ -275,7 +278,7 @@ enter_explicit_rule_from_dynamic_rule(Name target, Name source)
 
 
 
-Name
+static Name
 find_dyntarget(Name target)
 {
 	Dyntarget		p;
@@ -367,7 +370,7 @@ doname(register Name target, register Boolean do_get, register Boolean implicit,
 	Name			*automatics = NULL;
 	register int		auto_count;
 	Boolean			rechecking_target = false;
-	Boolean			saved_commands_done;
+	Boolean			saved_commands_done = commands_done;
 	Boolean			restart = false;
 	Boolean			save_parallel = parallel;
 #ifdef NSE
@@ -1427,7 +1430,7 @@ check_dependencies(Doname *result, Property line, Boolean do_get, Name target, N
 			Property		member;
 			register wchar_t	*target_end;
 			register Dependency	suffix;
-			register int		suffix_length;
+			register unsigned int	suffix_length;
 			Wstring			targ_string;
 			Wstring			suf_string;
 
@@ -1997,13 +2000,13 @@ execute_serial(Property line)
 	Avo_MToolJobResultMsg	*job_result_msg;
 	RWCollectable		*xdr_msg;
 #endif
-	Boolean			printed_serial;
 	Doname			result = build_ok;
 	Cmd_line		rule, cmd_tail, command = NULL;
 	char			mbstring[MAXPATHLEN];
-	int			filed;
 	Name			target = line->body.line.target;
 
+	(void) userName;
+	(void) hostName;
 	SEND_MTOOL_MSG(
 		if (!sent_rsrc_info_msg) {
 			if (userName[0] == '\0') {
@@ -2055,6 +2058,8 @@ execute_serial(Property line)
 			);
 		}
 		if (rule->command_line->hash.length > 0) {
+			(void) child_pid;
+			(void) mbstring;
 			SEND_MTOOL_MSG(
 				(void) sprintf(mbstring,
 						NOCATGETS("%s/make.stdout.%d.%d.XXXXXX"),
@@ -2375,17 +2380,17 @@ vpath_translation(register Name cmd)
 }
 
 /*
- *	check_state(temp_file_name)
+ *	check_state(auto_temp_file)
  *
  *	Reads and checks the state changed by the previously executed command.
  *
  *	Parameters:
- *		temp_file_name	The auto dependency temp file
+ *		auto_temp_file	The auto dependency temp file
  *
  *	Global variables used:
  */
 void
-check_state(Name temp_file_name)
+check_state(Name auto_temp_file)
 {
 	if (!keep_state) {
 		return;
@@ -2395,15 +2400,15 @@ check_state(Name temp_file_name)
 	 * Then read the temp file that now might 
 	 * contain dependency reports from utilities 
 	 */
-	read_dependency_file(temp_file_name);
+	read_dependency_file(auto_temp_file);
 
 	/*
 	 * And reread .make.state if it
 	 * changed (the command ran recursive makes) 
 	 */
 	check_read_state_file();
-	if (temp_file_name != NULL) {
-		(void) unlink(temp_file_name->string_mb);
+	if (auto_temp_file != NULL) {
+		(void) unlink(auto_temp_file->string_mb);
 	}
 }
 
@@ -2947,7 +2952,6 @@ touch_command(register Property line, register Name target, Doname result)
 	String_rec		touch_string;
 	wchar_t			buffer[MAXPATHLEN];
 	Name			touch_cmd;
-	Cmd_line		rule;
 
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 	Avo_MToolJobResultMsg	*job_result_msg;
@@ -3184,7 +3188,7 @@ sccs_get(register Name target, register Property *command)
 	String_rec		string;
 	wchar_t			name[MAXPATHLEN];
 	register wchar_t	*p;
-	timestruc_t		sccs_time;
+	timestruc_t		sccs_time = file_doesnt_exist;
 	register Property	line;
 	int			sym_link_depth = 0;
 
@@ -3331,7 +3335,7 @@ read_directory_of_file(register Name file)
 	register Name		directory = dot;
 	register wchar_t	*p = (wchar_t *) wcsrchr(wcb,
 							(int) slash_char);
-	register int		length = p - wcb;
+	register unsigned	length = p - wcb;
 	static Name		usr_include;
 	static Name		usr_include_sys;
 

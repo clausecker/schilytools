@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)macro.cc	1.4 21/08/15 2017-2018 J. Schilling
  */
@@ -79,10 +80,8 @@ setvar_append(register Name name, register Name value)
 {
 	register Property	macro_apx = get_prop(name->prop, macro_append_prop);
 	register Property	macro = get_prop(name->prop, macro_prop);
-	int			length;
 	String_rec		destination;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
-	register Chain		chain;
 	Name			val = NULL;
 
 	if(macro_apx == NULL) {

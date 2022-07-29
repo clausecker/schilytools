@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)read.cc	1.35 21/09/06 2017-2021 J. Schilling
  */
@@ -178,7 +179,9 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 	register int		length;
 	wchar_t			*previous_file_being_read = file_being_read;
 	int			previous_line_number = line_number;
+#ifdef NSE
 	wchar_t			previous_current_makefile[MAXPATHLEN];
+#endif
 	Makefile_type		save_makefile_type;
 	Name 			normalized_makefile_name;
 	register wchar_t        *string_start;
@@ -631,29 +634,29 @@ parse_makefile(register Name true_makefile_name, register Source source)
 	register wchar_t	*string_start;
 	wchar_t			*string_end;
 	register Boolean	macro_seen_in_string;
-	Boolean			append;
-	Boolean			expand;
+	Boolean			append = false;
+	Boolean			expand = false;
 	String_rec		name_string;
 	wchar_t			name_buffer[STRING_BUFFER_LENGTH];
 	register int		distance;
 	register int		paren_count;
 	int			brace_count;
 	int			char_number;
-	Cmd_line		command;
-	Cmd_line		command_tail;
-	Name			macro_value;
+	Cmd_line		command = NULL;
+	Cmd_line		command_tail = NULL;
+	Name			macro_value = NULL;
 
 	Name_vector_rec		target;
 	Name_vector_rec		depes;
 	Name_vector_rec		extra_name_vector;
-	Name_vector		current_names;
+	Name_vector		current_names = NULL;
 	Name_vector		extra_names = &extra_name_vector;
 	Name_vector		nvp;
 	Boolean			target_group_seen;
 
 	register Reader_state   state;
 	register Reader_state   on_eoln_state;
-	register Separator	separator;
+	register Separator	separator = none_seen;
 
 	wchar_t                 buffer[4 * STRING_BUFFER_LENGTH];
 	Source			extrap;
@@ -663,17 +666,15 @@ parse_makefile(register Name true_makefile_name, register Source source)
 	Name                    makefile_name_raw;
 
 	static Name		sh_name;
-	static Name		shell_name;
+	static Name		shell_name_;
 	int			i;
 
 	int			tmp_bytes_left_in_string;
 	Boolean			tmp_maybe_directive = false;
-	int    			emptycount = 0;
 	Boolean			first_target;
 
 	enum directive		directive_type; 
 	int			directive_len;
-	struct dent		*dp;
 
 	String_rec		include_name;
 	wchar_t			include_buffer[STRING_BUFFER_LENGTH];
@@ -873,7 +874,7 @@ start_new_line_no_skip:
 
 	    directive_len = 0;
 	    directive_type = D_NONE;
-	    for (dp = directives; dp->directive; dp++) {
+	    for (struct dent *dp = directives; dp->directive; dp++) {
 		if (IS_WEQUALN(source_p, dp->directive, dp->dlen)) {
 			if (source_p[dp->dlen] == (int)space_char ||
 			    source_p[dp->dlen] == (int)tab_char) {
@@ -1011,11 +1012,11 @@ start_new_line_no_skip:
 			do_not_exec_rule = false;
 			makefile_name_raw = GETNAME(name_start, name_length);
 			if (makefile_name_raw->dollar) {
-				wchar_t		buffer[STRING_BUFFER_LENGTH];
+				wchar_t		destbuffer[STRING_BUFFER_LENGTH];
 				wchar_t		*p;
 				wchar_t		*q;
 
-				INIT_STRING_FROM_STACK(destination, buffer);
+				INIT_STRING_FROM_STACK(destination, destbuffer);
 				expand_value(makefile_name_raw,
 					     &destination,
 					     false);
@@ -1405,13 +1406,7 @@ case scan_name_state:
 			if (separator == conditional_seen) {
 				break;
 			}
-/** POSIX **/
-#if 0
-			if(posix) {
-			  emptycount = 0;
-			}
-#endif
-/** END POSIX **/
+
 			/* End of the target list. We now start reading */
 			/* dependencies or a conditional assignment */
 			if (separator != none_seen &&
@@ -1700,7 +1695,7 @@ case scan_name_state:
 					MBSTOWCS(wcs_buffer, NOCATGETS("sh"));
 					sh_name = GETNAME(wcs_buffer, FIND_LENGTH);
 					MBSTOWCS(wcs_buffer, NOCATGETS("shell"));
-					shell_name = GETNAME(wcs_buffer, FIND_LENGTH);
+					shell_name_ = GETNAME(wcs_buffer, FIND_LENGTH);
 				}
 
 				if (!macro_seen_in_string) {
@@ -1721,10 +1716,10 @@ case scan_name_state:
 				     (GETNAME(name_string.buffer.start,FIND_LENGTH) == sh_name))) &&
 				    (!svr4)) {
 					String_rec	macro_name;
-					wchar_t		buffer[100];
+					wchar_t		macro_buffer[100];
 
 					INIT_STRING_FROM_STACK(macro_name,
-							       buffer);
+							       macro_buffer);
 					APPEND_NAME(target.names[0],
 						      &macro_name,
 						      FIND_LENGTH);
@@ -1741,23 +1736,23 @@ case scan_name_state:
 					break;
 				} else if ( (((target.used == 1) &&
 					    (depes.used == 1) &&
-					    (depes.names[0] == shell_name)) ||
+					    (depes.names[0] == shell_name_)) ||
 					   ((target.used == 1) &&
 					    (depes.used == 0) &&
 					    (separator == one_colon) &&
-					    (GETNAME(name_string.buffer.start,FIND_LENGTH) == shell_name))) &&
+					    (GETNAME(name_string.buffer.start,FIND_LENGTH) == shell_name_))) &&
 					   (!svr4)) {
 					String_rec	macro_name;
-					wchar_t		buffer[100];
+					wchar_t		macro_buffer[100];
 
 					INIT_STRING_FROM_STACK(macro_name,
-							       buffer);
+							       macro_buffer);
 					APPEND_NAME(target.names[0],
 						      &macro_name,
 						      FIND_LENGTH);
 					append_char((int) colon_char,
 						    &macro_name);
-					APPEND_NAME(shell_name,
+					APPEND_NAME(shell_name_,
 						      &macro_name,
 						      FIND_LENGTH);
 					target.names[0] =
@@ -2458,10 +2453,6 @@ doexport(Name name)
 void
 dounexport(Name name)
 {
-	Name		val;
-	char		*eval;
-	size_t		len;
-
 	if (strcmp(name->string_mb, NOCATGETS("SHELL")) == 0)
 		return;
 

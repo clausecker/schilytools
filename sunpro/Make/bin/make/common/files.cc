@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)files.cc	1.11 20/11/19 2017-2020 J. Schilling
  */
@@ -77,7 +78,7 @@ extern	timestruc_t&	exists(register Name target);
 extern  void		set_target_stat(register Name target, struct stat buf);
 static	timestruc_t&	vpath_exists(register Name target);
 static	Name		enter_file_name(wchar_t *name_string, wchar_t *library);
-static	Boolean		star_match(register char *string, register char *pattern);
+static	Boolean		star_match(register wchar_t *string, register wchar_t *pattern);
 static	Boolean		amatch(register wchar_t *string, register wchar_t *pattern);
 
 /*
@@ -330,7 +331,6 @@ read_dir(Name dir, wchar_t *pattern, Property line, wchar_t *library)
 	Name			plain_file;
 	wchar_t			tmp_wcs_buffer[MAXPATHLEN];
 	DIR			*dir_fd;
-	int			m_local_dependency=0;
 #if defined(SUN5_0) || defined(HP_UX)
 #define d_fileno d_ino
         register struct dirent  *dp;

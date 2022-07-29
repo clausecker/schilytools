@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)depvar.cc	1.4 21/08/15 2017-2018 J. Schilling
  */
@@ -88,6 +89,7 @@ depvar_add_to_list(Name name, Boolean cmdline)
 	bpatch = &dv->next;
 }
 
+#ifdef NSE
 /*
  * The macro `name' has been used in either the left-hand or
  * right-hand side of a dependency.  See if it is in the
@@ -104,7 +106,6 @@ depvar_dep_macro_used(Name name)
 
 	for (dv = depvar_list; dv != NULL; dv = dv->next) {
 		if (name == dv->name) {
-#ifdef NSE
 #ifdef SUNOS4_AND_AFTER
 			if (dv->cmdline) {
 #else
@@ -112,14 +113,13 @@ depvar_dep_macro_used(Name name)
 #endif
 				nse_dep_cmdmacro(dv->name->string);
 			}
-#endif
+
 			variant_deps = true;
 			break;
 		}
 	}
 }
 
-#ifdef NSE
 /*
  * The macro `name' has been used in either the argument
  * to a cd before a recursive make.  See if it was
@@ -150,6 +150,7 @@ depvar_rule_macro_used(Name name)
  * affected the dependencies then the dependencies potentially
  * differ because of these variables.
  */
+extern	void depvar_print_results(void); /* kludge: used in nse_printdep.cc */
 void
 depvar_print_results(void)
 {

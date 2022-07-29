@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)dosys.cc	1.5 21/08/15 2017-2018 J. Schilling
  */
@@ -65,13 +66,10 @@ static	UConst char sccsid[] =
 /*
  * Static variables
  */
-static	int		filter_file;
-static	char		*filter_file_name;
 
 /*
  * File table of contents
  */
-static	void		redirect_stderr(void);
 
 /*
  *	dosys(command, ignore_error, call_make, silent_error, target)

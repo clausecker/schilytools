@@ -34,6 +34,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)pmake.cc	1.12 20/09/06 2017-2020 J. Schilling
  */
@@ -126,9 +127,9 @@ read_make_machines(Name make_machines_name)
 	struct hostent		*hp;
 	wchar_t			local_host[MAX_HOSTNAMELEN + 1];
 	char			local_host_mb[MAX_HOSTNAMELEN + 1] = "";
-	int			local_host_wslen;
+	size_t			local_host_wslen;
 	wchar_t			full_host[MAXNETNAMELEN + 1];
-	int			full_host_wslen = 0;
+	size_t			full_host_wslen = 0;
 	char			*homedir;
 	Name			MAKE_MACHINES;
 	struct stat		make_machines_buf;
@@ -200,8 +201,8 @@ read_make_machines(Name make_machines_name)
 		/* Read in the .make.machines file. */
 		if (fread(make_machines_list_mb + strlen(MAKE_MACHINES->string_mb) + 1,
 			  sizeof(char),
-			  (int) make_machines_buf.st_size,
-			  make_machines_file) != make_machines_buf.st_size) {
+			  (size_t) make_machines_buf.st_size,
+			  make_machines_file) != (size_t) make_machines_buf.st_size) {
 			/*
 			 * Error reading .make.machines file.
 			 * Return 0 for PMake max jobs.

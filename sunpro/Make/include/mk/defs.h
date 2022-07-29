@@ -34,6 +34,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)defs.h	1.21 21/09/06 2017-2021 J. Schilling
  */
@@ -458,7 +459,7 @@ extern	void		read_directory_of_file(register Name file);
 extern	int		read_make_machines(Name make_machines_name);
 extern	Boolean		read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include = false);
 extern	void		remove_recursive_dep(Name target);
-extern	void		report_recursive_dep(Name target, char *line);
+extern	void		report_recursive_dep(Name target, wchar_t *line);
 extern	void		report_recursive_done(void);
 extern	void		report_recursive_init(void);
 extern	Recursive_make	find_recursive_target(Name target);

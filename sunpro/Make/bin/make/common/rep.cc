@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)rep.cc	1.11 20/11/19 2017-2020 J. Schilling
  */
@@ -130,11 +131,11 @@ report_recursive_init(void)
 	char		*search_dir;
 	char		nse_depinfo[MAXPATHLEN];
 	FILE		*fp;
-	int		line_size, line_index;
+	size_t		line_size, line_index;
 	wchar_t		*line;
 	wchar_t		*bigger_line;
-	wchar_t		*colon;
-	wchar_t		*dollar; 
+	wchar_t		*colon_loc;
+	wchar_t		*dollar_loc;
 	Recursive_make	rp;
 
 	/*
@@ -176,20 +177,20 @@ report_recursive_init(void)
 			line_size = 2 * line_size;
 		}
 
-		colon = (wchar_t *) wcschr(line, (int) colon_char);
-		if (colon == NULL) {
+		colon_loc = (wchar_t *) wcschr(line, (int) colon_char);
+		if (colon_loc == NULL) {
 			continue;
 		}
-		dollar = (wchar_t *) wcschr(line, (int) dollar_char);
+		dollar_loc = (wchar_t *) wcschr(line, (int) dollar_char);
 		line[wcslen(line) - 1] = (int) nul_char;
-		if (IS_WEQUALN(&colon[2], wcb,
+		if (IS_WEQUALN(&colon_loc[2], wcb,
 	            (int) recursive_name->hash.length)) {
 			/*
 			 * If this entry is an old entry, ignore it
 			 */
 			MBSTOWCS(wcs_buffer, DEPINFO_FMT_VERSION);
-			if (dollar == NULL ||
-			    !IS_WEQUALN(wcs_buffer, (dollar+1) - VER_LEN, VER_LEN)){
+			if (dollar_loc == NULL ||
+			    !IS_WEQUALN(wcs_buffer, (dollar_loc+1) - VER_LEN, VER_LEN)){
 				continue;
 			    }
 			rp = ALLOC(Recursive_make);
@@ -198,14 +199,14 @@ report_recursive_init(void)
 			 * set conditional_macro_string if string is present
 			 */
 			rp->oldline = (wchar_t *) wcsdup(line);
-			if ( dollar != NULL ){
+			if ( dollar_loc != NULL ){
 				rp->cond_macrostring = 
-				    (wchar_t *) wcsdup(dollar - VER_LEN + 1);
+				    (wchar_t *) wcsdup(dollar_loc - VER_LEN + 1);
 			}
 			/* 
 			 * get target name into recursive struct
 			 */
-			*colon = (int) nul_char;
+			*colon_loc = (int) nul_char;
 			rp->target = (wchar_t *) wcsdup(line);
 			*bpatch = rp;
 			bpatch = &rp->next;
@@ -400,7 +401,7 @@ report_recursive_done(void)
 	wchar_t		*data;
 	wchar_t		*line;
 	wchar_t		*bigger_line;
-	int		line_size, line_index;
+	size_t		line_size, line_index;
 	int		lock_err;
 	Recursive_make	rp;
 

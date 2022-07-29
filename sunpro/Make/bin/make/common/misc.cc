@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)misc.cc	1.24 21/09/06 2017-2021 J. Schilling
  */
@@ -599,7 +600,6 @@ dump_target_list(void)
 static void
 print_target_n_deps(register Name target)
 {
-	register Cmd_line	rule;
 	register Property	line;
 	register Dependency	dependency;
 
@@ -1066,10 +1066,13 @@ find_run_directory (char	*cmd,
 	    if (*s == '/')
 		rv = resolve (s, cmd, dir, run);
 	    else {
-		char                abuf[MAXPATHLEN];
+	        char	*abuf;
 
+		abuf = (char *)malloc(strlen(cwd) + 1 + strlen(s) + 1);
 		sprintf (abuf, "%s/%s", cwd, s);
+
 		rv = resolve (abuf, cmd, dir, run);
+		free(abuf);
 	    }
 	}
     }
