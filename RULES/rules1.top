@@ -8,7 +8,8 @@
 # version that may be included in special purpose versions.
 #
 ###########################################################################
-# Copyright (c) J. Schilling
+# Copyright (c) 1996-2021 J. Schilling
+# Copyright (c) 2022 the schilytools team
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -150,6 +151,7 @@ include		$(SRCROOT)/$(RULESDIR)/os-$(O_ARCH).def
 #
 ###########################################################################
 CWARNOPTS=	$(CWOPTS)
+C++WARNOPTS=	$(C++WOPTS)
 
 ###########################################################################
 #
