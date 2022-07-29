@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)read.cc	1.6 21/08/15 2017-2018 J. Schilling
  */
@@ -150,12 +151,12 @@ get_next_block_fn(register Source source)
 					source->inp_buf_ptr,
 					STRING_LEN_TO_CONVERT);
 		*ptr = ch_save;
-		if (num_wc_chars != (size_t)-1) {
+		if (num_wc_chars != (size_t) -1) {
 			break;
 		}
 	}
 		
-	if ((int) num_wc_chars == (size_t)-1) {
+	if (num_wc_chars == (size_t) -1) {
 		source->error_converting = true;
 		return source;
 	}

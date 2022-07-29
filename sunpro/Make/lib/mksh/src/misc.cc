@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)misc.cc	1.16 21/08/15 2017-2021 J. Schilling
  */
@@ -499,7 +500,7 @@ void
 fatal_reader_mksh(const char *pattern, ...)
 {
 	va_list args;
-	char	message[1000];
+/*	char	message[1000]; */
 
 	va_start(args, pattern);
 /*
@@ -927,7 +928,7 @@ setup_interrupt(register void (*handler) (int))
 void
 mbstowcs_with_check(wchar_t *pwcs, const char *s, size_t n)
 {
-	if(mbstowcs(pwcs, s, n) == -1) {
+	if(mbstowcs(pwcs, s, n) == (size_t) -1) {
 		const unsigned char *p;
 
 		p = (unsigned char *)setlocale(LC_CTYPE, NULL);

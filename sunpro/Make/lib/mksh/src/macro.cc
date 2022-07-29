@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)macro.cc	1.14 21/08/15 2017-2021 J. Schilling
  */
@@ -657,7 +658,7 @@ get_macro_value:
 						      percent - eq);
 					right_hand[i][percent-eq] =
 					  (int) nul_char;
-					if (i++ >= VSIZEOF(right_hand)) {
+					if (i++ >= (int) VSIZEOF(right_hand)) {
 						fatal_mksh(gettext("Too many %% in pattern"));
 					}
 					eq = percent + 1;
@@ -1218,7 +1219,7 @@ int	sunpro_dependencies_buf_size = 0;
  *		append		Should we reset or append to the current value?
  *		daemon		Special treatment when reading the value
  *		strip_trailing_spaces from the end of value->string
- *		debug_level	Indicates how much tracing we should do
+ *		debug_lvl	Indicates how much tracing we should do
  *
  *	Global variables used:
  *		makefile_type	Used to check if we should enforce read only
@@ -1229,7 +1230,7 @@ int	sunpro_dependencies_buf_size = 0;
  *		envvar		A list of environment vars with $ in value
  */
 Property
-setvar_daemon(register Name name, register Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_level)
+setvar_daemon(register Name name, register Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_lvl)
 {
 	register Property	macro = maybe_append_prop(name, macro_prop);
 	register Property	macro_apx = get_prop(name->prop, macro_append_prop);
@@ -1308,7 +1309,7 @@ setvar_daemon(register Name name, register Name value, Boolean append, Daemon da
 	}
 
 	/* Debugging trace */
-	if (debug_level > 1) {
+	if (debug_lvl > 1) {
 		if (value != NULL) {
 			switch (daemon) {
 			case chain_daemon:
@@ -1450,7 +1451,7 @@ found_it:;
 		Name		ha = getvar(host_arch);
 		Name		ta = getvar(target_arch);
 		Name		vr = getvar(virtual_root);
-		int		length;
+		size_t		len;
 		wchar_t		*new_value;
 		wchar_t		*old_vr;
 		Boolean		new_value_allocated = false;
@@ -1463,7 +1464,7 @@ found_it:;
 		wchar_t * wcb_ta = ta_str.get_string();
 		wchar_t * wcb_vr = vr_str.get_string();
 
-		length = 32 +
+		len = 32 +
 		  wcslen(wcb_ha) +
 		    wcslen(wcb_ta) +
 		      wcslen(wcb_vr);
@@ -1477,7 +1478,7 @@ found_it:;
 		if ( (ha == ta) || (wcslen(wcb_ta) == 0) ) {
 			new_value = old_vr;
 		} else {
-			new_value = ALLOC_WC(length);
+			new_value = ALLOC_WC(len);
 			new_value_allocated = true;
 			WCSTOMBS(mbs_buffer, old_vr);
 #ifdef	__use_sun_wsprintf__
@@ -1487,7 +1488,7 @@ found_it:;
 				        ta->string_mb + 1,
 				        mbs_buffer);
 #else
-			char * mbs_new_value = (char *)getmem(length);
+			char * mbs_new_value = (char *)getmem(len);
 			(void) sprintf(mbs_new_value,
 				        NOCATGETS("/usr/arch/%s/%s:%s"),
 				        ha->string_mb + 1,
@@ -1503,7 +1504,7 @@ found_it:;
 					     false,
 					     no_daemon,
 					     true,
-					     debug_level);
+					     debug_lvl);
 		}
 		if (new_value_allocated) {
 			retmem(new_value);

@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)mksh.cc	1.4 21/08/16 2017 J. Schilling
  */
@@ -62,13 +63,23 @@ static	UConst char sccsid[] =
 	extern void (*sigset(int, void (*)(__harg)))(__harg);
 #endif
 
+#if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
+/*
+ * File table of contents
+ */
+static void	my_chdir(char *dir);
+static void	change_sunpro_dependencies_value(char *oldpath, char *newpath);
+static void	init_mksh_globals(char *shell);
+static void	set_env_vars(char *env_list[]);
+
 /*
  * Workaround for NFS bug. Sometimes, when running 'chdir' on a remote
  * dmake server, it fails with "Stale NFS file handle" error.
  * The second attempt seems to work.
  */
-int
-my_chdir(char * dir) {
+static int
+my_chdir(char *dir)
+{
 	int res = chdir(dir);
 	if (res != 0 && (errno == ESTALE || errno == EAGAIN)) {
 		/* Stale NFS file handle. Try again */
@@ -77,15 +88,6 @@ my_chdir(char * dir) {
 	return res;
 }
 
-
-/*
- * File table of contents
- */
-static void	change_sunpro_dependencies_value(char *oldpath, char *newpath);
-static void	init_mksh_globals(char *shell);
-static void	set_env_vars(char *env_list[]);
-
-#if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 /*
  *	Execute the command(s) of one Make or DMake rule
  */
@@ -227,7 +229,6 @@ do_job(Avo_DmakeCommand *cmd_list[], char *env_list[], char *stdout_file, char *
 	}
         return childPid;
 }
-#endif /* TEAMWARE_MAKE_CMN */
 
 static void
 set_env_vars(char *env_list[])
@@ -292,5 +293,4 @@ change_sunpro_dependencies_value(char *oldpath, char *newpath)
 		}
 	}
 }
-
-
+#endif /* TEAMWARE_MAKE_CMN */

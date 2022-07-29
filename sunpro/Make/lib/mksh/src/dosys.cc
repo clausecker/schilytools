@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)dosys.cc	1.19 21/08/15 2017-2021 J. Schilling
  */
@@ -107,7 +108,7 @@ static Boolean	exec_vp(register char *name, register char **argv, char **envp, r
  * dmake server, it fails with "Stale NFS file handle" error.
  * The second attempt seems to work.
  */
-int
+static int
 my_open(const char *path, int oflag, mode_t mode) {
 	int res = open(path, oflag, mode);
 #ifdef linux
@@ -257,7 +258,7 @@ dosys_mksh(register Name command, register Boolean ignore_error, register Boolea
 	register wchar_t	*p;
 	register wchar_t	*q;
 	register wchar_t	*cmd_string;
-	struct stat		before;
+/*	struct stat		before; */
 	Doname			result;
 	Boolean			working_on_targets_mksh = true;
 	Wstring wcb(command);
@@ -681,15 +682,12 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 #endif
 {
 	WAIT_T			status;
-	char			*buffer;
 	int			core_dumped;
-	int			exit_status;
+	int			w_exit_status;
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 	Avo_CmdOutput		*make_output_msg;
 #endif
-	FILE			*outfp;
 	register pid_t		pid;
-	struct stat		stat_buff;
 	int			termination_signal;
 	char			tmp_buf[MAXPATHLEN];
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
@@ -717,10 +715,10 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 	warning_mksh(NOCATGETS("I'm in await(), and status is *NOT* 0."));
 #endif
 
-        exit_status = WEXITSTATUS(status);
+        w_exit_status = WEXITSTATUS(status);
 
 #ifdef PRINT_EXIT_STATUS
-	warning_mksh(NOCATGETS("I'm in await(), and exit_status is %d."), exit_status);
+	warning_mksh(NOCATGETS("I'm in await(), and w_exit_status is %d."), w_exit_status);
 #endif
 
         termination_signal = WTERMSIG(status);
@@ -738,14 +736,15 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 
 	tmp_buf[0] = (int) nul_char;
 	if (!silent_error) {
-		if (exit_status != 0) {
+		if (w_exit_status != 0) {
 			(void) fprintf(stdout,
 				       gettext("*** Error code %d"),
-				       exit_status);
+				       w_exit_status);
+			(void) tmp_buf;
 			SEND_MTOOL_MSG(
 				(void) sprintf(&tmp_buf[strlen(tmp_buf)],
 					       gettext("*** Error code %d"),
-					       exit_status);
+					       w_exit_status);
 			);
 		} else {
 #if ! defined(SUN5_0) && ! defined(HP_UX) && ! defined(linux)
