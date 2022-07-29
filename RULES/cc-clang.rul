@@ -6,7 +6,8 @@
 # Platform independent MACROS for Clang
 #
 ###########################################################################
-# Copyright (c) J. Schilling
+# Copyright (c) 1996-2018 J. Schilling
+# Copyright (c) 2022 the schilytools team
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -40,7 +41,7 @@ COPTOPT=	-O
 COPTDYN=	-fpic
 COPTGPROF=	-pg
 C++OPTS=	$(CLANG_OPTXX)
-C++WOPTS=	$(CWOPTS)
+C++WOPTS=	$(CWOPTS) -Wno-deprecated-register
 C++OPTOPT=	$(COPTOPT)
 C++OPTDYN=	-fpic
 C++OPTGPROF=	-pg

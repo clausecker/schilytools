@@ -6,7 +6,8 @@
 # Platform independent MACROS for GCC
 #
 ###########################################################################
-# Copyright (c) J. Schilling
+# Copyright (c) 1996-2018 J. Schilling
+# Copyright (c) 2022 the schilytools team
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -34,13 +35,14 @@ CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=		$(GCC_OPTXX)
 #		-Wtraditional now causes more pain than it helps 
 CWOPTS=		-Wall -Wtraditional
-CWOPTS=		-Wall -Wno-unknown-pragmas \
-		-Wshadow -Wmissing-prototypes -Wstrict-prototypes
+# options common to CWOPTS and C++WOPTS
+WOPTS=		-Wall -Wno-unknown-pragmas -Wshadow
+CWOPTS=		$(WOPTS) -Wmissing-prototypes -Wstrict-prototypes
 COPTOPT=	-O
 COPTDYN=	-fpic
 COPTGPROF=	-pg
 C++OPTS=	$(GCC_OPTXX)
-C++WOPTS=	$(CWOPTS)
+C++WOPTS=	$(WOPTS) -Wno-register
 C++OPTOPT=	$(COPTOPT)
 C++OPTDYN=	-fpic
 C++OPTGPROF=	-pg
