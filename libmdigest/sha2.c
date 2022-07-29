@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  * SHA2 hash code taken from OpenBSD
  *
  * Portions Copyright (c) 2009-2015 J. Schilling
+ * Portions Copyright (c) 2022 the schilytools team
  */
 
 /*	$OpenBSD: sha2.c,v 1.13 2009/04/15 00:55:52 djm Exp $	*/

@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
  *	Copyright (c) 1985-2018 J. Schilling
+ *	Copyright (c) 2022 the schilytools project
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file

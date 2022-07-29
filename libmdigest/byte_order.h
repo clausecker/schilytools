@@ -5,6 +5,7 @@
  * https://github.com/rhash/RHash/tree/master/librhash
  *
  * Portions Copyright (c) 2015-2020 J. Schilling
+ * Portions Copyright (c) 2022 the schilytools team
  */
 #ifndef BYTE_ORDER_H
 #define	BYTE_ORDER_H
