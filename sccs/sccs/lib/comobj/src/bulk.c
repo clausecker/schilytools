@@ -249,7 +249,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 			 * resolvepath() from libschily does not support input
 			 * and output buffer to be the same storage.
 			 */
-			strlcpy(tmp, Dir, sizeof (Dir));
+			strlcpy(tmp, Dir, sizeof (tmp));
 			if ((len = ((N->n_flags & N_IDOT) ?
 				    resolvepath(tmp, Dir, sizeof (Dir)):
 				    resolvenpath(tmp, Dir, sizeof (Dir)))) == -1) {
@@ -370,7 +370,7 @@ static char	Nhold[FILESIZE];	/* The space to hold the s. path    */
 				 * input and output buffer to be the same
 				 * storage.
 				 */
-				strlcpy(tmp, Dir, sizeof (Dir));
+				strlcpy(tmp, Dir, sizeof (tmp));
 				if ((len =
 				    (((N->n_flags & (N_IFILE|N_NFILE)) == 0) ||
 				    (N->n_flags & N_IDOT) ?
