@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)bsd.h	1.8 21/08/15 2017-2021 J. Schilling
  */
@@ -57,7 +58,9 @@
 #if !defined(SIG_PF)
 
 #ifdef __cplusplus
-extern "C" typedef void SIG_FUNC_TYP(int);
+extern "C" {
+	typedef void SIG_FUNC_TYP(int);
+}
 #else
 typedef void SIG_FUNC_TYP(int);
 #endif
@@ -67,7 +70,9 @@ typedef SIG_FUNC_TYP *SIG_TYP;
 #endif
 
 #ifdef __cplusplus
-extern "C" SIG_PF bsd_signal(int a, SIG_PF b);
+extern "C" {
+	SIG_PF bsd_signal(int a, SIG_PF b);
+}
 #else
 extern void (*bsd_signal(int, void (*) (int))) (int);
 #endif
