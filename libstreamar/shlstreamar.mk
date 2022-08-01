@@ -16,7 +16,7 @@ CPPOPTS +=	-DUSE_ICONV
 
 include		Targets
 
-LIBS=		-lfind -lschily -lc
+LIBS=		$(LIB_ICONV) -lfind -lschily -lc
 #XMK_FILE=	Makefile.man
 
 ###########################################################################
