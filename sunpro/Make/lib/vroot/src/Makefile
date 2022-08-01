@@ -19,7 +19,7 @@ CPPOPTS +=	-DSUNOS4_AND_AFTER
 CPPOPTS +=	-DPMAKE
 CPPOPTS +=	-DREDIRECT_ERR
 
-C++FILES=	access.cc args.cc chdir.cc chmod.cc chown.cc chroot.cc creat.cc execve.cc lock.cc lstat.cc mkdir.cc mount.cc open.cc readlink.cc report.cc rmdir.cc setenv.cc stat.cc statfs.cc truncate.cc unlink.cc unmount.cc utimes.cc vroot.cc
+C++FILES=	access.cc args.cc execve.cc lock.cc lstat.cc open.cc readlink.cc report.cc stat.cc statfs.cc unmount.cc vroot.cc
 
 LIBS=		
 

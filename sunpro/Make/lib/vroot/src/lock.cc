@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2021 J. Schilling
+ * Copyright 2022 the schilytools team
  *
  * @(#)lock.cc	1.10 21/08/15 2017-2021 J. Schilling
  */
@@ -62,6 +63,7 @@ static	UConst char sccsid[] =
 #endif
 
 #include <vroot/vroot.h>
+#include <vroot/report.h>
 #include <mksh/defs.h>	/* for libintl */
 
 #if defined(SCHILY_BUILD) || defined(SCHILY_INCLUDES)
