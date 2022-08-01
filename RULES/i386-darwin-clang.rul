@@ -42,11 +42,9 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDFRAMEWORKS=	-framework IOKit -framework CoreFoundation
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(LDFRAMEWORKS)
-LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
+LDOPTDYN=	-dynamiclib -install_name $(INSBASE)/lib/$(TARGET)
 LNDYNLIB=	$(NOECHO)
 
-DYNLD=		$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
-DYNLDC++ =	$(NOECHO)echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
 RANLIB=		$(NOECHO)echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 #
