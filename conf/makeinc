@@ -32,7 +32,8 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-MAILADDR=joerg@schily.net
+MAILADDR=schilytools@mlists.in-berlin.de
+UPSTREAMURL=https://codeberg.org/schilytools/schilytools
 
 ###########################################################################
 # Option processing
@@ -86,7 +87,7 @@ if [ -r $1 ]; then
 	echo "WARNING:	requested file '$1' already exists"
 	exit
 fi
-echo "IMPORTANT:	Please report your architecture to $MAILADDR"
+echo "IMPORTANT:	Please report your architecture to $MAILADDR or open a ticket at $UPSTREAMURL"
 echo
 echo "Trying to create missing rule file '$1'"
 sleep 1
@@ -195,7 +196,8 @@ echo "MANSTYLE:	$MANSTYLE"
 		if [ .$similar != . ]; then
 			echo 'Found similar architecture             ' "'$similar'"
 			echo 'creating symlink:' ln -s $SARCH-$OSNAME-$CCOM.rul $1
-			echo "Please send a mail to $MAILADDR to report whether this works or not"
+			echo "Please send a mail to $MAILADDR or open a ticket at $UPSTREAMURL"
+			echo "to report whether this works or not."
 			sleep 10
 			ln -s $SARCH-$OSNAME-$CCOM.rul $1 || cp $SARCH-$OSNAME-$CCOM.rul $1
 			exit
@@ -229,8 +231,9 @@ echo "MANSTYLE:	$MANSTYLE"
 		echo "Unknown rule to build: '$1'."
 		exit 1
 		;;
-	
+
 	esac
 
-echo "Please send a mail to $MAILADDR to report whether this works or not"
+echo "Please send a mail to $MAILADDR or open a ticket at $UPSTREAMURL"
+echo "to report whether this works or not."
 sleep 10
