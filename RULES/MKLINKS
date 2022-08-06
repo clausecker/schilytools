@@ -5,6 +5,7 @@
 # Written 1996-2020 by J. Schilling
 ###########################################################################
 # Copyright (c) 1996-2020 J. Schilling
+# Copyright (c) 2022 the schilytools team
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -275,6 +276,7 @@ $symlink	i386-netbsd-clang.rul	earmv7-netbsd-clang32.rul
 $symlink	i386-netbsd-clang.rul	earmv7-netbsd-clang64.rul
 $symlink	i386-openbsd-cc.rul	amd64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	amd64-openbsd-gcc.rul
+$symlink	i386-openbsd-clang.rul	amd64-openbsd-clang.rul
 $symlink	i386-openbsd-cc.rul	sparc64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	sparc64-openbsd-gcc.rul
 $symlink	amd64-bitrig-clang.rul	amd64-bitrig-clang32.rul

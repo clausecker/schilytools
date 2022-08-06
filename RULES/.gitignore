@@ -215,6 +215,7 @@ earmv7-netbsd-clang32.rul
 earmv7-netbsd-clang64.rul
 amd64-openbsd-cc.rul
 amd64-openbsd-gcc.rul
+amd64-openbsd-clang.rul
 sparc64-openbsd-cc.rul
 sparc64-openbsd-gcc.rul
 amd64-bitrig-clang32.rul
