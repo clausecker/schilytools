@@ -9,7 +9,7 @@ static	UConst char sccsid[] =
  *	Compute the message digest for files
  *
  *	Copyright (c) 2009-2021 J. Schilling
- *	Copyright (c) 2022	N. Sonack
+ *	Copyright (c) 2022	the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -194,7 +194,7 @@ struct	adigest	*dp = dlist;
 	if (prvers) {
 		gtprintf("mdigest %s (%s-%s-%s)\n\n", "1.10", HOST_CPU, HOST_VENDOR, HOST_OS);
 		gtprintf("Copyright (C) 2009-2021 %s\n", _("Jörg Schilling"));
-		gtprintf("Copyright (C) 2022 Nico Sonack\n");
+		gtprintf("Copyright (C) 2022      the schilytools team\n");
 		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
 		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
