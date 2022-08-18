@@ -1,6 +1,6 @@
-int mVERSION = 14;
+int mVERSION = 15;
 int MVERSION = 6;
-char dVERSION[] = "2021/07/23";
+char dVERSION[] = "2022/08/18";
 
 /* @(#)version.c	1.34 21/07/23 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
@@ -10,6 +10,7 @@ static	UConst char sccsid[] =
 #endif
 /*
  *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 2022      the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
