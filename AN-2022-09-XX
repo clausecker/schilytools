@@ -1,0 +1,166 @@
+New features with AN-2022-09-XX:
+
+***** This is a beta release! The next real release is planned for *****
+***** 2022-09-18. Please test this release and report all bugs you *****
+***** find.  Do not package this release or ship it to your users. *****
+***** If you do, please make sure to mark it as -devel or similar. *****
+
+With great sadness we report the death of schilytools main author and
+long time maintainer Jörg Schilling (1955-03-27--2021-10-10).  Jörg, we
+miss you!  After his passing, development has been picked up by a group
+of volunteers who would like to keep the project alive and well.  Our
+goal is to carefully preserve the portability and compatibility of this
+project while extending it to new platforms and implementing new tools
+and features that fit the tool set.
+
+As a part of the change in management, the schilytools project has moved
+from Sourceforge to Codeberg.  Please report bugs and send patches to
+our bug tracker:
+
+    https://codeberg.org/schilytools/schilytools
+
+or to our mailing list schilytools@mlists.in-berlin.de:
+
+    https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+
+If you have previously reported bugs to Jörg Schilling and they have not
+been fixed, please report them again.  We do not have access to Jörg's
+private emails and do not know what you have reported.
+
+UPDATING:
+
+-	FreeBSD: The default location for configuration files on FreeBSD
+	has been moved from /etc to be relative to INS_RBASE.  Users are
+	advised to either move their configuration files or compile with
+	INS_RBASE=/ to restore the old behaviour.
+
+DEPRECATED FEATURES:
+
+-	man2html: The man2html utility will be removed from schilytools
+	in a future release.  Users who wish to continue using this
+	utility are advised to use Thomas Dickey's version instead.
+
+	    https://dickey.his.com/scripts/man2html.html
+
+NEW FEATURES:
+
+-	general: The schilytools are now maintained in a git repository
+	at https://codeberg.org/schilytools/schilytools.git.  Artifacts
+	of Jörg's prior SCCS use such as SCCS ident strings remain; they
+	will likely be updated to use git's ident feature in the future.
+
+-	general: Explain how to contribute and update README
+
+-	general: Add list of contributors
+
+-	general: Add findlinks.sh, .gitignore, and (re)generate .links
+	The script scans the various MKLINKS files and generates
+	appropriate .gitignore files in each affected directory.  At the
+	same time, these links are recorded in the .links file kept for
+	compatibility.
+
+-	general: Add hand-written .gitignore file in root directory.
+	This file holds ignored files that are not covered by the
+	findlinks.s script as well as generic patterns for build
+	artifacts.
+
+-	all: Misc spelling fixes
+	Submitted by Friedhelm Mehnert.
+
+-	all: Update E-Mail address and project URL in many places.
+	Jörg's old joerg@schily.net address is defunct and so is his
+	postal address.  As a part of an ongoing documentation cleanup,
+	these addresses have been replaced by our new project pages in
+	many locations.
+
+-	DEFAULTS: Switch FreeBSD default link mode to dynamic
+	Dynamic link mode has been tested in the ports tree for over a
+	year and has worked without flaw so far.
+
+-	DEFAULTS: On FreeBSD, set INS_RBASE relative to INS_BASE
+	FreeBSD user applications are not supposed to put their
+	configuration files into /etc.
+
+-	RULES: Honor C++WOPTS
+	Fixing a previous oversight, C++ warning options are now applied
+	as intended.
+
+-	RULES: Do not warn about register in C++
+ 	The register keyword is deprecated in C++ and removed in C++17.
+	Unfortunately it is widely used all throughout the code base.
+	For now, avoid a slew of useless warnings by disabling this
+	warning where possible.
+
+-	RULES: Fix build on macOS 12.4
+
+-	RULES: Fix emacs TAGS generation
+
+-	RULES: add i386-openbsd-clang.rul
+	This should permit compilation on modern OpenBSD using clang as
+	the system compiler.
+
+-	autoconf: Work around clang bug in #pragma weak detection.
+	A clang compiler bug causing a crash in the configure test for
+	#pragma weak has been worked around, permitting use of weak
+	symbols when compiling with clang.
+
+-	bsh: Implement ^L support
+	Typing ^L in bsh will now clear the screen as already supported
+	in a number of other shells.
+	Submitted by Nico Sonack.
+
+-	inc: Remove outdated MKLINKS script
+	The affected source files haven't been links in a long time.
+
+-	libmdigest: Add support for BLAKE2 digests
+	Submitted by Nico Sonack.
+
+-	libmdigest: Prefer intrinsic for bswap_32 over inline assembly
+	This should improve performance slightly when compiling with gcc
+	on i386 targets.
+
+-	libmdigest: Work around clang bug in #pragma weak
+
+-	libstreamar: add missing LIB_ICONV
+
+-	mdigest: Add support for BLAKE2 digests
+	Submitted by Nico Sonack.
+
+-	mkisofs: No longer warn about Joliet being nonstandard.
+	With the 2019 revision of ECMA 119, Joliet has been added as an
+	annex to the standard.  Hence, the warning about Joliet being
+	nonstandard is no longer appropriate.  Neverthless, the warning
+	is kept in changed form as the recommendation to use Rockridge
+	in conjunction with Joliet is still sound.
+	Reported by Sam Trenholme.
+
+-	sccs: fix harmless wrong use of strlcpy()
+
+-	star: convert star_fat.c generation to MKLINKS
+
+-	sunpro: fix lots of warnings
+
+-	sunpro: remove lots dead code in Make/lib/vroot
+	This code can restored later if needed.
+
+-	sunpro: work around gcc 2.7.2 shortcomings
+	This pre-standard C++ compiler does not support extern "C"
+	qualified typedefs.  Work around this shortcoming by placing the
+	typedef inside an extern "C" { ... } block.
+
+FUTURE DIRECTIONS:
+
+-	RULES: symbol versioning will be enabled for FreeBSD after
+	sufficient testing.
+
+-	man2html: The utility will be removed in a future version (see
+	DEPRECATED FEATURES).
+
+CONTRIBUTORS FOR THIS VERSION:
+
+Robert CLAUSECKER <fuz@fuz.su>
+Friedhelm MEHNERT <friedhelm@friedhelms.net>
+Nico SONACK <nsonack@herrhotzenplotz.de>
+
+The schilytools maintainer
+Robert Clausecker <fuz@fuz.su>
