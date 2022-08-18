@@ -2160,6 +2160,7 @@ Copyright (C) 1997-2020 %s\n"),
 #ifdef	UDF
 		printf(_("Copyright (C) 2006      HELIOS Software GmbH\n"));
 #endif
+		printf(_("Copyright (C) 2022      the schilytools team\n"));
 #ifdef	OPTION_SILO_BOOT
 		printf(_("Warning: this is unofficial (modified) version of mkisofs that incorporates\n"));
 		printf(_("	support for a non Sparc compliant boot method called SILO.\n"));
