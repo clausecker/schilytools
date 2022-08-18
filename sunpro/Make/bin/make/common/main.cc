@@ -2180,6 +2180,7 @@ parse_command_option(register char ch)
 			fprintf(stdout, "\n");
 			fprintf(stdout, "Copyright (C) 1987-2006 Sun Microsystems\n");
 			fprintf(stdout, "Copyright (C) 1996-2021 Joerg Schilling\n");
+			fprintf(stdout, "Copyright (C) 2022      the schilytools team\n");
 			exit_status = 0;
 			exit(0);
 #else
