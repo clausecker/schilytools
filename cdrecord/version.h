@@ -3,5 +3,5 @@
 /*
  * The version for cdrtools programs
  */
-#define	VERSION		"3.02a10"
-#define	VERSION_DATE	"2021/07/23"
+#define	VERSION		"3.02"
+#define	VERSION_DATE	"2022/08/18"
