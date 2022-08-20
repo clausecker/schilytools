@@ -165,6 +165,12 @@ fi
 if [ ."$OSNAME" = .unix_sv ]; then
 	O_ARCH=unixware
 fi
+if [ ."$OSNAME" = .openbsd ]; then
+	case "$P_ARCH" in
+		aarch64*)	P_ARCH=arm64;;
+	esac
+fi
+
 
 ###########################################################################
 #

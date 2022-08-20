@@ -148,6 +148,9 @@ NEW FEATURES:
 	qualified typedefs.  Work around this shortcoming by placing the
 	typedef inside an extern "C" { ... } block.
 
+-	tests: fix arm64/aarch64 architecture confusion on OpenBSD
+	Submitted by Nico Sonack.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after
