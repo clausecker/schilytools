@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "2021/09/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "2022/08/24" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -85,7 +85,7 @@ Unlike other make programs,
 .B smake
 includes a set of 
 .B automake
-features that allow to implement portable, layered, object oriented makefiles.
+features that allow one to implement portable, layered, object oriented makefiles.
 .PP
 
 .SH OPTIONS
@@ -220,7 +220,7 @@ undoes the effect of the '@' character.
 .B \-dd
 Print additional debugging messages.
 This includes the messages from the \-d flag and additional
-messages that allow to trace the execution of the various rules.
+messages that allow execution tracing of the various rules.
 If more 'd' characters are added (e.g.
 .BR \-dddd ") the verbose level for tracing is enhanced."
 .TP
@@ -291,7 +291,7 @@ does not specify the behavior in this case anyway.
 The following operands are supported:
 .TP
 .I target
-any number of target names. The targets are build in the order of occurence.
+any number of target names. The targets are build in the order of occurrence.
 .TP
 .IB macro = value
 A macro definition. Macro definitions from the command line overwrite regular macro
@@ -396,9 +396,9 @@ updates all targets based on
 A 
 .B rule
 specifies a target and its prerequisites and defines a set of commands
-that allow to create an up to date target from its prerequisites.
+that allow one to create an up to date target from its prerequisites.
 .PP
-If the target and its prerequisites are named explicitely, the rule
+If the target and its prerequisites are named explicitly, the rule
 is called an 
 .BR "explicit rule" . 
 If the target and its prerequisites are named in an abstract way, the rule
@@ -683,7 +683,7 @@ knows rules to
 the files to include,
 .B smake
 will evaluate the related rules before doing the include.
-Include directives may be nested as long as there are unsued file descriptors.
+Include directives may be nested as long as there are unused file descriptors.
 An empty list of filenames is not considered an error.
 If one or more files from the parameter list do not exist, 
 .B smake
@@ -778,7 +778,7 @@ to activate this
 feature.
 If a 
 .B makefile
-uses this feature, it must either explicitely use the right 
+uses this feature, it must either explicitly use the right
 file names (including the object directory) or use dynamic macros 
 that are automatically updated to include the path of the
 object directory.
@@ -1511,13 +1511,13 @@ Setting this variable has no effect on the operation of
 .TP
 .B MAKE
 This macro contains a path name that is sufficient to recursively
-call the same 
+call the same
 .I make
 program again (it either contains the last path component or the full path
 name of the make program).
 Note that this may differ from the name that was used on the command line
-if the name that was used on the command line would not allow to call the
-same 
+if the name that was used on the command line would not allow one to call
+the same
 .I make 
 program from a different directory using this name.
 For this reason 
@@ -1583,7 +1583,7 @@ content may look this way:
 As the 
 .B MAKEFLAGS
 notation of the command line macros uses a special escape notation
-to allow to propagate any possible command line macro, it is not
+to allow propagation of any possible command line macro, it is not
 possible to call: 
 .br
 .B make $(MAKEFLAGS)
@@ -2347,7 +2347,7 @@ or that a different implementation with different behavior is found
 instead.
 .TP
 .B PROJECTDIR
-This enviroment variable controls the way SCCS history files are searched for.
+This environment variable controls the way SCCS history files are searched for.
 See
 .BR sccs (1)
 for more information.
