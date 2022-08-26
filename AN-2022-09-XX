@@ -138,6 +138,9 @@ NEW FEATURES:
 
 -	star: convert star_fat.c generation to MKLINKS
 
+-	star: fix wrong handling of pre-1970/post-2036 dates in gnutar
+	archives on platforms with sizeof(time_t) > sizeof(long).
+
 -	sunpro: fix lots of warnings
 
 -	sunpro: remove lots dead code in Make/lib/vroot

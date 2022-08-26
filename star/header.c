@@ -9,6 +9,7 @@ static	UConst char sccsid[] =
  *	archive headers
  *
  *	Copyright (c) 1985, 1994-2020 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2158,14 +2159,11 @@ static	BOOL	modewarn = FALSE;
 	}
 
 	if ((info->f_xflags & XF_MTIME) == 0) {
-		if (ptb->dbuf.t_mtime[0] & 0x80)
-			stob(ptb->dbuf.t_mtime, &ul, 11);
-		else
-			stoli(ptb->dbuf.t_mtime, &ul, 11);
-		info->f_mtime = (time_t)ul;
+		stolli(ptb->dbuf.t_mtime, &ull);
+		info->f_mtime = (time_t)ull;
 		info->f_mnsec = 0L;
-		if (info->f_mtime != ul) {
-			print_hrange("time", (Ullong)ul);
+		if (info->f_mtime != ull) {
+			print_hrange("time", ull);
 			info->f_mtime = 0;
 		}
 	}
@@ -2363,19 +2361,13 @@ star_to_info(ptb, info)
 	}
 
 	if ((info->f_xflags & XF_ATIME) == 0) {
-		if (ptb->dbuf.t_atime[0] & 0x80)
-			stob(ptb->dbuf.t_atime, &id, 11);
-		else
-			stoli(ptb->dbuf.t_atime, &id, 11);
-		info->f_atime = (time_t)id;
+		stolli(ptb->dbuf.t_atime, &ull);
+		info->f_atime = (time_t)ull;
 		info->f_ansec = 0L;
 	}
 	if ((info->f_xflags & XF_CTIME) == 0) {
-		if (ptb->dbuf.t_ctime[0] & 0x80)
-			stob(ptb->dbuf.t_ctime, &id, 11);
-		else
-			stoli(ptb->dbuf.t_ctime, &id, 11);
-		info->f_ctime = (time_t)id;
+		stolli(ptb->dbuf.t_ctime, &ull);
+		info->f_ctime = (time_t)ull;
 		info->f_cnsec = 0L;
 	}
 
@@ -2552,19 +2544,13 @@ xstar_to_info(ptb, info)
 	ustar_to_info(ptb, info);
 
 	if ((info->f_xflags & XF_ATIME) == 0) {
-		if (ptb->xstar_dbuf.t_atime[0] & 0x80)
-			stob(ptb->xstar_dbuf.t_atime, &ul, 11);
-		else
-			stoli(ptb->xstar_dbuf.t_atime, &ul, 11);
-		info->f_atime = (time_t)ul;
+		stolli(ptb->xstar_dbuf.t_atime, &ull);
+		info->f_atime = (time_t)ull;
 		info->f_ansec = 0L;
 	}
 	if ((info->f_xflags & XF_CTIME) == 0) {
-		if (ptb->xstar_dbuf.t_ctime[0] & 0x80)
-			stob(ptb->xstar_dbuf.t_ctime, &ul, 11);
-		else
-			stoli(ptb->xstar_dbuf.t_ctime, &ul, 11);
-		info->f_ctime = (time_t)ul;
+		stolli(ptb->xstar_dbuf.t_ctime, &ull);
+		info->f_ctime = (time_t)ull;
 		info->f_cnsec = 0L;
 	}
 
@@ -2596,11 +2582,8 @@ gnutar_to_info(ptb, info)
 	ustar_to_info(ptb, info);
 
 	if ((info->f_xflags & XF_ATIME) == 0) {
-		if (ptb->gnu_dbuf.t_atime[0] & 0x80)
-			stob(ptb->gnu_dbuf.t_atime, &ul, 11);
-		else
-			stoli(ptb->gnu_dbuf.t_atime, &ul, 11);
-		info->f_atime = (time_t)ul;
+		stolli(ptb->gnu_dbuf.t_atime, &ull);
+		info->f_atime = (time_t)ull;
 		info->f_ansec = 0L;
 		if (info->f_atime == 0 && ptb->gnu_dbuf.t_atime[0] == '\0')
 			info->f_atime = info->f_mtime;
@@ -2609,11 +2592,8 @@ gnutar_to_info(ptb, info)
 	}
 
 	if ((info->f_xflags & XF_CTIME) == 0) {
-		if (ptb->gnu_dbuf.t_ctime[0] & 0x80)
-			stob(ptb->gnu_dbuf.t_ctime, &ul, 11);
-		else
-			stoli(ptb->gnu_dbuf.t_ctime, &ul, 11);
-		info->f_ctime = (time_t)ul;
+		stolli(ptb->gnu_dbuf.t_ctime, &ull);
+		info->f_ctime = (time_t)ull;
 		info->f_cnsec = 0L;
 		if (info->f_ctime == 0 && ptb->gnu_dbuf.t_ctime[0] == '\0')
 			info->f_ctime = info->f_mtime;
