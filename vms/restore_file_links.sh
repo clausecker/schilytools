@@ -18,14 +18,3 @@ while [ -n "${name}" ] ; do
 
 done
 )
-#
-# Repair the defective top-level hard links (special cases).
-#
-for name in BUILD COMPILE INSTALL ; do
-    if [ -L "${name}" ] ; then
-        targ=` ls -l "${name}" | sed -e 's/.*-> //' `
-        targ=` basename "${targ}" `
-        rm "${name}" ; ln "${targ}" "${name}"
-    fi
-done
-#

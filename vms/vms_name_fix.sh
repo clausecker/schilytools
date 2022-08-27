@@ -26,16 +26,13 @@ mv an-2.01_01a17 AN-2.01.01a17
 mv an-2.01_01a18 AN-2.01.01a18
 mv an-2.01_01a18 AN-2.01.01a19
 mv an-2.01_01a18 AN-2.01.01a20
-mv build BUILD
 mv cddl.schily_txt CDDL.Schily.txt
 mv changelog Changelog
-mv compile COMPILE
 mv contributing CONTRIBUTING
 mv copying COPYING
 mv gmake Gmake
 mv gmake.linux Gmake.linux
 mv gpl-2.0_txt GPL-2.0.txt
-mv install INSTALL
 mv lgpl-2.1_txt  LGPL-2.1.txt
 mv make_diskt_2.sh make_diskt@2.sh
 mv makefile Makefile
@@ -173,8 +170,6 @@ mv cdda2wav/thanks cdda2wav/THANKS
 mv cdda2wav/todo cdda2wav/TODO
 #
 mv cdrecord/build_all.com_old cdrecord/build_all.com.old
-mv cdrecord/copying cdrecord/COPYING
-mv cdrecord/license cdrecord/LICENSE
 mv cdrecord/limitations cdrecord/LIMITATIONS
 mv cdrecord/makefile cdrecord/Makefile
 mv cdrecord/makefile.man cdrecord/Makefile.man

@@ -64,6 +64,11 @@ NEW FEATURES:
 	findlinks.s script as well as generic patterns for build
 	artifacts.
 
+-	README.compile: dequadruplicate BUILD/COMPILE/INSTALL
+	Jörg originally hard-linked the same file to four names.  As git
+	does not support hard links in repositories, remove two copies of
+	the file, leaving us with just README.compile.
+
 -	all: Misc spelling fixes
 	Submitted by Friedhelm Mehnert.
 
@@ -108,6 +113,11 @@ NEW FEATURES:
 	Typing ^L in bsh will now clear the screen as already supported
 	in a number of other shells.
 	Submitted by Nico Sonack.
+
+-	cdrecord: Detriplicate LICENSE/COPYING/LIMITATIONS
+	Jörg originally hard-linked the same file to three names.  As git
+	does not support hard links in repositories, remove two copies of
+	the file, leaving us with just LIMITATIONS.
 
 -	inc: Remove outdated MKLINKS script
 	The affected source files haven't been links in a long time.
