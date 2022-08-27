@@ -8,7 +8,7 @@ static	UConst char sccsid[] =
 /*
  * Copyright (C) 1998-2002,2015 Heiko Eissfeldt heiko@colossus.escape.de
  * Copyright (C) 2006-2016      J. Schilling
- * Copyirhgt (C) 2022           the schilytools team
+ * Copyright (C) 2022           the schilytools team
  *
  * Interface module for cdrom drive access
  *
