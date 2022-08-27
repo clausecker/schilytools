@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
  *	and then to report the output (from stderr).
  *
  *	Copyright (c) 1989, 1994-2020 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -284,7 +285,7 @@ extern	BOOL	cflag;
 #endif
 	if (buf == NULL) {
 		comerrno(EX_BAD,
-			"Cannot get shared memory, fifo missconfigured?\n");
+			"Cannot get shared memory, fifo misconfigured?\n");
 	}
 	mp = (m_head *)buf;
 	fillbytes(buf, addsize, '\0');	/* We init the complete add. space */

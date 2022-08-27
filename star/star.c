@@ -1272,7 +1272,7 @@ xusage(ret)
 	error("\t-dump\t\tarchive more ino metadata (needed for incremental dumps)\n");
 	error("\t-dump+\t\tlike -dump but with more global meta data\n");
 	error("\t-restore\trestore incremental dumps\n");
-	error("\t-partial\tpermit to restore partial incremental dumps\n");
+	error("\t-partial\tpermit restoration of partial incremental dumps\n");
 	error("\t-force-restore\tforce to restore partial incremental dumps\n");
 	error("\t-no-xheader\tdo not read or write extended headers regardless of format\n");
 	error("\t-meta\t\tuse inode metadata only (omit file content)\n");
@@ -1370,7 +1370,7 @@ xusage(ret)
 	error("\tdir-owner=user\tIntermediate created directories will be owned by 'user'.\n");
 	error("\tdir-group=user\tIntermediate created directories will be owned by 'group'.\n");
 	error("\tumask=mask\tSet star's umask to 'mask'.\n");
-	error("\t-onull,-nullout\tsimulate creating an achive to compute the size\n");
+	error("\t-onull,-nullout\tsimulate creating an archive to compute the size\n");
 	exit(ret);
 	/* NOTREACHED */
 }

@@ -8,6 +8,7 @@ static	const char _s_sccsid[] =
  *	Solaris TAR specific routines for star main program.
  *
  *	Copyright (c) 1989, 2003-2019 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -305,7 +306,7 @@ usage(ret)
 	error("\t-b #\t\tset blocking factor to #x512 Bytes (default 20)\n");
 	error("\t-B\t\tperform multiple reads (needed on pipes)\n");
 	error("\t-D\t\ttreat data change errors as warnings only\n");
-	error("\t-e\t\texit immediately if unexpeted errors ocur\n");
+	error("\t-e\t\texit immediately if unexpected errors ocur\n");
 	error("\t-E\t\tWrite a tarfile with extended headers\n");
 	error("\t-f nm\t\tuse 'nm' as tape instead of stdin/stdout\n");
 	error("\t-F,-FF,-FFF,...\tdo not store/create SCCS/RCS, core and object files\n");

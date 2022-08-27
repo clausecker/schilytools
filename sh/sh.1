@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2021/05/29" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2022/08/26" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, bosh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -101,7 +101,7 @@ executes commands read from a terminal or a file.
 .LP
 The name
 .B bosh
-permits to call this implementaton even when
+permits to call this implementation even when
 .B /usr/bin/sh
 has been linked to another shell.
 .LP
@@ -871,7 +871,7 @@ only matching aliases are listed. Wildcards may be used.
 When using the
 .RB ' h '
 modifier, the alias is also entered into the command history.
-This permits to edit existing aliases with the history
+This permits editing of existing aliases with the history
 editor and to re-enter the modified entries into the
 list of aliases.
 .br
@@ -1833,7 +1833,7 @@ and
 .RB `` NOTFOUND ''
 are returned reliably from
 .BR vfork (2)
-childs or when the related state is already known by the cache.
+children or when the related state is already known by the cache.
 This is true for all simple commands.
 .sp
 Note that unless
@@ -3802,7 +3802,7 @@ When
 is specified, each named builtin command is deleted.
 Special builtin commands cannot be deleted.
 .sp
-On platforms that allow to load dynamic libraries,
+On platforms that allow loading dynamic libraries,
 .B \-f
 allows one to load a dynamic library that contains builtin commands.
 .sp
@@ -4542,7 +4542,7 @@ implementation of this shell includes primary operators called
 .B \-call
 and
 .B \-calldir
-that allow to directly call back commands into the shell.
+that allow directly calling back commands into the shell.
 As this does not need to create a new process, it is much faster than the
 .B \-exec
 primary.
@@ -5366,7 +5366,7 @@ or
 .I m
 are decimal integers in the range 1 ..
 .IR maxargs ,
-allow to specify the
+allow specifying the
 position in the parameter list.
 See
 .BR printf (3)
@@ -5611,7 +5611,7 @@ The option
 was not supported in older versions of
 .BR sh .
 .LP
-Omiting the
+Omitting the
 .I name
 parameter of the
 .B read
@@ -6129,7 +6129,7 @@ editor.
 Allow shell command line editing using the built in
 .B vi
 editor.
-The Bourne Shell currently does not allow to set the vi mode
+The Bourne Shell currently does not allow one to set the vi mode
 for any type of terminal.
 .TP
 .B xtrace
@@ -6198,7 +6198,7 @@ If no arguments follow this delimiter, then the positional parameters are unset.
 .sp
 Older versions of
 .B sh
-did not allow to unset the positional parameters with
+did not allow unsetting the positional parameters with
 .RB `` "set \-\-" ''.
 .LP
 Using
@@ -7339,7 +7339,7 @@ The user file-creation mask is set to
 .I mask
 (see
 .BR umask (1)).
-The mask may either be an octal numner or a symbolic notation (see
+The mask may either be an octal number or a symbolic notation (see
 .BR chmod (1)).
 If the symbolic notation for
 .I mask
@@ -7831,7 +7831,7 @@ If an command is entered that is already in the history, it is moved to the
 end of the history.
 .SS "History Editing Commands"
 .LP
-The following commands allow to edit a command line:
+The following line editing commands are supported:
 .TP 10
 .B ^A
 Move the cursor to the beginning of the current command line.
@@ -8686,7 +8686,7 @@ as parsing just stopped at the first non digit.
 .TP
 .B parameter assignment
 This version of the Bourne Shell fixed the order of evaluation for
-parameter assignements to be left to right instead of right to left (as
+parameter assignments to be left to right instead of right to left (as
 implemented in previous versions). This may cause scripts to fail if they
 expect the old non-standard behavior.
 .br
@@ -8706,7 +8706,7 @@ When the shell is on POSIX mode, it sets the
 property on all shell variables imported from the environment.
 This makes all changes in these variables automatically visible to
 the next child process. The historic behavior is to pass the imported
-values to the childs environment but to use a separate storage location
+values to the child's environment but to use a separate storage location
 for the internal shell variable until the
 .B export
 builtin is explicitly called for a specific variable.
@@ -8869,7 +8869,7 @@ field separators but rather assigns empty values to variables in such a case.
 This is a significant change in the behavior, but the historic behavior is not
 useful for
 .I non-space
-field separators as this would not allow to e.g. read the password file via
+field separators as this would not allow e.g. reading the password file via
 .BR read (1).
 .ne 4
 .TP

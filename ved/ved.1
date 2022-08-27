@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2020/12/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2022/08/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -883,7 +883,7 @@ contains the text that has been deleted using forward delete commands and the
 .B "backwards delete buffer"
 contains te text that has been deleted using backward delete commands.
 The characters in the backward delete buffer are saved in reverse order
-to allow to reinsert them in the correct order.
+to allow reinserting them in the correct order.
 As long as you don't move the cursor and start deleting new text in either
 direction, the content
 of both, the forward and the backwards delete buffer may be reinserted
@@ -1612,7 +1612,7 @@ To see the help file, type
 .LP
 Note that this command may not work in case that the terminal in use
 outputs a backspace when typing the DEL key. In such a case, it is
-apropriate to type:
+appropriate to type:
 .B ESC : vhelp
 .RE
 .TP
@@ -2356,7 +2356,7 @@ Print the current command binding for
 .BR ved .
 Later versions of
 .B ved
-may allow to modify the binding with this command.
+may allow modification of the binding with this command.
 .TP
 .B help
 print online help for available colon commands.
@@ -2399,7 +2399,7 @@ The first form lists the current settings of
 .BR ved ,
 the second form sets a specific property of
 .BR ved .
-The vaiables that may be modified via the
+The variables that may be modified via the
 .B set
 command are:
 .RS
@@ -2414,7 +2414,7 @@ Switch off with
 .TP
 .BI linelen " new-linelen"
 Set linelength that is used as base for screen updates.
-This linenength usually is retrived from the terminal driver
+This linenength usually is retrieved from the terminal driver
 but may be modified manually.
 .TP
 .B magic
@@ -2460,7 +2460,7 @@ line on the screen.
 .TP
 .BI psize " page-size"
 Set pagesize that is used as base for screen updates.
-This pagesize usually is retrived from the terminal driver
+This pagesize usually is retrieved from the terminal driver
 but may be modified manually.
 .TP
 .BI tabstop " tab-width"
@@ -2644,7 +2644,7 @@ like this:
 .LP
 .IB "  map_from" :: *comment
 .LP
-an existing mapping is removed. This permits to avoid unwanted mappings
+an existing mapping is removed. This permits ignoring unwanted mappings
 that have been set up from the
 .B TERMCAP
 entry.
@@ -3113,7 +3113,7 @@ and
 The type of terminal for which the output should be formatted.
 .TP
 .B TERMCAP
-This enviroment variable holds either a precompiled termcap entry
+This environment variable holds either a precompiled termcap entry
 or the pathname to be used to find a termcap database file.
 If it holds a precompiled entry that does not match the
 .B TERM

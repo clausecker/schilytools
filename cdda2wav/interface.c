@@ -7,7 +7,8 @@ static	UConst char sccsid[] =
 #endif
 /*
  * Copyright (C) 1998-2002,2015 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2016      J. Schilling
+ * Copyright (C) 2006-2016      J. Schilling
+ * Copyirhgt (C) 2022           the schilytools team
  *
  * Interface module for cdrom drive access
  *
@@ -869,7 +870,7 @@ find_drive(scgp, dev)
 		 */
 		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder target found.\n"));
 		errmsgno(EX_BAD,
-		_("Your platform may not allow to scan for SCSI devices.\n"));
+		_("Your platform may not permit scanning for SCSI devices.\n"));
 		comerrno(EX_BAD,
 		_("Call 'cdda2wav dev=help' or ask your sysadmin for possible targets.\n"));
 	} else {

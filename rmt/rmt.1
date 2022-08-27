@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMT 1 "2020/09/04" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH RMT 1 "2022/08/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 rmt \- remote magnetic tape protocol server
 .SH SYNOPSIS
@@ -150,7 +150,7 @@ The symbolic notation allows one to send the expected open mode over
 the wire, using a system independent method.
 This is needed because different operating systems usually define all
 bits in a different way. An exception are the lowest two bits.
-The lowest two bits allow to code 
+The lowest two bits allow one to code 
 .IR O_RDONLY , O_WRONLY " and " O_RDWR .
 To prevent unexpected behavior, 
 .B rmt
@@ -159,7 +159,7 @@ masks the numeric open mode with
 before using it as argument to the 
 .BR open (2)
 call.
-If you need more bits in the second parameter ot
+If you need more bits in the second parameter to
 .BR open (2),
 you need to use the symbolic mode.
 .sp
@@ -256,12 +256,12 @@ Mapped to
 3
 Mapped to 
 .B SEEK_DATA
-If avalable on the remote system.
+If available on the remote system.
 .TP
 4
 Mapped to 
 .B SEEK_HOLE
-If avalable on the remote system.
+If available on the remote system.
 .RE
 .br
 .ne 7
@@ -722,7 +722,7 @@ line need to be separated by a TAB character.
 Be very careful when designing patterns to match path names that may
 be accepted for 
 .IR open .
-If a pattern would allow to include
+If a pattern would allow inclusion of
 .I /../
 in the path,
 a possible intruder could virtually access any path on your system.

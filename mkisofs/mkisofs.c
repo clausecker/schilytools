@@ -1172,7 +1172,7 @@ LOCAL const struct mki_option mki_options[] =
 	{{"gid*", &gid_str },
 	__("\1gid\1Make the group owner of all files this gid.")},
 	{{"graft-points", &use_graft_ptrs },
-	__("Allow to use graft points for filenames")},
+	__("Allow use of graft points for filenames")},
 	{{"root*", &reloc_root },
 	__("\1DIR\1Set root directory for all new files and directories")},
 	{{"old-root*", &reloc_old_root },

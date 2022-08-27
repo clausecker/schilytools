@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2020/09/17" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2022/08/26" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -146,7 +146,7 @@ to encode initial versions not recognized as containing binary data.
 .sp
 The new 
 .B SCCSv6
-history file format permits to have lines that start with the SCCS control
+history file format permits having lines that start with the SCCS control
 character
 .B SOH(ASCII 001)
 and files that do not end with a
@@ -398,7 +398,7 @@ extension that sets the executable bit in the file permissions of a
 gotten file if the
 .BR x -flag
 was set in the history file with no parameter. This version of SCCS
-does not allow to set this variant of the
+does not allow this variant of setting the
 .BR x -flag
 in the history file.
 If you like to get executable files from SCCS, set the executable
@@ -887,7 +887,7 @@ from the original file.
 If this option was specified, only one file type argument is permitted.
 .TP
 .BI date= datetime
-Allows to overwrite the usual methods to determine the
+Allows one to overwrite the usual methods to determine the
 time stamp used for a new delta. This is needed
 to e.g. convert a historic SCCS history into a
 new project oriented bundle history.

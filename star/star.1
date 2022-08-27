@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2020/09/04" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2022/08/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -204,7 +204,7 @@ expressions, even in extract or list mode, directly on the
 content on an archive.
 The extensions to
 .BR find (1)
-allow to modify the file metadata.
+allow one to modify the file metadata.
 .PP
 .B Star 
 includes a sophisticated
@@ -1978,7 +1978,7 @@ The
 option only works in create mode.
 .TP
 .B \-dump
-Allows to create archives with the same number of attributes as an archive that
+Allows creating archives with the same number of attributes as an archive that
 has been created with the 
 .B level=
 option but without the restrictions that apply to a true dump.
@@ -2158,7 +2158,7 @@ aborts (exits) as soon as possible after this error condition has been
 seen instead of making
 .B star
 quiet about the condition.
-This error condition flag may only be used together with at leat another 
+This error condition flag may only be used together with at least another 
 error condition or a list of error conditions
 (separated by a '|' character).
 .TP 12
@@ -2505,7 +2505,7 @@ or the GNU
 server,
 .B star
 may use the symbolic mode for the open flags.
-Only the symbolic open modes allow to send all possible open
+Only the symbolic open modes allow sending all possible open
 modes in a portable way to remote tape servers.
 .sp
 It is recommended to use the 
@@ -3003,7 +3003,7 @@ with care if you extract
 .B cpio
 archives.
 .sp
-Note that not all filesystem allow to create hard links to directories.
+Note that not all filesystem allow creating hard links to directories.
 Also note that even though a non-root user is able detect and archive
 hard linked directories, all known operating systems require the extraction
 to be done as root in order to be able to create or remove hard links to directories.
@@ -3315,7 +3315,7 @@ It is recommended to use the
 format for best results.
 In create mode,
 .B \-multivol
-is only supported for archives types that allow to write reliable multi volume
+is only supported for archives types that allow writing reliable multi volume
 header information.
 .sp
 See
@@ -3379,7 +3379,7 @@ that requires a separate open and ioctl.
 .TP
 .B \-no-dirslash
 Do not add a slash to the end of directory names if writing to an archive.
-Historic tar archive formats did only allow to specify plain files and hard links.
+Historic tar archive formats did only allow specifying plain files and hard links.
 Around 1980, BSD added a feature to specify a directory on tape by adding
 a slash to the end of the name. POSIX.1-1988 defined the first official tar
 archive format that had a clean method to specify the type of a directory.
@@ -3536,7 +3536,7 @@ to very old historic tar archives, you need to specify the
 .I \-d
 option too. 
 .sp
-This option is superseeded by the 
+This option is superseded by the 
 .BR H= headertype 
 option.
 .TP
@@ -3647,7 +3647,7 @@ If you use file type select patterns, they work exactly like the method
 used by other (non pattern aware) 
 .BR tar (1)
 implementations.
-File type select patterns do not offer pattern matching but allow to restore subtrees.
+File type select patterns do not offer pattern matching but allow restoring subtrees.
 To extract a complete sub tree 
 from the directory
 .I dir
@@ -4163,7 +4163,7 @@ call with additional whence values
 .B SEEK_HOLE
 and
 .B SEEK_DATA
-that allow to find holes in an efficient way.
+that allow finding holes in an efficient way.
 Other operating systems lack support to get the real allocation list
 and force 
 .B star
@@ -4626,7 +4626,7 @@ that counts in seconds plus another number that counts in fractions of
 a second.
 .TP
 .B \(bu
-The filesystem needs to allow to rename files
+The filesystem needs to allow renaming files
 and directories by either calling
 .BR rename(2),
 or

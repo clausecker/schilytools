@@ -5,6 +5,7 @@
 .\" Copyright (c) 2008, Sun Microsystems, Inc.  All Rights Reserved
 .\" Copyright (c) 2012-2021, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
+.\" Copyright (c) 2022 the schilytools team
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
 .\" permission to reproduce portions of its copyrighted documentation.
@@ -61,7 +62,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2021/09/09" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2022/08/26" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -443,7 +444,7 @@ Special-Function Targets section).
 .ne 10
 .TP
 .BR \-m\  { serial " | " parallel }
-Allows to specify one of the following key words:
+Allows specifying one of the following key words:
 .RS
 .br
 .ne 4
@@ -615,7 +616,7 @@ calls.
 .TP
 .BI "\-x DMAKE_OUTPUT_MODE=" value
 .PD
-Allows to set the
+Allows setting the
 .B make
 compat mode or the output mode.
 See
@@ -2480,7 +2481,7 @@ macro contains a path name that is sufficient to recursively call the same
 program again (it either contains the last path component or the full path
 name of the make program).
 Note that this may differ from the name that was used on the command line
-if the name that was used on the command line would not allow to call the
+if the name that was used on the command line would not allow calling the
 same
 .I make
 program from a different directory using this name.
@@ -4390,7 +4391,7 @@ recursively called make programs.
 .ne 3
 .TP
 .SM \fBDMAKE_MAX_JOBS\fP
-Allows to set the maximum number of jobs in case that
+Allows setting the maximum number of jobs in case that
 .B \-j
 was not specified.
 .br

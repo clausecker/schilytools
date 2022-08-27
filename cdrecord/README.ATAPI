@@ -232,7 +232,7 @@ IDE 1	SLAV	->	CD-ROM
 If cou cannot set up a decent cabling (e.g. because you use a notebook)
 you may try to use cdrecord -immed ...
 It runs slow commands in quick (immediate) return background mode and
-tries to wait between the write commands to allow to free the IDE cable
+tries to wait between the write commands to free the IDE cable
 so the cdrecord read process may fill the FIFO from the other drive
 on the same IDE cable.
 
@@ -247,7 +247,7 @@ As all actual Linux versions have ATAPI support for cdrecord,
 I removed the patch section. If you are running a Linux version
 that does not support ATAPI<->SCSI command transport, please upgrade.
 
-The basic driver design in Solaris would also allow to use ATAPI
+The basic driver design in Solaris would also allow use of ATAPI
 drives but unfortunately, Sun made a mistake in the mid-level design.
 If you want to use ATAPI drives with Solaris, ask Sun why they don't
 support SCSI passthrough to IDE although they are using a common driver
@@ -561,7 +561,7 @@ of the devices from DMA to PIO.
 
 Hints for the Linux Packet code in ide-cdrom.c:
 
-	WARNING! It seems that this driver does not allow to send all
+	WARNING! It seems that this driver does not permit sending all
 	SCSI commands. A command that definitely fails is READ FULL TOC.
 	For this reason, you cannot read those 'defective' audio CDs
 	with broken TOC when you use this interface.

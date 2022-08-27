@@ -84,7 +84,7 @@
 .ds L' `
 .ds R' '
 'br\}
-.TH PATCH 1 "2019/12/08"
+.TH PATCH 1 "2022/08/26"
 .SH NAME
 patch - a program for applying a diff file to an original
 .SH SYNOPSIS
@@ -465,7 +465,7 @@ to interpret the patch file as a unified context diff (a unidiff).
 .B \-v
 causes
 .B patch
-to print out it's revision header and compatiblity status.
+to print out it's revision header and compatibility status.
 .sp
 This option is not available in strict POSIX mode.
 .TP
@@ -481,7 +481,7 @@ to be more verbose.
 .PD
 causes
 .B patch
-to print out it's revision header and compatiblity status.
+to print out it's revision header and compatibility status.
 
 .TP
 .B \-W+
@@ -952,8 +952,8 @@ suffix and the
 option allowed to define a different suffix.
 Modern
 .B patch
-implementations by default do not create backup files and allow to
-enable backups with the
+implementations by default do not create backup files by default.
+Backup file generation can be enabled with the
 .B \-b
 option that does not permit a parameter with POSIX.
 .sp
@@ -1034,7 +1034,7 @@ and
 .B POSIX patch
 use the POSIX method for
 .B Filename Determination
-and only permit to use the the special
+and only permit use of the special
 .B Index:
 line.
 .sp

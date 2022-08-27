@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  *	Record data on a CD/CVD-Recorder
  *
  *	Copyright (c) 1995-2019 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1761,7 +1762,7 @@ find_drive(scgp, dev, flags)
 		 * No single CD-ROM or WORM found.
 		 */
 		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder target found.\n"));
-		errmsgno(EX_BAD, _("Your platform may not allow to scan for SCSI devices.\n"));
+		errmsgno(EX_BAD, _("Your platform may not allow you to scan for SCSI devices.\n"));
 		comerrno(EX_BAD, _("Call 'cdrecord dev=help' or ask your sysadmin for possible targets.\n"));
 	} else {
 		errmsgno(EX_BAD, _("Too many CD/DVD/BD-Recorder targets found.\n"));
@@ -1992,7 +1993,7 @@ usage(excode)
 	error(_("\t-scanbus	scan the SCSI bus and exit\n"));
 	error(_("\t-reset		reset the SCSI bus with the cdrecorder (if possible)\n"));
 	error(_("\t-abort		send an abort sequence to the drive (may help if hung)\n"));
-	error(_("\t-overburn	allow to write more than the official size of a medium\n"));
+	error(_("\t-overburn	allow writing more than the official size of a medium\n"));
 	error(_("\t-ignsize	ignore the known size of a medium (may cause problems)\n"));
 	error(_("\t-useinfo	use *.inf files to overwrite audio options.\n"));
 	error(_("\tspeed=#		set speed of drive\n"));
