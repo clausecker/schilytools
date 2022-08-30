@@ -34,6 +34,19 @@ UPDATING:
 	advised to either move their configuration files or compile with
 	INS_RBASE=/ to restore the old behaviour.
 
+-	The distribution file is now generated using git-archive(1) and
+	is in pax format.  The only pax extension used is a single pax
+	global header holding the git commit hash.  Warnings like
+
+	    tar: pax_global_header: typeflag 'g' not recognized,
+	    converting to regular file
+
+	on extract can safely be ignored.  The pax_global_header file can
+	safely be deleted.  If errors persist, the header can be stripped
+	off by skipping the first 1024 bytes of the archive:
+
+	    bunzip2 -c schily-????-??-??.tar.bz2 | dd skip=2 | tar xf -
+
 DEPRECATED FEATURES:
 
 -	man2html: The man2html utility will be removed from schilytools
