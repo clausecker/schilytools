@@ -30,7 +30,7 @@ numbers from one radix to another.
 .PP
 .B Calc
 reads commands from stdin and prints the result to stdout.
-The inpout radix for numbers may be decimal (default),
+The input radix for numbers may be decimal (default),
 octal (if starting with a '0') or hexadecimal (if starting with "0x").
 The output is always printed in four radixes: 
 .BR decimal , 
@@ -40,7 +40,7 @@ and
 .BR binary .
 The decimal variant is printed as signed and as unsigned representation.
 .PP
-The result is printed in two variants using 32 bit and 64 bit repesentations
+The result is printed in two variants using 32 bit and 64 bit representations
 for the numbers.
 .SH "INPUT FORMAT"
 .PP
@@ -48,23 +48,23 @@ for the numbers.
 accepts three types of input lines:
 .TP 16
 .B "one number"
-The input line is onue number only.
+The input line is one number only.
 .sp
 In this case the number is converted only to the different output formats.
 .TP
-.B "unary oparator"
-The input line is a unary oparator followed by a number
+.B "unary operator"
+The input line is a unary operator followed by a number
 .sp
-In this case the unary oparator is applied to the number and the result
+In this case the unary operator is applied to the number and the result
 is printed in all output formats.
 .TP
-.B "binary oparator"
-The input line is a number followed by a binary oparator followed by a second number.
+.B "binary operator"
+The input line is a number followed by a binary operator followed by a second number.
 .sp
-In this case the binari oparator is applied to the numbers and the result
+In this case the binary operator is applied to the numbers and the result
 is printed in all output formats.
 
-.SH OPARATORS
+.SH OPERATORS
 .TP 16
 .B +
 Binary arithmetic addition.

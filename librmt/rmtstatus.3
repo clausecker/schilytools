@@ -140,7 +140,7 @@ if (rmtopen(remfd, remfn, mode) < 0)
 	comerr("Cannot open '%s'.\en", remfn);
 
 if (rmtxstatus(remfd, &rmtg) < 0)
-	comerr("Cannot retrieve magnetic tape status fom '%s'.\en", remfn);
+	comerr("Cannot retrieve magnetic tape status from '%s'.\en", remfn);
 
 rmtclose(remfd);
 .fi

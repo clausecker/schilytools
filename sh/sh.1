@@ -2509,7 +2509,7 @@ If the past pathname component equals to
 .B rsh
 or
 .BR rbosh ,
-the shell is swichted into a restricted shell.
+the shell is switched into a restricted shell.
 
 .br
 .ne 3
@@ -3750,7 +3750,7 @@ In case
 .B sh
 has been compiled with storage debugging support, the
 .B alloc
-command prints information about the curren state of the storage
+command prints information about the current state of the storage
 subsystem; otherwise
 .B alloc
 is a dummy command.
@@ -5187,9 +5187,9 @@ of the
 command is printed.
 .sp
 If the process group id equals the process id, the process
-ia a progrss group leader.
+is a process group leader.
 If the session group id equals the process id, the process
-ia a session group leader.
+is a session group leader.
 .sp
 The
 .B pgrp
@@ -5702,7 +5702,7 @@ command to be supported.
 .sp .6
 Causes a function or
 .B '.'
-script to return to the invokint script
+script to return to the invoking script
 with the return value specified by
 .IR n .
 If
@@ -6168,8 +6168,8 @@ Print commands and their arguments as they are executed.
 .TP
 .B \-P
 Switch profile mode on.
-In this mode, the shell runs privilleged programs automatically in
-privilleged mode.
+In this mode, the shell runs privileged programs automatically in
+privileged mode.
 See
 .BR pfexec (1)
 for further information.
@@ -8650,7 +8650,7 @@ message that the shell script file does not exist.
 If your platform does not provide an
 .B /etc/termcap
 file, or if your termcap database does not contain an entry for the terminal
-type you are using, the following command may be used to convert a teminfo
+type you are using, the following command may be used to convert a terminfo
 entry into a termcap entry and to append it to your private termcap database
 .sp
 .nf
@@ -8718,7 +8718,7 @@ builtin is explicitly called for a specific variable.
 .B syntax errors in builtin commands
 With this version of the Bourne Shell, only special builtin commands may
 terminate the whole shell in case that shell is not an interactive shell.
-In previous versions, all builtin commands could terminate a non-ineractive
+In previous versions, all builtin commands could terminate a non-interactive
 shell if a utility syntax error or a fatal utility error was encountered.
 .sp
 The most prominent result of this change is that the builtin
@@ -8776,7 +8776,7 @@ POSIX introduced new options
 .B \-L
 and
 .B \-P
-and defaults to logical mode while the historic Burne Shell did implement
+and defaults to logical mode while the historic Bourne Shell did implement
 a physical mode that operates on normalized directory names.
 .sp
 In logical mode, the command argument
@@ -8945,7 +8945,7 @@ A portable method to clear the positional parameters is to call
 .BR "set \-e" " and " "Command Substitution"
 The historic Bourne Shell did abort the first
 .B echo
-command in the following exanple:
+command in the following example:
 .sp
 .in +2
 .nf

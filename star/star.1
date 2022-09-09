@@ -3070,7 +3070,7 @@ directory at once,
 .B star
 reads the directory name by name. This may cause
 .B star
-to close the directory if it rans out of file descriptors because of deeply
+to close the directory if it runs out of file descriptors because of deeply
 nested directories. If a directory then does not support
 .BR telldir(3)/seekdir(3) ,
 .B star
@@ -3108,7 +3108,7 @@ When using
 .BR \-find ,
 this may not always work as expected, e.g. when the
 .B /proc
-filesyestem is involved.
+filesystem is involved.
 Use
 .B \-xdev
 past
@@ -3146,7 +3146,7 @@ to match.
 Using
 .B \-match\-tree
 allows one to efficiently exclude whole trees from scanning. This helps to
-avoid scannings directory trees that are on remote file systems or contain
+avoid scanning directory trees that are on remote file systems or contain
 excessive bad blocks.
 .TP
 .BI maxsize= #
@@ -5343,7 +5343,7 @@ This grants that
 .B star
 is always faster than other archivers, but makes it impossible for
 .B star
-to check whether the extracion of a file to the filesystem was successful.
+to check whether the extraction of a file to the filesystem was successful.
 .sp
 If set to any other value, 
 the default behavior of
@@ -5531,7 +5531,7 @@ This grants that
 .B star
 is always faster than other archivers, but makes it impossible for
 .B star
-to check whether the extracion of a file to the filesystem was successful.
+to check whether the extraction of a file to the filesystem was successful.
 .sp
 This setting is overwritten by the
 .B STAR_FSYNC
@@ -6085,7 +6085,7 @@ of star, get the process ids for both star processes, send both a
 .B RTMAX
 signal using
 .BR kill (1)
-and report the disgnostic output.
+and report the diagnostic output.
 .PP
 There is currently no way to automatically delete files in the target file tree
 if they are obsolete.

@@ -129,7 +129,7 @@ command when you quit
 .TP
 .B  \-nolock
 Don't try to use record locking to tell other editors that a file
-ie being edited or just being written to. This option may help if
+i.e. being edited or just being written to. This option may help if
 NFS record locking bugs would otherwise cause an edit session to hang
 in the
 .BR fcntl ()
@@ -881,7 +881,7 @@ All deletions are saved in two buffers: the
 .B forward delete buffer
 contains the text that has been deleted using forward delete commands and the
 .B "backwards delete buffer"
-contains te text that has been deleted using backward delete commands.
+contains the text that has been deleted using backward delete commands.
 The characters in the backward delete buffer are saved in reverse order
 to allow reinserting them in the correct order.
 As long as you don't move the cursor and start deleting new text in either
@@ -1549,7 +1549,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -1651,7 +1651,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -1751,7 +1751,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -2019,7 +2019,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -2112,7 +2112,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -2180,7 +2180,7 @@ will ignore the state of the
 flag and the access rights of the file.
 The latter will allow you to write into files without write permissions
 if you are super user.
-For execptions on this rule, see description of the
+For exceptions on this rule, see description of the
 .B \-readonly flag.
 .TP
 Type \fB!
@@ -2315,7 +2315,7 @@ file.
 .TP
 .B <ESC><ALT><ALT>
 pop the tag stack by one entry.
-Every time you go to a tag, the old location is puched on top
+Every time you go to a tag, the old location is pushed on top
 of the tag stack.
 .TP
 .B <ESC>%
@@ -2451,7 +2451,7 @@ It is set by default to the half of the number of lines
 of the terminal.
 .TP
 .BI pmargin " page-margin"
-Set the distance you need to have between the cursoe and the upper or lower
+Set the distance you need to have between the cursor and the upper or lower
 border of the terminal. If you cross this border,
 .B ved
 will start to scroll and adjust the cursor to the optimal line.
@@ -2464,7 +2464,7 @@ This pagesize usually is retrieved from the terminal driver
 but may be modified manually.
 .TP
 .BI tabstop " tab-width"
-Set the size of a visible tab chacaracter. This width
+Set the size of a visible tab character. This width
 is set to 8 by default.
 .TP
 .BI taglength " tag-len-value"
@@ -2489,7 +2489,7 @@ will first look for a file
 in the current directory, then search up for (directory by directory until
 the root directors is reached) a file
 .B tags
-and last it vill look for a file
+and last it will look for a file
 .BR   /usr/lib/tags .
 .TP
 .BI wrapmargin " wrap-margin"
@@ -3333,7 +3333,7 @@ only works if there is a global unique implementation.
 If your platform does not provide an
 .B /etc/termcap
 file, or if your termcap database does not contain an entry for the terminal
-type you are using, the following command may be used to convert a teminfo
+type you are using, the following command may be used to convert a terminfo
 entry into a termcap entry and to append it to your private termcap database
 .sp
 .nf
