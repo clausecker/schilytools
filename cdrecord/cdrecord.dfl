@@ -56,14 +56,15 @@
 #
 # drive name	device		speed	fifosize driveropts	transfersize
 #
-my-default=	1,0,0		-1	-1	burnfree	63k
-sol-default=	USCSI:1,0,0	-1	-1	burnfree
-ricoh-u=	USCSI:0,2,0	-1	-1	burnfree
-teac=		1,3,0		-1	-1	""
-teac-max-ts=	1,3,0		-1	-1	""		32k
-panasonic=	1,4,0		-1	-1	""
-plextor=	1,4,0		-1	-1	""
-sanyo=		1,4,0		-1	-1	burnfree
-yamaha=		1,5,0		-1	-1	""
-cdrom=		0,6,0		2	1m	""
-remote=	REMOTE:rscsi@somehost:1,0,0 16	16m	burnfree
+#my-default=	1,0,0		-1	-1	burnfree	63k
+#sol-default=	USCSI:1,0,0	-1	-1	burnfree
+#ricoh-u=	USCSI:0,2,0	-1	-1	burnfree
+#teac=		1,3,0		-1	-1	""
+#teac-max-ts=	1,3,0		-1	-1	""		32k
+#panasonic=	1,4,0		-1	-1	""
+#plextor=	1,4,0		-1	-1	""
+#sanyo=		1,4,0		-1	-1	burnfree
+#yamaha=		1,5,0		-1	-1	""
+#cdrom=		0,6,0		2	1m	""
+#remote=	REMOTE:rscsi@somehost:1,0,0 16	16m	burnfree
+

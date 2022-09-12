@@ -135,6 +135,14 @@ NEW FEATURES:
 -	bsh: big cleanup of the man page bsh_de.1.
 	Submitted by Nico Sonack.
 
+-	cdrecord: comment out abstract devices names
+	cdrecord.dfl used to define various abstract device names.
+	These can be confusing to the user as they are likely not to
+	match the actual device configuration present.  We now comment
+	out these device names, leaving them as mere examples for the
+	user to reference.
+	Reported by Friedhelm Mehnert.
+
 -	cdrecord: Detriplicate LICENSE/COPYING/LIMITATIONS
 	Jörg originally hard-linked the same file to three names.  As git
 	does not support hard links in repositories, remove two copies of
