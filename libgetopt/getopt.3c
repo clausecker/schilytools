@@ -60,7 +60,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH getopt 3C "28 Oct 2019" "SunOS 5.11" "Standard C Library Functions"
+.TH getopt 3C "2022/08/22" "SunOS 5.11" "Standard C Library Functions"
 .SH NAME
 getopt \- command option parsing
 .SH SYNOPSIS

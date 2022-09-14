@@ -62,7 +62,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2022/08/26" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2022/08/20" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
