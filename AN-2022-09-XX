@@ -90,6 +90,11 @@ NEW FEATURES:
 	postal address.  As a part of an ongoing documentation cleanup,
 	these addresses have been replaced by our new project pages in
 	many locations.
+	Submitted by Nico Sonack.
+
+-	man pages: work around buggy syntax highlighting by adding
+	\" " comments into various places.
+	Submitted by Nico Sonack.
 
 -	DEFAULTS: Switch FreeBSD default link mode to dynamic
 	Dynamic link mode has been tested in the ports tree for over a
@@ -125,6 +130,9 @@ NEW FEATURES:
 -	bsh: Implement ^L support
 	Typing ^L in bsh will now clear the screen as already supported
 	in a number of other shells.
+	Submitted by Nico Sonack.
+
+-	bsh: big cleanup of the man page bsh_de.1.
 	Submitted by Nico Sonack.
 
 -	cdrecord: Detriplicate LICENSE/COPYING/LIMITATIONS
