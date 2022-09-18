@@ -1,9 +1,4 @@
-New features with AN-2022-09-XX:
-
-***** This is a beta release! The next real release is planned for *****
-***** 2022-09-18. Please test this release and report all bugs you *****
-***** find.  Do not package this release or ship it to your users. *****
-***** If you do, please make sure to mark it as -devel or similar. *****
+New features with AN-2022-09-18:
 
 With great sadness we report the death of schilytools main author and
 long time maintainer Jörg Schilling (1955-03-27--2021-10-10).  Jörg, we
@@ -200,6 +195,12 @@ FUTURE DIRECTIONS:
 
 -	man2html: The utility will be removed in a future version (see
 	DEPRECATED FEATURES).
+
+-	With the switch of Solaris from SysV man page sections to BSD man
+	page sections, a future version is planned to install man pages
+	according to BSD conventions instead of SysV conventions.  This
+	affects the man pages makefiles(4), makerules(4), sttreamarchive(4),
+	changeset(4), sccsfile(4), sccschangeset(4), and star(4).
 
 CONTRIBUTORS FOR THIS VERSION:
 
