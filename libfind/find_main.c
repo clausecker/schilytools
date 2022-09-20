@@ -9,6 +9,7 @@ static	UConst char sccsid[] =
  *	Another find implementation...
  *
  *	Copyright (c) 2004-2021 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -81,6 +82,11 @@ walkfunc(nm, fs, type, state)
 			ferrmsg(state->std[2],
 				_("Cannot read '%s'.\n"), nm);
 		}
+		state->err = 1;
+		return (0);
+	} else if (type == WALK_DP) {
+		ferrmsgno(state->std[2], EX_BAD,
+				  _("Directory loop detected on '%s'.\n"), nm);
 		state->err = 1;
 		return (0);
 	}

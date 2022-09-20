@@ -47,6 +47,16 @@ NEW FEATURES:
 	value if the getpwuid() or getgrgid() call failed.
 	Reported by Tavian Barnes.
 
+-	libfind/sfind: Report presence of directory loops.  Previously,
+	such directory loops were silently ignored.  Now, upon
+	encountering a directory loop, sfind prints a diagnostic message
+	to standard error.  The search is continued but sfind will
+	terminate with a nonzero exit status.  This change improves
+	compatibility with POSIX (cf. PASC interpretation request 1606).
+	All libfind consumers calling the treewalk() function (mkisofs,
+	sccs, and star) are affected.
+	Reported by Tavian Barnes.  Submitted by Nico Sonack.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after
