@@ -9,6 +9,7 @@ static	UConst char sccsid[] =
  *	Another find implementation...
  *
  *	Copyright (c) 2004-2019 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2656,7 +2657,6 @@ plusexec(f, t, state)
 	size_t	slen = strlen(f) + 1;
 	char	*nargp = (char *)&pp->nextargp[2];
 	char	*cp;
-	int	ret = TRUE;
 
 	size = pp->laststr - (char *)&pp->nextargp[2];	/* Remaining strlen */
 
@@ -2666,7 +2666,8 @@ plusexec(f, t, state)
 	if (pp->laststr < nargp ||			/* Already full	    */
 	    slen > size) {				/* str does not fit */
 		pp->nextargp[0] = NULL;
-		ret = doexec(NULL, t, pp->ac, pp->av, state);
+		if (!doexec(NULL, t, pp->ac, pp->av, state))
+			state->err = 1;
 		pp->laststr = pp->endp;
 		pp->ac = t->val.i;
 		pp->nextargp = &pp->av[t->val.i];
@@ -2692,7 +2693,7 @@ plusexec(f, t, state)
 	}
 	error("EXECPLUS '%s'\n", f);
 #endif
-	return (ret);
+	return (TRUE);
 }
 #endif	/* HAVE_FORK */
 
@@ -2714,8 +2715,10 @@ find_plusflush(p, state)
 		if (plusp->laststr != plusp->endp) {
 			plusp->nextargp[0] = NULL;
 #ifdef	HAVE_FORK
-			if (!doexec(NULL, NULL, plusp->ac, plusp->av, state))
+			if (!doexec(NULL, NULL, plusp->ac, plusp->av, state)) {
+				state->err = 1;
 				ret = FALSE;
+			}
 #endif
 		}
 		plusp = plusp->next;
@@ -2871,6 +2874,7 @@ main(ac, av)
 	char	**av;
 {
 	int	cac  = ac;
+	int	ret  = 0;
 	char	**cav = av;
 	char	**firstpath;
 	char	**firstprim;

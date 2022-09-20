@@ -3,6 +3,6 @@
 /*
  * The version for libfind/sfind
  */
-#define	VERSION		"1.8"
-#define	VERSION_NUM	0x1008
-#define	VERSION_DATE	"2021/07/23"
+#define	VERSION		"1.9"
+#define	VERSION_NUM	0x1009
+#define	VERSION_DATE	"2022/09/20"
