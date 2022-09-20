@@ -1,0 +1,62 @@
+New features with AN-2022-10-XX:
+
+With great sadness we report the death of schilytools main author and
+long time maintainer Jörg Schilling (1955-03-27--2021-10-10).  Jörg, we
+miss you!  After his passing, development has been picked up by a group
+of volunteers who would like to keep the project alive and well.  Our
+goal is to carefully preserve the portability and compatibility of this
+project while extending it to new platforms and implementing new tools
+and features that fit the tool set.
+
+As a part of the change in management, the schilytools project has moved
+from Sourceforge to Codeberg.  Please report bugs and send patches to
+our bug tracker:
+
+	https://codeberg.org/schilytools/schilytools
+
+or to our mailing list schilytools@mlists.in-berlin.de:
+
+	https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+
+If you have previously reported bugs to Jörg Schilling and they have not
+been fixed, please report them again.  We do not have access to Jörg's
+private emails and do not know what you have reported.
+
+DEPRECATED FEATURES:
+
+-	man2html: The man2html utility will be removed from schilytools
+	in a future release.  Users who wish to continue using this
+	utility are advised to use Thomas Dickey's version instead.
+
+		https://dickey.his.com/scripts/man2html.html
+
+NEW FEATURES:
+
+-	libfind/sfind: Fix incorrect error handling of -exec ... {} + primaries.
+	Previously in some cases the primary returned an error even though
+	it should always return true and in other cases it completely
+	disregarded the exit code. Now the primary always returns true and
+	sets the exit code of libfind and sfind to a non-zero value in case
+	one of the commands returned with a non-zero exit code.
+	Reported by Tavian Barnes.  Submitted by Nico Sonack.
+
+FUTURE DIRECTIONS:
+
+-	RULES: symbol versioning will be enabled for FreeBSD after
+	sufficient testing.
+
+-	man2html: The utility will be removed in a future version (see
+	DEPRECATED FEATURES).
+
+-	With the switch of Solaris from SysV man page sections to BSD man
+	page sections, a future version is planned to install man pages
+	according to BSD conventions instead of SysV conventions.  This
+	affects the man pages makefiles(4), makerules(4), sttreamarchive(4),
+	changeset(4), sccsfile(4), sccschangeset(4), and star(4).
+
+CONTRIBUTORS FOR THIS VERSION:
+
+Nico SONACK <nsonack@herrhotzenplotz.de>
+
+The schilytools maintainer
+Robert Clausecker <fuz@fuz.su>
