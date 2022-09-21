@@ -22,11 +22,11 @@ If you have previously reported bugs to Jörg Schilling and they have not
 been fixed, please report them again.  We do not have access to Jörg's
 private emails and do not know what you have reported.
 
-DEPRECATED FEATURES:
+UPDATING:
 
--	man2html: The man2html utility will be removed from schilytools
-	in a future release.  Users who wish to continue using this
-	utility are advised to use Thomas Dickey's version instead.
+-	man2html: The man2html utility has been removed from schilytools.
+	Users who wish to continue using this utility are advised to use
+	Thomas Dickey's version instead.
 
 		https://dickey.his.com/scripts/man2html.html
 
@@ -45,9 +45,6 @@ FUTURE DIRECTIONS:
 -	RULES: symbol versioning will be enabled for FreeBSD after
 	sufficient testing.
 
--	man2html: The utility will be removed in a future version (see
-	DEPRECATED FEATURES).
-
 -	With the switch of Solaris from SysV man page sections to BSD man
 	page sections, a future version is planned to install man pages
 	according to BSD conventions instead of SysV conventions.  This
@@ -56,6 +53,7 @@ FUTURE DIRECTIONS:
 
 CONTRIBUTORS FOR THIS VERSION:
 
+Robert CLAUSECKER <fuz@fuz.su>
 Nico SONACK <nsonack@herrhotzenplotz.de>
 
 The schilytools maintainer

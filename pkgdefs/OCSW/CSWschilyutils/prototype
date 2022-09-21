@@ -30,7 +30,6 @@ s none bin/fsdiff=udiff
 f none bin/fifo 0755 root bin
 f none bin/hdump 0755 root bin
 f none bin/lndir 0755 root bin
-f none bin/man2html 0755 root bin
 f none bin/match 0755 root bin
 f none bin/mdigest 0755 root bin
 l none bin/od=hdump
@@ -85,7 +84,6 @@ f none share/man/man1/hdump.1 0444 root bin
 f none share/man/man1/jsh.1 0444 root bin
 f none share/man/man1/label.1 0444 root bin
 f none share/man/man1/lndir.1 0444 root bin
-f none share/man/man1/man2html.1 0444 root bin
 f none share/man/man1/match.1 0444 root bin
 f none share/man/man1/mdigest.1 0444 root bin
 f none share/man/man1/mountcd.1 0444 root bin
