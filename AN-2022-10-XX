@@ -40,6 +40,13 @@ NEW FEATURES:
 	one of the commands returned with a non-zero exit code.
 	Reported by Tavian Barnes.  Submitted by Nico Sonack.
 
+-	libfind/sfind: Report failures to query the password/group
+	database for -nouser/-nogroup.  Previously failure to query
+	these databases was treated as if the user id/group id was not
+	found.  We now print a diagnostic message and return a non-zero
+	value if the getpwuid() or getgrgid() call failed.
+	Reported by Tavian Barnes.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after

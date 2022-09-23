@@ -1970,10 +1970,32 @@ find_expr(f, ff, fs, state, t)
 		return (TRUE);
 
 	case NOUSER:
-		return (getpwuid(fs->st_uid) == NULL);
+		seterrno(0);
+		if (getpwuid(fs->st_uid) != NULL)
+			return (FALSE);
+
+		if (geterrno() != 0) {
+			ferrmsg(state->std[2],
+				_("Cannot query password database for user id %llu.\n"),
+				(Llong)fs->st_uid);
+			state->err = 1;
+		}
+
+		return (TRUE);
 
 	case NOGRP:
-		return (getgrgid(fs->st_gid) == NULL);
+		seterrno(0);
+		if (getgrgid(fs->st_gid) != NULL)
+			return (FALSE);
+
+		if (geterrno() != 0) {
+			ferrmsg(state->std[2],
+				_("Cannot query group database for group id %llu.\n"),
+				(Llong)fs->st_gid);
+			state->err = 1;
+		}
+
+		return (TRUE);
 
 	case PRUNE:
 		state->flags |= WALK_WF_PRUNE;
