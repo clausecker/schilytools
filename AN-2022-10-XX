@@ -24,20 +24,21 @@ private emails and do not know what you have reported.
 
 UPDATING:
 
--	man2html: The man2html utility has been removed from schilytools.
-	Users who wish to continue using this utility are advised to use
-	Thomas Dickey's version instead.
+-	man2html: The man2html utility has been removed from the
+	schilytools distribution.  Users who wish to continue using this
+	utility are advised to use Thomas Dickey's version instead.
 
 		https://dickey.his.com/scripts/man2html.html
 
 NEW FEATURES:
 
--	libfind/sfind: Fix incorrect error handling of -exec ... {} + primaries.
-	Previously in some cases the primary returned an error even though
-	it should always return true and in other cases it completely
-	disregarded the exit code. Now the primary always returns true and
-	sets the exit code of libfind and sfind to a non-zero value in case
-	one of the commands returned with a non-zero exit code.
+-	libfind/sfind: Fix incorrect error handling of -exec ... {} +
+	primaries.  Previously in some cases the primary returned an
+	error even though it should always return true and in other
+	cases it completely disregarded the exit code.  Now the primary
+	always returns true and sets the exit code of libfind and sfind
+	to a non-zero value in case one of the commands returned with a
+	non-zero exit code.
 	Reported by Tavian Barnes.  Submitted by Nico Sonack.
 
 -	libfind/sfind: Report failures to query the password/group
@@ -62,11 +63,12 @@ FUTURE DIRECTIONS:
 -	RULES: symbol versioning will be enabled for FreeBSD after
 	sufficient testing.
 
--	With the switch of Solaris from SysV man page sections to BSD man
-	page sections, a future version is planned to install man pages
-	according to BSD conventions instead of SysV conventions.  This
-	affects the man pages makefiles(4), makerules(4), sttreamarchive(4),
-	changeset(4), sccsfile(4), sccschangeset(4), and star(4).
+-	With the switch of Solaris from SysV man page sections to BSD
+	man page sections, a future version is planned to install man
+	pages according to BSD conventions instead of SysV conventions.
+	This affects the man pages makefiles(4), makerules(4),
+	streamarchive(4), changeset(4), sccsfile(4), sccschangeset(4),
+	and star(4).
 
 CONTRIBUTORS FOR THIS VERSION:
 
