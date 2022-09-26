@@ -117,8 +117,6 @@ lndir/
 	Create symlinked directory trees (MIT)
 man/
 	Various man pages for the makefile system (CDDL)
-man2html/
-	A man page to html converter (GPL)
 match/
 	A program to searche for patterns in file(s) (CDDL)
 mdigest/
