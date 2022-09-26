@@ -18,3 +18,7 @@ config.status
 
 # emacs tag files
 TAGS
+
+# rendered man pages
+*.html
+!conf/*.html
