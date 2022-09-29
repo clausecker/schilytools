@@ -58,6 +58,13 @@ NEW FEATURES:
 	sccs, and star) are affected.
 	Reported by Tavian Barnes.  Submitted by Nico Sonack.
 
+-	star: rename tests/compress archives to avoid issues on case
+	insensitive file systems.  These file systems do not like having
+	multiple files whose names only differ in letter case.  Rename
+	the archives to completely distinct file names to avoid this
+	issue.
+	Reported by tux <rosa.elefant@icloud.com>.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after
