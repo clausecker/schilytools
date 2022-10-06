@@ -65,6 +65,9 @@ NEW FEATURES:
 	issue.
 	Reported by tux <rosa.elefant@icloud.com>.
 
+-	mkisofs/mkisofs.8: adjust reference of magic(4) to magic(5)
+	Submitted by Martin Rehak.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after
