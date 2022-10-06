@@ -11,7 +11,7 @@ MANDIR=		man
 TARGETMAN=	star
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	star.4
+MANFILE=	star.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

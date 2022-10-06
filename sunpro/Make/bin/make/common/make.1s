@@ -62,7 +62,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH make 1S "2022/08/20" "SunOS 5.11" "SunOS Specific Commands"
+.TH make 1S "2022/10/06" "SunOS 5.11" "SunOS Specific Commands"
 .SH NAME
 make \- maintain, update, and regenerate related programs and files
 .SH SYNOPSIS
@@ -736,7 +736,7 @@ or
 .BR -w .
 Due to the
 implementation of POSIX.2 (see
-.BR POSIX.2 (5),
+.BR POSIX.2 (7),
 the
 .B MAKEFLAGS
 values
@@ -4338,7 +4338,7 @@ a.o  b.o:  incl.h
 .sp
 .LP
 See
-.BR environ (5)
+.BR environ (7)
 for descriptions of the following environment
 variables that affect the execution of
 .BR make :
@@ -4841,7 +4841,7 @@ This file may need manual removal if the system crashed at a critical state.
 .sp
 .LP
 See
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .SS "/usr/bin/make"
 .sp
@@ -4872,7 +4872,7 @@ AvailabilitySUNWxcu4t
 _
 Interface StabilityCommitted
 _
-StandardSee \fBstandards\fR(5).
+StandardSee \fBstandards\fR(7).
 .TE
 
 .SH SEE ALSO
@@ -4891,11 +4891,11 @@ StandardSee \fBstandards\fR(5).
 .BR sysV-make (1),
 .BR yacc (1),
 .BR wordexp (3C),
-.BR passwd (4),
-.BR attributes (5),
-.BR environ (5),
-.BR POSIX.2 (5),
-.BR standards (5)
+.BR passwd (5),
+.BR attributes (7),
+.BR environ (7),
+.BR POSIX.2 (7),
+.BR standards (7)
 .sp
 .LP
 \fISolaris Advanced User\&'s Guide\fR

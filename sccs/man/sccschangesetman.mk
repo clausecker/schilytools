@@ -11,7 +11,7 @@ MANDIR=		man
 TARGETMAN=	sccschangeset
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	sccschangeset.4
+MANFILE=	sccschangeset.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

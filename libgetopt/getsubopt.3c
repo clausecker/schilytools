@@ -4,6 +4,7 @@
 .\" Copyright (c) 2005, Sun Microsystems, Inc.  All Rights Reserved.
 .\" Copyright (c) 2012-2013, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
+.\" Copyright (c) 2022, the schilytools team
 .\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
 .\" permission to reproduce portions of its copyrighted documentation.
@@ -48,7 +49,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH getsubopt 3C "29 Sep 2005" "SunOS 5.11" "Standard C Library Functions"
+.TH getsubopt 3C "2022/10/06" "SunOS 5.11" "Standard C Library Functions"
 .SH NAME
 getsubopt \- parse suboption arguments from a string
 .SH SYNOPSIS
@@ -165,7 +166,7 @@ to process options.
 .sp
 .LP
 The following example demonstrates the processing of options to the
-.BR mount (1M)
+.BR mount (8)
 utility using
 .BR getsubopt() .
 
@@ -292,7 +293,7 @@ while ((opt = getopt(argc, argv, "e:")) != -1) {
 .sp
 .LP
 See
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .sp
 
@@ -312,7 +313,7 @@ MT-LevelMT-Safe
 .SH SEE ALSO
 .sp
 .LP
-.BR mount (1M),
+.BR mount (8),
 .BR getopt (3C),
-.BR attributes (5),
-.BR standards (5)
+.BR attributes (7),
+.BR standards (7)

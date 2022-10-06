@@ -11,11 +11,11 @@ MANDIR=		man
 TARGETMAN=	changeset
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	changeset.4
+MANFILE=	changeset.5
 LOCALIZE=	@echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; \
-		sh -c 'sed -e "s,man4/,$(MANSECT_FILEFORM)/," -e "s,.4$$,.$(MANSUFF_FILEFORM)," "$$1" > "$$2"' sed 
+		sh -c 'sed -e "s,man5/,$(MANSECT_FILEFORM)/," -e "s,.5$$,.$(MANSUFF_FILEFORM)," "$$1" > "$$2"' sed 
 
-changeset.4.html: sccschangeset.4
+changeset.5.html: sccschangeset.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

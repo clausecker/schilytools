@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTSTATUS 3L "2022/09/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTSTATUS 3L "2022/10/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtstatus, rmtxstatus, _mtg2rmtg, _rmtg2mtg \- request MTIOCGET on a connection to a remote tape server
 .RB ( -lrmt )
@@ -77,7 +77,7 @@ in
 contains a bitmap that indicates which members of the structure contain
 valid values.
 See
-.B mtio(7)
+.B mtio(4)
 for more information.
 .TP
 .B _rmtg2mtg()
@@ -170,7 +170,7 @@ rmtclose(remfd);
 .BR _mtg2rmtg (3),
 .BR _rmtg2mtg (3),
 .BR errmsgno (3),
-.BR mtio (7)
+.BR mtio (4)
 
 .\" .SH DIAGNOSTICS
 .\" .SH NOTES

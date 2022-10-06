@@ -7,7 +7,7 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-DIRS=	man4
+DIRS=	man5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.dir

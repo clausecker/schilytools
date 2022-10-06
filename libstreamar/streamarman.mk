@@ -11,7 +11,7 @@ MANDIR=		man
 TARGETMAN=	streamarchive
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	streamarchive.4
+MANFILE=	streamarchive.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

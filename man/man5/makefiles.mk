@@ -8,10 +8,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 MANDIR=		man
-TARGETMAN=	makerules
+TARGETMAN=	makefiles
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	makerules.4
+MANFILE=	makefiles.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

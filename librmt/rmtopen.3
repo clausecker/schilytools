@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RMTOPEN 3L "2022/08/21" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH RMTOPEN 3L "2022/10/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
 .RB ( -lrmt )
@@ -118,7 +118,7 @@ and
 are the values that should be filled into 
 .BR "struct mtop" .
 See
-.B mtio(7)
+.B mtio(4)
 for more information.
 .SH "RETURN VALUES"
 .TP
@@ -206,7 +206,7 @@ rmtclose(remfd);
 .BR _mtg2rmtg (3),
 .BR _rmtg2mtg (3),
 .BR errmsgno (3),
-.BR mtio (7)
+.BR mtio (4)
 
 .\" .SH DIAGNOSTICS
 .SH NOTES

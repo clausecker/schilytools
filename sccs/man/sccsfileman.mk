@@ -11,7 +11,7 @@ MANDIR=		man
 TARGETMAN=	sccsfile
 MANSECT=	$(MANSECT_FILEFORM)
 MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	sccsfile.4
+MANFILE=	sccsfile.5
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

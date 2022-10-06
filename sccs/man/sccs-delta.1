@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2022/08/17" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2022/10/06" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -597,7 +597,7 @@ to the previous content of that file.
 With this option, there is no need to unpack the old reference version
 and to diff the current version against that old version. This causes
 a major performance win that is used for updating the
-.BR sccschangeset (4)
+.BR sccschangeset (5)
 file when in
 .BR "project mode" .
 .TP
@@ -659,7 +659,7 @@ implementations.
 .sp
 .LP
 See
-.BR environ (5)
+.BR environ (7)
 for descriptions of the following environment variables that affect the
 execution of
 .BR delta (1):
@@ -782,7 +782,7 @@ after completion
 .BI s. file
 .B SCCS
 history file, see
-.BR sccsfile (4).
+.BR sccsfile (5).
 
 .br
 .ne 2
@@ -815,7 +815,7 @@ is initiated via
 
 .LP
 See 
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .sp
 
@@ -882,11 +882,11 @@ AvailabilitySUNWsprot
 .BR diff (1), 
 .BR fsdiff (1), 
 .BR what (1),
-.BR sccschangeset (4),
-.BR sccsfile (4),
-.BR attributes (5),
-.BR environ (5),
-.BR standards (5).
+.BR sccschangeset (5),
+.BR sccsfile (5),
+.BR attributes (7),
+.BR environ (7),
+.BR standards (7).
 .hy 14
 
 .SH DIAGNOSTICS
@@ -911,7 +911,7 @@ v4 history file format is used, unless the
 is escaped. This character has special meaning to
 .B SCCS
 (see 
-.BR sccsfile (4))
+.BR sccsfile (5))
 and produces an error in
 .B SCCS
 v4 mode.

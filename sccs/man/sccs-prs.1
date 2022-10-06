@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2022/08/10" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2022/10/06" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -64,7 +64,7 @@ The
 utility displays part or all of the
 .B SCCS
 file (see 
-.BR sccsfile (4))
+.BR sccsfile (5))
 in a user supplied format.
 .LP
 The output is based on data from the
@@ -433,7 +433,7 @@ Data keywords specify which parts of an
 file are to be retrieved. All parts of an
 .B SCCS
 file (see 
-.BR sccsfile (4))
+.BR sccsfile (5))
 have an associated data keyword. A data keyword may appear any number
 of times in a data specification argument to
 .BR -d .
@@ -575,7 +575,7 @@ produces:
 .sp
 .LP
 See
-.BR environ (5)
+.BR environ (7)
 for descriptions of the following environment variables that affect the
 execution of
 .BR prs (1):
@@ -624,7 +624,7 @@ An error occurred.
 .BI s. file
 .B SCCS
 history file, see
-.BR sccsfile (4).
+.BR sccsfile (5).
 
 .sp
 .ne 3
@@ -646,7 +646,7 @@ is initiated via
 
 .LP
 See 
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .sp
 
@@ -712,11 +712,11 @@ Interface StabilityStandard
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR sccschangeset (4),
-.BR sccsfile (4),
-.BR attributes (5),
-.BR environ (5),
-.BR standards (5).
+.BR sccschangeset (5),
+.BR sccsfile (5),
+.BR attributes (7),
+.BR environ (7),
+.BR standards (7).
 .hy 14
 
 .SH DIAGNOSTICS

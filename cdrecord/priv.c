@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  *	Cdrecord support functions to support fine grained privileges.
  *
  *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2022 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,7 +57,7 @@ EXPORT	void	do_pfexec	__PR((int ac, char *av[], ...));
 #endif
 
 /*
- * Solaris uses the advanced privileges(5) mechanism for fine grained
+ * Solaris uses the advanced privileges(7) mechanism for fine grained
  * prilileges.
  *
  * The following Solaris privileges are needed by cdrecord:

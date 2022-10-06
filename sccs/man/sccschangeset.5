@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccschangeset 4 "2022/09/09" "J\*org Schilling" "File Formats"
+.TH sccschangeset 5 "2022/10/06" "J\*org Schilling" "File Formats"
 .SH NAME
 sccschangeset \- format of an SCCS changeset file
 .SH DESCRIPTION
@@ -154,7 +154,7 @@ files across renames during the lifetime of the sccs history.
 The unified random number is unique to any file from the
 .BR "project set" .
 See
-.BR sccsfile (4)
+.BR sccsfile (5)
 for a detailed description of the unified pseudo random number.
 .sp
 The minimal length for the pseudo random
@@ -175,7 +175,7 @@ line of the
 .B sid-sum
 The SID specific checksum for the related file.
 See
-.BR sccsfile (4)
+.BR sccsfile (5)
 for a detailed description of the SID specific checksums for a file.
 .br
 .ne 5
@@ -276,7 +276,7 @@ does not exist.
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR sccsfile (4).
+.BR sccsfile (5).
 .hy 14
 
 .\" .SH NOTES

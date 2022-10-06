@@ -3,6 +3,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2019 J. Schilling
+.\" Copyright (c) 2022 the schilytools team
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -33,7 +34,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2022/08/06" "SunOS 5.11" "File Formats"
+.TH sccsfile 5 "2022/10/06" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -845,7 +846,7 @@ meta data of the delta table.
 .TP
 .BI r " random
 A unified pseudo random number (see also
-.BR changeset (4))
+.BR changeset (5))
 that is used to help to identify single files
 across renames during the lifetime of the sccs history.
 .sp
@@ -1100,7 +1101,7 @@ and
 fields are in the same format as used in the delta table of the
 .BI s. file
 as described in
-.BR sccsfile (4)
+.BR sccsfile (5)
 for
 .B SCCS
 v4.
@@ -1133,7 +1134,7 @@ after completion
 .BI s. file
 .B SCCS
 history file, see
-.BR sccsfile (4).
+.BR sccsfile (5).
 
 .sp
 .ne 2
@@ -1223,8 +1224,8 @@ keyword directive are searched in this directory.
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR sccschangeset (4).
-.\".BR sccsfile (4).
+.BR sccschangeset (5).
+.\".BR sccsfile (5).
 .hy 14
 
 .SH NOTES

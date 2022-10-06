@@ -3,6 +3,7 @@
 .\" Copyright 1989 AT&T  Copyright (c) 2009, Sun Microsystems, Inc.  All Rights Reserved
 .\" Copyright (c) 2012-2017, J. Schilling
 .\" Copyright (c) 2013, Andreas Roehler
+.\" Copyright (c) 2022, the schilytools team
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -36,7 +37,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH sysV-make 1 "2022/08/20" "SunOS 5.11" "User Commands"
+.TH sysV-make 1 "2022/10/06" "SunOS 5.11" "User Commands"
 .SH NAME
 sysV-make \- maintain, update, and regenerate groups of programs
 .SH SYNOPSIS
@@ -683,7 +684,7 @@ make -pf \(mi2>/dev/null < /dev/null
 .sp
 .LP
 A tilde in the above rules refers to an SCCS file (see
-.BR sccsfile (4)).
+.BR sccsfile (5)).
 Thus, the rule \fB\&.c~.o\fR would transform an SCCS C source file into an
 object file (\fB\&.o\fR). Because the
 .B s.
@@ -902,7 +903,7 @@ default rules for
 .sp
 .LP
 See
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .sp
 
@@ -924,8 +925,8 @@ AvailabilitySUNWsprot
 .BR make (1S),
 .BR sh (1),
 .BR printf (3C),
-.BR sccsfile (4),
-.BR attributes (5)
+.BR sccsfile (5),
+.BR attributes (7)
 .SH NOTES
 .sp
 .LP

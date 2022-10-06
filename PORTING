@@ -23,7 +23,7 @@ Porting FAQ for SING (Schily Is Not Gnu) utilities.
 
 -	To be able to use the makefile system, you need a
 	make program that meets the minimum requirements 
-	for a make program (see makerules(4) man page)
+	for a make program (see makerules(5) man page)
 	Currently, the following make programs meet this
 	minimum requirements: Smake (my program), SunPro Make and Gmake
 

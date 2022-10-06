@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2022/09/09" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2022/10/06" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -484,7 +484,7 @@ implementations.
 Checks the structure of an existing
 .BR s. file
 (see
-.BR sccsfile (4)),
+.BR sccsfile (5)),
 and compares a newly computed check-sum with one stored in the
 first line of that file.
 .B -h
@@ -1041,7 +1041,7 @@ option to select the
 .B "SCCS v6"
 history files are not understood by historic SCCS implementations.
 See
-.BR sccsfile (4)
+.BR sccsfile (5)
 for more information on the new features.
 .sp
 This option is a
@@ -1201,7 +1201,7 @@ The original g-files will be left untouched.
 .sp
 .LP
 See
-.BR environ (5)
+.BR environ (7)
 for descriptions of the following environment variables that affect the
 execution of
 .BR admin (1):
@@ -1269,7 +1269,7 @@ in case of an encoded history file
 .BI s. file
 .B SCCS
 history file, see
-.BR sccsfile (4).
+.BR sccsfile (5).
 
 .sp
 .ne 2
@@ -1308,7 +1308,7 @@ is initiated via
 .sp
 .LP
 See
-.BR attributes (5)
+.BR attributes (7)
 for descriptions of the following attributes:
 .sp
 
@@ -1372,11 +1372,11 @@ Interface StabilityStandard
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR sccschangeset (4),
-.BR sccsfile (4),
-.BR attributes (5),
-.BR environ (5),
-.BR standards (5).
+.BR sccschangeset (5),
+.BR sccsfile (5),
+.BR attributes (7),
+.BR environ (7),
+.BR standards (7).
 .hy 14
 
 .SH DIAGNOSTICS
