@@ -83,6 +83,14 @@ NEW FEATURES:
 -	*: All references to Solaris man pages have been adjusted to BSD
 	man page sections as used in Solaris 11.4.
 
+-	libschily/getargs.3: document surprising behaviour that the
+	the argument to a foo= parameter may be in the following
+	argument.  Thus, shell scripts should write foo= "$bar" instead
+	of foo=$bar if $bar could possibly be empty.
+	Submitted by Niko Sonack.
+
+-	libschily/getargs.3: improve spelling and grammar.
+
 FUTURE DIRECTIONS:
 
 -	RULES: symbol versioning will be enabled for FreeBSD after
@@ -91,6 +99,7 @@ FUTURE DIRECTIONS:
 CONTRIBUTORS FOR THIS VERSION:
 
 Robert CLAUSECKER <fuz@fuz.su>
+Martin REHAK <martin.rehak@oracle.com>
 Nico SONACK <nsonack@herrhotzenplotz.de>
 
 The schilytools maintainer

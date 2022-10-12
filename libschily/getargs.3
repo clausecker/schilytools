@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETARGS 3 "2022/09/14" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH GETARGS 3 "2022/10/13" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
 getargs(), getlargs(), getvargs() \- parse arguments until a non-flag is reached
 .SH SYNOPSIS
@@ -82,7 +82,7 @@ looks at each argument that begins with
 .RB ' + ',
 or has an
 .RB ' = '
-in it and trys to find a matching description in
+in it and tries to find a matching description in
 .BR fmt .
 If a match is found, the corresponding value pointed to by
 .B a1
@@ -102,7 +102,7 @@ not begin with
 .RB ' \- '
 or
 .RB ' + '
-or contain an
+or does not contain an
 .RB ' = '
 is found,
 .BR getargs ()
@@ -127,7 +127,7 @@ points to the argument after the argument "\c
 .BR getlargs ()
 is similar to
 .BR getargs ()
-but it implements an additional 
+but implements an additional
 .B ga_props
 parameter that must be initialized with
 .BR getarginit ()
@@ -146,7 +146,7 @@ is similar to
 .BR getlargs ()
 but uses a structure
 .B ga_flags
-instead of a format string and a variable arg list with pointers.
+instead of a format string and a variable argument list with pointers.
 The array of structures
 .BR ga_flags :
 .br
@@ -176,7 +176,7 @@ is
 
 .LP
 With
-.BR getargs ()
+.BR getargs (),
 each normal format takes one address argument from
 .B a1
 to
@@ -391,7 +391,7 @@ This is a variant of the
 .BR & -format,
 but as a boolean flag is assumed, no option argument is assumed and
 if the related option is a single char option, it may be combined with
-other single char options. The called function permits to reset other
+other single char options. The called function may reset other
 options at the same time.
 .PP
 As boolean flags take no arguments,
@@ -461,7 +461,7 @@ the
 needs to be in the format string.
 If a long flag should start with a
 .RB ' \-\- ',
-and a log flag with a single dash should not  be permitted, a single
+and a long flag with a single dash should not be permitted, a single
 .RB ' \- '
 needs to be in front of the flag name in the format string.
 .PP
@@ -514,7 +514,7 @@ is the matching flag string.
 All the above variants are accepted by the function.
 
 .LP
-For flags or type:
+For flags of type
 .BR * ,
 .BR ? ,
 .B &
@@ -530,7 +530,7 @@ The underscore character enforces that
 and
 .B option-argument
 need to be written as a single argument.
-This permits to implement options with optional arguments.
+This allows implementing options with optional arguments.
 .TP
 .B -
 The space character enforces that
