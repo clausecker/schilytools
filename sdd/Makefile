@@ -8,6 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		sdd
 CPPOPTS +=	-DUSE_REMOTE
+CPPOPTS +=	-DUSE_SSH
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DUSE_NLS		# Include locale support

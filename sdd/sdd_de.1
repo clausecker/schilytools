@@ -325,6 +325,15 @@ verwendet wurde berechnet,
 .B sdd
 md5 Summe aus den Eingangsdaten, sonst werden die Ausgangsdaten verwendet.
 .TP
+.BI rsh= prog
+Bei Remoteverbindungen wird das gegebene Programm
+.I prog
+anstelle der standardm\*a\*sigen
+.BR ssh (1)
+verwendet. Dies kann durch setzen der Umgebungsvariable
+.I RSH
+\*uberschrieben werden.
+.TP
 .B \-version
 Gibt die
 .B sdd
@@ -349,6 +358,22 @@ auf die Platte
 .I sd1
 und erh\*alt dabei das alte Label auf
 .I sd1.
+.PP
+.B sdd if=user@remotehost:/dev/da0 of=/dev/ada1 bs=512 -pg
+.PP
+Kopiert die ganze Platte
+.I da0
+auf der Maschine
+.I remotehost
+als Benutzer
+.I user
+auf die lokale Maschine mit einer Blockgr\*o\*se von 512 Bytes und
+gibt einen Fortschrittsindikator mit Punkten aus. Als Remoteshell wird die
+.BR ssh (1)
+verwendet. Siehe
+.BI rsh= prog
+f\*ur mehr Informationen.
+
 .\" .SH DATEIEN
 .\" Keine.
 .SH "SIEHE AUCH"
@@ -404,8 +429,14 @@ Wenn
 suid root installiert ist, kann
 .B sdd
 Verbindungen zu Remote Files auch f\*ur nicht-root-Benutzer
-herstellen.  Dies erfolgt durch Verwendung des rcmd(3) Interfaces, um
-eine Verbindung zum rmt(1)-Server herzustellen.
+herstellen.  Dies erfolgt durch Verwendung des
+.BR rcmd (3)
+Interfaces, um
+eine Verbindung zum
+.BR rmt (1)-Server
+herzustellen. Standardm\*a\*sig wird die
+.BR ssh (1)
+verwendet, um die Verbindung aufzubauen.
 .PP
 .B sdd
 stellt die effektive uid zur\*uck auf die reale user id, direkt

@@ -1,4 +1,5 @@
-. \" @(#)sdd.1	1.10 20/05/30 Copyr 1982-1995,2020 J. Schilling
+. \" @(#)sdd.1	1.11 20/05/30 Copyr 1982-1995,2020 J. Schilling
+. \"                          Copyr 2022           the schilytools team
 . \"  Manual page for sdd
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SDD 1E "2022/09/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SDD 1E "2022/10/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .SH SYNOPSIS
@@ -300,6 +301,13 @@ was used,
 .B sdd
 computes the md5 sum on the input data, otherwise the output data is used.
 .TP
+.BI rsh= path
+Specify a remote login program instead of defaulting to
+.BR ssh (1).
+This can be overridden by the
+.I RSH
+environment variable.
+.TP
 .B \-version
 Prints the 
 .B sdd
@@ -323,6 +331,28 @@ to
 .I sd1
 preserving the old label on disk
 .I sd1.
+.PP
+.B sdd if=user@remotehost:/dev/da0 of=/dev/ada1 bs=512 -pg
+.PP
+Copy the entire disk
+.I da0
+on host
+.I remotehost
+as user
+.I user
+to the disk
+.I ada1
+on the local host using a block size of 512 while printing a progress
+with dots. This command defaults to using
+.BR ssh (1).
+If you want to use a different remote shell, either give
+.B sdd
+the
+.BI rsh= prog
+option or set
+.I RSH
+to the desired shell program.
+.PP
 .\" .SH FILES
 .SH "SEE ALSO"
 dd(1), star(1), rmt(1), tr(1), cp(1), copy(1)
@@ -370,7 +400,13 @@ is installed suid root,
 .B sdd
 is able to make connections to remote files for non root users. 
 This is done by using the
-rcmd(3) interface to get a connection to a rmt(1) server.
+.BR rcmd (3)
+interface to get a connection to a
+.BR rmt (1)
+server.
+It defaults to using
+.BR ssh (1)
+to establish the remote connection.
 .PP
 .B sdd
 resets its effective uid back to the real user id immediately after setting up

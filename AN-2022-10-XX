@@ -35,6 +35,11 @@ UPDATING:
 	update: streamarchive.4, makefiles.4, makerules.4, changeset.4,
 	sccschangeset.4, sccsfile.4, and star.4.
 
+-	sdd: the tool now defaults to ssh(1) instead of rsh(1) as the
+	remote shell.  The previous behaviour can be restored by compiling
+	with -UUSE_SSH, passing the new rsh=$shell option, or setting the
+	RSH environment variable to a suitable shell.
+
 NEW FEATURES:
 
 -	libfind/sfind: Fix incorrect error handling of -exec ... {} +
@@ -87,9 +92,21 @@ NEW FEATURES:
 	the argument to a foo= parameter may be in the following
 	argument.  Thus, shell scripts should write foo= "$bar" instead
 	of foo=$bar if $bar could possibly be empty.
-	Submitted by Niko Sonack.
+	Submitted by Nico Sonack.
 
 -	libschily/getargs.3: improve spelling and grammar.
+
+-	sdd: default to ssh for rmt connections.  Just like star, the
+	sdd utility now defaults to ssh instead of rsh for rmt
+	connections.  The old behaviour can be restored by compiling
+	with -UUSE_SSH.
+	Submitted by Nico Sonack.
+
+-	sdd: add new option -rsh to set the remote shell program.  This
+	option does the same thing as the RSH environment variable but
+	permits setting the remote shell program through the command
+	line, which might be more convenient for users.
+	Submitted by Nico Sonack.
 
 FUTURE DIRECTIONS:
 

@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.72 21/08/20 Copyright 1984-2021 J. Schilling */
+/* @(#)sdd.c	1.73 21/08/20 Copyright 1984-2021 J. Schilling, 2022 the schilytools team */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.72 21/08/20 Copyright 1984-2021 J. Schilling";
+	"@(#)sdd.c	1.73 22/10/12 Copyright 1984-2021 J. Schilling, 2022 the schilytools team";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -17,6 +17,7 @@ static	UConst char sccsid[] =
  *	variables that should not overflow.
  *
  *	Copyright (c) 1984-2021 J. Schilling
+ *	Copyright (c) 2022      the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -67,6 +68,10 @@ static	UConst char sccsid[] =
 
 #ifdef	SIGRELSE
 #	define	signal	sigset	/* reliable signal */
+#endif
+
+#if !defined(USE_REMOTE) && defined(USE_SSH)
+#undef	USE_SSH			/* Cannot have ssh support without remote support */
 #endif
 
 EXPORT	int	main		__PR((int ac, char **av));
@@ -184,6 +189,7 @@ LOCAL	BOOL	noerrwrite;
 LOCAL	BOOL	noseek;
 LOCAL	BOOL	debug;
 LOCAL	BOOL	showtime;
+LOCAL	char	*rsh = NULL;
 
 /* ebcdic to ascii */
 LOCAL	unsigned char	asctab[] = {
@@ -477,6 +483,14 @@ main(ac, av)
 
 #ifdef	USE_REMOTE
 	rmtdebug(debug);
+
+	if (rsh)
+			rmtrsh(rsh);
+#ifdef	USE_SSH
+	else
+			rmtrsh("ssh");
+#endif
+
 	if (infile)
 		rmtin = rmtfilename(infile);
 	if (outfile)
@@ -1428,7 +1442,7 @@ prstats()
 }
 
 LOCAL	char	opts[]	= "\
-if*,of*,ibs&,obs&,bs&,cbs&,secsize&,\
+if*,of*,rsh*,ibs&,obs&,bs&,cbs&,secsize&,\
 count&,ivsize&,ovsize&,iseek&,oseek&,seek&,\
 iskip&,oskip&,skip&,ivseek&,ovseek&,\
 notrunc,pg,noerror,noerrwrite,noseek,try#,\
@@ -1467,7 +1481,7 @@ getopts(ac, av)
 	cac = ac - 1;
 	cav = av + 1;
 	if (getallargs(&cac, &cav, opts,
-				&infile, &outfile,
+				&infile, &outfile, &rsh,
 				getnum, &ibs, getnum, &obs, getnum, &bs,
 				getnum,	&cbs,
 				getnum,	&sdd_bsize,
@@ -1502,9 +1516,10 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		gtprintf("sdd %s %s (%s-%s-%s)\n\n", "1.72", "2021/08/20",
+		gtprintf("sdd %s %s (%s-%s-%s)\n\n", "1.73", "2022/10/12",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		gtprintf("Copyright (C) 1984-2021 %s\n", _("Jörg Schilling"));
+		gtprintf("Copyright (C) 2022      the schilytools team\n");
 		gtprintf("This is free software; see the source for copying ");
 		gtprintf("conditions.  There is NO\n");
 		gtprintf("warranty; not even for MERCHANTABILITY or ");
@@ -1686,7 +1701,7 @@ Options:\n\
 	-fill		  Fill each record with zeros up to obs\n\
 	-swab,-block,-unblock,-lcase,-ucase,-ascii,-ebcdic,-ibm\n\
 	-md5		  Compute the md5 sum for the data\n\
-");
+	rsh=path	  Specify path to remote login program\n");
 	error("\t-help\t\t  print this online help\n");
 	error("\t-version\t  print version number\n");
 	exit(ex);
