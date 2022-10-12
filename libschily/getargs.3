@@ -597,6 +597,21 @@ return code <= 0.
 .BR getvfiles (3).
 
 .SH NOTES
+.PP
+Users might find it surprising that given a format string like
+.I """foo*,bar*"""
+and called with the command line
+.I """foo= bar=baz"""
+the
+.BR getargs (3)
+family of functions will consider
+.I """bar=baz"""
+as the argument to the "foo=" flag. Pay special attention to this in
+shell scripts where e.g.  "foo=$bar" will consume the next argument if
+"$bar" is empty. To avoid this, write
+.I foo= """$bar"""
+instead.
+.PP
 .BR getargs ()
 assumes the first argument is at
 .BR av[0] .
