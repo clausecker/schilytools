@@ -18,6 +18,18 @@ or to our mailing list schilytools@mlists.in-berlin.de:
 
 	https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
 
+Obtain release tarballs from:
+
+	http://fuz.su/pub/schilytools
+	ftp://fuz.su/pub/schilytools
+	rsync://fuz.su/pub/schilytools
+	https://schilytools.pkgsrc.pub/pub/schilytools/
+	http://schilytools.pkgsrc.pub/pub/schilytools/
+	https://mirrors.dotsrc.org/schilytools/
+	http://mirrors.dotsrc.org/schilytools/
+	ftp://mirrors.dotsrc.org/schilytools/
+	rsync://mirrors.dotsrc.org/schilytools/
+
 If you have previously reported bugs to Jörg Schilling and they have not
 been fixed, please report them again.  We do not have access to Jörg's
 private emails and do not know what you have reported.
@@ -111,6 +123,15 @@ NEW FEATURES:
 -	RULES: symbol versioning has been enabled for FreeBSD following
 	intensive testing and preliminary enabling in the FreeBSD ports
 	collection.
+
+FUTURE DIRECTIONS:
+
+-	Schilytools contains pxupgrade, a dummy for a closed-source
+	component.  While the source code of this component is available
+	to the maintainer, it cannot be published due to an existing NDA
+	with Plextor.  Depending on whether we can get this NDA lifted
+	or not, the pxupgrade dummy code may either be replaced with the
+	real source code of the tool or removed altogether.
 
 CONTRIBUTORS FOR THIS VERSION:
 
