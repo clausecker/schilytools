@@ -29,6 +29,10 @@ Obtain release tarballs from:
 	http://mirrors.dotsrc.org/schilytools/
 	ftp://mirrors.dotsrc.org/schilytools/
 	rsync://mirrors.dotsrc.org/schilytools/
+	https://ftp.halifax.rwth-aachen.de/schilytools/
+	http://ftp.halifax.rwth-aachen.de/schilytools/
+	ftp://ftp.halifax.rwth-aachen.de/schilytools/
+	rsync://ftp.halifax.rwth-aachen.de/schilytools/
 
 If you have previously reported bugs to Jörg Schilling and they have not
 been fixed, please report them again.  We do not have access to Jörg's
