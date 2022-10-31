@@ -38,12 +38,24 @@ If you have previously reported bugs to Jörg Schilling and they have not
 been fixed, please report them again.  We do not have access to Jörg's
 private emails and do not know what you have reported.
 
+UPDATING:
+
+-	Solaris 11.4: man pages are now installed according to BSD
+	conventions.  Users may need to manually remove the following
+	old man pages on update: streamarchive.4, makefiles.4,
+	makerules.4, changeset.4, sccschangeset.4, sccsfile.4,
+	and star.4.
+
+
 NEW FEATURES:
 
 -	libxtermcap/termcap: update to latest FreeBSD commit
 
 -	libxtermcap/termcap.url: remove file containing outdated
 	information about where to obtain a termcap file from.
+
+-	RULES/os-sunos5.def: man pages will now be installed into
+	BSD-style sections on Solaris >=11.4 and descendents.
 
 FUTURE DIRECTIONS:
 
