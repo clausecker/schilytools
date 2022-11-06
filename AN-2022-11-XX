@@ -57,6 +57,9 @@ NEW FEATURES:
 -	RULES/os-sunos5.def: man pages will now be installed into
 	BSD-style sections on Solaris >=11.4 and descendents.
 
+-	BOOTSTRAP, README.compile: fix outdated cross references.
+	Reported by: Friedhelm Mehnert.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source

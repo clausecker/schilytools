@@ -27,17 +27,14 @@ Short overview for those who don't read manuals:
 	OBJ/<arch-name>/ in the current projects leaf directory.
 
 	You **need** either the Schily "smake" program, the SunPRO make
-	that is included in "schilytools" and typically installed in
-	/opt/schily/bin/make and /opt/schily/bin/dmake, the SunPRO make
+	(both of which are included in "schilytools") the SunPRO make
 	from /usr/bin/make (SunOS 4.x) or /usr/ccs/bin/make (SunOS 5.x)
 	or GNU make to compile this program. Read READMEs/README.gmake for 
 	more information on gmake and a list of the most annoying bugs in gmake.
 
 	All other make programs are either not smart enough or have bugs.
 
-	My "smake" source is at:
-
-	https://sourceforge.net/projects/s-make/files/
+	My "smake" source is found in the smake directory.
 
 	It is easy to compile and doesn't need a working make program
 	on your machine. If you don't have a working "make" program on the

@@ -15,8 +15,8 @@ If psmake/smake has been created, the top level make executes psmake/smake
 which is able to deal with the Schily SING makefile system that is used to
 compile the final 'smake'. The first action will be again to (automatically)
 call configure from the makefiles. Sorry for this inconvenience but I did not
-find any safe way that would work with only one run of configure.
-For more information on the makefile system please read the file 'COMPILE'.
+find any safe way that would work with only one run of configure. For more
+information on the makefile system please read the file 'README.compile'.
 
 	If this did work, then you already compiled the final smake binary.
 
