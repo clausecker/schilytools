@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  *	Make program
  *
  *	Copyright (c) 1985, 87, 88, 91, 1995-2021 by J. Schilling
+ *	Copyright (c) 2022 by the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -69,6 +70,7 @@ LOCAL	void	setup_env	__PR((void));
 #endif
 EXPORT	void	usage		__PR((int exitcode));
 LOCAL	void	initmakefiles	__PR((void));
+LOCAL	void	initvflagmacros	__PR((void));
 LOCAL	int	dochdir		__PR((char *name));
 LOCAL	int	addmakefile	__PR((char *name));
 LOCAL	void	read_defs	__PR((void));
@@ -78,8 +80,10 @@ LOCAL	void	setup_vars	__PR((void));
 LOCAL	void	setup_MAKE	__PR((char *name));
 EXPORT	char	*searchtype	__PR((int mode));
 LOCAL	void	printdirs	__PR((void));
+LOCAL	void	printvflagmacros	__PR((void));
 LOCAL	int	addcommandline	__PR((char *  name));
 LOCAL	void	addcmdlinedef	__PR((char *  name));
+LOCAL	int	addvflagmacro	__PR((char *  name));
 LOCAL	void	scan_cmdline	__PR((int ac, char **av));
 LOCAL	void	read_cmdline	__PR((void));
 EXPORT	void	doexport	__PR((char *));
@@ -158,6 +162,11 @@ char	**CmdLDefs;			/* To hold all Cmdline Macros	*/
 int	Cmdlinecount;			/* Number of Cmdline Macros	*/
 int	Cmdlinesize;			/* Size of Cmdline Macro array	*/
 char	*MFCmdline;			/* Pointer to Cmdl. Macs fr. env*/
+char	**VflagMacros;			/* List of macros to expand and print	*/
+int	VflagMacrossize;		/* Size of macros array. if
+					 * non-zero, don't make
+					 * anything and only print
+					 * values of the macros.	*/
 
 int	Mflags;
 
@@ -247,6 +256,7 @@ usage(exitcode)
 	error("	-s	Be silent.\n");
 	error("	-S	Undo the effect of the -k option, terminate on target errors.\n");
 	error("	-t	Touch Objects instead of executing defined commands.\n");
+	error("	-V m	Fully expand and print the content of macro m. Can be specified mulitple times.\n");
 	error("	-w	Don't print warning Messages.\n");
 	error("	-W	Print extra (debug) warning Messages.\n");
 	error("	-WW	Print even more (debug) warning Messages.\n");
@@ -281,6 +291,13 @@ initmakefiles()
 	addmakefile(Envdefs);		/* Environment strings		*/
 	addmakefile(Makefile);		/* Default make file		*/
 	Mfilecount--;			/* -f name overwrites Makefile	*/
+}
+
+LOCAL void
+initvflagmacros()
+{
+    VflagMacrossize = 0;
+    VflagMacros = NULL;
 }
 
 /*
@@ -318,6 +335,23 @@ addmakefile(name)
 		comerr("No memory for Makefiles.\n");
 
 	MakeFileNames[Mfilecount++] = name;
+
+	return (1);
+}
+
+/*
+ * Add NAME to VFLAGMACROS array.
+ * Called by getargs() if a -v option was found.
+ */
+LOCAL int
+addvflagmacro(name)
+	char	*name;
+{
+	VflagMacros = realloc(VflagMacros, (VflagMacrossize + 1) * sizeof (char *));
+	if (VflagMacros == NULL)
+		comerr("No memory for Vflag.\n");
+
+	VflagMacros[VflagMacrossize++] = name;
 
 	return (1);
 }
@@ -646,6 +680,35 @@ printdirs()
 }
 
 /*
+ * Print the values of the macros listed in VflagMacros
+ */
+LOCAL void
+printvflagmacros()
+{
+	int	i = 0;
+	char	*expanded = NULL;
+
+	if (VflagMacrossize <= 0 || VflagMacros == NULL)
+		comerr("printvflagmacros called but VflagMacros array is empty");
+
+	for (i = 0; i < VflagMacrossize; ++i) {
+		/* Clear expanded as it might hold a value from
+		 * previous iterations */
+		expanded = NULL;
+
+		/* Try to expand the given macro name */
+		expanded = try_expand_name(VflagMacros[i]);
+
+		/* If it failed but we it contains a $, try to expand
+		 * it as an expression. */
+		if (!expanded && (strchr(VflagMacros[i], '$') != NULL))
+			expanded = substitute(VflagMacros[i], NullObj, NullObj, NULL);
+
+		printf("%s\n", expanded ? expanded : "");
+	}
+}
+
+/*
  * Check for a command line macro.
  * This is called by getargs().
  */
@@ -697,6 +760,8 @@ scan_cmdline(ac, av)
 
 	for (i = 1; i < ac; i++) {
 		if (av[i][0] == '-')
+			continue;
+		if (av[i-1][0] == '-' && strchr(av[i-1], 'V') != NULL)
 			continue;
 		if (strchr(av[i], '=') == NULL)
 			continue;
@@ -858,7 +923,7 @@ main(ac, av)
 		int	maxj = 0;
 		int	cac = ac;
 		char	* const *cav = av;
-	static	char	options[] = "help,version,posix,a,e,i,j#,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,&";
+	static	char	options[] = "help,version,posix,a,e,i,j#,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C&,mf&,f&,V&,&";
 
 	save_args(ac, av);
 
@@ -901,6 +966,7 @@ main(ac, av)
 #endif
 	getmakeflags();		/* Default options from MAKEFLAGS=	*/
 	initmakefiles();	/* Set up MakeFileNames[] array		*/
+	initvflagmacros();	/* Set up VflagMacros[] array		*/
 
 	cac--; cav++;
 	if (getallargs(&cac, &cav, options, &help, &pversion, &posixmode,
@@ -913,6 +979,7 @@ main(ac, av)
 			dochdir, NULL,
 			addmakefile, NULL,
 			addmakefile, NULL,
+			addvflagmacro, NULL,
 			addcommandline, NULL) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
@@ -1035,6 +1102,11 @@ main(ac, av)
 	on_comerr(exhandler, av[0]);
 	if (Debug > 0)
 		printdirs();	/* .OBJDIR .OBJSEARCH .SEARCHLIST	*/
+
+	if (VflagMacrossize > 0) {	/* -V was specified at least once	*/
+		printvflagmacros();
+		exit(0);	/* Exit here because -V must not start building anything	*/
+	}
 
 	makeincs();		/* Re-make included files */
 	omake(Init, TRUE);	/* Make .INIT target	  */

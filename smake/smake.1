@@ -1,4 +1,5 @@
  \" @(#)smake.1	1.69 21/09/07 Copyright 1985-2021 J. Schilling
+ \"                           Copyright 2022 the schilytools team
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -25,7 +26,17 @@ smake \- maintain, update, and regenerate programs
 ] [
 .IR target "1\|.\|.\|." target n
 ]
-
+.PP
+.B smake
+[
+.I options
+] [
+.BI \-f " makefilename"
+]
+.B \-V
+.IR "macro" "1 [ \.\.\."
+.B \-V
+.IR "macro" "n ]"
 .SH DESCRIPTION
 .B Smake
 executes command sequences based on relations of modification dates of files.
@@ -178,6 +189,15 @@ This can be dangerous when files are maintained by more than one person.
 Targets that do not have a command associated are not touched.
 The command lines that are associated with a target are not executed.
 Lines with a plus sign ('+') will be executed in any case.
+.TP
+.BI \-V " macro"
+Print the contents of the macro
+.B macro
+after full expansion. Do not start building any targets except
+dependency files. If the macro cannot be found but it contains a
+dollar-sign it will be expanded as-is and the result will be printed.
+You can specify this option more than once, in this case the results
+will be printed on separate lines.
 .TP
 .B \-w
 Don't print warning messages.

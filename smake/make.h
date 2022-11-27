@@ -2,6 +2,7 @@
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2021 by J. Schilling
+ *	Copyright (c) 2022 by the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -311,6 +312,7 @@ extern	char	*shout		__PR((char * cmd));
 extern	BOOL	domake		__PR((char * name));
 extern	BOOL	omake		__PR((obj_t * obj, BOOL  must_exist));
 extern	BOOL	xmake		__PR((char * name, BOOL  must_exist));
+extern	char	*try_expand_name	__PR((char * name));
 
 /*
  * memory.c
