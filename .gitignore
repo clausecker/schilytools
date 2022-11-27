@@ -1,5 +1,6 @@
 # generated directories
 OBJ/
+bins/
 incs/
 libs/
 
