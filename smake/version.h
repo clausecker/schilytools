@@ -3,5 +3,5 @@
 /*
  * The version for smake
  */
-#define	VERSION		"1.6"
-#define	VERSION_DATE	"2021/08/12"
+#define	VERSION		"1.7"
+#define	VERSION_DATE	"2022/11/27"
