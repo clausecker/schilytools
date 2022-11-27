@@ -60,6 +60,11 @@ NEW FEATURES:
 -	BOOTSTRAP, README.compile: fix outdated cross references.
 	Reported by: Friedhelm Mehnert.
 
+-	smake: add new -V option to print the expanded value of macros.
+	Shamelessly stolen from bmake, this option makes it easy to
+	debug make macros and to use their values in scripts.
+	Submitted by Nico Sonack.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
@@ -72,6 +77,8 @@ FUTURE DIRECTIONS:
 CONTRIBUTORS FOR THIS VERSION:
 
 Robert CLAUSECKER <fuz@fuz.su>
+Nico SONACK <nsonack@herrhotzenplotz.de>
 
 The schilytools maintainer
 Robert Clausecker <fuz@fuz.su>
+
