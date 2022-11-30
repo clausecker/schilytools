@@ -277,6 +277,9 @@ $symlink	i386-netbsd-clang.rul	earmv7-netbsd-clang64.rul
 $symlink	i386-openbsd-cc.rul	amd64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	amd64-openbsd-gcc.rul
 $symlink	i386-openbsd-clang.rul	amd64-openbsd-clang.rul
+$symlink	i386-openbsd-cc.rul	arm64-openbsd-cc.rul
+$symlink	i386-openbsd-gcc.rul	arm64-openbsd-gcc.rul
+$symlink	i386-openbsd-clang.rul	arm64-openbsd-clang.rul
 $symlink	i386-openbsd-cc.rul	sparc64-openbsd-cc.rul
 $symlink	i386-openbsd-gcc.rul	sparc64-openbsd-gcc.rul
 $symlink	amd64-bitrig-clang.rul	amd64-bitrig-clang32.rul

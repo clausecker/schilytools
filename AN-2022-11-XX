@@ -65,6 +65,8 @@ NEW FEATURES:
 	debug make macros and to use their values in scripts.
 	Submitted by Nico Sonack.
 
+-	RULES: add symlink for arm64 OpenBSD
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source

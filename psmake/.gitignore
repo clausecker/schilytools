@@ -24,6 +24,7 @@ getargs.c
 geterrno.c
 getexecpath.c
 getnstimeofday.c
+include/schily
 include/schily/align.h
 include/schily/archdefs.h
 include/schily/avoffset.h

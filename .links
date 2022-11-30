@@ -167,6 +167,7 @@
 ./psmake/geterrno.c
 ./psmake/getexecpath.c
 ./psmake/getnstimeofday.c
+./psmake/include/schily
 ./psmake/include/schily/align.h
 ./psmake/include/schily/archdefs.h
 ./psmake/include/schily/avoffset.h
@@ -375,6 +376,9 @@
 ./RULES/arm64-freebsd-gcc.rul
 ./RULES/arm64-freebsd-gcc32.rul
 ./RULES/arm64-freebsd-gcc64.rul
+./RULES/arm64-openbsd-cc.rul
+./RULES/arm64-openbsd-clang.rul
+./RULES/arm64-openbsd-gcc.rul
 ./RULES/armv4l-linux-cc.rul
 ./RULES/armv4l-linux-gcc.rul
 ./RULES/armv4tl-linux-cc.rul
