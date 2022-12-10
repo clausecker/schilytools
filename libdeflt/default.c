@@ -43,6 +43,13 @@ EXPORT	char	*defltread	__PR((const char *name));
 EXPORT	char	*defltnext	__PR((const char *name));
 EXPORT	int	defltcntl	__PR((int cmd, int flags));
 
+/*
+	This opens the file 'name' and closes openfile referenced by static variable dfltfile.
+	The opened file will be stored in the static variable `dfltfile`.
+	It will return -1 on error.
+	Filename is empty is not considered an error.
+	The dfltflags are set to not ignore case and the dfltsect is set to NULL.
+*/
 EXPORT int
 defltopen(name)
 	const char	*name;
@@ -65,6 +72,10 @@ defltopen(name)
 	return (0);
 }
 
+/*
+	This function will close the file referenced by dfltfile and set the pointer to NULL.
+	It will pass-through the return of fclose. Or 0 if dfltfile is NULL.
+*/
 EXPORT int
 defltclose()
 {
@@ -78,6 +89,12 @@ defltclose()
 	return (0);
 }
 
+
+/*
+	This will set and reset the dfltsect variable.
+	It will return -1 on error and 0 on success.
+	The name must have the form '[<name>]' and can't be '[]'.
+*/
 EXPORT int
 defltsect(name)
 	const char	*name;
@@ -101,6 +118,13 @@ defltsect(name)
 	return (0);
 }
 
+/*
+	This function will set this cursor_position of the dfltfile to the start of the section set by dfltsect.
+	It will only work if dfltfile is already opened.
+	If Section is not set, it will set the cursor to the start of the file;
+	It will return -1 on error and 0 on success.
+	File is not opened is considered an error.
+*/
 EXPORT int
 defltfirst()
 {
@@ -138,6 +162,9 @@ defltfirst()
 	return (0);
 }
 
+/*
+	This function will find and return the property 'name' set in the current section.
+*/
 EXPORT char *
 defltread(name)
 	const char	*name;
@@ -149,6 +176,9 @@ defltread(name)
 	return (defltnext(name));
 }
 
+/*
+	This will be called called recursively to find property 'name' in the current section.
+*/
 EXPORT char *
 defltnext(name)
 	const char	*name;
