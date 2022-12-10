@@ -1,5 +1,6 @@
 /* @(#)defaults.c	1.19 19/10/13 Copyright 1998-2019 J. Schilling */
 #include <schily/mconfig.h>
+#include <stdlib.h>
 #include <string.h>
 #ifndef lint
 static	UConst char sccsid[] =
@@ -329,12 +330,6 @@ EXPORT char * star_get_compress_cmd_flag(prog_name)
 
 	if (prog_name_len == 0)
 		return NULL;
-	
-	cfg_name = malloc(prog_name_len + 5);
-	for (int i=0; i < prog_name_len; i++)
-		cfg_name[i] = toupper(prog_name[i]);
-	strcpy(&cfg_name[prog_name_len], "_CMD=");
-
 
 	dfltname = get_stardefaults(NULL);
 	if (dfltname == NULL)
@@ -345,7 +340,17 @@ EXPORT char * star_get_compress_cmd_flag(prog_name)
 	if (defltsect("[compress]") < 0)
 		return (NULL);
 
+	cfg_name = malloc(prog_name_len + 5);
+	if (cfg_name == NULL)
+		return NULL;
+
+	for (int i=0; i < prog_name_len; i++)
+		cfg_name[i] = toupper(prog_name[i]);
+	strcpy(&cfg_name[prog_name_len], "_CMD=");
+
+
 	cfg_value = defltread(cfg_name);
+	free(cfg_name);
 	if (cfg_value == NULL) {
 		error("star_get_compress_cmd_flag call! no config value found for prog: '%s', cfg_name: '%s'\n", prog_name, cfg_name);
 		return NULL;
