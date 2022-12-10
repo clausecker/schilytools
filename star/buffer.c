@@ -2068,6 +2068,8 @@ compressopen()
 	FILE	*pp[2];
 	int	mypid;
 	char	*zip_prog = "gzip";
+	char	*zip_prog_flags = "-d";
+	char 	*args[10] = {NULL};
 
 	if (compress_prg)
 		zip_prog = compress_prg;
@@ -2078,9 +2080,9 @@ compressopen()
 	else if (lzoflag)
 		zip_prog = "lzop";
 	else if (p7zflag)
-		zip_prog = "p7zip";
+		zip_prog = "7z";
 	else if (xzflag)
-		zip_prog = "xz";
+		zip_prog = "xzi";
 	else if (lzipflag)
 		zip_prog = "lzip";
 	else if (zstdflag)
@@ -2168,10 +2170,15 @@ compressopen()
 			goto err;
 		}
 
-		if (cflag)
-			fexecl(zip_prog, pp[0], tarf, null, zip_prog, flg, (char *)NULL);
-		else
-			fexecl(zip_prog, tarf, pp[1], null, zip_prog, "-d", (char *)NULL);
+		if (cflag) {
+			get_args_for_compress(zip_prog, args, 10);
+			fexecv(args[0], pp[0], tarf, null, -1 , args);
+		}	
+		else {
+			get_args_for_decompress(zip_prog, args, 10);
+			fexecv(args[0], tarf, pp[1], null, -1 , args);
+		}
+
 err:
 		errmsg("Compress: exec of '%s' failed\n", zip_prog);
 		_exit(-1);

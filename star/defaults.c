@@ -1,5 +1,6 @@
 /* @(#)defaults.c	1.19 19/10/13 Copyright 1998-2019 J. Schilling */
 #include <schily/mconfig.h>
+#include <string.h>
 #ifndef lint
 static	UConst char sccsid[] =
 	"@(#)defaults.c	1.19 19/10/13 Copyright 1998-2019 J. Schilling";
@@ -50,6 +51,8 @@ EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
+EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax);
+EXPORT int get_args_for_decompress(char *alg, char ** argv, int argmax);
 
 EXPORT char *
 get_stardefaults(name)
@@ -314,4 +317,124 @@ star_darchive(arname, dfltname)
 	error("star_darchive: not tape = %d\n", not_tape);
 #endif
 	return (TRUE);
+}
+
+EXPORT char * star_get_compress_cmd_flag(prog_name)
+	char * prog_name;
+{
+	char	*dfltname;
+	char *cfg_name;
+	char *cfg_value;
+	int prog_name_len = strlen(prog_name);
+
+	if (prog_name_len == 0)
+		return NULL;
+	
+	cfg_name = malloc(prog_name_len + 5);
+	for (int i=0; i < prog_name_len; i++)
+		cfg_name[i] = toupper(prog_name[i]);
+	strcpy(&cfg_name[prog_name_len], "_CMD=");
+
+
+	dfltname = get_stardefaults(NULL);
+	if (dfltname == NULL)
+		return (NULL);
+	if (open_stardefaults(dfltname) != 0)
+		return (NULL);
+
+	if (defltsect("[compress]") < 0)
+		return (NULL);
+
+	cfg_value = defltread(cfg_name);
+	if (cfg_value == NULL) {
+		error("star_get_compress_cmd_flag call! no config value found for prog: '%s', cfg_name: '%s'\n", prog_name, cfg_name);
+		return NULL;
+	}
+
+	error("star_get_compress_cmd_flag call! prog_name: '%s', cfg_name: '%s', cfg_value: '%s'\n", prog_name, cfg_name, cfg_value);
+	return cfg_value;
+}
+
+EXPORT char * star_get_decompress_cmd_flag(prog_name)
+	char * prog_name;
+{
+	char	*dfltname;
+	char *cfg_name;
+	char *cfg_value;
+	int prog_name_len = strlen(prog_name);
+
+	if (prog_name_len == 0)
+		return NULL;
+	
+	cfg_name = malloc(prog_name_len + 5);
+	for (int i=0; i < prog_name_len; i++)
+		cfg_name[i] = toupper(prog_name[i]);
+	strcpy(&cfg_name[prog_name_len], "_CMD=");
+
+
+	dfltname = get_stardefaults(NULL);
+	if (dfltname == NULL)
+		return (NULL);
+	if (open_stardefaults(dfltname) != 0)
+		return (NULL);
+
+	if (defltsect("[decompress]") < 0)
+		return (NULL);
+
+	cfg_value = defltread(cfg_name);
+	if (cfg_value == NULL) {
+		error("star_get_decompress_cmd_flag call! no config value found for prog: '%s', cfg_name: '%s'\n", prog_name, cfg_name);
+		return NULL;
+	}
+
+	error("star_get_decompress_cmd_flag call! prog_name: '%s', cfg_name: '%s', cfg_value: '%s'\n", prog_name, cfg_name, cfg_value);
+	return cfg_value;
+}
+
+EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax) {
+	char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
+	char *prog_flags;
+	prog_flags = star_get_compress_cmd_flag(alg);
+	if (prog_flags == NULL) {
+		argv[0] = alg;
+		argv[1] = flg;
+		argv[2] = (char *)NULL;
+	} else {
+		argv[0] = strtok(prog_flags, " ");
+		for (int i=1;i<argmax-1; i++) {
+			argv[i] = strtok(NULL, " ");
+			if (argv[i] == NULL) {
+				break;
+			}
+		}
+		argv[argmax] = NULL;
+	}
+	for (int i=0; i< argmax; i++) {
+		if (argv[i] != NULL)
+			error("arg %d: %s\n", i, argv[i]);
+	}
+	return 0;
+}
+EXPORT int get_args_for_decompress(char *alg, char ** argv, int argmax) {
+	char *prog_flags;
+	prog_flags = star_get_decompress_cmd_flag(alg);
+	if (prog_flags == NULL) {
+		argv[0] = alg;
+		argv[1] = "-d";
+		argv[2] = (char *)NULL;
+	} else {
+		argv[0] = strtok(prog_flags, " ");
+		for (int i=1;i<argmax-1; i++) {
+			argv[i] = strtok(NULL, " ");
+			if (argv[i] == NULL) {
+				break;
+			}
+		}
+		argv[argmax] = NULL;
+	}
+	for (int i=0; i< argmax; i++) {
+		if (argv[i] != NULL)
+			error("arg %d: %s\n", i, argv[i]);
+	}
+	return 0;
 }

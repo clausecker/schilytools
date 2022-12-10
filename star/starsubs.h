@@ -485,6 +485,8 @@ extern	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 extern	BOOL	star_darchive	__PR((char *arname, char *dfltname));
+EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax);
+EXPORT int get_args_for_decompress(char *alg, char ** argv, int argmax);
 
 /*
  * subst.c
