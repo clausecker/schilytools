@@ -52,8 +52,8 @@ EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
-EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax);
-EXPORT int get_args_for_decompress(char *alg, char ** argv, int argmax);
+EXPORT	int	get_args_for_compress	__PR((char *alg, char ** argv, int argmax));
+EXPORT	int	get_args_for_decompress	__PR((char *alg, char ** argv, int argmax));
 
 EXPORT char *
 get_stardefaults(name)
@@ -320,13 +320,14 @@ star_darchive(arname, dfltname)
 	return (TRUE);
 }
 
-EXPORT char * star_get_compress_cmd_flag(prog_name)
-	char * prog_name;
+LOCAL char *
+star_get_compress_cmd_flags(prog_name)
+	char	*prog_name;
 {
 	char	*dfltname;
-	char *cfg_name;
-	char *cfg_value;
-	int prog_name_len = strlen(prog_name);
+	char	*cfg_name;
+	char	*cfg_value;
+	int	prog_name_len = strlen(prog_name);
 
 	if (prog_name_len == 0)
 		return NULL;
@@ -360,13 +361,14 @@ EXPORT char * star_get_compress_cmd_flag(prog_name)
 	return cfg_value;
 }
 
-EXPORT char * star_get_decompress_cmd_flag(prog_name)
-	char * prog_name;
+LOCAL char *
+star_get_decompress_cmd_flags(prog_name)
+	char	*prog_name;
 {
 	char	*dfltname;
-	char *cfg_name;
-	char *cfg_value;
-	int prog_name_len = strlen(prog_name);
+	char	*cfg_name;
+	char	*cfg_value;
+	int	prog_name_len = strlen(prog_name);
 
 	if (prog_name_len == 0)
 		return NULL;
@@ -396,10 +398,16 @@ EXPORT char * star_get_decompress_cmd_flag(prog_name)
 	return cfg_value;
 }
 
-EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax) {
+EXPORT int
+get_args_for_compress(alg, argv, argmax)
+	char	*alg;
+	char	**argv;
+	int	argmax;
+{
 	char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
-	char *prog_flags;
-	prog_flags = star_get_compress_cmd_flag(alg);
+	char	*prog_flags;
+
+	prog_flags = star_get_compress_cmd_flags(alg);
 	if (prog_flags == NULL) {
 		argv[0] = alg;
 		argv[1] = flg;
@@ -420,9 +428,16 @@ EXPORT int get_args_for_compress(char *alg, char ** argv, int argmax) {
 	}
 	return 0;
 }
-EXPORT int get_args_for_decompress(char *alg, char ** argv, int argmax) {
+
+EXPORT int
+get_args_for_decompress(alg, argv, argmax)
+	char	*alg;
+	char	**argv;
+	int		argmax;
+{
 	char *prog_flags;
-	prog_flags = star_get_decompress_cmd_flag(alg);
+
+	prog_flags = star_get_decompress_cmd_flags(alg);
 	if (prog_flags == NULL) {
 		argv[0] = alg;
 		argv[1] = "-d";

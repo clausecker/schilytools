@@ -2068,7 +2068,6 @@ compressopen()
 	FILE	*pp[2];
 	int	mypid;
 	char	*zip_prog = "gzip";
-	char	*zip_prog_flags = "-d";
 	char 	*args[10] = {NULL};
 
 	if (compress_prg)
@@ -2080,9 +2079,9 @@ compressopen()
 	else if (lzoflag)
 		zip_prog = "lzop";
 	else if (p7zflag)
-		zip_prog = "7z";
+		zip_prog = "p7zip";
 	else if (xzflag)
-		zip_prog = "xzi";
+		zip_prog = "xz";
 	else if (lzipflag)
 		zip_prog = "lzip";
 	else if (zstdflag)
@@ -2173,8 +2172,7 @@ compressopen()
 		if (cflag) {
 			get_args_for_compress(zip_prog, args, 10);
 			fexecv(args[0], pp[0], tarf, null, -1 , args);
-		}	
-		else {
+		} else {
 			get_args_for_decompress(zip_prog, args, 10);
 			fexecv(args[0], tarf, pp[1], null, -1 , args);
 		}
