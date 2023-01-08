@@ -67,6 +67,11 @@ NEW FEATURES:
 
 -	RULES: add symlink for arm64 OpenBSD
 
+-	smake: fix a bug where CURDIR was not set when smake was called
+	with -C $path and $path was an absolute path.
+	Reported by illiliti@protonmail.com.
+	Submitted by Friedhelm Mehnert.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
@@ -79,6 +84,7 @@ FUTURE DIRECTIONS:
 CONTRIBUTORS FOR THIS VERSION:
 
 Robert CLAUSECKER <fuz@fuz.su>
+Friedhelm MEHNERT <friedhelm@friedhelms.net>
 Nico SONACK <nsonack@herrhotzenplotz.de>
 
 The schilytools maintainer
