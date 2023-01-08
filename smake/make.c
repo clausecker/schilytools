@@ -608,6 +608,7 @@ setup_vars()
  * Set up the special macro $(MAKE).
  * If we were called with an absolute PATH or without any '/', use argv[0],
  * else compute the absolute PATH by prepending working dir to argv[0].
+ * (We need to compute the absolute PATH anyway, so CURDIR will be set).
  */
 LOCAL void
 setup_MAKE(name)
@@ -615,6 +616,9 @@ setup_MAKE(name)
 {
 	char	wd[MAXPATHNAME + 1];
 	int	len;
+
+	/* curwdir() ensures CURDIR is populated */
+	strncpy(wd, curwdir(), sizeof (wd));
 
 	/*
 	 * If argv[0] starts with a slash or contains no slash,
@@ -631,7 +635,6 @@ setup_MAKE(name)
 		/*
 		 * Compute abs pathname for $(MAKE)
 		 */
-		strncpy(wd, curwdir(), sizeof (wd));
 		wd[sizeof (wd)-1] = '\0';
 		len = strlen(wd);
 		if ((strlen(name) + len + 2) < sizeof (wd)) {
