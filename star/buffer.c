@@ -2147,7 +2147,6 @@ compressopen()
 		comerr("Compress fork failed\n");
 	if (mypid == 0) {
 		FILE	*null;
-		char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
 
 		signal(SIGQUIT, SIG_IGN);
 		if (cflag)
@@ -2170,10 +2169,12 @@ compressopen()
 		}
 
 		if (cflag) {
-			get_args_for_compress(zip_prog, args, 10);
+			char	*flg = getenv("STAR_COMPRESS_FLAG");
+
+			get_args_for_helper(zip_prog, args, 10, "[compress]", flg);
 			fexecv(args[0], pp[0], tarf, null, -1 , args);
 		} else {
-			get_args_for_decompress(zip_prog, args, 10);
+			get_args_for_helper(zip_prog, args, 10, "[decompress]", "-d");
 			fexecv(args[0], tarf, pp[1], null, -1 , args);
 		}
 

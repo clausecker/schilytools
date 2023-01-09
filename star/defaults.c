@@ -52,8 +52,7 @@ EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
-EXPORT	int	get_args_for_compress	__PR((char *alg, char ** argv, int argmax));
-EXPORT	int	get_args_for_decompress	__PR((char *alg, char ** argv, int argmax));
+EXPORT	void	get_args_for_helper	__PR((char *alg, char ** argv, int argmax, char *section, char *dfltflg));
 
 EXPORT char *
 get_stardefaults(name)
@@ -358,49 +357,17 @@ star_get_cmd_flags(prog_name, section)
 	return (cfg_value);
 }
 
-EXPORT int
-get_args_for_compress(alg, argv, argmax)
-	char	*alg;
-	char	**argv;
+EXPORT void
+get_args_for_helper(alg, argv, argmax, section, dfltflg)
+	char	*alg, **argv, *section, *dfltflg;
 	int	argmax;
-{
-	char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
-	char	*prog_flags;
-
-	prog_flags = star_get_cmd_flags(alg, "[compress]");
-	if (prog_flags == NULL) {
-		argv[0] = alg;
-		argv[1] = flg;
-		argv[2] = (char *)NULL;
-	} else {
-		argv[0] = strtok(prog_flags, " ");
-		for (int i=1;i<argmax-1; i++) {
-			argv[i] = strtok(NULL, " ");
-			if (argv[i] == NULL) {
-				break;
-			}
-		}
-		argv[argmax] = NULL;
-	}
-	for (int i=0; i< argmax; i++) {
-		if (argv[i] != NULL)
-			error("arg %d: %s\n", i, argv[i]);
-	}
-	return 0;
-}
-
-EXPORT int
-get_args_for_decompress(alg, argv, argmax)
-	char	*alg;
-	char	**argv;
-	int		argmax;
 {
 	char *prog_flags;
 
-	prog_flags = star_get_cmd_flags(alg, "[decompress]");
+	prog_flags = star_get_cmd_flags(alg, section);
 	if (prog_flags == NULL) {
 		argv[0] = alg;
-		argv[1] = "-d";
+		argv[1] = dfltflg;
 		argv[2] = (char *)NULL;
 	} else {
 		argv[0] = strtok(prog_flags, " ");
@@ -416,5 +383,4 @@ get_args_for_decompress(alg, argv, argmax)
 		if (argv[i] != NULL)
 			error("arg %d: %s\n", i, argv[i]);
 	}
-	return 0;
 }
