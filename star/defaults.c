@@ -341,7 +341,7 @@ star_get_compress_cmd_flags(prog_name)
 	if (defltsect("[compress]") < 0)
 		return (NULL);
 
-	cfg_name = malloc(prog_name_len + 5);
+	cfg_name = malloc(prog_name_len + sizeof "_CMD=");
 	if (cfg_name == NULL)
 		return NULL;
 
@@ -373,7 +373,7 @@ star_get_decompress_cmd_flags(prog_name)
 	if (prog_name_len == 0)
 		return NULL;
 	
-	cfg_name = malloc(prog_name_len + 5);
+	cfg_name = malloc(prog_name_len + sizeof "_CMD=");
 	for (int i=0; i < prog_name_len; i++)
 		cfg_name[i] = toupper(prog_name[i]);
 	strcpy(&cfg_name[prog_name_len], "_CMD=");
