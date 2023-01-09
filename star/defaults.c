@@ -321,8 +321,8 @@ star_darchive(arname, dfltname)
 }
 
 LOCAL char *
-star_get_compress_cmd_flags(prog_name)
-	char	*prog_name;
+star_get_cmd_flags(prog_name, section)
+	char	*prog_name, *section;
 {
 	char	*dfltname;
 	char	*cfg_name;
@@ -330,7 +330,7 @@ star_get_compress_cmd_flags(prog_name)
 	int	prog_name_len = strlen(prog_name);
 
 	if (prog_name_len == 0)
-		return NULL;
+		return (NULL);
 
 	dfltname = get_stardefaults(NULL);
 	if (dfltname == NULL)
@@ -338,12 +338,12 @@ star_get_compress_cmd_flags(prog_name)
 	if (open_stardefaults(dfltname) != 0)
 		return (NULL);
 
-	if (defltsect("[compress]") < 0)
+	if (defltsect(section) < 0)
 		return (NULL);
 
 	cfg_name = malloc(prog_name_len + sizeof "_CMD=");
 	if (cfg_name == NULL)
-		return NULL;
+		return (NULL);
 
 	for (int i=0; i < prog_name_len; i++)
 		cfg_name[i] = toupper(prog_name[i]);
@@ -352,50 +352,10 @@ star_get_compress_cmd_flags(prog_name)
 
 	cfg_value = defltread(cfg_name);
 	free(cfg_name);
-	if (cfg_value == NULL) {
-		error("star_get_compress_cmd_flag call! no config value found for prog: '%s', cfg_name: '%s'\n", prog_name, cfg_name);
-		return NULL;
-	}
-
-	error("star_get_compress_cmd_flag call! prog_name: '%s', cfg_name: '%s', cfg_value: '%s'\n", prog_name, cfg_name, cfg_value);
-	return cfg_value;
-}
-
-LOCAL char *
-star_get_decompress_cmd_flags(prog_name)
-	char	*prog_name;
-{
-	char	*dfltname;
-	char	*cfg_name;
-	char	*cfg_value;
-	int	prog_name_len = strlen(prog_name);
-
-	if (prog_name_len == 0)
-		return NULL;
-	
-	cfg_name = malloc(prog_name_len + sizeof "_CMD=");
-	for (int i=0; i < prog_name_len; i++)
-		cfg_name[i] = toupper(prog_name[i]);
-	strcpy(&cfg_name[prog_name_len], "_CMD=");
-
-
-	dfltname = get_stardefaults(NULL);
-	if (dfltname == NULL)
-		return (NULL);
-	if (open_stardefaults(dfltname) != 0)
+	if (cfg_value == NULL)
 		return (NULL);
 
-	if (defltsect("[decompress]") < 0)
-		return (NULL);
-
-	cfg_value = defltread(cfg_name);
-	if (cfg_value == NULL) {
-		error("star_get_decompress_cmd_flag call! no config value found for prog: '%s', cfg_name: '%s'\n", prog_name, cfg_name);
-		return NULL;
-	}
-
-	error("star_get_decompress_cmd_flag call! prog_name: '%s', cfg_name: '%s', cfg_value: '%s'\n", prog_name, cfg_name, cfg_value);
-	return cfg_value;
+	return (cfg_value);
 }
 
 EXPORT int
@@ -407,7 +367,7 @@ get_args_for_compress(alg, argv, argmax)
 	char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
 	char	*prog_flags;
 
-	prog_flags = star_get_compress_cmd_flags(alg);
+	prog_flags = star_get_cmd_flags(alg, "[compress]");
 	if (prog_flags == NULL) {
 		argv[0] = alg;
 		argv[1] = flg;
@@ -437,7 +397,7 @@ get_args_for_decompress(alg, argv, argmax)
 {
 	char *prog_flags;
 
-	prog_flags = star_get_decompress_cmd_flags(alg);
+	prog_flags = star_get_cmd_flags(alg, "[decompress]");
 	if (prog_flags == NULL) {
 		argv[0] = alg;
 		argv[1] = "-d";
