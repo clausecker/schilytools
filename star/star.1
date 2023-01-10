@@ -16,7 +16,7 @@
 .if n .ds U Ue
 .if n .ds s sz
 .ds S SS
-.TH STAR 1 "2022/10/06" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "2023/01/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -298,10 +298,6 @@ the way it deviates from the standard.
 .B Star 
 automatically recognizes and handles byte swapped archives. There is no 
 option to manually control byte swapping.
-.PP
-.B Star
-automatically recognizes and handles compressed archives inside plain
-files.
 .PP
 .B Star
 is able to archive and restore 
@@ -661,17 +657,12 @@ See
 for more information.
 .TP
 .B \-7z
-run the input or output through a
+Run the input or output through a
 .B p7zip
-pipe - see option
-.B \-z
-below.
-.sp
-Note that the
-.B p7zip
-program currently does not operate on a pipe but on a
-/tmp file copy and thus limits the maximum archive size.
-
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-0
 .TP
@@ -1349,35 +1340,14 @@ With BSD tar, the
 option is only related to the next file type argument.
 .TP
 .B \-bz
-run the input or output through a 
+Run the input or output through a 
 .B bzip2
-pipe - see option 
-.B \-z 
-.B \-Z
-and
-.B \-j
-below.
-As the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-option are non standard, it makes sense to omit the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-options inside shell scripts if you are going to extract a compressed
-archive that is located inside a plain file as
-.B star
-will auto detect compression and choose the right decompression
-option to extract.
+pipe.
+This option is an alias for
+.BR \-j .
+See section
+.B COMPRESSION
+for details.
 .TP
 .BI C= dir
 .TP
@@ -1451,19 +1421,9 @@ See EXAMPLES for more information.
 .TP
 .BI compress-program= name
 Set a named compress program.
-The program must compress in a pipe when called without parameters
-and decompress when run with the 
-.B \-d
-option in a pipe.
-This option is otherwise similar to the
-.B \-z
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-bz
-option.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-copydlinks
 Try to recursively copy the content of linked directories instead of
@@ -2724,11 +2684,12 @@ and
 for more information.
 .TP
 .B \-freeze
-run the input or output through a
+Run the input or output through a
 .B freeze
-pipe - see option
-.B \-z
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .BI fs= #
 Set fifo size to #.
@@ -2852,35 +2813,13 @@ then specifies the offset of the first archive header within the
 current tape record. It does not work on compressed archives.
 .TP
 .B \-j
-run the input or output through a 
+Run the input or output through a 
 .B bzip2
-pipe - see option 
-.B \-z 
-.B \-Z
-and
-.B \-bz
-below.
-As the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-option are non standard, it makes sense to omit the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-options inside shell scripts if you are going to extract a compressed
-archive that is located inside a plain file as
-.B star
-will auto detect compression and choose the right decompression
-option to extract.
+pipe.
+This option is an alias for
+.BR \-bz .
+See section
+.B COMPRESSION for details.
 .TP
 .B \-keep\-nonempty\-dirs
 Do not complain about trying to remove nonempty directories in case that
@@ -3079,25 +3018,28 @@ will fail.
 .ne 5
 .TP
 .B \-lzip
-run the input or output through a
+Run the input or output through a
 .B lzip
-pipe - see option
-.B \-z
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-lzma
-run the input or output through a
+Run the input or output through a
 .B lzma
-pipe - see option
-.B \-z
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-lzo
-run the input or output through a
+Run the input or output through a
 .B lzop
-pipe - see option
-.B \-z
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .BR \-M ", " \-xdev
 Do not descend mount points.
@@ -4530,69 +4472,101 @@ is used together with the option
 missing plain files are created as sparse empty files of the original size.
 .TP
 .B \-xz
-run the input or output through a
+Run the input or output through a
 .B xz
-pipe - see option
-.B \-z
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-Z
-run the input or output through a 
+Run the input or output through a 
 .B compress
-pipe - see option 
-.B \-z 
-below.
+pipe.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-z
-run the input or output through a 
+Run the input or output through a
 .B gzip
 pipe.
-This is currently a quick and dirty hack, that mainly will cover
-the most common usage to compress the
-.B tar
-output if it is a file.
-No reblocking will be done, so this option will currently only make sense
-on plain files.
-As the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-option are non standard, it makes sense to omit the
-.B \-bz
-the
-.B \-j
-the
-.B \-Z
-and the
-.B \-z
-options inside shell scripts if you are going to extract a compressed
-archive that is located inside a plain file as
-.B star
-will auto detect compression and choose the right decompression
-option to extract.
-The environment variable
-.B STAR_COMPRESS_FLAG
-may be used to specify one option for gzip.
-If you want to write write compressed archives to tape, you should use
-.br
-.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill of=/dev/rmt/1bn"
-.br
-or
-.br
-.I "star \-c . | gzip | sdd ibs=4k obs=32k \-fill ovsize=60m of=/dev/rmt/1bn"
-.br
-if the tape can hold 60 MB.
+See section
+.B COMPRESSION
+for details.
 .TP
 .B \-zstd
-run the input or output through a
+Run the input or output through a
 .B zstd
-pipe - see option
-.B \-z
-above.
+pipe.
+See section
+.B COMPRESSION
+for details.
+.SH COMPRESSION
+.PP
+In most cases,
+.B star
+automatically detects compressed archives and executes an appropriate
+decompression program to assist it in extracting files from the archive.
+The compressed archive is first passed to standard input of the
+decompression program.
+.B Star
+reads the decompressed archive from standard output of the decompression
+program and processes it as usual.
+.PP
+If the creation of a compressed archive is desired or if this mechanism
+fails, the option
+.BI compress-program= name
+can be used to configure
+.I name
+as a compression/decompression helper.
+Options
+.BR \-7z ,
+.BR \-bz ,
+.BR \-freeze ,
+.BR \-j ,
+.BR \-lzip ,
+.BR \-lzma ,
+.BR \-lzo ,
+.BR \-xz ,
+.BR \-Z ,
+.BR \-z ,
+and
+.BR \-zstd
+are available as shorthands for the most common compression/decompression
+helpers.
+For all of these helpers,
+.B star
+is capable of detecting that a compressed file needs one of them to be
+decompressed automatically.
+.PP
+Compression and decompression helpers are expected to be filters reading
+from standard input and writing to standard output.
+By default,
+.B star
+passes the sole option
+.B \-d
+to a decompression helper.
+Compression helpers are started without any options.
+Helper commands and options can be overridden using the
+.IB name _CMD
+options in sections
+.B [compress]
+and
+.B [decompress]
+of
+.BR /etc/default/star.
+See section
+.B FILES
+for details.
+.PP
+If the environment variable
+.B STAR_COMPRESS_FLAG
+is set, its contents are appended to the argument list for compression
+helpers.
+This is useful to pass a compression level to programs like
+.BR gzip (1).
+
 .SH "INCREMENTAL BACKUPS"
 .PP
 .B Star
@@ -5606,6 +5580,35 @@ Solaris, any number may be used like a generic size option like bs=.
 Example:
 .sp
 archive0=/dev/tape 256k 40G y
+.TP
+.BR [compress] ", " [decompress]
+Compression/decompression helpers.
+For each program passed via option
+.BI compress-program= name
+a helper can be defined with option
+.IB name _CMD
+in the appropriate section.
+This helper is ran instead of
+.IR name ,
+permitting you to use a program with a different name or to pass
+different options from the defaults (see section
+.B COMPRESSION
+for details).
+.sp
+The following example defines a compression/decompression helper for the
+PKZIP format, passing archives through
+.BR zip (1)
+or
+.BR unzip (1)
+as appropriate:
+.sp
+[compress]
+.br
+ZIP_CMD=zip -9
+.sp
+[decompress]
+.br
+ZIP_CMD=unzip
 .RE
 .TP
 .B "/etc/tardumps"
