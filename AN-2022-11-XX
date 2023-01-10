@@ -81,6 +81,14 @@ NEW FEATURES:
 	the shell to exit when ^C was pressed.
         Submitted by Nico Sonack.
 
+-	star: add support for configuring compression and decompression
+	helpers.  The command executed when a compression/decompression
+	program is selected with the compress-program=name option can
+	be configured using a new set of name_CMD=... options in
+	/etc/default/star.  Refer to the new COMPRESSION section in
+	star(1) for details.
+	Submitted by Philipp Wellner.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
@@ -90,11 +98,20 @@ FUTURE DIRECTIONS:
 	or not, the pxupgrade dummy code may either be replaced with the
 	real source code of the tool or removed altogether.
 
+-	With development of the p7zip(1) utility having ceased in 2016
+	and the 7-zip project having ported the reference implementation
+	to UNIX-like systems, many packagers now ship a 7z(1) command
+	instead of p7zip(1).  Future star distributions may ship an
+	/etc/default/star file configuring P7ZIP_CMD to refer to 7z(1)
+	instead of the default p7zip(1).  This will not affect existing
+	installations unless the configuration is updated.
+
 CONTRIBUTORS FOR THIS VERSION:
 
 Robert CLAUSECKER <fuz@fuz.su>
 Friedhelm MEHNERT <friedhelm@friedhelms.net>
 Nico SONACK <nsonack@herrhotzenplotz.de>
+Philipp Wellner <buh@mintendo-programmer.de>
 
 The schilytools maintainer
 Robert Clausecker <fuz@fuz.su>
