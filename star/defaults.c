@@ -52,7 +52,8 @@ EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
-EXPORT	void	get_args_for_helper	__PR((char *alg, char ** argv, int argmax, char *section, char *dfltflg));
+EXPORT	char	**get_args_for_helper	__PR((char *alg, char *section,
+						char *dfltflg, char *xtraflg));
 
 EXPORT char *
 get_stardefaults(name)
@@ -357,30 +358,64 @@ star_get_cmd_flags(prog_name, section)
 	return (cfg_value);
 }
 
-EXPORT void
-get_args_for_helper(alg, argv, argmax, section, dfltflg)
-	char	*alg, **argv, *section, *dfltflg;
-	int	argmax;
+/*
+ * Get the arguments for compression/decompression helpers.
+ * Return a pointer to a NULL-terminated argument vector or NULL
+ * on error.
+ *
+ * Invariant: the function is either called for compression or
+ * for decompression.
+ *
+ * Compression: section = "[compress]", dfltflg = NULL,
+ * 	xtraflag = getenv("STAR_COMPRESS_FLAG").
+ * Decompression: section = "[decompress]", dfltflg = "-d",
+ * 	xtraflag = NULL.
+ */
+EXPORT char **
+get_args_for_helper(alg, section, dfltflg, xtraflg)
+	char	*alg, *section, *dfltflg, *xtraflg;
 {
-	char *prog_flags;
+	int i, n;
+	char *flag, *flags, *tokflags, **argv;
+	static char *dfltargv[3];
 
-	prog_flags = star_get_cmd_flags(alg, section);
-	if (prog_flags == NULL) {
-		argv[0] = alg;
-		argv[1] = dfltflg;
-		argv[2] = (char *)NULL;
-	} else {
-		argv[0] = strtok(prog_flags, " ");
-		for (int i=1;i<argmax-1; i++) {
-			argv[i] = strtok(NULL, " ");
-			if (argv[i] == NULL) {
-				break;
-			}
-		}
-		argv[argmax] = NULL;
+	flags = star_get_cmd_flags(alg, section);
+	if (flags == NULL)
+		goto fallback;
+
+	/* find number of arguments */
+	n = 0;
+	tokflags = strdup(flags);
+	if (tokflags == NULL)
+		return (NULL);
+
+	flag = strtok(flags, " \t");
+	while (flag != NULL) {
+		n++;
+		flag = strtok(NULL, " \t");
 	}
-	for (int i=0; i< argmax; i++) {
-		if (argv[i] != NULL)
-			error("arg %d: %s\n", i, argv[i]);
-	}
+
+	/* flags empty: treat as if unset */
+	if (n == 0)
+		goto fallback;
+
+	argv = calloc(n + 2, sizeof *argv);
+	if (argv == NULL)
+		return (NULL);
+
+	argv[0] = strtok(tokflags, " \t");
+	for (i = 1; i < n; i++)
+		argv[i] = strtok(NULL, " \t");
+
+	if (xtraflg != NULL)
+		argv[i++] = xtraflg;
+
+	return (argv);
+
+fallback:
+	dfltargv[0] = alg;
+	dfltargv[1] = dfltflg != NULL ? dfltflg : xtraflg;
+	dfltargv[2] = NULL;
+
+	return (dfltargv);
 }

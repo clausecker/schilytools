@@ -2068,7 +2068,7 @@ compressopen()
 	FILE	*pp[2];
 	int	mypid;
 	char	*zip_prog = "gzip";
-	char 	*args[10] = {NULL};
+	char 	**args;
 
 	if (compress_prg)
 		zip_prog = compress_prg;
@@ -2171,10 +2171,14 @@ compressopen()
 		if (cflag) {
 			char	*flg = getenv("STAR_COMPRESS_FLAG");
 
-			get_args_for_helper(zip_prog, args, 10, "[compress]", flg);
+			args = get_args_for_helper(zip_prog, "[compress]", NULL, flg);
+			if (args == NULL)
+				comerr("Can't get flags for %s", zip_prog);
 			fexecv(args[0], pp[0], tarf, null, -1 , args);
 		} else {
-			get_args_for_helper(zip_prog, args, 10, "[decompress]", "-d");
+			args = get_args_for_helper(zip_prog, "[decompress]", "-d", NULL);
+			if (args == NULL)
+				comerr("Can't get flags for %s", zip_prog);
 			fexecv(args[0], tarf, pp[1], null, -1 , args);
 		}
 
