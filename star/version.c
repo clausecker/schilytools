@@ -6,7 +6,7 @@ static	UConst char sccsid[] =
 #endif
 /*
  *	Copyright (c) 2018-2020 J. Schilling
- *	Copyright (c) 2022 the schilytools team
+ *	Copyright (c) 2022-2023 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,5 +22,5 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-char	strvers[] = "1.6.2";		/* The pure version string	*/
-char	dvers[]	  = "2022/08/25";	/* Version date			*/
+char	strvers[] = "1.7.0";		/* The pure version string	*/
+char	dvers[]	  = "2023/01/11";	/* Version date			*/
