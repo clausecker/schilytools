@@ -215,6 +215,7 @@ EXPORT	void	die		__PR((int err));
 LOCAL	void	cldhandler	__PR((int sig, siginfo_t *sip, void *context));
 LOCAL	void	handlecld	__PR((void));
 #endif
+LOCAL	char	*get_zip_prog	__PR((void));
 LOCAL	void	compressopen	__PR((void));
 LOCAL	void	compressclose	__PR((void));
 
@@ -2062,40 +2063,48 @@ handlecld()
 }
 #endif	/* USE_SIGCLD */
 
+LOCAL char *
+get_zip_prog()
+{
+	if (compress_prg)
+		return (compress_prg);
+	else if (bzflag)
+		return ("bzip2");
+	else if (Zflag)
+		return ("compress");
+	else if (lzoflag)
+		return ("lzop");
+	else if (p7zflag)
+		return ("p7zip");
+	else if (xzflag)
+		return ("xz");
+	else if (lzipflag)
+		return ("lzip");
+	else if (zstdflag)
+		return ("zstd");
+	else if (lzmaflag)
+		return ("lzma");
+	else if (freezeflag)
+		return ("freeze");
+	else
+		return ("gzip");
+}
+
 LOCAL void
 compressopen()
 {
 #ifdef	HAVE_FORK
 	FILE	*pp[2];
 	int	mypid;
-	char	*zip_prog = "gzip";
+	char	*zip_prog;
 	char 	**args;
-
-	if (compress_prg)
-		zip_prog = compress_prg;
-	else if (bzflag)
-		zip_prog = "bzip2";
-	else if (Zflag)
-		zip_prog = "compress";
-	else if (lzoflag)
-		zip_prog = "lzop";
-	else if (p7zflag)
-		zip_prog = "p7zip";
-	else if (xzflag)
-		zip_prog = "xz";
-	else if (lzipflag)
-		zip_prog = "lzip";
-	else if (zstdflag)
-		zip_prog = "zstd";
-	else if (lzmaflag)
-		zip_prog = "lzma";
-	else if (freezeflag)
-		zip_prog = "freeze";
 
 	multblk = TRUE;
 
 	if (cflag && (uflag || rflag))
 		comerrno(EX_BAD, "Cannot update compressed archives.\n");
+
+	zip_prog = get_zip_prog();
 
 #ifdef __DJGPP__
 	if (cflag) {
@@ -2215,30 +2224,8 @@ compressclose()
 			FILE	*zipf;
 			int	cnt = -1;
 			char	buf[8192];
-			char	*zip_prog = "gzip";
 
-			if (compress_prg)
-				zip_prog = compress_prg;
-			else if (bzflag)
-				zip_prog = "bzip2";
-			else if (Zflag)
-				zip_prog = "compress";
-			else if (lzoflag)
-				zip_prog = "lzop";
-			else if (p7zflag)
-				zip_prog = "p7zip";
-			else if (xzflag)
-				zip_prog = "xz";
-			else if (lzipflag)
-				zip_prog = "lzip";
-			else if (zstdflag)
-				zip_prog = "zstd";
-			else if (lzmaflag)
-				zip_prog = "lzma";
-			else if (freezeflag)
-				zip_prog = "freeze";
-
-			js_snprintf(zip_cmd, sizeof (zip_cmd), "%s.exe", zip_prog);
+			js_snprintf(zip_cmd, sizeof (zip_cmd), "%s.exe", get_zip_prog());
 
 			dup2(fileno(compress_tarf_save), STDOUT_FILENO);
 
