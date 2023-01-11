@@ -53,8 +53,11 @@ EXPORT	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 EXPORT	BOOL	star_darchive	__PR((char *arname, char *dfltname));
+#if defined(HAVE_FORK) && !defined(__DJGPP__)
+LOCAL	char	*star_get_cmd_flags	__PR((char *prog_name, char *section));
 EXPORT	char	**get_args_for_helper	__PR((char *alg, char *section,
 						char *dfltflg, char *xtraflg));
+#endif
 
 EXPORT char *
 get_stardefaults(name)
@@ -321,6 +324,7 @@ star_darchive(arname, dfltname)
 	return (TRUE);
 }
 
+#if defined(HAVE_FORK) && !defined(__DJGPP__)
 LOCAL char *
 star_get_cmd_flags(prog_name, section)
 	char	*prog_name, *section;
@@ -418,3 +422,4 @@ fallback:
 
 	return (dfltargv);
 }
+#endif /* defined(HAVE_FORK) && !defined(__DJGPP__) */

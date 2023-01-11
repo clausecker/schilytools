@@ -86,7 +86,8 @@ NEW FEATURES:
 	program is selected with the compress-program=name option can
 	be configured using a new set of name_CMD=... options in
 	/etc/default/star.  Refer to the new COMPRESSION section in
-	star(1) for details.
+	star(1) for details.  This feature is currently not available on
+	DOS (DJGPP).
 	Submitted by Philipp Wellner.
 
 FUTURE DIRECTIONS:
@@ -105,6 +106,9 @@ FUTURE DIRECTIONS:
 	/etc/default/star file configuring P7ZIP_CMD to refer to 7z(1)
 	instead of the default p7zip(1).  This will not affect existing
 	installations unless the configuration is updated.
+
+-	Configuring compression/decompression helpers may be implemented
+	for DOS (DJGPP) in an upcoming version.
 
 CONTRIBUTORS FOR THIS VERSION:
 

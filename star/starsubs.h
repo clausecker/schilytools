@@ -486,8 +486,10 @@ extern	void	star_defaults	__PR((long *fsp, BOOL *no_fsyncp,
 						BOOL *secure_linkp,
 						char *dfltname));
 extern	BOOL	star_darchive	__PR((char *arname, char *dfltname));
+#if defined(HAVE_FORK) && !defined(__DJGPP__)
 extern	char	**get_args_for_helper	__PR((char *alg, char *section,
 						char *dfltflg, char *xtraflg));
+#endif
 
 /*
  * subst.c
