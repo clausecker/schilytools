@@ -123,5 +123,6 @@ if [ $? -ne 0 ]; then
 fi
 fi
 
+docommand bug11 "echo 'set -b && kill -INT \$\$' | $SHELL -i" 0 "" ""
 
 success
