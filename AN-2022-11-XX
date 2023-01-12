@@ -77,6 +77,10 @@ NEW FEATURES:
 	Reported by illiliti@protonmail.com.
 	Submitted by Friedhelm Mehnert.
 
+-	Bourne Shell: Fix bug where set -o notify or set -b would cause
+	the shell to exit when ^C was pressed.
+        Submitted by Nico Sonack.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source

@@ -40,6 +40,7 @@
 
 /*
  * Copyright 2008-2021 J. Schilling
+ * Copyright 2023      the schilytools team
  *
  * @(#)args.c	1.96 21/02/27 2008-2021 J. Schilling
  */
@@ -292,7 +293,7 @@ unsigned long	flagval[]  =
 	noexec,			/* -n / -o noexec */
 	nofngflg,		/* -f / -o noglob */
 #ifdef	DO_NOTIFY
-	notifyflg,		/* -b / -o notify */
+	fl2 | notifyflg,	/* -b / -o notify */
 #endif
 	setflg,			/* -u / -o nounset */
 	oneflg,			/* -t / -o onecmd */
