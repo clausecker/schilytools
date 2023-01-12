@@ -17,5 +17,5 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2021/07/23"
+#define	VERSION_DATE	"2023/01/12"
 #define	VERSION_STR	"a+"
