@@ -8,6 +8,7 @@ static	UConst char sccsid[] =
  *	Buffer handling routines
  *
  *	Copyright (c) 1985, 1995, 2001-2020 J. Schilling
+ *	Copyright (c) 2022-2023 the schilytools team
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2068,6 +2069,7 @@ compressopen()
 	FILE	*pp[2];
 	int	mypid;
 	char	*zip_prog = "gzip";
+	char 	**args;
 
 	if (compress_prg)
 		zip_prog = compress_prg;
@@ -2146,7 +2148,6 @@ compressopen()
 		comerr("Compress fork failed\n");
 	if (mypid == 0) {
 		FILE	*null;
-		char	*flg = getenv("STAR_COMPRESS_FLAG"); /* Temporary ? */
 
 		signal(SIGQUIT, SIG_IGN);
 		if (cflag)
@@ -2168,10 +2169,20 @@ compressopen()
 			goto err;
 		}
 
-		if (cflag)
-			fexecl(zip_prog, pp[0], tarf, null, zip_prog, flg, (char *)NULL);
-		else
-			fexecl(zip_prog, tarf, pp[1], null, zip_prog, "-d", (char *)NULL);
+		if (cflag) {
+			char	*flg = getenv("STAR_COMPRESS_FLAG");
+
+			args = get_args_for_helper(zip_prog, "[compress]", NULL, flg);
+			if (args == NULL)
+				comerr("Can't get flags for %s", zip_prog);
+			fexecv(args[0], pp[0], tarf, null, -1 , args);
+		} else {
+			args = get_args_for_helper(zip_prog, "[decompress]", "-d", NULL);
+			if (args == NULL)
+				comerr("Can't get flags for %s", zip_prog);
+			fexecv(args[0], tarf, pp[1], null, -1 , args);
+		}
+
 err:
 		errmsg("Compress: exec of '%s' failed\n", zip_prog);
 		_exit(-1);
