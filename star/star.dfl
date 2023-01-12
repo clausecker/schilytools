@@ -67,3 +67,36 @@ archive4=/dev/rmt/0		126	0
 archive5=/dev/rmt/0n		126	0
 archive6=/dev/rmt/1		126	0
 archive7=/dev/rmt/1n		126	0
+
+#
+# In the following two sections, you can configure compression and
+# decompression helpers for star.  These are used when star is executed
+# with an option like -z, -lzma, -xz, ... or when star detects that the
+# archive it is asked to extract is compressed, or when the option
+# compress-program=$tool is used.
+#
+# The default helpers are "$tool" for compression or "$tool -d" for
+# decompression, where $tool is the name of the compression program to
+# be used.
+#
+[compress]
+#BZIP2_CMD=	bzip2
+#COMPRESS_CMD=	compress
+#LZOP_CMD=	lzop
+#P7ZIP_CMD=	p7zip
+#XZ_CMD=	xz
+#LZIP_CMD=	lzip
+#ZSTD_CMD=	zstd
+#LZMA_CMD=	lzma
+#FREEZE_CMD=	freeze
+
+[decompress]
+#BZIP2_CMD=	bzip2 -d
+#COMPRESS_CMD=	compress -d
+#LZOP_CMD=	lzop -d
+#P7ZIP_CMD=	p7zip -d
+#XZ_CMD=	xz -d
+#LZIP_CMD=	lzip -d
+#ZSTD_CMD=	zstd -d
+#LZMA_CMD=	lzma -d 
+#FREEZE_CMD=	freeze -d
