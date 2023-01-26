@@ -1837,7 +1837,7 @@ star_helpvers(name, help, xhelp, prvers)
 #endif
 		gtprintf("\n\n");
 		gtprintf("Copyright (C) 1985, 88-90, 92-96, 1998-2021 %s\n", _("Jörg Schilling"));
-		gtprintf("Copyright (C) 2022 the schilytools team\n");
+		gtprintf("Copyright (C) 2022-2023 the schilytools team\n");
 		gtprintf("This is free software; see the source for copying conditions.  There is NO\n");
 		gtprintf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
