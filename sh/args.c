@@ -352,6 +352,7 @@ prversion()
 #else
 		prs(UC "Copyright (C) 1985-2021 Joerg Schilling\n");
 #endif
+		prs(UC "Copyright (C) 2023      the schilytools team\n");
 		exitsh(0);
 	}
 }
