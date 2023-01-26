@@ -990,9 +990,11 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		gtprintf("Smake release %s %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2021 %s\n",
+		gtprintf("Smake release %s %s (%s-%s-%s)\n",
 				make_version, VERSION_DATE,
-				HOST_CPU, HOST_VENDOR, HOST_OS,
+				HOST_CPU, HOST_VENDOR, HOST_OS);
+		gtprintf("Copyright (C) 1985, 87, 88, 91, 1995-2021 %s\n"
+		         "          (C) 2022-2023                   the schilytools team\n",
 				_("Jörg Schilling"));
 		exit(0);
 	}
