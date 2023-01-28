@@ -329,11 +329,13 @@ LOCAL char *
 star_get_cmd_flags(prog_name, section)
 	char	*prog_name, *section;
 {
-	char	*dfltname;
-	char	*cfg_name;
-	char	*cfg_value;
-	int	prog_name_len = strlen(prog_name);
+	register int	i;
+	char		*dfltname;
+	char		*cfg_name;
+	char		*cfg_value;
+	int		prog_name_len;
 
+	prog_name_len = strlen(prog_name);
 	if (prog_name_len == 0)
 		return (NULL);
 
@@ -350,7 +352,7 @@ star_get_cmd_flags(prog_name, section)
 	if (cfg_name == NULL)
 		return (NULL);
 
-	for (int i=0; i < prog_name_len; i++)
+	for (i = 0; i < prog_name_len; i++)
 		cfg_name[i] = toupper(prog_name[i]);
 	strcpy(&cfg_name[prog_name_len], "_CMD=");
 
@@ -378,9 +380,9 @@ EXPORT char **
 get_args_for_helper(alg, section, dfltflg, xtraflg)
 	char	*alg, *section, *dfltflg, *xtraflg;
 {
-	int i, n;
-	char *flag, *flags, *tokflags, **argv;
-	static char *dfltargv[3];
+	register int	i, n;
+	char		*flag, *flags, *tokflags, **argv;
+	static char	*dfltargv[3];
 
 	flags = star_get_cmd_flags(alg, section);
 	if (flags == NULL)
