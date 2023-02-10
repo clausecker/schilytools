@@ -48,6 +48,13 @@ NEW FEATURES:
 -	star: remove some C99-only code accidentally introduced in the
 	previous release.
 
+-	RULES/os-sunos5.def: the manstyle detection code for sunos5 and
+	newer was broken for GNU make.  Fix the code by moving the
+	detection to a configure test setting the new make macro
+	SOLARIS_MANSTYLE.  Users building with other make implementations
+	or those using the bootstrap smake were not affected.
+	Reported by: Michael Bäuerle.  Submitted by: Nico Sonack.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
@@ -71,6 +78,7 @@ FUTURE DIRECTIONS:
 CONTRIBUTORS FOR THIS VERSION:
 
 Robert CLAUSECKER <fuz@fuz.su>
+Nico SONACK <nsonack@herrhotzenplotz.de>
 
 The schilytools maintainer
 Robert Clausecker <fuz@fuz.su>

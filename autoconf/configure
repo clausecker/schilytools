@@ -25455,6 +25455,18 @@ fi
 fi	# <ext2fs/ext2_fs.h> was missing
 fi	# Linux only tests
 
+if test ".$UNAME" = ".SunOS"; then
+	echo $ac_n "checking for manual page style on Solaris Systems""... $ac_c" 1>&6
+echo "configure:25461: checking for manual page style on Solaris Systems" >&5
+	if test -f /usr/share/man/man8/Intro.8; then
+		solaris_manstyle=bsd
+	else
+		solaris_manstyle=sysv
+	fi
+	echo "$ac_t""$solaris_manstyle" 1>&6
+fi
+
+
 
 
 
@@ -25671,6 +25683,7 @@ s%@lib_dl@%$lib_dl%g
 s%@lib_dir@%$lib_dir%g
 s%@lib_cap@%$lib_cap%g
 s%@lib_selinux@%$lib_selinux%g
+s%@solaris_manstyle@%$solaris_manstyle%g
 
 CEOF
 EOF
