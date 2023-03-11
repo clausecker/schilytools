@@ -44,7 +44,8 @@ $(OINCSDIR):
 # Hack until the <mach>-<os>-*cc.rul files are updated
 #
 _HCC_COM=	$(OARCH:%-gcc=gcc)
-HCC_COM=	$(_HCC_COM:%-cc=cc)
+__HCC_COM=	$(_HCC_COM:%-clang=clang)
+HCC_COM=	$(__HCC_COM:%-cc=cc)
 
 _XCC_COM=	$(_UNIQ)$(CC_COM)
 __XCC_COM=	$(_XCC_COM:$(_UNIQ)=$(HCC_COM))
