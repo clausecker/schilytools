@@ -52,6 +52,14 @@ MAPFILE_POST=	| sed 's/^SCHILY/+SCHILY/' | tr '\012' '@' | tr '+' '\012' | tail 
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 #LDOPTS=		$(LIBS_PATH) $(LDPATH)
+
+# The following hack is needed to ensure we include the iconv.h from
+# base before a possibly installed GNU libiconv in
+# /usr/local/include. This avoids linker failures as the GNU libiconv
+# headers redefine iconv but SING does not link against it because it
+# finds iconv in libc.
+COPTS	+=	-nostdinc -isystem /usr/include -isystem /usr/local/include
+
 LDOPTMAP=	$(PMAPVERS:%=-Wl,--version-script=%)
 LDOPTDYN=	-shared -Wl,-soname,$(TARGET) $(LDOPTMAP)
 
