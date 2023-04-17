@@ -12,6 +12,7 @@ TARGETLIB=	schily
 CPPOPTS +=	-Istdio
 CPPOPTS +=	-DUSE_SCANSTACK	# Try to scan stack frames
 CPPOPTS +=	-DPORT_ONLY	# Add missing funcs line snprintf for porting
+CPPOPTS +=	-DNO_GETLINE_COMPAT # do not provide the getline symbol
 include		Targets
 include		Targets.man
 LIBS=		

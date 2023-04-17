@@ -55,6 +55,14 @@ NEW FEATURES:
 	or those using the bootstrap smake were not affected.
 	Reported by: Michael Bäuerle.  Submitted by: Nico Sonack.
 
+-	libschily: no longer provide the symbols fgetline, getline.
+	libschily used to provide these symbols as alternative names for
+	js_getline and js_fgetline for compatibility with UNOS.  As
+	their POSIX-incompatible signature causes problems when linking
+	against musl statically, we now no longer provide these symbols
+	by default.  Users wishing to restore the old behaviour should
+	remove -DNO_GETLINE_COMPAT from CPPOPTS when compiling libschily.
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
