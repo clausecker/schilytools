@@ -13,18 +13,21 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH GETLINE 3 "2022/09/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH JS_GETLINE 3 "2022/09/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-getline() \- reads a line from standard input
+js_getline() \- reads a line from standard input
 .SH SYNOPSIS
 .nf
 .B
-int getline(buffer,length)
+#include <schily/schily.h>
+.sp
+.B
+int js_getline(buffer,length)
 .B	char *buffer;
 .B	int length;
 .fi
 .SH DESCRIPTION
-getline() reads up to length characters from the standard input
+js_getline() reads up to length characters from the standard input
 using getc() (q.v.). The transfer is also terminated by a
 newline, end of file, or read error. The buffer is NULL ('\\0')
 terminated with the new line removed.
@@ -34,3 +37,7 @@ system error code (including EOF).
 .SH NOTES
 getline() always reads to the end of the input line, even if the
 line is longer than the buffer.
+.
+Unless NO_SCHILY_GETLINE is defined, including the header
+<schily/schily.h> causes getline() to be defined to be an alias to
+js_getline().

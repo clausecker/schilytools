@@ -63,6 +63,9 @@ NEW FEATURES:
 	by default.  Users wishing to restore the old behaviour should
 	remove -DNO_GETLINE_COMPAT from CPPOPTS when compiling libschily.
 
+-	libschily: accordingly, the man pages getline(3) and fgetline(3)
+	have been renamed to js_getline(3) and js_fgetline(3).
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source

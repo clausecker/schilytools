@@ -8,7 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 MANDIR=		man
-TARGETMAN=	fgetline
+TARGETMAN=	js_fgetline
 MANSECT=	$(MANSECT_LIB)
 MANSUFFIX=	$(MANSUFF_LIB)
 MANFILE=	fgetline.3

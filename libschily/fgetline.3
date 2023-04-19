@@ -13,19 +13,22 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH FGETLINE 3 "2022/09/09" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.TH JS_FGETLINE 3 "2023/04/19" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
 .SH NAME
-fgetline() \- gets a line from a file
+js_fgetline() \- gets a line from a file
 .SH SYNOPSIS
 .nf
 .B
-int fgetline(f,buf,length)
+#include <schily/schily.h>
+.sp
+.B
+int js_fgetline(f,buf,length)
 .B	FILE *f;
 .B	char *buf;
 .B	int length;
 .fi
 .SH DESCRIPTION
-fgetline() reads up to length characters from the input file
+js_fgetline() reads up to length characters from the input file
 using getc() (q.v.). The transfer is also terminated by a
 newline, end of file, or read error. The newline character is
 stripped and the string is NULL ('\\0') terminated.
@@ -36,5 +39,7 @@ the number of bytes read.
 .TP
 .B < 0
 if an error occurred.
-.\" .SH NOTES
-.\" none
+.SH NOTES
+Unless NO_SCHILY_GETLINE is defined, including the header
+<schily/schily.h> causes fgetline() to be defined to be an alias to
+js_fgetline().
