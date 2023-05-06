@@ -52,6 +52,11 @@ NEW FEATURES:
 	error by teaching autoconf about ppc64le.
 	Submitted by: Nico Sonack.
 
+-	mkisofs: adjust reference of ISO-9660:1999 to ISO-9660/Amd 1:2013
+	It is an official ISO standard (albeit not an official level 4)
+	since 2013. Amend the reference accordingly.
+	Submmited by: Wang Mingye
+
 FUTURE DIRECTIONS:
 
 -	Schilytools contains pxupgrade, a dummy for a closed-source
@@ -75,6 +80,7 @@ FUTURE DIRECTIONS:
 CONTRIBUTORS FOR THIS VERSION:
 
 Nico SONACK <nsonack@herrhotzenplotz.de>
+WANG Mingye (Artoria2e5) <arthur2e5@aosc.io>
 
 The schilytools maintainer
 Robert Clausecker <fuz@fuz.su>

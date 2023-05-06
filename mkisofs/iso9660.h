@@ -228,7 +228,7 @@ struct iso_path_table {
  * =	38 chars
  *
  * We currently do not support CD-ROM-XA entension records, but we must honor
- * the needed space for ISO-9660:1999 (Version 2).
+ * the needed space for ISO-9660/Amd 1:2013 (Version 2).
  *
  * XXX If we ever will start to support XA records, we will need to take care
  * XXX that the the maximum ISO-9660 name length will be reduced by another

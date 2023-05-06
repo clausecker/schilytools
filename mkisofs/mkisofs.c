@@ -2771,7 +2771,7 @@ Copyright (C) 1997-2020 %s\n"),
 	if (warn_violate)
 		error(_("Warning: creating filesystem that does not conform to ISO-9660.\n"));
 	if (iso9660_level > 3)
-		error(_("Warning: Creating ISO-9660:1999 (version 2) filesystem.\n"));
+		error(_("Warning: Creating ISO-9660/Amd 1:2013 (version 2) filesystem.\n"));
 	if (iso9660_namelen > LEN_ISONAME)
 		error(_("Warning: ISO-9660 filenames longer than %d may cause buffer overflows in the OS.\n"),
 			LEN_ISONAME);
@@ -3414,7 +3414,7 @@ path_done:
 	if (use_eltorito) {
 		outputlist_insert(&torito_desc);
 	}
-	/* Enhanced PVD for disc. neded if we write ISO-9660:1999 */
+	/* Enhanced PVD for disc. neded if we write ISO-9660/Amd 1:2013 */
 	if (iso9660_level > 3)
 		outputlist_insert(&xvoldesc_desc);
 

@@ -1774,7 +1774,7 @@ setcharset:
 					}
 				}
 				if (jpd.version[0] == 2) {
-					printf(_("CD-ROM uses ISO 9660:1999 relaxed format\n"));
+					printf(_("CD-ROM uses ISO-9660/Amd 1:2013 relaxed format\n"));
 					break;
 				}
 
