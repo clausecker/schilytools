@@ -116,8 +116,10 @@ global:
 	fdsetname;
 	fdclosename;
 	lxchdir;
+#ifndef	HAVE_LONGDOUBLE
 	qftoes;
 	qftofs;
+#endif
 	restorewd;
 	savewd;
 #ifndef	HAVE_FACCESSAT
@@ -527,7 +529,9 @@ global:
 	getav0;
 	getavp;
 	getbroken;
+#ifndef	HAVE_GETDOMAINNAME
 	getdomainname;
+#endif
 	geterrno;
 	getfiles;
 	getfp;
