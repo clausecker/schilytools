@@ -55,7 +55,12 @@ NEW FEATURES:
 -	mkisofs: adjust reference of ISO-9660:1999 to ISO-9660/Amd 1:2013
 	It is an official ISO standard (albeit not an official level 4)
 	since 2013. Amend the reference accordingly.
-	Submmited by: Wang Mingye
+	Submitted by: Wang Mingye.
+
+-	libschily: obey HAVE_LONGDOUBLE, HAVE_FACCESSAT, and
+	HAVE_GETDOMAINNAME in libschily-mapvers, fixing the build with
+	lld 17 on recent FreeBSD.
+	Submitted by: Dimitry Andric.
 
 FUTURE DIRECTIONS:
 
@@ -79,6 +84,7 @@ FUTURE DIRECTIONS:
 
 CONTRIBUTORS FOR THIS VERSION:
 
+Dimitry ANDRIC <dim@FreeBSD.org>
 Nico SONACK <nsonack@herrhotzenplotz.de>
 WANG Mingye (Artoria2e5) <arthur2e5@aosc.io>
 
