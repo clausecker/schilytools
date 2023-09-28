@@ -1,4 +1,4 @@
-New features with AN-2023-06-XX:
+New features with AN-2023-09-28:
 
 With great sadness we report the death of schilytools main author and
 long time maintainer Jörg Schilling (1955-03-27--2021-10-10).  Jörg, we
@@ -37,7 +37,6 @@ Obtain release tarballs from:
 	http://ftp.gwdg.de/pub/misc/schilytools/
 	ftp://ftp.gwdg.de/pub/misc/schilytools/
 	rsync://ftp.gwdg.de/schilytools/
-
 
 If you have previously reported bugs to Jörg Schilling and they have not
 been fixed, please report them again.  We do not have access to Jörg's
