@@ -34,6 +34,7 @@
 
 /*
  * Copyright 2021 J. Schilling
+ * Copyright 2023 the schilytools team
  *
  * @(#)macro.h	1.4 21/08/15 2021 J. Schilling
  */

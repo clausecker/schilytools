@@ -32,7 +32,7 @@
 
 /*
  * Copyright 2017-2019 J. Schilling
- * Copyright 2022 the schilytools team
+ * Copyright 2022, 2023 the schilytools team
  *
  * @(#)nse_printdep.cc	1.7 19/10/19 2017-2019 J. Schilling
  */

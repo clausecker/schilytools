@@ -25,6 +25,8 @@
  * Use is subject to license terms.
  */
 /*
+ * Copyright 2023 the schilytools team
+ *
  * @(#)dosys.h 1.9 06/12/12
  */
 

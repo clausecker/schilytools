@@ -32,7 +32,7 @@
 
 /*
  * Copyright 2017-2020 J. Schilling
- * Copyright 2022 the schilytools team
+ * Copyright 2022, 2023 the schilytools team
  *
  * @(#)implicit.cc	1.11 20/11/19 2017-2020 J. Schilling
  */

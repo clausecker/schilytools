@@ -9,6 +9,7 @@ static	UConst char sccsid[] =
  *	Architecture autoconfiguration support
  *
  *	Copyright (c) 1996-2020 by J. Schilling
+ *	Copyright (c) 2023 the schilytools team
  */
 /*
  * CDDL HEADER START

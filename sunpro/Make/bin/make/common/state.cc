@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2023 the schilytools team
  *
  * @(#)state.cc	1.7 21/08/15 2017-2018 J. Schilling
  */

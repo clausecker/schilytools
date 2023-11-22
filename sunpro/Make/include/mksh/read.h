@@ -25,6 +25,8 @@
  * Use is subject to license terms.
  */
 /*
+ * Copyright 2023 the schilytools team
+ *
  * @(#)read.h 1.2 06/12/12
  */
 

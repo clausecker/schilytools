@@ -32,6 +32,7 @@
 
 /*
  * Copyright 2017-2018 J. Schilling
+ * Copyright 2023 the schilytools team
  *
  * @(#)args.h	1.5 21/08/15 2017-2018 J. Schilling
  */
