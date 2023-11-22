@@ -7,12 +7,12 @@ static	UConst char sccsid[] =
 
 /*
  * Copyright (c) 2019 J. Schilling
- * Copyright (c) 2022 the schilytools team
+ * Copyright (c) 2022, 2023 the schilytools team
  *
  * @(#)version.cc	1.27 21/09/07 2017-2019 J. Schilling
  */
 
-#define	VERSION_DATE	"2022/08/18"
+#define	VERSION_DATE	"2023/11/22"
 #define	VERSION_STR	"1.1.1"
 #ifdef	SCHILY_BUILD
 #define	VERSION_NAME	"Schily-Tools"
