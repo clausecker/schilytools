@@ -55,14 +55,14 @@ typedef struct {
 } pathcellt, *pathcellpt, patht;
 typedef patht		*pathpt;
 
-extern	void		add_dir_to_path(register const char *path, register pathpt *pointer, register int position);
+extern	void		add_dir_to_path(const char *path, pathpt *pointer, int position);
 extern	void		flush_path_cache(void);
 extern	void		flush_vroot_cache(void);
 extern	const char	*get_path_name(void);
-extern	char		*get_vroot_path(register char **vroot, register char **path, register char **filename);
+extern	char		*get_vroot_path(char **vroot, char **path, char **filename);
 extern	const char	*get_vroot_name(void);
 extern	int		open_vroot(char *path, int flags, int mode, pathpt vroot_path, pathpt vroot_vroot);
-extern	pathpt		parse_path_string(register char *string, register int remove_slash);
+extern	pathpt		parse_path_string(char *string, int remove_slash);
 extern	void		scan_path_first(void);
 extern	void		scan_vroot_first(void);
 extern	void		set_path_style(int style);

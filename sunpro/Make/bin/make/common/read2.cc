@@ -87,11 +87,11 @@ static	Boolean		built_last_make_run_seen;
 /*
  * File table of contents
  */
-static	Name_vector	enter_member_name(register wchar_t *lib_start, register wchar_t *member_start, register wchar_t *string_end, Name_vector current_names, Name_vector *extra_names);
-extern	Name		normalize_name(register wchar_t *name_string, register int length);
-static	void		read_suffixes_list(register Name_vector depes);
+static	Name_vector	enter_member_name(wchar_t *lib_start, wchar_t *member_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names);
+extern	Name		normalize_name(wchar_t *name_string, int length);
+static	void		read_suffixes_list(Name_vector depes);
 static	void		make_relative(wchar_t *to, wchar_t *result);
-static	void		print_rule(register Cmd_line command);
+static	void		print_rule(Cmd_line command);
 static	void		sh_transform(Name *name, Name *value);
 
 
@@ -124,10 +124,10 @@ static	void		sh_transform(Name *name, Name *value);
  */
 
 Name_vector
-enter_name(String string, Boolean tail_present, register wchar_t *string_start, register wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen)
+enter_name(String string, Boolean tail_present, wchar_t *string_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen)
 {
 	Name			name;
-	register wchar_t	*cp;
+	wchar_t	*cp;
 	wchar_t			ch;
 
 	/* If we were passed a separate tail of the name we append it to the */
@@ -222,9 +222,9 @@ if(current_names->used != 0 && current_names->names[current_names->used-1] == pl
  *	Global variables used:
  */
 static Name_vector
-enter_member_name(register wchar_t *lib_start, register wchar_t *member_start, register wchar_t *string_end, Name_vector current_names, Name_vector *extra_names)
+enter_member_name(wchar_t *lib_start, wchar_t *member_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names)
 {
-	register Boolean	entry = false;
+	Boolean	entry = false;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
 	Name			lib;
 	Name			member;
@@ -232,9 +232,9 @@ enter_member_name(register wchar_t *lib_start, register wchar_t *member_start, r
 	Property		prop;
 	wchar_t			*memberp;
 	wchar_t			*q;
-	register int		paren_count;
-	register Boolean	has_dollar;
-	register wchar_t	*cq;
+	int		paren_count;
+	Boolean	has_dollar;
+	wchar_t	*cq;
 	Name			long_member_name = NULL;
 
 	/* Internalize the name of the library */
@@ -364,15 +364,15 @@ enter_member_name(register wchar_t *lib_start, register wchar_t *member_start, r
  *		dotdot		The Name "..", compared against
  */
 Name
-normalize_name(register wchar_t *name_string, register int length)
+normalize_name(wchar_t *name_string, int length)
 {
 	static Name		dotdot;
-	register wchar_t	*string = ALLOC_WC(length + 1);
-	register wchar_t	*string2;
-	register wchar_t	*cdp;
+	wchar_t	*string = ALLOC_WC(length + 1);
+	wchar_t	*string2;
+	wchar_t	*cdp;
 	wchar_t			*current_component;
 	Name			name;
-	register int		count;
+	int		count;
 
 	if (dotdot == NULL) {
 		MBSTOWCS(wcs_buffer, "..");
@@ -494,7 +494,7 @@ removed_one:
  *		plus		The Name "+", compared against
  */
 Chain
-find_target_groups(register Name_vector target_list, register int i, Boolean reset)
+find_target_groups(Name_vector target_list, int i, Boolean reset)
 {
 	static Chain		target_group = NULL;
 	static Chain		tail_target_group = NULL;
@@ -598,10 +598,10 @@ find_target_groups(register Name_vector target_list, register int i, Boolean res
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-enter_dependencies(register Name target, Chain target_group, register Name_vector depes, register Cmd_line command, register Separator separator)
+enter_dependencies(Name target, Chain target_group, Name_vector depes, Cmd_line command, Separator separator)
 {
-	register int		i;
-	register Property	line;
+	int		i;
+	Property	line;
 	Name			name = NULL;
 	Name			directory = NULL;
 	wchar_t			*namep;
@@ -610,7 +610,7 @@ enter_dependencies(register Name target, Chain target_group, register Name_vecto
 	Dependency		*dpp;
 	Property		line2;
 	wchar_t			relative[MAXPATHLEN];
-	register int		recursive_state;
+	int		recursive_state;
 	Boolean			register_as_auto;
 	Boolean			not_auto_found;
 	char			*slash;
@@ -903,10 +903,10 @@ enter_dependencies(register Name target, Chain target_group, register Name_vecto
  *		wait_name	The Name ".WAIT", compared against
  */
 void
-enter_dependency(Property line, register Name depe, Boolean automatic)
+enter_dependency(Property line, Name depe, Boolean automatic)
 {
-	register Dependency	dp;
-	register Dependency	*insert;
+	Dependency	dp;
+	Dependency	*insert;
 
 	if (trace_reader) {
 		(void) printf("%s ", depe->string_mb);
@@ -971,13 +971,13 @@ enter_dependency(Property line, register Name depe, Boolean automatic)
  *		trace_reader	Indicates that we should echo stuff we read
  */
 Percent
-enter_percent(register Name target, Chain target_group, register Name_vector depes, Cmd_line command)
+enter_percent(Name target, Chain target_group, Name_vector depes, Cmd_line command)
 {
-	register Percent	result = ALLOC(Percent);
-	register Percent	depe;
-	register Percent	*depe_tail = &result->dependencies;
-	register Percent	*insert;
-	register wchar_t	*cp, *cp1;
+	Percent	result = ALLOC(Percent);
+	Percent	depe;
+	Percent	*depe_tail = &result->dependencies;
+	Percent	*insert;
+	wchar_t	*cp, *cp1;
 	Name_vector		nvp;
 	int			i;
 	int			pattern;
@@ -1109,9 +1109,9 @@ enter_percent(register Name target, Chain target_group, register Name_vector dep
  *		trace_reader	Indicates that we should echo stuff we read
  */
 Dyntarget
-enter_dyntarget(register Name target)
+enter_dyntarget(Name target)
 {
-	register Dyntarget	result = ALLOC(Dyntarget);
+	Dyntarget	result = ALLOC(Dyntarget);
 	Dyntarget		p;
 	Dyntarget		*insert;
 
@@ -1177,9 +1177,9 @@ enter_dyntarget(register Name target)
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-special_reader(Name target, register Name_vector depes, Cmd_line command, Separator separator)
+special_reader(Name target, Name_vector depes, Cmd_line command, Separator separator)
 {
-	register int		n;
+	int		n;
 
 	switch (target->special_reader) {
 
@@ -1619,12 +1619,12 @@ special_reader(Name target, register Name_vector depes, Cmd_line command, Separa
  *		trace_reader	Indicates that we should echo stuff we read
  */
 static void
-read_suffixes_list(register Name_vector depes)
+read_suffixes_list(Name_vector depes)
 {
-	register int		n;
-	register Dependency	dp;
-	register Dependency	*insert_dep;
-	register Boolean	first = true;
+	int		n;
+	Dependency	dp;
+	Dependency	*insert_dep;
+	Boolean	first = true;
 
 	if (depes->used == 0) {
 		/* .SUFFIXES with no dependency list clears the */
@@ -1643,7 +1643,7 @@ read_suffixes_list(register Name_vector depes)
 	Wstring str;
 	/* Otherwise we append to the list */
 	for (; depes != NULL; depes = depes->next) {
-		register Name		np;
+		Name		np;
 		Name			np2;
 
 		for (n = 0; n < depes->used; n++) {
@@ -1801,7 +1801,7 @@ make_relative(wchar_t *to, wchar_t *result)
  *	Global variables used:
  */
 static void
-print_rule(register Cmd_line command)
+print_rule(Cmd_line command)
 {
 	for (; command != NULL; command = command->next) {
 		(void) printf("\t%s\n", command->command_line->string_mb);
@@ -1825,9 +1825,9 @@ print_rule(register Cmd_line command)
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-enter_conditional(register Name target, Name name, Name value, register Boolean append)
+enter_conditional(Name target, Name name, Name value, Boolean append)
 {
-	register Property	conditional;
+	Property	conditional;
 	static int		sequence;
 	Name			orig_target = target;
 
@@ -1891,7 +1891,7 @@ enter_conditional(register Name target, Name name, Name value, register Boolean 
  *		trace_reader	Indicates that we should echo stuff we read
  */
 void
-enter_equal(Name name, Name value, register Boolean append, Separator separator)
+enter_equal(Name name, Name value, Boolean append, Separator separator)
 {
 	wchar_t		*string;
 	Name		temp;

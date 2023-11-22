@@ -91,8 +91,8 @@ extern void job_adjust_fini();
 /*
  * File table of contents
  */
-static	void		print_rule(register Name target);
-static	void		print_target_n_deps(register Name target);
+static	void		print_rule(Name target);
+static	void		print_target_n_deps(Name target);
 
 /*****************************************
  *
@@ -382,9 +382,9 @@ void
 dump_make_state(void)
 {
 	Name_set::iterator	p, e;
-	register Property	prop;
-	register Dependency	dep;
-	register Cmd_line	rule;
+	Property	prop;
+	Dependency	dep;
+	Cmd_line	rule;
 	Percent			percent, percent_depe;
 
 	/* Default target */
@@ -548,11 +548,11 @@ dump_make_state(void)
  *	Global variables used:
  */
 static void
-print_rule(register Name target)
+print_rule(Name target)
 {
-	register Cmd_line	rule;
-	register Property	line;
-	register Dependency	dependency;
+	Cmd_line	rule;
+	Property	line;
+	Dependency	dependency;
 
 	if (target->dependency_printed ||
 	    ((line = get_prop(target->prop, line_prop)) == NULL) ||
@@ -598,10 +598,10 @@ dump_target_list(void)
 }
 
 static void
-print_target_n_deps(register Name target)
+print_target_n_deps(Name target)
 {
-	register Property	line;
-	register Dependency	dependency;
+	Property	line;
+	Dependency	dependency;
 
 	if (target->dependency_printed) {
 		return;

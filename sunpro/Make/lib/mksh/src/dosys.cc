@@ -101,7 +101,7 @@ static	UConst char sccsid[] =
 /*
  * File table of contents
  */
-static Boolean	exec_vp(register char *name, register char **argv, char **envp, register Boolean ignore_error, pathpt vroot_path);
+static Boolean	exec_vp(char *name, char **argv, char **envp, Boolean ignore_error, pathpt vroot_path);
 
 /*
  * Workaround for NFS bug. Sometimes, when running 'open' on a remote
@@ -252,12 +252,12 @@ redirect_io(char *stdout_file, char *stderr_file)
  *		working_on_targets We started processing real targets
  */
 Doname
-dosys_mksh(register Name command, register Boolean ignore_error, register Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio)
+dosys_mksh(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio)
 {
-	register int		length = command->hash.length;
-	register wchar_t	*p;
-	register wchar_t	*q;
-	register wchar_t	*cmd_string;
+	int		length = command->hash.length;
+	wchar_t	*p;
+	wchar_t	*q;
+	wchar_t	*cmd_string;
 /*	struct stat		before; */
 	Doname			result;
 	Boolean			working_on_targets_mksh = true;
@@ -364,15 +364,15 @@ dosys_mksh(register Name command, register Boolean ignore_error, register Boolea
  *		shell_name	The Name "SHELL", used to get the path to shell
  */
 int
-doshell(wchar_t *command, register Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, int nice_prio)
+doshell(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, int nice_prio)
 {
 	char			*argv[6];
 	int			argv_index = 0;
 	int			cmd_argv_index;
 	int			length;
 	char			nice_prio_buf[MAXPATHLEN];
-	register Name		shell = getvar(shell_name);
-	register char		*shellname;
+	Name		shell = getvar(shell_name);
+	char		*shellname;
 	char			*tmp_mbs_buffer;
 
 
@@ -476,10 +476,10 @@ doshell(wchar_t *command, register Boolean ignore_error, Boolean redirect_out_er
  *		vroot_path	The path used by the vroot package
  */
 static Boolean
-exec_vp(register char *name, register char **argv, char **envp, register Boolean ignore_error, pathpt vroot_path)
+exec_vp(char *name, char **argv, char **envp, Boolean ignore_error, pathpt vroot_path)
 {
-	register Name		shell = getvar(shell_name);
-	register char		*shellname;
+	Name		shell = getvar(shell_name);
+	char		*shellname;
 	char			*shargv[4];
 	Name			tmp_shell;
 
@@ -551,15 +551,15 @@ exec_vp(register char *name, register char **argv, char **envp, register Boolean
  *		filter_stderr	If -X is on we redirect stderr
  */
 int
-doexec(register wchar_t *command, register Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio)
+doexec(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio)
 {
 	int			arg_count = 5;
 	char			**argv;
 	int			length;
 	char			nice_prio_buf[MAXPATHLEN];
-	register char		**p;
+	char		**p;
 	wchar_t			*q;
-	register wchar_t	*t;
+	wchar_t	*t;
 	char			*tmp_mbs_buffer;
 
 	/*
@@ -675,10 +675,10 @@ doexec(register wchar_t *command, register Boolean ignore_error, Boolean redirec
  */
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 Boolean
-await(register Boolean ignore_error, register Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, XDR *xdrs_p, int job_msg_id)
+await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, XDR *xdrs_p, int job_msg_id)
 #else
 Boolean
-await(register Boolean ignore_error, register Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, void *xdrs_p, int job_msg_id)
+await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, void *xdrs_p, int job_msg_id)
 #endif
 {
 	WAIT_T			status;
@@ -687,7 +687,7 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 	Avo_CmdOutput		*make_output_msg;
 #endif
-	register pid_t		pid;
+	pid_t		pid;
 	int			termination_signal;
 	char			tmp_buf[MAXPATHLEN];
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
@@ -822,10 +822,10 @@ await(register Boolean ignore_error, register Boolean silent_error, Name target,
  *	Global variables used:
  */
 void
-sh_command2string(register String command, register String destination)
+sh_command2string(String command, String destination)
 {
-	register FILE		*fd;
-	register int		chr;
+	FILE		*fd;
+	int		chr;
 	int			status;
 	Boolean			command_generated_output = false;
 

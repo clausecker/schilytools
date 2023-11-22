@@ -67,7 +67,7 @@
 
 typedef enum { rw_read, rw_write} rwt, *rwpt;
 
-extern	void	translate_with_thunk(register char *filename, int (*thunk) (char *), pathpt path_vector, pathpt vroot_vector, rwt rw);
+extern	void	translate_with_thunk(char *filename, int (*thunk) (char *), pathpt path_vector, pathpt vroot_vector, rwt rw);
 
 union Args {
 	struct { int mode;} access;

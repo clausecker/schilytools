@@ -51,14 +51,14 @@ static	UConst char sccsid[] =
 /*
  * File table of contents
  */
-void   print_dependencies(register Name target, register Property line);
-static void	print_deps(register Name target, register Property line);
+void   print_dependencies(Name target, Property line);
+static void	print_deps(Name target, Property line);
 static void	print_more_deps(Name target, Name name);
 static void	print_filename(Name name);
 static Boolean	should_print_dep(Property line);
 static void	print_forest(Name target);
 static void	print_deplist(Dependency head);
-void		print_value(register Name value, Daemon daemon);
+void		print_value(Name value, Daemon daemon);
 static	void	print_rec_info(Name target);
 static Boolean	is_out_of_date(Property line);
 extern void depvar_print_results (void);
@@ -80,7 +80,7 @@ extern void depvar_print_results (void);
  *		makefiles_used	List of all makefiles read
  */
 void
-print_dependencies(register Name target, register Property line)
+print_dependencies(Name target, Property line)
 {
 	Dependency	dp;
 	static Boolean	makefiles_printed = false;
@@ -149,7 +149,7 @@ static void
 print_more_deps(Name target, Name name)
 {
 	Property	line;
-	register Dependency	dependencies;
+	Dependency	dependencies;
 
 	line = get_prop(name->prop, line_prop);
 	if (line != NULL && line->body.line.dependencies != NULL) {
@@ -180,9 +180,9 @@ print_more_deps(Name target, Name name)
  *		recursive_name	The Name ".RECURSIVE", printed
  */
 static void
-print_deps(register Name target, register Property line)
+print_deps(Name target, Property line)
 {
-	register Dependency	dep;
+	Dependency	dep;
 
 #ifdef SUNOS4_AND_AFTER
 	if ((target->dependency_printed) ||
@@ -347,7 +347,7 @@ print_forest(Name target)
  *	Used for the -p option
  */
 void
-print_value(register Name value, Daemon daemon)
+print_value(Name value, Daemon daemon)
 	             		      
 #ifdef SUNOS4_AND_AFTER
               			       

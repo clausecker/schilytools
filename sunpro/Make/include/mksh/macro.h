@@ -50,10 +50,10 @@ typedef enum {
 	keep_ddollar =	2	/* Keep $$ if doing :::= or +:= assignment  */
 } Expand_Type; 
 
-extern void	expand_macro(register Source source, register String destination, wchar_t *current_string, Boolean cmd, Expand_Type exp_type = deflt_expand);
-extern void	expand_value(Name value, register String destination, Boolean cmd, Expand_Type exp_type = deflt_expand);
-extern Name	getvar(register Name name);
+extern void	expand_macro(Source source, String destination, wchar_t *current_string, Boolean cmd, Expand_Type exp_type = deflt_expand);
+extern void	expand_value(Name value, String destination, Boolean cmd, Expand_Type exp_type = deflt_expand);
+extern Name	getvar(Name name);
 
-extern Property	setvar_daemon(register Name name, register Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_level);
+extern Property	setvar_daemon(Name name, Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_level);
 
 #endif

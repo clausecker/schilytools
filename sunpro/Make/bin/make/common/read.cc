@@ -123,10 +123,10 @@ static struct dent {
 /*
  * File table of contents
  */
-static	void		parse_makefile(register Name true_makefile_name, register Source source);
-static	Source		push_macro_value(register Source bp, register wchar_t *buffer, int size, register Source source);
+static	void		parse_makefile(Name true_makefile_name, Source source);
+static	Source		push_macro_value(Source bp, wchar_t *buffer, int size, Source source);
 extern  void 		enter_target_groups_and_dependencies(Name_vector target, Name_vector depes, Cmd_line command, Separator separator, Boolean target_group_seen);
-extern	Name		normalize_name(register wchar_t *name_string, register int length);
+extern	Name		normalize_name(wchar_t *name_string, int length);
 extern	void		doexport(Name name);
 extern	void		dounexport(Name name);
 extern	void		doreadonly(Name name);
@@ -163,20 +163,20 @@ static void		init_directives(void);
 
 
 Boolean
-read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include)
+read_simple_file(Name makefile_name, Boolean chase_path, Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include)
 {
 	static short		max_include_depth;
-	register Property	makefile = maybe_append_prop(makefile_name,
+	Property	makefile = maybe_append_prop(makefile_name,
 							     makefile_prop);
 	Boolean			forget_after_parse = false;
 	static pathpt		makefile_path;
-	register int		n;
+	int		n;
 	char			*path;
-	register Source		source = ALLOC(Source);
+	Source		source = ALLOC(Source);
 	Property		orig_makefile = makefile;
 	Dependency		*dpp;
 	Dependency		dp;
-	register int		length;
+	int		length;
 	wchar_t			*previous_file_being_read = file_being_read;
 	int			previous_line_number = line_number;
 #ifdef NSE
@@ -184,8 +184,8 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 #endif
 	Makefile_type		save_makefile_type;
 	Name 			normalized_makefile_name;
-	register wchar_t        *string_start;
-	register wchar_t        *string_end;
+	wchar_t        *string_start;
+	wchar_t        *string_end;
 	char                    *run_dir, makerules_dir[BUFSIZ];
 
 
@@ -387,7 +387,7 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
 			 */
 			if (is_include && complain && include_failed &&
 			    exists(makefile_name) == file_doesnt_exist) {
-				register Property	line;
+				Property	line;
 
 				if ((line = get_prop(include_failed_name->prop, line_prop)) != NULL &&
 				    line->body.line.command_template) {
@@ -624,22 +624,22 @@ read_simple_file(register Name makefile_name, register Boolean chase_path, regis
  *		empty_name	The Name ""
  */
 static void
-parse_makefile(register Name true_makefile_name, register Source source)
+parse_makefile(Name true_makefile_name, Source source)
 {
 /*
 	char			mb_buffer[MB_LEN_MAX];
  */
-	register wchar_t	*source_p;
-	register wchar_t	*source_end;
-	register wchar_t	*string_start;
+	wchar_t	*source_p;
+	wchar_t	*source_end;
+	wchar_t	*string_start;
 	wchar_t			*string_end;
-	register Boolean	macro_seen_in_string;
+	Boolean	macro_seen_in_string;
 	Boolean			append = false;
 	Boolean			expand = false;
 	String_rec		name_string;
 	wchar_t			name_buffer[STRING_BUFFER_LENGTH];
-	register int		distance;
-	register int		paren_count;
+	int		distance;
+	int		paren_count;
 	int			brace_count;
 	int			char_number;
 	Cmd_line		command = NULL;
@@ -654,9 +654,9 @@ parse_makefile(register Name true_makefile_name, register Source source)
 	Name_vector		nvp;
 	Boolean			target_group_seen;
 
-	register Reader_state   state;
-	register Reader_state   on_eoln_state;
-	register Separator	separator = none_seen;
+	Reader_state   state;
+	Reader_state   on_eoln_state;
+	Separator	separator = none_seen;
 
 	wchar_t                 buffer[4 * STRING_BUFFER_LENGTH];
 	Source			extrap;
@@ -2307,7 +2307,7 @@ default:
  *	Global variables used:
  */
 static Source
-push_macro_value(register Source bp, register wchar_t *buffer, int size, register Source source)
+push_macro_value(Source bp, wchar_t *buffer, int size, Source source)
 {
 	bp->string.buffer.start = bp->string.text.p = buffer;
 	bp->string.text.end = NULL;

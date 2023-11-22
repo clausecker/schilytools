@@ -92,13 +92,13 @@ static	UConst char sccsid[] =
  *		working_on_targets We started processing real targets
  */
 Doname
-dosys(register Name command, register Boolean ignore_error, register Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err)
+dosys(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err)
 {
 	timestruc_t		before;
-	register int		length = command->hash.length;
+	int		length = command->hash.length;
 	Wstring			wcb(command);
-	register wchar_t	*p = wcb.get_string();
-	register wchar_t	*q;
+	wchar_t	*p = wcb.get_string();
+	wchar_t	*q;
 	Doname			result;
 
 	/* Strip spaces from head of command string */

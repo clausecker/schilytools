@@ -122,7 +122,7 @@ long	getwstring_count = 0;
 /*
  * File table of contents
  */
-static void	expand_string(register String string, register int length);
+static void	expand_string(String string, int length);
 
 #define	FATAL_ERROR_MSG_SIZE 200
 
@@ -140,9 +140,9 @@ static void	expand_string(register String string, register int length);
  *	Global variables used:
  */
 char *
-getmem(register int size)
+getmem(int size)
 {
-	register char          *result = (char *) malloc((unsigned) size);
+	char          *result = (char *) malloc((unsigned) size);
 	if (result == NULL) {
 		char buf[FATAL_ERROR_MSG_SIZE];
 		sprintf(buf, NOCATGETS("*** Error: malloc(%d) failed: %s\n"), size, strerror(errno));
@@ -194,11 +194,11 @@ retmem_mb(caddr_t p)
  *		hashtab		The hashtable used for the nametable
  */
 Name
-getname_fn(wchar_t *name, register int len, register Boolean dont_enter, register Boolean * foundp)
+getname_fn(wchar_t *name, int len, Boolean dont_enter, Boolean * foundp)
 {
-	register int		length;
-	register wchar_t	*cap = name;
-	register Name		np;
+	int		length;
+	wchar_t	*cap = name;
+	Name		np;
 	static Name_rec		empty_Name;
 	char			*tmp_mbs_buffer = NULL;
 	char			*mbs_name = mbs_buffer;
@@ -306,7 +306,7 @@ free_name(Name name)
  *		sighvalue	The original signal handler
  */
 void
-enable_interrupt(register void (*handler) (int))
+enable_interrupt(void (*handler) (int))
 {
 #ifdef SUN5_0
 	if (sigivalue != SIG_IGN) {
@@ -625,11 +625,11 @@ get_current_path_mksh(void)
  *	Global variables used:
  */
 Property
-append_prop(register Name target, register Property_id type)
+append_prop(Name target, Property_id type)
 {
-	register Property	*insert = &target->prop;
-	register Property	prop = *insert;
-	register int		size;
+	Property	*insert = &target->prop;
+	Property	prop = *insert;
+	int		size;
 
 	switch (type) {
 	case conditional_prop:
@@ -702,9 +702,9 @@ append_prop(register Name target, register Property_id type)
  *	Global variables used:
  */
 Property
-maybe_append_prop(register Name target, register Property_id type)
+maybe_append_prop(Name target, Property_id type)
 {
-	register Property	prop;
+	Property	prop;
 
 	if ((prop = get_prop(target->prop, type)) != NULL) {
 		return prop;
@@ -728,7 +728,7 @@ maybe_append_prop(register Name target, register Property_id type)
  *	Global variables used:
  */
 Property
-get_prop(register Property start, register Property_id type)
+get_prop(Property start, Property_id type)
 {
 	for (; start != NULL; start = start->next) {
 		if (start->type == type) {
@@ -751,7 +751,7 @@ get_prop(register Property start, register Property_id type)
  *	Global variables used:
  */
 void
-append_string(register wchar_t *from, register String to, register int length)
+append_string(wchar_t *from, String to, int length)
 {
 	if (length == FIND_LENGTH) {
 		length = wcslen(from);
@@ -782,7 +782,7 @@ wchar_t * get_wstring(char *from) {
 }
 
 void
-append_string(register char *from, register String to, register int length)
+append_string(char *from, String to, int length)
 {
 	if (length == FIND_LENGTH) {
 		length = strlen(from);
@@ -814,9 +814,9 @@ append_string(register char *from, register String to, register int length)
  *	Global variables used:
  */
 static void
-expand_string(register String string, register int length)
+expand_string(String string, int length)
 {
-	register wchar_t	*p;
+	wchar_t	*p;
 
 	if (string->buffer.start == NULL) {
 		/* For strings that have no memory allocated */
@@ -863,7 +863,7 @@ expand_string(register String string, register int length)
  *	Global variables used:
  */
 void
-append_char(wchar_t from, register String to)
+append_char(wchar_t from, String to)
 {
 	if (to->buffer.start == NULL) {
 		expand_string(to, 32);
@@ -908,7 +908,7 @@ handle_interrupt_mksh(int)
  *		sighvalue	The original signal handler
  */
 void
-setup_interrupt(register void (*handler) (int))
+setup_interrupt(void (*handler) (int))
 {
 #ifdef SUN5_0
 	sigivalue = bsd_signal(SIGINT, SIG_IGN);

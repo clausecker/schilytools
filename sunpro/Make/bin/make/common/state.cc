@@ -109,7 +109,7 @@ static char * escape_target_name(Name np)
 	}
 }
 
-static	void		print_auto_depes(register Dependency dependency, register FILE *fd, register Boolean built_this_run, register int *line_length, register char *target_name, jmp_buf long_jump);
+static	void		print_auto_depes(Dependency dependency, FILE *fd, Boolean built_this_run, int *line_length, char *target_name, jmp_buf long_jump);
 
 /*
  *	write_state_file(report_recursive, exiting)
@@ -140,21 +140,21 @@ write_state_file(int report_recursive, Boolean exiting)
 write_state_file(int, Boolean exiting)
 #endif
 {
-	register FILE		*fd;
+	FILE		*fd;
 	int			lock_err;
 	char			buffer[MAXPATHLEN];
 	char			make_state_tempfile[MAXPATHLEN];
 	jmp_buf			long_jump;
-	register int		attempts = 0;
+	int		attempts = 0;
 	Name_set::iterator	np, e;
-	register Property	lines;
-	register int		m;
+	Property	lines;
+	int		m;
 	Dependency		dependency;
-	register Boolean	name_printed;
+	Boolean	name_printed;
 	Boolean			built_this_run = false;
 	char			*target_name;
 	int			line_length;
-	register Cmd_line	cp;
+	Cmd_line	cp;
 
 
 	if (!rewrite_statefile ||
@@ -440,7 +440,7 @@ write_state_file(int, Boolean exiting)
  *		force		The Name " FORCE", compared against
  */
 static void
-print_auto_depes(register Dependency dependency, register FILE *fd, register Boolean built_this_run, register int *line_length, register char *target_name, jmp_buf long_jump)
+print_auto_depes(Dependency dependency, FILE *fd, Boolean built_this_run, int *line_length, char *target_name, jmp_buf long_jump)
 {
 	if (!dependency->automatic ||
 	    dependency->stale ||

@@ -618,9 +618,9 @@ do_archheuristics()
  * convert ' ' into '-'.
  */
 LOCAL void
-archcvt(register char *p)
+archcvt(char *p)
 {
-	register Uchar	c;
+	Uchar	c;
 
 	while ((c = (Uchar)*p) != '\0') {
 		if (c == '/')
@@ -641,9 +641,9 @@ archcvt(register char *p)
  * Convert all spaces into '-'.
  */
 LOCAL void
-unblank(register char *p)
+unblank(char *p)
 {
-	register char	c;
+	char	c;
 
 	while ((c = *p) != '\0') {
 		if (c == ' ')

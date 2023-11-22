@@ -75,11 +75,11 @@ static	UConst char sccsid[] =
  */
 Boolean		make_state_locked;
 Source
-get_next_block_fn(register Source source)
+get_next_block_fn(Source source)
 {
-	register off_t		to_read;
-	register int		length;
-	register size_t		num_wc_chars;
+	off_t		to_read;
+	int		length;
+	size_t		num_wc_chars;
 	char			ch_save;
 	char			*ptr;
 

@@ -37,14 +37,14 @@
 #include <vroot/vroot.h>
 
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
-extern Boolean	await(register Boolean ignore_error, register Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, XDR *xdrs, int job_msg_id);
+extern Boolean	await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, XDR *xdrs, int job_msg_id);
 #else
-extern Boolean	await(register Boolean ignore_error, register Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, void *xdrs, int job_msg_id);
+extern Boolean	await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command, pid_t running_pid, Boolean send_mtool_msgs, void *xdrs, int job_msg_id);
 #endif
-extern int	doexec(register wchar_t *command, register Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio);
-extern int	doshell(wchar_t *command, register Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, int nice_prio);
-extern Doname	dosys_mksh(register Name command, register Boolean ignore_error, register Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio);
+extern int	doexec(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio);
+extern int	doshell(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *stdout_file, char *stderr_file, int nice_prio);
+extern Doname	dosys_mksh(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio);
 extern void	redirect_io(char *stdout_file, char *stderr_file);
-extern void	sh_command2string(register String command, register String destination);
+extern void	sh_command2string(String command, String destination);
 
 #endif

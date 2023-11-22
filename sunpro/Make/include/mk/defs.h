@@ -394,34 +394,34 @@ extern	int 		getRxmMessage(void);
 extern	Avo_JobResultMsg* getJobResultMsg(void);
 extern	Avo_AcknowledgeMsg* getAcknowledgeMsg(void);
 #endif
-extern	Doname		doname(register Name target, register Boolean do_get, register Boolean implicit, register Boolean automatic = false);
-extern	Doname		doname_check(register Name target, register Boolean do_get, register Boolean implicit, register Boolean automatic);
+extern	Doname		doname(Name target, Boolean do_get, Boolean implicit, Boolean automatic = false);
+extern	Doname		doname_check(Name target, Boolean do_get, Boolean implicit, Boolean automatic);
 extern	Doname		doname_parallel(Name target, Boolean do_get, Boolean implicit);
-extern	Doname		dosys(register Name command, register Boolean ignore_error, register Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err);
+extern	Doname		dosys(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err);
 #if defined(TEAMWARE_MAKE_CMN) || defined(PMAKE)
 extern	void		job_adjust_posix(void);
 #endif
 extern	void		dump_make_state(void);
 extern	void		dump_target_list(void);
-extern	void		enter_conditional(register Name target, Name name, Name value, register Boolean append);
-extern	void		enter_dependencies(register Name target, Chain target_group, register Name_vector depes, register Cmd_line command, register Separator separator);
-extern	void		enter_dependency(Property line, register Name depe, Boolean automatic);
-extern	void		enter_equal(Name name, Name value, register Boolean append, Separator Separator);
-extern  Percent		enter_percent(register Name target, Chain target_group, register Name_vector depes, Cmd_line command);
-extern	Dyntarget	enter_dyntarget(register Name target);
-extern	Name_vector	enter_name(String string, Boolean tail_present, register wchar_t *string_start, register wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen);
-extern	Boolean		exec_vp(register char *name, register char **argv, char **envp, register Boolean ignore_error);
+extern	void		enter_conditional(Name target, Name name, Name value, Boolean append);
+extern	void		enter_dependencies(Name target, Chain target_group, Name_vector depes, Cmd_line command, Separator separator);
+extern	void		enter_dependency(Property line, Name depe, Boolean automatic);
+extern	void		enter_equal(Name name, Name value, Boolean append, Separator Separator);
+extern  Percent		enter_percent(Name target, Chain target_group, Name_vector depes, Cmd_line command);
+extern	Dyntarget	enter_dyntarget(Name target);
+extern	Name_vector	enter_name(String string, Boolean tail_present, wchar_t *string_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen);
+extern	Boolean		exec_vp(char *name, char **argv, char **envp, Boolean ignore_error);
 extern	Doname		execute_parallel(Property line, Boolean waitflg, Boolean local = false);
 extern	Doname		execute_serial(Property line);
-extern	timestruc_t&  	exists(register Name target);
+extern	timestruc_t&  	exists(Name target);
 extern	void		fatal(const char *, ...);
 extern	void		fatal_reader(const char *, ...);
-extern	Doname		find_ar_suffix_rule(register Name target, Name true_target, Property *command, Boolean rechecking);
-extern	Doname		find_double_suffix_rule(register Name target, Property *command, Boolean rechecking);
-extern	Doname		find_percent_rule(register Name target, Property *command, Boolean rechecking);
+extern	Doname		find_ar_suffix_rule(Name target, Name true_target, Property *command, Boolean rechecking);
+extern	Doname		find_double_suffix_rule(Name target, Property *command, Boolean rechecking);
+extern	Doname		find_percent_rule(Name target, Property *command, Boolean rechecking);
 extern	int		find_run_directory (char *cmd, char *cwd, char *dir, char **pgm, char **run, char *path);
 extern	Doname		find_suffix_rule(Name target, Name target_body, Name target_suffix, Property *command, Boolean rechecking);
-extern	Chain		find_target_groups(register Name_vector target_list, register int i, Boolean reset);
+extern	Chain		find_target_groups(Name_vector target_list, int i, Boolean reset);
 extern	void		finish_children(Boolean docheck);
 extern	void		finish_running(void);
 extern	void		free_chain(Name_vector ptr);
@@ -441,7 +441,7 @@ extern	char		*find_run_dir(void);
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 extern	XDR		*get_xdrs_ptr(void);
 #endif
-extern	wchar_t		*getmem_wc(register int size);
+extern	wchar_t		*getmem_wc(int size);
 extern	void		handle_interrupt(int);
 extern	Boolean		is_running(Name target);
 extern	void		load_cached_names(void);
@@ -449,36 +449,36 @@ extern	void		define_var(const char *name, const char *value);
 extern	char		*get_var(const char *name);
 extern	void		setup_arch(void);
 extern	Boolean		parallel_ok(Name target, Boolean line_prop_must_exists);
-extern	void		print_dependencies(register Name target, register Property line);
+extern	void		print_dependencies(Name target, Property line);
 extern	void		send_job_start_msg(Property line);
 extern	void		send_rsrc_info_msg(int max_jobs, char *hostname, char *username);
-extern	void		print_value(register Name value, Daemon daemon);
-extern	timestruc_t&	read_archive(register Name target);
+extern	void		print_value(Name value, Daemon daemon);
+extern	timestruc_t&	read_archive(Name target);
 extern	int		read_dir(Name dir, wchar_t *pattern, Property line, wchar_t *library);
-extern	void		read_directory_of_file(register Name file);
+extern	void		read_directory_of_file(Name file);
 extern	int		read_make_machines(Name make_machines_name);
-extern	Boolean		read_simple_file(register Name makefile_name, register Boolean chase_path, register Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include = false);
+extern	Boolean		read_simple_file(Name makefile_name, Boolean chase_path, Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include = false);
 extern	void		remove_recursive_dep(Name target);
 extern	void		report_recursive_dep(Name target, wchar_t *line);
 extern	void		report_recursive_done(void);
 extern	void		report_recursive_init(void);
 extern	Recursive_make	find_recursive_target(Name target);
-extern	void		reset_locals(register Name target, register Property old_locals, register Property conditional, register int index);
-extern	void		set_locals(register Name target, register Property old_locals);
-extern	void		setvar_append(register Name name, register Name value);
+extern	void		reset_locals(Name target, Property old_locals, Property conditional, int index);
+extern	void		set_locals(Name target, Property old_locals);
+extern	void		setvar_append(Name name, Name value);
 #ifdef DISTRIBUTED
 extern	void		setvar_envvar(Avo_DoJobMsg *dmake_job_msg);
 #else
 extern	void		setvar_envvar(void);
 #endif
-extern	void		special_reader(Name target, register Name_vector depes, Cmd_line command, Separator separator);
+extern	void		special_reader(Name target, Name_vector depes, Cmd_line command, Separator separator);
 extern	void		startup_rxm();
-extern	Doname		target_can_be_built(register Name target);
+extern	Doname		target_can_be_built(Name target);
 extern	char		*time_to_string(const timestruc_t &time);
 extern	void		update_target(Property line, Doname result);
 extern	void		warning(char *, ...);
 extern	void		write_state_file(int report_recursive, Boolean exiting);
-extern	Name		vpath_translation(register Name cmd);
+extern	Name		vpath_translation(Name cmd);
 
 #define DEPINFO_FMT_VERSION "VERS2$"
 #define VER_LEN strlen(DEPINFO_FMT_VERSION)

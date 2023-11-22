@@ -32,6 +32,6 @@
 
 #include <mksh/defs.h>
 
-extern Source	get_next_block_fn(register Source source);
+extern Source	get_next_block_fn(Source source);
 
 #endif

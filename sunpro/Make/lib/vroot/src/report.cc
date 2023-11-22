@@ -98,12 +98,12 @@ close_report_file(int, ...)
 #endif
 
 void
-report_dependency(register const char *name)
+report_dependency(const char *name)
 {
-	register char	*filename;
+	char	*filename;
 	char		buffer[MAXPATHLEN+1];
-	register char	*p;
-	register char	*p2;
+	char	*p;
+	char	*p2;
 
 	if (report_file == NULL) {
 		if ((filename= getenv(SUNPRO_DEPENDENCIES)) == NULL) {
@@ -153,11 +153,11 @@ report_dependency(register const char *name)
 #ifdef MAKE_IT
 void
 make_it(filename)
-	register char	*filename;
+	char	*filename;
 {
-	register char	*command;
-	register char	*argv[6];
-	register int	pid;
+	char	*command;
+	char	*argv[6];
+	int	pid;
 	WAIT_T		foo;
 
 	if (getenv(SUNPRO_DEPENDENCIES) == NULL) return;
