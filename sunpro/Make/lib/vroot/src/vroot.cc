@@ -91,10 +91,10 @@ static vroot_datat	vroot_data= {
 void
 add_dir_to_path(const char *path, pathpt *pointer, int position)
 {
-	int		size= 0;
-	int		length;
-	char		*name;
-	pathcellpt	p;
+	int			size= 0;
+	int			length;
+	char			*name;
+	pathcellpt		p;
 	pathpt			new_path;
 
 	if (*pointer != NULL) {
@@ -122,7 +122,7 @@ add_dir_to_path(const char *path, pathpt *pointer, int position)
 pathpt
 parse_path_string(char *string, int remove_slash)
 {
-	char		*p;
+	char			*p;
 	pathpt			result= NULL;
 
 	if (string != NULL)
@@ -198,10 +198,10 @@ get_vroot_path(char **vroot, char **path, char **filename)
 void
 translate_with_thunk(char *filename, int (*thunk) (char *), pathpt path_vector, pathpt vroot_vector, rwt rw)
 {
-	pathcellt	*vp;
+	pathcellt		*vp;
 	pathcellt		*pp;
-	pathcellt	*pp1;
-	char		*p;
+	pathcellt		*pp1;
+	char			*p;
 	int			flags[256];
 
 /* Setup path to use */

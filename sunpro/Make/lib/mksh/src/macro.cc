@@ -110,7 +110,7 @@ getvar(Name name)
 {
 	String_rec		destination;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
-	Name		result;
+	Name			result;
 
 	if ((name == host_arch) || (name == target_arch)) {
 		if (!init_arch_done) {
@@ -184,9 +184,9 @@ void
 expand_value(Name value, String destination, Boolean cmd, Expand_Type exp_type)
 {
 	Source_rec		sourceb;
-	Source		source = &sourceb;
-	wchar_t	*source_p = NULL;
-	wchar_t	*source_end = NULL;
+	Source			source = &sourceb;
+	wchar_t			*source_p = NULL;
+	wchar_t			*source_end = NULL;
 	wchar_t			*block_start = NULL;
 	int			quote_seen = 0;
 
@@ -349,12 +349,12 @@ expand_macro(Source source, String destination, wchar_t *current_string, Boolean
 	static wchar_t		colon_shell[7];
 	String_rec		string;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
-	wchar_t	*source_p = source->string.text.p;
-	wchar_t	*source_end = source->string.text.end;
-	int		closer = 0;
+	wchar_t			*source_p = source->string.text.p;
+	wchar_t			*source_end = source->string.text.end;
+	int			closer = 0;
 	wchar_t			*block_start = (wchar_t *)NULL;
 	int			quote_seen = 0;
-	int		closer_level = 1;
+	int			closer_level = 1;
 	Name			name = (Name)NULL;
 	wchar_t			*colon = (wchar_t *)NULL;
 	wchar_t			*percent = (wchar_t *)NULL;
@@ -1144,7 +1144,7 @@ expand_value_with_daemon(Name name, Property macro, String destination, Boolean 
 expand_value_with_daemon(Name, Property macro, String destination, Boolean cmd, Expand_Type exp_type)
 #endif
 {
-	Chain		chain;
+	Chain			chain;
 
 #ifdef NSE
         if (reading_dependencies) {
@@ -1232,12 +1232,12 @@ int	sunpro_dependencies_buf_size = 0;
 Property
 setvar_daemon(Name name, Name value, Boolean append, Daemon daemon, Boolean strip_trailing_spaces, short debug_lvl)
 {
-	Property	macro = maybe_append_prop(name, macro_prop);
-	Property	macro_apx = get_prop(name->prop, macro_append_prop);
+	Property		macro = maybe_append_prop(name, macro_prop);
+	Property		macro_apx = get_prop(name->prop, macro_append_prop);
 	int			length = 0;
 	String_rec		destination;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
-	Chain		chain;
+	Chain			chain;
 	Name			val;
 	wchar_t			*val_string = (wchar_t*)NULL;
 	Wstring			wcb;

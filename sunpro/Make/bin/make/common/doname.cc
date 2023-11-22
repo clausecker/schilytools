@@ -362,13 +362,13 @@ doname(Name target, Boolean do_get, Boolean implicit, Boolean automatic)
 	Chain			target_group;
 #endif
 	Property		old_locals = NULL;
-	Property	line;
+	Property		line;
 	Property		command = NULL;
-	Dependency	dependency;
+	Dependency		dependency;
 	Name			less = NULL;
 	Name			true_target = target;
 	Name			*automatics = NULL;
-	int		auto_count;
+	int			auto_count;
 	Boolean			rechecking_target = false;
 	Boolean			saved_commands_done = commands_done;
 	Boolean			restart = false;
@@ -1428,9 +1428,9 @@ check_dependencies(Doname *result, Property line, Boolean do_get, Name target, N
 			Name			target_body;
 			Name			tt = true_target;
 			Property		member;
-			wchar_t	*target_end;
-			Dependency	suffix;
-			unsigned int	suffix_length;
+			wchar_t			*target_end;
+			Dependency		suffix;
+			unsigned int		suffix_length;
 			Wstring			targ_string;
 			Wstring			suf_string;
 
@@ -1506,16 +1506,16 @@ void
 dynamic_dependencies(Name target)
 {
 	wchar_t			pattern[MAXPATHLEN];
-	wchar_t	*p;
+	wchar_t			*p;
 	Property		line;
-	Dependency	dependency;
-	Dependency	*remove;
+	Dependency		dependency;
+	Dependency		*remove;
 	String_rec		string;
 	wchar_t			buffer[MAXPATHLEN];
-	Boolean	set_at = false;
-	wchar_t	*start;
+	Boolean			set_at = false;
+	wchar_t			*start;
 	Dependency		new_depe;
-	Boolean	reuse_cell;
+	Boolean			reuse_cell;
 	Dependency		first_member;
 	Name			directory;
 	Name			lib;
@@ -1767,9 +1767,9 @@ dynamic_dependencies(Name target)
 static Doname
 run_command(Property line, Boolean)
 {
-	Doname		result = build_ok;
-	Boolean	remember_only = false;
-	Name		target = line->body.line.target;
+	Doname			result = build_ok;
+	Boolean			remember_only = false;
+	Name			target = line->body.line.target;
 	wchar_t			*string;
 	char			tmp_file_path[MAXPATHLEN];
 
@@ -2429,7 +2429,7 @@ check_state(Name auto_temp_file)
 static void
 read_dependency_file(Name filename)
 {
-	Makefile_type	save_makefile_type;
+	Makefile_type		save_makefile_type;
 
 	if (filename == NULL) {
 		return;
@@ -2472,8 +2472,8 @@ static void
 check_read_state_file(void)
 {
 	timestruc_t		previous = make_state->stat.time;
-	Makefile_type	save_makefile_type;
-	Property	makefile;
+	Makefile_type		save_makefile_type;
+	Property		makefile;
 
 	make_state->stat.time = file_no_time;
 	if ((exists(make_state) == file_doesnt_exist) ||
@@ -2518,11 +2518,11 @@ check_read_state_file(void)
 static void
 do_assign(Name line, Name target)
 {
-	Wstring wcb(line);
-	wchar_t	*string = wcb.get_string();
-	wchar_t	*equal;
-	Name		name;
-	Boolean	append = false;
+	Wstring			wcb(line);
+	wchar_t			*string = wcb.get_string();
+	wchar_t			*equal;
+	Name			name;
+	Boolean			append = false;
 
 	/*
 	 * If any runtime assignments are done, doname() must reprocess all
@@ -2603,14 +2603,14 @@ static void
 build_command_strings(Name target, Property line)
 {
 	String_rec		command_line;
-	Cmd_line	command_template = line->body.line.command_template;
-	Cmd_line	*insert = &line->body.line.command_used;
-	Cmd_line	used = *insert;
+	Cmd_line		command_template = line->body.line.command_template;
+	Cmd_line		*insert = &line->body.line.command_used;
+	Cmd_line		used = *insert;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
 	wchar_t			*start;
 	Name			new_command_line;
-	Boolean	new_command_longer = false;
-	Boolean	ignore_all_command_dependency = true;
+	Boolean			new_command_longer = false;
+	Boolean			ignore_all_command_dependency = true;
 	Property		member;
 	static Name		less_name;
 	static Name		percent_name;
@@ -2948,7 +2948,7 @@ static Doname
 touch_command(Property line, Name target, Doname result)
 {
 	Name			name;
-	Chain		target_group;
+	Chain			target_group;
 	String_rec		touch_string;
 	wchar_t			buffer[MAXPATHLEN];
 	Name			touch_cmd;
@@ -3183,13 +3183,13 @@ update_target(Property line, Doname result)
 static Doname
 sccs_get(Name target, Property *command)
 {
-	int		result;
+	int			result;
 	char			link[MAXPATHLEN];
 	String_rec		string;
 	wchar_t			name[MAXPATHLEN];
-	wchar_t	*p;
+	wchar_t			*p;
 	timestruc_t		sccs_time = file_doesnt_exist;
-	Property	line;
+	Property		line;
 	int			sym_link_depth = 0;
 
 	/* For sccs, we need to chase symlinks. */
@@ -3332,10 +3332,10 @@ read_directory_of_file(Name file)
 	wchar_t usr_include_buf[MAXPATHLEN];
 	wchar_t usr_include_sys_buf[MAXPATHLEN];
 
-	Name		directory = dot;
-	wchar_t	*p = (wchar_t *) wcsrchr(wcb,
+	Name			directory = dot;
+	wchar_t			*p = (wchar_t *) wcsrchr(wcb,
 							(int) slash_char);
-	unsigned	length = p - wcb;
+	unsigned		length = p - wcb;
 	static Name		usr_include;
 	static Name		usr_include_sys;
 
@@ -3390,7 +3390,7 @@ read_directory_of_file(Name file)
 static void
 add_pattern_conditionals(Name target)
 {
-	Property	conditional;
+	Property		conditional;
 	Property		new_prop;
 	Property		*previous;
 	Name_rec		dummy;
@@ -3460,9 +3460,9 @@ add_pattern_conditionals(Name target)
 void
 set_locals(Name target, Property old_locals)
 {
-	Property	conditional;
-	int		i;
-	Boolean	saved_conditional_macro_used;
+	Property		conditional;
+	int			i;
+	Boolean			saved_conditional_macro_used;
 	Chain			cond_name;
 	Chain			cond_chain;
 
@@ -3524,7 +3524,7 @@ set_locals(Name target, Property old_locals)
 void
 reset_locals(Name target, Property old_locals, Property conditional, int index)
 {
-	Property	this_conditional;
+	Property		this_conditional;
 	Chain			cond_chain;
 
 #if defined(DISTRIBUTED) || defined(PMAKE)

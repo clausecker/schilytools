@@ -78,8 +78,8 @@ static	UConst char sccsid[] =
 void
 setvar_append(Name name, Name value)
 {
-	Property	macro_apx = get_prop(name->prop, macro_append_prop);
-	Property	macro = get_prop(name->prop, macro_prop);
+	Property		macro_apx = get_prop(name->prop, macro_append_prop);
+	Property		macro = get_prop(name->prop, macro_prop);
 	String_rec		destination;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
 	Name			val = NULL;
@@ -141,8 +141,8 @@ setvar_envvar(void)
 #ifdef DISTRIBUTED
 	Property		macro;
 #endif
-	char	*mbs, *tmp_mbs_buffer = NULL;
-	char	*env, *tmp_mbs_buffer2 = NULL;
+	char			*mbs, *tmp_mbs_buffer = NULL;
+	char			*env, *tmp_mbs_buffer2 = NULL;
 	Envvar			p;
 	String_rec		value;
 

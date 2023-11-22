@@ -382,9 +382,9 @@ void
 dump_make_state(void)
 {
 	Name_set::iterator	p, e;
-	Property	prop;
-	Dependency	dep;
-	Cmd_line	rule;
+	Property		prop;
+	Dependency		dep;
+	Cmd_line		rule;
 	Percent			percent, percent_depe;
 
 	/* Default target */
@@ -550,9 +550,9 @@ dump_make_state(void)
 static void
 print_rule(Name target)
 {
-	Cmd_line	rule;
-	Property	line;
-	Dependency	dependency;
+	Cmd_line		rule;
+	Property		line;
+	Dependency		dependency;
 
 	if (target->dependency_printed ||
 	    ((line = get_prop(target->prop, line_prop)) == NULL) ||
@@ -600,8 +600,8 @@ dump_target_list(void)
 static void
 print_target_n_deps(Name target)
 {
-	Property	line;
-	Dependency	dependency;
+	Property		line;
+	Dependency		dependency;
 
 	if (target->dependency_printed) {
 		return;

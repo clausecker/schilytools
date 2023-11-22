@@ -77,9 +77,9 @@ Boolean		make_state_locked;
 Source
 get_next_block_fn(Source source)
 {
-	off_t		to_read;
-	int		length;
-	size_t		num_wc_chars;
+	off_t			to_read;
+	int			length;
+	size_t			num_wc_chars;
 	char			ch_save;
 	char			*ptr;
 

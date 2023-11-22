@@ -101,7 +101,7 @@ timestruc_t&
 exists(Name target)
 {
 	struct stat		buf;
-	int		result;
+	int			result;
 
 	/* We cache stat information. */
 	if (target->stat.time != file_no_time) {
@@ -333,9 +333,9 @@ read_dir(Name dir, wchar_t *pattern, Property line, wchar_t *library)
 	DIR			*dir_fd;
 #if defined(SUN5_0) || defined(HP_UX)
 #define d_fileno d_ino
-        struct dirent  *dp;
+        struct dirent		*dp;
 #else
-        struct direct  *dp;
+        struct direct		*dp;
 #endif
 	wchar_t			*vpath = NULL;
 	wchar_t			*p;
@@ -655,7 +655,7 @@ enter_file_name(wchar_t *name_string, wchar_t *library)
 static Boolean
 star_match(wchar_t *string, wchar_t *pattern)
 {
-	int		pattern_ch;
+	int			pattern_ch;
 
 	switch (*pattern) {
 	case 0:
@@ -699,10 +699,10 @@ star_match(wchar_t *string, wchar_t *pattern)
 static Boolean
 amatch(wchar_t *string, wchar_t *pattern)
 {
-	long		lower_bound;
-	long		string_ch;
-	long		pattern_ch;
-	int		k;
+	long			lower_bound;
+	long			string_ch;
+	long			pattern_ch;
+	int			k;
 
 top:
 	for (; 1; pattern++, string++) {

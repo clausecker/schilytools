@@ -100,10 +100,10 @@ close_report_file(int, ...)
 void
 report_dependency(const char *name)
 {
-	char	*filename;
-	char		buffer[MAXPATHLEN+1];
-	char	*p;
-	char	*p2;
+	char			*filename;
+	char			buffer[MAXPATHLEN+1];
+	char			*p;
+	char			*p2;
 
 	if (report_file == NULL) {
 		if ((filename= getenv(SUNPRO_DEPENDENCIES)) == NULL) {
@@ -152,13 +152,12 @@ report_dependency(const char *name)
 
 #ifdef MAKE_IT
 void
-make_it(filename)
-	char	*filename;
+make_it(char *filename)
 {
-	char	*command;
-	char	*argv[6];
-	int	pid;
-	WAIT_T		foo;
+	char			*command;
+	char			*argv[6];
+	int			pid;
+	WAIT_T			foo;
 
 	if (getenv(SUNPRO_DEPENDENCIES) == NULL) return;
 	command= alloca(strlen(filename)+32);

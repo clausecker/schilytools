@@ -140,21 +140,21 @@ write_state_file(int report_recursive, Boolean exiting)
 write_state_file(int, Boolean exiting)
 #endif
 {
-	FILE		*fd;
+	FILE			*fd;
 	int			lock_err;
 	char			buffer[MAXPATHLEN];
 	char			make_state_tempfile[MAXPATHLEN];
 	jmp_buf			long_jump;
-	int		attempts = 0;
+	int			attempts = 0;
 	Name_set::iterator	np, e;
-	Property	lines;
-	int		m;
+	Property		lines;
+	int			m;
 	Dependency		dependency;
-	Boolean	name_printed;
+	Boolean			name_printed;
 	Boolean			built_this_run = false;
 	char			*target_name;
 	int			line_length;
-	Cmd_line	cp;
+	Cmd_line		cp;
 
 
 	if (!rewrite_statefile ||

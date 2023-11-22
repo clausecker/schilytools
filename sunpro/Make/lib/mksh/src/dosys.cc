@@ -254,10 +254,10 @@ redirect_io(char *stdout_file, char *stderr_file)
 Doname
 dosys_mksh(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err, char *stdout_file, char *stderr_file, pathpt vroot_path, int nice_prio)
 {
-	int		length = command->hash.length;
-	wchar_t	*p;
-	wchar_t	*q;
-	wchar_t	*cmd_string;
+	int			length = command->hash.length;
+	wchar_t			*p;
+	wchar_t			*q;
+	wchar_t			*cmd_string;
 /*	struct stat		before; */
 	Doname			result;
 	Boolean			working_on_targets_mksh = true;
@@ -371,8 +371,8 @@ doshell(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *
 	int			cmd_argv_index;
 	int			length;
 	char			nice_prio_buf[MAXPATHLEN];
-	Name		shell = getvar(shell_name);
-	char		*shellname;
+	Name			shell = getvar(shell_name);
+	char			*shellname;
 	char			*tmp_mbs_buffer;
 
 
@@ -478,8 +478,8 @@ doshell(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *
 static Boolean
 exec_vp(char *name, char **argv, char **envp, Boolean ignore_error, pathpt vroot_path)
 {
-	Name		shell = getvar(shell_name);
-	char		*shellname;
+	Name			shell = getvar(shell_name);
+	char			*shellname;
 	char			*shargv[4];
 	Name			tmp_shell;
 
@@ -557,9 +557,9 @@ doexec(wchar_t *command, Boolean ignore_error, Boolean redirect_out_err, char *s
 	char			**argv;
 	int			length;
 	char			nice_prio_buf[MAXPATHLEN];
-	char		**p;
+	char			**p;
 	wchar_t			*q;
-	wchar_t	*t;
+	wchar_t			*t;
 	char			*tmp_mbs_buffer;
 
 	/*
@@ -687,7 +687,7 @@ await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command,
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
 	Avo_CmdOutput		*make_output_msg;
 #endif
-	pid_t		pid;
+	pid_t			pid;
 	int			termination_signal;
 	char			tmp_buf[MAXPATHLEN];
 #if defined(DISTRIBUTED) || defined(MAKETOOL) /* tolik */
@@ -824,8 +824,8 @@ await(Boolean ignore_error, Boolean silent_error, Name target, wchar_t *command,
 void
 sh_command2string(String command, String destination)
 {
-	FILE		*fd;
-	int		chr;
+	FILE			*fd;
+	int			chr;
 	int			status;
 	Boolean			command_generated_output = false;
 

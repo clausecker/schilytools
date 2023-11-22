@@ -148,8 +148,8 @@ print_dependencies(Name target, Property line)
 static void
 print_more_deps(Name target, Name name)
 {
-	Property	line;
-	Dependency	dependencies;
+	Property		line;
+	Dependency		dependencies;
 
 	line = get_prop(name->prop, line_prop);
 	if (line != NULL && line->body.line.dependencies != NULL) {
@@ -182,7 +182,7 @@ print_more_deps(Name target, Name name)
 static void
 print_deps(Name target, Property line)
 {
-	Dependency	dep;
+	Dependency		dep;
 
 #ifdef SUNOS4_AND_AFTER
 	if ((target->dependency_printed) ||

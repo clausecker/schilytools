@@ -128,11 +128,11 @@ find_suffix_rule(Name target, Name target_body, Name target_suffix, Property *co
 	static wchar_t		static_string_buf_3M [ 3 * MAXPATHLEN ];
 	Name			true_target = target;
 	wchar_t			*sourcename = (wchar_t*)static_string_buf_3M;
-	wchar_t	*put_suffix;
-	Property	source_suffix;
-	Name		source;
+	wchar_t			*put_suffix;
+	Property		source_suffix;
+	Name			source;
 	Doname			result;
-	Property	line;
+	Property		line;
 	extern Boolean 		tilde_rule;
 	Boolean 		name_found = true;
 	Boolean 		posix_tilde_attempt = true;
@@ -529,8 +529,8 @@ Doname
 find_ar_suffix_rule(Name target, Name true_target, Property *command, Boolean rechecking)
 {
 	wchar_t			*target_end;
-	Dependency	suffix;
-	int		suffix_length;
+	Dependency		suffix;
+	int			suffix_length;
 	Property		line;
 	Name			body;
 	static Name		dot_a;
@@ -638,9 +638,9 @@ find_double_suffix_rule(Name target, Property *command, Boolean rechecking)
 {
 	Name			true_target = target;
 	Name			target_body;
-	wchar_t	*target_end;
-	Dependency	suffix;
-	unsigned	suffix_length;
+	wchar_t			*target_end;
+	Dependency		suffix;
+	unsigned		suffix_length;
 	Boolean			scanned_once = false;
 
 	Wstring			targ_string;
@@ -755,10 +755,10 @@ find_double_suffix_rule(Name target, Property *command, Boolean rechecking)
 void
 build_suffix_list(Name target_suffix)
 {
-	Dependency	source_suffix;
+	Dependency		source_suffix;
 	wchar_t			rule_name[MAXPATHLEN];
-	Property	line;
-	Property	suffix;
+	Property		line;
+	Property		suffix;
 	Name			rule;
 
 	/* If this is before default.mk has been read we just return to try */
@@ -853,10 +853,10 @@ build_suffix_list(Name target_suffix)
 Doname
 find_percent_rule(Name target, Property *command, Boolean rechecking)
 {
-	Percent	pat_rule, pat_depe;
-	Name		depe_to_check;
-	Dependency	depe;
-	Property	line;
+	Percent			pat_rule, pat_depe;
+	Name			depe_to_check;
+	Dependency		depe;
+	Property		line;
 	String_rec		string;
 	wchar_t			string_buf[STRING_BUFFER_LENGTH];
 	String_rec		percent;

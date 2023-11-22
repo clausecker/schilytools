@@ -142,7 +142,7 @@ static void	expand_string(String string, int length);
 char *
 getmem(int size)
 {
-	char          *result = (char *) malloc((unsigned) size);
+	char 	         *result = (char *) malloc((unsigned) size);
 	if (result == NULL) {
 		char buf[FATAL_ERROR_MSG_SIZE];
 		sprintf(buf, NOCATGETS("*** Error: malloc(%d) failed: %s\n"), size, strerror(errno));
@@ -196,9 +196,9 @@ retmem_mb(caddr_t p)
 Name
 getname_fn(wchar_t *name, int len, Boolean dont_enter, Boolean * foundp)
 {
-	int		length;
-	wchar_t	*cap = name;
-	Name		np;
+	int			length;
+	wchar_t			*cap = name;
+	Name			np;
 	static Name_rec		empty_Name;
 	char			*tmp_mbs_buffer = NULL;
 	char			*mbs_name = mbs_buffer;
@@ -627,9 +627,9 @@ get_current_path_mksh(void)
 Property
 append_prop(Name target, Property_id type)
 {
-	Property	*insert = &target->prop;
-	Property	prop = *insert;
-	int		size;
+	Property		*insert = &target->prop;
+	Property		prop = *insert;
+	int			size;
 
 	switch (type) {
 	case conditional_prop:
@@ -704,7 +704,7 @@ append_prop(Name target, Property_id type)
 Property
 maybe_append_prop(Name target, Property_id type)
 {
-	Property	prop;
+	Property		prop;
 
 	if ((prop = get_prop(target->prop, type)) != NULL) {
 		return prop;
@@ -816,7 +816,7 @@ append_string(char *from, String to, int length)
 static void
 expand_string(String string, int length)
 {
-	wchar_t	*p;
+	wchar_t			*p;
 
 	if (string->buffer.start == NULL) {
 		/* For strings that have no memory allocated */

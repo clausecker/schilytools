@@ -95,10 +95,10 @@ Doname
 dosys(Name command, Boolean ignore_error, Boolean call_make, Boolean silent_error, Boolean always_exec, Name target, Boolean redirect_out_err)
 {
 	timestruc_t		before;
-	int		length = command->hash.length;
+	int			length = command->hash.length;
 	Wstring			wcb(command);
-	wchar_t	*p = wcb.get_string();
-	wchar_t	*q;
+	wchar_t			*p = wcb.get_string();
+	wchar_t			*q;
 	Doname			result;
 
 	/* Strip spaces from head of command string */

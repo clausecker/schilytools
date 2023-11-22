@@ -127,7 +127,7 @@ Name_vector
 enter_name(String string, Boolean tail_present, wchar_t *string_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names, Boolean *target_group_seen)
 {
 	Name			name;
-	wchar_t	*cp;
+	wchar_t			*cp;
 	wchar_t			ch;
 
 	/* If we were passed a separate tail of the name we append it to the */
@@ -224,7 +224,7 @@ if(current_names->used != 0 && current_names->names[current_names->used-1] == pl
 static Name_vector
 enter_member_name(wchar_t *lib_start, wchar_t *member_start, wchar_t *string_end, Name_vector current_names, Name_vector *extra_names)
 {
-	Boolean	entry = false;
+	Boolean			entry = false;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
 	Name			lib;
 	Name			member;
@@ -232,9 +232,9 @@ enter_member_name(wchar_t *lib_start, wchar_t *member_start, wchar_t *string_end
 	Property		prop;
 	wchar_t			*memberp;
 	wchar_t			*q;
-	int		paren_count;
-	Boolean	has_dollar;
-	wchar_t	*cq;
+	int			paren_count;
+	Boolean			has_dollar;
+	wchar_t			*cq;
 	Name			long_member_name = NULL;
 
 	/* Internalize the name of the library */
@@ -367,12 +367,12 @@ Name
 normalize_name(wchar_t *name_string, int length)
 {
 	static Name		dotdot;
-	wchar_t	*string = ALLOC_WC(length + 1);
-	wchar_t	*string2;
-	wchar_t	*cdp;
+	wchar_t			*string = ALLOC_WC(length + 1);
+	wchar_t			*string2;
+	wchar_t			*cdp;
 	wchar_t			*current_component;
 	Name			name;
-	int		count;
+	int			count;
 
 	if (dotdot == NULL) {
 		MBSTOWCS(wcs_buffer, "..");
@@ -600,8 +600,8 @@ find_target_groups(Name_vector target_list, int i, Boolean reset)
 void
 enter_dependencies(Name target, Chain target_group, Name_vector depes, Cmd_line command, Separator separator)
 {
-	int		i;
-	Property	line;
+	int			i;
+	Property		line;
 	Name			name = NULL;
 	Name			directory = NULL;
 	wchar_t			*namep;
@@ -610,7 +610,7 @@ enter_dependencies(Name target, Chain target_group, Name_vector depes, Cmd_line 
 	Dependency		*dpp;
 	Property		line2;
 	wchar_t			relative[MAXPATHLEN];
-	int		recursive_state;
+	int			recursive_state;
 	Boolean			register_as_auto;
 	Boolean			not_auto_found;
 	char			*slash;
@@ -905,8 +905,8 @@ enter_dependencies(Name target, Chain target_group, Name_vector depes, Cmd_line 
 void
 enter_dependency(Property line, Name depe, Boolean automatic)
 {
-	Dependency	dp;
-	Dependency	*insert;
+	Dependency		dp;
+	Dependency		*insert;
 
 	if (trace_reader) {
 		(void) printf("%s ", depe->string_mb);
@@ -973,11 +973,11 @@ enter_dependency(Property line, Name depe, Boolean automatic)
 Percent
 enter_percent(Name target, Chain target_group, Name_vector depes, Cmd_line command)
 {
-	Percent	result = ALLOC(Percent);
-	Percent	depe;
-	Percent	*depe_tail = &result->dependencies;
-	Percent	*insert;
-	wchar_t	*cp, *cp1;
+	Percent			result = ALLOC(Percent);
+	Percent			depe;
+	Percent			*depe_tail = &result->dependencies;
+	Percent			*insert;
+	wchar_t			*cp, *cp1;
 	Name_vector		nvp;
 	int			i;
 	int			pattern;
@@ -1111,7 +1111,7 @@ enter_percent(Name target, Chain target_group, Name_vector depes, Cmd_line comma
 Dyntarget
 enter_dyntarget(Name target)
 {
-	Dyntarget	result = ALLOC(Dyntarget);
+	Dyntarget		result = ALLOC(Dyntarget);
 	Dyntarget		p;
 	Dyntarget		*insert;
 
@@ -1179,7 +1179,7 @@ enter_dyntarget(Name target)
 void
 special_reader(Name target, Name_vector depes, Cmd_line command, Separator separator)
 {
-	int		n;
+	int			n;
 
 	switch (target->special_reader) {
 
@@ -1621,10 +1621,10 @@ special_reader(Name target, Name_vector depes, Cmd_line command, Separator separ
 static void
 read_suffixes_list(Name_vector depes)
 {
-	int		n;
-	Dependency	dp;
-	Dependency	*insert_dep;
-	Boolean	first = true;
+	int			n;
+	Dependency		dp;
+	Dependency		*insert_dep;
+	Boolean			first = true;
 
 	if (depes->used == 0) {
 		/* .SUFFIXES with no dependency list clears the */
@@ -1643,7 +1643,7 @@ read_suffixes_list(Name_vector depes)
 	Wstring str;
 	/* Otherwise we append to the list */
 	for (; depes != NULL; depes = depes->next) {
-		Name		np;
+		Name			np;
 		Name			np2;
 
 		for (n = 0; n < depes->used; n++) {
@@ -1827,7 +1827,7 @@ print_rule(Cmd_line command)
 void
 enter_conditional(Name target, Name name, Name value, Boolean append)
 {
-	Property	conditional;
+	Property		conditional;
 	static int		sequence;
 	Name			orig_target = target;
 

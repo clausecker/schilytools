@@ -166,17 +166,17 @@ Boolean
 read_simple_file(Name makefile_name, Boolean chase_path, Boolean doname_it, Boolean complain, Boolean must_exist, Boolean report_file, Boolean lock_makefile, Boolean is_include)
 {
 	static short		max_include_depth;
-	Property	makefile = maybe_append_prop(makefile_name,
+	Property		makefile = maybe_append_prop(makefile_name,
 							     makefile_prop);
 	Boolean			forget_after_parse = false;
 	static pathpt		makefile_path;
-	int		n;
+	int			n;
 	char			*path;
-	Source		source = ALLOC(Source);
+	Source			source = ALLOC(Source);
 	Property		orig_makefile = makefile;
 	Dependency		*dpp;
 	Dependency		dp;
-	int		length;
+	int			length;
 	wchar_t			*previous_file_being_read = file_being_read;
 	int			previous_line_number = line_number;
 #ifdef NSE
@@ -184,8 +184,8 @@ read_simple_file(Name makefile_name, Boolean chase_path, Boolean doname_it, Bool
 #endif
 	Makefile_type		save_makefile_type;
 	Name 			normalized_makefile_name;
-	wchar_t        *string_start;
-	wchar_t        *string_end;
+	wchar_t 	       *string_start;
+	wchar_t 	       *string_end;
 	char                    *run_dir, makerules_dir[BUFSIZ];
 
 
@@ -387,7 +387,7 @@ read_simple_file(Name makefile_name, Boolean chase_path, Boolean doname_it, Bool
 			 */
 			if (is_include && complain && include_failed &&
 			    exists(makefile_name) == file_doesnt_exist) {
-				Property	line;
+				Property		line;
 
 				if ((line = get_prop(include_failed_name->prop, line_prop)) != NULL &&
 				    line->body.line.command_template) {
@@ -629,17 +629,17 @@ parse_makefile(Name true_makefile_name, Source source)
 /*
 	char			mb_buffer[MB_LEN_MAX];
  */
-	wchar_t	*source_p;
-	wchar_t	*source_end;
-	wchar_t	*string_start;
+	wchar_t			*source_p;
+	wchar_t			*source_end;
+	wchar_t			*string_start;
 	wchar_t			*string_end;
-	Boolean	macro_seen_in_string;
+	Boolean			macro_seen_in_string;
 	Boolean			append = false;
 	Boolean			expand = false;
 	String_rec		name_string;
 	wchar_t			name_buffer[STRING_BUFFER_LENGTH];
-	int		distance;
-	int		paren_count;
+	int			distance;
+	int			paren_count;
 	int			brace_count;
 	int			char_number;
 	Cmd_line		command = NULL;
@@ -654,9 +654,9 @@ parse_makefile(Name true_makefile_name, Source source)
 	Name_vector		nvp;
 	Boolean			target_group_seen;
 
-	Reader_state   state;
-	Reader_state   on_eoln_state;
-	Separator	separator = none_seen;
+	Reader_state		state;
+	Reader_state		on_eoln_state;
+	Separator		separator = none_seen;
 
 	wchar_t                 buffer[4 * STRING_BUFFER_LENGTH];
 	Source			extrap;

@@ -282,7 +282,7 @@ main(int argc, char *argv[])
 	 * cp is a -> to the value of the MAKEFLAGS env var,
 	 * which has to be regular chars.
 	 */
-	char		*cp;
+	char			*cp;
 	char 			make_state_dir[MAXPATHLEN];
 	Boolean			parallel_flag = false;
 	char			*prognameptr;
@@ -1429,15 +1429,15 @@ doalarm(int)
 static void
 read_command_options(int argc, char **argv)
 {
-	int		ch;
+	int			ch;
 	int			current_optind = 1;
 	int			last_optind_with_double_hyphen = 0;
 	int			last_optind;
 	int			last_current_optind;
-	int		i;
-	int		j;
-	int		k;
-	int		makefile_next = 0; /*
+	int			i;
+	int			j;
+	int			k;
+	int			makefile_next = 0; /*
 						    * flag to note options:
 						    * -c, f, g, j, m, o
 						    */
@@ -2492,16 +2492,16 @@ read_files_and_state(int argc, char **argv)
 {
 	wchar_t			buffer[1000];
 	wchar_t			buffer_posix[1000];
-	char		*cp;
+	char			*cp;
 	Property		def_make_macro = NULL;
 	Name			def_make_name;
 	Name			default_makefile;
 	String_rec		dest;
 	wchar_t			destbuffer[STRING_BUFFER_LENGTH];
-	int		i;
+	int			i;
 	Name			keep_state_name;
 	Name			Makefile;
-	Property	macro;
+	Property		macro;
 	struct stat		make_state_stat;
 	Name			makefile_name;
 	Boolean	makefile_read = false;
@@ -2509,7 +2509,7 @@ read_files_and_state(int argc, char **argv)
 	String_rec		makeflags_string_posix;
 	String_rec *		makeflags_string_current;
 	Name			makeflags_value_saved;
-	Name		name;
+	Name			name;
 	Name			new_make_value;
 	Boolean			save_do_not_exec_rule;
 #if 0
@@ -2520,7 +2520,7 @@ read_files_and_state(int argc, char **argv)
 	static struct _Name	state_filename;
 	Boolean			temp;
 	char			tmp_char;
-	Name		value;
+	Name			value;
 	ASCII_Dyn_Array		makeflags_and_macro;
 	Boolean			is_xpg4;
 
@@ -3201,14 +3201,14 @@ read_files_and_state(int argc, char **argv)
 static void
 enter_argv_values(int argc, char *argv[], ASCII_Dyn_Array *makeflags_and_macro)
 {
-	char		*cp;
-	int		i;
+	char			*cp;
+	int			i;
 	int			length;
-	Name		name;
+	Name			name;
 	int			opt_separator = argc; 
 	char			tmp_char;
 	wchar_t			*tmp_wcs_buffer;
-	Name		value;
+	Name			value;
 	Boolean			append = false;
 	Property		macro;
 	struct stat		statbuf;
@@ -3498,13 +3498,13 @@ append_makeflags_string(Name name, String makeflags_string)
 static void
 read_environment(Boolean read_only)
 {
-	char		**environment;
+	char			**environment;
 	int			length;
 	wchar_t			*tmp_wcs_buffer;
 	Boolean			alloced_tmp_wcs_buffer = false;
-	wchar_t	*name;
-	wchar_t	*value;
-	Name		macro;
+	wchar_t			*name;
+	wchar_t			*value;
+	Name			macro;
 	Property		val;
 	Boolean			read_only_saved;
 
@@ -3659,7 +3659,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 	int			i;
 	char			*cp;
 	Doname			result;
-	Boolean	target_to_make_found = false;
+	Boolean			target_to_make_found = false;
 
 	(void) doname(init, true, true);
 	recursion_level = 1;
@@ -3909,7 +3909,7 @@ make_targets(int argc, char **argv, Boolean parallel_flag)
 static void
 report_recursion(Name target)
 {
-	FILE		*report_file = get_report_file();
+	FILE			*report_file = get_report_file();
 
 	if ((report_file == NULL) || (report_file == (FILE*)-1)) {
 		return;
@@ -3939,16 +3939,16 @@ report_recursion(Name target)
 extern void
 append_or_replace_macro_in_dyn_array(ASCII_Dyn_Array *Ar, char *macro)
 {
-	char	*cp0;	/* work pointer in macro */
-	char	*cp1;	/* work pointer in array */
-	char	*cp2;	/* work pointer in array */
-	char	*cp3;	/* work pointer in array */
-	char	*name;	/* macro name */
-	char	*value;	/* macro value */
-	size_t  len_array;
-	int 	 len_macro;
-		Boolean	isassign = false;
-		Boolean	isgnuassign = false;
+	char			*cp0;	/* work pointer in macro */
+	char			*cp1;	/* work pointer in array */
+	char			*cp2;	/* work pointer in array */
+	char			*cp3;	/* work pointer in array */
+	char			*name;	/* macro name */
+	char			*value;	/* macro value */
+	size_t  		len_array;
+	int			len_macro;
+	Boolean			isassign = false;
+	Boolean			isgnuassign = false;
 
 	char * esc_value = NULL;
 	int esc_len;

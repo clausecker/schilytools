@@ -209,12 +209,12 @@ int process_long_names_member (Ar *arp, char **long_names_table, char *filename)
 timestruc_t&
 read_archive(Name target)
 {
-	Property       member;
+	Property		member;
 	wchar_t			*slash;
 	String_rec		true_member_name;
 	wchar_t			buffer[STRING_BUFFER_LENGTH];
-	Name		true_member = NULL;
-	Ar                      ar;
+	Name			true_member = NULL;
+	Ar			ar;
 	char			*long_names_table = NULL; /* Table of long
 							     member names */
 
@@ -446,10 +446,10 @@ read_archive_dir(Ar *arp, Name library, char **)
 {
 	wchar_t			*name_string;
 	wchar_t			*member_string;
-	long		len;
-	wchar_t	*p;
-	char		*q;
-	Name		name;
+	long			len;
+	wchar_t			*p;
+	char			*q;
+	Name			name;
 	Property		member;
 	long			ptr;
 	long			date;
@@ -693,19 +693,19 @@ process_long_names_member(Ar *arp, char **long_names_table, char *filename)
 static void
 translate_entry(Ar *arp, Name target, Property member, char **long_names_table)
 {
-	int		len;
-	int		i;
+	int			len;
+	int			i;
 	wchar_t			*member_string;
 	ar_port_word		*offs;
 	int			strtablen;
 	char			*syms;		 /* string table */
 	ar_port_word		*offend;	 /* end of offsets table */
 	long			date;
-	wchar_t	*ap;
-	char		*hp;
+	wchar_t			*ap;
+	char			*hp;
 	int			maxs;
 	long			offset;
-	char		buffer[4];
+	char			buffer[4];
 
 	if (arp->sym_begin == 0L || arp->num_symbols == 0L) {
 		fatal(gettext("Cannot find symbol `%s' in archive `%s'"),
@@ -876,8 +876,8 @@ read_error:
 static long
 sgetl(char *buffer)
 {
-	long		w = 0;
-	int		i = BITSPERBYTE * AR_PORT_WORD;
+	long			w = 0;
+	int			i = BITSPERBYTE * AR_PORT_WORD;
 
 	while ((i -= BITSPERBYTE) >= 0) {
 		w |= (long) ((unsigned char) *buffer++) << i;
