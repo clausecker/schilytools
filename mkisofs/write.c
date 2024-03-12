@@ -40,6 +40,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/schily.h>
 #include <schily/checkerr.h>
+#include <schily/unistd.h>
 #ifdef DVD_AUD_VID
 #include "dvd_reader.h"
 #include "dvd_file.h"
@@ -76,6 +77,9 @@ struct output_fragment *out_list;
 
 EXPORT	struct iso_primary_descriptor	vol_desc;
 LOCAL	int				vol_desc_sum;
+
+LOCAL	char	nlchar = '\n';
+LOCAL	BOOL	atnl = TRUE;
 
 #ifndef	APPLE_HFS_HYB
 #undef	__
@@ -160,6 +164,8 @@ LOCAL 	void	reassign_link_addresses	__PR((struct directory *dpnt));
 LOCAL 	int	sort_file_addresses __PR((void));
 #endif /* SORTING */
 
+LOCAL	void	goto_nl		__PR((void));
+
 /*
  * Routines to actually write the disc.  We write sequentially so that
  * we could write a tape, or write the disc directly
@@ -187,10 +193,13 @@ xfwrite(buffer, size, count, file, submode, islast)
 	static int	idx = 0;
 
 #ifdef	XFWRITE_DEBUG
-	if (count != 1 || (size % 2048) != 0)
+	if (count != 1 || (size % 2048) != 0) {
+		goto_nl();
 		error(_("Count: %d, size: %d\n"), count, size);
+	}
 #endif
 	if (count == 0 || size == 0) {
+		goto_nl();
 		errmsgno(EX_BAD,
 		_("Implementation botch, write 0 bytes (size %d count %d).\n"),
 		size, count);
@@ -207,6 +216,7 @@ xfwrite(buffer, size, count, file, submode, islast)
 		sprintf(nbuf, "%s_%02d", outfile, idx++);
 		file = freopen(nbuf, "wb", file);
 		if (file == NULL) {
+			goto_nl();
 			comerr(_("Cannot open '%s'.\n"), nbuf);
 		}
 	}
@@ -220,6 +230,7 @@ xfwrite(buffer, size, count, file, submode, islast)
 			got = fwrite(buffer, size, count, file);
 
 		if (got <= 0) {
+			goto_nl();
 			comerr(_("cannot fwrite %d*%d\n"), size, count);
 		}
 		/*
@@ -392,7 +403,6 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 	int	bytestowrite = 0;	/* Dummy init. to serve GCC bug */
 	int	correctedsize = 0;
 
-
 	if ((infile = fopen(filename, "rb")) == NULL) {
 		if (!errhidden(E_OPEN, filename)) {
 			if (!errwarnonly(E_OPEN, filename))
@@ -446,6 +456,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 			 */
 			if (geterrno() == 0) {
 				if (!errhidden(amt > remain ? E_GROW:E_SHRINK, filename)) {
+					goto_nl();
 					if (!errwarnonly(amt < remain ? E_SHRINK:E_GROW, filename)) {
 						errmsgno(EX_BAD,
 						_("Try to use the option -data-change-warn\n"));
@@ -462,6 +473,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 							filename, TRUE);
 				}
 			} else if (!errhidden(E_READ, filename)) {
+				goto_nl();
 				if (!errwarnonly(E_READ, filename))
 					;
 				errmsg(_("Cannot read from '%s'\n"), filename);
@@ -504,27 +516,32 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 		if (verbose > 0 &&
 		    (int)(last_extent_written % (gui ? 500 : 5000)) <
 							use / SECTOR_SIZE) {
-			time_t	now;
-			time_t	the_end;
-			double	frac;
+			time_t	 now;
+			time_t	 the_end;
+			double	 frac;
+			char	*endstr;
 
 			time(&now);
 			frac = last_extent_written / (1.0 * last_extent);
 			the_end = begun + (now - begun) / frac;
+			endstr = ctime(&the_end);
+			*strchr(endstr, '\n') = nlchar;
 #ifndef NO_FLOATINGPOINT
 			fprintf(stderr, _("%6.2f%% done, estimate finish %s"),
-				frac * 100., ctime(&the_end));
+				frac * 100., endstr);
 #else
 			fprintf(stderr, _("%3d.%-02d%% done, estimate finish %s"),
 				(int)(frac * 100.),
 				(int)((frac+.00005) * 10000.)%100,
-				ctime(&the_end));
+				endstr);
 #endif
+			atnl = nlchar == '\n';
 			fflush(stderr);
 		}
 #endif
 		remain -= use;
 	}
+
 #ifdef APPLE_HYB
 #if defined(INSERTMACRESFORK) && defined(UDF)
 	if (isrfile && use_udf && correctedsize) {
@@ -552,9 +569,11 @@ write_udf_symlink(filename, size, outfile)
 	int		use;
 
 	if (udf_get_symlinkcontents(filename, buffer, &remain) < 0) {
+		goto_nl();
 		comerr(_("Cannot open smylink '%s'\n"), filename);
 	}
 	if (remain != size) {
+		goto_nl();
 		comerrno(EX_BAD, _("Symlink '%s' did %s.\n"),
 					filename,
 					size > remain ?
@@ -582,6 +601,7 @@ write_files(outfile)
 	while (dwpnt) {
 /*#define DEBUG*/
 #ifdef DEBUG
+		goto_nl();
 		fprintf(stderr,
 		_("The file name is %s and pad is %d, size is %lld and extent is %d\n"),
 				dwpnt->name, dwpnt->pad,
@@ -1917,6 +1937,9 @@ file_write(outfile)
 {
 	Uint	should_write;
 
+	if (!gui && isatty(fileno(stderr)))
+		nlchar = '\r';
+
 #ifdef APPLE_HYB
 	char	buffer[SECTOR_SIZE];
 
@@ -1964,6 +1987,7 @@ file_write(outfile)
 	}
 	/* Now write all of the files that we need. */
 	write_files(outfile);
+	goto_nl();
 
 #ifdef APPLE_HYB
 	/* write out extents/catalog/dt file */
@@ -3039,6 +3063,15 @@ insert_padding_file(size)
 
 	/* retune the size in HFS blocks */
 	return (ISO_ROUND_UP(size) / HFS_BLOCKSZ);
+}
+
+LOCAL void
+goto_nl()
+{
+	if (!atnl)
+		fputc('\n', stderr);
+
+	atnl = TRUE;
 }
 
 struct output_fragment hfs_desc		= {NULL, NULL, NULL, hfs_hce_write, "HFS volume header"};
