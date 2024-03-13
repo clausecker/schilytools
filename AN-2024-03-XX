@@ -1,0 +1,81 @@
+New features with AN-2023-09-28:
+
+Schilytools is developed on Codeberg.  Please report bugs and send
+patches to our bug tracker:
+
+	https://codeberg.org/schilytools/schilytools
+
+or to our mailing list schilytools@mlists.in-berlin.de:
+
+	https://mlists.in-berlin.de/mailman/listinfo/schilytools-mlists.in-berlin.de
+
+Obtain release tarballs from:
+
+	http://fuz.su/pub/schilytools
+	ftp://fuz.su/pub/schilytools
+	rsync://fuz.su/pub/schilytools
+	https://schilytools.pkgsrc.pub/pub/schilytools/
+	http://schilytools.pkgsrc.pub/pub/schilytools/
+	https://mirrors.dotsrc.org/schilytools/
+	http://mirrors.dotsrc.org/schilytools/
+	ftp://mirrors.dotsrc.org/schilytools/
+	rsync://mirrors.dotsrc.org/schilytools/
+	https://ftp.halifax.rwth-aachen.de/schilytools/
+	http://ftp.halifax.rwth-aachen.de/schilytools/
+	ftp://ftp.halifax.rwth-aachen.de/schilytools/
+	rsync://ftp.halifax.rwth-aachen.de/schilytools/
+	https://ftp.gwdg.de/pub/misc/schilytools/
+	http://ftp.gwdg.de/pub/misc/schilytools/
+	ftp://ftp.gwdg.de/pub/misc/schilytools/
+	rsync://ftp.gwdg.de/schilytools/
+
+If you have previously reported bugs to Jörg Schilling and they have not
+been fixed, please report them again.  We do not have access to Jörg's
+private emails and do not know what you have reported.
+
+NEW FEATURES:
+
+-	RULES: add symlinks for avbarm/riscv/amd64 for NetBSD.
+	Submitted by: Matthew Green.
+
+-	Remove the register keyword from C++ sources.  This keyword has
+	been removed from the C++ language with C++17 and provides no
+	benefit on most toolchains.  Discard the keyword from all C++
+	sources to enable a build with the new standard.
+	Submitted by: Dennis Clarke.
+
+-	mkisofs: produce less scrollback when logging progress to tty.
+	Previously, the "xxx.xx% done, estimated finish ..." message was
+	verbosely printed onto a new line each time it appears.  If
+	output goes to a TTY and -gui is not supplied, we now print the
+	message only once, updating it as the program progresses.
+	Reported by: Michael Dexter.
+
+FUTURE DIRECTIONS:
+
+-	Schilytools contains pxupgrade, a dummy for a closed-source
+	component.  While the source code of this component is available
+	to the maintainer, it cannot be published due to an existing NDA
+	with Plextor.  Depending on whether we can get this NDA lifted
+	or not, the pxupgrade dummy code may either be replaced with the
+	real source code of the tool or removed altogether.
+
+-	With development of the p7zip(1) utility having ceased in 2016
+	and the 7-zip project having ported the reference implementation
+	to UNIX-like systems, many packagers now ship a 7z(1) command
+	instead of p7zip(1).  Future star distributions may ship an
+	/etc/default/star file configuring P7ZIP_CMD to refer to 7z(1)
+	instead of the default p7zip(1).  This will not affect existing
+	installations unless the configuration is updated.
+
+-	Configuring compression/decompression helpers may be implemented
+	for DOS (DJGPP) in an upcoming version.
+
+CONTRIBUTORS FOR THIS VERSION:
+
+Robert CLAUSECKER <fuz@fuz.su>
+Matthew GREEN <mrg@NetBSD.org>
+Dennis CLARKE <dclarke@blastwave.org>
+
+The schilytools maintainer
+Robert Clausecker <fuz@fuz.su>
